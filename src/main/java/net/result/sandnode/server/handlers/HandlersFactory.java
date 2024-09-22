@@ -2,9 +2,10 @@ package net.result.sandnode.server.handlers;
 
 import net.result.sandnode.messages.util.MessageType;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public class HandlersFactory {
-    public static @NotNull IProtocolHandler getHandler(@NotNull MessageType type) {
+    public static @Nullable IProtocolHandler getHandler(@NotNull MessageType type) {
         switch (type) {
             case ERROR -> {
             }
@@ -13,6 +14,7 @@ public class HandlersFactory {
             case INFO -> {
             }
             case HANDSHAKE -> {
+                return new HandshakeHandler();
             }
             case HAPPY -> {
             }
@@ -20,9 +22,16 @@ public class HandlersFactory {
                 return new MessageHandler();
             }
             case PUBLICKEY -> {
+                return new PublicKeyHandler();
             }
             case EXIT -> {
                 return new EXITHandler();
+            }
+            case TMPONLINE -> {
+                return new OnlineHandler();
+            }
+            case FORWARD -> {
+                return new ForwardHandler();
             }
         }
         return null;

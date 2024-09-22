@@ -8,7 +8,4 @@ public class NoSuchEncryptionException extends SandnodeException {
         super(message);
     }
 
-    public NoSuchEncryptionException(@NotNull Exception e) {
-        super(e);
-    }
 }

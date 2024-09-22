@@ -1,5 +1,6 @@
 package net.result.sandnode.messages;
 
+import net.result.sandnode.exceptions.NoSuchReqHandler;
 import net.result.sandnode.exceptions.encryption.NoSuchEncryptionException;
 import net.result.sandnode.messages.util.Connection;
 import net.result.sandnode.messages.util.MessageType;
@@ -15,12 +16,11 @@ import java.util.*;
 
 import static net.result.sandnode.messages.util.NodeType.SERVER;
 
-public class Headers implements Iterable<Map.Entry<String, String>> {
-    public Encryption encryption = Encryption.NO;
-
+public class Headers implements Iterable<Map.Entry<String, String>>, IParameters {
     private final Map<String, String> map = new HashMap<>();
     private final Connection connection;
     private MessageType type;
+    private Encryption encryption = Encryption.NO;
 
     public Headers(@NotNull Connection connection, @NotNull MessageType type, @NotNull String contentType) {
         this.connection = connection;
@@ -28,6 +28,7 @@ public class Headers implements Iterable<Map.Entry<String, String>> {
         this.setContentType(contentType);
     }
 
+    @Override
     public Connection getConnection() {
         return connection;
     }
@@ -50,24 +51,38 @@ public class Headers implements Iterable<Map.Entry<String, String>> {
         return map.containsKey(headerName.toLowerCase());
     }
 
+    @Override
     public @NotNull String getContentType() {
         String s = get("ct");
         return Optional.of(s).orElse("text/plain").toLowerCase();
     }
 
+    @Override
     public void setContentType(@NotNull String contentType) {
         set("ct", contentType);
     }
 
+    @Override
     public @NotNull MessageType getType() {
         return type;
     }
 
+    @Override
     public void setType(@NotNull MessageType type) {
         this.type = type;
     }
 
-    public static HeadersBuilder getFromBytes(byte @NotNull [] data) throws NoSuchEncryptionException {
+    @Override
+    public Encryption getEncryption() {
+        return encryption;
+    }
+
+    @Override
+    public void setEncryption(Encryption encryption) {
+        this.encryption = encryption;
+    }
+
+    public static HeadersBuilder getFromBytes(byte @NotNull [] data) throws NoSuchEncryptionException, NoSuchReqHandler {
         byte flags = data[0];
 
         if (data.length < 3) {
@@ -109,7 +124,7 @@ public class Headers implements Iterable<Map.Entry<String, String>> {
         if (to == SERVER) first |= (byte) 0b01000000;
         byteArrayOutputStream.write(first);
         byteArrayOutputStream.write(type.getByte());
-        byteArrayOutputStream.write(FromByte.getEncryptionByte(encryption));
+        byteArrayOutputStream.write(FromByte.getEncryptionByte(getEncryption()));
 
         StringBuilder result = new StringBuilder();
 

@@ -8,47 +8,40 @@ import net.result.sandnode.server.Session;
 import net.result.sandnode.server.commands.ICommand;
 import net.result.sandnode.server.commands.ResponseCommand;
 import net.result.sandnode.util.encryption.GlobalKeyStorage;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.util.List;
 
-import static net.result.sandnode.messages.util.MessageType.MESSAGE;
+import static net.result.sandnode.messages.util.MessageType.TMPONLINE;
 
-public final class MessageHandler implements IProtocolHandler {
-
-    private static final Logger LOGGER = LogManager.getLogger(MessageHandler.class);
-
+public class OnlineHandler implements IProtocolHandler {
     @Override
-    public @NotNull ICommand getCommand(
+    public @Nullable ICommand getCommand(
             @NotNull RawMessage request,
             @NotNull List<Session> sessionList,
             @NotNull Session session,
             @NotNull GlobalKeyStorage globalKeyStorage
     ) {
-        JSONMessage jsonRequest = new JSONMessage(request);
-        JSONObject requestContent = jsonRequest.getContent();
-
-        String data = jsonRequest.getContent().getString("data");
-        LOGGER.info("Data: {}", data);
-
-        IMessage response;
-        JSONObject responseContent;
-
         HeadersBuilder headersBuilder = new HeadersBuilder()
                 .set(request.getConnection().getOpposite())
-                .set(MESSAGE);
+                .set(TMPONLINE);
+        JSONArray array = new JSONArray();
+        for (Session s : sessionList) {
+            JSONObject jsonSession = new JSONObject();
+            jsonSession.put("itsme", s == session);
+            jsonSession.put("uuid", s.uuid);
+            jsonSession.put("address", "%s:%d".formatted(s.socket.getInetAddress().getHostAddress(), s.socket.getPort()));
+            array.put(jsonSession);
+        }
 
-        responseContent = new JSONObject()
+        JSONObject content = new JSONObject()
                 .put("host", session.socket.getInetAddress().getHostName())
                 .put("port", session.socket.getPort())
-                .put("headers", request.getHeaders())
-                .put("request", requestContent);
-
-        response = new JSONMessage(headersBuilder, responseContent);
-
+                .put("data", array);
+        @NotNull IMessage response = new JSONMessage(headersBuilder, content);
         return new ResponseCommand(response);
     }
 }

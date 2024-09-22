@@ -1,6 +1,7 @@
 package net.result.heloserver;
 
 import net.result.sandnode.config.ServerConfigSingleton;
+import net.result.sandnode.exceptions.NoSuchReqHandler;
 import net.result.sandnode.exceptions.ReadingKeyException;
 import net.result.sandnode.exceptions.encryption.DecryptionException;
 import net.result.sandnode.exceptions.encryption.EncryptionException;
@@ -13,7 +14,7 @@ import java.util.UUID;
 
 public class Main {
 
-    public static void main(String @NotNull [] args) throws IOException, ReadingKeyException, GeneralSecurityException, NoSuchEncryptionException, EncryptionException, DecryptionException {
+    public static void main(String @NotNull [] args) throws IOException, ReadingKeyException, GeneralSecurityException, NoSuchEncryptionException, EncryptionException, DecryptionException, NoSuchReqHandler {
         String randomId = UUID.randomUUID().toString();
         System.setProperty("randomId", randomId);
 

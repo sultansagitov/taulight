@@ -1,9 +1,7 @@
-package net.result.sandnode.util;
+package net.result.sandnode.util.encryption;
 
 import net.result.sandnode.exceptions.CreatingKeyException;
 import net.result.sandnode.exceptions.ReadingKeyException;
-import net.result.sandnode.util.encryption.Encryption;
-import net.result.sandnode.util.encryption.EncryptionFactory;
 import net.result.sandnode.util.encryption.asymmetric.rsa.RSAPrivateKeyConvertor;
 import net.result.sandnode.util.encryption.asymmetric.rsa.RSAPublicKeyConvertor;
 import net.result.sandnode.util.encryption.interfaces.IGenerator;

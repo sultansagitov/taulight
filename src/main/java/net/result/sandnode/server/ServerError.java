@@ -1,14 +1,14 @@
 package net.result.sandnode.server;
 
+import net.result.sandnode.messages.ErrorMessage;
 import net.result.sandnode.messages.HeadersBuilder;
 import net.result.sandnode.messages.IMessage;
-import net.result.sandnode.messages.StatusMessage;
+import net.result.sandnode.messages.util.Connection;
+import net.result.sandnode.server.commands.ICommand;
+import net.result.sandnode.server.commands.ResponseCommand;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
-
-import static net.result.sandnode.messages.util.Connection.SERVER2SERVER;
-import static net.result.sandnode.messages.util.MessageType.ERROR;
 
 public enum ServerError {
     UNKNOWN(2000, "Unknown"),
@@ -35,13 +35,10 @@ public enum ServerError {
         this.desc = desc;
     }
 
-    public @NotNull IMessage sendError() {
+    public @NotNull ICommand sendError(@NotNull Connection opposite) {
         LOGGER.warn("Sending error with code {} (\"{}\" error) to client", code, desc);
-
-        HeadersBuilder headersBuilder = new HeadersBuilder()
-                .set(SERVER2SERVER)
-                .set(ERROR);
-
-        return new StatusMessage(headersBuilder, code);
+        HeadersBuilder headersBuilder = new HeadersBuilder().set(opposite);
+        IMessage response = new ErrorMessage(headersBuilder, code);
+        return new ResponseCommand(response);
     }
 }

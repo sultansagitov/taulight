@@ -3,13 +3,11 @@ package net.result.sandnode.messages;
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONObject;
 
-import static java.nio.charset.StandardCharsets.US_ASCII;
-
-public class StatusMessage extends Message implements IMessage {
+public class StatusMessage extends JSONMessage implements IJSONMessage {
     protected int code;
 
     public StatusMessage(@NotNull HeadersBuilder headersBuilder, int code) {
-        super(headersBuilder);
+        super(headersBuilder, new JSONObject().put("code", code));
         this.code = code;
     }
 
@@ -17,14 +15,4 @@ public class StatusMessage extends Message implements IMessage {
         return code;
     }
 
-    public @NotNull JSONObject getContent() {
-        return null;
-    }
-
-    @Override
-    public byte @NotNull [] getBody() {
-        if (!getContent().has("code"))
-            getContent().put("code", getCode());
-        return getContent().toString().getBytes(US_ASCII);
-    }
 }

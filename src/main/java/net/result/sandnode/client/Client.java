@@ -1,11 +1,13 @@
 package net.result.sandnode.client;
 
+import net.result.sandnode.exceptions.NoSuchReqHandler;
 import net.result.sandnode.exceptions.ReadingKeyException;
 import net.result.sandnode.exceptions.encryption.DecryptionException;
 import net.result.sandnode.exceptions.encryption.EncryptionException;
 import net.result.sandnode.exceptions.encryption.NoSuchEncryptionException;
 import net.result.sandnode.messages.IMessage;
 import net.result.sandnode.messages.Message;
+import net.result.sandnode.messages.RawMessage;
 import net.result.sandnode.util.encryption.Encryption;
 import net.result.sandnode.util.encryption.GlobalKeyStorage;
 import org.apache.logging.log4j.LogManager;
@@ -51,27 +53,18 @@ public class Client {
         }
     }
 
-    public void sendMessage(@NotNull IMessage message) throws IOException, ReadingKeyException, EncryptionException, NoSuchAlgorithmException, NoSuchEncryptionException {
-        if (isConnected())
-            send(message, headersEncryption, globalKeyStorage, out);
+    public void sendMessage(@NotNull IMessage message) throws IOException, ReadingKeyException, EncryptionException {
+        if (isConnected()) {
+            out.write(message.toByteArray(headersEncryption, globalKeyStorage));
+            out.flush();
+            LOGGER.info("Message sent: {}", message);
+        }
     }
 
-    private static void send(
-            @NotNull IMessage message,
-            @NotNull Encryption headersEncryption,
-            @NotNull GlobalKeyStorage globalKeyStorage,
-            @NotNull OutputStream out
-    ) throws NoSuchAlgorithmException, ReadingKeyException, EncryptionException, IOException, NoSuchEncryptionException {
-        out.write(message.toByteArray(headersEncryption, globalKeyStorage));
-        out.flush();
-
-        LOGGER.info("Message sent: {}", message);
-    }
-
-    public IMessage receiveMessage() throws NoSuchEncryptionException, ReadingKeyException, NoSuchAlgorithmException, DecryptionException {
+    public IMessage receiveMessage() throws NoSuchEncryptionException, ReadingKeyException, NoSuchAlgorithmException, DecryptionException, NoSuchReqHandler {
         if (isConnected()) {
             try {
-                final IMessage response = Message.fromInput(in, globalKeyStorage);
+                RawMessage response = Message.fromInput(in, globalKeyStorage);
                 LOGGER.info("Received response: {}", response);
                 return response;
             } catch (IOException e) {

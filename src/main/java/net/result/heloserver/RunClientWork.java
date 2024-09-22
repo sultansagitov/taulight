@@ -1,14 +1,12 @@
 package net.result.heloserver;
 
 import net.result.sandnode.client.Client;
+import net.result.sandnode.exceptions.NoSuchReqHandler;
 import net.result.sandnode.exceptions.ReadingKeyException;
 import net.result.sandnode.exceptions.encryption.DecryptionException;
 import net.result.sandnode.exceptions.encryption.EncryptionException;
 import net.result.sandnode.exceptions.encryption.NoSuchEncryptionException;
-import net.result.sandnode.messages.EXITMessage;
-import net.result.sandnode.messages.HeadersBuilder;
-import net.result.sandnode.messages.IMessage;
-import net.result.sandnode.messages.JSONMessage;
+import net.result.sandnode.messages.*;
 import net.result.sandnode.util.encryption.GlobalKeyStorage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -18,15 +16,16 @@ import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 import java.util.Scanner;
 
+import static java.nio.charset.StandardCharsets.US_ASCII;
 import static net.result.sandnode.messages.util.Connection.CLIENT2SERVER;
-import static net.result.sandnode.messages.util.MessageType.MESSAGE;
+import static net.result.sandnode.messages.util.MessageType.*;
 import static net.result.sandnode.util.encryption.Encryption.NO;
 
 public class RunClientWork implements IWork {
     private static final Logger LOGGER = LogManager.getLogger(RunClientWork.class);
 
     @Override
-    public void run() throws NoSuchEncryptionException, ReadingKeyException, NoSuchAlgorithmException, DecryptionException, EncryptionException {
+    public void run() {
         Scanner scanner = new Scanner(System.in);
         GlobalKeyStorage globalKeyStorage = new GlobalKeyStorage();
 
@@ -38,36 +37,53 @@ public class RunClientWork implements IWork {
         Client client = new Client(host, port, globalKeyStorage);
         client.connect(NO);
 
+        Thread receiveThread = new Thread(() -> {
+            try {
+                while (true) {
+                    IMessage response = client.receiveMessage();
+                    JSONObject object = new JSONObject(new String(response.getBody(), US_ASCII));
+                    System.out.printf("<%s:%d> %s%n", object.getString("host"), object.getInt("port"), object);
+                }
+            } catch (ReadingKeyException | DecryptionException | NoSuchEncryptionException |
+                     NoSuchAlgorithmException | NoSuchReqHandler | EncryptionException e) {
+                LOGGER.error("Error receiving message", e);
+            }
+        });
+        receiveThread.start();
+
         boolean sendNextMessage = true;
         while (sendNextMessage) {
             System.out.printf("[%s:%d] ", host, port);
             String input = scanner.nextLine();
 
             try {
+                HeadersBuilder headersBuilder = new HeadersBuilder().set(CLIENT2SERVER);
+
                 if (input.equalsIgnoreCase("exit")) {
                     sendNextMessage = false;
-                    HeadersBuilder headersBuilder = new HeadersBuilder().set(CLIENT2SERVER);
                     client.sendMessage(new EXITMessage(headersBuilder));
                 } else {
-                    HeadersBuilder headersBuilder = new HeadersBuilder()
-                            .set(CLIENT2SERVER)
-                            .set(MESSAGE)
-                            .set(NO);
-                    JSONObject content = new JSONObject().put("data", input);
-                    client.sendMessage(new JSONMessage(headersBuilder, content));
+                    IMessage request;
 
-                    IMessage response = client.receiveMessage();
-                    LOGGER.info("Server headers: {}", response.getHeaders());
-                    LOGGER.info("Server body: {}", response.getBody());
-
-                    try {
-                        JSONObject object = new JSONObject(new String(response.getBody()));
-                        LOGGER.info("JSON body: {}", object);
-                    } catch (Exception ignored) {
+                    if (input.equalsIgnoreCase("getonline")) {
+                        headersBuilder.set(TMPONLINE);
+                        RawMessage rawrequest = new RawMessage(headersBuilder);
+                        rawrequest.setBody(new byte[0]);
+                        request = rawrequest;
+                    } else if (input.startsWith("forward")) {
+                        headersBuilder.set(FORWARD);
+                        JSONObject content = new JSONObject()
+                                .put("data", input.substring(input.indexOf(" ") + 1));
+                        request = new JSONMessage(headersBuilder, content);
+                    } else {
+                        headersBuilder.set(MESSAGE).set(NO);
+                        JSONObject content = new JSONObject().put("data", input);
+                        request = new JSONMessage(headersBuilder, content);
                     }
+
+                    client.sendMessage(request);
                 }
-            } catch (IOException | ReadingKeyException | EncryptionException |
-                     NoSuchAlgorithmException | NoSuchEncryptionException e) {
+            } catch (IOException | ReadingKeyException | EncryptionException e) {
                 throw new RuntimeException(e);
             }
         }

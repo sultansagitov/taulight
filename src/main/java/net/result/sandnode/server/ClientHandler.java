@@ -1,16 +1,15 @@
 package net.result.sandnode.server;
 
+import net.result.sandnode.exceptions.NoSuchReqHandler;
 import net.result.sandnode.exceptions.ReadingKeyException;
 import net.result.sandnode.exceptions.encryption.DecryptionException;
 import net.result.sandnode.exceptions.encryption.EncryptionException;
 import net.result.sandnode.exceptions.encryption.NoSuchEncryptionException;
-import net.result.sandnode.messages.IMessage;
 import net.result.sandnode.messages.Message;
-import net.result.sandnode.messages.util.MessageType;
+import net.result.sandnode.messages.RawMessage;
+import net.result.sandnode.server.commands.ICommand;
 import net.result.sandnode.server.handlers.HandlersFactory;
 import net.result.sandnode.server.handlers.IProtocolHandler;
-import net.result.sandnode.server.handlers.MessageHandler;
-import net.result.sandnode.util.encryption.Encryption;
 import net.result.sandnode.util.encryption.GlobalKeyStorage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -23,18 +22,28 @@ import java.io.OutputStream;
 import java.net.Socket;
 import java.nio.BufferUnderflowException;
 import java.security.NoSuchAlgorithmException;
+import java.util.List;
 
 class ClientHandler extends Thread {
     private static final Logger LOGGER = LogManager.getLogger(ClientHandler.class);
+    private final GlobalKeyStorage globalKeyStorage;
     private final Socket socket;
-    protected final GlobalKeyStorage globalKeyStorage;
     private final InputStream in;
     private final OutputStream out;
+    private final List<Session> sessionList;
+    private final Session session;
 
-    public ClientHandler(@NotNull Socket socket, @NotNull GlobalKeyStorage globalKeyStorage) throws IOException {
+    public ClientHandler(
+            @NotNull Socket socket,
+            @NotNull GlobalKeyStorage globalKeyStorage,
+            @NotNull List<Session> sessionList,
+            @NotNull Session session
+    ) throws IOException {
+        setName("%s:%d".formatted(socket.getInetAddress().getHostAddress(), socket.getPort()));
         this.socket = socket;
-        this.setName("%s:%d".formatted(socket.getInetAddress().getHostAddress(), socket.getPort()));
         this.globalKeyStorage = globalKeyStorage;
+        this.sessionList = sessionList;
+        this.session = session;
 
         in = socket.getInputStream();
         out = socket.getOutputStream();
@@ -45,27 +54,34 @@ class ClientHandler extends Thread {
         LOGGER.info("Client connected! {}:{}", socket.getInetAddress().getHostAddress(), socket.getPort());
         while (true) {
             try {
-                IMessage request = Message.fromInput(in, globalKeyStorage);
+                RawMessage request = Message.fromInput(in, globalKeyStorage);
+                LOGGER.debug("request: {}", request);
 
-                IProtocolHandler requestHandler = HandlersFactory.getHandler(request.getHeaders().getType());
-                @Nullable IMessage response = requestHandler.getResponse(request);
+                IProtocolHandler requestHandler = HandlersFactory.getHandler(request.getType());
+                @Nullable ICommand command = requestHandler.getCommand(request, sessionList, session, globalKeyStorage);
+                LOGGER.debug("command: {}", command);
 
-                if (response == null) {
+                if (command == null) {
+                    sessionList.remove(session);
+                    session.socket.close();
                     break;
                 }
 
-                out.write(response.toByteArray(Encryption.NO, globalKeyStorage));
-                LOGGER.info("Message was sent: {}", response);
+                command.execute(sessionList, session, globalKeyStorage);
+
             } catch (IOException | BufferUnderflowException e) {
                 LOGGER.error("I/O Error", e);
-                throw new RuntimeException(e);
             } catch (NoSuchEncryptionException | ReadingKeyException | NoSuchAlgorithmException |
-                     DecryptionException | EncryptionException e) {
+                     DecryptionException | EncryptionException | NoSuchReqHandler e) {
                 LOGGER.error("Unknown", e);
-                throw new RuntimeException(e);
             }
-
-            LOGGER.info("Client disconnected");
         }
+
+        try {
+            session.socket.close();
+        } catch (IOException ignored) {
+        }
+        sessionList.remove(session);
+        LOGGER.info("Client disconnected");
     }
 }

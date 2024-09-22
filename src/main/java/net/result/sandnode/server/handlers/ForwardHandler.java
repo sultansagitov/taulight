@@ -1,28 +1,27 @@
 package net.result.sandnode.server.handlers;
 
 import net.result.sandnode.messages.HeadersBuilder;
-import net.result.sandnode.messages.IMessage;
 import net.result.sandnode.messages.JSONMessage;
 import net.result.sandnode.messages.RawMessage;
 import net.result.sandnode.server.Session;
 import net.result.sandnode.server.commands.ICommand;
-import net.result.sandnode.server.commands.ResponseCommand;
+import net.result.sandnode.server.commands.MulticastResponseCommand;
 import net.result.sandnode.util.encryption.GlobalKeyStorage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.json.JSONObject;
 
 import java.util.List;
 
 import static net.result.sandnode.messages.util.MessageType.MESSAGE;
 
-public final class MessageHandler implements IProtocolHandler {
-
-    private static final Logger LOGGER = LogManager.getLogger(MessageHandler.class);
+public class ForwardHandler implements IProtocolHandler {
+    private static final Logger LOGGER = LogManager.getLogger(ForwardHandler.class);
 
     @Override
-    public @NotNull ICommand getCommand(
+    public @Nullable ICommand getCommand(
             @NotNull RawMessage request,
             @NotNull List<Session> sessionList,
             @NotNull Session session,
@@ -32,9 +31,8 @@ public final class MessageHandler implements IProtocolHandler {
         JSONObject requestContent = jsonRequest.getContent();
 
         String data = jsonRequest.getContent().getString("data");
-        LOGGER.info("Data: {}", data);
+        LOGGER.info("Broadcast Data: {}", data);
 
-        IMessage response;
         JSONObject responseContent;
 
         HeadersBuilder headersBuilder = new HeadersBuilder()
@@ -47,8 +45,6 @@ public final class MessageHandler implements IProtocolHandler {
                 .put("headers", request.getHeaders())
                 .put("request", requestContent);
 
-        response = new JSONMessage(headersBuilder, responseContent);
-
-        return new ResponseCommand(response);
+        return new MulticastResponseCommand(new JSONMessage(headersBuilder, responseContent));
     }
 }

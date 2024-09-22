@@ -13,11 +13,26 @@ import static net.result.sandnode.messages.util.Connection.CLIENT2SERVER;
 import static net.result.sandnode.messages.util.MessageType.MESSAGE;
 
 public class HeadersBuilder {
+    private final Map<String, String> map = new HashMap<>();
     private @Nullable Connection connection;
     private @Nullable MessageType type;
     private @Nullable String contentType;
     private @Nullable Encryption encryption;
-    private final Map<String, String> map = new HashMap<>();
+
+    public HeadersBuilder() {
+    }
+
+    public HeadersBuilder(@NotNull Headers headers) {
+        this
+                .set(headers.getType())
+                .set(headers.getConnection())
+                .set(headers.getEncryption())
+                .set(headers.getContentType())
+                .set(headers.getContentType());
+
+        for (Map.Entry<String, String> entry : headers)
+            this.set(entry.getKey(), entry.getValue());
+    }
 
     public HeadersBuilder set(@NotNull Connection connection) {
         this.connection = connection;
@@ -52,7 +67,7 @@ public class HeadersBuilder {
                 (type != null) ? type : MESSAGE,
                 (contentType != null) ? contentType : "application/json"
         );
-        headers.encryption = (encryption != null) ? encryption : Encryption.NO;
+        headers.setEncryption((encryption != null) ? encryption : Encryption.NO);
         for (Map.Entry<String, String> entry : map.entrySet())
             headers.set(entry.getKey(), entry.getValue());
         return headers;

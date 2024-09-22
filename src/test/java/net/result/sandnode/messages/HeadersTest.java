@@ -1,5 +1,6 @@
 package net.result.sandnode.messages;
 
+import net.result.sandnode.exceptions.NoSuchReqHandler;
 import net.result.sandnode.exceptions.encryption.NoSuchEncryptionException;
 import org.junit.jupiter.api.Test;
 
@@ -13,7 +14,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class HeadersTest {
 
     @Test
-    public void test() throws IOException, NoSuchEncryptionException {
+    public void test() throws IOException, NoSuchEncryptionException, NoSuchReqHandler {
         Headers headers = new HeadersBuilder()
                 .set(SERVER2CLIENT)
                 .set(HAPPY)
@@ -31,7 +32,7 @@ class HeadersTest {
         assertEquals(headers.getContentType(), reconstructedHeaders.getContentType());
         assertEquals(headers.getConnection(), reconstructedHeaders.getConnection());
         assertEquals(headers.getType(), reconstructedHeaders.getType());
-        assertEquals(headers.encryption, reconstructedHeaders.encryption);
+        assertEquals(headers.getEncryption(), reconstructedHeaders.getEncryption());
         assertEquals(headers.get("key"), reconstructedHeaders.get("key"));
     }
 }

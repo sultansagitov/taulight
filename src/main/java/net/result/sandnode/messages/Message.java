@@ -1,9 +1,12 @@
 package net.result.sandnode.messages;
 
+import net.result.sandnode.exceptions.NoSuchReqHandler;
 import net.result.sandnode.exceptions.ReadingKeyException;
 import net.result.sandnode.exceptions.encryption.DecryptionException;
 import net.result.sandnode.exceptions.encryption.EncryptionException;
 import net.result.sandnode.exceptions.encryption.NoSuchEncryptionException;
+import net.result.sandnode.messages.util.Connection;
+import net.result.sandnode.messages.util.MessageType;
 import net.result.sandnode.protocol.FromByte;
 import net.result.sandnode.util.encryption.Encryption;
 import net.result.sandnode.util.encryption.EncryptionFactory;
@@ -12,7 +15,6 @@ import net.result.sandnode.util.encryption.interfaces.IDecryptor;
 import net.result.sandnode.util.encryption.interfaces.IEncryptor;
 import net.result.sandnode.util.encryption.interfaces.IKeyStorage;
 import org.jetbrains.annotations.NotNull;
-import org.json.JSONObject;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -27,7 +29,10 @@ public abstract class Message implements IMessage {
         this.headers = headersBuilder.build();
     }
 
-    public static @NotNull IMessage fromInput(@NotNull InputStream in, @NotNull GlobalKeyStorage globalKeyStorage) throws IOException, NoSuchEncryptionException, ReadingKeyException, NoSuchAlgorithmException, DecryptionException {
+    public static @NotNull RawMessage fromInput(
+            @NotNull InputStream in,
+            @NotNull GlobalKeyStorage globalKeyStorage
+    ) throws IOException, NoSuchEncryptionException, ReadingKeyException, NoSuchAlgorithmException, DecryptionException, NoSuchReqHandler {
         byte version = (byte) in.read();
         byte encryptionInt = (byte) in.read();
         short headersLength = ByteBuffer.wrap(in.readNBytes(2)).getShort();
@@ -39,13 +44,11 @@ public abstract class Message implements IMessage {
         byte[] decryptedHeaders = decryptHeaders(encryptionType, headersBytes, globalKeyStorage);
         HeadersBuilder headersBuilder = Headers.getFromBytes(decryptedHeaders);
         Headers headers = headersBuilder.build();
-        byte[] decryptedBody = decryptBody(headers.encryption, bodyBytes, globalKeyStorage);
+        byte[] decryptedBody = decryptBody(headers.getEncryption(), bodyBytes, globalKeyStorage);
 
-        return switch (headers.getType()) {
-            case MESSAGE -> new JSONMessage(headersBuilder, new JSONObject(new String(decryptedBody)));
-            case EXIT -> new EXITMessage(headersBuilder);
-            default -> throw new IllegalStateException("Unexpected value: " + headers.getType());
-        };
+        RawMessage rawMessage = new RawMessage(headersBuilder);
+        rawMessage.setBody(decryptedBody);
+        return rawMessage;
     }
 
     private static byte @NotNull [] decryptHeaders(
@@ -92,7 +95,7 @@ public abstract class Message implements IMessage {
 
         {
             byte[] bodyBytes = getBody();
-            Encryption bodyEncryption = getHeaders().encryption;
+            Encryption bodyEncryption = getEncryption();
             IEncryptor encryptor = EncryptionFactory.getEncryptor(bodyEncryption);
             IKeyStorage keyStorage = EncryptionFactory.getKeyStorage(globalKeyStorage, bodyEncryption);
             byte[] encryptionBody = encryptor.encryptBytes(bodyBytes, keyStorage);
@@ -104,5 +107,41 @@ public abstract class Message implements IMessage {
         }
 
         return byteArrayOutputStream.toByteArray();
+    }
+
+
+    @Override
+    public Connection getConnection() {
+        return headers.getConnection();
+    }
+
+    @Override
+    public @NotNull String getContentType() {
+        return headers.getContentType();
+    }
+
+    @Override
+    public void setContentType(@NotNull String contentType) {
+        headers.setContentType(contentType);
+    }
+
+    @Override
+    public void setType(@NotNull MessageType type) {
+        headers.setType(type);
+    }
+
+    @Override
+    public MessageType getType() {
+        return headers.getType();
+    }
+
+    @Override
+    public Encryption getEncryption() {
+        return headers.getEncryption();
+    }
+
+    @Override
+    public void setEncryption(Encryption encryption) {
+        headers.setEncryption(encryption);
     }
 }

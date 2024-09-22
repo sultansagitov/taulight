@@ -1,5 +1,6 @@
 package net.result.sandnode.protocol;
 
+import net.result.sandnode.exceptions.NoSuchReqHandler;
 import net.result.sandnode.exceptions.encryption.NoSuchEncryptionException;
 import net.result.sandnode.messages.util.MessageType;
 import net.result.sandnode.util.encryption.Encryption;
@@ -25,10 +26,10 @@ public class FromByte {
         };
     }
 
-    public static @NotNull MessageType getMessageType(byte type) {
+    public static @NotNull MessageType getMessageType(byte type) throws NoSuchReqHandler {
         for (MessageType messageType : MessageType.values())
             if (messageType.getByte() == type)
                 return messageType;
-        throw new IllegalArgumentException("Unknown MessageType: " + type);
+        throw new NoSuchReqHandler(type);
     }
 }

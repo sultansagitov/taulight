@@ -8,9 +8,10 @@ import org.jetbrains.annotations.NotNull;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.ArrayList;
+import java.util.List;
 
 public class SandnodeServer {
-
     private static final Logger LOGGER = LogManager.getLogger(SandnodeServer.class);
     private final GlobalKeyStorage globalKeyStorage;
 
@@ -22,10 +23,13 @@ public class SandnodeServer {
     public void start() throws IOException {
         try (ServerSocket serverSocket = new ServerSocket(52525)) {
             LOGGER.info("Server is listening on port 52525");
+            List<Session> sessionList = new ArrayList<>();
 
             while (true) {
-                final Socket socket = serverSocket.accept();
-                new ClientHandler(socket, globalKeyStorage).start();
+                Socket socket = serverSocket.accept();
+                Session session = new Session(socket);
+                sessionList.add(session);
+                new ClientHandler(socket, globalKeyStorage, sessionList, session).start();
             }
         }
     }
