@@ -17,6 +17,13 @@ import java.security.NoSuchAlgorithmException;
 
 public class AESDecryptor implements IDecryptor {
     private static final Logger LOGGER = LogManager.getLogger(AESDecryptor.class);
+    private static final AESDecryptor instance = new AESDecryptor();
+
+    private AESDecryptor() {}
+
+    public static AESDecryptor getInstance() {
+        return instance;
+    }
 
     public String decrypt(
             byte @NotNull [] data,

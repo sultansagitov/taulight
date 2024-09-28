@@ -7,7 +7,12 @@ import org.jetbrains.annotations.NotNull;
 import javax.crypto.SecretKey;
 
 public class AESKeyStorage extends SymmetricKeyStorage {
-    public AESKeyStorage() {
+    private static final AESKeyStorage instance = new AESKeyStorage();
+
+    private AESKeyStorage() {}
+
+    public AESKeyStorage getInstance() {
+        return instance;
     }
 
     public AESKeyStorage(@NotNull GlobalKeyStorage globalKeyStorage) {

@@ -15,7 +15,7 @@ public class RunServerWork implements IWork {
         final GlobalKeyStorage globalKeyStorage = new GlobalKeyStorage();
         try {
             if (ServerConfigSingleton.useRSA()) {
-                RSAKeyReader rsaKeyReader = new RSAKeyReader();
+                RSAKeyReader rsaKeyReader = RSAKeyReader.getInstance();
                 globalKeyStorage.setRSAKeyStorage(rsaKeyReader.readKeys());
             }
         } catch (CreatingKeyException e) {

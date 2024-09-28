@@ -13,8 +13,10 @@ public class RSAKeyStorage extends AsymmetricKeyStorage {
     }
 
     public RSAKeyStorage(@NotNull GlobalKeyStorage globalKeyStorage) {
-        this.setPublicKey(globalKeyStorage.getRSAKeyStorage().getPublicKey());
-        this.setPrivateKey(globalKeyStorage.getRSAKeyStorage().getPrivateKey());
+        PublicKey publicKey1 = globalKeyStorage.getRSAKeyStorage().getPublicKey();
+        PrivateKey privateKey1 = globalKeyStorage.getRSAKeyStorage().getPrivateKey();
+        if (publicKey1 != null) this.setPublicKey(publicKey1);
+        if (privateKey1 != null) this.setPrivateKey(privateKey1);
     }
 
     public RSAKeyStorage setKeys(@NotNull KeyPair kp) {

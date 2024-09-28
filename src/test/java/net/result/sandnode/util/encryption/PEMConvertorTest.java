@@ -23,7 +23,7 @@ public class PEMConvertorTest {
             final IKeyStorage keyStore = generator.generateKeyStorage();
 
             {
-                RSAPublicKeyConvertor convertor = new RSAPublicKeyConvertor();
+                RSAPublicKeyConvertor convertor = RSAPublicKeyConvertor.getInstance();
                 String originalPEM = convertor.toPEM(keyStore);
 
                 IKeyStorage keyStore1 = convertor.toKeyStorage(originalPEM);
@@ -33,7 +33,7 @@ public class PEMConvertorTest {
             }
 
             {
-                RSAPrivateKeyConvertor convertor = new RSAPrivateKeyConvertor();
+                RSAPrivateKeyConvertor convertor = RSAPrivateKeyConvertor.getInstance();
                 String originalPEM = convertor.toPEM(keyStore);
 
                 IKeyStorage keyStore1 = convertor.toKeyStorage(originalPEM);

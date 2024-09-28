@@ -20,6 +20,13 @@ import static java.nio.charset.StandardCharsets.US_ASCII;
 
 public class RSAEncryptor implements IEncryptor {
     private static final Logger LOGGER = LogManager.getLogger(RSAEncryptor.class);
+    private static final RSAEncryptor instance = new RSAEncryptor();
+
+    private RSAEncryptor() {}
+
+    public static RSAEncryptor getInstance() {
+        return instance;
+    }
 
     private byte[] encrypt(@NotNull String data, @NotNull RSAKeyStorage rsaKeyStorage) throws RSAEncryptionException {
         return encryptBytes(data.getBytes(US_ASCII), rsaKeyStorage);

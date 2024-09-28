@@ -28,7 +28,7 @@ public class MulticastResponseCommand extends ResponseCommand {
             @NotNull GlobalKeyStorage globalKeyStorage
     ) throws IOException, ReadingKeyException, EncryptionException {
         for (Session s : sessionList) {
-            s.socket.getOutputStream().write(response.toByteArray(NO, globalKeyStorage));
+            s.socket.getOutputStream().write(response.toByteArray(globalKeyStorage, NO));
             LOGGER.info("Message was sent: {}", response);
         }
     }

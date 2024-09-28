@@ -1,5 +1,6 @@
 package net.result.sandnode.messages;
 
+import net.result.sandnode.exceptions.FirstByteEOFException;
 import net.result.sandnode.exceptions.NoSuchReqHandler;
 import net.result.sandnode.exceptions.ReadingKeyException;
 import net.result.sandnode.exceptions.encryption.DecryptionException;
@@ -17,10 +18,14 @@ import net.result.sandnode.util.encryption.interfaces.IKeyStorage;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.ByteArrayOutputStream;
+import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.SocketException;
 import java.nio.ByteBuffer;
 import java.security.NoSuchAlgorithmException;
+
+import static net.result.sandnode.util.encryption.Encryption.NO;
 
 public abstract class Message implements IMessage {
     protected final Headers headers;
@@ -32,15 +37,36 @@ public abstract class Message implements IMessage {
     public static @NotNull RawMessage fromInput(
             @NotNull InputStream in,
             @NotNull GlobalKeyStorage globalKeyStorage
-    ) throws IOException, NoSuchEncryptionException, ReadingKeyException, NoSuchAlgorithmException, DecryptionException, NoSuchReqHandler {
-        byte version = (byte) in.read();
-        byte encryptionInt = (byte) in.read();
-        short headersLength = ByteBuffer.wrap(in.readNBytes(2)).getShort();
-        byte[] headersBytes = in.readNBytes(headersLength);
-        int bodyLength = ByteBuffer.wrap(in.readNBytes(4)).getInt();
-        byte[] bodyBytes = in.readNBytes(bodyLength);
+    ) throws NoSuchEncryptionException, ReadingKeyException, NoSuchAlgorithmException, DecryptionException, NoSuchReqHandler, IOException {
+        int versionInt;
+        try {
+            versionInt = in.read();
+        } catch (SocketException e) {
+            throw new FirstByteEOFException("End of stream reached while reading version");
+        }
+        if (versionInt == -1) throw new FirstByteEOFException("End of stream reached while reading version");
+        byte version = (byte) versionInt;
 
-        Encryption encryptionType = FromByte.getEncryptionString(encryptionInt);
+        int encryptionInt = in.read();
+        if (encryptionInt == -1) throw new EOFException("End of stream reached while reading encryptionInt");
+        byte encryptionByte = (byte) encryptionInt;
+
+        byte[] headersLengthBytes = in.readNBytes(2);
+        if (headersLengthBytes.length < 2) throw new EOFException("End of stream reached while reading headers length");
+        short headersLength = ByteBuffer.wrap(headersLengthBytes).getShort();
+
+        byte[] headersBytes = in.readNBytes(headersLength);
+        if (headersBytes.length < headersLength) throw new EOFException("End of stream reached while reading headers");
+
+        byte[] bodyLengthBytes = in.readNBytes(4);
+        if (bodyLengthBytes.length < 4) throw new EOFException("End of stream reached while reading body length");
+        int bodyLength = ByteBuffer.wrap(bodyLengthBytes).getInt();
+
+        byte[] bodyBytes = in.readNBytes(bodyLength);
+        if (bodyBytes.length < bodyLength) throw new EOFException("End of stream reached while reading body");
+
+
+        Encryption encryptionType = FromByte.getEncryptionString(encryptionByte);
         byte[] decryptedHeaders = decryptHeaders(encryptionType, headersBytes, globalKeyStorage);
         HeadersBuilder headersBuilder = Headers.getFromBytes(decryptedHeaders);
         Headers headers = headersBuilder.build();
@@ -77,7 +103,10 @@ public abstract class Message implements IMessage {
     }
 
     @Override
-    public byte[] toByteArray(Encryption encryption, GlobalKeyStorage globalKeyStorage) throws IOException, ReadingKeyException, EncryptionException {
+    public byte[] toByteArray(
+            @NotNull GlobalKeyStorage globalKeyStorage,
+            @NotNull Encryption encryption
+    ) throws IOException, ReadingKeyException, EncryptionException {
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
         byteArrayOutputStream.write(1); // Version
         byteArrayOutputStream.write(FromByte.getEncryptionByte(encryption)); // Headers encryption
@@ -143,5 +172,10 @@ public abstract class Message implements IMessage {
     @Override
     public void setEncryption(Encryption encryption) {
         headers.setEncryption(encryption);
+    }
+
+    @Override
+    public String toString() {
+        return "<%s %s %s %s %s>".formatted(getClass().getSimpleName(), getEncryption(), getType().name(), getConnection().name(), getContentType());
     }
 }

@@ -11,10 +11,17 @@ import java.security.NoSuchAlgorithmException;
 
 public class RSAGenerator implements IAsymmetricGenerator {
     private static final Logger LOGGER = LogManager.getLogger(RSAGenerator.class);
+    private static final RSAGenerator instance = new RSAGenerator();
+
+    private RSAGenerator() {}
+
+    public static RSAGenerator getInstance() {
+        return instance;
+    }
 
     @Override
     public RSAKeyStorage generateKeyStorage() {
-        final KeyPairGenerator keyGen;
+        KeyPairGenerator keyGen;
 
         try {
             keyGen = KeyPairGenerator.getInstance("RSA");
@@ -24,7 +31,7 @@ public class RSAGenerator implements IAsymmetricGenerator {
             throw new RuntimeException(e);
         }
 
-        final KeyPair keyPair = keyGen.generateKeyPair();
+        KeyPair keyPair = keyGen.generateKeyPair();
         LOGGER.info("RSA key pair successfully generated");
 
         return new RSAKeyStorage().setKeys(keyPair);

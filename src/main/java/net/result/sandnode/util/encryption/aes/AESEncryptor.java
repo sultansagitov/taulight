@@ -21,6 +21,14 @@ import static java.nio.charset.StandardCharsets.US_ASCII;
 
 public class AESEncryptor implements IEncryptor {
     private static final Logger LOGGER = LogManager.getLogger(AESEncryptor.class);
+    private static final AESEncryptor instance = new AESEncryptor();
+
+    private AESEncryptor() {
+    }
+
+    public static AESEncryptor getInstance() {
+        return instance;
+    }
 
     public byte[] encrypt(@NotNull String data, @Nullable AESKeyStorage keyStore) throws AESEncryptionException {
         final byte[] bytes = data.trim().getBytes(US_ASCII);

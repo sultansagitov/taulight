@@ -1,6 +1,5 @@
 package net.result.sandnode.util.hashers;
 
-import net.result.sandnode.util.encodings.hex.HexEncoder;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
@@ -12,6 +11,14 @@ import static java.nio.charset.StandardCharsets.US_ASCII;
 
 public class SHA256Hasher implements IHasher {
     private static final Logger LOGGER = LogManager.getLogger(SHA256Hasher.class);
+    private static final SHA256Hasher instance = new SHA256Hasher();
+
+    private SHA256Hasher() {
+    }
+
+    public static SHA256Hasher getInstance() {
+        return instance;
+    }
 
     @Override
     public @NotNull String hash(@NotNull String data) {
@@ -28,6 +35,14 @@ public class SHA256Hasher implements IHasher {
             throw new RuntimeException(e);
         }
         final byte[] digest = md.digest(data);
-        return new HexEncoder().encode(digest);
+
+        // Hex encoding
+        StringBuilder hexString = new StringBuilder();
+        for (byte b : digest) {
+            String hex = Integer.toHexString(0xff & b);
+            if (hex.length() == 1) hexString.append('0');
+            hexString.append(hex);
+        }
+        return hexString.toString().toUpperCase();
     }
 }

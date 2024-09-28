@@ -17,6 +17,14 @@ import java.util.Base64;
 
 public class RSAPrivateKeyConvertor implements IRSAConvertor {
     private static final Logger LOGGER = LogManager.getLogger(RSAPrivateKeyConvertor.class);
+    private static final RSAPrivateKeyConvertor instance = new RSAPrivateKeyConvertor();
+
+    private RSAPrivateKeyConvertor() {
+    }
+
+    public static RSAPrivateKeyConvertor getInstance() {
+        return instance;
+    }
 
     @Override
     public @NotNull RSAKeyStorage toKeyStorage(@NotNull String PEMString) throws CreatingKeyException {
@@ -24,7 +32,7 @@ public class RSAPrivateKeyConvertor implements IRSAConvertor {
         final Base64.Decoder decoder = Base64.getDecoder();
         final byte[] bytes = decoder.decode(cleanKey);
 
-        return new RSAPrivateKeyConvertor().toKeyStorage(bytes);
+        return getInstance().toKeyStorage(bytes);
     }
 
     @Override

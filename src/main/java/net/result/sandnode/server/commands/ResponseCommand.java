@@ -28,7 +28,7 @@ public class ResponseCommand implements ICommand {
             @NotNull Session session,
             @NotNull GlobalKeyStorage globalKeyStorage
     ) throws IOException, ReadingKeyException, EncryptionException {
-        session.socket.getOutputStream().write(response.toByteArray(NO, globalKeyStorage));
+        session.socket.getOutputStream().write(response.toByteArray(globalKeyStorage, NO));
         LOGGER.info("Message was sent: {}", response);
     }
 }

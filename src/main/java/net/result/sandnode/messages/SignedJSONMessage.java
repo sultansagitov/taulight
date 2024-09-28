@@ -2,7 +2,6 @@ package net.result.sandnode.messages;
 
 import net.result.sandnode.exceptions.ReadingKeyException;
 import net.result.sandnode.exceptions.encryption.EncryptionException;
-import net.result.sandnode.util.encodings.base64.Base64Encoder;
 import net.result.sandnode.util.encryption.GlobalKeyStorage;
 import net.result.sandnode.util.encryption.interfaces.IEncryptor;
 import net.result.sandnode.util.encryption.interfaces.IKeyStorage;
@@ -11,6 +10,8 @@ import net.result.sandnode.util.hashers.IHasher;
 import net.result.sandnode.util.hashers.SHA256Hasher;
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONObject;
+
+import java.util.Base64;
 
 import static java.nio.charset.StandardCharsets.US_ASCII;
 
@@ -22,13 +23,13 @@ public class SignedJSONMessage extends JSONMessage implements IMessage {
     }
 
     public String getSign() throws ReadingKeyException, EncryptionException {
-        final IHasher hasher = new SHA256Hasher();
-        final IEncryptor encryptor = new RSAEncryptor();
+        final IHasher hasher = SHA256Hasher.getInstance();
+        final IEncryptor encryptor = RSAEncryptor.getInstance();
 
         final String hash = hasher.hash(getContent().toString());
         final IKeyStorage keyStorage = globalKeyStorage.getRSAKeyStorage();
         final byte[] encrypted = encryptor.encrypt(hash, keyStorage);
-        return new Base64Encoder().encode(encrypted);
+        return Base64.getEncoder().encodeToString(encrypted);
     }
 
     @Override

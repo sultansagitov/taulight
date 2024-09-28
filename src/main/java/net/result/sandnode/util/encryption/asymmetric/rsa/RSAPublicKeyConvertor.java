@@ -2,8 +2,6 @@ package net.result.sandnode.util.encryption.asymmetric.rsa;
 
 import net.result.sandnode.exceptions.CreatingKeyException;
 import net.result.sandnode.exceptions.ReadingKeyException;
-import net.result.sandnode.util.encodings.base64.Base64Encoder;
-import net.result.sandnode.util.encodings.interfaces.IEncoder;
 import net.result.sandnode.util.encryption.KeyConvertorUtil;
 import net.result.sandnode.util.encryption.interfaces.IKeyStorage;
 import org.apache.logging.log4j.LogManager;
@@ -19,6 +17,14 @@ import java.util.Base64;
 
 public class RSAPublicKeyConvertor implements IRSAConvertor {
     private static final Logger LOGGER = LogManager.getLogger(RSAPublicKeyConvertor.class);
+    private static final RSAPublicKeyConvertor instance = new RSAPublicKeyConvertor();
+
+    private RSAPublicKeyConvertor() {
+    }
+
+    public static RSAPublicKeyConvertor getInstance() {
+        return instance;
+    }
 
     @Override
     public @NotNull RSAKeyStorage toKeyStorage(@NotNull String PEMString) throws CreatingKeyException {
@@ -52,8 +58,7 @@ public class RSAPublicKeyConvertor implements IRSAConvertor {
 
     public @NotNull String toPEM(@NotNull RSAKeyStorage rsaKeyStorage) {
         final PublicKey publicKey = rsaKeyStorage.getPublicKey();
-        final IEncoder encoder = new Base64Encoder();
-        final String base64PublicKey = encoder.encode(publicKey.getEncoded());
+        final String base64PublicKey = Base64.getEncoder().encodeToString(publicKey.getEncoded());
         return KeyConvertorUtil.makePEM(base64PublicKey, "PUBLIC KEY");
     }
 

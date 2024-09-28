@@ -22,10 +22,10 @@ public class HandlersFactory {
                 return new MessageHandler();
             }
             case PUBLICKEY -> {
-                return new PublicKeyHandler();
+                return RsaPublicKeyHandler.getInstance();
             }
             case EXIT -> {
-                return new EXITHandler();
+                return new ExitHandler();
             }
             case TMPONLINE -> {
                 return new OnlineHandler();

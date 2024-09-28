@@ -12,16 +12,25 @@ import org.jetbrains.annotations.NotNull;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.file.Path;
 
 public class RSAKeySaver implements IKeySaver {
     private static final Logger LOGGER = LogManager.getLogger(RSAKeySaver.class);
+    private static final RSAKeySaver instance = new RSAKeySaver();
 
-    public static final String PUBLIC_KEY_PATH = ServerConfigSingleton.getRSAPublicKeyPath();
-    public static final String PRIVATE_KEY_PATH = ServerConfigSingleton.getRSAPrivateKeyPath();
+    public static final Path SERVER_PUBLIC_KEY_PATH = ServerConfigSingleton.getRSAPublicKeyPath();
+    public static final Path SERVER_PRIVATE_KEY_PATH = ServerConfigSingleton.getRSAPrivateKeyPath();
+
+    private RSAKeySaver() {
+    }
+
+    public static RSAKeySaver getInstance() {
+        return instance;
+    }
 
     public void saveKeys(@NotNull RSAKeyStorage keyStorage) throws IOException, ReadingKeyException {
-        boolean publicFileEx = deleteFile(PUBLIC_KEY_PATH);
-        boolean privateFileEx = deleteFile(PRIVATE_KEY_PATH);
+        boolean publicFileEx = deleteFile(SERVER_PUBLIC_KEY_PATH);
+        boolean privateFileEx = deleteFile(SERVER_PRIVATE_KEY_PATH);
         writeKeys(keyStorage, publicFileEx, privateFileEx);
     }
 
@@ -36,23 +45,23 @@ public class RSAKeySaver implements IKeySaver {
             boolean publicFileEx,
             boolean privateFileEx
     ) throws IOException, ReadingKeyException {
-        final String publicKeyPEM = new RSAPublicKeyConvertor().toPEM(keyStore);
-        final String privateKeyPEM = new RSAPrivateKeyConvertor().toPEM(keyStore);
+        final String publicKeyPEM = RSAPublicKeyConvertor.getInstance().toPEM(keyStore);
+        final String privateKeyPEM = RSAPrivateKeyConvertor.getInstance().toPEM(keyStore);
         if (publicFileEx && privateFileEx) return;
 
         try (
-                FileWriter publicKeyWriter = new FileWriter(PUBLIC_KEY_PATH);
-                FileWriter privateKeyWriter = new FileWriter(PRIVATE_KEY_PATH)) {
+                FileWriter publicKeyWriter = new FileWriter(SERVER_PUBLIC_KEY_PATH.toString());
+                FileWriter privateKeyWriter = new FileWriter(SERVER_PRIVATE_KEY_PATH.toString())) {
             publicKeyWriter.write(publicKeyPEM);
             privateKeyWriter.write(privateKeyPEM);
 
-            KeyManagerUtil.setKeyFilePermissions(PUBLIC_KEY_PATH);
-            KeyManagerUtil.setKeyFilePermissions(PRIVATE_KEY_PATH);
+            KeyManagerUtil.setKeyFilePermissions(SERVER_PUBLIC_KEY_PATH);
+            KeyManagerUtil.setKeyFilePermissions(SERVER_PRIVATE_KEY_PATH);
         }
     }
 
-    private static boolean deleteFile(@NotNull String path) {
-        final File file = new File(path);
+    private static boolean deleteFile(@NotNull Path path) {
+        final File file = new File(path.toString());
 
         if (!file.exists()) return false;
 

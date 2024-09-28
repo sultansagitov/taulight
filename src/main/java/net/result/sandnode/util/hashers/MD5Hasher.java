@@ -1,6 +1,5 @@
 package net.result.sandnode.util.hashers;
 
-import net.result.sandnode.util.encodings.hex.HexEncoder;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
@@ -12,6 +11,14 @@ import static java.nio.charset.StandardCharsets.US_ASCII;
 
 public class MD5Hasher implements IHasher {
     private static final Logger LOGGER = LogManager.getLogger(MD5Hasher.class);
+    private static final MD5Hasher instance = new MD5Hasher();
+
+    private MD5Hasher() {
+    }
+
+    public static MD5Hasher getInstance() {
+        return instance;
+    }
 
     @Override
     public @NotNull String hash(@NotNull String data) {
@@ -20,7 +27,7 @@ public class MD5Hasher implements IHasher {
 
     @Override
     public @NotNull String hash(byte @NotNull [] data) {
-        final MessageDigest md;
+        MessageDigest md;
         try {
             md = MessageDigest.getInstance("MD5");
         } catch (NoSuchAlgorithmException e) {
@@ -28,7 +35,15 @@ public class MD5Hasher implements IHasher {
             throw new RuntimeException(e);
         }
 
-        final byte[] digest = md.digest(data);
-        return new HexEncoder().encode(digest);
+        byte[] digest = md.digest(data);
+
+        // Hex Encoding
+        StringBuilder hexString = new StringBuilder();
+        for (byte b : digest) {
+            String hex = Integer.toHexString(0xff & b);
+            if (hex.length() == 1) hexString.append('0');
+            hexString.append(hex);
+        }
+        return hexString.toString().toUpperCase();
     }
 }

@@ -14,13 +14,12 @@ import org.jetbrains.annotations.NotNull;
 import java.security.NoSuchAlgorithmException;
 
 public class SymmetricEncryptionFactory {
-    private static final Logger LOGGER = LogManager.getLogger(SymmetricEncryptionFactory.class);
 
     public static @NotNull ISymmetricGenerator getGenerator(@NotNull String algorithm) throws NoSuchAlgorithmException {
         final String ALG = algorithm.toUpperCase();
 
         return switch (ALG) {
-            case "AES" -> new AESGenerator();
+            case "AES" -> AESGenerator.getInstance();
             default -> throw new NoSuchAlgorithmException("Can't find algorithm \"%s\"".formatted(algorithm));
         };
     }
@@ -29,7 +28,7 @@ public class SymmetricEncryptionFactory {
         final String ALG = algorithm.toUpperCase();
 
         return switch (ALG) {
-            case "AES" -> new AESDecryptor();
+            case "AES" -> AESDecryptor.getInstance();
             default -> throw new NoSuchAlgorithmException("Can't find algorithm \"" + algorithm + "\"");
         };
     }

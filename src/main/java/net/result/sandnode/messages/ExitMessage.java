@@ -5,8 +5,9 @@ import org.jetbrains.annotations.NotNull;
 import static net.result.sandnode.messages.util.MessageType.EXIT;
 import static net.result.sandnode.util.encryption.Encryption.NO;
 
-public class EXITMessage extends Message implements IMessage {
-    public EXITMessage(@NotNull HeadersBuilder headersBuilder) {
+public class ExitMessage extends Message implements IMessage {
+
+    public ExitMessage(@NotNull HeadersBuilder headersBuilder) {
         super(headersBuilder.set(NO).set(EXIT));
     }
 
@@ -14,4 +15,5 @@ public class EXITMessage extends Message implements IMessage {
     public byte[] getBody() {
         return new byte[0];
     }
+
 }

@@ -17,8 +17,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.net.Socket;
 import java.nio.BufferUnderflowException;
 import java.security.NoSuchAlgorithmException;
@@ -28,58 +26,50 @@ class ClientHandler extends Thread {
     private static final Logger LOGGER = LogManager.getLogger(ClientHandler.class);
     private final GlobalKeyStorage globalKeyStorage;
     private final Socket socket;
-    private final InputStream in;
-    private final OutputStream out;
     private final List<Session> sessionList;
     private final Session session;
 
     public ClientHandler(
-            @NotNull Socket socket,
             @NotNull GlobalKeyStorage globalKeyStorage,
             @NotNull List<Session> sessionList,
             @NotNull Session session
-    ) throws IOException {
-        setName("%s:%d".formatted(socket.getInetAddress().getHostAddress(), socket.getPort()));
-        this.socket = socket;
+    ) {
+        setName("Client-handler %s:%d".formatted(session.socket.getInetAddress().getHostAddress(), session.socket.getPort()));
+        this.socket = session.socket;
         this.globalKeyStorage = globalKeyStorage;
         this.sessionList = sessionList;
         this.session = session;
-
-        in = socket.getInputStream();
-        out = socket.getOutputStream();
     }
 
     @Override
     public void run() {
-        LOGGER.info("Client connected! {}:{}", socket.getInetAddress().getHostAddress(), socket.getPort());
-        while (true) {
-            try {
-                RawMessage request = Message.fromInput(in, globalKeyStorage);
-                LOGGER.debug("request: {}", request);
+        LOGGER.info("Client connected!");
+        try {
+            while (true) {
+                RawMessage request = Message.fromInput(socket.getInputStream(), globalKeyStorage);
+                LOGGER.info("Requested {}", request);
 
-                IProtocolHandler requestHandler = HandlersFactory.getHandler(request.getType());
-                @Nullable ICommand command = requestHandler.getCommand(request, sessionList, session, globalKeyStorage);
-                LOGGER.debug("command: {}", command);
+                @Nullable IProtocolHandler requestHandler = HandlersFactory.getHandler(request.getType());
+                @Nullable ICommand command =
+                        requestHandler != null
+                                ? requestHandler.getCommand(request, sessionList, session, globalKeyStorage)
+                                : null;
 
-                if (command == null) {
-                    sessionList.remove(session);
-                    session.socket.close();
-                    break;
-                }
+                if (command == null) break;
 
                 command.execute(sessionList, session, globalKeyStorage);
-
-            } catch (IOException | BufferUnderflowException e) {
-                LOGGER.error("I/O Error", e);
-            } catch (NoSuchEncryptionException | ReadingKeyException | NoSuchAlgorithmException |
-                     DecryptionException | EncryptionException | NoSuchReqHandler e) {
-                LOGGER.error("Unknown", e);
             }
+        } catch (IOException | BufferUnderflowException e) {
+            LOGGER.error("I/O Error", e);
+        } catch (NoSuchEncryptionException | ReadingKeyException | NoSuchAlgorithmException |
+                 DecryptionException | EncryptionException | NoSuchReqHandler e) {
+            LOGGER.error("Unknown", e);
         }
 
         try {
-            session.socket.close();
-        } catch (IOException ignored) {
+            session.close();
+        } catch (IOException e) {
+            LOGGER.error("Error while closing socket", e);
         }
         sessionList.remove(session);
         LOGGER.info("Client disconnected");

@@ -14,5 +14,5 @@ public interface IMessage extends IParameters {
 
     byte[] getBody() throws ReadingKeyException, EncryptionException;
 
-    byte[] toByteArray(Encryption encryption, GlobalKeyStorage globalKeyStorage) throws IOException, ReadingKeyException, EncryptionException;
+    byte[] toByteArray(GlobalKeyStorage globalKeyStorage, Encryption encryption) throws IOException, ReadingKeyException, EncryptionException;
 }

@@ -1,5 +1,6 @@
 package net.result.sandnode.util.encryption;
 
+import net.result.sandnode.exceptions.encryption.NoSuchEncryptionException;
 import net.result.sandnode.util.encryption.aes.AESDecryptor;
 import net.result.sandnode.util.encryption.aes.AESEncryptor;
 import net.result.sandnode.util.encryption.aes.AESGenerator;
@@ -59,27 +60,36 @@ import org.jetbrains.annotations.Nullable;
 public class EncryptionFactory {
     private static final Logger LOGGER = LogManager.getLogger(EncryptionFactory.class);
 
+    public static Encryption getEncryption(String encryption) throws NoSuchEncryptionException {
+        return switch (encryption.trim().toUpperCase()) {
+            case "RSA" -> Encryption.RSA;
+            case "AES" -> Encryption.AES;
+            case "NO" -> Encryption.NO;
+            default -> throw new NoSuchEncryptionException(encryption);
+        };
+    }
+
     public static @NotNull IGenerator getGenerator(@NotNull Encryption encryption) {
         return switch (encryption) {
-            case RSA -> new RSAGenerator();
-            case AES -> new AESGenerator();
-            case NO -> new NoGenerator();
+            case RSA -> RSAGenerator.getInstance();
+            case AES -> AESGenerator.getInstance();
+            case NO -> NoGenerator.getInstance();
         };
     }
 
     public static @NotNull IEncryptor getEncryptor(@NotNull Encryption encryption) {
         return switch (encryption) {
-            case RSA -> new RSAEncryptor();
-            case AES -> new AESEncryptor();
-            case NO -> new NoEncryptor();
+            case RSA -> RSAEncryptor.getInstance();
+            case AES -> AESEncryptor.getInstance();
+            case NO -> NoEncryptor.getInstance();
         };
     }
 
     public static @NotNull IDecryptor getDecryptor(@NotNull Encryption encryption) {
         return switch (encryption) {
-            case RSA -> new RSADecryptor();
-            case AES -> new AESDecryptor();
-            case NO -> new NoDecryptor();
+            case RSA -> RSADecryptor.getInstance();
+            case AES -> AESDecryptor.getInstance();
+            case NO -> NoDecryptor.getInstance();
         };
     }
 
@@ -114,4 +124,5 @@ public class EncryptionFactory {
             }
         }
     }
+
 }

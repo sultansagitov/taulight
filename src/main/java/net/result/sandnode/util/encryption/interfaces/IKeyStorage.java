@@ -1,5 +1,3 @@
 package net.result.sandnode.util.encryption.interfaces;
 
-public interface IKeyStorage {
-
-}
+public interface IKeyStorage {}

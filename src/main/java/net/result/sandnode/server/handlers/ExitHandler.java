@@ -9,7 +9,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
-public class EXITHandler implements IProtocolHandler {
+public class ExitHandler implements IProtocolHandler {
 
     @Override
     public @Nullable ICommand getCommand(
@@ -19,4 +19,5 @@ public class EXITHandler implements IProtocolHandler {
             @NotNull GlobalKeyStorage globalKeyStorage) {
         return null;
     }
+
 }

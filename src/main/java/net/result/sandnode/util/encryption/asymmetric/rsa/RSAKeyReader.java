@@ -14,11 +14,18 @@ import java.security.KeyPair;
 
 public class RSAKeyReader implements IKeyReader {
     private static final Logger LOGGER = LogManager.getLogger(RSAKeyReader.class);
+    private static final RSAKeyReader instance = new RSAKeyReader();
+
+    private RSAKeyReader() {}
+
+    public static RSAKeyReader getInstance() {
+        return instance;
+    }
 
     @Override
     public RSAKeyStorage readKeys() throws IOException, CreatingKeyException {
-        final RSAKeyStorage publicKeyStore = getKeyStore(RSAKeySaver.PUBLIC_KEY_PATH, new RSAPublicKeyConvertor());
-        final RSAKeyStorage privateKeyStore = getKeyStore(RSAKeySaver.PRIVATE_KEY_PATH, new RSAPrivateKeyConvertor());
+        final RSAKeyStorage publicKeyStore = getKeyStore(RSAKeySaver.SERVER_PUBLIC_KEY_PATH.toString(), RSAPublicKeyConvertor.getInstance());
+        final RSAKeyStorage privateKeyStore = getKeyStore(RSAKeySaver.SERVER_PRIVATE_KEY_PATH.toString(), RSAPrivateKeyConvertor.getInstance());
         final KeyPair keyPair = new KeyPair(publicKeyStore.getPublicKey(), privateKeyStore.getPrivateKey());
         return new RSAKeyStorage().setKeys(keyPair);
     }

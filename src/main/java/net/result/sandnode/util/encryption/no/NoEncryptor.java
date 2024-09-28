@@ -9,6 +9,14 @@ import static java.nio.charset.StandardCharsets.US_ASCII;
 
 public class NoEncryptor implements IEncryptor {
 
+    private static final NoEncryptor instance = new NoEncryptor();
+
+    private NoEncryptor() {}
+
+    public static NoEncryptor getInstance() {
+        return instance;
+    }
+
     @Override
     public byte @NotNull [] encrypt(@NotNull String data, @Nullable IKeyStorage keyStorage) {
         return data.getBytes(US_ASCII);

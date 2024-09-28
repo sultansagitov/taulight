@@ -25,11 +25,11 @@ public class SandnodeServer {
             LOGGER.info("Server is listening on port 52525");
             List<Session> sessionList = new ArrayList<>();
 
-            while (true) {
+            while (!serverSocket.isClosed()) {
                 Socket socket = serverSocket.accept();
                 Session session = new Session(socket);
                 sessionList.add(session);
-                new ClientHandler(socket, globalKeyStorage, sessionList, session).start();
+                new ClientHandler(globalKeyStorage, sessionList, session).start();
             }
         }
     }

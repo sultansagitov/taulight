@@ -18,6 +18,13 @@ import java.security.NoSuchAlgorithmException;
 
 public class RSADecryptor implements IDecryptor {
     private static final Logger LOGGER = LogManager.getLogger(RSADecryptor.class);
+    private static final RSADecryptor instance = new RSADecryptor();
+
+    private RSADecryptor() {}
+
+    public static RSADecryptor getInstance() {
+        return instance;
+    }
 
     @Override
     public String decrypt(byte @NotNull [] data, @NotNull IKeyStorage keyStore) throws RSADecryptionException, ReadingKeyException {

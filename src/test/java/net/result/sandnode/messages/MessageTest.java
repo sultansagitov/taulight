@@ -38,13 +38,13 @@ class MessageTest {
 
 
 
-        RSAGenerator rsaGenerator = new RSAGenerator();
+        RSAGenerator rsaGenerator = RSAGenerator.getInstance();
         RSAKeyStorage rsaKeyStorage = rsaGenerator.generateKeyStorage();
 
         GlobalKeyStorage globalKeyStorage = new GlobalKeyStorage();
         globalKeyStorage.setRSAKeyStorage(rsaKeyStorage);
 
-        byte[] byteArray = node1Message.toByteArray(RSA, globalKeyStorage);
+        byte[] byteArray = node1Message.toByteArray(globalKeyStorage, RSA);
         ByteArrayInputStream in = new ByteArrayInputStream(byteArray);
 
 
