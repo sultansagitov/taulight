@@ -11,7 +11,7 @@ public class AESKeyStorage extends SymmetricKeyStorage {
 
     private AESKeyStorage() {}
 
-    public AESKeyStorage getInstance() {
+    public static AESKeyStorage getInstance() {
         return instance;
     }
 

@@ -10,7 +10,7 @@ public class AESKeyDecoder {
 
     public static @NotNull AESKeyStorage getKeyStore(byte[] bytes) {
         SecretKey aes = new SecretKeySpec(bytes, 0, bytes.length, "AES");
-        return new AESKeyStorage().setKey(aes);
+        return AESKeyStorage.getInstance().setKey(aes);
     }
 
 }
