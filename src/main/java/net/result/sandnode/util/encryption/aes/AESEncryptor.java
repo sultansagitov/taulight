@@ -31,20 +31,20 @@ public class AESEncryptor implements IEncryptor {
     }
 
     public byte[] encrypt(@NotNull String data, @Nullable AESKeyStorage keyStore) throws AESEncryptionException {
-        final byte[] bytes = data.trim().getBytes(US_ASCII);
+        byte[] bytes = data.trim().getBytes(US_ASCII);
         return encryptBytes(bytes, keyStore);
     }
 
     public byte[] encryptBytes(byte @NotNull [] data, @Nullable AESKeyStorage keyStore) throws AESEncryptionException {
-        final int IV_LENGTH = 16;
-        final byte[] iv = new byte[IV_LENGTH];
-        final SecureRandom secureRandom = new SecureRandom();
+        int IV_LENGTH = 16;
+        byte[] iv = new byte[IV_LENGTH];
+        SecureRandom secureRandom = new SecureRandom();
         secureRandom.nextBytes(iv);
-        final IvParameterSpec ivSpec = new IvParameterSpec(iv);
+        IvParameterSpec ivSpec = new IvParameterSpec(iv);
 
-        final SecretKey aesKey = keyStore.getKey();
-        final Cipher cipher;
-        final byte[] encrypted;
+        SecretKey aesKey = keyStore.getKey();
+        Cipher cipher;
+        byte[] encrypted;
 
         try {
             cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
@@ -67,7 +67,7 @@ public class AESEncryptor implements IEncryptor {
             throw new AESEncryptionException(e);
         }
 
-        final byte[] result = new byte[IV_LENGTH + encrypted.length];
+        byte[] result = new byte[IV_LENGTH + encrypted.length];
         System.arraycopy(iv, 0, result, 0, IV_LENGTH);
         System.arraycopy(encrypted, 0, result, IV_LENGTH, encrypted.length);
         LOGGER.info("Data successfully encrypted with AES");

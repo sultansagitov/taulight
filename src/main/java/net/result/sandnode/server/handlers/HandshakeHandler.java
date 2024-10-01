@@ -18,6 +18,15 @@ import static net.result.sandnode.util.encryption.Encryption.AES;
 
 public class HandshakeHandler implements IProtocolHandler {
 
+    private static final HandshakeHandler instance = new HandshakeHandler();
+
+    private HandshakeHandler() {
+    }
+
+    public static HandshakeHandler getInstance() {
+        return instance;
+    }
+
     @Override
     public @Nullable ICommand getCommand(
             @NotNull RawMessage request,

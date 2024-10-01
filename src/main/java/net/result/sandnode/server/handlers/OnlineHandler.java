@@ -18,6 +18,16 @@ import java.util.List;
 import static net.result.sandnode.messages.util.MessageType.TMPONLINE;
 
 public class OnlineHandler implements IProtocolHandler {
+
+    private static final OnlineHandler instance = new OnlineHandler();
+
+    private OnlineHandler() {
+    }
+
+    public static OnlineHandler getInstance() {
+        return instance;
+    }
+
     @Override
     public @Nullable ICommand getCommand(
             @NotNull RawMessage request,

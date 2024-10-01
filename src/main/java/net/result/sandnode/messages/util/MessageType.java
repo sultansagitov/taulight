@@ -10,7 +10,8 @@ public enum MessageType {
     PUBLICKEY((byte) 6),
     EXIT((byte) 7),
     TMPONLINE((byte) 8),
-    FORWARD((byte) 9);
+    FORWARD((byte) 9),
+    SYMKEY((byte) 10);
 
 
     private final byte type;

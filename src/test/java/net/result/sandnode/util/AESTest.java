@@ -47,7 +47,7 @@ public class AESTest {
 
                 Assertions.assertArrayEquals(bytes, decryptedBytes);
 
-                AESKeyStorage secondKeyStorage = AESKeyConvertor.toKeyStorage(decryptedBytes);
+                AESKeyStorage secondKeyStorage = AESKeyConvertor.getInstance().toKeyStorage(decryptedBytes);
                 SecretKey AESToUse = secondKeyStorage.getKey();
                 IKeyStorage KSToUse = AESKeyStorage.getInstance().setKey(AESToUse);
                 byte[] bytes2 = AESToUse.getEncoded();

@@ -9,7 +9,7 @@ import org.jetbrains.annotations.NotNull;
 import static net.result.sandnode.util.encryption.Encryption.*;
 
 public class FromByte {
-    public static @NotNull Encryption getEncryptionString(byte encryption) throws NoSuchEncryptionException {
+    public static @NotNull Encryption getEncryption(byte encryption) throws NoSuchEncryptionException {
         return switch (encryption) {
             case 0 -> NO;
             case 1 -> RSA;

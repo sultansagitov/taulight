@@ -19,6 +19,14 @@ import static net.result.sandnode.messages.util.MessageType.MESSAGE;
 
 public class ForwardHandler implements IProtocolHandler {
     private static final Logger LOGGER = LogManager.getLogger(ForwardHandler.class);
+    private static final ForwardHandler instance = new ForwardHandler();
+
+    private ForwardHandler() {
+    }
+
+    public static ForwardHandler getInstance() {
+        return instance;
+    }
 
     @Override
     public @Nullable ICommand getCommand(

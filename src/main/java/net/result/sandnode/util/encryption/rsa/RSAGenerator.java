@@ -34,7 +34,7 @@ public class RSAGenerator implements IAsymmetricGenerator {
         KeyPair keyPair = keyGen.generateKeyPair();
         LOGGER.info("RSA key pair successfully generated");
 
-        return new RSAKeyStorage().setKeys(keyPair);
+        return new RSAKeyStorage(keyPair);
     }
 
 }

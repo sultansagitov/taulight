@@ -1,5 +1,6 @@
 package net.result.sandnode.server;
 
+import net.result.sandnode.exceptions.FirstByteEOFException;
 import net.result.sandnode.exceptions.NoSuchReqHandler;
 import net.result.sandnode.exceptions.ReadingKeyException;
 import net.result.sandnode.exceptions.encryption.DecryptionException;
@@ -34,7 +35,7 @@ class ClientHandler extends Thread {
             @NotNull List<Session> sessionList,
             @NotNull Session session
     ) {
-        setName("Client-handler %s:%d".formatted(session.socket.getInetAddress().getHostAddress(), session.socket.getPort()));
+        setName("Server-thread %s:%d".formatted(session.socket.getInetAddress().getHostAddress(), session.socket.getPort()));
         this.socket = session.socket;
         this.globalKeyStorage = globalKeyStorage;
         this.sessionList = sessionList;
@@ -46,7 +47,7 @@ class ClientHandler extends Thread {
         LOGGER.info("Client connected!");
         try {
             while (true) {
-                RawMessage request = Message.fromInput(socket.getInputStream(), globalKeyStorage);
+                RawMessage request = session.receiveMessage();
                 LOGGER.info("Requested {}", request);
 
                 @Nullable IProtocolHandler requestHandler = HandlersFactory.getHandler(request.getType());
@@ -59,6 +60,7 @@ class ClientHandler extends Thread {
 
                 command.execute(sessionList, session, globalKeyStorage);
             }
+        } catch (FirstByteEOFException ignored) {
         } catch (IOException | BufferUnderflowException e) {
             LOGGER.error("I/O Error", e);
         } catch (NoSuchEncryptionException | ReadingKeyException | NoSuchAlgorithmException |

@@ -36,13 +36,13 @@ public class AESDecryptor implements IDecryptor {
             byte @NotNull [] data,
             @NotNull AESKeyStorage aesKeyStorage
     ) throws AESDecryptionException {
-        final SecretKey aesKey = aesKeyStorage.getKey();
+        SecretKey aesKey = aesKeyStorage.getKey();
 
-        final Cipher cipher;
-        final byte[] decrypted;
+        Cipher cipher;
+        byte[] decrypted;
 
-        final byte[] iv = new byte[16];
-        final byte[] encryptedData = new byte[data.length - 16];
+        byte[] iv = new byte[16];
+        byte[] encryptedData = new byte[data.length - 16];
         System.arraycopy(data, 0, iv, 0, iv.length);
         System.arraycopy(data, 16, encryptedData, 0, encryptedData.length);
 

@@ -19,8 +19,8 @@ public class PEMConvertorTest {
     public void PEMConvertTest() throws ReadingKeyException, CreatingKeyException {
         for (Encryption encryption : List.of(RSA)) {
 
-            final IGenerator generator = EncryptionFactory.getGenerator(encryption);
-            final IKeyStorage keyStore = generator.generateKeyStorage();
+            IGenerator generator = EncryptionFactory.getGenerator(encryption);
+            IKeyStorage keyStore = generator.generateKeyStorage();
 
             {
                 RSAPublicKeyConvertor convertor = RSAPublicKeyConvertor.getInstance();

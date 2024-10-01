@@ -38,7 +38,7 @@ public class ServerConfigSingleton {
     private Path RSA_PRIVATE_KEY_PATH;
 
     private ServerConfigSingleton(@NotNull String fileName) throws IOException {
-        final Ini ini;
+        Ini ini;
         try (InputStream input = getClass().getClassLoader().getResourceAsStream(fileName)) {
             if (input == null) throw new IOException("Unable to find " + fileName);
 
@@ -55,7 +55,7 @@ public class ServerConfigSingleton {
         try (InputStream input = getClass().getClassLoader().getResourceAsStream(fileName)) {
             if (input == null) throw new IOException("Unable to find " + fileName);
             Path path = Paths.get(CONF_DIR.toString(), ini.get("Server.Info", "file_path"));
-            final String content;
+            String content;
             try {
                 content = new String(Files.readAllBytes(path));
             } catch (NoSuchFileException e) {

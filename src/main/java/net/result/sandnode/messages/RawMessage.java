@@ -9,6 +9,11 @@ public class RawMessage extends Message {
         super(headersBuilder);
     }
 
+    public RawMessage(@NotNull HeadersBuilder headersBuilder, byte @NotNull [] body) {
+        super(headersBuilder);
+        setBody(body);
+    }
+
     public void setBody(byte[] body) {
         this.body = body;
     }

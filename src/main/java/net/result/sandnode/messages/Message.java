@@ -15,6 +15,8 @@ import net.result.sandnode.util.encryption.GlobalKeyStorage;
 import net.result.sandnode.util.encryption.interfaces.IDecryptor;
 import net.result.sandnode.util.encryption.interfaces.IEncryptor;
 import net.result.sandnode.util.encryption.interfaces.IKeyStorage;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.ByteArrayOutputStream;
@@ -25,9 +27,8 @@ import java.net.SocketException;
 import java.nio.ByteBuffer;
 import java.security.NoSuchAlgorithmException;
 
-import static net.result.sandnode.util.encryption.Encryption.NO;
-
 public abstract class Message implements IMessage {
+    private static final Logger LOGGER = LogManager.getLogger(Message.class);
     protected final Headers headers;
 
     public Message(@NotNull HeadersBuilder headersBuilder) {
@@ -66,7 +67,7 @@ public abstract class Message implements IMessage {
         if (bodyBytes.length < bodyLength) throw new EOFException("End of stream reached while reading body");
 
 
-        Encryption encryptionType = FromByte.getEncryptionString(encryptionByte);
+        Encryption encryptionType = FromByte.getEncryption(encryptionByte);
         byte[] decryptedHeaders = decryptHeaders(encryptionType, headersBytes, globalKeyStorage);
         HeadersBuilder headersBuilder = Headers.getFromBytes(decryptedHeaders);
         Headers headers = headersBuilder.build();
@@ -82,8 +83,8 @@ public abstract class Message implements IMessage {
             byte @NotNull [] encryptedHeaders,
             @NotNull GlobalKeyStorage globalKeyStorage
     ) throws DecryptionException, ReadingKeyException {
-        final IDecryptor asymmetricDecryptor = EncryptionFactory.getDecryptor(encryption);
-        final IKeyStorage rsaKeyStorage = globalKeyStorage.getRSAKeyStorage();
+        IDecryptor asymmetricDecryptor = EncryptionFactory.getDecryptor(encryption);
+        IKeyStorage rsaKeyStorage =EncryptionFactory.getKeyStorage(globalKeyStorage, encryption);
         return asymmetricDecryptor.decryptBytes(encryptedHeaders, rsaKeyStorage);
     }
 
@@ -92,8 +93,8 @@ public abstract class Message implements IMessage {
             byte @NotNull [] encryptedBody,
             @NotNull GlobalKeyStorage globalKeyStorage
     ) throws DecryptionException, ReadingKeyException {
-        final IDecryptor aesDecryptor = EncryptionFactory.getDecryptor(encryption);
-        final IKeyStorage keyStorage = EncryptionFactory.getKeyStorage(globalKeyStorage, encryption);
+        IDecryptor aesDecryptor = EncryptionFactory.getDecryptor(encryption);
+        IKeyStorage keyStorage = EncryptionFactory.getKeyStorage(globalKeyStorage, encryption);
         return aesDecryptor.decryptBytes(encryptedBody, keyStorage);
     }
 

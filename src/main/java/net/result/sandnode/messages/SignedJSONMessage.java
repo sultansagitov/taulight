@@ -23,12 +23,12 @@ public class SignedJSONMessage extends JSONMessage implements IMessage {
     }
 
     public String getSign() throws ReadingKeyException, EncryptionException {
-        final IHasher hasher = SHA256Hasher.getInstance();
-        final IEncryptor encryptor = RSAEncryptor.getInstance();
+        IHasher hasher = SHA256Hasher.getInstance();
+        IEncryptor encryptor = RSAEncryptor.getInstance();
 
-        final String hash = hasher.hash(getContent().toString());
-        final IKeyStorage keyStorage = globalKeyStorage.getRSAKeyStorage();
-        final byte[] encrypted = encryptor.encrypt(hash, keyStorage);
+        String hash = hasher.hash(getContent().toString());
+        IKeyStorage keyStorage = globalKeyStorage.getRSAKeyStorage();
+        byte[] encrypted = encryptor.encrypt(hash, keyStorage);
         return Base64.getEncoder().encodeToString(encrypted);
     }
 

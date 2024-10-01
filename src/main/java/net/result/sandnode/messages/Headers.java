@@ -92,7 +92,7 @@ public class Headers implements Iterable<Map.Entry<String, String>>, IParameters
         HeadersBuilder headersBuilder = new HeadersBuilder()
                 .set(Connection.fromByte(flags))
                 .set(FromByte.getMessageType(data[1]))
-                .set(FromByte.getEncryptionString(data[2]));
+                .set(FromByte.getEncryption(data[2]));
 
 //        boolean flag1 = (flags & 0b00100000) != 0;
 //        boolean flag2 = (flags & 0b00010000) != 0;

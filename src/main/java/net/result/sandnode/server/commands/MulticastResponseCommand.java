@@ -12,8 +12,6 @@ import org.jetbrains.annotations.NotNull;
 import java.io.IOException;
 import java.util.List;
 
-import static net.result.sandnode.util.encryption.Encryption.NO;
-
 public class MulticastResponseCommand extends ResponseCommand {
     private static final Logger LOGGER = LogManager.getLogger(MulticastResponseCommand.class);
 
@@ -28,7 +26,7 @@ public class MulticastResponseCommand extends ResponseCommand {
             @NotNull GlobalKeyStorage globalKeyStorage
     ) throws IOException, ReadingKeyException, EncryptionException {
         for (Session s : sessionList) {
-            s.socket.getOutputStream().write(response.toByteArray(globalKeyStorage, NO));
+            s.sendMessage(response);
             LOGGER.info("Message was sent: {}", response);
         }
     }

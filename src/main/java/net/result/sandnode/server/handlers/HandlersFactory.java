@@ -7,31 +7,28 @@ import org.jetbrains.annotations.Nullable;
 public class HandlersFactory {
     public static @Nullable IProtocolHandler getHandler(@NotNull MessageType type) {
         switch (type) {
-            case ERROR -> {
-            }
-            case WARNING -> {
-            }
-            case INFO -> {
+            case ERROR, WARNING, INFO, HAPPY -> {
             }
             case HANDSHAKE -> {
-                return new HandshakeHandler();
-            }
-            case HAPPY -> {
+                return HandshakeHandler.getInstance();
             }
             case MESSAGE -> {
-                return new MessageHandler();
+                return MessageHandler.getInstance();
             }
             case PUBLICKEY -> {
                 return RsaPublicKeyHandler.getInstance();
             }
             case EXIT -> {
-                return new ExitHandler();
+                return ExitHandler.getInstance();
             }
             case TMPONLINE -> {
-                return new OnlineHandler();
+                return OnlineHandler.getInstance();
             }
             case FORWARD -> {
-                return new ForwardHandler();
+                return ForwardHandler.getInstance();
+            }
+            case SYMKEY -> {
+                return SymKeyHandler.getInstance();
             }
         }
         return null;

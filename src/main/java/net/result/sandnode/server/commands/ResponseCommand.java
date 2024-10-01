@@ -12,8 +12,6 @@ import org.jetbrains.annotations.NotNull;
 import java.io.IOException;
 import java.util.List;
 
-import static net.result.sandnode.util.encryption.Encryption.NO;
-
 public class ResponseCommand implements ICommand {
     private static final Logger LOGGER = LogManager.getLogger(ResponseCommand.class);
     protected final IMessage response;
@@ -28,7 +26,7 @@ public class ResponseCommand implements ICommand {
             @NotNull Session session,
             @NotNull GlobalKeyStorage globalKeyStorage
     ) throws IOException, ReadingKeyException, EncryptionException {
-        session.socket.getOutputStream().write(response.toByteArray(globalKeyStorage, NO));
+        session.sendMessage(response);
         LOGGER.info("Message was sent: {}", response);
     }
 }

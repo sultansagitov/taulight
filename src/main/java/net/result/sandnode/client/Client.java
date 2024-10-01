@@ -1,9 +1,6 @@
 package net.result.sandnode.client;
 
-import net.result.sandnode.exceptions.CreatingKeyException;
-import net.result.sandnode.exceptions.FirstByteEOFException;
-import net.result.sandnode.exceptions.NoSuchReqHandler;
-import net.result.sandnode.exceptions.ReadingKeyException;
+import net.result.sandnode.exceptions.*;
 import net.result.sandnode.exceptions.encryption.CannotUseEncryption;
 import net.result.sandnode.exceptions.encryption.DecryptionException;
 import net.result.sandnode.exceptions.encryption.EncryptionException;
@@ -15,9 +12,11 @@ import net.result.sandnode.messages.RawMessage;
 import net.result.sandnode.util.encryption.Encryption;
 import net.result.sandnode.util.encryption.EncryptionFactory;
 import net.result.sandnode.util.encryption.GlobalKeyStorage;
+import net.result.sandnode.util.encryption.aes.AESGenerator;
 import net.result.sandnode.util.encryption.asymmetric.AsymmetricEncryptionFactory;
 import net.result.sandnode.util.encryption.asymmetric.AsymmetricKeyStorage;
 import net.result.sandnode.util.encryption.asymmetric.interfaces.IAsymmetricConvertor;
+import net.result.sandnode.util.encryption.symmetric.aes.AESKeyStorage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
@@ -32,7 +31,9 @@ import java.security.NoSuchAlgorithmException;
 
 import static net.result.sandnode.messages.util.Connection.CLIENT2SERVER;
 import static net.result.sandnode.messages.util.MessageType.PUBLICKEY;
+import static net.result.sandnode.messages.util.MessageType.SYMKEY;
 import static net.result.sandnode.util.encryption.Encryption.NO;
+import static net.result.sandnode.util.encryption.Encryption.RSA;
 
 public class Client {
     private static final Logger LOGGER = LogManager.getLogger(Client.class);
@@ -42,12 +43,13 @@ public class Client {
     private Socket socket;
     private OutputStream out;
     private InputStream in;
-    private final @NotNull GlobalKeyStorage globalKeyStorage;
+    private final @NotNull GlobalKeyStorage clientKeyStorage;
+    private Encryption encryptionOfServer;
 
-    public Client(@NotNull String serverAddress, int port, @NotNull GlobalKeyStorage globalKeyStorage) {
+    public Client(@NotNull String serverAddress, int port, @NotNull GlobalKeyStorage clientKeyStorage) {
         this.serverAddress = serverAddress;
         this.port = port;
-        this.globalKeyStorage = globalKeyStorage;
+        this.clientKeyStorage = clientKeyStorage;
     }
 
     public void connect() {
@@ -64,9 +66,9 @@ public class Client {
         }
     }
 
-    public void sendMessage(@NotNull Encryption headersEncryption, @NotNull IMessage message) throws IOException, ReadingKeyException, EncryptionException {
+    public void sendMessage(@NotNull IMessage message, @NotNull Encryption headersEncryption) throws IOException, ReadingKeyException, EncryptionException {
         if (isConnected()) {
-            out.write(message.toByteArray(globalKeyStorage, headersEncryption));
+            out.write(message.toByteArray(clientKeyStorage, headersEncryption));
             out.flush();
             LOGGER.info("Message sent: {}", message);
         }
@@ -75,7 +77,7 @@ public class Client {
     public @Nullable IMessage receiveMessage() throws NoSuchEncryptionException, ReadingKeyException, NoSuchAlgorithmException, DecryptionException, NoSuchReqHandler {
         if (isConnected()) {
             try {
-                RawMessage response = Message.fromInput(in, globalKeyStorage);
+                RawMessage response = Message.fromInput(in, clientKeyStorage);
                 LOGGER.info("Received response: {}", response);
                 return response;
             } catch (FirstByteEOFException ignored) {
@@ -109,7 +111,7 @@ public class Client {
                 .set(PUBLICKEY);
         RawMessage request = new RawMessage(headersBuilder);
         request.setBody(new byte[0]);
-        sendMessage(NO, request);
+        sendMessage(request, NO);
 
         IMessage response = receiveMessage();
         String encryptionString = response.getHeaders().get("Encryption");
@@ -119,8 +121,48 @@ public class Client {
         IAsymmetricConvertor publicKeyConvertor = AsymmetricEncryptionFactory.getPublicConvertor(encryption);
         String string = new String(response.getBody(), StandardCharsets.US_ASCII);
         AsymmetricKeyStorage keyStorage = publicKeyConvertor.toKeyStorage(string);
-        EncryptionFactory.setKeyStorage(globalKeyStorage, encryption, keyStorage);
+        EncryptionFactory.setKeyStorage(clientKeyStorage, encryption, keyStorage);
         return encryption;
+    }
+
+    public void createAESKey() {
+        AESKeyStorage aesKeyStorage = AESGenerator.getInstance().generateKeyStorage();
+        clientKeyStorage.setAESKeyStorage(aesKeyStorage);
+    }
+
+    public void sendAESKey() throws KeyNotCreated, ReadingKeyException, EncryptionException, IOException, NoSuchAlgorithmException {
+        if (clientKeyStorage.getAESKeyStorage() == null) {
+            throw new KeyNotCreated("AES");
+        }
+
+        if (AsymmetricEncryptionFactory.getKeyStorage(clientKeyStorage, encryptionOfServer) == null) {
+            throw new KeyNotCreated("RSA");
+        }
+
+        AsymmetricEncryptionFactory.getKeyStorage(clientKeyStorage, encryptionOfServer);
+
+        HeadersBuilder headersBuilder = new HeadersBuilder()
+                .set(encryptionOfServer)
+                .set(CLIENT2SERVER)
+                .set(SYMKEY)
+                .set("application/octet-stream")
+                .set("Encryption", "AES");
+
+        byte[] aesKey = clientKeyStorage.getAESKeyStorage().getKey().getEncoded();
+
+        RawMessage rawMessage = new RawMessage(headersBuilder, aesKey);
+
+        sendMessage(rawMessage, encryptionOfServer);
+    }
+
+    public Encryption getKeys() throws EncryptionException, IOException, NoSuchEncryptionException, ReadingKeyException, CreatingKeyException, CannotUseEncryption, NoSuchAlgorithmException, DecryptionException, NoSuchReqHandler {
+        encryptionOfServer = getPublicKeyFromServer();
+        createAESKey();
+        try {
+            sendAESKey();
+        } catch (KeyNotCreated | ReadingKeyException ignored) {
+        }
+        return encryptionOfServer;
     }
 
     public void disconnect() throws IOException {

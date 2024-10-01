@@ -26,7 +26,7 @@ import java.util.Scanner;
 import static java.nio.charset.StandardCharsets.US_ASCII;
 import static net.result.sandnode.messages.util.Connection.CLIENT2SERVER;
 import static net.result.sandnode.messages.util.MessageType.*;
-import static net.result.sandnode.util.encryption.Encryption.NO;
+import static net.result.sandnode.util.encryption.Encryption.*;
 
 public class RunClientWork implements IWork {
     private static final Logger LOGGER = LogManager.getLogger(RunClientWork.class);
@@ -50,7 +50,7 @@ public class RunClientWork implements IWork {
 
         Encryption publicKeyEncryption =
                 (publicKey == null)
-                        ? client.getPublicKeyFromServer()
+                        ? client.getKeys()
                         : AsymmetricEncryptionFactory.setKeyStorage(globalKeyStorage, publicKey);
         Thread receiveThread = new Thread(() -> {
             try {
@@ -86,11 +86,11 @@ public class RunClientWork implements IWork {
 
 
             try {
-                HeadersBuilder headersBuilder = new HeadersBuilder().set(CLIENT2SERVER);
+                HeadersBuilder headersBuilder = new HeadersBuilder().set(CLIENT2SERVER).set(AES);
 
                 if (input.equalsIgnoreCase("exit")) {
                     sendNextMessage = false;
-                    client.sendMessage(publicKeyEncryption, new ExitMessage(headersBuilder));
+                    client.sendMessage(new ExitMessage(headersBuilder), publicKeyEncryption);
                     client.disconnect();
                 } else if (!input.isEmpty()) {
                     IMessage request;
@@ -106,13 +106,13 @@ public class RunClientWork implements IWork {
                                 .put("data", input.substring(input.indexOf(" ") + 1));
                         request = new JSONMessage(headersBuilder, content);
                     } else {
-                        headersBuilder.set(MESSAGE).set(NO);
+                        headersBuilder.set(MESSAGE);
                         JSONObject content = new JSONObject().put("data", input);
                         request = new JSONMessage(headersBuilder, content);
                     }
                     LOGGER.debug("Sending {}", publicKeyEncryption);
                     if (publicKeyEncryption != null) {
-                        client.sendMessage(publicKeyEncryption, request);
+                        client.sendMessage(request, publicKeyEncryption);
                     } else {
                         LOGGER.info("Message was not sent");
                     }

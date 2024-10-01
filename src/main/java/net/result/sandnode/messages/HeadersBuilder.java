@@ -62,7 +62,7 @@ public class HeadersBuilder {
 
 
     public Headers build() {
-        final Headers headers = new Headers(
+        Headers headers = new Headers(
                 (connection != null) ? connection : CLIENT2SERVER,
                 (type != null) ? type : MESSAGE,
                 (contentType != null) ? contentType : "application/json"

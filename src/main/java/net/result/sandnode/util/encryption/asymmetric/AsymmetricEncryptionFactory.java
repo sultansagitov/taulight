@@ -30,7 +30,7 @@ public class AsymmetricEncryptionFactory {
         };
     }
 
-    public static @NotNull AsymmetricKeyStorage getKeyStorage(
+    public static @Nullable AsymmetricKeyStorage getKeyStorage(
             @NotNull GlobalKeyStorage globalKeyStorage,
             @NotNull Encryption encryption
     ) throws NoSuchAlgorithmException {

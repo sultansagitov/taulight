@@ -46,7 +46,7 @@ public class ClientConfigSingleton {
     private ClientConfigSingleton(@NotNull String fileName) throws IOException {
         INI_FILE = fileName;
 
-        final Ini ini;
+        Ini ini;
         try (InputStream input = getClass().getClassLoader().getResourceAsStream(fileName)) {
             if (input == null) throw new IOException("Unable to find " + fileName);
 

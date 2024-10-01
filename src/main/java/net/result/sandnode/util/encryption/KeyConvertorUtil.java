@@ -22,7 +22,7 @@ public class KeyConvertorUtil {
     }
 
     public static @NotNull String analyzePemString(@NotNull String pemString) {
-        final String[] lines = pemString.trim().split("\n");
+        String[] lines = pemString.trim().split("\n");
 
         for (String line : lines)
             if (line.startsWith("-----BEGIN "))

@@ -27,14 +27,14 @@ public class SHA256Hasher implements IHasher {
 
     @Override
     public @NotNull String hash(byte @NotNull [] data) {
-        final MessageDigest md;
+        MessageDigest md;
         try {
             md = MessageDigest.getInstance("SHA-256");
         } catch (NoSuchAlgorithmException e) {
             LOGGER.error("I hope you never see this error in your logs", e);
             throw new RuntimeException(e);
         }
-        final byte[] digest = md.digest(data);
+        byte[] digest = md.digest(data);
 
         // Hex encoding
         StringBuilder hexString = new StringBuilder();

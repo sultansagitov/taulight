@@ -45,8 +45,8 @@ public class RSAKeySaver implements IKeySaver {
             boolean publicFileEx,
             boolean privateFileEx
     ) throws IOException, ReadingKeyException {
-        final String publicKeyPEM = RSAPublicKeyConvertor.getInstance().toPEM(keyStore);
-        final String privateKeyPEM = RSAPrivateKeyConvertor.getInstance().toPEM(keyStore);
+        String publicKeyPEM = RSAPublicKeyConvertor.getInstance().toPEM(keyStore);
+        String privateKeyPEM = RSAPrivateKeyConvertor.getInstance().toPEM(keyStore);
         if (publicFileEx && privateFileEx) return;
 
         try (
@@ -61,7 +61,7 @@ public class RSAKeySaver implements IKeySaver {
     }
 
     private static boolean deleteFile(@NotNull Path path) {
-        final File file = new File(path.toString());
+        File file = new File(path.toString());
 
         if (!file.exists()) return false;
 

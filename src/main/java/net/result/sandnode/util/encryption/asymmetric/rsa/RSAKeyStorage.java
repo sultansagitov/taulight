@@ -19,6 +19,20 @@ public class RSAKeyStorage extends AsymmetricKeyStorage {
         if (privateKey1 != null) this.setPrivateKey(privateKey1);
     }
 
+    public RSAKeyStorage(@NotNull KeyPair kp) {
+        this.publicKey = kp.getPublic();
+        this.privateKey = kp.getPrivate();
+    }
+
+
+    public RSAKeyStorage(@NotNull PublicKey publicKey) {
+        this.publicKey = publicKey;
+    }
+
+    public RSAKeyStorage(@NotNull PrivateKey privateKey) {
+        this.privateKey = privateKey;
+    }
+
     public RSAKeyStorage setKeys(@NotNull KeyPair kp) {
         this.publicKey = kp.getPublic();
         this.privateKey = kp.getPrivate();

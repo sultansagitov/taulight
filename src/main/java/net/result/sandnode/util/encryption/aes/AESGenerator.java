@@ -22,7 +22,7 @@ public class AESGenerator implements ISymmetricGenerator {
 
     @Override
     public AESKeyStorage generateKeyStorage() {
-        final KeyGenerator keyGenerator;
+        KeyGenerator keyGenerator;
         try {
             keyGenerator = KeyGenerator.getInstance("AES");
         } catch (NoSuchAlgorithmException e) {

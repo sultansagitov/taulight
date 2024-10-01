@@ -11,6 +11,15 @@ import java.util.List;
 
 public class ExitHandler implements IProtocolHandler {
 
+    private static final ExitHandler instance = new ExitHandler();
+
+    private ExitHandler() {
+    }
+
+    public static ExitHandler getInstance() {
+        return instance;
+    }
+
     @Override
     public @Nullable ICommand getCommand(
             @NotNull RawMessage request,

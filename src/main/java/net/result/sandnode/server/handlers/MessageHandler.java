@@ -20,6 +20,14 @@ import static net.result.sandnode.messages.util.MessageType.MESSAGE;
 public final class MessageHandler implements IProtocolHandler {
 
     private static final Logger LOGGER = LogManager.getLogger(MessageHandler.class);
+    private static final MessageHandler instance = new MessageHandler();
+
+    private MessageHandler() {
+    }
+
+    public static MessageHandler getInstance() {
+        return instance;
+    }
 
     @Override
     public @NotNull ICommand getCommand(
@@ -39,6 +47,7 @@ public final class MessageHandler implements IProtocolHandler {
 
         HeadersBuilder headersBuilder = new HeadersBuilder()
                 .set(request.getConnection().getOpposite())
+                .set(request.getEncryption())
                 .set(MESSAGE);
 
         responseContent = new JSONObject()

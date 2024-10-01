@@ -26,14 +26,14 @@ public class PathUtil {
     }
 
     public static void createDir(@NotNull Path directoryPath) throws IOException {
-        final File dir = new File(directoryPath.toString());
+        File dir = new File(directoryPath.toString());
         if (!dir.exists()) {
             LOGGER.warn("Directory \"{}\" not found, it will be created now", directoryPath);
 
             if (dir.mkdirs())
                 LOGGER.info("Directory successfully created");
             else {
-                final IOException e = new IOException("Failed to create directory");
+                IOException e = new IOException("Failed to create directory");
                 LOGGER.error("Failed to create directory \"{}\"", directoryPath, e);
                 throw e;
             }

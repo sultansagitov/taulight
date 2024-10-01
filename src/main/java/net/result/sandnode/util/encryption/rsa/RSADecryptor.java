@@ -28,7 +28,7 @@ public class RSADecryptor implements IDecryptor {
 
     @Override
     public String decrypt(byte @NotNull [] data, @NotNull IKeyStorage keyStore) throws RSADecryptionException, ReadingKeyException {
-        final byte[] decryptedBytes = decryptBytes(data, keyStore);
+        byte[] decryptedBytes = decryptBytes(data, keyStore);
         return new String(decryptedBytes);
     }
 
@@ -36,8 +36,8 @@ public class RSADecryptor implements IDecryptor {
             byte @NotNull [] data,
             @NotNull RSAKeyStorage keyStorage
     ) throws RSADecryptionException {
-        final Cipher cipher;
-        final byte[] decryptedBytes;
+        Cipher cipher;
+        byte[] decryptedBytes;
 
         try {
             cipher = Cipher.getInstance("RSA");

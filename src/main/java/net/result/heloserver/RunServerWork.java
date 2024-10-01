@@ -12,7 +12,7 @@ public class RunServerWork implements IWork {
 
     @Override
     public void run() throws IOException {
-        final GlobalKeyStorage globalKeyStorage = new GlobalKeyStorage();
+        GlobalKeyStorage globalKeyStorage = new GlobalKeyStorage();
         try {
             if (ServerConfigSingleton.useRSA()) {
                 RSAKeyReader rsaKeyReader = RSAKeyReader.getInstance();
@@ -22,8 +22,9 @@ public class RunServerWork implements IWork {
             throw new RuntimeException(e);
         }
 
-        final SandnodeServer server = new SandnodeServer(globalKeyStorage);
+        SandnodeServer server = new SandnodeServer(globalKeyStorage);
         server.start();
+        server.acceptSessions();
     }
 
 }

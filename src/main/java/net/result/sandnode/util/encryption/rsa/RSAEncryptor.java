@@ -33,8 +33,8 @@ public class RSAEncryptor implements IEncryptor {
     }
 
     private byte[] encryptBytes(byte @NotNull [] data, @NotNull RSAKeyStorage rsaKeyStorage) throws RSAEncryptionException {
-        final Cipher cipher;
-        final byte[] encryptedBytes;
+        Cipher cipher;
+        byte[] encryptedBytes;
 
         try {
             cipher = Cipher.getInstance("RSA");

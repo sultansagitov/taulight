@@ -20,24 +20,24 @@ public class EncryptionTest {
     public void testEncryptionDecryption() {
         for (Encryption encryption : List.of(RSA, AES, NO)) {
             try {
-                final IGenerator generator = EncryptionFactory.getGenerator(encryption);
-                final IDecryptor decryptor = EncryptionFactory.getDecryptor(encryption);
-                final IEncryptor encryptor = EncryptionFactory.getEncryptor(encryption);
+                IGenerator generator = EncryptionFactory.getGenerator(encryption);
+                IDecryptor decryptor = EncryptionFactory.getDecryptor(encryption);
+                IEncryptor encryptor = EncryptionFactory.getEncryptor(encryption);
 
-                final IKeyStorage keyStorage = generator.generateKeyStorage();
+                IKeyStorage keyStorage = generator.generateKeyStorage();
 
-                final String originalString = "Hello, World!";
-                final byte[] originalData = originalString.getBytes(US_ASCII);
+                String originalString = "Hello, World!";
+                byte[] originalData = originalString.getBytes(US_ASCII);
 
-                final byte[] encryptedString = encryptor.encrypt(originalString, keyStorage);
-                final String decryptedString = decryptor.decrypt(encryptedString, keyStorage);
+                byte[] encryptedString = encryptor.encrypt(originalString, keyStorage);
+                String decryptedString = decryptor.decrypt(encryptedString, keyStorage);
                 assertEquals(originalString, decryptedString,
                         "Failure data changed when it encrypted and decrypted with " + encryption);
 
-                final byte[] encryptedData = encryptor.encryptBytes(originalData, keyStorage);
+                byte[] encryptedData = encryptor.encryptBytes(originalData, keyStorage);
                 if (encryption != NO)
                     assertFalse(Arrays.equals(originalData, encryptedData));
-                final byte[] decryptedData = decryptor.decryptBytes(encryptedData, keyStorage);
+                byte[] decryptedData = decryptor.decryptBytes(encryptedData, keyStorage);
                 assertArrayEquals(originalData, decryptedData, "Failure data changed when it encrypted and decrypted with " + encryption);
             } catch (Exception e) {
                 fail("Exception thrown during encryption/decryption: " + e.getMessage());

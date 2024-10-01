@@ -24,10 +24,10 @@ public class RSAKeyReader implements IKeyReader {
 
     @Override
     public RSAKeyStorage readKeys() throws IOException, CreatingKeyException {
-        final RSAKeyStorage publicKeyStore = getKeyStore(RSAKeySaver.SERVER_PUBLIC_KEY_PATH.toString(), RSAPublicKeyConvertor.getInstance());
-        final RSAKeyStorage privateKeyStore = getKeyStore(RSAKeySaver.SERVER_PRIVATE_KEY_PATH.toString(), RSAPrivateKeyConvertor.getInstance());
-        final KeyPair keyPair = new KeyPair(publicKeyStore.getPublicKey(), privateKeyStore.getPrivateKey());
-        return new RSAKeyStorage().setKeys(keyPair);
+        RSAKeyStorage publicKeyStore = getKeyStore(RSAKeySaver.SERVER_PUBLIC_KEY_PATH.toString(), RSAPublicKeyConvertor.getInstance());
+        RSAKeyStorage privateKeyStore = getKeyStore(RSAKeySaver.SERVER_PRIVATE_KEY_PATH.toString(), RSAPrivateKeyConvertor.getInstance());
+        KeyPair keyPair = new KeyPair(publicKeyStore.getPublicKey(), privateKeyStore.getPrivateKey());
+        return new RSAKeyStorage(keyPair);
     }
 
     private static @NotNull String getKeyPEM(@NotNull String keyPath) throws IOException {
@@ -43,7 +43,7 @@ public class RSAKeyReader implements IKeyReader {
             @NotNull String keyPath,
             @NotNull IAsymmetricConvertor keyConvertor
     ) throws CreatingKeyException, IOException {
-        final String PEM = getKeyPEM(keyPath);
+        String PEM = getKeyPEM(keyPath);
         try {
             return (RSAKeyStorage) keyConvertor.toKeyStorage(PEM);
         } catch (CreatingKeyException e) {

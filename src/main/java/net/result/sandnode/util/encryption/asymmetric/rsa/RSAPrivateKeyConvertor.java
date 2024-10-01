@@ -28,17 +28,17 @@ public class RSAPrivateKeyConvertor implements IRSAConvertor {
 
     @Override
     public @NotNull RSAKeyStorage toKeyStorage(@NotNull String PEMString) throws CreatingKeyException {
-        final String cleanKey = KeyConvertorUtil.removePEM(PEMString);
-        final Base64.Decoder decoder = Base64.getDecoder();
-        final byte[] bytes = decoder.decode(cleanKey);
+        String cleanKey = KeyConvertorUtil.removePEM(PEMString);
+        Base64.Decoder decoder = Base64.getDecoder();
+        byte[] bytes = decoder.decode(cleanKey);
 
         return getInstance().toKeyStorage(bytes);
     }
 
     @Override
     public @NotNull RSAKeyStorage toKeyStorage(byte @NotNull [] bytes) throws CreatingKeyException {
-        final PKCS8EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(bytes);
-        final KeyFactory keyFactory;
+        PKCS8EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(bytes);
+        KeyFactory keyFactory;
 
         try {
             keyFactory = KeyFactory.getInstance("RSA");
@@ -47,18 +47,18 @@ public class RSAPrivateKeyConvertor implements IRSAConvertor {
             throw new RuntimeException(e);
         }
 
-        final PrivateKey privateKey;
+        PrivateKey privateKey;
         try {
             privateKey = keyFactory.generatePrivate(keySpec);
         } catch (InvalidKeySpecException e) {
             throw new CreatingKeyException(e);
         }
-        return new RSAKeyStorage().setPrivateKey(privateKey);
+        return new RSAKeyStorage(privateKey);
     }
 
     public @NotNull String toPEM(@NotNull RSAKeyStorage rsaKeyStorage) {
-        final PrivateKey privateKey = rsaKeyStorage.getPrivateKey();
-        final String base64PrivateKey = Base64.getEncoder().encodeToString(privateKey.getEncoded());
+        PrivateKey privateKey = rsaKeyStorage.getPrivateKey();
+        String base64PrivateKey = Base64.getEncoder().encodeToString(privateKey.getEncoded());
         return KeyConvertorUtil.makePEM(base64PrivateKey, "PRIVATE KEY");
     }
 
