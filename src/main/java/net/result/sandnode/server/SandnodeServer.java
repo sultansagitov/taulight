@@ -32,7 +32,12 @@ public class SandnodeServer {
 
     public void acceptSessions() throws IOException {
         while (!serverSocket.isClosed()) {
-            Socket socket = serverSocket.accept();
+            Socket socket;
+            try {
+                socket = serverSocket.accept();
+            } catch (IOException e) {
+                continue;
+            }
             Session session = new Session(socket, serverKeyStorage);
             sessionList.add(session);
             new ClientHandler(serverKeyStorage, sessionList, session).start();
