@@ -9,7 +9,6 @@ import net.result.sandnode.messages.IMessage;
 import net.result.sandnode.messages.Message;
 import net.result.sandnode.messages.RawMessage;
 import net.result.sandnode.util.encryption.Encryption;
-import net.result.sandnode.util.encryption.EncryptionFactory;
 import net.result.sandnode.util.encryption.GlobalKeyStorage;
 import net.result.sandnode.util.encryption.symmetric.interfaces.SymmetricKeyStorage;
 import org.apache.logging.log4j.LogManager;
@@ -42,13 +41,11 @@ public class Session {
 
     public void setKey(@NotNull Encryption encryption, @NotNull SymmetricKeyStorage symmetricKey) {
         this.encryption = encryption;
-        EncryptionFactory.setKeyStorage(sessionKeyStorage, this.encryption, symmetricKey);
+        sessionKeyStorage.setKeyStorage(encryption, symmetricKey);
     }
 
-    public void sendMessage(
-            @NotNull IMessage response
-    ) throws IOException, ReadingKeyException, EncryptionException {
-        out.write(response.toByteArray(this.sessionKeyStorage, encryption));
+    public void sendMessage(@NotNull IMessage response) throws IOException, ReadingKeyException, EncryptionException {
+        out.write(response.toByteArray(sessionKeyStorage, encryption));
     }
 
     public void close() throws IOException {

@@ -16,8 +16,6 @@ public class RSAKeyReader implements IKeyReader {
     private static final Logger LOGGER = LogManager.getLogger(RSAKeyReader.class);
     private static final RSAKeyReader instance = new RSAKeyReader();
 
-    private RSAKeyReader() {}
-
     public static RSAKeyReader getInstance() {
         return instance;
     }

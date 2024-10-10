@@ -23,9 +23,6 @@ public class AESEncryptor implements IEncryptor {
     private static final Logger LOGGER = LogManager.getLogger(AESEncryptor.class);
     private static final AESEncryptor instance = new AESEncryptor();
 
-    private AESEncryptor() {
-    }
-
     public static AESEncryptor getInstance() {
         return instance;
     }

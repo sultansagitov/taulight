@@ -7,9 +7,6 @@ public class NoGenerator implements IGenerator {
 
     private static final NoGenerator instance = new NoGenerator();
 
-    private NoGenerator() {
-    }
-
     public static NoGenerator getInstance() {
         return instance;
     }

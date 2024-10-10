@@ -13,9 +13,6 @@ public class MD5Hasher implements IHasher {
     private static final Logger LOGGER = LogManager.getLogger(MD5Hasher.class);
     private static final MD5Hasher instance = new MD5Hasher();
 
-    private MD5Hasher() {
-    }
-
     public static MD5Hasher getInstance() {
         return instance;
     }

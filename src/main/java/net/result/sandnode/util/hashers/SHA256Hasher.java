@@ -13,9 +13,6 @@ public class SHA256Hasher implements IHasher {
     private static final Logger LOGGER = LogManager.getLogger(SHA256Hasher.class);
     private static final SHA256Hasher instance = new SHA256Hasher();
 
-    private SHA256Hasher() {
-    }
-
     public static SHA256Hasher getInstance() {
         return instance;
     }

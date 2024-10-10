@@ -5,7 +5,6 @@ import net.result.sandnode.exceptions.encryption.NoSuchEncryptionException;
 import net.result.sandnode.messages.util.Connection;
 import net.result.sandnode.messages.util.MessageType;
 import net.result.sandnode.messages.util.NodeType;
-import net.result.sandnode.protocol.FromByte;
 import net.result.sandnode.util.encryption.Encryption;
 import net.result.simplesix64.SimpleSix64;
 import org.jetbrains.annotations.NotNull;
@@ -91,8 +90,8 @@ public class Headers implements Iterable<Map.Entry<String, String>>, IParameters
 
         HeadersBuilder headersBuilder = new HeadersBuilder()
                 .set(Connection.fromByte(flags))
-                .set(FromByte.getMessageType(data[1]))
-                .set(FromByte.getEncryption(data[2]));
+                .set(MessageType.getMessageType(data[1]))
+                .set(Encryption.fromByte(data[2]));
 
 //        boolean flag1 = (flags & 0b00100000) != 0;
 //        boolean flag2 = (flags & 0b00010000) != 0;
@@ -123,8 +122,8 @@ public class Headers implements Iterable<Map.Entry<String, String>>, IParameters
         if (from == SERVER) first |= (byte) 0b10000000;
         if (to == SERVER) first |= (byte) 0b01000000;
         byteArrayOutputStream.write(first);
-        byteArrayOutputStream.write(type.getByte());
-        byteArrayOutputStream.write(FromByte.getEncryptionByte(getEncryption()));
+        byteArrayOutputStream.write(type.asByte());
+        byteArrayOutputStream.write(getEncryption().asByte());
 
         StringBuilder result = new StringBuilder();
 

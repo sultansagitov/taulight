@@ -8,9 +8,7 @@ import net.result.sandnode.exceptions.encryption.EncryptionException;
 import net.result.sandnode.exceptions.encryption.NoSuchEncryptionException;
 import net.result.sandnode.messages.util.Connection;
 import net.result.sandnode.messages.util.MessageType;
-import net.result.sandnode.protocol.FromByte;
 import net.result.sandnode.util.encryption.Encryption;
-import net.result.sandnode.util.encryption.EncryptionFactory;
 import net.result.sandnode.util.encryption.GlobalKeyStorage;
 import net.result.sandnode.util.encryption.interfaces.IDecryptor;
 import net.result.sandnode.util.encryption.interfaces.IEncryptor;
@@ -38,7 +36,7 @@ public abstract class Message implements IMessage {
     public static @NotNull RawMessage fromInput(
             @NotNull InputStream in,
             @NotNull GlobalKeyStorage globalKeyStorage
-    ) throws NoSuchEncryptionException, ReadingKeyException, NoSuchAlgorithmException, DecryptionException, NoSuchReqHandler, IOException {
+    ) throws NoSuchEncryptionException, ReadingKeyException, DecryptionException, NoSuchReqHandler, IOException {
         int versionInt;
         try {
             versionInt = in.read();
@@ -67,7 +65,7 @@ public abstract class Message implements IMessage {
         if (bodyBytes.length < bodyLength) throw new EOFException("End of stream reached while reading body");
 
 
-        Encryption encryptionType = FromByte.getEncryption(encryptionByte);
+        Encryption encryptionType = Encryption.fromByte(encryptionByte);
         byte[] decryptedHeaders = decryptHeaders(encryptionType, headersBytes, globalKeyStorage);
         HeadersBuilder headersBuilder = Headers.getFromBytes(decryptedHeaders);
         Headers headers = headersBuilder.build();
@@ -83,8 +81,8 @@ public abstract class Message implements IMessage {
             byte @NotNull [] encryptedHeaders,
             @NotNull GlobalKeyStorage globalKeyStorage
     ) throws DecryptionException, ReadingKeyException {
-        IDecryptor asymmetricDecryptor = EncryptionFactory.getDecryptor(encryption);
-        IKeyStorage rsaKeyStorage =EncryptionFactory.getKeyStorage(globalKeyStorage, encryption);
+        IDecryptor asymmetricDecryptor = encryption.decryptor();
+        IKeyStorage rsaKeyStorage = globalKeyStorage.getKeyStorage(encryption);
         return asymmetricDecryptor.decryptBytes(encryptedHeaders, rsaKeyStorage);
     }
 
@@ -93,8 +91,8 @@ public abstract class Message implements IMessage {
             byte @NotNull [] encryptedBody,
             @NotNull GlobalKeyStorage globalKeyStorage
     ) throws DecryptionException, ReadingKeyException {
-        IDecryptor aesDecryptor = EncryptionFactory.getDecryptor(encryption);
-        IKeyStorage keyStorage = EncryptionFactory.getKeyStorage(globalKeyStorage, encryption);
+        IDecryptor aesDecryptor = encryption.decryptor();
+        IKeyStorage keyStorage = globalKeyStorage.getKeyStorage(encryption);
         return aesDecryptor.decryptBytes(encryptedBody, keyStorage);
     }
 
@@ -110,12 +108,12 @@ public abstract class Message implements IMessage {
     ) throws IOException, ReadingKeyException, EncryptionException {
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
         byteArrayOutputStream.write(1); // Version
-        byteArrayOutputStream.write(FromByte.getEncryptionByte(encryption)); // Headers encryption
+        byteArrayOutputStream.write(encryption.asByte()); // Headers encryption
 
         {
             byte[] headersBytes = getHeaders().toByteArray();
-            IEncryptor encryptor = EncryptionFactory.getEncryptor(encryption);
-            IKeyStorage keyStorage = EncryptionFactory.getKeyStorage(globalKeyStorage, encryption);
+            IEncryptor encryptor = encryption.encryptor();
+            IKeyStorage keyStorage = globalKeyStorage.getKeyStorage(encryption);
             byte[] encryptedHeaders = encryptor.encryptBytes(headersBytes, keyStorage);
             short length = (short) encryptedHeaders.length;
             byteArrayOutputStream.write((length >> 8) & 0xFF);
@@ -126,8 +124,8 @@ public abstract class Message implements IMessage {
         {
             byte[] bodyBytes = getBody();
             Encryption bodyEncryption = getEncryption();
-            IEncryptor encryptor = EncryptionFactory.getEncryptor(bodyEncryption);
-            IKeyStorage keyStorage = EncryptionFactory.getKeyStorage(globalKeyStorage, bodyEncryption);
+            IEncryptor encryptor = bodyEncryption.encryptor();
+            IKeyStorage keyStorage = globalKeyStorage.getKeyStorage(bodyEncryption);
             byte[] encryptionBody = encryptor.encryptBytes(bodyBytes, keyStorage);
             byteArrayOutputStream.write((encryptionBody.length >> 24) & 0xFF);
             byteArrayOutputStream.write((encryptionBody.length >> 16) & 0xFF);

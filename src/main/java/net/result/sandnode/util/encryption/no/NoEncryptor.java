@@ -11,8 +11,6 @@ public class NoEncryptor implements IEncryptor {
 
     private static final NoEncryptor instance = new NoEncryptor();
 
-    private NoEncryptor() {}
-
     public static NoEncryptor getInstance() {
         return instance;
     }

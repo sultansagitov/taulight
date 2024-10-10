@@ -6,10 +6,8 @@ import net.result.sandnode.exceptions.ReadingKeyException;
 import net.result.sandnode.exceptions.encryption.DecryptionException;
 import net.result.sandnode.exceptions.encryption.EncryptionException;
 import net.result.sandnode.exceptions.encryption.NoSuchEncryptionException;
-import net.result.sandnode.messages.Message;
 import net.result.sandnode.messages.RawMessage;
 import net.result.sandnode.server.commands.ICommand;
-import net.result.sandnode.server.handlers.HandlersFactory;
 import net.result.sandnode.server.handlers.IProtocolHandler;
 import net.result.sandnode.util.encryption.GlobalKeyStorage;
 import org.apache.logging.log4j.LogManager;
@@ -50,7 +48,7 @@ class ClientHandler extends Thread {
                 RawMessage request = session.receiveMessage();
                 LOGGER.info("Requested {}", request);
 
-                @Nullable IProtocolHandler requestHandler = HandlersFactory.getHandler(request.getType());
+                @Nullable IProtocolHandler requestHandler = request.getType().handler();
                 @Nullable ICommand command =
                         requestHandler != null
                                 ? requestHandler.getCommand(request, sessionList, session, globalKeyStorage)

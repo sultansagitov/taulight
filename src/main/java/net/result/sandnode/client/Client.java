@@ -10,10 +10,9 @@ import net.result.sandnode.messages.IMessage;
 import net.result.sandnode.messages.Message;
 import net.result.sandnode.messages.RawMessage;
 import net.result.sandnode.util.encryption.Encryption;
-import net.result.sandnode.util.encryption.EncryptionFactory;
 import net.result.sandnode.util.encryption.GlobalKeyStorage;
 import net.result.sandnode.util.encryption.aes.AESGenerator;
-import net.result.sandnode.util.encryption.asymmetric.AsymmetricEncryptionFactory;
+import net.result.sandnode.util.encryption.asymmetric.Asymmetric;
 import net.result.sandnode.util.encryption.asymmetric.AsymmetricKeyStorage;
 import net.result.sandnode.util.encryption.asymmetric.interfaces.IAsymmetricConvertor;
 import net.result.sandnode.util.encryption.symmetric.aes.AESKeyStorage;
@@ -32,8 +31,8 @@ import java.security.NoSuchAlgorithmException;
 import static net.result.sandnode.messages.util.Connection.CLIENT2SERVER;
 import static net.result.sandnode.messages.util.MessageType.PUBLICKEY;
 import static net.result.sandnode.messages.util.MessageType.SYMKEY;
+import static net.result.sandnode.util.encryption.Encryption.AES;
 import static net.result.sandnode.util.encryption.Encryption.NO;
-import static net.result.sandnode.util.encryption.Encryption.RSA;
 
 public class Client {
     private static final Logger LOGGER = LogManager.getLogger(Client.class);
@@ -114,14 +113,12 @@ public class Client {
         sendMessage(request, NO);
 
         IMessage response = receiveMessage();
-        String encryptionString = response.getHeaders().get("Encryption");
-        LOGGER.debug("encr: {}", encryptionString);
-        Encryption encryption = EncryptionFactory.getEncryption(encryptionString);
-        LOGGER.debug("encr: {}", encryption);
-        IAsymmetricConvertor publicKeyConvertor = AsymmetricEncryptionFactory.getPublicConvertor(encryption);
+        String encryptionByteString = response.getHeaders().get("encryption");
+        Encryption encryption = Encryption.fromByte(Byte.parseByte(encryptionByteString));
+        IAsymmetricConvertor publicKeyConvertor = Asymmetric.getPublicConvertor(encryption);
         String string = new String(response.getBody(), StandardCharsets.US_ASCII);
         AsymmetricKeyStorage keyStorage = publicKeyConvertor.toKeyStorage(string);
-        EncryptionFactory.setKeyStorage(clientKeyStorage, encryption, keyStorage);
+        clientKeyStorage.setKeyStorage(encryption, keyStorage);
         return encryption;
     }
 
@@ -130,23 +127,23 @@ public class Client {
         clientKeyStorage.setAESKeyStorage(aesKeyStorage);
     }
 
-    public void sendAESKey() throws KeyNotCreated, ReadingKeyException, EncryptionException, IOException, NoSuchAlgorithmException {
+    public void sendAESKey() throws KeyNotCreated, ReadingKeyException, EncryptionException, IOException {
         if (clientKeyStorage.getAESKeyStorage() == null) {
             throw new KeyNotCreated("AES");
         }
 
-        if (AsymmetricEncryptionFactory.getKeyStorage(clientKeyStorage, encryptionOfServer) == null) {
+        if (clientKeyStorage.getKeyStorage(encryptionOfServer) == null) {
             throw new KeyNotCreated("RSA");
         }
 
-        AsymmetricEncryptionFactory.getKeyStorage(clientKeyStorage, encryptionOfServer);
+        clientKeyStorage.getKeyStorage(encryptionOfServer);
 
         HeadersBuilder headersBuilder = new HeadersBuilder()
                 .set(encryptionOfServer)
                 .set(CLIENT2SERVER)
                 .set(SYMKEY)
                 .set("application/octet-stream")
-                .set("Encryption", "AES");
+                .set("encryption", "" + AES.asByte());
 
         byte[] aesKey = clientKeyStorage.getAESKeyStorage().getKey().getEncoded();
 

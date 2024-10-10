@@ -22,6 +22,7 @@ import java.util.List;
 import static java.nio.charset.StandardCharsets.US_ASCII;
 import static net.result.sandnode.messages.util.MessageType.PUBLICKEY;
 import static net.result.sandnode.util.encryption.Encryption.NO;
+import static net.result.sandnode.util.encryption.Encryption.RSA;
 
 public class RsaPublicKeyHandler implements IProtocolHandler {
     private static final Logger LOGGER = LogManager.getLogger(RsaPublicKeyHandler.class);
@@ -42,7 +43,7 @@ public class RsaPublicKeyHandler implements IProtocolHandler {
                 .set(PUBLICKEY)
                 .set(NO)
                 .set("application/x-pem-file")
-                .set("Encryption", "RSA");
+                .set("encryption", "" + RSA.asByte());
 
         RawMessage response = new RawMessage(headersBuilder);
         String pem;

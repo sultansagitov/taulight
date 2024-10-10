@@ -20,8 +20,6 @@ public class RSADecryptor implements IDecryptor {
     private static final Logger LOGGER = LogManager.getLogger(RSADecryptor.class);
     private static final RSADecryptor instance = new RSADecryptor();
 
-    private RSADecryptor() {}
-
     public static RSADecryptor getInstance() {
         return instance;
     }
@@ -74,7 +72,6 @@ public class RSADecryptor implements IDecryptor {
         } else {
             throw new ReadingKeyException("Key storage is not instance of RSAKeyStorage");
         }
-
     }
 
 }

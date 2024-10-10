@@ -12,7 +12,6 @@ import net.result.sandnode.exceptions.encryption.NoSuchEncryptionException;
 import net.result.sandnode.messages.*;
 import net.result.sandnode.util.encryption.Encryption;
 import net.result.sandnode.util.encryption.GlobalKeyStorage;
-import net.result.sandnode.util.encryption.asymmetric.AsymmetricEncryptionFactory;
 import net.result.sandnode.util.encryption.asymmetric.AsymmetricKeyStorage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -26,7 +25,7 @@ import java.util.Scanner;
 import static java.nio.charset.StandardCharsets.US_ASCII;
 import static net.result.sandnode.messages.util.Connection.CLIENT2SERVER;
 import static net.result.sandnode.messages.util.MessageType.*;
-import static net.result.sandnode.util.encryption.Encryption.*;
+import static net.result.sandnode.util.encryption.Encryption.AES;
 
 public class RunClientWork implements IWork {
     private static final Logger LOGGER = LogManager.getLogger(RunClientWork.class);
@@ -35,7 +34,6 @@ public class RunClientWork implements IWork {
     public void run() throws
             ReadingKeyException, EncryptionException, IOException, NoSuchEncryptionException, DecryptionException,
             NoSuchReqHandler, CreatingKeyException, CannotUseEncryption, NoSuchAlgorithmException {
-        ClientConfigSingleton.getInstance();
         Scanner scanner = new Scanner(System.in);
         GlobalKeyStorage globalKeyStorage = new GlobalKeyStorage();
 
@@ -47,11 +45,13 @@ public class RunClientWork implements IWork {
         Client client = new Client(host, port, globalKeyStorage);
         client.connect();
         AsymmetricKeyStorage publicKey = ClientConfigSingleton.getPublicKey(host, port);
+        Encryption publicKeyEncryption = publicKey != null ? publicKey.encryption() : null;
 
-        Encryption publicKeyEncryption =
-                (publicKey == null)
-                        ? client.getKeys()
-                        : AsymmetricEncryptionFactory.setKeyStorage(globalKeyStorage, publicKey);
+        if (publicKey == null) {
+            publicKeyEncryption = client.getKeys();
+        } else {
+            globalKeyStorage.setKeyStorage(publicKeyEncryption, publicKey);
+        }
         Thread receiveThread = new Thread(() -> {
             try {
                 while (client.isConnected()) {
@@ -90,7 +90,8 @@ public class RunClientWork implements IWork {
 
                 if (input.equalsIgnoreCase("exit")) {
                     sendNextMessage = false;
-                    client.sendMessage(new ExitMessage(headersBuilder), publicKeyEncryption);
+                    ExitMessage exitRequest = new ExitMessage(headersBuilder);
+                    client.sendMessage(exitRequest, publicKeyEncryption);
                     client.disconnect();
                 } else if (!input.isEmpty()) {
                     IMessage request;

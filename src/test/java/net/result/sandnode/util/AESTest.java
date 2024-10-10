@@ -4,7 +4,6 @@ import net.result.sandnode.exceptions.ReadingKeyException;
 import net.result.sandnode.exceptions.encryption.DecryptionException;
 import net.result.sandnode.exceptions.encryption.EncryptionException;
 import net.result.sandnode.util.encryption.Encryption;
-import net.result.sandnode.util.encryption.EncryptionFactory;
 import net.result.sandnode.util.encryption.asymmetric.AsymmetricKeyStorage;
 import net.result.sandnode.util.encryption.interfaces.IDecryptor;
 import net.result.sandnode.util.encryption.interfaces.IEncryptor;
@@ -28,13 +27,13 @@ public class AESTest {
     public void AESAfterRSAPlusEncodingTest() throws EncryptionException, DecryptionException, ReadingKeyException {
         for (Encryption a : List.of(RSA)) {
             for (Encryption s : List.of(AES)) {
-                IEncryptor asymmetricEncryptor = EncryptionFactory.getEncryptor(a);
-                IDecryptor asymmetricDecryptor = EncryptionFactory.getDecryptor(a);
-                IEncryptor symmetricEncryptor = EncryptionFactory.getEncryptor(s);
-                IDecryptor symmetricDecryptor = EncryptionFactory.getDecryptor(s);
+                IEncryptor asymmetricEncryptor = a.encryptor();
+                IDecryptor asymmetricDecryptor = a.decryptor();
+                IEncryptor symmetricEncryptor = s.encryptor();
+                IDecryptor symmetricDecryptor = s.decryptor();
 
-                IGenerator asymmetricGenerator = EncryptionFactory.getGenerator(a);
-                IGenerator symmetricGenerator = EncryptionFactory.getGenerator(s);
+                IGenerator asymmetricGenerator = a.generator();
+                IGenerator symmetricGenerator = s.generator();
 
                 AsymmetricKeyStorage asymmetricKeyStorage = (AsymmetricKeyStorage) asymmetricGenerator.generateKeyStorage();
                 SymmetricKeyStorage symmetricKeyStorage = (SymmetricKeyStorage) symmetricGenerator.generateKeyStorage();

@@ -8,4 +8,8 @@ public class NoSuchEncryptionException extends SandnodeException {
         super(message);
     }
 
+    public NoSuchEncryptionException(byte message) {
+        super("No such encryption for " + message);
+    }
+
 }

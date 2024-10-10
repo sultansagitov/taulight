@@ -17,15 +17,7 @@ import java.util.Objects;
 
 public class ServerConfigSingleton {
     private static final Logger LOGGER = LogManager.getLogger(ServerConfigSingleton.class);
-    private static final ServerConfigSingleton instance;
-
-    static {
-        try {
-            instance = new ServerConfigSingleton("server.ini");
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
+    private static final ServerConfigSingleton instance = new ServerConfigSingleton("server.ini");
 
     private final int PORT;
     private final Path CONF_DIR;
@@ -37,10 +29,10 @@ public class ServerConfigSingleton {
     private Path RSA_PUBLIC_KEY_PATH;
     private Path RSA_PRIVATE_KEY_PATH;
 
-    private ServerConfigSingleton(@NotNull String fileName) throws IOException {
+    private ServerConfigSingleton(@NotNull String fileName) {
         Ini ini;
         try (InputStream input = getClass().getClassLoader().getResourceAsStream(fileName)) {
-            if (input == null) throw new IOException("Unable to find " + fileName);
+            if (input == null) throw new RuntimeException("Unable to find " + fileName);
 
             ini = new Ini();
             ini.load(input);
@@ -50,7 +42,11 @@ public class ServerConfigSingleton {
 
         PORT = Integer.parseInt(ini.get("Server", "port"));
         CONF_DIR = PathUtil.resolveHomeInPath(Paths.get(ini.get("Server", "dir_path")));
-        PathUtil.createDir(CONF_DIR);
+        try {
+            PathUtil.createDir(CONF_DIR);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
 
         try (InputStream input = getClass().getClassLoader().getResourceAsStream(fileName)) {
             if (input == null) throw new IOException("Unable to find " + fileName);
@@ -69,7 +65,11 @@ public class ServerConfigSingleton {
         }
 
         KEYS_DIR = PathUtil.resolveHomeInPath(Paths.get(CONF_DIR.toString(), ini.get("Keys", "dir_path")));
-        PathUtil.createDir(KEYS_DIR);
+        try {
+            PathUtil.createDir(KEYS_DIR);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
 
         RSA = Objects.equals(ini.get("Keys.RSA", "use"), "true");
 

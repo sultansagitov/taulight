@@ -5,8 +5,7 @@ import net.result.sandnode.exceptions.CreatingKeyException;
 import net.result.sandnode.exceptions.encryption.CannotUseEncryption;
 import net.result.sandnode.exceptions.encryption.NoSuchEncryptionException;
 import net.result.sandnode.util.encryption.Encryption;
-import net.result.sandnode.util.encryption.EncryptionFactory;
-import net.result.sandnode.util.encryption.asymmetric.AsymmetricEncryptionFactory;
+import net.result.sandnode.util.encryption.asymmetric.Asymmetric;
 import net.result.sandnode.util.encryption.asymmetric.AsymmetricKeyStorage;
 import net.result.sandnode.util.encryption.asymmetric.interfaces.IAsymmetricConvertor;
 import org.apache.logging.log4j.LogManager;
@@ -110,13 +109,13 @@ public class ClientConfigSingleton {
         for (Object o : instance.KEYS_JSON.getJSONArray("keys")) {
             JSONObject keyObject = (JSONObject) o;
             if (keyObject.getString("host").equalsIgnoreCase(host) && (keyObject.getInt("port") == port)) {
-                String encryptionString = keyObject.getString("encryption");
-                Encryption encryption = EncryptionFactory.getEncryption(encryptionString);
+                int encryptionByte = keyObject.getInt("encryption");
+                Encryption encryption = Encryption.fromByte((byte) encryptionByte);
 
                 String path = keyObject.getString("path");
 
                 String string = Files.readString(Path.of(path));
-                IAsymmetricConvertor publicConvertor = AsymmetricEncryptionFactory.getPublicConvertor(encryption);
+                IAsymmetricConvertor publicConvertor = Asymmetric.getPublicConvertor(encryption);
 
                 return publicConvertor.toKeyStorage(string);
             }

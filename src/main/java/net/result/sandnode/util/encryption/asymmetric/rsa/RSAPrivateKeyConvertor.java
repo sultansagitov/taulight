@@ -19,9 +19,6 @@ public class RSAPrivateKeyConvertor implements IRSAConvertor {
     private static final Logger LOGGER = LogManager.getLogger(RSAPrivateKeyConvertor.class);
     private static final RSAPrivateKeyConvertor instance = new RSAPrivateKeyConvertor();
 
-    private RSAPrivateKeyConvertor() {
-    }
-
     public static RSAPrivateKeyConvertor getInstance() {
         return instance;
     }

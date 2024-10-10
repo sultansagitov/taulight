@@ -22,8 +22,6 @@ public class RSAEncryptor implements IEncryptor {
     private static final Logger LOGGER = LogManager.getLogger(RSAEncryptor.class);
     private static final RSAEncryptor instance = new RSAEncryptor();
 
-    private RSAEncryptor() {}
-
     public static RSAEncryptor getInstance() {
         return instance;
     }

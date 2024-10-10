@@ -13,9 +13,6 @@ public class AESGenerator implements ISymmetricGenerator {
     private static final Logger LOGGER = LogManager.getLogger(AESGenerator.class);
     private static final AESGenerator instance = new AESGenerator();
 
-    private AESGenerator() {
-    }
-
     public static AESGenerator getInstance() {
         return instance;
     }

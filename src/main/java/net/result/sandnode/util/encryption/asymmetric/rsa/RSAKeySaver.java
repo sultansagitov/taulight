@@ -21,9 +21,6 @@ public class RSAKeySaver implements IKeySaver {
     public static final Path SERVER_PUBLIC_KEY_PATH = ServerConfigSingleton.getRSAPublicKeyPath();
     public static final Path SERVER_PRIVATE_KEY_PATH = ServerConfigSingleton.getRSAPrivateKeyPath();
 
-    private RSAKeySaver() {
-    }
-
     public static RSAKeySaver getInstance() {
         return instance;
     }

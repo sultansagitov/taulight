@@ -20,9 +20,6 @@ public class HandshakeHandler implements IProtocolHandler {
 
     private static final HandshakeHandler instance = new HandshakeHandler();
 
-    private HandshakeHandler() {
-    }
-
     public static HandshakeHandler getInstance() {
         return instance;
     }

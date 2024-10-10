@@ -10,9 +10,6 @@ public class AESKeyConvertor implements ISymmetricKeyConvertor {
 
     private static final AESKeyConvertor instance = new AESKeyConvertor();
 
-    private AESKeyConvertor() {
-    }
-
     public @NotNull AESKeyStorage toKeyStorage(byte @NotNull [] aesKey) {
         SecretKey secretKey = new SecretKeySpec(aesKey, 0, aesKey.length, "AES");
         return AESKeyStorage.getInstance().setKey(secretKey);

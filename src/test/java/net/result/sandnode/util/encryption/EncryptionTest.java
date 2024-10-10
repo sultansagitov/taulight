@@ -1,6 +1,5 @@
 package net.result.sandnode.util.encryption;
 
-import net.result.sandnode.config.ServerConfigSingleton;
 import net.result.sandnode.util.encryption.interfaces.IDecryptor;
 import net.result.sandnode.util.encryption.interfaces.IEncryptor;
 import net.result.sandnode.util.encryption.interfaces.IGenerator;
@@ -20,9 +19,9 @@ public class EncryptionTest {
     public void testEncryptionDecryption() {
         for (Encryption encryption : List.of(RSA, AES, NO)) {
             try {
-                IGenerator generator = EncryptionFactory.getGenerator(encryption);
-                IDecryptor decryptor = EncryptionFactory.getDecryptor(encryption);
-                IEncryptor encryptor = EncryptionFactory.getEncryptor(encryption);
+                IGenerator generator = encryption.generator();
+                IDecryptor decryptor = encryption.decryptor();
+                IEncryptor encryptor = encryption.encryptor();
 
                 IKeyStorage keyStorage = generator.generateKeyStorage();
 

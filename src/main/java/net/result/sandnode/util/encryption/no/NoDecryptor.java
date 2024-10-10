@@ -9,8 +9,6 @@ public class NoDecryptor implements IDecryptor {
 
     private static final NoDecryptor instance = new NoDecryptor();
 
-    private NoDecryptor() {}
-
     public static NoDecryptor getInstance() {
         return instance;
     }

@@ -13,8 +13,6 @@ public class RSAGenerator implements IAsymmetricGenerator {
     private static final Logger LOGGER = LogManager.getLogger(RSAGenerator.class);
     private static final RSAGenerator instance = new RSAGenerator();
 
-    private RSAGenerator() {}
-
     public static RSAGenerator getInstance() {
         return instance;
     }

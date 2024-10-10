@@ -3,7 +3,7 @@ package net.result.sandnode.server.commands;
 import net.result.sandnode.server.Session;
 import net.result.sandnode.util.encryption.Encryption;
 import net.result.sandnode.util.encryption.GlobalKeyStorage;
-import net.result.sandnode.util.encryption.symmetric.SymmetricEncryptionFactory;
+import net.result.sandnode.util.encryption.symmetric.Symmetric;
 import net.result.sandnode.util.encryption.symmetric.aes.AESKeyConvertor;
 import net.result.sandnode.util.encryption.symmetric.interfaces.SymmetricKeyStorage;
 import org.jetbrains.annotations.NotNull;
@@ -18,7 +18,7 @@ public class SymKeyCommand implements ICommand {
 
     public SymKeyCommand(@NotNull Encryption encryption, byte @NotNull [] symmetricKeyBytes) throws NoSuchAlgorithmException {
         this.encryption = encryption;
-        SymmetricEncryptionFactory.getKeyConvertor(encryption);
+        Symmetric.getKeyConvertor(encryption);
         symmetricKeyStorage = AESKeyConvertor.getInstance().toKeyStorage(symmetricKeyBytes);
     }
 
