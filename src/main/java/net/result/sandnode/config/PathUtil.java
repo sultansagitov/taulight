@@ -4,7 +4,9 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
 
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -39,4 +41,38 @@ public class PathUtil {
             }
         }
     }
+
+    public static void createFile(@NotNull Path filePath, @NotNull String content) throws IOException {
+        File file = new File(filePath.toString());
+        if (!file.exists()) {
+            LOGGER.warn("File \"{}\" not found, it will be created now", filePath);
+
+            try {
+                if (file.getParentFile() != null && !file.getParentFile().exists()) {
+                    if (file.getParentFile().mkdirs()) {
+                        LOGGER.info("Parent directory successfully created");
+                    } else {
+                        throw new IOException("Failed to create parent directory");
+                    }
+                }
+                if (file.createNewFile()) {
+                    LOGGER.info("File successfully created");
+
+                    // Writing content to the file
+                    try (BufferedWriter writer = new BufferedWriter(new FileWriter(file))) {
+                        writer.write(content);
+                        LOGGER.info("Content successfully written to file");
+                    }
+                } else {
+                    throw new IOException("Failed to create file");
+                }
+            } catch (IOException e) {
+                LOGGER.error("Failed to create file \"{}\"", filePath, e);
+                throw e;
+            }
+        } else {
+            LOGGER.info("File \"{}\" already exists", filePath);
+        }
+    }
+
 }

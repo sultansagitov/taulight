@@ -6,8 +6,8 @@ import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 
-import static net.result.sandnode.messages.util.Connection.SERVER2CLIENT;
-import static net.result.sandnode.messages.util.MessageType.HAPPY;
+import static net.result.sandnode.messages.util.Connection.HUB2USER;
+import static net.result.sandnode.messages.util.MessageType.MSG;
 import static net.result.sandnode.util.encryption.Encryption.RSA;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -16,8 +16,8 @@ class HeadersTest {
     @Test
     public void test() throws IOException, NoSuchEncryptionException, NoSuchReqHandler {
         Headers headers = new HeadersBuilder()
-                .set(SERVER2CLIENT)
-                .set(HAPPY)
+                .set(HUB2USER)
+                .set(MSG)
                 .set(RSA)
                 .set("text/html")
                 .set("key", "value")

@@ -12,20 +12,21 @@ import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.security.NoSuchAlgorithmException;
 
-import static net.result.sandnode.messages.util.Connection.CLIENT2SERVER;
-import static net.result.sandnode.messages.util.MessageType.HAPPY;
+import static net.result.sandnode.messages.util.Connection.USER2HUB;
+import static net.result.sandnode.messages.util.MessageType.MSG;
 import static net.result.sandnode.util.encryption.Encryption.RSA;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class MessageTest {
 
     @Test
-    void toByteArray() throws ReadingKeyException, EncryptionException, IOException, NoSuchEncryptionException, NoSuchAlgorithmException, DecryptionException, NoSuchReqHandler {
+    void toByteArray() throws ReadingKeyException, EncryptionException, IOException, NoSuchEncryptionException,
+            DecryptionException, NoSuchReqHandler {
         HeadersBuilder headersBuilder = new HeadersBuilder()
-                .set(HAPPY)
-                .set(CLIENT2SERVER)
+                .set(MSG)
+                .set(USER2HUB)
                 .set(RSA)
                 .set("application/json")
                 .set("keyname", "valuedata");
@@ -48,13 +49,15 @@ class MessageTest {
         ByteArrayInputStream in = new ByteArrayInputStream(byteArray);
 
 
+
         IMessage node2Message = Message.fromInput(in, globalKeyStorage);
 
+
         // headers
-        assertEquals(node1Message.getContentType(), node2Message.getContentType());
-        assertEquals(node1Message.getConnection(), node2Message.getConnection());
-        assertEquals(node1Message.getType(), node2Message.getType());
-        assertEquals(node1Message.getEncryption(), node2Message.getEncryption());
+        assertEquals(node1Message.getHeaders().getContentType(), node2Message.getHeaders().getContentType());
+        assertEquals(node1Message.getHeaders().getConnection(), node2Message.getHeaders().getConnection());
+        assertEquals(node1Message.getHeaders().getType(), node2Message.getHeaders().getType());
+        assertEquals(node1Message.getHeaders().getEncryption(), node2Message.getHeaders().getEncryption());
         assertEquals(node1Message.getHeaders().get("keyname"), node2Message.getHeaders().get("keyname"));
 
         // body

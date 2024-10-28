@@ -2,11 +2,14 @@ package net.result.sandnode.messages.util;
 
 import org.jetbrains.annotations.NotNull;
 
+import static net.result.sandnode.messages.util.NodeType.HUB;
+import static net.result.sandnode.messages.util.NodeType.USER;
+
 public enum Connection {
-    SERVER2SERVER(NodeType.SERVER, NodeType.SERVER),
-    SERVER2CLIENT(NodeType.SERVER, NodeType.CLIENT),
-    CLIENT2SERVER(NodeType.CLIENT, NodeType.SERVER),
-    CLIENT2CLIENT(NodeType.CLIENT, NodeType.CLIENT);
+    HUB2HUB(HUB, HUB),
+    HUB2USER(HUB, USER),
+    USER2HUB(USER, HUB),
+    USER2USER(USER, USER);
 
     private final NodeType from;
     private final NodeType to;
@@ -26,45 +29,30 @@ public enum Connection {
 
     public @NotNull Connection getOpposite() {
         return switch (this) {
-            case SERVER2SERVER -> SERVER2SERVER;
-            case SERVER2CLIENT -> CLIENT2SERVER;
-            case CLIENT2SERVER -> SERVER2CLIENT;
-            case CLIENT2CLIENT -> CLIENT2CLIENT;
+            case HUB2HUB -> HUB2HUB;
+            case HUB2USER -> USER2HUB;
+            case USER2HUB -> HUB2USER;
+            case USER2USER -> USER2USER;
         };
     }
 
-    public static @NotNull Connection fromString(@NotNull String string) {
-        String from = string.split("2")[0];
-        String to = string.split("2")[1];
-        if (from.equals("SERVER")) {
-            if (to.equals("SERVER"))
-                return SERVER2SERVER;
-            else return SERVER2CLIENT;
-        } else {
-            if (to.equals("SERVER"))
-                return CLIENT2SERVER;
-            else return CLIENT2CLIENT;
-        }
+    public static @NotNull Connection fromByte(byte b) {
+        NodeType from = (b & 0b10000000) != 0 ? HUB : USER;
+        NodeType to = (b & 0b01000000) != 0 ? HUB : USER;
+        return fromType(from, to);
     }
 
-    public static @NotNull Connection fromByte(byte b) {
-        byte from = (byte) (b & 0b10000000);
-        byte to = (byte) (b & 0b01000000);
-        if (from == 0) {
-            if (to == 0)
-                return CLIENT2CLIENT;
-            else
-                return CLIENT2SERVER;
-        } else {
-            if (to == 0)
-                return SERVER2CLIENT;
-            else
-                return SERVER2SERVER;
-        }
+    public static @NotNull Connection fromType(@NotNull NodeType from, @NotNull NodeType to) {
+        return switch (from) {
+            case USER -> (to == USER) ? USER2USER : USER2HUB;
+            case HUB  -> (to == USER) ? HUB2USER  : HUB2HUB;
+        };
     }
 
     @Override
     public @NotNull String toString() {
         return from.name() + "2" + to.name();
     }
+
 }
+

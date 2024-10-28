@@ -3,36 +3,24 @@ package net.result.sandnode.messages;
 import net.result.sandnode.messages.util.Connection;
 import net.result.sandnode.messages.util.MessageType;
 import net.result.sandnode.util.encryption.Encryption;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import static net.result.sandnode.messages.util.Connection.CLIENT2SERVER;
-import static net.result.sandnode.messages.util.MessageType.MESSAGE;
+import static net.result.sandnode.messages.util.Connection.USER2HUB;
+import static net.result.sandnode.messages.util.MessageType.MSG;
 
 public class HeadersBuilder {
+    private static final Logger LOGGER = LogManager.getLogger(HeadersBuilder.class);
     private final Map<String, String> map = new HashMap<>();
     private @Nullable Connection connection;
     private @Nullable MessageType type;
     private @Nullable String contentType;
     private @Nullable Encryption encryption;
-
-    public HeadersBuilder() {
-    }
-
-    public HeadersBuilder(@NotNull Headers headers) {
-        this
-                .set(headers.getType())
-                .set(headers.getConnection())
-                .set(headers.getEncryption())
-                .set(headers.getContentType())
-                .set(headers.getContentType());
-
-        for (Map.Entry<String, String> entry : headers)
-            this.set(entry.getKey(), entry.getValue());
-    }
 
     public HeadersBuilder set(@NotNull Connection connection) {
         this.connection = connection;
@@ -63,10 +51,15 @@ public class HeadersBuilder {
 
     public Headers build() {
         Headers headers = new Headers(
-                (connection != null) ? connection : CLIENT2SERVER,
-                (type != null) ? type : MESSAGE,
+                (connection != null) ? connection : USER2HUB,
+                (type != null) ? type : MSG,
                 (contentType != null) ? contentType : "application/json"
         );
+
+        if (connection == null) LOGGER.warn("Connection is null; defaulting to USER2HUB.");
+        if (type == null) LOGGER.warn("Type is null; defaulting to MSG.");
+        if (contentType == null) LOGGER.warn("ContentType is null; defaulting to application/json.");
+
         headers.setEncryption((encryption != null) ? encryption : Encryption.NO);
         for (Map.Entry<String, String> entry : map.entrySet())
             headers.set(entry.getKey(), entry.getValue());

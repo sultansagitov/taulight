@@ -16,62 +16,77 @@ import java.nio.file.Path;
 
 public class RSAKeySaver implements IKeySaver {
     private static final Logger LOGGER = LogManager.getLogger(RSAKeySaver.class);
-    private static final RSAKeySaver instance = new RSAKeySaver();
-
-    public static final Path SERVER_PUBLIC_KEY_PATH = ServerConfigSingleton.getRSAPublicKeyPath();
-    public static final Path SERVER_PRIVATE_KEY_PATH = ServerConfigSingleton.getRSAPrivateKeyPath();
+    private static final RSAKeySaver INSTANCE = new RSAKeySaver();
 
     public static RSAKeySaver getInstance() {
-        return instance;
+        return INSTANCE;
     }
 
-    public void saveKeys(@NotNull RSAKeyStorage keyStorage) throws IOException, ReadingKeyException {
-        boolean publicFileEx = deleteFile(SERVER_PUBLIC_KEY_PATH);
-        boolean privateFileEx = deleteFile(SERVER_PRIVATE_KEY_PATH);
-        writeKeys(keyStorage, publicFileEx, privateFileEx);
+    public void saveKeys(@NotNull RSAKeyStorage rsaKeyStorage, Path publicKeyPath, Path privateKeyPath) throws IOException, ReadingKeyException {
+        boolean isPublicFileDeleted = deleteFile(publicKeyPath);
+        boolean isPrivateFileDeleted = deleteFile(privateKeyPath);
+        writeKeysToFile(rsaKeyStorage, publicKeyPath, privateKeyPath, isPublicFileDeleted, isPrivateFileDeleted);
     }
 
     @Override
     public void saveKeys(@NotNull IKeyStorage keyStorage) throws IOException, ReadingKeyException {
-        if (keyStorage instanceof RSAKeyStorage rsaKeyStorage) saveKeys(rsaKeyStorage);
-        else throw new ReadingKeyException("Key storage is not instance of RSAKeyStorage");
+        Path publicKeyPath = ServerConfigSingleton.getRSAPublicKeyPath();
+        Path privateKeyPath = ServerConfigSingleton.getRSAPrivateKeyPath();
+        if (keyStorage instanceof RSAKeyStorage rsaKeyStorage) {
+            saveKeys(rsaKeyStorage, publicKeyPath, privateKeyPath);
+        } else {
+            throw new ReadingKeyException("Key storage is not an instance of RSAKeyStorage");
+        }
     }
 
-    private static void writeKeys(
-            @NotNull IKeyStorage keyStore,
-            boolean publicFileEx,
-            boolean privateFileEx
+    private static void writeKeysToFile(
+            @NotNull IKeyStorage keyStorage,
+            @NotNull Path publicKeyPath,
+            @NotNull Path privateKeyPath,
+            boolean isPublicFileDeleted,
+            boolean isPrivateFileDeleted
     ) throws IOException, ReadingKeyException {
-        String publicKeyPEM = RSAPublicKeyConvertor.getInstance().toPEM(keyStore);
-        String privateKeyPEM = RSAPrivateKeyConvertor.getInstance().toPEM(keyStore);
-        if (publicFileEx && privateFileEx) return;
+        String publicKeyPEM = RSAPublicKeyConvertor.getInstance().toPEM(keyStorage);
+        String privateKeyPEM = RSAPrivateKeyConvertor.getInstance().toPEM(keyStorage);
+
+        if (isPublicFileDeleted && isPrivateFileDeleted) {
+            LOGGER.info("RSA key files already deleted. Skipping write operation.");
+            return;
+        }
 
         try (
-                FileWriter publicKeyWriter = new FileWriter(SERVER_PUBLIC_KEY_PATH.toString());
-                FileWriter privateKeyWriter = new FileWriter(SERVER_PRIVATE_KEY_PATH.toString())) {
+                FileWriter publicKeyWriter = new FileWriter(publicKeyPath.toString());
+                FileWriter privateKeyWriter = new FileWriter(privateKeyPath.toString())
+        ) {
+            LOGGER.info("Writing public and private keys to files.");
             publicKeyWriter.write(publicKeyPEM);
             privateKeyWriter.write(privateKeyPEM);
 
-            KeyManagerUtil.setKeyFilePermissions(SERVER_PUBLIC_KEY_PATH);
-            KeyManagerUtil.setKeyFilePermissions(SERVER_PRIVATE_KEY_PATH);
+            LOGGER.info("Setting key file permissions.");
+            KeyManagerUtil.setKeyFilePermissions(publicKeyPath);
+            KeyManagerUtil.setKeyFilePermissions(privateKeyPath);
+        } catch (IOException e) {
+            LOGGER.error("Error writing keys to files", e);
+            throw e;
         }
     }
 
-    private static boolean deleteFile(@NotNull Path path) {
-        File file = new File(path.toString());
+    private static boolean deleteFile(@NotNull Path filePath) {
+        File file = new File(filePath.toString());
 
-        if (!file.exists()) return false;
-
-        LOGGER.warn("RSA key file found in \"{}\", it will delete now", path);
-
-        if (file.delete()) {
-            LOGGER.info("File \"{}\" deleted", path);
+        if (!file.exists()) {
+            LOGGER.info("File \"{}\" does not exist, no need to delete.", filePath);
             return false;
         }
 
-        LOGGER.error("Can't delete file \"{}\"", path);
-        return true;
+        LOGGER.warn("RSA key file found in \"{}\", it will be deleted now.", filePath);
+
+        if (file.delete()) {
+            LOGGER.info("File \"{}\" successfully deleted.", filePath);
+            return true;
+        } else {
+            LOGGER.error("Failed to delete file \"{}\".", filePath);
+            return false;
+        }
     }
-
 }
-

@@ -1,9 +1,9 @@
 package net.result.sandnode;
 
+import net.result.openhelo.HeloHub;
+import net.result.openhelo.HeloUser;
 import net.result.sandnode.client.Client;
-import net.result.sandnode.exceptions.CreatingKeyException;
-import net.result.sandnode.exceptions.NoSuchReqHandler;
-import net.result.sandnode.exceptions.ReadingKeyException;
+import net.result.sandnode.exceptions.*;
 import net.result.sandnode.exceptions.encryption.CannotUseEncryption;
 import net.result.sandnode.exceptions.encryption.DecryptionException;
 import net.result.sandnode.exceptions.encryption.EncryptionException;
@@ -13,10 +13,8 @@ import net.result.sandnode.messages.IMessage;
 import net.result.sandnode.messages.RawMessage;
 import net.result.sandnode.server.SandnodeServer;
 import net.result.sandnode.server.Session;
-import net.result.sandnode.util.encryption.Encryption;
 import net.result.sandnode.util.encryption.GlobalKeyStorage;
-import net.result.sandnode.util.encryption.asymmetric.rsa.RSAKeyStorage;
-import net.result.sandnode.util.encryption.rsa.RSAGenerator;
+import net.result.sandnode.util.encryption.interfaces.IKeyStorage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
@@ -27,35 +25,38 @@ import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 import java.util.Random;
 
-import static net.result.sandnode.messages.util.Connection.CLIENT2SERVER;
-import static net.result.sandnode.messages.util.MessageType.HAPPY;
-import static net.result.sandnode.util.encryption.Encryption.NO;
+import static net.result.sandnode.messages.util.Connection.USER2HUB;
+import static net.result.sandnode.messages.util.MessageType.MSG;
+import static net.result.sandnode.messages.util.NodeType.HUB;
+import static net.result.sandnode.util.encryption.Encryption.AES;
+import static net.result.sandnode.util.encryption.Encryption.RSA;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class ServerTest {
     private static final Logger LOGGER = LogManager.getLogger(ServerTest.class);
 
     @Test
-    public void test() throws IOException, ReadingKeyException, EncryptionException, InterruptedException, NoSuchEncryptionException, NoSuchAlgorithmException, DecryptionException, NoSuchReqHandler {
-        int port = getPort();
+    public void test() throws IOException, ReadingKeyException, EncryptionException, InterruptedException,
+            NoSuchEncryptionException, NoSuchAlgorithmException, DecryptionException, NoSuchReqHandler {
+        int port = ServerTest.getPort();
 
-        GlobalKeyStorage serverKeyStorage = getServerKeyStorage();
+        GlobalKeyStorage serverKeyStorage = ServerTest.getGlobalRSAKeyStorage();
 
-        ServerThread serverThread = new ServerThread(serverKeyStorage, port);
+        ServerTest.ServerThread serverThread = new ServerTest.ServerThread(serverKeyStorage, port);
         serverThread.start();
 
         Thread.sleep(1000);
 
-        ClientThread clientThread = new ClientThread(port, false);
+        ServerTest.ClientThread clientThread = new ServerTest.ClientThread(port);
         clientThread.start();
 
         Thread.sleep(1000);
 
 
 
-        Session session = serverThread.server.sessionList.get(0);
+        Session session = serverThread.hub.userSessionList.get(0);
 
-        RawMessage node1Message = getMessage(NO);
+        RawMessage node1Message = ServerTest.getMessage();
 
         // Sending server to client
         session.sendMessage(node1Message);
@@ -65,7 +66,7 @@ public class ServerTest {
         IMessage node2Message = clientThread.client.receiveMessage();
         LOGGER.info("Message received");
 
-        messagesTest(node1Message, node2Message);
+        ServerTest.messagesTest(node1Message, node2Message);
 
 
 
@@ -75,12 +76,11 @@ public class ServerTest {
         LOGGER.info("Server closed");
     }
 
-    public static @NotNull GlobalKeyStorage getServerKeyStorage() {
-        RSAGenerator rsaGenerator = RSAGenerator.getInstance();
-        RSAKeyStorage rsaKeyStorage = rsaGenerator.generateKeyStorage();
 
+    public static @NotNull GlobalKeyStorage getGlobalRSAKeyStorage() {
+        IKeyStorage rsaKeyStorage = RSA.generator().generateKeyStorage();
         GlobalKeyStorage serverKeyStorage = new GlobalKeyStorage();
-        serverKeyStorage.setRSAKeyStorage(rsaKeyStorage);
+        serverKeyStorage.set(RSA, rsaKeyStorage);
         return serverKeyStorage;
     }
 
@@ -90,11 +90,11 @@ public class ServerTest {
         return port;
     }
 
-    public static @NotNull RawMessage getMessage(Encryption encryption) {
+    public static @NotNull RawMessage getMessage() {
         HeadersBuilder headersBuilder = new HeadersBuilder()
-                .set(HAPPY)
-                .set(CLIENT2SERVER)
-                .set(encryption)
+                .set(MSG)
+                .set(USER2HUB)
+                .set(AES)
                 .set("application/json")
                 .set("keyname", "valuedata");
 
@@ -110,10 +110,10 @@ public class ServerTest {
         assertNotNull(message1);
         assertNotNull(message2);
         // headers
-        assertEquals(message1.getContentType(), message2.getContentType());
-        assertEquals(message1.getConnection(), message2.getConnection());
-        assertEquals(message1.getType(), message2.getType());
-        assertEquals(message1.getEncryption(), message2.getEncryption());
+        assertEquals(message1.getHeaders().getContentType(), message2.getHeaders().getContentType());
+        assertEquals(message1.getHeaders().getConnection(), message2.getHeaders().getConnection());
+        assertEquals(message1.getHeaders().getType(), message2.getHeaders().getType());
+        assertEquals(message1.getHeaders().getEncryption(), message2.getHeaders().getEncryption());
         assertEquals(message1.getHeaders().get("keyname"), message2.getHeaders().get("keyname"));
         // body
         assertArrayEquals(message1.getBody(), message2.getBody());
@@ -123,11 +123,13 @@ public class ServerTest {
 
         public final SandnodeServer server;
         private final int port;
+        private final Hub hub;
 
         public ServerThread(GlobalKeyStorage serverKeyStorage, int port) {
             setName("Server-thread");
-            this.server = new SandnodeServer(serverKeyStorage);
             this.port = port;
+            hub = new HeloHub(serverKeyStorage);
+            server = new SandnodeServer(hub);
         }
 
         @Override
@@ -135,7 +137,8 @@ public class ServerTest {
             try {
                 server.start(port);
                 server.acceptSessions();
-            } catch (IOException e) {
+            } catch (IOException | NoSuchEncryptionException | ReadingKeyException | ExpectedMessageException |
+                     DecryptionException | NoSuchReqHandler | WrongNodeUsed e) {
                 LOGGER.error("I/O error", e);
             }
         }
@@ -144,27 +147,23 @@ public class ServerTest {
     public static class ClientThread extends Thread {
         public Client client;
         private final int port;
-        private final boolean sendKeys;
 
-        public ClientThread(int port, boolean sendKeys) {
-            this.sendKeys = sendKeys;
+        public ClientThread(int port) {
             setName("Client-thread");
             this.port = port;
         }
 
         @Override
         public void run() {
-            GlobalKeyStorage clientKeyStorage = new GlobalKeyStorage();
-            client = new Client("localhost", port, clientKeyStorage);
+            User user = new HeloUser();
+            client = new Client("localhost", port, user, HUB);
             client.connect();
-            if (sendKeys) {
-                try {
-                    client.getKeys();
-                } catch (EncryptionException | IOException | NoSuchEncryptionException | ReadingKeyException |
-                         CreatingKeyException | CannotUseEncryption | NoSuchAlgorithmException | DecryptionException |
-                         NoSuchReqHandler e) {
-                    throw new RuntimeException(e);
-                }
+            try {
+                client.getKeys();
+            } catch (EncryptionException | IOException | NoSuchEncryptionException | ReadingKeyException |
+                     CreatingKeyException | CannotUseEncryption | NoSuchAlgorithmException | DecryptionException |
+                     NoSuchReqHandler e) {
+                throw new RuntimeException(e);
             }
         }
     }

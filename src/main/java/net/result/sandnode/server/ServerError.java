@@ -1,14 +1,16 @@
 package net.result.sandnode.server;
 
+import net.result.sandnode.exceptions.ReadingKeyException;
+import net.result.sandnode.exceptions.encryption.EncryptionException;
 import net.result.sandnode.messages.ErrorMessage;
 import net.result.sandnode.messages.HeadersBuilder;
 import net.result.sandnode.messages.IMessage;
 import net.result.sandnode.messages.util.Connection;
-import net.result.sandnode.server.commands.ICommand;
-import net.result.sandnode.server.commands.ResponseCommand;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
+
+import java.io.IOException;
 
 public enum ServerError {
     UNKNOWN(2000, "Unknown"),
@@ -35,10 +37,11 @@ public enum ServerError {
         this.desc = desc;
     }
 
-    public @NotNull ICommand sendError(@NotNull Connection opposite) {
+    public @NotNull void sendError(@NotNull Connection opposite, @NotNull Session session) throws ReadingKeyException, EncryptionException, IOException {
         LOGGER.warn("Sending error with code {} (\"{}\" error) to client", code, desc);
         HeadersBuilder headersBuilder = new HeadersBuilder().set(opposite);
         IMessage response = new ErrorMessage(headersBuilder, code);
-        return new ResponseCommand(response);
+        session.sendMessage(response);
+        LOGGER.info("Message was sent: {}", response);
     }
 }

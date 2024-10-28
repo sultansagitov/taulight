@@ -20,21 +20,19 @@ public class GlobalKeyStorage {
         };
     }
 
-    public void setKeyStorage(
+    public void set(
             @NotNull Encryption encryption,
             @NotNull IKeyStorage keyStorage
     ) {
         switch (encryption) {
             case RSA: {
-                if (keyStorage instanceof RSAKeyStorage) {
+                if (keyStorage instanceof RSAKeyStorage)
                     this.setRSAKeyStorage((RSAKeyStorage) keyStorage);
-                }
                 break;
             }
             case AES: {
-                if (keyStorage instanceof AESKeyStorage) {
+                if (keyStorage instanceof AESKeyStorage)
                     this.setAESKeyStorage((AESKeyStorage) keyStorage);
-                }
                 break;
             }
         }

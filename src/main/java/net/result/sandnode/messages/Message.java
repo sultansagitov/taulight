@@ -6,11 +6,8 @@ import net.result.sandnode.exceptions.ReadingKeyException;
 import net.result.sandnode.exceptions.encryption.DecryptionException;
 import net.result.sandnode.exceptions.encryption.EncryptionException;
 import net.result.sandnode.exceptions.encryption.NoSuchEncryptionException;
-import net.result.sandnode.messages.util.Connection;
-import net.result.sandnode.messages.util.MessageType;
 import net.result.sandnode.util.encryption.Encryption;
 import net.result.sandnode.util.encryption.GlobalKeyStorage;
-import net.result.sandnode.util.encryption.interfaces.IDecryptor;
 import net.result.sandnode.util.encryption.interfaces.IEncryptor;
 import net.result.sandnode.util.encryption.interfaces.IKeyStorage;
 import org.apache.logging.log4j.LogManager;
@@ -23,14 +20,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.SocketException;
 import java.nio.ByteBuffer;
-import java.security.NoSuchAlgorithmException;
 
 public abstract class Message implements IMessage {
     private static final Logger LOGGER = LogManager.getLogger(Message.class);
-    protected final Headers headers;
+    private final HeadersBuilder headersBuilder;
 
     public Message(@NotNull HeadersBuilder headersBuilder) {
-        this.headers = headersBuilder.build();
+        this.headersBuilder = headersBuilder;
     }
 
     public static @NotNull RawMessage fromInput(
@@ -65,40 +61,15 @@ public abstract class Message implements IMessage {
         if (bodyBytes.length < bodyLength) throw new EOFException("End of stream reached while reading body");
 
 
-        Encryption encryptionType = Encryption.fromByte(encryptionByte);
-        byte[] decryptedHeaders = decryptHeaders(encryptionType, headersBytes, globalKeyStorage);
+        Encryption headersEncryption = Encryption.fromByte(encryptionByte);
+        byte[] decryptedHeaders = decryptHeaders(headersEncryption, headersBytes, globalKeyStorage);
         HeadersBuilder headersBuilder = Headers.getFromBytes(decryptedHeaders);
         Headers headers = headersBuilder.build();
-        byte[] decryptedBody = decryptBody(headers.getEncryption(), bodyBytes, globalKeyStorage);
 
-        RawMessage rawMessage = new RawMessage(headersBuilder);
-        rawMessage.setBody(decryptedBody);
-        return rawMessage;
-    }
+        Encryption bodyEncryption = headers.getEncryption();
+        byte[] decryptedBody = decryptBody(bodyEncryption, bodyBytes, globalKeyStorage);
 
-    private static byte @NotNull [] decryptHeaders(
-            @NotNull Encryption encryption,
-            byte @NotNull [] encryptedHeaders,
-            @NotNull GlobalKeyStorage globalKeyStorage
-    ) throws DecryptionException, ReadingKeyException {
-        IDecryptor asymmetricDecryptor = encryption.decryptor();
-        IKeyStorage rsaKeyStorage = globalKeyStorage.getKeyStorage(encryption);
-        return asymmetricDecryptor.decryptBytes(encryptedHeaders, rsaKeyStorage);
-    }
-
-    private static byte[] decryptBody(
-            @NotNull Encryption encryption,
-            byte @NotNull [] encryptedBody,
-            @NotNull GlobalKeyStorage globalKeyStorage
-    ) throws DecryptionException, ReadingKeyException {
-        IDecryptor aesDecryptor = encryption.decryptor();
-        IKeyStorage keyStorage = globalKeyStorage.getKeyStorage(encryption);
-        return aesDecryptor.decryptBytes(encryptedBody, keyStorage);
-    }
-
-    @Override
-    public @NotNull Headers getHeaders() {
-        return headers;
+        return new RawMessage(headersBuilder, decryptedBody);
     }
 
     @Override
@@ -115,7 +86,10 @@ public abstract class Message implements IMessage {
             IEncryptor encryptor = encryption.encryptor();
             IKeyStorage keyStorage = globalKeyStorage.getKeyStorage(encryption);
             byte[] encryptedHeaders = encryptor.encryptBytes(headersBytes, keyStorage);
-            short length = (short) encryptedHeaders.length;
+            int lengthInt = encryptedHeaders.length;
+            if (lengthInt > Short.MAX_VALUE)
+                throw new IllegalArgumentException("Length is too large for a short: " + lengthInt);
+            short length = (short) lengthInt;
             byteArrayOutputStream.write((length >> 8) & 0xFF);
             byteArrayOutputStream.write(length & 0xFF);
             byteArrayOutputStream.write(encryptedHeaders);
@@ -123,58 +97,58 @@ public abstract class Message implements IMessage {
 
         {
             byte[] bodyBytes = getBody();
-            Encryption bodyEncryption = getEncryption();
+            Encryption bodyEncryption = getHeaders().getEncryption();
             IEncryptor encryptor = bodyEncryption.encryptor();
             IKeyStorage keyStorage = globalKeyStorage.getKeyStorage(bodyEncryption);
             byte[] encryptionBody = encryptor.encryptBytes(bodyBytes, keyStorage);
-            byteArrayOutputStream.write((encryptionBody.length >> 24) & 0xFF);
-            byteArrayOutputStream.write((encryptionBody.length >> 16) & 0xFF);
-            byteArrayOutputStream.write((encryptionBody.length >> 8) & 0xFF);
-            byteArrayOutputStream.write((encryptionBody.length) & 0xFF);
+            int length = encryptionBody.length;
+            byteArrayOutputStream.write((length >> 24) & 0xFF);
+            byteArrayOutputStream.write((length >> 16) & 0xFF);
+            byteArrayOutputStream.write((length >> 8) & 0xFF);
+            byteArrayOutputStream.write(length & 0xFF);
             byteArrayOutputStream.write(encryptionBody);
         }
 
         return byteArrayOutputStream.toByteArray();
     }
 
+    private static byte @NotNull [] decryptHeaders(
+            @NotNull Encryption encryption,
+            byte @NotNull [] encryptedHeaders,
+            @NotNull GlobalKeyStorage globalKeyStorage
+    ) throws DecryptionException, ReadingKeyException {
+        IKeyStorage keyStorage = globalKeyStorage.getKeyStorage(encryption);
+        return encryption.decryptor().decryptBytes(encryptedHeaders, keyStorage);
+    }
 
-    @Override
-    public Connection getConnection() {
-        return headers.getConnection();
+    private static byte[] decryptBody(
+            @NotNull Encryption encryption,
+            byte @NotNull [] encryptedBody,
+            @NotNull GlobalKeyStorage globalKeyStorage
+    ) throws DecryptionException, ReadingKeyException {
+        IKeyStorage keyStorage = globalKeyStorage.getKeyStorage(encryption);
+        return encryption.decryptor().decryptBytes(encryptedBody, keyStorage);
     }
 
     @Override
-    public @NotNull String getContentType() {
-        return headers.getContentType();
+    public HeadersBuilder getHeadersBuilder() {
+        return headersBuilder;
     }
 
     @Override
-    public void setContentType(@NotNull String contentType) {
-        headers.setContentType(contentType);
+    public @NotNull Headers getHeaders() {
+        return getHeadersBuilder().build();
     }
 
-    @Override
-    public void setType(@NotNull MessageType type) {
-        headers.setType(type);
-    }
-
-    @Override
-    public MessageType getType() {
-        return headers.getType();
-    }
-
-    @Override
-    public Encryption getEncryption() {
-        return headers.getEncryption();
-    }
-
-    @Override
-    public void setEncryption(Encryption encryption) {
-        headers.setEncryption(encryption);
-    }
 
     @Override
     public String toString() {
-        return "<%s %s %s %s %s>".formatted(getClass().getSimpleName(), getEncryption(), getType().name(), getConnection().name(), getContentType());
+        return "<%s %s %s %s %s>".formatted(
+                getClass().getSimpleName(),
+                getHeaders().getEncryption(),
+                getHeaders().getType().name(),
+                getHeaders().getConnection().name(),
+                getHeaders().getContentType()
+        );
     }
 }

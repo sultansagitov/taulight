@@ -15,7 +15,7 @@ public class JSONMessage extends Message implements IJSONMessage {
     }
 
     public JSONMessage(@NotNull RawMessage rawMessage) {
-        super(new HeadersBuilder(rawMessage.getHeaders()).set("application/json"));
+        super(rawMessage.getHeadersBuilder().set("application/json"));
         this.content = new JSONObject(new String(rawMessage.getBody()));
     }
 

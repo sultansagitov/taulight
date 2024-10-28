@@ -8,11 +8,16 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 
-public interface IMessage extends IParameters {
+public interface IMessage {
+
+    HeadersBuilder getHeadersBuilder();
 
     @NotNull Headers getHeaders();
 
     byte[] getBody() throws ReadingKeyException, EncryptionException;
 
-    byte[] toByteArray(GlobalKeyStorage globalKeyStorage, Encryption encryption) throws IOException, ReadingKeyException, EncryptionException;
+    byte[] toByteArray(
+            @NotNull GlobalKeyStorage globalKeyStorage,
+            @NotNull Encryption encryption
+    ) throws IOException, ReadingKeyException, EncryptionException;
 }

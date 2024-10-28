@@ -1,5 +1,6 @@
 package net.result.sandnode.util.encryption.asymmetric.rsa;
 
+import net.result.sandnode.config.ServerConfigSingleton;
 import net.result.sandnode.exceptions.CreatingKeyException;
 import net.result.sandnode.util.encryption.asymmetric.interfaces.IAsymmetricConvertor;
 import net.result.sandnode.util.encryption.asymmetric.interfaces.IKeyReader;
@@ -22,8 +23,14 @@ public class RSAKeyReader implements IKeyReader {
 
     @Override
     public RSAKeyStorage readKeys() throws IOException, CreatingKeyException {
-        RSAKeyStorage publicKeyStore = getKeyStore(RSAKeySaver.SERVER_PUBLIC_KEY_PATH.toString(), RSAPublicKeyConvertor.getInstance());
-        RSAKeyStorage privateKeyStore = getKeyStore(RSAKeySaver.SERVER_PRIVATE_KEY_PATH.toString(), RSAPrivateKeyConvertor.getInstance());
+        RSAKeyStorage publicKeyStore = getKeyStore(
+                ServerConfigSingleton.getRSAPublicKeyPath().toString(),
+                RSAPublicKeyConvertor.getInstance()
+        );
+        RSAKeyStorage privateKeyStore = getKeyStore(
+                ServerConfigSingleton.getRSAPrivateKeyPath().toString(),
+                RSAPrivateKeyConvertor.getInstance()
+        );
         KeyPair keyPair = new KeyPair(publicKeyStore.getPublicKey(), privateKeyStore.getPrivateKey());
         return new RSAKeyStorage(keyPair);
     }

@@ -12,7 +12,7 @@
         <configuration>
           <archive>
             <manifestEntries>
-              <Main-Class>net.result.heloserver.Main</Main-Class>
+              <Main-Class>net.result.main.Main</Main-Class>
             </manifestEntries>
           </archive>
         </configuration>
