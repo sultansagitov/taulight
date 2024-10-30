@@ -3,6 +3,7 @@ package net.result.sandnode;
 import net.result.openhelo.HeloHub;
 import net.result.openhelo.HeloUser;
 import net.result.sandnode.client.Client;
+import net.result.sandnode.config.ServerConfig;
 import net.result.sandnode.exceptions.*;
 import net.result.sandnode.exceptions.encryption.CannotUseEncryption;
 import net.result.sandnode.exceptions.encryption.DecryptionException;
@@ -22,6 +23,8 @@ import org.jetbrains.annotations.Nullable;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.net.Inet4Address;
+import java.net.UnknownHostException;
 import java.security.NoSuchAlgorithmException;
 import java.util.Random;
 
@@ -34,48 +37,6 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class ServerTest {
     private static final Logger LOGGER = LogManager.getLogger(ServerTest.class);
-
-    @Test
-    public void test() throws IOException, ReadingKeyException, EncryptionException, InterruptedException,
-            NoSuchEncryptionException, NoSuchAlgorithmException, DecryptionException, NoSuchReqHandler {
-        int port = ServerTest.getPort();
-
-        GlobalKeyStorage serverKeyStorage = ServerTest.getGlobalRSAKeyStorage();
-
-        ServerTest.ServerThread serverThread = new ServerTest.ServerThread(serverKeyStorage, port);
-        serverThread.start();
-
-        Thread.sleep(1000);
-
-        ServerTest.ClientThread clientThread = new ServerTest.ClientThread(port);
-        clientThread.start();
-
-        Thread.sleep(1000);
-
-
-
-        Session session = serverThread.hub.userSessionList.get(0);
-
-        RawMessage node1Message = ServerTest.getMessage();
-
-        // Sending server to client
-        session.sendMessage(node1Message);
-        LOGGER.info("Message sent");
-
-        // Receiving client from server
-        IMessage node2Message = clientThread.client.receiveMessage();
-        LOGGER.info("Message received");
-
-        ServerTest.messagesTest(node1Message, node2Message);
-
-
-
-        clientThread.client.close();
-        LOGGER.info("Client closed");
-        serverThread.server.close();
-        LOGGER.info("Server closed");
-    }
-
 
     public static @NotNull GlobalKeyStorage getGlobalRSAKeyStorage() {
         IKeyStorage rsaKeyStorage = RSA.generator().generateKeyStorage();
@@ -119,8 +80,44 @@ public class ServerTest {
         assertArrayEquals(message1.getBody(), message2.getBody());
     }
 
-    public static class ServerThread extends Thread {
+    @Test
+    public void test() throws IOException, ReadingKeyException, EncryptionException, InterruptedException,
+            NoSuchEncryptionException, NoSuchAlgorithmException, DecryptionException, NoSuchReqHandler {
+        int port = ServerTest.getPort();
 
+        GlobalKeyStorage serverKeyStorage = ServerTest.getGlobalRSAKeyStorage();
+
+        ServerTest.ServerThread serverThread = new ServerTest.ServerThread(serverKeyStorage, port);
+        serverThread.start();
+
+        Thread.sleep(1000);
+
+        ServerTest.ClientThread clientThread = new ServerTest.ClientThread(port);
+        clientThread.start();
+
+        Thread.sleep(1000);
+
+        Session session = serverThread.hub.userSessionList.get(0);
+
+        RawMessage node1Message = ServerTest.getMessage();
+
+        // Sending server to client
+        session.sendMessage(node1Message);
+        LOGGER.info("Message sent");
+
+        // Receiving client from server
+        IMessage node2Message = clientThread.client.receiveMessage();
+        LOGGER.info("Message received");
+
+        ServerTest.messagesTest(node1Message, node2Message);
+
+        clientThread.client.close();
+        LOGGER.info("Client closed");
+        serverThread.server.close();
+        LOGGER.info("Server closed");
+    }
+
+    public static class ServerThread extends Thread {
         public final SandnodeServer server;
         private final int port;
         private final Hub hub;
@@ -129,7 +126,15 @@ public class ServerTest {
             setName("Server-thread");
             this.port = port;
             hub = new HeloHub(serverKeyStorage);
-            server = new SandnodeServer(hub);
+
+            ServerConfig serverConfig = null;
+            try {
+                serverConfig = new ServerConfig(Inet4Address.getByName("localhost"));
+            } catch (UnknownHostException e) {
+                throw new RuntimeException(e);
+            }
+
+            server = new SandnodeServer(hub, serverConfig);
         }
 
         @Override
@@ -140,13 +145,14 @@ public class ServerTest {
             } catch (IOException | NoSuchEncryptionException | ReadingKeyException | ExpectedMessageException |
                      DecryptionException | NoSuchReqHandler | WrongNodeUsed e) {
                 LOGGER.error("I/O error", e);
+                throw new RuntimeException(e);
             }
         }
     }
 
     public static class ClientThread extends Thread {
-        public Client client;
         private final int port;
+        public Client client;
 
         public ClientThread(int port) {
             setName("Client-thread");
@@ -156,7 +162,10 @@ public class ServerTest {
         @Override
         public void run() {
             User user = new HeloUser();
+
+            // Use localhost for client connection
             client = new Client("localhost", port, user, HUB);
+
             client.connect();
             try {
                 client.getKeys();

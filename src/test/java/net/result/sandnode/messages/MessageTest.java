@@ -37,17 +37,14 @@ class MessageTest {
         node1Message.setBody(originalBody);
 
 
-
-
         RSAGenerator rsaGenerator = RSAGenerator.getInstance();
         RSAKeyStorage rsaKeyStorage = rsaGenerator.generateKeyStorage();
 
         GlobalKeyStorage globalKeyStorage = new GlobalKeyStorage();
-        globalKeyStorage.setRSAKeyStorage(rsaKeyStorage);
+        globalKeyStorage.set(RSA, rsaKeyStorage);
 
         byte[] byteArray = node1Message.toByteArray(globalKeyStorage, RSA);
         ByteArrayInputStream in = new ByteArrayInputStream(byteArray);
-
 
 
         IMessage node2Message = Message.fromInput(in, globalKeyStorage);

@@ -25,8 +25,10 @@ public abstract class Node {
     public Node(@NotNull GlobalKeyStorage globalKeyStorage) {
         this.globalKeyStorage = globalKeyStorage;
     }
-    public Node() { this(new GlobalKeyStorage()); }
 
+    public Node() {
+        this(new GlobalKeyStorage());
+    }
 
 
     public abstract @NotNull Session createSession(

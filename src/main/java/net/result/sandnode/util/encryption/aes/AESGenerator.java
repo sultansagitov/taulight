@@ -30,6 +30,6 @@ public class AESGenerator implements ISymmetricGenerator {
 
         SecretKey secretKey = keyGenerator.generateKey();
         LOGGER.info("AES key successfully generated");
-        return AESKeyStorage.getInstance().setKey(secretKey);
+        return new AESKeyStorage(secretKey);
     }
 }

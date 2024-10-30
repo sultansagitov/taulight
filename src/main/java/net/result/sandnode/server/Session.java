@@ -21,19 +21,17 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
 import java.security.NoSuchAlgorithmException;
-import java.util.List;
 import java.util.UUID;
 
 import static net.result.sandnode.util.encryption.Encryption.NO;
 
 public class Session {
     private static final Logger LOGGER = LogManager.getLogger(Session.class);
-
-    protected final OutputStream out;
     public final GlobalKeyStorage sessionKeyStorage;
-
+    private final Node node;
     public final Socket socket;
     public final UUID uuid = UUID.randomUUID();
+    protected final OutputStream out;
     protected Encryption encryption = NO;
 
     public Session(
@@ -41,9 +39,19 @@ public class Session {
             @NotNull Socket socket,
             @NotNull GlobalKeyStorage serverKeyStorage
     ) throws IOException {
+        this.node = node;
         this.socket = socket;
         out = socket.getOutputStream();
         sessionKeyStorage = serverKeyStorage.copy();
+    }
+
+    public static @NotNull RawMessage _receiveMessage(
+            @NotNull InputStream in,
+            @NotNull GlobalKeyStorage sessionKeyStorage
+    ) throws NoSuchEncryptionException, ReadingKeyException, DecryptionException, NoSuchReqHandler, IOException {
+        RawMessage request = Message.fromInput(in, sessionKeyStorage);
+        LOGGER.info("Requested {}", request);
+        return request;
     }
 
     public void setKey(@NotNull Encryption encryption, @NotNull SymmetricKeyStorage symmetricKey) {
@@ -64,15 +72,6 @@ public class Session {
             NoSuchAlgorithmException, DecryptionException, NoSuchReqHandler {
         InputStream in = socket.getInputStream();
         return _receiveMessage(in, sessionKeyStorage);
-    }
-
-    public static @NotNull RawMessage _receiveMessage(
-            @NotNull InputStream in,
-            @NotNull GlobalKeyStorage sessionKeyStorage
-    ) throws NoSuchEncryptionException, ReadingKeyException, DecryptionException, NoSuchReqHandler, IOException {
-        RawMessage request = Message.fromInput(in, sessionKeyStorage);
-        LOGGER.info("Requested {}", request);
-        return request;
     }
 
     public void close() throws IOException {

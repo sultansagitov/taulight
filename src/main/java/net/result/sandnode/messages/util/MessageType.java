@@ -20,14 +20,14 @@ public enum MessageType {
         this.type = (byte) type;
     }
 
-    public int asByte() {
-        return type;
-    }
-
     public static @NotNull MessageType getMessageType(byte type) throws NoSuchReqHandler {
         for (MessageType messageType : values())
             if (messageType.asByte() == type)
                 return messageType;
         throw new NoSuchReqHandler(type);
+    }
+
+    public int asByte() {
+        return type;
     }
 }

@@ -93,7 +93,8 @@ public class Client {
                 RawMessage response = Message.fromInput(in, node.globalKeyStorage);
                 LOGGER.info("Received response: {}", response);
                 return response;
-            } catch (FirstByteEOFException ignored) {
+            } catch (FirstByteEOFException e) {
+                LOGGER.error("Error in first byte in message", e);
             } catch (IOException e) {
                 LOGGER.error("Error receiving response", e);
             }
@@ -136,19 +137,14 @@ public class Client {
 
     public void createAESKey() {
         AESKeyStorage aesKeyStorage = AESGenerator.getInstance().generateKeyStorage();
-        node.globalKeyStorage.setAESKeyStorage(aesKeyStorage);
+        node.globalKeyStorage.set(AES, aesKeyStorage);
     }
 
     public void sendAESKey() throws KeyNotCreated, ReadingKeyException, EncryptionException, IOException {
-        if (node.globalKeyStorage.getAESKeyStorage() == null) {
-            throw new KeyNotCreated("AES");
-        }
+        if (!node.globalKeyStorage.has(AES)) throw new KeyNotCreated("AES");
+        if (!node.globalKeyStorage.has(encryptionOfServer)) throw new KeyNotCreated(encryptionOfServer);
 
-        if (node.globalKeyStorage.getKeyStorage(encryptionOfServer) == null) {
-            throw new KeyNotCreated("RSA");
-        }
-
-        node.globalKeyStorage.getKeyStorage(encryptionOfServer);
+        node.globalKeyStorage.get(encryptionOfServer);
 
         HeadersBuilder headersBuilder = new HeadersBuilder()
                 .set(encryptionOfServer)
@@ -157,14 +153,15 @@ public class Client {
                 .set("application/octet-stream")
                 .set("encryption", "" + AES.asByte());
 
-        byte[] aesKey = node.globalKeyStorage.getAESKeyStorage().getKey().getEncoded();
+        byte[] aesKey = node.globalKeyStorage.getSymmetric(AES).getKey().getEncoded();
 
         RawMessage rawMessage = new RawMessage(headersBuilder, aesKey);
 
         sendMessage(rawMessage, encryptionOfServer);
     }
 
-    public Encryption getKeys() throws EncryptionException, IOException, NoSuchEncryptionException, ReadingKeyException, CreatingKeyException, CannotUseEncryption, NoSuchAlgorithmException, DecryptionException, NoSuchReqHandler {
+    public Encryption getKeys() throws EncryptionException, IOException, NoSuchEncryptionException, ReadingKeyException,
+            CreatingKeyException, CannotUseEncryption, NoSuchAlgorithmException, DecryptionException, NoSuchReqHandler {
         encryptionOfServer = getPublicKeyFromServer();
         createAESKey();
         try {

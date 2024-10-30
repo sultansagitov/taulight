@@ -1,8 +1,8 @@
 package net.result.openhelo;
 
+import net.result.sandnode.User;
 import net.result.sandnode.messages.RawMessage;
 import net.result.sandnode.server.Session;
-import net.result.sandnode.User;
 import net.result.sandnode.util.encryption.GlobalKeyStorage;
 import org.jetbrains.annotations.NotNull;
 

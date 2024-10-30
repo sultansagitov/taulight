@@ -1,63 +1,60 @@
 package net.result.sandnode.util.encryption;
 
-import net.result.sandnode.util.encryption.asymmetric.rsa.RSAKeyStorage;
+import net.result.sandnode.exceptions.KeyStorageNotFoundException;
+import net.result.sandnode.exceptions.WrongEncryptionException;
+import net.result.sandnode.util.encryption.asymmetric.AsymmetricKeyStorage;
 import net.result.sandnode.util.encryption.interfaces.IKeyStorage;
-import net.result.sandnode.util.encryption.symmetric.aes.AESKeyStorage;
+import net.result.sandnode.util.encryption.symmetric.interfaces.SymmetricKeyStorage;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class GlobalKeyStorage {
-    private RSAKeyStorage rsaKeyStorage = null;
-    private AESKeyStorage aesKeyStorage = null;
+import java.util.EnumMap;
+import java.util.Map;
 
-    public @Nullable IKeyStorage getKeyStorage(
-            @NotNull Encryption encryption
-    ) {
-        return switch (encryption) {
-            case RSA -> new RSAKeyStorage(this);
-            case AES -> new AESKeyStorage(this);
-            case NO -> null;
-        };
+public class GlobalKeyStorage {
+
+    private final Map<Encryption, IKeyStorage> keyStorageMap = new EnumMap<>(Encryption.class);
+
+    public @Nullable IKeyStorage get(@NotNull Encryption encryption) {
+        return keyStorageMap.get(encryption);
+    }
+
+    public @NotNull IKeyStorage getNonNull(@NotNull Encryption encryption) {
+        if (has(encryption))
+            return keyStorageMap.get(encryption);
+        throw new KeyStorageNotFoundException(encryption);
     }
 
     public void set(
             @NotNull Encryption encryption,
             @NotNull IKeyStorage keyStorage
     ) {
-        switch (encryption) {
-            case RSA: {
-                if (keyStorage instanceof RSAKeyStorage)
-                    this.setRSAKeyStorage((RSAKeyStorage) keyStorage);
-                break;
-            }
-            case AES: {
-                if (keyStorage instanceof AESKeyStorage)
-                    this.setAESKeyStorage((AESKeyStorage) keyStorage);
-                break;
-            }
+        if (keyStorage.encryption() == encryption) {
+            keyStorageMap.put(encryption, keyStorage);
         }
     }
 
-    public @Nullable RSAKeyStorage getRSAKeyStorage() {
-        return rsaKeyStorage;
+    public boolean has(@NotNull Encryption encryption) {
+        return keyStorageMap.containsKey(encryption);
     }
 
-    public void setRSAKeyStorage(@NotNull RSAKeyStorage rsaKeyStorage) {
-        this.rsaKeyStorage = rsaKeyStorage;
+    public AsymmetricKeyStorage getAsymmetric(@NotNull Encryption encryption) {
+        if (encryption.isAsymmetric)
+            return (AsymmetricKeyStorage) get(encryption);
+        throw new WrongEncryptionException(encryption);
     }
 
-    public @Nullable AESKeyStorage getAESKeyStorage() {
-        return aesKeyStorage;
-    }
-
-    public void setAESKeyStorage(@NotNull AESKeyStorage aesKeyStorage) {
-        this.aesKeyStorage = aesKeyStorage;
+    public SymmetricKeyStorage getSymmetric(@NotNull Encryption encryption) {
+        if (encryption.isSymmetric)
+            return (SymmetricKeyStorage) get(encryption);
+        throw new WrongEncryptionException(encryption);
     }
 
     public GlobalKeyStorage copy() {
-        GlobalKeyStorage globalKeyStorage = new GlobalKeyStorage();
-        if (this.getAESKeyStorage() != null) globalKeyStorage.setAESKeyStorage(this.getAESKeyStorage());
-        if (this.getRSAKeyStorage() != null) globalKeyStorage.setRSAKeyStorage(this.getRSAKeyStorage());
-        return globalKeyStorage;
+        GlobalKeyStorage copy = new GlobalKeyStorage();
+        for (Encryption value : Encryption.values()) {
+            if (has(value)) copy.set(value, getNonNull(value).copy());
+        }
+        return copy;
     }
 }

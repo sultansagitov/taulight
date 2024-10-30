@@ -8,4 +8,8 @@ public class ConfigurationException extends RuntimeException {
     public ConfigurationException(Exception e) {
         super(e);
     }
+
+    public ConfigurationException(String message, Exception e) {
+        super(message, e);
+    }
 }

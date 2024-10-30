@@ -1,11 +1,6 @@
 package net.result.sandnode;
 
-import net.result.sandnode.Node;
-import net.result.sandnode.exceptions.ReadingKeyException;
 import net.result.sandnode.exceptions.WrongNodeUsed;
-import net.result.sandnode.exceptions.encryption.EncryptionException;
-import net.result.sandnode.exceptions.encryption.NoSuchEncryptionException;
-import net.result.sandnode.messages.RawMessage;
 import net.result.sandnode.messages.util.Connection;
 import net.result.sandnode.messages.util.NodeType;
 import net.result.sandnode.server.ClientHandler;
@@ -15,9 +10,6 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.net.Socket;
-import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
-import java.util.List;
 
 import static net.result.sandnode.messages.util.NodeType.USER;
 
@@ -25,6 +17,7 @@ public abstract class User extends Node {
     public User(@NotNull GlobalKeyStorage globalKeyStorage) {
         super(globalKeyStorage);
     }
+
     public User() {
         super();
     }
@@ -44,7 +37,8 @@ public abstract class User extends Node {
             case USER2HUB -> hubSessionList.add(session);
             case USER2USER -> userSessionList.add(session);
             default -> throw new WrongNodeUsed(opposite);
-        };
+        }
+
         return session;
     }
 

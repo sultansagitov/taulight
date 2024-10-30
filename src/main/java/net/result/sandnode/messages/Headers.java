@@ -18,7 +18,6 @@ import java.util.*;
 import static net.result.sandnode.messages.util.NodeType.HUB;
 
 public class Headers implements Iterable<Map.Entry<String, String>> {
-    private static final Logger LOGGER = LogManager.getLogger(Headers.class);
     private final Map<String, String> map = new HashMap<>();
     private final Connection connection;
     private MessageType type;
@@ -28,53 +27,6 @@ public class Headers implements Iterable<Map.Entry<String, String>> {
         this.connection = connection;
         this.type = type;
         this.setContentType(contentType);
-    }
-
-    public Connection getConnection() {
-        return connection;
-    }
-
-
-    public String get(@NotNull String headerName) {
-        return map.get(headerName.trim().toLowerCase());
-    }
-
-    public void set(@NotNull String headerName, @NotNull String value) {
-        map.put(headerName.trim().toLowerCase(), value.trim());
-    }
-
-    public void add(@NotNull Headers value) {
-        map.putAll(value.map);
-    }
-
-
-    public boolean containsHeader(@NotNull String headerName) {
-        return map.containsKey(headerName.toLowerCase());
-    }
-
-    public @NotNull String getContentType() {
-        String s = get("ct");
-        return Optional.of(s).orElse("text/plain").toLowerCase();
-    }
-
-    public void setContentType(@NotNull String contentType) {
-        set("ct", contentType);
-    }
-
-    public @NotNull MessageType getType() {
-        return type;
-    }
-
-    public void setType(@NotNull MessageType type) {
-        this.type = type;
-    }
-
-    public Encryption getEncryption() {
-        return encryption;
-    }
-
-    public void setEncryption(@NotNull Encryption encryption) {
-        this.encryption = encryption;
     }
 
     public static HeadersBuilder getFromBytes(byte @NotNull [] data) throws NoSuchEncryptionException, NoSuchReqHandler {
@@ -107,6 +59,51 @@ public class Headers implements Iterable<Map.Entry<String, String>> {
         }
 
         return headersBuilder;
+    }
+
+    public Connection getConnection() {
+        return connection;
+    }
+
+    public String get(@NotNull String headerName) {
+        return map.get(headerName.trim().toLowerCase());
+    }
+
+    public void set(@NotNull String headerName, @NotNull String value) {
+        map.put(headerName.trim().toLowerCase(), value.trim());
+    }
+
+    public void add(@NotNull Headers value) {
+        map.putAll(value.map);
+    }
+
+    public boolean containsHeader(@NotNull String headerName) {
+        return map.containsKey(headerName.toLowerCase());
+    }
+
+    public @NotNull String getContentType() {
+        String s = get("ct");
+        return Optional.of(s).orElse("text/plain").toLowerCase();
+    }
+
+    public void setContentType(@NotNull String contentType) {
+        set("ct", contentType);
+    }
+
+    public @NotNull MessageType getType() {
+        return type;
+    }
+
+    public void setType(@NotNull MessageType type) {
+        this.type = type;
+    }
+
+    public Encryption getEncryption() {
+        return encryption;
+    }
+
+    public void setEncryption(@NotNull Encryption encryption) {
+        this.encryption = encryption;
     }
 
     public byte[] toByteArray() throws IOException {

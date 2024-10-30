@@ -10,13 +10,13 @@ public class AESKeyConvertor implements ISymmetricKeyConvertor {
 
     private static final AESKeyConvertor instance = new AESKeyConvertor();
 
+    public static AESKeyConvertor getInstance() {
+        return instance;
+    }
+
     @Override
     public @NotNull AESKeyStorage toKeyStorage(byte @NotNull [] bytes) {
         SecretKey secretKey = new SecretKeySpec(bytes, 0, bytes.length, "AES");
-        return AESKeyStorage.getInstance().setKey(secretKey);
-    }
-
-    public static AESKeyConvertor getInstance() {
-        return instance;
+        return new AESKeyStorage(secretKey);
     }
 }

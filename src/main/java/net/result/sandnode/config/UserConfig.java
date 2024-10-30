@@ -10,7 +10,6 @@ import net.result.sandnode.util.encryption.asymmetric.AsymmetricKeyStorage;
 import net.result.sandnode.util.encryption.asymmetric.interfaces.IAsymmetricConvertor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.ini4j.Ini;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.json.JSONArray;
@@ -23,50 +22,43 @@ import java.nio.file.FileSystemException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Properties;
 
-public class ClientConfigSingleton {
-    private static final Logger LOGGER = LogManager.getLogger(ClientConfigSingleton.class);
-    private static final ClientConfigSingleton instance;
-
-    static {
-        try {
-            instance = new ClientConfigSingleton("client.ini");
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
+public class UserConfig {
+    private static final Logger LOGGER = LogManager.getLogger(UserConfig.class);
 
     private final JSONObject KEYS_JSON;
-    private final String INI_FILE;
+    private final String PROPERTIES_FILE;
     private final Path FOLDER_PATH;
     private final Path KEYS_PATH;
     private final Path KEYS_JSON_PATH;
 
-    private ClientConfigSingleton(@NotNull String fileName) throws IOException {
-        INI_FILE = fileName;
+    public UserConfig() throws IOException {
+        this("user.properties");
+    }
 
-        Ini ini;
+    public UserConfig(@NotNull String fileName) throws IOException {
+        PROPERTIES_FILE = fileName;
+
+        Properties properties = new Properties();
         try (InputStream input = getClass().getClassLoader().getResourceAsStream(fileName)) {
-            if (input == null) throw new IOException("Unable to find " + fileName);
-
-            ini = new Ini();
-            ini.load(input);
+            properties.load(input);
         } catch (Exception e) {
-            throw new ConfigurationException(e);
+            throw new ConfigurationException("Error when reading \"%s\"".formatted(fileName), e);
         }
 
-        FOLDER_PATH = PathUtil.resolveHomeInPath(ini.get("Client", "dir_path"));
-        KEYS_PATH = Paths.get(FOLDER_PATH.toString(), ini.get("Keys", "dir_path"));
+        FOLDER_PATH = PathUtil.resolveHomeInPath(properties.getProperty("client.dir_path"));
+        KEYS_PATH = Paths.get(FOLDER_PATH.toString(), properties.getProperty("keys.dir_path"));
         if (KEYS_PATH.toFile().mkdirs()) {
             LOGGER.info("Directory created: {}", KEYS_PATH);
         }
-        KEYS_JSON_PATH = Paths.get(KEYS_PATH.toString(), ini.get("Keys", "json_file_name"));
+        KEYS_JSON_PATH = Paths.get(KEYS_PATH.toString(), properties.getProperty("keys.json_file_name"));
         if (Files.exists(KEYS_JSON_PATH)) {
             if (!Files.isDirectory(KEYS_JSON_PATH)) {
                 KEYS_JSON = new JSONObject(new String(Files.readAllBytes(KEYS_JSON_PATH)));
             } else {
-                LOGGER.error("\"{}\" is directory", KEYS_JSON_PATH);
-                throw new FileSystemException("\"%s\" is directory".formatted(KEYS_JSON_PATH));
+                LOGGER.error("\"{}\" is a directory", KEYS_JSON_PATH);
+                throw new FileSystemException("\"%s\" is a directory".formatted(KEYS_JSON_PATH));
             }
         } else {
             KEYS_JSON = new JSONObject().put("keys", new JSONArray());
@@ -79,34 +71,31 @@ public class ClientConfigSingleton {
         }
     }
 
-    public static ClientConfigSingleton getInstance() throws IOException {
-        return instance;
-    }
-
-    public static void saveKeysJSON() throws IOException {
-        try (FileWriter fileWriter = new FileWriter(instance.KEYS_JSON_PATH.toFile())) {
-            fileWriter.write(instance.KEYS_JSON.toString());
+    public void saveKeysJSON() throws IOException {
+        try (FileWriter fileWriter = new FileWriter(KEYS_JSON_PATH.toFile())) {
+            fileWriter.write(KEYS_JSON.toString());
         }
     }
 
-    public static String getIniFile() {
-        return instance.INI_FILE;
+    public String getPropertiesFile() {
+        return PROPERTIES_FILE;
     }
 
-    public static Path getFolderPath() {
-        return instance.FOLDER_PATH;
+    public Path getFolderPath() {
+        return FOLDER_PATH;
     }
 
-    public static Path getKeysPath() {
-        return instance.KEYS_PATH;
+    public Path getKeysPath() {
+        return KEYS_PATH;
     }
 
-    public static JSONObject getKeysJSON() {
-        return instance.KEYS_JSON;
+    public JSONObject getKeysJSON() {
+        return KEYS_JSON;
     }
 
-    public static @Nullable AsymmetricKeyStorage getPublicKey(String host, int port) throws IOException, CannotUseEncryption, NoSuchEncryptionException, CreatingKeyException {
-        for (Object o : instance.KEYS_JSON.getJSONArray("keys")) {
+    public @Nullable AsymmetricKeyStorage getPublicKey(@NotNull String host, int port) throws IOException,
+            CannotUseEncryption, NoSuchEncryptionException, CreatingKeyException {
+        for (Object o : KEYS_JSON.getJSONArray("keys")) {
             JSONObject keyObject = (JSONObject) o;
             if (keyObject.getString("host").equalsIgnoreCase(host) && (keyObject.getInt("port") == port)) {
                 int encryptionByte = keyObject.getInt("encryption");

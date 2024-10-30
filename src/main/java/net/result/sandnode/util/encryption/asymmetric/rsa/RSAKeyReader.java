@@ -1,6 +1,6 @@
 package net.result.sandnode.util.encryption.asymmetric.rsa;
 
-import net.result.sandnode.config.ServerConfigSingleton;
+import net.result.sandnode.config.HubConfig;
 import net.result.sandnode.exceptions.CreatingKeyException;
 import net.result.sandnode.util.encryption.asymmetric.interfaces.IAsymmetricConvertor;
 import net.result.sandnode.util.encryption.asymmetric.interfaces.IKeyReader;
@@ -19,20 +19,6 @@ public class RSAKeyReader implements IKeyReader {
 
     public static RSAKeyReader getInstance() {
         return instance;
-    }
-
-    @Override
-    public RSAKeyStorage readKeys() throws IOException, CreatingKeyException {
-        RSAKeyStorage publicKeyStore = getKeyStore(
-                ServerConfigSingleton.getRSAPublicKeyPath().toString(),
-                RSAPublicKeyConvertor.getInstance()
-        );
-        RSAKeyStorage privateKeyStore = getKeyStore(
-                ServerConfigSingleton.getRSAPrivateKeyPath().toString(),
-                RSAPrivateKeyConvertor.getInstance()
-        );
-        KeyPair keyPair = new KeyPair(publicKeyStore.getPublicKey(), privateKeyStore.getPrivateKey());
-        return new RSAKeyStorage(keyPair);
     }
 
     private static @NotNull String getKeyPEM(@NotNull String keyPath) throws IOException {
@@ -55,5 +41,19 @@ public class RSAKeyReader implements IKeyReader {
             LOGGER.error("Invalid key in \"{}\" file", keyPath, e);
             throw e;
         }
+    }
+
+    @Override
+    public RSAKeyStorage readKeys(HubConfig hubConfig) throws IOException, CreatingKeyException {
+        RSAKeyStorage publicKeyStore = getKeyStore(
+                hubConfig.getRSAPublicKeyPath().toString(),
+                RSAPublicKeyConvertor.getInstance()
+        );
+        RSAKeyStorage privateKeyStore = getKeyStore(
+                hubConfig.getRSAPrivateKeyPath().toString(),
+                RSAPrivateKeyConvertor.getInstance()
+        );
+        KeyPair keyPair = new KeyPair(publicKeyStore.getPublicKey(), privateKeyStore.getPrivateKey());
+        return new RSAKeyStorage(keyPair);
     }
 }

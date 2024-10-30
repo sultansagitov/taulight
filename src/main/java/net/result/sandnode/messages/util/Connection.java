@@ -19,6 +19,19 @@ public enum Connection {
         this.to = to;
     }
 
+    public static @NotNull Connection fromByte(byte b) {
+        NodeType from = (b & 0b10000000) != 0 ? HUB : USER;
+        NodeType to = (b & 0b01000000) != 0 ? HUB : USER;
+        return fromType(from, to);
+    }
+
+    public static @NotNull Connection fromType(@NotNull NodeType from, @NotNull NodeType to) {
+        return switch (from) {
+            case USER -> (to == USER) ? USER2USER : USER2HUB;
+            case HUB -> (to == USER) ? HUB2USER : HUB2HUB;
+        };
+    }
+
     public NodeType getFrom() {
         return from;
     }
@@ -33,19 +46,6 @@ public enum Connection {
             case HUB2USER -> USER2HUB;
             case USER2HUB -> HUB2USER;
             case USER2USER -> USER2USER;
-        };
-    }
-
-    public static @NotNull Connection fromByte(byte b) {
-        NodeType from = (b & 0b10000000) != 0 ? HUB : USER;
-        NodeType to = (b & 0b01000000) != 0 ? HUB : USER;
-        return fromType(from, to);
-    }
-
-    public static @NotNull Connection fromType(@NotNull NodeType from, @NotNull NodeType to) {
-        return switch (from) {
-            case USER -> (to == USER) ? USER2USER : USER2HUB;
-            case HUB  -> (to == USER) ? HUB2USER  : HUB2HUB;
         };
     }
 

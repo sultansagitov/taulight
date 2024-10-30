@@ -5,7 +5,8 @@ import net.result.openhelo.HeloType;
 import static net.result.openhelo.HeloType.ONLINE;
 
 public class OnlineMessage extends HeloMessage {
-    public OnlineMessage() {}
+    public OnlineMessage() {
+    }
 
     @Override
     public HeloType getType() {

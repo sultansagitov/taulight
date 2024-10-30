@@ -4,7 +4,6 @@ import net.result.sandnode.exceptions.FirstByteEOFException;
 import net.result.sandnode.exceptions.NoSuchReqHandler;
 import net.result.sandnode.exceptions.ReadingKeyException;
 import net.result.sandnode.exceptions.encryption.DecryptionException;
-import net.result.sandnode.exceptions.encryption.EncryptionException;
 import net.result.sandnode.exceptions.encryption.NoSuchEncryptionException;
 import net.result.sandnode.messages.RawMessage;
 import org.apache.logging.log4j.LogManager;

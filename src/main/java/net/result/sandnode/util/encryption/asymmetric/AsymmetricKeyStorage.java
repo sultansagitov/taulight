@@ -21,13 +21,13 @@ public abstract class AsymmetricKeyStorage implements IKeyStorage {
         return this.publicKey;
     }
 
-    public PrivateKey getPrivateKey() {
-        return this.privateKey;
-    }
-
     public AsymmetricKeyStorage setPublicKey(@NotNull PublicKey publicKey) {
         this.publicKey = publicKey;
         return this;
+    }
+
+    public PrivateKey getPrivateKey() {
+        return this.privateKey;
     }
 
     public AsymmetricKeyStorage setPrivateKey(@NotNull PrivateKey privateKey) {

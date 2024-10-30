@@ -19,7 +19,8 @@ import javax.crypto.SecretKey;
 import java.util.Arrays;
 import java.util.List;
 
-import static net.result.sandnode.util.encryption.Encryption.*;
+import static net.result.sandnode.util.encryption.Encryption.AES;
+import static net.result.sandnode.util.encryption.Encryption.RSA;
 
 public class AESTest {
 
@@ -48,7 +49,7 @@ public class AESTest {
 
                 AESKeyStorage secondKeyStorage = AESKeyConvertor.getInstance().toKeyStorage(decryptedBytes);
                 SecretKey AESToUse = secondKeyStorage.getKey();
-                IKeyStorage KSToUse = AESKeyStorage.getInstance().setKey(AESToUse);
+                IKeyStorage KSToUse = new AESKeyStorage(AESToUse);
                 byte[] bytes2 = AESToUse.getEncoded();
 
                 Assertions.assertArrayEquals(bytes, bytes2);

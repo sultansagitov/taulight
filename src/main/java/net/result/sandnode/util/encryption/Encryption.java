@@ -17,7 +17,7 @@ import org.jetbrains.annotations.NotNull;
 
 public enum Encryption {
 
-    NO((byte) 0) {
+    NO((byte) 0, false, false) {
         @Override
         public IGenerator generator() {
             return NoGenerator.getInstance();
@@ -34,7 +34,7 @@ public enum Encryption {
         }
     },
 
-    RSA((byte) 1) {
+    RSA((byte) 1, true, false) {
         @Override
         public RSAGenerator generator() {
             return RSAGenerator.getInstance();
@@ -51,7 +51,7 @@ public enum Encryption {
         }
     },
 
-    AES((byte) 2) {
+    AES((byte) 2, false, true) {
         @Override
         public AESGenerator generator() {
             return AESGenerator.getInstance();
@@ -69,15 +69,13 @@ public enum Encryption {
     };
 
     public final byte encryption;
-    Encryption(byte encryption) {
-        this.encryption = encryption;
-    }
+    public final boolean isAsymmetric;
+    public final boolean isSymmetric;
 
-    public abstract IGenerator generator();
-    public abstract IEncryptor encryptor();
-    public abstract IDecryptor decryptor();
-    public byte asByte() {
-        return encryption;
+    Encryption(byte encryption, boolean isAsymmetric, boolean isSymmetric) {
+        this.encryption = encryption;
+        this.isAsymmetric = isAsymmetric;
+        this.isSymmetric = isSymmetric;
     }
 
     public static @NotNull Encryption fromByte(byte encryption) throws NoSuchEncryptionException {
@@ -87,6 +85,16 @@ public enum Encryption {
             case 2 -> AES;
             default -> throw new NoSuchEncryptionException(encryption);
         };
+    }
+
+    public abstract IGenerator generator();
+
+    public abstract IEncryptor encryptor();
+
+    public abstract IDecryptor decryptor();
+
+    public byte asByte() {
+        return encryption;
     }
 
 }

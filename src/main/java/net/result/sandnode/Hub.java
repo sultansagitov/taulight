@@ -31,6 +31,7 @@ public abstract class Hub extends Node {
     public Hub(@NotNull GlobalKeyStorage globalKeyStorage) {
         super(globalKeyStorage);
     }
+
     public Hub() {
         super();
     }
@@ -50,7 +51,8 @@ public abstract class Hub extends Node {
             case HUB2USER -> userSessionList.add(session);
             case HUB2HUB -> hubSessionList.add(session);
             default -> throw new WrongNodeUsed(opposite);
-        };
+        }
+
         return session;
     }
 

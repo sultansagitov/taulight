@@ -1,6 +1,7 @@
 package net.result.sandnode.server;
 
 import net.result.sandnode.Node;
+import net.result.sandnode.config.ServerConfig;
 import net.result.sandnode.exceptions.ExpectedMessageException;
 import net.result.sandnode.exceptions.NoSuchReqHandler;
 import net.result.sandnode.exceptions.ReadingKeyException;
@@ -23,6 +24,7 @@ import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
+import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.security.NoSuchAlgorithmException;
@@ -38,21 +40,33 @@ import static net.result.sandnode.util.encryption.Encryption.RSA;
 
 public class SandnodeServer {
     private static final Logger LOGGER = LogManager.getLogger(SandnodeServer.class);
+    private final ServerConfig serverConfig;
     public ServerSocket serverSocket;
-
     public Node node;
 
-    public SandnodeServer(Node node) {
+    public SandnodeServer(Node node, ServerConfig serverConfig) {
         this.node = node;
+        this.serverConfig = serverConfig;
+    }
+
+    private static void handleSYMKEY(
+            @NotNull RawMessage request,
+            @NotNull Session session
+    ) throws NoSuchEncryptionException {
+        Encryption encryption = Encryption.fromByte(Byte.parseByte(request.getHeaders().get("encryption")));
+        ISymmetricKeyConvertor convertor = AESKeyConvertor.getInstance();
+        SymmetricKeyStorage keyStorage = convertor.toKeyStorage(request.getBody());
+        session.setKey(encryption, keyStorage);
     }
 
     public void start() throws IOException {
-        start(52525);
+        start(serverConfig.getPort());
     }
 
     public void start(int port) throws IOException {
-        serverSocket = new ServerSocket(port);
-        LOGGER.info("Server is listening on port {}", port);
+        InetAddress host = serverConfig.getHost();
+        serverSocket = new ServerSocket(port, Integer.MAX_VALUE, host);
+        LOGGER.info("Server is listening on port {}:{}", host.getHostAddress(), port);
     }
 
     public void acceptSessions() throws IOException, NoSuchEncryptionException, ReadingKeyException,
@@ -94,7 +108,6 @@ public class SandnodeServer {
         sessionExecutor.shutdown();
     }
 
-
     private @NotNull RawMessage setSymKey(
             @NotNull RawMessage request,
             @NotNull Session session
@@ -119,20 +132,10 @@ public class SandnodeServer {
         return request;
     }
 
-    private static void handleSYMKEY(
-            @NotNull RawMessage request,
-            @NotNull Session session
-    ) throws NoSuchEncryptionException, NoSuchAlgorithmException {
-        Encryption encryption = Encryption.fromByte(Byte.parseByte(request.getHeaders().get("encryption")));
-        ISymmetricKeyConvertor convertor = AESKeyConvertor.getInstance();
-        SymmetricKeyStorage keyStorage = convertor.toKeyStorage(request.getBody());
-        session.setKey(encryption, keyStorage);
-    }
-
     private void handlePUBLICKEY(
             @NotNull RawMessage request,
             @NotNull Session session
-    ) throws IOException, EncryptionException, NoSuchEncryptionException, ReadingKeyException,
+    ) throws IOException, EncryptionException, ReadingKeyException,
             NoSuchAlgorithmException {
         Connection opposite = request.getHeaders().getConnection().getOpposite();
         HeadersBuilder headersBuilder = new HeadersBuilder()
@@ -146,7 +149,7 @@ public class SandnodeServer {
         String pem;
 
         try {
-            AsymmetricKeyStorage keyStorage = node.globalKeyStorage.getRSAKeyStorage();
+            AsymmetricKeyStorage keyStorage = node.globalKeyStorage.getAsymmetric(RSA);
             IAsymmetricConvertor convertor = RSAPublicKeyConvertor.getInstance();
             pem = convertor.toPEM(keyStorage);
             response.setBody(pem.getBytes(US_ASCII));

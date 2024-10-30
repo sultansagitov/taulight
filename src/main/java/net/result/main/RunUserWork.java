@@ -1,11 +1,12 @@
 package net.result.main;
 
 import net.result.openhelo.HeloType;
+import net.result.openhelo.HeloUser;
 import net.result.openhelo.exceptions.WrongTypeException;
 import net.result.openhelo.messages.*;
-import net.result.openhelo.HeloUser;
+import net.result.sandnode.User;
 import net.result.sandnode.client.Client;
-import net.result.sandnode.config.ClientConfigSingleton;
+import net.result.sandnode.config.UserConfig;
 import net.result.sandnode.exceptions.CreatingKeyException;
 import net.result.sandnode.exceptions.NoSuchReqHandler;
 import net.result.sandnode.exceptions.ReadingKeyException;
@@ -13,22 +14,20 @@ import net.result.sandnode.exceptions.encryption.CannotUseEncryption;
 import net.result.sandnode.exceptions.encryption.DecryptionException;
 import net.result.sandnode.exceptions.encryption.EncryptionException;
 import net.result.sandnode.exceptions.encryption.NoSuchEncryptionException;
-import net.result.sandnode.messages.*;
-import net.result.sandnode.User;
+import net.result.sandnode.messages.ExitMessage;
+import net.result.sandnode.messages.HeadersBuilder;
+import net.result.sandnode.messages.IMessage;
 import net.result.sandnode.util.encryption.Encryption;
 import net.result.sandnode.util.encryption.GlobalKeyStorage;
 import net.result.sandnode.util.encryption.asymmetric.AsymmetricKeyStorage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 import java.util.Scanner;
 
-import static java.nio.charset.StandardCharsets.US_ASCII;
 import static net.result.sandnode.messages.util.NodeType.HUB;
 import static net.result.sandnode.util.encryption.Encryption.AES;
 
@@ -40,6 +39,7 @@ public class RunUserWork implements IWork {
             DecryptionException, NoSuchReqHandler, CreatingKeyException, CannotUseEncryption, NoSuchAlgorithmException {
         Scanner scanner = new Scanner(System.in);
         GlobalKeyStorage globalKeyStorage = new GlobalKeyStorage();
+        UserConfig userConfig = new UserConfig();
 
         System.out.print("host: ");
         String host = scanner.nextLine();
@@ -49,7 +49,7 @@ public class RunUserWork implements IWork {
         User user = new HeloUser(globalKeyStorage);
         Client client = new Client(host, port, user, HUB);
         client.connect();
-        AsymmetricKeyStorage publicKey = ClientConfigSingleton.getPublicKey(host, port);
+        AsymmetricKeyStorage publicKey = userConfig.getPublicKey(host, port);
         Encryption publicKeyEncryption = publicKey != null ? publicKey.encryption() : null;
 
         if (publicKeyEncryption == null) {
@@ -76,12 +76,8 @@ public class RunUserWork implements IWork {
                     HeloMessage heloMessage = heloType.fromBytes(in.readAllBytes());
 
                     switch (heloType) {
-                        case ECHO, FORWARD -> {
-                            LOGGER.info("From server: {}", ((TextMessage) heloMessage).data);
-                        }
-                        case ONLINE_RESPONSE -> {
-                            LOGGER.info("Online users: {}", ((OnlineResponseMessage) heloMessage).users);
-                        }
+                        case ECHO, FORWARD -> LOGGER.info("From server: {}", ((TextMessage) heloMessage).data);
+                        case ONLINE_RESPONSE -> LOGGER.info("Online users: {}", ((OnlineResponseMessage) heloMessage).users);
                     }
                 }
             } catch (ReadingKeyException | DecryptionException | NoSuchEncryptionException | NoSuchAlgorithmException |

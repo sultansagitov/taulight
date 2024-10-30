@@ -1,6 +1,6 @@
 package net.result.sandnode.util.encryption.asymmetric.rsa;
 
-import net.result.sandnode.config.ServerConfigSingleton;
+import net.result.sandnode.config.HubConfig;
 import net.result.sandnode.exceptions.ReadingKeyException;
 import net.result.sandnode.util.encryption.KeyManagerUtil;
 import net.result.sandnode.util.encryption.asymmetric.interfaces.IKeySaver;
@@ -22,32 +22,31 @@ public class RSAKeySaver implements IKeySaver {
         return INSTANCE;
     }
 
-    public void saveKeys(@NotNull RSAKeyStorage rsaKeyStorage, Path publicKeyPath, Path privateKeyPath) throws IOException, ReadingKeyException {
-        boolean isPublicFileDeleted = deleteFile(publicKeyPath);
-        boolean isPrivateFileDeleted = deleteFile(privateKeyPath);
-        writeKeysToFile(rsaKeyStorage, publicKeyPath, privateKeyPath, isPublicFileDeleted, isPrivateFileDeleted);
-    }
+    private static boolean deleteFile(@NotNull Path filePath) {
+        File file = new File(filePath.toString());
 
-    @Override
-    public void saveKeys(@NotNull IKeyStorage keyStorage) throws IOException, ReadingKeyException {
-        Path publicKeyPath = ServerConfigSingleton.getRSAPublicKeyPath();
-        Path privateKeyPath = ServerConfigSingleton.getRSAPrivateKeyPath();
-        if (keyStorage instanceof RSAKeyStorage rsaKeyStorage) {
-            saveKeys(rsaKeyStorage, publicKeyPath, privateKeyPath);
+        if (!file.exists()) {
+            LOGGER.info("File \"{}\" does not exist, no need to delete.", filePath);
+            return false;
+        }
+
+        LOGGER.warn("RSA key file found in \"{}\", it will be deleted now.", filePath);
+
+        if (file.delete()) {
+            LOGGER.info("File \"{}\" successfully deleted.", filePath);
+            return true;
         } else {
-            throw new ReadingKeyException("Key storage is not an instance of RSAKeyStorage");
+            LOGGER.error("Failed to delete file \"{}\".", filePath);
+            return false;
         }
     }
 
-    private static void writeKeysToFile(
-            @NotNull IKeyStorage keyStorage,
-            @NotNull Path publicKeyPath,
-            @NotNull Path privateKeyPath,
-            boolean isPublicFileDeleted,
-            boolean isPrivateFileDeleted
-    ) throws IOException, ReadingKeyException {
-        String publicKeyPEM = RSAPublicKeyConvertor.getInstance().toPEM(keyStorage);
-        String privateKeyPEM = RSAPrivateKeyConvertor.getInstance().toPEM(keyStorage);
+    public void saveKeys(@NotNull RSAKeyStorage rsaKeyStorage, Path publicKeyPath, Path privateKeyPath) throws IOException {
+        boolean isPublicFileDeleted = deleteFile(publicKeyPath);
+        boolean isPrivateFileDeleted = deleteFile(privateKeyPath);
+
+        String publicKeyPEM = RSAPublicKeyConvertor.getInstance().toPEM(rsaKeyStorage);
+        String privateKeyPEM = RSAPrivateKeyConvertor.getInstance().toPEM(rsaKeyStorage);
 
         if (isPublicFileDeleted && isPrivateFileDeleted) {
             LOGGER.info("RSA key files already deleted. Skipping write operation.");
@@ -71,22 +70,14 @@ public class RSAKeySaver implements IKeySaver {
         }
     }
 
-    private static boolean deleteFile(@NotNull Path filePath) {
-        File file = new File(filePath.toString());
-
-        if (!file.exists()) {
-            LOGGER.info("File \"{}\" does not exist, no need to delete.", filePath);
-            return false;
-        }
-
-        LOGGER.warn("RSA key file found in \"{}\", it will be deleted now.", filePath);
-
-        if (file.delete()) {
-            LOGGER.info("File \"{}\" successfully deleted.", filePath);
-            return true;
+    @Override
+    public void saveKeys(@NotNull HubConfig hubConfig, @NotNull IKeyStorage keyStorage) throws IOException, ReadingKeyException {
+        Path publicKeyPath = hubConfig.getRSAPublicKeyPath();
+        Path privateKeyPath = hubConfig.getRSAPrivateKeyPath();
+        if (keyStorage instanceof RSAKeyStorage rsaKeyStorage) {
+            saveKeys(rsaKeyStorage, publicKeyPath, privateKeyPath);
         } else {
-            LOGGER.error("Failed to delete file \"{}\".", filePath);
-            return false;
+            throw new ReadingKeyException("Key storage is not an instance of RSAKeyStorage");
         }
     }
 }

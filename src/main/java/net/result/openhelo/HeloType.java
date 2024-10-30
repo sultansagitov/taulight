@@ -4,8 +4,6 @@ import net.result.openhelo.exceptions.WrongTypeException;
 import net.result.openhelo.messages.*;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.List;
-
 public enum HeloType {
     ECHO(0) {
         @Override
@@ -34,14 +32,9 @@ public enum HeloType {
 
     private final byte type;
 
-    HeloType(int type){
+    HeloType(int type) {
         this.type = (byte) type;
     }
-
-    public byte asByte() {
-        return type;
-    }
-    public abstract HeloMessage fromBytes(byte[] bytes);
 
     public static @NotNull HeloType fromByte(byte type) throws WrongTypeException {
         for (HeloType value : HeloType.values())
@@ -50,4 +43,10 @@ public enum HeloType {
 
         throw new WrongTypeException(type);
     }
+
+    public byte asByte() {
+        return type;
+    }
+
+    public abstract HeloMessage fromBytes(byte[] bytes);
 }

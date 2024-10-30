@@ -5,12 +5,11 @@ import net.result.openhelo.messages.HeloMessage;
 import net.result.openhelo.messages.OnlineResponseMessage;
 import net.result.openhelo.messages.SandnodeMessageAdapter;
 import net.result.openhelo.messages.TextMessage;
+import net.result.sandnode.Hub;
 import net.result.sandnode.exceptions.ReadingKeyException;
 import net.result.sandnode.exceptions.encryption.EncryptionException;
-import net.result.sandnode.Hub;
 import net.result.sandnode.messages.RawMessage;
 import net.result.sandnode.server.Session;
-import net.result.sandnode.util.encryption.Encryption;
 import net.result.sandnode.util.encryption.GlobalKeyStorage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -19,7 +18,6 @@ import org.jetbrains.annotations.NotNull;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.List;
-import java.util.stream.Stream;
 
 public class HeloHub extends Hub {
     private static final Logger LOGGER = LogManager.getLogger(HeloHub.class);
