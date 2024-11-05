@@ -5,10 +5,6 @@ public class ConfigurationException extends RuntimeException {
         super(message);
     }
 
-    public ConfigurationException(Exception e) {
-        super(e);
-    }
-
     public ConfigurationException(String message, Exception e) {
         super(message, e);
     }

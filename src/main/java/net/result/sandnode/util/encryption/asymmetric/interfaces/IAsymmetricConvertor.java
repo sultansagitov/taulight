@@ -3,19 +3,15 @@ package net.result.sandnode.util.encryption.asymmetric.interfaces;
 import net.result.sandnode.exceptions.CreatingKeyException;
 import net.result.sandnode.exceptions.ReadingKeyException;
 import net.result.sandnode.util.encryption.asymmetric.AsymmetricKeyStorage;
-import net.result.sandnode.util.encryption.interfaces.IKeyStorage;
-import net.result.sandnode.util.encryption.interfaces.IPEMConvertor;
+import net.result.sandnode.util.encryption.core.interfaces.IKeyStorage;
 import org.jetbrains.annotations.NotNull;
 
-import java.security.spec.InvalidKeySpecException;
+public interface IAsymmetricConvertor {
 
-public interface IAsymmetricConvertor extends IPEMConvertor {
-    @Override
-    @NotNull AsymmetricKeyStorage toKeyStorage(@NotNull String PEMString) throws CreatingKeyException;
+    @NotNull AsymmetricKeyStorage toKeyStorage(@NotNull String encodedString) throws CreatingKeyException;
 
-    @Override
-    @NotNull AsymmetricKeyStorage toKeyStorage(byte @NotNull [] bytes) throws InvalidKeySpecException, CreatingKeyException;
+    @NotNull AsymmetricKeyStorage toKeyStorage(byte @NotNull [] bytes) throws CreatingKeyException;
 
-    @Override
-    @NotNull String toPEM(@NotNull IKeyStorage keyStorage) throws ReadingKeyException;
+    @NotNull String toEncodedString(@NotNull IKeyStorage keyStorage) throws ReadingKeyException;
+
 }

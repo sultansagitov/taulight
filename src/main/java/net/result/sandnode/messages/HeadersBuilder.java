@@ -60,7 +60,7 @@ public class HeadersBuilder {
         if (type == null) LOGGER.warn("Type is null; defaulting to MSG.");
         if (contentType == null) LOGGER.warn("ContentType is null; defaulting to application/json.");
 
-        headers.setEncryption((encryption != null) ? encryption : Encryption.NO);
+        headers.setBodyEncryption((encryption != null) ? encryption : Encryption.NONE);
         for (Map.Entry<String, String> entry : map.entrySet())
             headers.set(entry.getKey(), entry.getValue());
         return headers;

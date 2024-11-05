@@ -1,5 +1,6 @@
 package net.result.sandnode;
 
+import net.result.sandnode.config.UserConfig;
 import net.result.sandnode.exceptions.WrongNodeUsed;
 import net.result.sandnode.messages.util.Connection;
 import net.result.sandnode.messages.util.NodeType;
@@ -14,8 +15,8 @@ import java.net.Socket;
 import static net.result.sandnode.messages.util.NodeType.USER;
 
 public abstract class User extends Node {
-    public User(@NotNull GlobalKeyStorage globalKeyStorage) {
-        super(globalKeyStorage);
+    public User(@NotNull GlobalKeyStorage globalKeyStorage, @NotNull UserConfig userConfig) {
+        super(globalKeyStorage, userConfig);
     }
 
     public User() {
@@ -32,7 +33,7 @@ public abstract class User extends Node {
             @NotNull Connection opposite,
             @NotNull Socket socket
     ) throws IOException, WrongNodeUsed {
-        Session session = new Session(this, socket, globalKeyStorage);
+        Session session = new Session(socket, globalKeyStorage);
         switch (opposite) {
             case USER2HUB -> hubSessionList.add(session);
             case USER2USER -> userSessionList.add(session);

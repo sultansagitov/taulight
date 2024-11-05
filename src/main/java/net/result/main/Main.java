@@ -10,14 +10,12 @@ import net.result.sandnode.exceptions.encryption.NoSuchEncryptionException;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
-import java.security.GeneralSecurityException;
 import java.util.UUID;
 
 public class Main {
 
-    public static void main(String @NotNull [] args) throws IOException, ReadingKeyException, GeneralSecurityException,
-            NoSuchEncryptionException, EncryptionException, DecryptionException, NoSuchReqHandler, CreatingKeyException,
-            CannotUseEncryption {
+    public static void main(String @NotNull [] args) throws IOException, ReadingKeyException, NoSuchEncryptionException,
+            EncryptionException, DecryptionException, NoSuchReqHandler, CreatingKeyException, CannotUseEncryption {
         String randomId = UUID.randomUUID().toString();
         System.setProperty("randomId", randomId);
 

@@ -5,12 +5,12 @@ import net.result.sandnode.exceptions.encryption.DecryptionException;
 import net.result.sandnode.exceptions.encryption.EncryptionException;
 import net.result.sandnode.util.encryption.Encryption;
 import net.result.sandnode.util.encryption.asymmetric.AsymmetricKeyStorage;
-import net.result.sandnode.util.encryption.interfaces.IDecryptor;
-import net.result.sandnode.util.encryption.interfaces.IEncryptor;
-import net.result.sandnode.util.encryption.interfaces.IGenerator;
-import net.result.sandnode.util.encryption.interfaces.IKeyStorage;
+import net.result.sandnode.util.encryption.core.aes.AESKeyStorage;
+import net.result.sandnode.util.encryption.core.interfaces.IDecryptor;
+import net.result.sandnode.util.encryption.core.interfaces.IEncryptor;
+import net.result.sandnode.util.encryption.core.interfaces.IGenerator;
+import net.result.sandnode.util.encryption.core.interfaces.IKeyStorage;
 import net.result.sandnode.util.encryption.symmetric.aes.AESKeyConvertor;
-import net.result.sandnode.util.encryption.symmetric.aes.AESKeyStorage;
 import net.result.sandnode.util.encryption.symmetric.interfaces.SymmetricKeyStorage;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -47,7 +47,7 @@ public class AESTest {
 
                 Assertions.assertArrayEquals(bytes, decryptedBytes);
 
-                AESKeyStorage secondKeyStorage = AESKeyConvertor.getInstance().toKeyStorage(decryptedBytes);
+                AESKeyStorage secondKeyStorage = AESKeyConvertor.instance().toKeyStorage(decryptedBytes);
                 SecretKey AESToUse = secondKeyStorage.getKey();
                 IKeyStorage KSToUse = new AESKeyStorage(AESToUse);
                 byte[] bytes2 = AESToUse.getEncoded();

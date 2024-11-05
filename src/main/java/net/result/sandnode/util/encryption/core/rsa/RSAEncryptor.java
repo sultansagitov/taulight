@@ -1,10 +1,9 @@
-package net.result.sandnode.util.encryption.rsa;
+package net.result.sandnode.util.encryption.core.rsa;
 
 import net.result.sandnode.exceptions.ReadingKeyException;
 import net.result.sandnode.exceptions.encryption.rsa.RSAEncryptionException;
-import net.result.sandnode.util.encryption.asymmetric.rsa.RSAKeyStorage;
-import net.result.sandnode.util.encryption.interfaces.IEncryptor;
-import net.result.sandnode.util.encryption.interfaces.IKeyStorage;
+import net.result.sandnode.util.encryption.core.interfaces.IEncryptor;
+import net.result.sandnode.util.encryption.core.interfaces.IKeyStorage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
@@ -20,10 +19,10 @@ import static java.nio.charset.StandardCharsets.US_ASCII;
 
 public class RSAEncryptor implements IEncryptor {
     private static final Logger LOGGER = LogManager.getLogger(RSAEncryptor.class);
-    private static final RSAEncryptor instance = new RSAEncryptor();
+    private static final RSAEncryptor INSTANCE = new RSAEncryptor();
 
-    public static RSAEncryptor getInstance() {
-        return instance;
+    public static RSAEncryptor instance() {
+        return INSTANCE;
     }
 
     private byte[] encrypt(@NotNull String data, @NotNull RSAKeyStorage rsaKeyStorage) throws RSAEncryptionException {
@@ -55,14 +54,18 @@ public class RSAEncryptor implements IEncryptor {
 
     @Override
     public byte[] encrypt(@NotNull String data, @NotNull IKeyStorage keyStorage) throws RSAEncryptionException, ReadingKeyException {
-        if (keyStorage instanceof RSAKeyStorage rsaKeyStorage) return encrypt(data, rsaKeyStorage);
-        else throw new ReadingKeyException("Key storage is not instance of RSAKeyStorage");
+        if (keyStorage instanceof RSAKeyStorage) {
+            RSAKeyStorage rsaKeyStorage = (RSAKeyStorage) keyStorage;
+            return encrypt(data, rsaKeyStorage);
+        } else throw new ReadingKeyException("Key storage is not instance of RSAKeyStorage");
     }
 
     @Override
     public byte[] encryptBytes(byte @NotNull [] data, @NotNull IKeyStorage keyStorage) throws RSAEncryptionException, ReadingKeyException {
-        if (keyStorage instanceof RSAKeyStorage rsaKeyStorage) return encryptBytes(data, rsaKeyStorage);
-        else throw new ReadingKeyException("Key storage is not instance of RSAKeyStorage");
+        if (keyStorage instanceof RSAKeyStorage) {
+            RSAKeyStorage rsaKeyStorage = (RSAKeyStorage) keyStorage;
+            return encryptBytes(data, rsaKeyStorage);
+        } else throw new ReadingKeyException("Key storage is not instance of RSAKeyStorage");
     }
 
 }

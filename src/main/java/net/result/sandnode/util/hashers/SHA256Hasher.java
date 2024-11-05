@@ -11,10 +11,10 @@ import static java.nio.charset.StandardCharsets.US_ASCII;
 
 public class SHA256Hasher implements IHasher {
     private static final Logger LOGGER = LogManager.getLogger(SHA256Hasher.class);
-    private static final SHA256Hasher instance = new SHA256Hasher();
+    private static final SHA256Hasher INSTANCE = new SHA256Hasher();
 
-    public static SHA256Hasher getInstance() {
-        return instance;
+    public static SHA256Hasher instance() {
+        return INSTANCE;
     }
 
     @Override

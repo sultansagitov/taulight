@@ -6,8 +6,7 @@ import net.result.sandnode.exceptions.encryption.DecryptionException;
 import net.result.sandnode.exceptions.encryption.EncryptionException;
 import net.result.sandnode.exceptions.encryption.NoSuchEncryptionException;
 import net.result.sandnode.util.encryption.GlobalKeyStorage;
-import net.result.sandnode.util.encryption.asymmetric.rsa.RSAKeyStorage;
-import net.result.sandnode.util.encryption.rsa.RSAGenerator;
+import net.result.sandnode.util.encryption.core.interfaces.IKeyStorage;
 import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayInputStream;
@@ -37,11 +36,8 @@ class MessageTest {
         node1Message.setBody(originalBody);
 
 
-        RSAGenerator rsaGenerator = RSAGenerator.getInstance();
-        RSAKeyStorage rsaKeyStorage = rsaGenerator.generateKeyStorage();
-
-        GlobalKeyStorage globalKeyStorage = new GlobalKeyStorage();
-        globalKeyStorage.set(RSA, rsaKeyStorage);
+        IKeyStorage keyStorage = RSA.generator().generateKeyStorage();
+        GlobalKeyStorage globalKeyStorage = new GlobalKeyStorage(keyStorage);
 
         byte[] byteArray = node1Message.toByteArray(globalKeyStorage, RSA);
         ByteArrayInputStream in = new ByteArrayInputStream(byteArray);
@@ -54,7 +50,7 @@ class MessageTest {
         assertEquals(node1Message.getHeaders().getContentType(), node2Message.getHeaders().getContentType());
         assertEquals(node1Message.getHeaders().getConnection(), node2Message.getHeaders().getConnection());
         assertEquals(node1Message.getHeaders().getType(), node2Message.getHeaders().getType());
-        assertEquals(node1Message.getHeaders().getEncryption(), node2Message.getHeaders().getEncryption());
+        assertEquals(node1Message.getHeaders().getBodyEncryption(), node2Message.getHeaders().getBodyEncryption());
         assertEquals(node1Message.getHeaders().get("keyname"), node2Message.getHeaders().get("keyname"));
 
         // body

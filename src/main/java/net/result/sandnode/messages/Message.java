@@ -8,17 +8,14 @@ import net.result.sandnode.exceptions.encryption.EncryptionException;
 import net.result.sandnode.exceptions.encryption.NoSuchEncryptionException;
 import net.result.sandnode.util.encryption.Encryption;
 import net.result.sandnode.util.encryption.GlobalKeyStorage;
-import net.result.sandnode.util.encryption.interfaces.IEncryptor;
-import net.result.sandnode.util.encryption.interfaces.IKeyStorage;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import net.result.sandnode.util.encryption.core.interfaces.IEncryptor;
+import net.result.sandnode.util.encryption.core.interfaces.IKeyStorage;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.ByteArrayOutputStream;
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.SocketException;
 import java.nio.ByteBuffer;
 
 public abstract class Message implements IMessage {
@@ -31,32 +28,57 @@ public abstract class Message implements IMessage {
     public static @NotNull RawMessage fromInput(
             @NotNull InputStream in,
             @NotNull GlobalKeyStorage globalKeyStorage
-    ) throws NoSuchEncryptionException, ReadingKeyException, DecryptionException, NoSuchReqHandler, IOException {
+    ) throws NoSuchEncryptionException, ReadingKeyException, DecryptionException, NoSuchReqHandler, EOFException {
         int versionInt;
         try {
             versionInt = in.read();
-        } catch (SocketException e) {
+        } catch (IOException e) {
             throw new FirstByteEOFException("End of stream reached while reading version");
         }
         if (versionInt == -1) throw new FirstByteEOFException("End of stream reached while reading version");
         byte version = (byte) versionInt;
 
-        int encryptionInt = in.read();
+        int encryptionInt;
+        try {
+            encryptionInt = in.read();
+        } catch (IOException e) {
+            encryptionInt = -1;
+        }
         if (encryptionInt == -1) throw new EOFException("End of stream reached while reading encryptionInt");
         byte encryptionByte = (byte) encryptionInt;
 
-        byte[] headersLengthBytes = in.readNBytes(2);
+        byte[] headersLengthBytes;
+        try {
+            headersLengthBytes = in.readNBytes(2);
+        } catch (IOException e) {
+            headersLengthBytes = new byte[]{};
+        }
         if (headersLengthBytes.length < 2) throw new EOFException("End of stream reached while reading headers length");
         short headersLength = ByteBuffer.wrap(headersLengthBytes).getShort();
 
-        byte[] headersBytes = in.readNBytes(headersLength);
+        byte[] headersBytes;
+        try {
+            headersBytes = in.readNBytes(headersLength);
+        } catch (IOException e) {
+            headersBytes = new byte[]{};
+        }
         if (headersBytes.length < headersLength) throw new EOFException("End of stream reached while reading headers");
 
-        byte[] bodyLengthBytes = in.readNBytes(4);
+        byte[] bodyLengthBytes;
+        try {
+            bodyLengthBytes = in.readNBytes(4);
+        } catch (IOException e) {
+            bodyLengthBytes = new byte[]{};
+        }
         if (bodyLengthBytes.length < 4) throw new EOFException("End of stream reached while reading body length");
         int bodyLength = ByteBuffer.wrap(bodyLengthBytes).getInt();
 
-        byte[] bodyBytes = in.readNBytes(bodyLength);
+        byte[] bodyBytes;
+        try {
+            bodyBytes = in.readNBytes(bodyLength);
+        } catch (IOException e) {
+            bodyBytes = new byte[]{};
+        }
         if (bodyBytes.length < bodyLength) throw new EOFException("End of stream reached while reading body");
 
 
@@ -65,7 +87,7 @@ public abstract class Message implements IMessage {
         HeadersBuilder headersBuilder = Headers.getFromBytes(decryptedHeaders);
         Headers headers = headersBuilder.build();
 
-        Encryption bodyEncryption = headers.getEncryption();
+        Encryption bodyEncryption = headers.getBodyEncryption();
         byte[] decryptedBody = decryptBody(bodyEncryption, bodyBytes, globalKeyStorage);
 
         return new RawMessage(headersBuilder, decryptedBody);
@@ -101,7 +123,7 @@ public abstract class Message implements IMessage {
         {
             byte[] headersBytes = getHeaders().toByteArray();
             IEncryptor encryptor = encryption.encryptor();
-            IKeyStorage keyStorage = globalKeyStorage.get(encryption);
+            IKeyStorage keyStorage = globalKeyStorage.getNonNull(encryption);
             byte[] encryptedHeaders = encryptor.encryptBytes(headersBytes, keyStorage);
             int lengthInt = encryptedHeaders.length;
             if (lengthInt > Short.MAX_VALUE)
@@ -114,9 +136,9 @@ public abstract class Message implements IMessage {
 
         {
             byte[] bodyBytes = getBody();
-            Encryption bodyEncryption = getHeaders().getEncryption();
+            Encryption bodyEncryption = getHeaders().getBodyEncryption();
             IEncryptor encryptor = bodyEncryption.encryptor();
-            IKeyStorage keyStorage = globalKeyStorage.get(bodyEncryption);
+            IKeyStorage keyStorage = globalKeyStorage.getNonNull(bodyEncryption);
             byte[] encryptionBody = encryptor.encryptBytes(bodyBytes, keyStorage);
             int length = encryptionBody.length;
             byteArrayOutputStream.write((length >> 24) & 0xFF);
@@ -142,9 +164,10 @@ public abstract class Message implements IMessage {
 
     @Override
     public String toString() {
-        return "<%s %s %s %s %s>".formatted(
+        return String.format(
+                "<%s %s %s %s %s>",
                 getClass().getSimpleName(),
-                getHeaders().getEncryption(),
+                getHeaders().getBodyEncryption(),
                 getHeaders().getType().name(),
                 getHeaders().getConnection().name(),
                 getHeaders().getContentType()

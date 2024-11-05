@@ -7,10 +7,6 @@ import java.security.GeneralSecurityException;
 
 public class RSAEncryptionException extends EncryptionException {
 
-    public RSAEncryptionException(@NotNull String message) {
-        super(message);
-    }
-
     public RSAEncryptionException(@NotNull GeneralSecurityException e) {
         super(e);
     }

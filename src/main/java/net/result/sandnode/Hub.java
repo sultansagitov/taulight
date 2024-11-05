@@ -1,5 +1,6 @@
 package net.result.sandnode;
 
+import net.result.sandnode.config.HubConfig;
 import net.result.sandnode.exceptions.FirstByteEOFException;
 import net.result.sandnode.exceptions.NoSuchReqHandler;
 import net.result.sandnode.exceptions.ReadingKeyException;
@@ -19,7 +20,6 @@ import org.jetbrains.annotations.NotNull;
 import java.io.IOException;
 import java.net.Socket;
 import java.nio.BufferUnderflowException;
-import java.security.NoSuchAlgorithmException;
 import java.util.List;
 
 import static net.result.sandnode.messages.util.MessageType.EXT;
@@ -28,8 +28,8 @@ import static net.result.sandnode.messages.util.NodeType.HUB;
 public abstract class Hub extends Node {
     private static final Logger LOGGER = LogManager.getLogger(Hub.class);
 
-    public Hub(@NotNull GlobalKeyStorage globalKeyStorage) {
-        super(globalKeyStorage);
+    public Hub(@NotNull GlobalKeyStorage globalKeyStorage, @NotNull HubConfig hubConfig) {
+        super(globalKeyStorage, hubConfig);
     }
 
     public Hub() {
@@ -46,7 +46,7 @@ public abstract class Hub extends Node {
             @NotNull Connection opposite,
             @NotNull Socket socket
     ) throws IOException, WrongNodeUsed {
-        Session session = new Session(this, socket, globalKeyStorage);
+        Session session = new Session(socket, globalKeyStorage);
         switch (opposite) {
             case HUB2USER -> userSessionList.add(session);
             case HUB2HUB -> hubSessionList.add(session);
@@ -68,13 +68,13 @@ public abstract class Hub extends Node {
             while (true) {
                 RawMessage request = session.receiveMessage();
                 if (request.getHeaders().getType() == EXT) break;
-                onUserMessage(request, sessionList, session);
+                onUserMessage(request, session);
             }
         } catch (FirstByteEOFException ignored) {
         } catch (IOException | BufferUnderflowException e) {
             LOGGER.error("I/O Error", e);
-        } catch (NoSuchEncryptionException | ReadingKeyException | NoSuchAlgorithmException | DecryptionException |
-                 EncryptionException | NoSuchReqHandler e) {
+        } catch (NoSuchEncryptionException | ReadingKeyException | DecryptionException | EncryptionException |
+                 NoSuchReqHandler e) {
             LOGGER.error("Unknown", e);
         }
 

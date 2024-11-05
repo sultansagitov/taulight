@@ -1,4 +1,4 @@
-package net.result.sandnode.util.encryption.interfaces;
+package net.result.sandnode.util.encryption.core.interfaces;
 
 import net.result.sandnode.exceptions.ReadingKeyException;
 import net.result.sandnode.exceptions.encryption.DecryptionException;

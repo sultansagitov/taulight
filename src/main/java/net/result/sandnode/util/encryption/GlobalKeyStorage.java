@@ -3,7 +3,7 @@ package net.result.sandnode.util.encryption;
 import net.result.sandnode.exceptions.KeyStorageNotFoundException;
 import net.result.sandnode.exceptions.WrongEncryptionException;
 import net.result.sandnode.util.encryption.asymmetric.AsymmetricKeyStorage;
-import net.result.sandnode.util.encryption.interfaces.IKeyStorage;
+import net.result.sandnode.util.encryption.core.interfaces.IKeyStorage;
 import net.result.sandnode.util.encryption.symmetric.interfaces.SymmetricKeyStorage;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -11,9 +11,17 @@ import org.jetbrains.annotations.Nullable;
 import java.util.EnumMap;
 import java.util.Map;
 
-public class GlobalKeyStorage {
+import static net.result.sandnode.util.encryption.Encryption.NONE;
 
+public class GlobalKeyStorage {
     private final Map<Encryption, IKeyStorage> keyStorageMap = new EnumMap<>(Encryption.class);
+
+    public GlobalKeyStorage() {
+    }
+
+    public GlobalKeyStorage(@NotNull IKeyStorage keyStorage) {
+        set(keyStorage);
+    }
 
     public @Nullable IKeyStorage get(@NotNull Encryption encryption) {
         return keyStorageMap.get(encryption);
@@ -21,21 +29,27 @@ public class GlobalKeyStorage {
 
     public @NotNull IKeyStorage getNonNull(@NotNull Encryption encryption) {
         if (has(encryption))
-            return keyStorageMap.get(encryption);
+            return encryption == NONE ? NONE.generator().generateKeyStorage() : keyStorageMap.get(encryption);
         throw new KeyStorageNotFoundException(encryption);
     }
 
-    public void set(
+    public GlobalKeyStorage set(
             @NotNull Encryption encryption,
             @NotNull IKeyStorage keyStorage
     ) {
         if (keyStorage.encryption() == encryption) {
             keyStorageMap.put(encryption, keyStorage);
         }
+        return this;
+    }
+
+    public GlobalKeyStorage set(@NotNull IKeyStorage keyStorage) {
+        keyStorageMap.put(keyStorage.encryption(), keyStorage);
+        return this;
     }
 
     public boolean has(@NotNull Encryption encryption) {
-        return keyStorageMap.containsKey(encryption);
+        return encryption == NONE || keyStorageMap.containsKey(encryption);
     }
 
     public AsymmetricKeyStorage getAsymmetric(@NotNull Encryption encryption) {

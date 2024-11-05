@@ -1,8 +1,7 @@
-package net.result.sandnode.util.encryption.symmetric.aes;
+package net.result.sandnode.util.encryption.core.aes;
 
 import net.result.sandnode.util.encryption.Encryption;
-import net.result.sandnode.util.encryption.GlobalKeyStorage;
-import net.result.sandnode.util.encryption.interfaces.IKeyStorage;
+import net.result.sandnode.util.encryption.core.interfaces.IKeyStorage;
 import net.result.sandnode.util.encryption.symmetric.interfaces.SymmetricKeyStorage;
 import org.jetbrains.annotations.NotNull;
 
@@ -15,12 +14,8 @@ public class AESKeyStorage extends SymmetricKeyStorage {
         this.key = key;
     }
 
-    public AESKeyStorage(@NotNull GlobalKeyStorage globalKeyStorage) {
-        this.setKey(globalKeyStorage.getSymmetric(AES).getKey());
-    }
-
     @Override
-    public Encryption encryption() {
+    public @NotNull Encryption encryption() {
         return AES;
     }
 

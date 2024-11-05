@@ -32,7 +32,7 @@ class HeadersTest {
         assertEquals(headers.getContentType(), reconstructedHeaders.getContentType());
         assertEquals(headers.getConnection(), reconstructedHeaders.getConnection());
         assertEquals(headers.getType(), reconstructedHeaders.getType());
-        assertEquals(headers.getEncryption(), reconstructedHeaders.getEncryption());
+        assertEquals(headers.getBodyEncryption(), reconstructedHeaders.getBodyEncryption());
         assertEquals(headers.get("key"), reconstructedHeaders.get("key"));
     }
 }

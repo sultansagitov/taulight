@@ -1,14 +1,12 @@
-package net.result.sandnode.util.encryption.aes;
+package net.result.sandnode.util.encryption.core.aes;
 
 import net.result.sandnode.exceptions.ReadingKeyException;
 import net.result.sandnode.exceptions.encryption.aes.AESEncryptionException;
-import net.result.sandnode.util.encryption.interfaces.IEncryptor;
-import net.result.sandnode.util.encryption.interfaces.IKeyStorage;
-import net.result.sandnode.util.encryption.symmetric.aes.AESKeyStorage;
+import net.result.sandnode.util.encryption.core.interfaces.IEncryptor;
+import net.result.sandnode.util.encryption.core.interfaces.IKeyStorage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import javax.crypto.*;
 import javax.crypto.spec.IvParameterSpec;
@@ -21,25 +19,25 @@ import static java.nio.charset.StandardCharsets.US_ASCII;
 
 public class AESEncryptor implements IEncryptor {
     private static final Logger LOGGER = LogManager.getLogger(AESEncryptor.class);
-    private static final AESEncryptor instance = new AESEncryptor();
+    private static final AESEncryptor INSTANCE = new AESEncryptor();
 
-    public static AESEncryptor getInstance() {
-        return instance;
+    public static AESEncryptor instance() {
+        return INSTANCE;
     }
 
-    public byte[] encrypt(@NotNull String data, @Nullable AESKeyStorage keyStore) throws AESEncryptionException {
+    public byte[] encrypt(@NotNull String data, @NotNull AESKeyStorage keyStorage) throws AESEncryptionException {
         byte[] bytes = data.trim().getBytes(US_ASCII);
-        return encryptBytes(bytes, keyStore);
+        return encryptBytes(bytes, keyStorage);
     }
 
-    public byte[] encryptBytes(byte @NotNull [] data, @Nullable AESKeyStorage keyStore) throws AESEncryptionException {
+    public byte[] encryptBytes(byte @NotNull [] data, @NotNull AESKeyStorage keyStorage) throws AESEncryptionException {
         int IV_LENGTH = 16;
         byte[] iv = new byte[IV_LENGTH];
         SecureRandom secureRandom = new SecureRandom();
         secureRandom.nextBytes(iv);
         IvParameterSpec ivSpec = new IvParameterSpec(iv);
 
-        SecretKey aesKey = keyStore.getKey();
+        SecretKey aesKey = keyStorage.getKey();
         Cipher cipher;
         byte[] encrypted;
 
@@ -72,15 +70,25 @@ public class AESEncryptor implements IEncryptor {
     }
 
     @Override
-    public byte[] encrypt(@NotNull String data, @Nullable IKeyStorage keyStorage) throws AESEncryptionException, ReadingKeyException {
-        if (keyStorage instanceof AESKeyStorage aesKeyStorage) return encrypt(data, aesKeyStorage);
-        else throw new ReadingKeyException("Key storage is not instance of AESKeyStorage");
+    public byte[] encrypt(
+            @NotNull String data,
+            @NotNull IKeyStorage keyStorage
+    ) throws AESEncryptionException, ReadingKeyException {
+        if (keyStorage instanceof AESKeyStorage) {
+            AESKeyStorage aesKeyStorage = (AESKeyStorage) keyStorage;
+            return encrypt(data, aesKeyStorage);
+        } else throw new ReadingKeyException("Key storage is not instance of AESKeyStorage");
     }
 
     @Override
-    public byte[] encryptBytes(byte @NotNull [] data, @Nullable IKeyStorage keyStorage) throws AESEncryptionException, ReadingKeyException {
-        if (keyStorage instanceof AESKeyStorage aesKeyStorage) return encryptBytes(data, aesKeyStorage);
-        else throw new ReadingKeyException("Key storage is not instance of AESKeyStorage");
+    public byte[] encryptBytes(
+            byte @NotNull [] data,
+            @NotNull IKeyStorage keyStorage
+    ) throws AESEncryptionException, ReadingKeyException {
+        if (keyStorage instanceof AESKeyStorage) {
+            AESKeyStorage aesKeyStorage = (AESKeyStorage) keyStorage;
+            return encryptBytes(data, aesKeyStorage);
+        } else throw new ReadingKeyException("Key storage is not instance of AESKeyStorage");
     }
 
 }

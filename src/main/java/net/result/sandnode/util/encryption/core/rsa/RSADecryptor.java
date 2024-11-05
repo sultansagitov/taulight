@@ -1,10 +1,9 @@
-package net.result.sandnode.util.encryption.rsa;
+package net.result.sandnode.util.encryption.core.rsa;
 
 import net.result.sandnode.exceptions.ReadingKeyException;
 import net.result.sandnode.exceptions.encryption.rsa.RSADecryptionException;
-import net.result.sandnode.util.encryption.asymmetric.rsa.RSAKeyStorage;
-import net.result.sandnode.util.encryption.interfaces.IDecryptor;
-import net.result.sandnode.util.encryption.interfaces.IKeyStorage;
+import net.result.sandnode.util.encryption.core.interfaces.IDecryptor;
+import net.result.sandnode.util.encryption.core.interfaces.IKeyStorage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
@@ -18,15 +17,15 @@ import java.security.NoSuchAlgorithmException;
 
 public class RSADecryptor implements IDecryptor {
     private static final Logger LOGGER = LogManager.getLogger(RSADecryptor.class);
-    private static final RSADecryptor instance = new RSADecryptor();
+    private static final RSADecryptor INSTANCE = new RSADecryptor();
 
-    public static RSADecryptor getInstance() {
-        return instance;
+    public static RSADecryptor instance() {
+        return INSTANCE;
     }
 
     @Override
-    public String decrypt(byte @NotNull [] data, @NotNull IKeyStorage keyStore) throws RSADecryptionException, ReadingKeyException {
-        byte[] decryptedBytes = decryptBytes(data, keyStore);
+    public String decrypt(byte @NotNull [] data, @NotNull IKeyStorage keyStorage) throws RSADecryptionException, ReadingKeyException {
+        byte[] decryptedBytes = decryptBytes(data, keyStorage);
         return new String(decryptedBytes);
     }
 
@@ -67,7 +66,8 @@ public class RSADecryptor implements IDecryptor {
             byte @NotNull [] data,
             @NotNull IKeyStorage keyStorage
     ) throws RSADecryptionException, ReadingKeyException {
-        if (keyStorage instanceof RSAKeyStorage rsaKeyStorage) {
+        if (keyStorage instanceof RSAKeyStorage) {
+            RSAKeyStorage rsaKeyStorage = (RSAKeyStorage) keyStorage;
             return decryptBytes(data, rsaKeyStorage);
         } else {
             throw new ReadingKeyException("Key storage is not instance of RSAKeyStorage");

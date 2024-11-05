@@ -1,9 +1,9 @@
-package net.result.sandnode.util.encryption.rsa;
+package net.result.sandnode.util.encryption.core.rsa;
 
 import net.result.sandnode.util.encryption.asymmetric.interfaces.IAsymmetricGenerator;
-import net.result.sandnode.util.encryption.asymmetric.rsa.RSAKeyStorage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.jetbrains.annotations.NotNull;
 
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
@@ -11,14 +11,14 @@ import java.security.NoSuchAlgorithmException;
 
 public class RSAGenerator implements IAsymmetricGenerator {
     private static final Logger LOGGER = LogManager.getLogger(RSAGenerator.class);
-    private static final RSAGenerator instance = new RSAGenerator();
+    private static final RSAGenerator INSTANCE = new RSAGenerator();
 
-    public static RSAGenerator getInstance() {
-        return instance;
+    public static RSAGenerator instance() {
+        return INSTANCE;
     }
 
     @Override
-    public RSAKeyStorage generateKeyStorage() {
+    public @NotNull RSAKeyStorage generateKeyStorage() {
         KeyPairGenerator keyGen;
 
         try {

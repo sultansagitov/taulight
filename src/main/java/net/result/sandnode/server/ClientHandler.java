@@ -12,7 +12,6 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.nio.BufferUnderflowException;
-import java.security.NoSuchAlgorithmException;
 import java.util.List;
 
 import static net.result.sandnode.messages.util.MessageType.EXT;
@@ -26,7 +25,7 @@ public class ClientHandler extends Thread {
             @NotNull List<Session> sessionList,
             @NotNull Session session
     ) {
-        setName("Server-thread %s".formatted(session.getIPString()));
+        setName(String.format("Server-thread %s", session.getIPString()));
         this.sessionList = sessionList;
         this.session = session;
     }
@@ -41,8 +40,7 @@ public class ClientHandler extends Thread {
         } catch (FirstByteEOFException ignored) {
         } catch (IOException | BufferUnderflowException e) {
             LOGGER.error("I/O Error", e);
-        } catch (NoSuchEncryptionException | ReadingKeyException | NoSuchAlgorithmException | DecryptionException |
-                 NoSuchReqHandler e) {
+        } catch (NoSuchEncryptionException | ReadingKeyException | DecryptionException | NoSuchReqHandler e) {
             LOGGER.error("Unknown", e);
         }
 

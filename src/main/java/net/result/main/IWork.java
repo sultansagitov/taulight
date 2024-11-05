@@ -9,8 +9,8 @@ import net.result.sandnode.exceptions.encryption.EncryptionException;
 import net.result.sandnode.exceptions.encryption.NoSuchEncryptionException;
 
 import java.io.IOException;
-import java.security.GeneralSecurityException;
 
 public interface IWork {
-    void run() throws GeneralSecurityException, IOException, ReadingKeyException, NoSuchEncryptionException, DecryptionException, EncryptionException, NoSuchReqHandler, CreatingKeyException, CannotUseEncryption;
+    void run() throws IOException, ReadingKeyException, NoSuchEncryptionException, DecryptionException,
+            EncryptionException, NoSuchReqHandler, CreatingKeyException, CannotUseEncryption;
 }

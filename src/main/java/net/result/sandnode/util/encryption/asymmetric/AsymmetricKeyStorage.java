@@ -1,6 +1,6 @@
 package net.result.sandnode.util.encryption.asymmetric;
 
-import net.result.sandnode.util.encryption.interfaces.IKeyStorage;
+import net.result.sandnode.util.encryption.core.interfaces.IKeyStorage;
 import org.jetbrains.annotations.NotNull;
 
 import java.security.KeyPair;
@@ -8,30 +8,27 @@ import java.security.PrivateKey;
 import java.security.PublicKey;
 
 public abstract class AsymmetricKeyStorage implements IKeyStorage {
-    protected PublicKey publicKey;
-    protected PrivateKey privateKey;
+    private PublicKey publicKey;
+    private PrivateKey privateKey;
 
-    public AsymmetricKeyStorage setKeys(@NotNull KeyPair kp) {
+    public void setKeys(@NotNull KeyPair kp) {
         this.publicKey = kp.getPublic();
         this.privateKey = kp.getPrivate();
-        return this;
     }
 
     public PublicKey getPublicKey() {
         return this.publicKey;
     }
 
-    public AsymmetricKeyStorage setPublicKey(@NotNull PublicKey publicKey) {
-        this.publicKey = publicKey;
-        return this;
-    }
-
     public PrivateKey getPrivateKey() {
         return this.privateKey;
     }
 
-    public AsymmetricKeyStorage setPrivateKey(@NotNull PrivateKey privateKey) {
+    public void set(@NotNull PublicKey publicKey) {
+        this.publicKey = publicKey;
+    }
+
+    public void set(@NotNull PrivateKey privateKey) {
         this.privateKey = privateKey;
-        return this;
     }
 }

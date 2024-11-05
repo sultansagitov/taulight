@@ -11,10 +11,10 @@ import static java.nio.charset.StandardCharsets.US_ASCII;
 
 public class MD5Hasher implements IHasher {
     private static final Logger LOGGER = LogManager.getLogger(MD5Hasher.class);
-    private static final MD5Hasher instance = new MD5Hasher();
+    private static final MD5Hasher INSTANCE = new MD5Hasher();
 
-    public static MD5Hasher getInstance() {
-        return instance;
+    public static MD5Hasher instance() {
+        return INSTANCE;
     }
 
     @Override

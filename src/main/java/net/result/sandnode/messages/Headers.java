@@ -7,8 +7,6 @@ import net.result.sandnode.messages.util.MessageType;
 import net.result.sandnode.messages.util.NodeType;
 import net.result.sandnode.util.encryption.Encryption;
 import net.result.simplesix64.SimpleSix64;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.ByteArrayOutputStream;
@@ -20,8 +18,8 @@ import static net.result.sandnode.messages.util.NodeType.HUB;
 public class Headers implements Iterable<Map.Entry<String, String>> {
     private final Map<String, String> map = new HashMap<>();
     private final Connection connection;
-    private MessageType type;
-    private Encryption encryption = Encryption.NO;
+    private final MessageType type;
+    private Encryption bodyEncryption = Encryption.NONE;
 
     public Headers(@NotNull Connection connection, @NotNull MessageType type, @NotNull String contentType) {
         this.connection = connection;
@@ -30,14 +28,13 @@ public class Headers implements Iterable<Map.Entry<String, String>> {
     }
 
     public static HeadersBuilder getFromBytes(byte @NotNull [] data) throws NoSuchEncryptionException, NoSuchReqHandler {
-        byte flags = data[0];
 
         if (data.length < 3) {
             throw new IllegalArgumentException("Data is too short to extract the required information");
         }
 
         HeadersBuilder headersBuilder = new HeadersBuilder()
-                .set(Connection.fromByte(flags))
+                .set(Connection.fromByte(data[0]))
                 .set(MessageType.getMessageType(data[1]))
                 .set(Encryption.fromByte(data[2]));
 
@@ -73,14 +70,6 @@ public class Headers implements Iterable<Map.Entry<String, String>> {
         map.put(headerName.trim().toLowerCase(), value.trim());
     }
 
-    public void add(@NotNull Headers value) {
-        map.putAll(value.map);
-    }
-
-    public boolean containsHeader(@NotNull String headerName) {
-        return map.containsKey(headerName.toLowerCase());
-    }
-
     public @NotNull String getContentType() {
         String s = get("ct");
         return Optional.of(s).orElse("text/plain").toLowerCase();
@@ -94,16 +83,12 @@ public class Headers implements Iterable<Map.Entry<String, String>> {
         return type;
     }
 
-    public void setType(@NotNull MessageType type) {
-        this.type = type;
+    public Encryption getBodyEncryption() {
+        return bodyEncryption;
     }
 
-    public Encryption getEncryption() {
-        return encryption;
-    }
-
-    public void setEncryption(@NotNull Encryption encryption) {
-        this.encryption = encryption;
+    public void setBodyEncryption(@NotNull Encryption bodyEncryption) {
+        this.bodyEncryption = bodyEncryption;
     }
 
     public byte[] toByteArray() throws IOException {
@@ -116,7 +101,7 @@ public class Headers implements Iterable<Map.Entry<String, String>> {
         if (to == HUB) first |= (byte) 0b01000000;
         byteArrayOutputStream.write(first);
         byteArrayOutputStream.write(type.asByte());
-        byteArrayOutputStream.write(getEncryption().asByte());
+        byteArrayOutputStream.write(getBodyEncryption().asByte());
 
         StringBuilder result = new StringBuilder();
 
@@ -142,8 +127,10 @@ public class Headers implements Iterable<Map.Entry<String, String>> {
 
     @Override
     public boolean equals(Object obj) {
-        if (obj instanceof Headers headers2)
+        if (obj instanceof Headers) {
+            Headers headers2 = (Headers) obj;
             return map.equals(headers2.map);
+        }
         return super.equals(obj);
     }
 

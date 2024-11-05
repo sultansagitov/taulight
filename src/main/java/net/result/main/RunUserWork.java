@@ -17,15 +17,15 @@ import net.result.sandnode.exceptions.encryption.NoSuchEncryptionException;
 import net.result.sandnode.messages.ExitMessage;
 import net.result.sandnode.messages.HeadersBuilder;
 import net.result.sandnode.messages.IMessage;
-import net.result.sandnode.util.encryption.Encryption;
-import net.result.sandnode.util.encryption.GlobalKeyStorage;
+import net.result.sandnode.util.Endpoint;
 import net.result.sandnode.util.encryption.asymmetric.AsymmetricKeyStorage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.jetbrains.annotations.NotNull;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.security.NoSuchAlgorithmException;
+import java.util.Arrays;
+import java.util.Objects;
 import java.util.Scanner;
 
 import static net.result.sandnode.messages.util.NodeType.HUB;
@@ -34,61 +34,88 @@ import static net.result.sandnode.util.encryption.Encryption.AES;
 public class RunUserWork implements IWork {
     private static final Logger LOGGER = LogManager.getLogger(RunUserWork.class);
 
-    @Override
-    public void run() throws ReadingKeyException, EncryptionException, IOException, NoSuchEncryptionException,
-            DecryptionException, NoSuchReqHandler, CreatingKeyException, CannotUseEncryption, NoSuchAlgorithmException {
-        Scanner scanner = new Scanner(System.in);
-        GlobalKeyStorage globalKeyStorage = new GlobalKeyStorage();
-        UserConfig userConfig = new UserConfig();
+    private static void onMessage(@NotNull IMessage response) {
+        byte[] responseBody = response.getBody();
+        HeloType heloType;
 
-        System.out.print("host: ");
-        String host = scanner.nextLine();
-        System.out.print("port: ");
-        int port = Integer.parseInt(scanner.nextLine());
-
-        User user = new HeloUser(globalKeyStorage);
-        Client client = new Client(host, port, user, HUB);
-        client.connect();
-        AsymmetricKeyStorage publicKey = userConfig.getPublicKey(host, port);
-        Encryption publicKeyEncryption = publicKey != null ? publicKey.encryption() : null;
-
-        if (publicKeyEncryption == null) {
-            publicKeyEncryption = client.getKeys();
-        } else {
-            globalKeyStorage.set(publicKeyEncryption, publicKey);
+        try {
+            heloType = HeloType.fromByte(responseBody[0]);
+        } catch (WrongTypeException e) {
+            throw new RuntimeException(e);
         }
 
+        byte[] bytes = Arrays.copyOfRange(responseBody, 1, responseBody.length);
+        HeloMessage heloMessage = heloType.fromBytes(bytes);
+
+        switch (heloType) {
+            case ECHO, FORWARD -> LOGGER.info("From server: {}", ((TextMessage) heloMessage).data);
+            case ONLINE_RESPONSE -> LOGGER.info("Online users: {}", ((OnlineResponseMessage) heloMessage).users);
+        }
+
+    }
+
+    private static @NotNull Thread getReceiveThread(Client client) {
         Thread receiveThread = new Thread(() -> {
             try {
                 while (client.isConnected()) {
                     IMessage response = client.receiveMessage();
                     if (response == null) break;
-
-                    ByteArrayInputStream in = new ByteArrayInputStream(response.getBody());
-                    HeloType heloType;
-
-                    try {
-                        heloType = HeloType.fromByte((byte) in.read());
-                    } catch (WrongTypeException e) {
-                        throw new RuntimeException(e);
-                    }
-
-                    HeloMessage heloMessage = heloType.fromBytes(in.readAllBytes());
-
-                    switch (heloType) {
-                        case ECHO, FORWARD -> LOGGER.info("From server: {}", ((TextMessage) heloMessage).data);
-                        case ONLINE_RESPONSE -> LOGGER.info("Online users: {}", ((OnlineResponseMessage) heloMessage).users);
-                    }
+                    onMessage(response);
                 }
-            } catch (ReadingKeyException | DecryptionException | NoSuchEncryptionException | NoSuchAlgorithmException |
-                     NoSuchReqHandler | EncryptionException e) {
+            } catch (ReadingKeyException | DecryptionException | NoSuchEncryptionException | NoSuchReqHandler e) {
                 LOGGER.error("Error on receiving message thread", e);
             }
         });
-        receiveThread.start();
+        receiveThread.setName("Receiving-thread");
+        return receiveThread;
+    }
+
+    private static @NotNull IMessage handle(String input, HeadersBuilder headersBuilder) {
+        HeloMessage helorequest;
+
+        if (input.equalsIgnoreCase("getonline")) {
+            helorequest = new OnlineMessage();
+
+        } else if (input.startsWith("forward ")) {
+            String data = input.substring(input.indexOf(" ") + 1);
+            helorequest = new ForwardMessage(data);
+
+        } else {
+            helorequest = new EchoMessage(input);
+        }
+
+        return new SandnodeMessageAdapter(headersBuilder, helorequest);
+    }
+
+    @Override
+    public void run() throws IOException, ReadingKeyException, NoSuchEncryptionException, DecryptionException,
+            EncryptionException, NoSuchReqHandler, CreatingKeyException, CannotUseEncryption {
+        Scanner scanner = new Scanner(System.in);
+        UserConfig userConfig = new UserConfig();
+
+        System.out.print("endpoint: ");
+        String domainString = scanner.nextLine();
+        Endpoint endpoint = Endpoint.getFromString(domainString, 52525);
+
+        User user = new HeloUser(userConfig);
+        Client client = new Client(endpoint, user, HUB);
+        client.connect();
+
+        AsymmetricKeyStorage publicKey = userConfig.getPublicKey(endpoint);
+        if (publicKey != null) {
+            client.encryptionOfServer = publicKey.encryption();
+            user.globalKeyStorage.set(publicKey);
+        } else {
+            client.getPublicKeyFromServer();
+            userConfig.addKey(endpoint, Objects.requireNonNull(user.globalKeyStorage.get(client.encryptionOfServer)));
+        }
+
+        client.sendSymmetricKey();
+
+        getReceiveThread(client).start();
 
         while (true) {
-            System.out.printf("[%s:%d] ", host, port);
+            System.out.printf("[%s] ", endpoint);
             String input = scanner.nextLine();
 
 
@@ -97,28 +124,12 @@ public class RunUserWork implements IWork {
 
                 if (input.equalsIgnoreCase("exit")) {
                     ExitMessage exitRequest = new ExitMessage(headersBuilder);
-                    client.sendMessage(exitRequest, publicKeyEncryption);
+                    client.sendMessage(exitRequest, client.encryptionOfServer);
                     client.disconnect();
                     break;
                 } else if (!input.isEmpty()) {
-                    HeloMessage helorequest;
-
-                    if (input.equalsIgnoreCase("getonline")) {
-                        helorequest = new OnlineMessage();
-
-                    } else if (input.startsWith("forward ")) {
-                        String data = input.substring(input.indexOf(" ") + 1);
-                        helorequest = new ForwardMessage(data);
-
-                    } else {
-                        helorequest = new EchoMessage(input);
-                    }
-
-                    IMessage request = new SandnodeMessageAdapter(headersBuilder, helorequest);
-                    if (publicKeyEncryption != null)
-                        client.sendMessage(request, publicKeyEncryption);
-                    else
-                        LOGGER.info("Message was not sent");
+                    IMessage request = handle(input, headersBuilder);
+                    client.sendMessage(request, client.encryptionOfServer);
                 }
             } catch (IOException | ReadingKeyException | EncryptionException e) {
                 LOGGER.error("Error on console reading and sending cycle", e);

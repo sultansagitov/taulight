@@ -1,6 +1,5 @@
 package net.result.sandnode.server;
 
-import net.result.sandnode.Node;
 import net.result.sandnode.exceptions.NoSuchReqHandler;
 import net.result.sandnode.exceptions.ReadingKeyException;
 import net.result.sandnode.exceptions.encryption.DecryptionException;
@@ -20,26 +19,22 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
-import java.security.NoSuchAlgorithmException;
-import java.util.UUID;
 
-import static net.result.sandnode.util.encryption.Encryption.NO;
+import static net.result.sandnode.util.encryption.Encryption.NONE;
 
 public class Session {
     private static final Logger LOGGER = LogManager.getLogger(Session.class);
     public final GlobalKeyStorage sessionKeyStorage;
-    private final Node node;
     public final Socket socket;
-    public final UUID uuid = UUID.randomUUID();
     protected final OutputStream out;
-    protected Encryption encryption = NO;
+    protected Encryption encryption = NONE;
+    private volatile boolean inBusy = false;
+    private volatile boolean outBusy = false;
 
     public Session(
-            @NotNull Node node,
             @NotNull Socket socket,
             @NotNull GlobalKeyStorage serverKeyStorage
     ) throws IOException {
-        this.node = node;
         this.socket = socket;
         out = socket.getOutputStream();
         sessionKeyStorage = serverKeyStorage.copy();
@@ -54,9 +49,9 @@ public class Session {
         return request;
     }
 
-    public void setKey(@NotNull Encryption encryption, @NotNull SymmetricKeyStorage symmetricKey) {
-        this.encryption = encryption;
-        sessionKeyStorage.set(encryption, symmetricKey);
+    public void setKey(@NotNull SymmetricKeyStorage symmetricKey) {
+        this.encryption = symmetricKey.encryption();
+        sessionKeyStorage.set(symmetricKey);
     }
 
     public void sendMessage(@NotNull IMessage response) throws IOException, ReadingKeyException, EncryptionException {
@@ -65,13 +60,28 @@ public class Session {
 
     public void sendMessage(@NotNull IMessage response, @NotNull Encryption encryption) throws IOException,
             ReadingKeyException, EncryptionException {
+        while (outBusy) {
+            Thread.onSpinWait();
+        }
+
+        outBusy = true;
         out.write(response.toByteArray(sessionKeyStorage, encryption));
+        outBusy = false;
     }
 
     public @NotNull RawMessage receiveMessage() throws IOException, NoSuchEncryptionException, ReadingKeyException,
-            NoSuchAlgorithmException, DecryptionException, NoSuchReqHandler {
+            DecryptionException, NoSuchReqHandler {
         InputStream in = socket.getInputStream();
-        return _receiveMessage(in, sessionKeyStorage);
+
+        while (inBusy) {
+            Thread.onSpinWait();
+        }
+
+        inBusy = true;
+        RawMessage rawMessage = _receiveMessage(in, sessionKeyStorage);
+        inBusy = false;
+
+        return rawMessage;
     }
 
     public void close() throws IOException {
@@ -80,6 +90,6 @@ public class Session {
     }
 
     public @NotNull String getIPString() {
-        return "%s:%d".formatted(socket.getInetAddress().getHostAddress(), socket.getPort());
+        return String.format("%s:%d", socket.getInetAddress().getHostAddress(), socket.getPort());
     }
 }

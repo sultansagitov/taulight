@@ -2,8 +2,9 @@ package net.result.sandnode.util.encryption.asymmetric.rsa;
 
 import net.result.sandnode.exceptions.CreatingKeyException;
 import net.result.sandnode.exceptions.ReadingKeyException;
-import net.result.sandnode.util.encryption.KeyConvertorUtil;
-import net.result.sandnode.util.encryption.interfaces.IKeyStorage;
+import net.result.sandnode.util.encryption.asymmetric.interfaces.IAsymmetricConvertor;
+import net.result.sandnode.util.encryption.core.interfaces.IKeyStorage;
+import net.result.sandnode.util.encryption.core.rsa.RSAKeyStorage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
@@ -15,21 +16,21 @@ import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.util.Base64;
 
-public class RSAPrivateKeyConvertor implements IRSAConvertor {
-    private static final Logger LOGGER = LogManager.getLogger(RSAPrivateKeyConvertor.class);
-    private static final RSAPrivateKeyConvertor instance = new RSAPrivateKeyConvertor();
+import static net.result.sandnode.util.encryption.Encryption.RSA;
 
-    public static RSAPrivateKeyConvertor getInstance() {
-        return instance;
+public class RSAPrivateKeyConvertor implements IAsymmetricConvertor {
+    private static final Logger LOGGER = LogManager.getLogger(RSAPrivateKeyConvertor.class);
+    private static final RSAPrivateKeyConvertor INSTANCE = new RSAPrivateKeyConvertor();
+
+    public static RSAPrivateKeyConvertor instance() {
+        return INSTANCE;
     }
 
     @Override
-    public @NotNull RSAKeyStorage toKeyStorage(@NotNull String PEMString) throws CreatingKeyException {
-        String cleanKey = KeyConvertorUtil.removePEM(PEMString);
+    public @NotNull RSAKeyStorage toKeyStorage(@NotNull String encodedString) throws CreatingKeyException {
         Base64.Decoder decoder = Base64.getDecoder();
-        byte[] bytes = decoder.decode(cleanKey);
-
-        return getInstance().toKeyStorage(bytes);
+        byte[] bytes = decoder.decode(encodedString);
+        return toKeyStorage(bytes);
     }
 
     @Override
@@ -48,21 +49,17 @@ public class RSAPrivateKeyConvertor implements IRSAConvertor {
         try {
             privateKey = keyFactory.generatePrivate(keySpec);
         } catch (InvalidKeySpecException e) {
-            throw new CreatingKeyException(e);
+            throw new CreatingKeyException(RSA, e);
         }
         return new RSAKeyStorage(privateKey);
     }
 
-    public @NotNull String toPEM(@NotNull RSAKeyStorage rsaKeyStorage) {
-        PrivateKey privateKey = rsaKeyStorage.getPrivateKey();
-        String base64PrivateKey = Base64.getEncoder().encodeToString(privateKey.getEncoded());
-        return KeyConvertorUtil.makePEM(base64PrivateKey, "PRIVATE KEY");
-    }
-
     @Override
-    public @NotNull String toPEM(@NotNull IKeyStorage keyStorage) throws ReadingKeyException {
-        if (keyStorage instanceof RSAKeyStorage rsaKeyStorage) {
-            return toPEM(rsaKeyStorage);
+    public @NotNull String toEncodedString(@NotNull IKeyStorage keyStorage) throws ReadingKeyException {
+        if (keyStorage instanceof RSAKeyStorage) {
+            RSAKeyStorage rsaKeyStorage = (RSAKeyStorage) keyStorage;
+            PrivateKey privateKey = rsaKeyStorage.getPrivateKey();
+            return Base64.getEncoder().encodeToString(privateKey.getEncoded());
         } else {
             throw new ReadingKeyException("Key storage is not instance of RSAKeyStorage");
         }

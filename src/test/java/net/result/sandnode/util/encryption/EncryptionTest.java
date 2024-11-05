@@ -1,9 +1,9 @@
 package net.result.sandnode.util.encryption;
 
-import net.result.sandnode.util.encryption.interfaces.IDecryptor;
-import net.result.sandnode.util.encryption.interfaces.IEncryptor;
-import net.result.sandnode.util.encryption.interfaces.IGenerator;
-import net.result.sandnode.util.encryption.interfaces.IKeyStorage;
+import net.result.sandnode.util.encryption.core.interfaces.IDecryptor;
+import net.result.sandnode.util.encryption.core.interfaces.IEncryptor;
+import net.result.sandnode.util.encryption.core.interfaces.IGenerator;
+import net.result.sandnode.util.encryption.core.interfaces.IKeyStorage;
 import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
@@ -17,11 +17,11 @@ public class EncryptionTest {
 
     @Test
     public void testEncryptionDecryption() {
-        for (Encryption encryption : List.of(RSA, AES, NO)) {
+        for (Encryption encryption : List.of(RSA, AES, NONE)) {
             try {
                 IGenerator generator = encryption.generator();
-                IDecryptor decryptor = encryption.decryptor();
                 IEncryptor encryptor = encryption.encryptor();
+                IDecryptor decryptor = encryption.decryptor();
 
                 IKeyStorage keyStorage = generator.generateKeyStorage();
 
@@ -34,10 +34,11 @@ public class EncryptionTest {
                         "Failure data changed when it encrypted and decrypted with " + encryption);
 
                 byte[] encryptedData = encryptor.encryptBytes(originalData, keyStorage);
-                if (encryption != NO)
+                if (encryption != NONE)
                     assertFalse(Arrays.equals(originalData, encryptedData));
                 byte[] decryptedData = decryptor.decryptBytes(encryptedData, keyStorage);
-                assertArrayEquals(originalData, decryptedData, "Failure data changed when it encrypted and decrypted with " + encryption);
+                assertArrayEquals(originalData, decryptedData,
+                        "Failure data changed when it encrypted and decrypted with " + encryption);
             } catch (Exception e) {
                 fail("Exception thrown during encryption/decryption: " + e.getMessage());
             }

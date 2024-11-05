@@ -14,7 +14,7 @@ public interface IMessage {
 
     @NotNull Headers getHeaders();
 
-    byte[] getBody() throws ReadingKeyException, EncryptionException;
+    byte[] getBody();
 
     byte[] toByteArray(
             @NotNull GlobalKeyStorage globalKeyStorage,

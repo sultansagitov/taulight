@@ -37,7 +37,7 @@ public enum ServerError {
         this.desc = desc;
     }
 
-    public @NotNull void sendError(@NotNull Connection opposite, @NotNull Session session) throws ReadingKeyException, EncryptionException, IOException {
+    public void sendError(@NotNull Connection opposite, @NotNull Session session) throws ReadingKeyException, EncryptionException, IOException {
         LOGGER.warn("Sending error with code {} (\"{}\" error) to client", code, desc);
         HeadersBuilder headersBuilder = new HeadersBuilder().set(opposite);
         IMessage response = new ErrorMessage(headersBuilder, code);

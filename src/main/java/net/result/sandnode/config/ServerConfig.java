@@ -1,59 +1,48 @@
 package net.result.sandnode.config;
 
 import net.result.sandnode.exceptions.ConfigurationException;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import net.result.sandnode.util.Endpoint;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
+import java.util.Objects;
 import java.util.Properties;
 
 public class ServerConfig {
-    private static final Logger LOGGER = LogManager.getLogger(ServerConfig.class);
-    private final InetAddress HOST;
-    private final int PORT;
+    private final Endpoint endpoint;
 
     public ServerConfig() {
         this("server.properties", null);
     }
 
-    public ServerConfig(InetAddress address) {
-        this("server.properties", address);
+    public ServerConfig(Endpoint endpoint) {
+        this("server.properties", endpoint);
     }
 
-    public ServerConfig(@NotNull String fileName, @Nullable InetAddress address) {
+    public ServerConfig(@NotNull String fileName, @Nullable Endpoint endpoint) {
         Properties properties = new Properties();
 
         try (InputStream input = getClass().getClassLoader().getResourceAsStream(fileName)) {
             if (input == null)
-                throw new RuntimeException("Unable to find %s".formatted(fileName));
+                throw new RuntimeException(String.format("Unable to find %s", fileName));
             properties.load(input);
         } catch (IOException e) {
-            throw new ConfigurationException("Failed to load configuration file: %s".formatted(fileName));
+            throw new ConfigurationException(String.format("Failed to load configuration file: %s", fileName));
         }
 
         String defaultHost = "127.0.0.1";
         int defaultPort = 52525;
-        try {
-            HOST = (address != null)
-                    ? address
-                    : InetAddress.getByName(properties.getProperty("server.host", defaultHost));
-        } catch (UnknownHostException e) {
-            LOGGER.error(e);
-            throw new RuntimeException(e);
-        }
-        PORT = Integer.parseInt(properties.getProperty("server.port", "" + defaultPort));
+
+        this.endpoint = Objects.requireNonNullElseGet(endpoint, () -> new Endpoint(
+                properties.getProperty("server.host", defaultHost),
+                Integer.parseInt(properties.getProperty("server.port", "" + defaultPort))
+        ));
     }
 
-    public InetAddress getHost() {
-        return HOST;
+    public Endpoint getEndpoint() {
+        return endpoint;
     }
 
-    public int getPort() {
-        return PORT;
-    }
 }

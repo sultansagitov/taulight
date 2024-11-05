@@ -1,7 +1,5 @@
 package net.result.openhelo.messages;
 
-import net.result.sandnode.exceptions.ReadingKeyException;
-import net.result.sandnode.exceptions.encryption.EncryptionException;
 import net.result.sandnode.messages.HeadersBuilder;
 import net.result.sandnode.messages.Message;
 import org.jetbrains.annotations.NotNull;
@@ -21,7 +19,7 @@ public class SandnodeMessageAdapter extends Message {
     }
 
     @Override
-    public byte[] getBody() throws ReadingKeyException, EncryptionException {
+    public byte[] getBody() {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         out.write(msg.getType().asByte());
         for (byte b : msg.toByteArray()) out.write(b);

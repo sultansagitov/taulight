@@ -1,9 +1,10 @@
 package net.result.sandnode;
 
+import net.result.sandnode.config.HubConfig;
+import net.result.sandnode.config.NodeConfig;
 import net.result.sandnode.exceptions.ReadingKeyException;
 import net.result.sandnode.exceptions.WrongNodeUsed;
 import net.result.sandnode.exceptions.encryption.EncryptionException;
-import net.result.sandnode.exceptions.encryption.NoSuchEncryptionException;
 import net.result.sandnode.messages.RawMessage;
 import net.result.sandnode.messages.util.Connection;
 import net.result.sandnode.messages.util.NodeType;
@@ -13,7 +14,6 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.net.Socket;
-import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -21,13 +21,15 @@ public abstract class Node {
     public final GlobalKeyStorage globalKeyStorage;
     public final List<Session> userSessionList = new ArrayList<>();
     public final List<Session> hubSessionList = new ArrayList<>();
+    public final NodeConfig config;
 
-    public Node(@NotNull GlobalKeyStorage globalKeyStorage) {
+    public Node(@NotNull GlobalKeyStorage globalKeyStorage, @NotNull NodeConfig nodeConfig) {
         this.globalKeyStorage = globalKeyStorage;
+        config = nodeConfig;
     }
 
     public Node() {
-        this(new GlobalKeyStorage());
+        this(new GlobalKeyStorage(), new HubConfig());
     }
 
 
@@ -44,7 +46,6 @@ public abstract class Node {
 
     public abstract void onUserMessage(
             @NotNull RawMessage request,
-            @NotNull List<Session> sessionList,
             @NotNull Session session
-    ) throws NoSuchEncryptionException, ReadingKeyException, EncryptionException, IOException, NoSuchAlgorithmException;
+    ) throws ReadingKeyException, EncryptionException, IOException;
 }

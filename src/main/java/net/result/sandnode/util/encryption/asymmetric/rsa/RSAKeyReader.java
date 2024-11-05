@@ -3,7 +3,8 @@ package net.result.sandnode.util.encryption.asymmetric.rsa;
 import net.result.sandnode.config.HubConfig;
 import net.result.sandnode.exceptions.CreatingKeyException;
 import net.result.sandnode.util.encryption.asymmetric.interfaces.IAsymmetricConvertor;
-import net.result.sandnode.util.encryption.asymmetric.interfaces.IKeyReader;
+import net.result.sandnode.util.encryption.asymmetric.interfaces.IAsymmetricKeyReader;
+import net.result.sandnode.util.encryption.core.rsa.RSAKeyStorage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
@@ -13,15 +14,15 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.security.KeyPair;
 
-public class RSAKeyReader implements IKeyReader {
+public class RSAKeyReader implements IAsymmetricKeyReader {
     private static final Logger LOGGER = LogManager.getLogger(RSAKeyReader.class);
-    private static final RSAKeyReader instance = new RSAKeyReader();
+    private static final RSAKeyReader INSTANCE = new RSAKeyReader();
 
-    public static RSAKeyReader getInstance() {
-        return instance;
+    public static RSAKeyReader instance() {
+        return INSTANCE;
     }
 
-    private static @NotNull String getKeyPEM(@NotNull String keyPath) throws IOException {
+    private static @NotNull String getEncodedString(@NotNull String keyPath) throws IOException {
         try {
             return new String(Files.readAllBytes(Paths.get(keyPath)));
         } catch (IOException e) {
@@ -30,13 +31,13 @@ public class RSAKeyReader implements IKeyReader {
         }
     }
 
-    private static @NotNull RSAKeyStorage getKeyStore(
+    private static @NotNull RSAKeyStorage getKeyStorage(
             @NotNull String keyPath,
             @NotNull IAsymmetricConvertor keyConvertor
     ) throws CreatingKeyException, IOException {
-        String PEM = getKeyPEM(keyPath);
+        String string = getEncodedString(keyPath);
         try {
-            return (RSAKeyStorage) keyConvertor.toKeyStorage(PEM);
+            return (RSAKeyStorage) keyConvertor.toKeyStorage(string);
         } catch (CreatingKeyException e) {
             LOGGER.error("Invalid key in \"{}\" file", keyPath, e);
             throw e;
@@ -44,16 +45,16 @@ public class RSAKeyReader implements IKeyReader {
     }
 
     @Override
-    public RSAKeyStorage readKeys(HubConfig hubConfig) throws IOException, CreatingKeyException {
-        RSAKeyStorage publicKeyStore = getKeyStore(
-                hubConfig.getRSAPublicKeyPath().toString(),
-                RSAPublicKeyConvertor.getInstance()
+    public RSAKeyStorage readKeys(@NotNull HubConfig hubConfig) throws IOException, CreatingKeyException {
+        RSAKeyStorage publicKeyStorage = getKeyStorage(
+                hubConfig.getPublicKeyPath().toString(),
+                RSAPublicKeyConvertor.instance()
         );
-        RSAKeyStorage privateKeyStore = getKeyStore(
-                hubConfig.getRSAPrivateKeyPath().toString(),
-                RSAPrivateKeyConvertor.getInstance()
+        RSAKeyStorage privateKeyStorage = getKeyStorage(
+                hubConfig.getPrivateKeyPath().toString(),
+                RSAPrivateKeyConvertor.instance()
         );
-        KeyPair keyPair = new KeyPair(publicKeyStore.getPublicKey(), privateKeyStore.getPrivateKey());
+        KeyPair keyPair = new KeyPair(publicKeyStorage.getPublicKey(), privateKeyStorage.getPrivateKey());
         return new RSAKeyStorage(keyPair);
     }
 }

@@ -1,6 +1,6 @@
 package net.result.sandnode.util.encryption.symmetric.interfaces;
 
-import net.result.sandnode.util.encryption.interfaces.IKeyStorage;
+import net.result.sandnode.util.encryption.core.interfaces.IKeyStorage;
 import org.jetbrains.annotations.NotNull;
 
 import javax.crypto.SecretKey;

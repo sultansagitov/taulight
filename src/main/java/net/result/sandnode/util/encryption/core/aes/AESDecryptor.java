@@ -1,10 +1,9 @@
-package net.result.sandnode.util.encryption.aes;
+package net.result.sandnode.util.encryption.core.aes;
 
 import net.result.sandnode.exceptions.ReadingKeyException;
 import net.result.sandnode.exceptions.encryption.aes.AESDecryptionException;
-import net.result.sandnode.util.encryption.interfaces.IDecryptor;
-import net.result.sandnode.util.encryption.interfaces.IKeyStorage;
-import net.result.sandnode.util.encryption.symmetric.aes.AESKeyStorage;
+import net.result.sandnode.util.encryption.core.interfaces.IDecryptor;
+import net.result.sandnode.util.encryption.core.interfaces.IKeyStorage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
@@ -17,10 +16,10 @@ import java.security.NoSuchAlgorithmException;
 
 public class AESDecryptor implements IDecryptor {
     private static final Logger LOGGER = LogManager.getLogger(AESDecryptor.class);
-    private static final AESDecryptor instance = new AESDecryptor();
+    private static final AESDecryptor INSTANCE = new AESDecryptor();
 
-    public static AESDecryptor getInstance() {
-        return instance;
+    public static AESDecryptor instance() {
+        return INSTANCE;
     }
 
     public String decrypt(
@@ -74,8 +73,10 @@ public class AESDecryptor implements IDecryptor {
             byte @NotNull [] data,
             @NotNull IKeyStorage keyStorage
     ) throws AESDecryptionException, ReadingKeyException {
-        if (keyStorage instanceof AESKeyStorage aesKeyStorage) return decrypt(data, aesKeyStorage);
-        else throw new ReadingKeyException("Key storage is not instance of AESKeyStorage");
+        if (keyStorage instanceof AESKeyStorage) {
+            AESKeyStorage aesKeyStorage = (AESKeyStorage) keyStorage;
+            return decrypt(data, aesKeyStorage);
+        } else throw new ReadingKeyException("Key storage is not instance of AESKeyStorage");
     }
 
     @Override
@@ -83,8 +84,10 @@ public class AESDecryptor implements IDecryptor {
             byte @NotNull [] data,
             @NotNull IKeyStorage keyStorage
     ) throws AESDecryptionException, ReadingKeyException {
-        if (keyStorage instanceof AESKeyStorage aesKeyStorage) return decryptBytes(data, aesKeyStorage);
-        else throw new ReadingKeyException("Key storage is not instance of AESKeyStorage");
+        if (keyStorage instanceof AESKeyStorage) {
+            AESKeyStorage aesKeyStorage = (AESKeyStorage) keyStorage;
+            return decryptBytes(data, aesKeyStorage);
+        } else throw new ReadingKeyException("Key storage is not instance of AESKeyStorage");
     }
 
 }

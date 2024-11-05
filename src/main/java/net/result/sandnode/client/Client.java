@@ -12,58 +12,54 @@ import net.result.sandnode.messages.Message;
 import net.result.sandnode.messages.RawMessage;
 import net.result.sandnode.messages.util.Connection;
 import net.result.sandnode.messages.util.NodeType;
+import net.result.sandnode.util.Endpoint;
 import net.result.sandnode.util.encryption.Encryption;
-import net.result.sandnode.util.encryption.aes.AESGenerator;
 import net.result.sandnode.util.encryption.asymmetric.Asymmetric;
 import net.result.sandnode.util.encryption.asymmetric.AsymmetricKeyStorage;
 import net.result.sandnode.util.encryption.asymmetric.interfaces.IAsymmetricConvertor;
-import net.result.sandnode.util.encryption.symmetric.aes.AESKeyStorage;
+import net.result.sandnode.util.encryption.core.interfaces.IKeyStorage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
-import java.security.NoSuchAlgorithmException;
 
 import static net.result.sandnode.messages.util.Connection.USER2HUB;
 import static net.result.sandnode.messages.util.MessageType.PUB;
 import static net.result.sandnode.messages.util.MessageType.SYM;
-import static net.result.sandnode.util.encryption.Encryption.AES;
-import static net.result.sandnode.util.encryption.Encryption.NO;
+import static net.result.sandnode.util.encryption.Encryption.NONE;
 
 public class Client {
     private static final Logger LOGGER = LogManager.getLogger(Client.class);
 
-    private final String serverAddress;
-    private final int port;
     private final Node node;
     private final NodeType toNodeType;
+    private final Endpoint endpoint;
+    public Encryption encryptionOfServer;
     private Socket socket;
     private OutputStream out;
     private InputStream in;
-    private Encryption encryptionOfServer;
 
     public Client(
-            @NotNull String serverAddress,
-            int port,
+            @NotNull Endpoint endpoint,
             @NotNull Node node,
             @NotNull NodeType toNodeType
     ) {
-        this.serverAddress = serverAddress;
-        this.port = port;
+        this.endpoint = endpoint;
         this.node = node;
         this.toNodeType = toNodeType;
     }
 
     public void connect() {
         try {
-            LOGGER.info("Connecting to {}:{}", serverAddress, port);
-            socket = new Socket(serverAddress, port);
+            LOGGER.info("Connecting to {}", endpoint);
+            socket = new Socket(endpoint.host, endpoint.port);
 
             in = socket.getInputStream();
             out = socket.getOutputStream();
@@ -87,15 +83,14 @@ public class Client {
     }
 
     public @Nullable IMessage receiveMessage() throws NoSuchEncryptionException, ReadingKeyException,
-            NoSuchAlgorithmException, DecryptionException, NoSuchReqHandler {
+            DecryptionException, NoSuchReqHandler {
         if (isConnected()) {
             try {
                 RawMessage response = Message.fromInput(in, node.globalKeyStorage);
                 LOGGER.info("Received response: {}", response);
                 return response;
-            } catch (FirstByteEOFException e) {
-                LOGGER.error("Error in first byte in message", e);
-            } catch (IOException e) {
+            } catch (FirstByteEOFException ignored) {
+            } catch (EOFException e) {
                 LOGGER.error("Error receiving response", e);
             }
         }
@@ -117,58 +112,49 @@ public class Client {
         return socket != null && !socket.isClosed();
     }
 
-    public Encryption getPublicKeyFromServer() throws
-            ReadingKeyException, EncryptionException, IOException, NoSuchEncryptionException, DecryptionException,
-            NoSuchReqHandler, CreatingKeyException, CannotUseEncryption, NoSuchAlgorithmException {
+    public void getPublicKeyFromServer() throws ReadingKeyException, EncryptionException, IOException,
+            NoSuchEncryptionException, DecryptionException, NoSuchReqHandler, CreatingKeyException,
+            CannotUseEncryption {
         HeadersBuilder headersBuilder = new HeadersBuilder().set(USER2HUB).set(PUB);
         RawMessage request = new RawMessage(headersBuilder);
         request.setBody(new byte[0]);
-        sendMessage(request, NO);
+        sendMessage(request, NONE);
 
         IMessage response = receiveMessage();
+        assert response != null;
         String encryptionByteString = response.getHeaders().get("encryption");
-        Encryption encryption = Encryption.fromByte(Byte.parseByte(encryptionByteString));
-        IAsymmetricConvertor publicKeyConvertor = Asymmetric.getPublicConvertor(encryption);
+        encryptionOfServer = Encryption.fromByte(Byte.parseByte(encryptionByteString));
+        IAsymmetricConvertor publicKeyConvertor = Asymmetric.getPublicConvertor(encryptionOfServer);
         String string = new String(response.getBody(), StandardCharsets.US_ASCII);
         AsymmetricKeyStorage keyStorage = publicKeyConvertor.toKeyStorage(string);
-        node.globalKeyStorage.set(encryption, keyStorage);
-        return encryption;
+        node.globalKeyStorage.set(keyStorage);
     }
 
-    public void createAESKey() {
-        AESKeyStorage aesKeyStorage = AESGenerator.getInstance().generateKeyStorage();
-        node.globalKeyStorage.set(AES, aesKeyStorage);
-    }
+    public void sendSymmetricKey() throws IOException, EncryptionException {
+        Encryption symmetricEncryption = node.config.getSymmetricKeyEncryption();
+        IKeyStorage keyStorage = symmetricEncryption.generator().generateKeyStorage();
+        node.globalKeyStorage.set(keyStorage);
 
-    public void sendAESKey() throws KeyNotCreated, ReadingKeyException, EncryptionException, IOException {
-        if (!node.globalKeyStorage.has(AES)) throw new KeyNotCreated("AES");
-        if (!node.globalKeyStorage.has(encryptionOfServer)) throw new KeyNotCreated(encryptionOfServer);
-
-        node.globalKeyStorage.get(encryptionOfServer);
-
-        HeadersBuilder headersBuilder = new HeadersBuilder()
-                .set(encryptionOfServer)
-                .set(USER2HUB)
-                .set(SYM)
-                .set("application/octet-stream")
-                .set("encryption", "" + AES.asByte());
-
-        byte[] aesKey = node.globalKeyStorage.getSymmetric(AES).getKey().getEncoded();
-
-        RawMessage rawMessage = new RawMessage(headersBuilder, aesKey);
-
-        sendMessage(rawMessage, encryptionOfServer);
-    }
-
-    public Encryption getKeys() throws EncryptionException, IOException, NoSuchEncryptionException, ReadingKeyException,
-            CreatingKeyException, CannotUseEncryption, NoSuchAlgorithmException, DecryptionException, NoSuchReqHandler {
-        encryptionOfServer = getPublicKeyFromServer();
-        createAESKey();
         try {
-            sendAESKey();
+            if (!node.globalKeyStorage.has(encryptionOfServer)) throw new KeyNotCreated(encryptionOfServer);
+            if (!node.globalKeyStorage.has(symmetricEncryption)) throw new KeyNotCreated(symmetricEncryption);
+
+            node.globalKeyStorage.get(encryptionOfServer);
+
+            HeadersBuilder headersBuilder = new HeadersBuilder()
+                    .set(encryptionOfServer)
+                    .set(USER2HUB)
+                    .set(SYM)
+                    .set("application/octet-stream")
+                    .set("encryption", "" + symmetricEncryption.asByte());
+
+            byte[] aesKey = node.globalKeyStorage.getSymmetric(symmetricEncryption).getKey().getEncoded();
+
+            RawMessage rawMessage = new RawMessage(headersBuilder, aesKey);
+
+            sendMessage(rawMessage, encryptionOfServer);
         } catch (KeyNotCreated | ReadingKeyException ignored) {
         }
-        return encryptionOfServer;
     }
 
     public void disconnect() throws IOException {
