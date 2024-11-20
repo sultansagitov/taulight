@@ -1,25 +1,23 @@
 package net.result.sandnode;
 
 import net.result.openhelo.HeloHub;
-import net.result.openhelo.HeloUser;
 import net.result.sandnode.client.Client;
-import net.result.sandnode.config.HubConfig;
-import net.result.sandnode.config.ServerConfig;
-import net.result.sandnode.exceptions.CreatingKeyException;
-import net.result.sandnode.exceptions.NoSuchReqHandler;
+import net.result.sandnode.config.HubPropertiesConfig;
+import net.result.sandnode.config.IHubConfig;
+import net.result.sandnode.config.IServerConfig;
+import net.result.sandnode.config.ServerPropertiesConfig;
+import net.result.sandnode.exceptions.ConfigurationException;
 import net.result.sandnode.exceptions.ReadingKeyException;
 import net.result.sandnode.exceptions.encryption.CannotUseEncryption;
-import net.result.sandnode.exceptions.encryption.DecryptionException;
-import net.result.sandnode.exceptions.encryption.EncryptionException;
 import net.result.sandnode.exceptions.encryption.NoSuchEncryptionException;
-import net.result.sandnode.messages.HeadersBuilder;
 import net.result.sandnode.messages.IMessage;
 import net.result.sandnode.messages.RawMessage;
+import net.result.sandnode.messages.util.HeadersBuilder;
 import net.result.sandnode.server.SandnodeServer;
 import net.result.sandnode.server.Session;
 import net.result.sandnode.util.Endpoint;
 import net.result.sandnode.util.encryption.GlobalKeyStorage;
-import net.result.sandnode.util.encryption.core.interfaces.IKeyStorage;
+import net.result.sandnode.util.encryption.interfaces.IKeyStorage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
@@ -30,10 +28,10 @@ import java.io.IOException;
 import java.util.Random;
 
 import static net.result.sandnode.messages.util.Connection.USER2HUB;
-import static net.result.sandnode.messages.util.MessageType.MSG;
+import static net.result.sandnode.messages.util.MessageTypes.MSG;
 import static net.result.sandnode.messages.util.NodeType.HUB;
-import static net.result.sandnode.util.encryption.Encryption.AES;
-import static net.result.sandnode.util.encryption.Encryption.RSA;
+import static net.result.sandnode.util.encryption.AsymmetricEncryption.RSA;
+import static net.result.sandnode.util.encryption.SymmetricEncryption.AES;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class ServerTest {
@@ -50,7 +48,6 @@ public class ServerTest {
                 .set(MSG)
                 .set(USER2HUB)
                 .set(AES)
-                .set("application/json")
                 .set("keyname", "valuedata");
 
         byte[] originalBody = "Hello World!".getBytes();
@@ -65,7 +62,6 @@ public class ServerTest {
         assertNotNull(message1);
         assertNotNull(message2);
         // headers
-        assertEquals(message1.getHeaders().getContentType(), message2.getHeaders().getContentType());
         assertEquals(message1.getHeaders().getConnection(), message2.getHeaders().getConnection());
         assertEquals(message1.getHeaders().getType(), message2.getHeaders().getType());
         assertEquals(message1.getHeaders().getBodyEncryption(), message2.getHeaders().getBodyEncryption());
@@ -75,11 +71,10 @@ public class ServerTest {
     }
 
     @Test
-    public void test() throws IOException, ReadingKeyException, EncryptionException, NoSuchEncryptionException,
-            DecryptionException, NoSuchReqHandler {
+    public void test() throws Exception {
         int port = ServerTest.getPort();
 
-        IKeyStorage rsaKeyStorage = RSA.generator().generateKeyStorage();
+        IKeyStorage rsaKeyStorage = RSA.generator().generate();
         GlobalKeyStorage serverKeyStorage = new GlobalKeyStorage(rsaKeyStorage);
 
         ServerTest.ServerThread serverThread = new ServerTest.ServerThread(serverKeyStorage, port);
@@ -116,14 +111,14 @@ public class ServerTest {
         private final int port;
         private final Hub hub;
 
-        public ServerThread(GlobalKeyStorage serverKeyStorage, int port) {
+        public ServerThread(GlobalKeyStorage serverKeyStorage, int port) throws NoSuchEncryptionException,
+                ConfigurationException, CannotUseEncryption, IOException, ReadingKeyException {
             setName("Server-thread");
             this.port = port;
-            HubConfig hubConfig = new HubConfig();
+            IHubConfig hubConfig = new HubPropertiesConfig();
             hub = new HeloHub(serverKeyStorage, hubConfig);
 
-            ServerConfig serverConfig;
-            serverConfig = new ServerConfig(new Endpoint("localhost", port));
+            IServerConfig serverConfig = new ServerPropertiesConfig(new Endpoint("localhost", port));
 
             server = new SandnodeServer(hub, serverConfig);
         }
@@ -132,11 +127,10 @@ public class ServerTest {
         public void run() {
             try {
                 server.start(port);
-            } catch (IOException e) {
-                LOGGER.error("I/O error", e);
+                server.acceptSessions();
+            } catch (Exception e) {
                 throw new RuntimeException(e);
             }
-            server.acceptSessions();
         }
     }
 
@@ -151,17 +145,21 @@ public class ServerTest {
 
         @Override
         public void run() {
-            User user = new HeloUser();
-
-            Endpoint endpoint = new Endpoint("localhost", port);
-            client = new Client(endpoint, user, HUB);
-
-            client.connect();
+            User user;
             try {
+                user = new User() {
+                    @Override
+                    public void onUserMessage(@NotNull IMessage request, @NotNull Session session) {
+                    }
+                };
+
+                Endpoint endpoint = new Endpoint("localhost", port);
+                client = new Client(endpoint, user, HUB);
+
+                client.connect();
                 client.getPublicKeyFromServer();
                 client.sendSymmetricKey();
-            } catch (EncryptionException | IOException | NoSuchEncryptionException | ReadingKeyException |
-                     CreatingKeyException | CannotUseEncryption | DecryptionException | NoSuchReqHandler e) {
+            } catch (Exception e) {
                 throw new RuntimeException(e);
             }
         }

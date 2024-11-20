@@ -1,29 +1,25 @@
 package net.result.sandnode.util.encryption;
 
-import net.result.sandnode.util.encryption.core.interfaces.IDecryptor;
-import net.result.sandnode.util.encryption.core.interfaces.IEncryptor;
-import net.result.sandnode.util.encryption.core.interfaces.IGenerator;
-import net.result.sandnode.util.encryption.core.interfaces.IKeyStorage;
+import net.result.sandnode.util.encryption.interfaces.*;
 import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
-import java.util.List;
 
 import static java.nio.charset.StandardCharsets.US_ASCII;
-import static net.result.sandnode.util.encryption.Encryption.*;
+import static net.result.sandnode.util.encryption.Encryption.NONE;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class EncryptionTest {
 
     @Test
     public void testEncryptionDecryption() {
-        for (Encryption encryption : List.of(RSA, AES, NONE)) {
+        for (IEncryption encryption : Encryptions.list) {
             try {
                 IGenerator generator = encryption.generator();
                 IEncryptor encryptor = encryption.encryptor();
                 IDecryptor decryptor = encryption.decryptor();
 
-                IKeyStorage keyStorage = generator.generateKeyStorage();
+                IKeyStorage keyStorage = generator.generate();
 
                 String originalString = "Hello, World!";
                 byte[] originalData = originalString.getBytes(US_ASCII);

@@ -1,8 +1,9 @@
 package net.result.sandnode.messages;
 
+import net.result.sandnode.messages.util.HeadersBuilder;
 import org.jetbrains.annotations.NotNull;
 
-import static net.result.sandnode.messages.util.MessageType.EXT;
+import static net.result.sandnode.messages.util.MessageTypes.EXT;
 import static net.result.sandnode.util.encryption.Encryption.NONE;
 
 public class ExitMessage extends Message implements IMessage {

@@ -16,4 +16,6 @@ public class SandnodeException extends Exception {
         super(message, e);
     }
 
+    public SandnodeException() {
+    }
 }

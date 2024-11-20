@@ -2,13 +2,15 @@ package net.result.sandnode.messages;
 
 import net.result.sandnode.exceptions.NoSuchReqHandler;
 import net.result.sandnode.exceptions.encryption.NoSuchEncryptionException;
+import net.result.sandnode.messages.util.Headers;
+import net.result.sandnode.messages.util.HeadersBuilder;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 
 import static net.result.sandnode.messages.util.Connection.HUB2USER;
-import static net.result.sandnode.messages.util.MessageType.MSG;
-import static net.result.sandnode.util.encryption.Encryption.RSA;
+import static net.result.sandnode.messages.util.MessageTypes.MSG;
+import static net.result.sandnode.util.encryption.AsymmetricEncryption.RSA;
 import static org.junit.jupiter.api.Assertions.*;
 
 class HeadersTest {
@@ -19,7 +21,6 @@ class HeadersTest {
                 .set(HUB2USER)
                 .set(MSG)
                 .set(RSA)
-                .set("text/html")
                 .set("key", "value")
                 .build();
 
@@ -29,7 +30,6 @@ class HeadersTest {
 
         Headers reconstructedHeaders = Headers.getFromBytes(byteArray).build();
 
-        assertEquals(headers.getContentType(), reconstructedHeaders.getContentType());
         assertEquals(headers.getConnection(), reconstructedHeaders.getConnection());
         assertEquals(headers.getType(), reconstructedHeaders.getType());
         assertEquals(headers.getBodyEncryption(), reconstructedHeaders.getBodyEncryption());

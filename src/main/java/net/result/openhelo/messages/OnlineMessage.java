@@ -1,20 +1,18 @@
 package net.result.openhelo.messages;
 
-import net.result.openhelo.HeloType;
+import net.result.sandnode.messages.Message;
+import net.result.sandnode.messages.util.HeadersBuilder;
+import org.jetbrains.annotations.NotNull;
 
-import static net.result.openhelo.HeloType.ONLINE;
+import static net.result.openhelo.messages.HeloMessageTypes.ONL;
 
-public class OnlineMessage extends HeloMessage {
-    public OnlineMessage() {
+public class OnlineMessage extends Message {
+    public OnlineMessage(@NotNull HeadersBuilder builder) {
+        super(builder.set(ONL));
     }
 
     @Override
-    public HeloType getType() {
-        return ONLINE;
-    }
-
-    @Override
-    public byte[] toByteArray() {
+    public byte[] getBody() {
         return new byte[0];
     }
 }

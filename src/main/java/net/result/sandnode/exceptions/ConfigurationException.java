@@ -1,6 +1,6 @@
 package net.result.sandnode.exceptions;
 
-public class ConfigurationException extends RuntimeException {
+public class ConfigurationException extends SandnodeException {
     public ConfigurationException(String message) {
         super(message);
     }

@@ -1,29 +1,28 @@
 package net.result.openhelo.messages;
 
-import net.result.openhelo.HeloType;
+import net.result.sandnode.messages.IMessage;
+import net.result.sandnode.messages.Message;
+import net.result.sandnode.messages.util.HeadersBuilder;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
-import static net.result.openhelo.HeloType.ONLINE_RESPONSE;
+import static net.result.openhelo.messages.HeloMessageTypes.ONL_RES;
 
-public class OnlineResponseMessage extends HeloMessage {
+public class OnlineResponseMessage extends Message {
     public final List<String> users;
 
-    public OnlineResponseMessage(List<String> users) {
+    public OnlineResponseMessage(@NotNull HeadersBuilder builder, @NotNull List<String> users) {
+        super(builder.set(ONL_RES));
         this.users = users;
     }
 
-    public OnlineResponseMessage(String[] users) {
-        this.users = List.of(users);
+    public OnlineResponseMessage(@NotNull IMessage response) {
+        this(response.getHeadersBuilder(), List.of(new String(response.getBody()).split(",")));
     }
 
     @Override
-    public HeloType getType() {
-        return ONLINE_RESPONSE;
-    }
-
-    @Override
-    public byte[] toByteArray() {
+    public byte[] getBody() {
         return String.join(",", users).getBytes();
     }
 }

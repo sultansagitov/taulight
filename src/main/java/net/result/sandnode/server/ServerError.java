@@ -1,11 +1,12 @@
 package net.result.sandnode.server;
 
+import net.result.sandnode.exceptions.KeyStorageNotFoundException;
 import net.result.sandnode.exceptions.ReadingKeyException;
 import net.result.sandnode.exceptions.encryption.EncryptionException;
 import net.result.sandnode.messages.ErrorMessage;
-import net.result.sandnode.messages.HeadersBuilder;
 import net.result.sandnode.messages.IMessage;
 import net.result.sandnode.messages.util.Connection;
+import net.result.sandnode.messages.util.HeadersBuilder;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
@@ -37,7 +38,7 @@ public enum ServerError {
         this.desc = desc;
     }
 
-    public void sendError(@NotNull Connection opposite, @NotNull Session session) throws ReadingKeyException, EncryptionException, IOException {
+    public void sendError(@NotNull Connection opposite, @NotNull Session session) throws ReadingKeyException, EncryptionException, IOException, KeyStorageNotFoundException {
         LOGGER.warn("Sending error with code {} (\"{}\" error) to client", code, desc);
         HeadersBuilder headersBuilder = new HeadersBuilder().set(opposite);
         IMessage response = new ErrorMessage(headersBuilder, code);

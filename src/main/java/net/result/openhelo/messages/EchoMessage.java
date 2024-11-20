@@ -1,17 +1,12 @@
 package net.result.openhelo.messages;
 
-import net.result.openhelo.HeloType;
+import net.result.sandnode.messages.util.HeadersBuilder;
 import org.jetbrains.annotations.NotNull;
 
-import static net.result.openhelo.HeloType.ECHO;
+import static net.result.openhelo.messages.HeloMessageTypes.ECH;
 
 public class EchoMessage extends TextMessage {
-    public EchoMessage(@NotNull String data) {
-        super(data);
-    }
-
-    @Override
-    public HeloType getType() {
-        return ECHO;
+    public EchoMessage(@NotNull HeadersBuilder headersBuilder, @NotNull String data) {
+        super(headersBuilder.set(ECH), data);
     }
 }

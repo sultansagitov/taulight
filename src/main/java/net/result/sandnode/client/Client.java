@@ -6,33 +6,29 @@ import net.result.sandnode.exceptions.encryption.CannotUseEncryption;
 import net.result.sandnode.exceptions.encryption.DecryptionException;
 import net.result.sandnode.exceptions.encryption.EncryptionException;
 import net.result.sandnode.exceptions.encryption.NoSuchEncryptionException;
-import net.result.sandnode.messages.HeadersBuilder;
+import net.result.sandnode.messages.EmptyMessage;
 import net.result.sandnode.messages.IMessage;
 import net.result.sandnode.messages.Message;
 import net.result.sandnode.messages.RawMessage;
 import net.result.sandnode.messages.util.Connection;
+import net.result.sandnode.messages.util.HeadersBuilder;
 import net.result.sandnode.messages.util.NodeType;
 import net.result.sandnode.util.Endpoint;
-import net.result.sandnode.util.encryption.Encryption;
-import net.result.sandnode.util.encryption.asymmetric.Asymmetric;
-import net.result.sandnode.util.encryption.asymmetric.AsymmetricKeyStorage;
-import net.result.sandnode.util.encryption.asymmetric.interfaces.IAsymmetricConvertor;
-import net.result.sandnode.util.encryption.core.interfaces.IKeyStorage;
+import net.result.sandnode.util.encryption.Encryptions;
+import net.result.sandnode.util.encryption.interfaces.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 
-import static net.result.sandnode.messages.util.Connection.USER2HUB;
-import static net.result.sandnode.messages.util.MessageType.PUB;
-import static net.result.sandnode.messages.util.MessageType.SYM;
+import static net.result.sandnode.messages.util.MessageTypes.PUB;
+import static net.result.sandnode.messages.util.MessageTypes.SYM;
 import static net.result.sandnode.util.encryption.Encryption.NONE;
 
 public class Client {
@@ -41,10 +37,12 @@ public class Client {
     private final Node node;
     private final NodeType toNodeType;
     private final Endpoint endpoint;
-    public Encryption encryptionOfServer;
+    private IAsymmetricEncryption serverEncryption;
     private Socket socket;
     private OutputStream out;
     private InputStream in;
+    private volatile boolean outBusy = false;
+    private volatile boolean inBusy = false;
 
     public Client(
             @NotNull Endpoint endpoint,
@@ -58,7 +56,7 @@ public class Client {
 
     public void connect() {
         try {
-            LOGGER.info("Connecting to {}", endpoint);
+            LOGGER.info("Connecting to {}", endpoint.toString());
             socket = new Socket(endpoint.host, endpoint.port);
 
             in = socket.getInputStream();
@@ -72,27 +70,34 @@ public class Client {
 
     public void sendMessage(
             @NotNull IMessage message,
-            @NotNull Encryption headersEncryption
-    ) throws IOException, ReadingKeyException, EncryptionException {
+            @NotNull IEncryption headersEncryption
+    ) throws IOException, ReadingKeyException, EncryptionException, UnexpectedSocketDisconnect,
+            KeyStorageNotFoundException {
         if (isConnected()) {
             message.getHeadersBuilder().set(Connection.fromType(node.type(), toNodeType));
-            out.write(message.toByteArray(node.globalKeyStorage, headersEncryption));
+            byte[] byteArray = message.toByteArray(node.globalKeyStorage, headersEncryption);
+            if (outBusy)
+                LOGGER.info("Waiting for sending message in other thread by {} {}", headersEncryption.name(), message);
+            while (outBusy) Thread.onSpinWait();
+            outBusy = true;
+            out.write(byteArray);
             out.flush();
-            LOGGER.info("Message sent: {}", message);
+            LOGGER.info("Message sent by {}: {}", headersEncryption.name(), message);
+            outBusy = false;
+        } else {
+            throw new UnexpectedSocketDisconnect();
         }
     }
 
     public @Nullable IMessage receiveMessage() throws NoSuchEncryptionException, ReadingKeyException,
-            DecryptionException, NoSuchReqHandler {
+            DecryptionException, NoSuchReqHandler, KeyStorageNotFoundException, UnexpectedSocketDisconnect {
         if (isConnected()) {
-            try {
-                RawMessage response = Message.fromInput(in, node.globalKeyStorage);
-                LOGGER.info("Received response: {}", response);
-                return response;
-            } catch (FirstByteEOFException ignored) {
-            } catch (EOFException e) {
-                LOGGER.error("Error receiving response", e);
-            }
+            if (inBusy) LOGGER.info("Waiting for reading message in other thread");
+            while (inBusy) Thread.onSpinWait();
+            inBusy = true;
+            Message.EncryptedMessage encrypted = Message.readMessage(in);
+            inBusy = false;
+            return Message.decryptMessage(node.globalKeyStorage, encrypted);
         }
         return null;
     }
@@ -114,50 +119,53 @@ public class Client {
 
     public void getPublicKeyFromServer() throws ReadingKeyException, EncryptionException, IOException,
             NoSuchEncryptionException, DecryptionException, NoSuchReqHandler, CreatingKeyException,
-            CannotUseEncryption {
-        HeadersBuilder headersBuilder = new HeadersBuilder().set(USER2HUB).set(PUB);
-        RawMessage request = new RawMessage(headersBuilder);
-        request.setBody(new byte[0]);
+            UnexpectedSocketDisconnect, KeyStorageNotFoundException, CannotUseEncryption {
+        HeadersBuilder headersBuilder = new HeadersBuilder().set(PUB);
+        IMessage request = new EmptyMessage(headersBuilder);
         sendMessage(request, NONE);
 
         IMessage response = receiveMessage();
         assert response != null;
         String encryptionByteString = response.getHeaders().get("encryption");
-        encryptionOfServer = Encryption.fromByte(Byte.parseByte(encryptionByteString));
-        IAsymmetricConvertor publicKeyConvertor = Asymmetric.getPublicConvertor(encryptionOfServer);
+        IAsymmetricEncryption encryptionServer = Encryptions.findAsymmetric(Byte.parseByte(encryptionByteString));
+        IAsymmetricConvertor publicKeyConvertor = encryptionServer.publicKeyConvertor();
         String string = new String(response.getBody(), StandardCharsets.US_ASCII);
-        AsymmetricKeyStorage keyStorage = publicKeyConvertor.toKeyStorage(string);
-        node.globalKeyStorage.set(keyStorage);
+        IAsymmetricKeyStorage keyStorage = publicKeyConvertor.toKeyStorage(string);
+        setServerKey(keyStorage);
     }
 
-    public void sendSymmetricKey() throws IOException, EncryptionException {
-        Encryption symmetricEncryption = node.config.getSymmetricKeyEncryption();
-        IKeyStorage keyStorage = symmetricEncryption.generator().generateKeyStorage();
+    public void sendSymmetricKey() throws KeyNotCreated, ReadingKeyException, EncryptionException, IOException,
+            UnexpectedSocketDisconnect, KeyStorageNotFoundException, CannotUseEncryption {
+        ISymmetricEncryption symmetricEncryption = node.config.getSymmetricKeyEncryption();
+        ISymmetricKeyStorage keyStorage = (ISymmetricKeyStorage) symmetricEncryption.generator().generate();
         node.globalKeyStorage.set(keyStorage);
 
-        try {
-            if (!node.globalKeyStorage.has(encryptionOfServer)) throw new KeyNotCreated(encryptionOfServer);
-            if (!node.globalKeyStorage.has(symmetricEncryption)) throw new KeyNotCreated(symmetricEncryption);
+        if (!node.globalKeyStorage.has(getServerEncryption())) throw new KeyNotCreated(getServerEncryption());
+        if (!node.globalKeyStorage.has(symmetricEncryption)) throw new KeyNotCreated(symmetricEncryption);
 
-            node.globalKeyStorage.get(encryptionOfServer);
+        node.globalKeyStorage.get(getServerEncryption());
 
-            HeadersBuilder headersBuilder = new HeadersBuilder()
-                    .set(encryptionOfServer)
-                    .set(USER2HUB)
-                    .set(SYM)
-                    .set("application/octet-stream")
-                    .set("encryption", "" + symmetricEncryption.asByte());
+        HeadersBuilder headersBuilder = new HeadersBuilder()
+                .set(getServerEncryption())
+                .set(SYM)
+                .set("encryption", "" + symmetricEncryption.asByte());
 
-            byte[] aesKey = node.globalKeyStorage.getSymmetric(symmetricEncryption).getKey().getEncoded();
+        byte[] aesKey = symmetricEncryption.keyConvertor().toBytes(keyStorage);
+        RawMessage rawMessage = new RawMessage(headersBuilder, aesKey);
 
-            RawMessage rawMessage = new RawMessage(headersBuilder, aesKey);
-
-            sendMessage(rawMessage, encryptionOfServer);
-        } catch (KeyNotCreated | ReadingKeyException ignored) {
-        }
+        sendMessage(rawMessage, getServerEncryption());
     }
 
     public void disconnect() throws IOException {
         socket.close();
+    }
+
+    public IAsymmetricEncryption getServerEncryption() {
+        return serverEncryption;
+    }
+
+    public void setServerKey(@NotNull IAsymmetricKeyStorage publicKey) {
+        serverEncryption = publicKey.encryption();
+        node.globalKeyStorage.set(publicKey);
     }
 }

@@ -1,5 +1,6 @@
 package net.result.sandnode.messages;
 
+import net.result.sandnode.messages.util.HeadersBuilder;
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONObject;
 
@@ -8,8 +9,8 @@ import static java.nio.charset.StandardCharsets.US_ASCII;
 public class JSONMessage extends Message implements IJSONMessage {
     protected final JSONObject content;
 
-    public JSONMessage(@NotNull HeadersBuilder headersBuilder, @NotNull JSONObject content) {
-        super(headersBuilder.set("application/json"));
+    public JSONMessage(@NotNull HeadersBuilder builder, @NotNull JSONObject content) {
+        super(builder);
         this.content = content;
     }
 

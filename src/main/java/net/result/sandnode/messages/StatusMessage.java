@@ -1,5 +1,6 @@
 package net.result.sandnode.messages;
 
+import net.result.sandnode.messages.util.HeadersBuilder;
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONObject;
 

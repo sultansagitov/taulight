@@ -1,23 +1,16 @@
 package net.result.main;
 
-import net.result.sandnode.exceptions.CreatingKeyException;
-import net.result.sandnode.exceptions.NoSuchReqHandler;
-import net.result.sandnode.exceptions.ReadingKeyException;
-import net.result.sandnode.exceptions.encryption.CannotUseEncryption;
-import net.result.sandnode.exceptions.encryption.DecryptionException;
-import net.result.sandnode.exceptions.encryption.EncryptionException;
-import net.result.sandnode.exceptions.encryption.NoSuchEncryptionException;
+import net.result.openhelo.messages.HeloMessageTypes;
 import org.jetbrains.annotations.NotNull;
 
-import java.io.IOException;
 import java.util.UUID;
 
 public class Main {
 
-    public static void main(String @NotNull [] args) throws IOException, ReadingKeyException, NoSuchEncryptionException,
-            EncryptionException, DecryptionException, NoSuchReqHandler, CreatingKeyException, CannotUseEncryption {
+    public static void main(String @NotNull [] args) throws Exception {
         String randomId = UUID.randomUUID().toString();
         System.setProperty("randomId", randomId);
+        HeloMessageTypes.registerAll();
 
         if (args.length == 0) {
             System.out.println("Too few arguments");

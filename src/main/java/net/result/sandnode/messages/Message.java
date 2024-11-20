@@ -1,121 +1,136 @@
 package net.result.sandnode.messages;
 
-import net.result.sandnode.exceptions.FirstByteEOFException;
+import net.result.sandnode.exceptions.KeyStorageNotFoundException;
 import net.result.sandnode.exceptions.NoSuchReqHandler;
 import net.result.sandnode.exceptions.ReadingKeyException;
+import net.result.sandnode.exceptions.UnexpectedSocketDisconnect;
 import net.result.sandnode.exceptions.encryption.DecryptionException;
 import net.result.sandnode.exceptions.encryption.EncryptionException;
 import net.result.sandnode.exceptions.encryption.NoSuchEncryptionException;
-import net.result.sandnode.util.encryption.Encryption;
+import net.result.sandnode.messages.util.Headers;
+import net.result.sandnode.messages.util.HeadersBuilder;
+import net.result.sandnode.util.encryption.Encryptions;
 import net.result.sandnode.util.encryption.GlobalKeyStorage;
-import net.result.sandnode.util.encryption.core.interfaces.IEncryptor;
-import net.result.sandnode.util.encryption.core.interfaces.IKeyStorage;
+import net.result.sandnode.util.encryption.interfaces.IEncryption;
+import net.result.sandnode.util.encryption.interfaces.IEncryptor;
+import net.result.sandnode.util.encryption.interfaces.IKeyStorage;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.ByteArrayOutputStream;
-import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
 
 public abstract class Message implements IMessage {
+    private static final Logger LOGGER = LogManager.getLogger(Message.class);
     private final HeadersBuilder headersBuilder;
 
     public Message(@NotNull HeadersBuilder headersBuilder) {
         this.headersBuilder = headersBuilder;
     }
 
-    public static @NotNull RawMessage fromInput(
-            @NotNull InputStream in,
-            @NotNull GlobalKeyStorage globalKeyStorage
-    ) throws NoSuchEncryptionException, ReadingKeyException, DecryptionException, NoSuchReqHandler, EOFException {
+    public static @NotNull Message.EncryptedMessage readMessage(@NotNull InputStream in)
+            throws UnexpectedSocketDisconnect {
+        int version = readByte(in);
+        byte encryptionByte = readByte(in);
+        short headersLength = readShort(in);
+        byte[] headersBytes = readN(in, headersLength);
+        int bodyLength = readInt(in);
+        byte[] bodyBytes = readN(in, bodyLength);
+        return new EncryptedMessage(version, encryptionByte, headersBytes, bodyBytes);
+    }
+
+    public static @NotNull RawMessage decryptMessage(
+            @NotNull GlobalKeyStorage globalKeyStorage,
+            @NotNull EncryptedMessage encrypted
+    ) throws DecryptionException, ReadingKeyException, NoSuchReqHandler, NoSuchEncryptionException, KeyStorageNotFoundException {
+        IEncryption headersEncryption = Encryptions.find(encrypted.encryptionByte);
+        byte[] decryptedHeaders = decryptHeaders(headersEncryption, encrypted.headersBytes, globalKeyStorage);
+        HeadersBuilder headersBuilder = Headers.getFromBytes(decryptedHeaders);
+        Headers headers = headersBuilder.build();
+
+        IEncryption bodyEncryption = headers.getBodyEncryption();
+        byte[] decryptedBody = decryptBody(bodyEncryption, encrypted.bodyBytes, globalKeyStorage);
+
+        RawMessage request = new RawMessage(headersBuilder, decryptedBody);
+        LOGGER.info("Requested by {} {}", headersEncryption, request);
+        return request;
+    }
+
+    private static byte readByte(@NotNull InputStream in) throws UnexpectedSocketDisconnect {
         int versionInt;
         try {
             versionInt = in.read();
         } catch (IOException e) {
-            throw new FirstByteEOFException("End of stream reached while reading version");
+            throw new UnexpectedSocketDisconnect();
         }
-        if (versionInt == -1) throw new FirstByteEOFException("End of stream reached while reading version");
-        byte version = (byte) versionInt;
+        if (versionInt == -1) throw new UnexpectedSocketDisconnect();
+        return (byte) versionInt;
+    }
 
-        int encryptionInt;
+    private static short readShort(@NotNull InputStream in) throws UnexpectedSocketDisconnect {
+        byte[] bytes;
         try {
-            encryptionInt = in.read();
+            bytes = in.readNBytes(2);
         } catch (IOException e) {
-            encryptionInt = -1;
+            bytes = new byte[]{};
         }
-        if (encryptionInt == -1) throw new EOFException("End of stream reached while reading encryptionInt");
-        byte encryptionByte = (byte) encryptionInt;
+        if (bytes.length < 2) throw new UnexpectedSocketDisconnect();
+        return ByteBuffer.wrap(bytes).getShort();
+    }
 
-        byte[] headersLengthBytes;
+    private static int readInt(@NotNull InputStream in) throws UnexpectedSocketDisconnect {
+        byte[] bytes;
         try {
-            headersLengthBytes = in.readNBytes(2);
+            bytes = in.readNBytes(4);
         } catch (IOException e) {
-            headersLengthBytes = new byte[]{};
+            throw new UnexpectedSocketDisconnect();
         }
-        if (headersLengthBytes.length < 2) throw new EOFException("End of stream reached while reading headers length");
-        short headersLength = ByteBuffer.wrap(headersLengthBytes).getShort();
+        if (bytes.length < 4) throw new UnexpectedSocketDisconnect();
+        return ByteBuffer.wrap(bytes).getInt();
+    }
 
-        byte[] headersBytes;
+    private static byte @NotNull [] readN(@NotNull InputStream in, int length) throws UnexpectedSocketDisconnect {
+        byte[] bytes;
+
         try {
-            headersBytes = in.readNBytes(headersLength);
+            bytes = in.readNBytes(length);
         } catch (IOException e) {
-            headersBytes = new byte[]{};
+            throw new UnexpectedSocketDisconnect();
         }
-        if (headersBytes.length < headersLength) throw new EOFException("End of stream reached while reading headers");
 
-        byte[] bodyLengthBytes;
-        try {
-            bodyLengthBytes = in.readNBytes(4);
-        } catch (IOException e) {
-            bodyLengthBytes = new byte[]{};
+        if (bytes.length < length) {
+            throw new UnexpectedSocketDisconnect();
         }
-        if (bodyLengthBytes.length < 4) throw new EOFException("End of stream reached while reading body length");
-        int bodyLength = ByteBuffer.wrap(bodyLengthBytes).getInt();
 
-        byte[] bodyBytes;
-        try {
-            bodyBytes = in.readNBytes(bodyLength);
-        } catch (IOException e) {
-            bodyBytes = new byte[]{};
-        }
-        if (bodyBytes.length < bodyLength) throw new EOFException("End of stream reached while reading body");
-
-
-        Encryption headersEncryption = Encryption.fromByte(encryptionByte);
-        byte[] decryptedHeaders = decryptHeaders(headersEncryption, headersBytes, globalKeyStorage);
-        HeadersBuilder headersBuilder = Headers.getFromBytes(decryptedHeaders);
-        Headers headers = headersBuilder.build();
-
-        Encryption bodyEncryption = headers.getBodyEncryption();
-        byte[] decryptedBody = decryptBody(bodyEncryption, bodyBytes, globalKeyStorage);
-
-        return new RawMessage(headersBuilder, decryptedBody);
+        return bytes;
     }
 
     private static byte @NotNull [] decryptHeaders(
-            @NotNull Encryption encryption,
+            @NotNull IEncryption encryption,
             byte @NotNull [] encryptedHeaders,
             @NotNull GlobalKeyStorage globalKeyStorage
-    ) throws DecryptionException, ReadingKeyException {
-        IKeyStorage keyStorage = globalKeyStorage.get(encryption);
+    ) throws DecryptionException, ReadingKeyException, KeyStorageNotFoundException {
+        IKeyStorage keyStorage = globalKeyStorage.getNonNull(encryption);
         return encryption.decryptor().decryptBytes(encryptedHeaders, keyStorage);
     }
 
     private static byte[] decryptBody(
-            @NotNull Encryption encryption,
+            @NotNull IEncryption encryption,
             byte @NotNull [] encryptedBody,
             @NotNull GlobalKeyStorage globalKeyStorage
-    ) throws DecryptionException, ReadingKeyException {
-        IKeyStorage keyStorage = globalKeyStorage.get(encryption);
+    ) throws DecryptionException, ReadingKeyException, KeyStorageNotFoundException {
+        IKeyStorage keyStorage = globalKeyStorage.getNonNull(encryption);
         return encryption.decryptor().decryptBytes(encryptedBody, keyStorage);
     }
 
     @Override
     public byte[] toByteArray(
             @NotNull GlobalKeyStorage globalKeyStorage,
-            @NotNull Encryption encryption
-    ) throws IOException, ReadingKeyException, EncryptionException {
+            @NotNull IEncryption encryption
+    ) throws IOException, ReadingKeyException, EncryptionException, KeyStorageNotFoundException {
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
         byteArrayOutputStream.write(1); // Version
         byteArrayOutputStream.write(encryption.asByte()); // Headers encryption
@@ -136,7 +151,7 @@ public abstract class Message implements IMessage {
 
         {
             byte[] bodyBytes = getBody();
-            Encryption bodyEncryption = getHeaders().getBodyEncryption();
+            IEncryption bodyEncryption = getHeaders().getBodyEncryption();
             IEncryptor encryptor = bodyEncryption.encryptor();
             IKeyStorage keyStorage = globalKeyStorage.getNonNull(bodyEncryption);
             byte[] encryptionBody = encryptor.encryptBytes(bodyBytes, keyStorage);
@@ -161,16 +176,28 @@ public abstract class Message implements IMessage {
         return getHeadersBuilder().build();
     }
 
-
     @Override
     public String toString() {
         return String.format(
-                "<%s %s %s %s %s>",
+                "<%s %s %s %s>",
                 getClass().getSimpleName(),
                 getHeaders().getBodyEncryption(),
                 getHeaders().getType().name(),
-                getHeaders().getConnection().name(),
-                getHeaders().getContentType()
+                getHeaders().getConnection().name()
         );
+    }
+
+    public static class EncryptedMessage {
+        public final int version;
+        public final byte encryptionByte;
+        public final byte[] headersBytes;
+        public final byte[] bodyBytes;
+
+        public EncryptedMessage(int version, byte encryptionByte, byte[] headersBytes, byte[] bodyBytes) {
+            this.version = version;
+            this.encryptionByte = encryptionByte;
+            this.headersBytes = headersBytes;
+            this.bodyBytes = bodyBytes;
+        }
     }
 }

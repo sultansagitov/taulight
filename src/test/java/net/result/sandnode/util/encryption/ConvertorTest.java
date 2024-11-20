@@ -2,29 +2,28 @@ package net.result.sandnode.util.encryption;
 
 import net.result.sandnode.exceptions.CreatingKeyException;
 import net.result.sandnode.exceptions.ReadingKeyException;
-import net.result.sandnode.exceptions.encryption.CannotUseEncryption;
-import net.result.sandnode.util.encryption.asymmetric.Asymmetric;
-import net.result.sandnode.util.encryption.asymmetric.interfaces.IAsymmetricConvertor;
-import net.result.sandnode.util.encryption.core.interfaces.IGenerator;
-import net.result.sandnode.util.encryption.core.interfaces.IKeyStorage;
+import net.result.sandnode.util.encryption.interfaces.IAsymmetricConvertor;
+import net.result.sandnode.util.encryption.interfaces.IAsymmetricEncryption;
+import net.result.sandnode.util.encryption.interfaces.IGenerator;
+import net.result.sandnode.util.encryption.interfaces.IKeyStorage;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
-import static net.result.sandnode.util.encryption.Encryption.RSA;
+import static net.result.sandnode.util.encryption.AsymmetricEncryption.RSA;
 
 public class ConvertorTest {
 
     @Test
-    public void convertTest() throws ReadingKeyException, CreatingKeyException, CannotUseEncryption {
-        for (Encryption encryption : List.of(RSA)) {
+    public void convertTest() throws ReadingKeyException, CreatingKeyException {
+        for (IAsymmetricEncryption encryption : List.of(RSA)) {
 
             IGenerator generator = encryption.generator();
-            IKeyStorage keyStorage = generator.generateKeyStorage();
+            IKeyStorage keyStorage = generator.generate();
 
             {
-                IAsymmetricConvertor convertor = Asymmetric.getPublicConvertor(encryption);
+                IAsymmetricConvertor convertor = encryption.publicKeyConvertor();
                 String original = convertor.toEncodedString(keyStorage);
 
                 IKeyStorage keyStorage1 = convertor.toKeyStorage(original);
@@ -34,7 +33,7 @@ public class ConvertorTest {
             }
 
             {
-                IAsymmetricConvertor convertor = Asymmetric.getPrivateConvertor(encryption);
+                IAsymmetricConvertor convertor = encryption.privateKeyConvertor();
                 String original = convertor.toEncodedString(keyStorage);
 
                 IKeyStorage keyStorage1 = convertor.toKeyStorage(original);

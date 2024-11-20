@@ -1,16 +1,18 @@
 package net.result.sandnode.server;
 
+import net.result.sandnode.exceptions.KeyStorageNotFoundException;
 import net.result.sandnode.exceptions.NoSuchReqHandler;
 import net.result.sandnode.exceptions.ReadingKeyException;
+import net.result.sandnode.exceptions.UnexpectedSocketDisconnect;
 import net.result.sandnode.exceptions.encryption.DecryptionException;
 import net.result.sandnode.exceptions.encryption.EncryptionException;
 import net.result.sandnode.exceptions.encryption.NoSuchEncryptionException;
 import net.result.sandnode.messages.IMessage;
 import net.result.sandnode.messages.Message;
 import net.result.sandnode.messages.RawMessage;
-import net.result.sandnode.util.encryption.Encryption;
 import net.result.sandnode.util.encryption.GlobalKeyStorage;
-import net.result.sandnode.util.encryption.symmetric.interfaces.SymmetricKeyStorage;
+import net.result.sandnode.util.encryption.interfaces.IEncryption;
+import net.result.sandnode.util.encryption.interfaces.ISymmetricKeyStorage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
@@ -27,7 +29,7 @@ public class Session {
     public final GlobalKeyStorage sessionKeyStorage;
     public final Socket socket;
     protected final OutputStream out;
-    protected Encryption encryption = NONE;
+    protected IEncryption encryption = NONE;
     private volatile boolean inBusy = false;
     private volatile boolean outBusy = false;
 
@@ -40,48 +42,37 @@ public class Session {
         sessionKeyStorage = serverKeyStorage.copy();
     }
 
-    public static @NotNull RawMessage _receiveMessage(
-            @NotNull InputStream in,
-            @NotNull GlobalKeyStorage sessionKeyStorage
-    ) throws NoSuchEncryptionException, ReadingKeyException, DecryptionException, NoSuchReqHandler, IOException {
-        RawMessage request = Message.fromInput(in, sessionKeyStorage);
-        LOGGER.info("Requested {}", request);
-        return request;
-    }
-
-    public void setKey(@NotNull SymmetricKeyStorage symmetricKey) {
+    public void setKey(@NotNull ISymmetricKeyStorage symmetricKey) {
         this.encryption = symmetricKey.encryption();
         sessionKeyStorage.set(symmetricKey);
     }
 
-    public void sendMessage(@NotNull IMessage response) throws IOException, ReadingKeyException, EncryptionException {
+    public void sendMessage(@NotNull IMessage response) throws IOException, ReadingKeyException, EncryptionException,
+            KeyStorageNotFoundException {
         sendMessage(response, encryption);
     }
 
-    public void sendMessage(@NotNull IMessage response, @NotNull Encryption encryption) throws IOException,
-            ReadingKeyException, EncryptionException {
-        while (outBusy) {
-            Thread.onSpinWait();
-        }
-
+    public void sendMessage(@NotNull IMessage response, @NotNull IEncryption encryption) throws IOException,
+            ReadingKeyException, EncryptionException, KeyStorageNotFoundException {
+        byte[] byteArray = response.toByteArray(sessionKeyStorage, encryption);
+        if (outBusy) LOGGER.info("Waiting for sending message in other thread by {} {}", encryption.name(), response);
+        while (outBusy) Thread.onSpinWait();
         outBusy = true;
-        out.write(response.toByteArray(sessionKeyStorage, encryption));
+        out.write(byteArray);
         outBusy = false;
+        LOGGER.info("Sending message by {} {}", encryption.name(), response);
     }
 
     public @NotNull RawMessage receiveMessage() throws IOException, NoSuchEncryptionException, ReadingKeyException,
-            DecryptionException, NoSuchReqHandler {
+            DecryptionException, NoSuchReqHandler, UnexpectedSocketDisconnect, KeyStorageNotFoundException {
         InputStream in = socket.getInputStream();
 
-        while (inBusy) {
-            Thread.onSpinWait();
-        }
-
+        if (inBusy) LOGGER.info("Waiting for reading message in other thread");
+        while (inBusy) Thread.onSpinWait();
         inBusy = true;
-        RawMessage rawMessage = _receiveMessage(in, sessionKeyStorage);
+        Message.EncryptedMessage encrypted = Message.readMessage(in);
         inBusy = false;
-
-        return rawMessage;
+        return Message.decryptMessage(sessionKeyStorage, encrypted);
     }
 
     public void close() throws IOException {

@@ -1,17 +1,12 @@
 package net.result.openhelo.messages;
 
-import net.result.openhelo.HeloType;
+import net.result.sandnode.messages.util.HeadersBuilder;
 import org.jetbrains.annotations.NotNull;
 
-import static net.result.openhelo.HeloType.FORWARD;
+import static net.result.openhelo.messages.HeloMessageTypes.FWD;
 
 public class ForwardMessage extends TextMessage {
-    public ForwardMessage(@NotNull String data) {
-        super(data);
-    }
-
-    @Override
-    public HeloType getType() {
-        return FORWARD;
+    public ForwardMessage(@NotNull HeadersBuilder headersBuilder, String data) {
+        super(headersBuilder.set(FWD), data);
     }
 }

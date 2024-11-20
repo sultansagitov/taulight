@@ -1,10 +1,7 @@
 package net.result.sandnode;
 
-import net.result.sandnode.config.HubConfig;
-import net.result.sandnode.exceptions.FirstByteEOFException;
-import net.result.sandnode.exceptions.NoSuchReqHandler;
-import net.result.sandnode.exceptions.ReadingKeyException;
-import net.result.sandnode.exceptions.WrongNodeUsed;
+import net.result.sandnode.config.IHubConfig;
+import net.result.sandnode.exceptions.*;
 import net.result.sandnode.exceptions.encryption.DecryptionException;
 import net.result.sandnode.exceptions.encryption.EncryptionException;
 import net.result.sandnode.exceptions.encryption.NoSuchEncryptionException;
@@ -22,18 +19,14 @@ import java.net.Socket;
 import java.nio.BufferUnderflowException;
 import java.util.List;
 
-import static net.result.sandnode.messages.util.MessageType.EXT;
+import static net.result.sandnode.messages.util.MessageTypes.EXT;
 import static net.result.sandnode.messages.util.NodeType.HUB;
 
 public abstract class Hub extends Node {
     private static final Logger LOGGER = LogManager.getLogger(Hub.class);
 
-    public Hub(@NotNull GlobalKeyStorage globalKeyStorage, @NotNull HubConfig hubConfig) {
+    public Hub(@NotNull GlobalKeyStorage globalKeyStorage, @NotNull IHubConfig hubConfig) {
         super(globalKeyStorage, hubConfig);
-    }
-
-    public Hub() {
-        super();
     }
 
     @Override
@@ -70,11 +63,10 @@ public abstract class Hub extends Node {
                 if (request.getHeaders().getType() == EXT) break;
                 onUserMessage(request, session);
             }
-        } catch (FirstByteEOFException ignored) {
         } catch (IOException | BufferUnderflowException e) {
             LOGGER.error("I/O Error", e);
         } catch (NoSuchEncryptionException | ReadingKeyException | DecryptionException | EncryptionException |
-                 NoSuchReqHandler e) {
+                 NoSuchReqHandler | UnexpectedSocketDisconnect | KeyStorageNotFoundException e) {
             LOGGER.error("Unknown", e);
         }
 
