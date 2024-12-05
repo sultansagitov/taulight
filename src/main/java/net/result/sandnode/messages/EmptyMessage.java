@@ -1,12 +1,13 @@
 package net.result.sandnode.messages;
 
-import net.result.sandnode.messages.util.HeadersBuilder;
+import net.result.sandnode.messages.util.Headers;
+import org.jetbrains.annotations.NotNull;
 
-import static net.result.sandnode.util.encryption.Encryption.NONE;
+import static net.result.sandnode.encryption.Encryption.NONE;
 
 public class EmptyMessage extends Message {
-    public EmptyMessage(HeadersBuilder headersBuilder) {
-        super(headersBuilder.set(NONE));
+    public EmptyMessage(@NotNull Headers headers) {
+        super(headers.set(NONE));
     }
 
     @Override

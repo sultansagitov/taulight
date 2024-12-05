@@ -4,15 +4,14 @@ import net.result.sandnode.Hub;
 import net.result.sandnode.config.IServerConfig;
 import net.result.sandnode.exceptions.CreatingKeyException;
 import net.result.sandnode.exceptions.KeyStorageNotFoundException;
-import net.result.sandnode.exceptions.ReadingKeyException;
-import net.result.sandnode.exceptions.encryption.CannotUseEncryption;
-import net.result.sandnode.exceptions.encryption.NoSuchEncryptionException;
+import net.result.sandnode.exceptions.CannotUseEncryption;
+import net.result.sandnode.exceptions.NoSuchEncryptionException;
 import net.result.sandnode.util.Endpoint;
-import net.result.sandnode.util.encryption.Encryptions;
-import net.result.sandnode.util.encryption.interfaces.IAsymmetricConvertor;
-import net.result.sandnode.util.encryption.interfaces.IAsymmetricEncryption;
-import net.result.sandnode.util.encryption.interfaces.IAsymmetricKeyStorage;
-import net.result.sandnode.util.encryption.interfaces.IKeyStorage;
+import net.result.sandnode.encryption.Encryptions;
+import net.result.sandnode.encryption.interfaces.IAsymmetricConvertor;
+import net.result.sandnode.encryption.interfaces.IAsymmetricEncryption;
+import net.result.sandnode.encryption.interfaces.IAsymmetricKeyStorage;
+import net.result.sandnode.encryption.interfaces.IKeyStorage;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
@@ -31,12 +30,12 @@ public class HubInfo implements ServerLinkInfo {
     public static @NotNull String getLink(
             @NotNull Hub hub,
             @NotNull IServerConfig serverConfig
-    ) throws ReadingKeyException, KeyStorageNotFoundException {
-        IAsymmetricEncryption encryption = hub.config.getMainEncryption();
+    ) throws KeyStorageNotFoundException {
+        IAsymmetricEncryption encryption = hub.nodeConfig.mainEncryption();
         IAsymmetricConvertor publicConvertor = encryption.publicKeyConvertor();
         IKeyStorage keyStorage = hub.globalKeyStorage.getNonNull(encryption);
         String encodedString = publicConvertor.toEncodedString(keyStorage);
-        return String.format("h>>%s>%s>%s", serverConfig.getEndpoint().toString(52525), encryption.name(), encodedString);
+        return String.format("h>>%s>%s>%s", serverConfig.endpoint().toString(52525), encryption.name(), encodedString);
     }
 
     @Contract("_ -> new")
@@ -57,12 +56,12 @@ public class HubInfo implements ServerLinkInfo {
     }
 
     @Override
-    public Endpoint getEndpoint() {
+    public Endpoint endpoint() {
         return endpoint;
     }
 
     @Override
-    public IAsymmetricKeyStorage getKeyStorage() {
+    public IAsymmetricKeyStorage keyStorage() {
         return keyStorage;
     }
 }

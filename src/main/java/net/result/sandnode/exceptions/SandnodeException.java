@@ -1,18 +1,15 @@
 package net.result.sandnode.exceptions;
 
-import org.jetbrains.annotations.NotNull;
-
 public class SandnodeException extends Exception {
-
-    public SandnodeException(@NotNull String message) {
+    public SandnodeException(String message) {
         super(message);
     }
 
-    public SandnodeException(@NotNull Exception e) {
+    public SandnodeException(Throwable e) {
         super(e);
     }
 
-    public SandnodeException(@NotNull String message, @NotNull Exception e) {
+    public SandnodeException(String message, Throwable e) {
         super(message, e);
     }
 

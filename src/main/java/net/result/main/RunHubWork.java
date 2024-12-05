@@ -1,28 +1,40 @@
 package net.result.main;
 
-import net.result.openhelo.HeloHub;
+import net.result.sandnode.exceptions.*;
+import net.result.taulight.TauHub;
 import net.result.sandnode.config.HubPropertiesConfig;
 import net.result.sandnode.config.ServerPropertiesConfig;
+import net.result.sandnode.link.Links;
 import net.result.sandnode.server.SandnodeServer;
-import net.result.sandnode.util.encryption.GlobalKeyStorage;
-import net.result.sandnode.util.encryption.interfaces.IAsymmetricEncryption;
-import net.result.sandnode.util.encryption.interfaces.IAsymmetricKeyReader;
+import net.result.sandnode.encryption.GlobalKeyStorage;
+import net.result.sandnode.encryption.interfaces.IAsymmetricEncryption;
+import net.result.sandnode.encryption.interfaces.IKeyStorage;
 
 public class RunHubWork implements IWork {
 
     @Override
-    public void run() throws Exception {
+    public void run() throws NoSuchEncryptionException, ConfigurationException, CannotUseEncryption,
+            CreatingKeyException, KeyStorageNotFoundException, FSException, ServerStartException {
         GlobalKeyStorage globalKeyStorage = new GlobalKeyStorage();
         HubPropertiesConfig hubConfig = new HubPropertiesConfig();
-        IAsymmetricEncryption mainEncryption = hubConfig.getMainEncryption();
-        IAsymmetricKeyReader keyReader = mainEncryption.keyReader();
-        globalKeyStorage.set(keyReader.readKeys(hubConfig));
+        IAsymmetricEncryption mainEncryption = hubConfig.mainEncryption();
+        ServerPropertiesConfig serverConfig = new ServerPropertiesConfig();
+        IKeyStorage keyStorage = mainEncryption.keyReader().readKeys(serverConfig);
+        globalKeyStorage.set(keyStorage);
 
-        HeloHub hub = new HeloHub(globalKeyStorage, hubConfig);
-        SandnodeServer server = new SandnodeServer(hub, new ServerPropertiesConfig());
+        TauHub hub = new TauHub(globalKeyStorage, hubConfig);
+        SandnodeServer server = new SandnodeServer(hub, serverConfig);
         server.start();
 
-        server.acceptSessions();
-    }
+        String link = Links.getHubLink(server);
+        System.out.println("Link for server:");
+        System.out.println();
+        System.out.println(link);
+        System.out.println();
 
+        try {
+            server.acceptSessions();
+        } catch (SocketAcceptionException ignored) {
+        }
+    }
 }

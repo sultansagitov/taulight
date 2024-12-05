@@ -3,13 +3,13 @@ package net.result.sandnode.messages.util;
 import org.jetbrains.annotations.NotNull;
 
 import static net.result.sandnode.messages.util.NodeType.HUB;
-import static net.result.sandnode.messages.util.NodeType.USER;
+import static net.result.sandnode.messages.util.NodeType.AGENT;
 
 public enum Connection {
     HUB2HUB(HUB, HUB),
-    HUB2USER(HUB, USER),
-    USER2HUB(USER, HUB),
-    USER2USER(USER, USER);
+    HUB2AGENT(HUB, AGENT),
+    AGENT2HUB(AGENT, HUB),
+    AGENT2AGENT(AGENT, AGENT);
 
     private final NodeType from;
     private final NodeType to;
@@ -20,15 +20,15 @@ public enum Connection {
     }
 
     public static @NotNull Connection fromByte(byte b) {
-        NodeType from = (b & 0b10000000) != 0 ? HUB : USER;
-        NodeType to = (b & 0b01000000) != 0 ? HUB : USER;
+        NodeType from = (b & 0b10000000) != 0 ? HUB : AGENT;
+        NodeType to = (b & 0b01000000) != 0 ? HUB : AGENT;
         return fromType(from, to);
     }
 
     public static @NotNull Connection fromType(@NotNull NodeType from, @NotNull NodeType to) {
         return switch (from) {
-            case USER -> (to == USER) ? USER2USER : USER2HUB;
-            case HUB -> (to == USER) ? HUB2USER : HUB2HUB;
+            case AGENT -> (to == AGENT) ? AGENT2AGENT : AGENT2HUB;
+            case HUB -> (to == AGENT) ? HUB2AGENT : HUB2HUB;
         };
     }
 
@@ -43,9 +43,9 @@ public enum Connection {
     public @NotNull Connection getOpposite() {
         return switch (this) {
             case HUB2HUB -> HUB2HUB;
-            case HUB2USER -> USER2HUB;
-            case USER2HUB -> HUB2USER;
-            case USER2USER -> USER2USER;
+            case HUB2AGENT -> AGENT2HUB;
+            case AGENT2HUB -> HUB2AGENT;
+            case AGENT2AGENT -> AGENT2AGENT;
         };
     }
 

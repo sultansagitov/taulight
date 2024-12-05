@@ -1,17 +1,17 @@
 package net.result.sandnode.messages;
 
-import net.result.sandnode.messages.util.HeadersBuilder;
+import net.result.sandnode.messages.util.Headers;
 import org.jetbrains.annotations.NotNull;
 
 public class RawMessage extends Message {
     private byte[] body;
 
-    public RawMessage(@NotNull HeadersBuilder headersBuilder) {
-        super(headersBuilder);
+    public RawMessage(@NotNull Headers headers) {
+        super(headers);
     }
 
-    public RawMessage(@NotNull HeadersBuilder headersBuilder, byte @NotNull [] body) {
-        super(headersBuilder);
+    public RawMessage(@NotNull Headers headers, byte @NotNull [] body) {
+        super(headers);
         setBody(body);
     }
 

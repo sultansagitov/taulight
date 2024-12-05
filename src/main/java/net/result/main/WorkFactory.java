@@ -12,7 +12,7 @@ public class WorkFactory {
         LOGGER.info("Argument: {}", workName);
         return switch (workName) {
             case "run-hub" -> new RunHubWork();
-            case "run-user" -> new RunUserWork();
+            case "run-agent" -> new RunAgentWork();
             case "gen-keys" -> new GenerateKeysWork();
             default -> throw new UnknownError();
         };

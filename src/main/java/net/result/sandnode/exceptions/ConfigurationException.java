@@ -5,7 +5,11 @@ public class ConfigurationException extends SandnodeException {
         super(message);
     }
 
-    public ConfigurationException(String message, Exception e) {
+    public ConfigurationException(String message, Throwable e) {
         super(message, e);
+    }
+
+    public ConfigurationException(String message, String fileName) {
+        super(String.format("%s: %s", message, fileName));
     }
 }

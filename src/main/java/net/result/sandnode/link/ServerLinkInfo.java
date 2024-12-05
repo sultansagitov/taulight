@@ -1,10 +1,10 @@
 package net.result.sandnode.link;
 
 import net.result.sandnode.util.Endpoint;
-import net.result.sandnode.util.encryption.interfaces.IKeyStorage;
+import net.result.sandnode.encryption.interfaces.IAsymmetricKeyStorage;
 
 public interface ServerLinkInfo extends LinkInfo {
-    Endpoint getEndpoint();
+    Endpoint endpoint();
 
-    IKeyStorage getKeyStorage();
+    IAsymmetricKeyStorage keyStorage();
 }

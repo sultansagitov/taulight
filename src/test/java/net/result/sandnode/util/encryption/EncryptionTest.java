@@ -1,12 +1,13 @@
 package net.result.sandnode.util.encryption;
 
-import net.result.sandnode.util.encryption.interfaces.*;
+import net.result.sandnode.encryption.Encryptions;
+import net.result.sandnode.encryption.interfaces.*;
 import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 
 import static java.nio.charset.StandardCharsets.US_ASCII;
-import static net.result.sandnode.util.encryption.Encryption.NONE;
+import static net.result.sandnode.encryption.Encryption.NONE;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class EncryptionTest {

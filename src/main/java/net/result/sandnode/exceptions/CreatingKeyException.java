@@ -1,11 +1,10 @@
 package net.result.sandnode.exceptions;
 
-import net.result.sandnode.util.encryption.interfaces.IEncryption;
-import org.jetbrains.annotations.NotNull;
+import net.result.sandnode.encryption.interfaces.IEncryption;
 
 public class CreatingKeyException extends SandnodeException {
 
-    public CreatingKeyException(@NotNull IEncryption encryption, @NotNull Exception e) {
+    public CreatingKeyException(IEncryption encryption, Throwable e) {
         super(encryption.name(), e);
     }
 

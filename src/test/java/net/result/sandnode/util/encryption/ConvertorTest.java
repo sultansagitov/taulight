@@ -1,23 +1,19 @@
 package net.result.sandnode.util.encryption;
 
+import net.result.sandnode.encryption.Encryptions;
 import net.result.sandnode.exceptions.CreatingKeyException;
-import net.result.sandnode.exceptions.ReadingKeyException;
-import net.result.sandnode.util.encryption.interfaces.IAsymmetricConvertor;
-import net.result.sandnode.util.encryption.interfaces.IAsymmetricEncryption;
-import net.result.sandnode.util.encryption.interfaces.IGenerator;
-import net.result.sandnode.util.encryption.interfaces.IKeyStorage;
+import net.result.sandnode.encryption.interfaces.IAsymmetricConvertor;
+import net.result.sandnode.encryption.interfaces.IAsymmetricEncryption;
+import net.result.sandnode.encryption.interfaces.IGenerator;
+import net.result.sandnode.encryption.interfaces.IKeyStorage;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-
-import java.util.List;
-
-import static net.result.sandnode.util.encryption.AsymmetricEncryption.RSA;
 
 public class ConvertorTest {
 
     @Test
-    public void convertTest() throws ReadingKeyException, CreatingKeyException {
-        for (IAsymmetricEncryption encryption : List.of(RSA)) {
+    public void convertTest() throws CreatingKeyException {
+        for (IAsymmetricEncryption encryption : Encryptions.getAsymmetric()) {
 
             IGenerator generator = encryption.generator();
             IKeyStorage keyStorage = generator.generate();

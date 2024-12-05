@@ -2,24 +2,28 @@ package net.result.sandnode;
 
 import net.result.sandnode.config.IHubConfig;
 import net.result.sandnode.exceptions.*;
-import net.result.sandnode.exceptions.encryption.DecryptionException;
-import net.result.sandnode.exceptions.encryption.EncryptionException;
-import net.result.sandnode.exceptions.encryption.NoSuchEncryptionException;
+import net.result.sandnode.exceptions.DecryptionException;
+import net.result.sandnode.exceptions.EncryptionException;
+import net.result.sandnode.exceptions.NoSuchEncryptionException;
 import net.result.sandnode.messages.RawMessage;
+import net.result.sandnode.messages.types.GroupMessage;
 import net.result.sandnode.messages.util.Connection;
+import net.result.sandnode.messages.util.IMessageType;
 import net.result.sandnode.messages.util.NodeType;
+import net.result.sandnode.server.SandnodeServer;
 import net.result.sandnode.server.Session;
-import net.result.sandnode.util.encryption.GlobalKeyStorage;
+import net.result.sandnode.encryption.GlobalKeyStorage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
 
-import java.io.IOException;
 import java.net.Socket;
 import java.nio.BufferUnderflowException;
 import java.util.List;
+import java.util.Set;
 
-import static net.result.sandnode.messages.util.MessageTypes.EXT;
+import static net.result.sandnode.messages.util.MessageTypes.EXIT;
+import static net.result.sandnode.messages.util.MessageTypes.GROUP;
 import static net.result.sandnode.messages.util.NodeType.HUB;
 
 public abstract class Hub extends Node {
@@ -36,51 +40,78 @@ public abstract class Hub extends Node {
 
     @Override
     public @NotNull Session createSession(
-            @NotNull Connection opposite,
-            @NotNull Socket socket
-    ) throws IOException, WrongNodeUsed {
-        Session session = new Session(socket, globalKeyStorage);
-        switch (opposite) {
-            case HUB2USER -> userSessionList.add(session);
+            @NotNull SandnodeServer server,
+            @NotNull Socket socket,
+            @NotNull Connection connection
+    ) throws WrongNodeUsedException, OutputStreamException, InputStreamException {
+        Session session = new Session(server, connection, socket, globalKeyStorage);
+        switch (connection) {
+            case HUB2AGENT -> agentSessionList.add(session);
             case HUB2HUB -> hubSessionList.add(session);
-            default -> throw new WrongNodeUsed(opposite);
+            default -> throw new WrongNodeUsedException(connection);
         }
 
         return session;
     }
 
     @Override
-    public void initSession(@NotNull Connection opposite, @NotNull Session session) throws WrongNodeUsed {
-        List<Session> sessionList = switch (opposite) {
-            case HUB2HUB -> this.hubSessionList;
-            case HUB2USER -> this.userSessionList;
-            default -> throw new WrongNodeUsed(opposite);
-        };
-
-        try {
-            while (true) {
-                RawMessage request = session.receiveMessage();
-                if (request.getHeaders().getType() == EXT) break;
-                onUserMessage(request, session);
-            }
-        } catch (IOException | BufferUnderflowException e) {
-            LOGGER.error("I/O Error", e);
-        } catch (NoSuchEncryptionException | ReadingKeyException | DecryptionException | EncryptionException |
-                 NoSuchReqHandler | UnexpectedSocketDisconnect | KeyStorageNotFoundException e) {
-            LOGGER.error("Unknown", e);
-        }
-
-        try {
-            session.close();
-        } catch (IOException e) {
-            LOGGER.error("Error while closing socket", e);
-        }
-        sessionList.remove(session);
-        LOGGER.info("Client disconnected");
+    public void close() {
     }
 
     @Override
-    public void close() {
+    public void initSession(
+            @NotNull SandnodeServer server,
+            @NotNull Connection connection,
+            @NotNull Session session
+    ) throws WrongNodeUsedException {
+        List<Session> sessionList = switch (connection) {
+            case HUB2HUB -> this.hubSessionList;
+            case HUB2AGENT -> this.agentSessionList;
+            default -> throw new WrongNodeUsedException(connection);
+        };
+
+        try {
+            while (server.isRunning() && session.io.isConnected()) {
+                RawMessage request;
+                try {
+                    request = session.io.receiveMessage();
+                } catch (UnexpectedSocketDisconnectException e) {
+                    if (server.isRunning() && session.io.isConnected()) throw e;
+                    else break;
+                }
+                IMessageType type = request.getHeaders().getType();
+
+                if (type == GROUP) {
+                    try {
+                        GroupMessage groupMessage = new GroupMessage(request);
+                        Set<String> groupNames = groupMessage.getGroupNames();
+                        server.groups.addToGroup(groupNames, session);
+                    } catch (ExpectedMessageException e) {
+                        throw new RuntimeException(e);
+                    }
+                    continue;
+                } else if (type == EXIT) {
+                    break;
+                }
+                onAgentMessage(request, session);
+            }
+        } catch (BufferUnderflowException | NoSuchEncryptionException | KeyStorageNotFoundException |
+                 DecryptionException | EncryptionException | NoSuchMessageTypeException |
+                 UnexpectedSocketDisconnectException |
+                 MessageSerializationException | MessageWriteException | IllegalMessageLengthException e) {
+            LOGGER.error("Unknown", e);
+        }
+
+        if (session.socket.isConnected()) {
+            try {
+                session.io.disconnect();
+            } catch (SocketClosingException e) {
+                LOGGER.error("Error while closing socket", e);
+            }
+        }
+
+        sessionList.remove(session);
+        LOGGER.info("Client disconnected");
     }
 
 }

@@ -1,25 +1,19 @@
 package net.result.sandnode.util.encryption;
 
-import net.result.sandnode.exceptions.ReadingKeyException;
-import net.result.sandnode.exceptions.encryption.CannotUseEncryption;
-import net.result.sandnode.exceptions.encryption.DecryptionException;
-import net.result.sandnode.exceptions.encryption.EncryptionException;
-import net.result.sandnode.util.encryption.interfaces.*;
+import net.result.sandnode.encryption.Encryptions;
+import net.result.sandnode.encryption.interfaces.*;
+import net.result.sandnode.exceptions.DecryptionException;
+import net.result.sandnode.exceptions.EncryptionException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
-import java.util.List;
-
-import static net.result.sandnode.util.encryption.AsymmetricEncryption.RSA;
-import static net.result.sandnode.util.encryption.SymmetricEncryption.AES;
 
 public class HybridEncryptionTest {
     @Test
-    public void hybridEncryptionTest() throws EncryptionException, DecryptionException, ReadingKeyException,
-            CannotUseEncryption {
-        for (IAsymmetricEncryption a : List.of(RSA)) {
-            for (ISymmetricEncryption s : List.of(AES)) {
+    public void hybridEncryptionTest() throws EncryptionException, DecryptionException {
+        for (IAsymmetricEncryption a : Encryptions.getAsymmetric()) {
+            for (ISymmetricEncryption s : Encryptions.getSymmetric()) {
                 IEncryptor asymmetricEncryptor = a.encryptor();
                 IDecryptor asymmetricDecryptor = a.decryptor();
                 IEncryptor symmetricEncryptor = s.encryptor();
@@ -36,7 +30,7 @@ public class HybridEncryptionTest {
                 byte[] bytes = symmetricKeyConvertor.toBytes(symmetricKeyStorage);
 
                 byte[] encryptedBytes = asymmetricEncryptor.encryptBytes(bytes, asymmetricKeyStorage);
-                Assertions.assertFalse(Arrays.equals(bytes, encryptedBytes));
+               Assertions.assertFalse(Arrays.equals(bytes, encryptedBytes));
                 byte[] decryptedBytes = asymmetricDecryptor.decryptBytes(encryptedBytes, asymmetricKeyStorage);
 
                 Assertions.assertArrayEquals(bytes, decryptedBytes);

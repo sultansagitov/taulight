@@ -12,9 +12,9 @@ import java.util.List;
 
 public class NetworkUtil {
     public static @NotNull String replaceZeroes(@NotNull Endpoint endpoint, int defaultPort) {
-        String host = endpoint.host;
+        String host = endpoint.host();
         try {
-            if (endpoint.host.equals("0.0.0.0")) {
+            if (endpoint.host().equals("0.0.0.0")) {
                 String localIP = getLocalIP();
                 host = localIP.contains(":")
                         ? String.format("[%s]", localIP)
@@ -22,7 +22,7 @@ public class NetworkUtil {
             }
         } catch (SocketException ignored) {
         }
-        return new Endpoint(host, endpoint.port).toString(defaultPort);
+        return new Endpoint(host, endpoint.port()).toString(defaultPort);
     }
 
     public static String getLocalIP() throws SocketException {

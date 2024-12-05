@@ -1,6 +1,6 @@
 package net.result.sandnode.messages.util;
 
-import net.result.sandnode.exceptions.NoSuchReqHandler;
+import net.result.sandnode.exceptions.NoSuchMessageTypeException;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -8,11 +8,15 @@ import java.util.List;
 
 public enum MessageTypes implements IMessageType {
     ERR(0),
-    REQ(1),
+    WARN(1),
     PUB(2),
     SYM(3),
-    EXT(4),
-    MSG(5);
+    REQ(4),
+    EXIT(5),
+    REG(6),
+    LOGIN(7),
+    TOKEN(8),
+    GROUP(9);
 
     private static final List<IMessageType> list = new ArrayList<>();
 
@@ -28,13 +32,13 @@ public enum MessageTypes implements IMessageType {
         this.type = (byte) i;
     }
 
-    public static @NotNull IMessageType getMessageType(byte type) throws NoSuchReqHandler {
+    public static @NotNull IMessageType getMessageType(byte type) throws NoSuchMessageTypeException {
         for (IMessageType messageType : list) {
             if (messageType.asByte() == type) {
                 return messageType;
             }
         }
-        throw new NoSuchReqHandler(type);
+        throw new NoSuchMessageTypeException(type);
     }
 
     public static void register(IMessageType messageType) {

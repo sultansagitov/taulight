@@ -6,15 +6,7 @@ import org.jetbrains.annotations.NotNull;
 import java.net.URI;
 import java.net.URISyntaxException;
 
-public class Endpoint {
-
-    public final String host;
-    public final int port;
-
-    public Endpoint(@NotNull String host, int port) {
-        this.host = host;
-        this.port = port;
-    }
+public record Endpoint(String host, int port) {
 
     public static @NotNull Endpoint getFromString(@NotNull String input, int defaultPort) throws URISyntaxException {
         URI uri = new URI(String.format("dummy://%s", input));

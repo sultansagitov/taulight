@@ -1,17 +1,25 @@
 package net.result.sandnode.messages;
 
-import net.result.sandnode.messages.util.HeadersBuilder;
+import net.result.sandnode.messages.util.Headers;
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONObject;
 
 import static java.nio.charset.StandardCharsets.US_ASCII;
 
 public class JSONMessage extends Message implements IJSONMessage {
-    protected final JSONObject content;
+    private final JSONObject content;
 
-    public JSONMessage(@NotNull HeadersBuilder builder, @NotNull JSONObject content) {
-        super(builder);
+    public JSONMessage(@NotNull Headers headers, @NotNull JSONObject content) {
+        super(headers);
         this.content = content;
+    }
+
+    public JSONMessage(@NotNull Headers headers) {
+        this(headers, new JSONObject());
+    }
+
+    public JSONMessage(@NotNull IMessage message) {
+        this(message.getHeaders(), new JSONObject(new String(message.getBody())));
     }
 
     @Override
