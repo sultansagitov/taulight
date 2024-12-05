@@ -116,7 +116,8 @@ public class SandnodeServer {
             @NotNull Session session
     ) throws NoSuchEncryptionException, DecryptionException, NoSuchMessageTypeException, ExpectedMessageException,
             EncryptionException, KeyStorageNotFoundException, UnexpectedSocketDisconnectException, CannotUseEncryption,
-            WrongEncryptionException, MessageSerializationException, MessageWriteException, IllegalMessageLengthException {
+            WrongEncryptionException, MessageSerializationException, MessageWriteException,
+            IllegalMessageLengthException {
         if (request.getHeaders().getType() == REQ) {
             var req = new RequestMessage(request);
             ServerProtocol.sendPUB(session);
