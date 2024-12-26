@@ -1,7 +1,9 @@
 package net.result.taulight.messages;
 
 import net.result.sandnode.messages.util.IMessageType;
-import net.result.sandnode.messages.util.MessageTypes;
+import net.result.sandnode.messages.util.MessageTypeManager;
+
+import java.util.Arrays;
 
 public enum TauMessageTypes implements IMessageType {
     ONL(10),
@@ -15,9 +17,7 @@ public enum TauMessageTypes implements IMessageType {
     }
 
     public static void registerAll() {
-        for (TauMessageTypes m : TauMessageTypes.values()) {
-            MessageTypes.register(m);
-        }
+        Arrays.stream(TauMessageTypes.values()).forEach(m -> MessageTypeManager.instance().add(m));
     }
 
     @Override

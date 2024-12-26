@@ -16,7 +16,7 @@ import java.util.Collections;
 public class FileUtil {
     private static final Logger LOGGER = LogManager.getLogger(FileUtil.class);
 
-    public static @NotNull Path resolveHomeInPath(@NotNull String path) {
+    public static @NotNull Path resolveHome(@NotNull String path) {
         String homeDir = System.getProperty("user.home");
         int tildeIndex = path.indexOf("~");
         return tildeIndex < 0
@@ -24,9 +24,9 @@ public class FileUtil {
                 : Paths.get(homeDir, path.substring(tildeIndex + 1));
     }
 
-    public static @NotNull Path resolveHomeInPath(@NotNull Path path) {
+    public static @NotNull Path resolveHome(@NotNull Path path) {
         String inputPath = path.toString();
-        return resolveHomeInPath(inputPath);
+        return resolveHome(inputPath);
     }
 
     public static void createDir(@NotNull Path directoryPath) throws FSException {
@@ -42,33 +42,55 @@ public class FileUtil {
         }
     }
 
-    public static void makeOwnerOnlyRead(@NotNull Path filePath) throws FSException {
-        try {
-            Files.setPosixFilePermissions(filePath, Collections.singleton(PosixFilePermission.OWNER_READ));
-        } catch (IOException e) {
-            throw new FSException("Failed to set file permissions to OWNER_READ for file: " + filePath, e);
-        }
-
-        LOGGER.info("Permissions of file \"{}\" set to 400 (only owner read)", filePath);
-    }
-
     public static void createFile(@NotNull Path path) throws FSException {
+        IOException exception = null;
+
         try {
             if (path.toFile().createNewFile()) {
                 LOGGER.info("File created \"{}\"", path);
                 return;
             }
-        } catch (IOException ignored) {
+        } catch (IOException e) {
+            exception = e;
         }
 
-        LOGGER.info("Cannot create file \"{}\"", path);
-        throw new FSException(String.format("Cannot create file \"%s\"", path));
+        throw new FSException("Cannot create file", path, exception);
+    }
+
+    public static boolean deleteFile(@NotNull Path filePath) {
+        if (filePath.toFile().exists()) {
+            LOGGER.warn("File found in \"{}\", it will be deleted now.", filePath);
+            return deleteFileWithoutChecking(filePath);
+        }
+
+        LOGGER.info("File \"{}\" does not exist, no need to delete.", filePath);
+        return false;
+    }
+
+    public static boolean deleteFileWithoutChecking(@NotNull Path filePath) {
+        if (filePath.toFile().delete()) {
+            LOGGER.info("File \"{}\" successfully deleted.", filePath);
+            return true;
+        }
+
+        LOGGER.error("Failed to delete file \"{}\".", filePath);
+        return false;
+    }
+
+    public static void makeOwnerOnlyRead(@NotNull Path filePath) throws FSException {
+        try {
+            Files.setPosixFilePermissions(filePath, Collections.singleton(PosixFilePermission.OWNER_READ));
+        } catch (IOException e) {
+            throw new FSException("Failed to set file permissions to OWNER_READ for file: %s".formatted(filePath), e);
+        }
+
+        LOGGER.info("Permissions of file \"{}\" set to 400 (only owner read)", filePath);
     }
 
     public static void checkNotDirectory(@NotNull Path keysJsonPath) throws FSException {
         if (Files.isDirectory(keysJsonPath)) {
             LOGGER.error("\"{}\" is a directory", keysJsonPath);
-            throw new FSException(String.format("\"%s\" is a directory", keysJsonPath));
+            throw new FSException("\"%s\" is a directory".formatted(keysJsonPath));
         }
     }
 

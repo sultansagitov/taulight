@@ -1,13 +1,31 @@
 package net.result.sandnode.messages.types;
 
+import net.result.sandnode.exceptions.UnknownSandnodeErrorException;
+import net.result.sandnode.messages.IMessage;
 import net.result.sandnode.messages.StatusMessage;
 import net.result.sandnode.messages.util.Headers;
-import org.jetbrains.annotations.NotNull;
+import net.result.sandnode.server.ServerError;
 
-import static net.result.sandnode.messages.util.MessageTypes.ERR;
+import static net.result.sandnode.messages.util.MessageType.ERR;
 
 public class ErrorMessage extends StatusMessage {
-    public ErrorMessage(@NotNull Headers headers, int code) {
-        super(headers.set(ERR), code);
+    public final ServerError error;
+
+    public ErrorMessage(ServerError serverError) {
+        super(new Headers().setType(ERR), serverError.code);
+        this.error = serverError;
+    }
+
+    public ErrorMessage(IMessage response) {
+        super(response);
+
+        for (ServerError error : ServerError.values()) {
+            if (error.code == this.getCode()) {
+                this.error = error;
+                return;
+            }
+        }
+
+        throw new UnknownSandnodeErrorException();
     }
 }

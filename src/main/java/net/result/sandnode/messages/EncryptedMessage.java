@@ -3,7 +3,7 @@ package net.result.sandnode.messages;
 import net.result.sandnode.exceptions.UnexpectedSocketDisconnectException;
 import net.result.sandnode.exceptions.NoSuchEncryptionException;
 import net.result.sandnode.util.StreamReader;
-import net.result.sandnode.encryption.Encryptions;
+import net.result.sandnode.encryption.EncryptionManager;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
@@ -33,7 +33,7 @@ public class EncryptedMessage {
         int bodyLength = StreamReader.readInt(in, "body length");
         byte[] bodyBytes = StreamReader.readN(in, bodyLength, "body");
         EncryptedMessage encrypted = new EncryptedMessage(version, encryptionByte, headersBytes, bodyBytes);
-        LOGGER.info("(encrypted) Requested by {}", encrypted.toString());
+        LOGGER.info("Requested by {}", encrypted.toString());
         return encrypted;
     }
 
@@ -41,16 +41,15 @@ public class EncryptedMessage {
     public String toString() {
         String encStr;
         try {
-            encStr = Encryptions.find(encryptionByte).name();
+            encStr = EncryptionManager.find(encryptionByte).name();
         } catch (NoSuchEncryptionException e) {
-            encStr = String.format("%02X", encryptionByte);
+            encStr = "%02X".formatted(encryptionByte);
         }
-        return String.format(
-            "<%s v%d h%d-%s b%d>",
+        return "<%s v%d %s(headers %d) (body %d)>".formatted(
             getClass().getSimpleName(),
             version,
-            headersBytes.length,
             encStr,
+            headersBytes.length,
             bodyBytes.length
         );
     }

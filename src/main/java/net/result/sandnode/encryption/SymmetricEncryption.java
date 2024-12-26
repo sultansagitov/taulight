@@ -1,47 +1,47 @@
 package net.result.sandnode.encryption;
 
-import net.result.sandnode.encryption.aes.AESDecryptor;
-import net.result.sandnode.encryption.aes.AESEncryptor;
-import net.result.sandnode.encryption.aes.AESGenerator;
-import net.result.sandnode.encryption.aes.AESKeyConvertor;
+import net.result.sandnode.encryption.aes.*;
+import net.result.sandnode.encryption.interfaces.IKeyStorage;
 import net.result.sandnode.encryption.interfaces.ISymmetricEncryption;
-import net.result.sandnode.encryption.interfaces.ISymmetricKeyConvertor;
+import net.result.sandnode.exceptions.DecryptionException;
+import net.result.sandnode.exceptions.EncryptionException;
+import org.jetbrains.annotations.NotNull;
 
 public enum SymmetricEncryption implements ISymmetricEncryption {
     AES {
-        @Override
-        public AESGenerator generator() {
-            return AESGenerator.instance();
-        }
-
-        @Override
-        public AESEncryptor encryptor() {
-            return AESEncryptor.instance();
-        }
-
-        @Override
-        public AESDecryptor decryptor() {
-            return AESDecryptor.instance();
-        }
-
         @Override
         public byte asByte() {
             return 2;
         }
 
         @Override
-        public boolean isAsymmetric() {
-            return false;
+        public @NotNull AESKeyStorage generate() {
+            return AESGenerator.generate();
         }
 
         @Override
-        public boolean isSymmetric() {
-            return true;
+        public byte[] encrypt(String data, IKeyStorage keyStorage) throws EncryptionException {
+            return AESEncryptor.encrypt(data, keyStorage);
         }
 
         @Override
-        public ISymmetricKeyConvertor keyConvertor() {
-            return AESKeyConvertor.instance();
+        public byte[] encryptBytes(byte[] bytes, IKeyStorage keyStorage) throws EncryptionException {
+            return AESEncryptor.encryptBytes(bytes, keyStorage);
+        }
+
+        @Override
+        public String decrypt(byte[] encryptedData, IKeyStorage keyStorage) throws DecryptionException {
+            return AESDecryptor.decrypt(encryptedData, (AESKeyStorage) keyStorage);
+        }
+
+        @Override
+        public byte[] decryptBytes(byte[] encryptedBytes, IKeyStorage keyStorage) throws DecryptionException {
+            return AESDecryptor.decryptBytes(encryptedBytes, (AESKeyStorage) keyStorage);
+        }
+
+        @Override
+        public @NotNull AESKeyStorage toKeyStorage(byte[] body) {
+            return AESKeyConvertor.toKeyStorage(body);
         }
     }
 }

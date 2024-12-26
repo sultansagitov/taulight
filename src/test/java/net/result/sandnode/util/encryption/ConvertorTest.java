@@ -1,43 +1,46 @@
 package net.result.sandnode.util.encryption;
 
-import net.result.sandnode.encryption.Encryptions;
+import net.result.sandnode.encryption.EncryptionManager;
+import net.result.sandnode.encryption.interfaces.IAsymmetricKeyStorage;
+import net.result.sandnode.exceptions.CannotUseEncryption;
 import net.result.sandnode.exceptions.CreatingKeyException;
 import net.result.sandnode.encryption.interfaces.IAsymmetricConvertor;
 import net.result.sandnode.encryption.interfaces.IAsymmetricEncryption;
-import net.result.sandnode.encryption.interfaces.IGenerator;
-import net.result.sandnode.encryption.interfaces.IKeyStorage;
+import net.result.sandnode.exceptions.ImpossibleRuntimeException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 public class ConvertorTest {
-
     @Test
     public void convertTest() throws CreatingKeyException {
-        for (IAsymmetricEncryption encryption : Encryptions.getAsymmetric()) {
+        for (IAsymmetricEncryption encryption : EncryptionManager.getAsymmetric()) {
+            IAsymmetricKeyStorage keyStorage = encryption.generate();
 
-            IGenerator generator = encryption.generator();
-            IKeyStorage keyStorage = generator.generate();
+            try {
+                String original = keyStorage.encodedPublicKey();
 
-            {
                 IAsymmetricConvertor convertor = encryption.publicKeyConvertor();
-                String original = convertor.toEncodedString(keyStorage);
+                IAsymmetricKeyStorage keyStorage1 = convertor.toKeyStorage(original);
 
-                IKeyStorage keyStorage1 = convertor.toKeyStorage(original);
-                String string = convertor.toEncodedString(keyStorage1);
+                String string = keyStorage1.encodedPublicKey();
 
                 Assertions.assertEquals(original, string);
+            } catch (CannotUseEncryption e) {
+                throw new ImpossibleRuntimeException(e);
             }
 
-            {
-                IAsymmetricConvertor convertor = encryption.privateKeyConvertor();
-                String original = convertor.toEncodedString(keyStorage);
+            try {
+                String original = keyStorage.encodedPrivateKey();
 
-                IKeyStorage keyStorage1 = convertor.toKeyStorage(original);
-                String string = convertor.toEncodedString(keyStorage1);
+                IAsymmetricConvertor convertor = encryption.privateKeyConvertor();
+                IAsymmetricKeyStorage keyStorage1 = convertor.toKeyStorage(original);
+
+                String string = keyStorage1.encodedPrivateKey();
 
                 Assertions.assertEquals(original, string);
+            } catch (CannotUseEncryption e) {
+                throw new ImpossibleRuntimeException(e);
             }
         }
     }
-
 }

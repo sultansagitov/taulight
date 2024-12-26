@@ -17,7 +17,7 @@ public class NetworkUtil {
             if (endpoint.host().equals("0.0.0.0")) {
                 String localIP = getLocalIP();
                 host = localIP.contains(":")
-                        ? String.format("[%s]", localIP)
+                        ? "[%s]".formatted(localIP)
                         : localIP;
             }
         } catch (SocketException ignored) {

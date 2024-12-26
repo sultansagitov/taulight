@@ -1,196 +1,108 @@
 package net.result.main;
 
-import net.result.sandnode.exceptions.FSException;
-import net.result.taulight.TauAgent;
-import net.result.taulight.messages.*;
-import net.result.taulight.messages.types.EchoMessage;
-import net.result.taulight.messages.types.ForwardMessage;
-import net.result.taulight.messages.types.TextMessage;
-import net.result.sandnode.ClientProtocol;
-import net.result.sandnode.AgentProtocol;
-import net.result.sandnode.Agent;
+import net.result.main.chains.ConsoleClientChain;
+import net.result.main.chains.ConsoleClientChainManager;
+import net.result.main.config.ClientPropertiesConfig;
+import net.result.sandnode.*;
+import net.result.sandnode.chain.IChain;
 import net.result.sandnode.client.SandnodeClient;
-import net.result.sandnode.config.ClientPropertiesConfig;
-import net.result.sandnode.config.IAgentConfig;
-import net.result.sandnode.config.AgentPropertiesConfig;
+import net.result.sandnode.encryption.interfaces.*;
 import net.result.sandnode.exceptions.*;
-import net.result.sandnode.exceptions.CannotUseEncryption;
-import net.result.sandnode.exceptions.DecryptionException;
-import net.result.sandnode.exceptions.EncryptionException;
-import net.result.sandnode.exceptions.NoSuchEncryptionException;
-import net.result.sandnode.link.HubInfo;
-import net.result.sandnode.link.LinkInfo;
 import net.result.sandnode.link.Links;
-import net.result.sandnode.link.ServerLinkInfo;
-import net.result.sandnode.messages.types.ExitMessage;
-import net.result.sandnode.messages.IMessage;
-import net.result.sandnode.messages.types.GroupMessage;
-import net.result.sandnode.messages.types.RegistrationResponse;
-import net.result.sandnode.messages.util.Headers;
-import net.result.sandnode.messages.util.IMessageType;
+import net.result.sandnode.link.SandnodeLinkRecord;
+import net.result.sandnode.util.EncryptionUtil;
 import net.result.sandnode.util.Endpoint;
+import net.result.taulight.TauAgent;
+import net.result.taulight.chain.ForwardClientChain;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jetbrains.annotations.Contract;
-import org.jetbrains.annotations.NotNull;
 
-import java.net.URISyntaxException;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Scanner;
-import java.util.Set;
+import java.util.*;
 
-import static net.result.sandnode.messages.util.MessageTypes.*;
 import static net.result.sandnode.messages.util.NodeType.HUB;
-import static net.result.sandnode.encryption.SymmetricEncryption.AES;
 
 public class RunAgentWork implements IWork {
     private static final Logger LOGGER = LogManager.getLogger(RunAgentWork.class);
 
-    private static void receiveThread(SandnodeClient client) {
-        new Thread(() -> {
-            try {
-                while (client.io.isConnected()) {
-                    IMessage response;
-                    try {
-                        response = client.io.receiveMessage();
-                    } catch (UnexpectedSocketDisconnectException e) {
-                        if (client.io.isConnected()) throw e;
-                        else break;
-                    }
-                    if (response.getHeaders().getType() == EXIT) break;
-                    onMessage(client, response);
-                }
-            } catch (DecryptionException | NoSuchEncryptionException | NoSuchMessageTypeException | KeyStorageNotFoundException |
-                     UnexpectedSocketDisconnectException | EncryptionException | MessageSerializationException |
-                     MessageWriteException e) {
-                LOGGER.error("Error on receiving message thread", e);
+    private void handleAuthentication(SandnodeClient client, Scanner scanner) throws InterruptedException,
+            ExpectedMessageException, EncryptionTypeException, MemberNotFound, NoSuchEncryptionException,
+            CreatingKeyException, KeyNotCreatedException, KeyStorageNotFoundException, DataNotEncryptedException {
+        System.out.print("[r for register, other for login]: ");
+        String s = scanner.nextLine();
+        char choice = s.isEmpty() ? 'r' : s.charAt(0);
+
+        switch (choice) {
+            case 'r' -> {
+                System.out.print("Member ID: "); String memberID = scanner.nextLine();
+                System.out.print("Password: ");  String password = scanner.nextLine();
+
+                String token = AgentProtocol.getTokenFromRegistration(client, memberID, password);
+                LOGGER.info("Token for \"{}\":\n{}", memberID, token);
             }
-        }, "Receiving-thread").start();
-    }
+            case 'l' -> {
+                System.out.print("Token: ");
+                String token = scanner.nextLine();
 
-    private static void onMessage(@NotNull SandnodeClient client, @NotNull IMessage response)
-            throws UnexpectedSocketDisconnectException, EncryptionException, KeyStorageNotFoundException,
-            MessageSerializationException, MessageWriteException {
-        IMessageType type = response.getHeaders().getType();
-
-        if (type instanceof TauMessageTypes) {
-            switch ((TauMessageTypes) type) {
-                case ECHO, FWD -> LOGGER.info("From server: {}", new TextMessage(response).data);
-                case ONL -> {
-                    try {
-                        LOGGER.info("Online agents: {}", new OnlineResponseMessage(response).members);
-                    } catch (ExpectedMessageException e) {
-                        throw new RuntimeException(e);
-                    }
-                }
-                default -> client.ignoreMessage(response);
+//                String token = AgentProtocol.getMemberFromToken(client, token);
             }
-        }
-    }
-
-    @Contract("_, _ -> new")
-    private static @NotNull IMessage handle(@NotNull String input, @NotNull Headers headers) {
-        if (input.equalsIgnoreCase("getonline")) {
-            return new OnlineMessage(headers);
-
-        } else if (input.startsWith("forward ")) {
-            String data = input.substring(input.indexOf(" ") + 1);
-            return new ForwardMessage(headers, data);
-
-        } else if (input.startsWith("group ")) {
-            String data = input.substring(input.indexOf(" ") + 1);
-            Set<String> set = new HashSet<>(Arrays.asList(data.split(" ")));
-            return new GroupMessage(headers, set);
-
-        } else {
-            return new EchoMessage(headers, input);
+            default -> throw new RuntimeException(String.valueOf(choice));
         }
     }
 
     @Override
-    public void run() throws NoSuchEncryptionException, ConfigurationException, CannotUseEncryption,
-            CreatingKeyException, InvalidLinkSyntaxException, URISyntaxException, UnexpectedSocketDisconnectException,
-            EncryptionException, KeyStorageNotFoundException, DecryptionException, NoSuchMessageTypeException, KeyNotCreatedException,
-            ExpectedMessageException, FSException, MessageSerializationException, MessageWriteException,
-            ConnectionException, OutputStreamException, InputStreamException {
+    public void run() throws SandnodeException, InterruptedException {
         Scanner scanner = new Scanner(System.in);
 
+        System.out.print("Enter link: ");
+        SandnodeLinkRecord link = Links.parse(scanner.nextLine());
+
+        Endpoint endpoint = link.endpoint();
+        TauAgent agent = new TauAgent();
         ClientPropertiesConfig clientConfig = new ClientPropertiesConfig();
-        IAgentConfig agentConfig = new AgentPropertiesConfig();
+        SandnodeClient client = new SandnodeClient(
+                endpoint,
+                agent,
+                HUB,
+                clientConfig,
+                ConsoleClientChainManager::new
+        );
 
-        System.out.print("link: ");
+        Optional<IAsymmetricKeyStorage> filePublicKey = client.clientConfig.getPublicKey(client.endpoint);
+        if (link.keyStorage() != null) {
+            IAsymmetricKeyStorage linkKey = link.keyStorage();
 
-        LinkInfo linkInfo = Links.fromString(scanner.nextLine());
+            if (filePublicKey.isEmpty()) {
+                client.clientConfig.saveKey(client.endpoint, linkKey);
+                client.io.setServerKey(linkKey);
+            } else if (EncryptionUtil.isPublicKeysEquals(filePublicKey.get(), linkKey)) {
+                LOGGER.info("Key already saved and matches");
+                client.io.setServerKey(filePublicKey.get());
+            } else {
+                throw new LinkDoesNotMatchException("Key mismatch with saved configuration");
+            }
+        } else if (filePublicKey.isPresent()) {
+            client.io.setServerKey(filePublicKey.get());
+        } else {
+            ClientProtocol.PUB(client.io);
+            IAsymmetricEncryption encryption = client.io.getServerEncryption().asymmetric();
+            IAsymmetricKeyStorage serverKey = client.node.globalKeyStorage.getAsymmetricNonNull(encryption);
 
-        if (!(linkInfo instanceof ServerLinkInfo link)) {
-            throw new RuntimeException("Link is not for server");
+            client.clientConfig.saveKey(client.endpoint, serverKey);
+            client.io.setServerKey(serverKey);
         }
 
-        if (link instanceof HubInfo hubLink) {
-            Endpoint endpoint = hubLink.endpoint();
+        ClientProtocol.sendSYM(client);
 
-            Agent agent = new TauAgent(agentConfig);
-            SandnodeClient client = new SandnodeClient(endpoint, agent, HUB, clientConfig);
+        handleAuthentication(client, scanner);
 
-            if (link.keyStorage() != null) {
-                client.io.setMainKey(link.keyStorage());
-            }
-            client.setPublicKey();
-            ClientProtocol.sendSYM(client);
+        IChain fwd = new ForwardClientChain(client.io);
+        client.io.chainManager.addChain(fwd);
+        fwd.async();
 
-            IMessage req = client.io.receiveMessage();
-            ExpectedMessageException.check(req, REQ);
-
-            System.out.print("[r for register or other for login] ");
-            char c = scanner.nextLine().charAt(0);
-
-            if (c == 'r') {
-                System.out.print("memberID: ");
-                String memberID = scanner.nextLine();
-                System.out.print("password: ");
-                String password = scanner.nextLine();
-
-                RegistrationResponse response = AgentProtocol.registrationResponse(client, memberID, password);
-                client.io.sendMessage(response);
-
-                System.out.printf("Token for \"%s\"%n", memberID);
-                System.out.println();
-                System.out.println(response.getToken());
-                System.out.println();
-            }
-
-
-            receiveThread(client);
-
-            while (true) {
-                System.out.printf("[%s] ", endpoint);
-                String input = scanner.nextLine();
-
-                try {
-                    Headers headers = new Headers().set(AES).set(LOGIN);
-
-                    if (input.equalsIgnoreCase("exit")) {
-                        ExitMessage exitRequest = new ExitMessage(headers);
-                        client.io.sendMessage(exitRequest, client.io.getServerMainEncryption());
-                        client.io.disconnect();
-                        break;
-                    } else if (!input.isEmpty()) {
-                        IMessage request = handle(input, headers);
-                        client.io.sendMessage(request, client.io.getServerMainEncryption());
-                    }
-                } catch (EncryptionException | KeyStorageNotFoundException | UnexpectedSocketDisconnectException |
-                         MessageWriteException | MessageSerializationException | SocketClosingException e) {
-                    LOGGER.error("Error on console reading and sending cycle", e);
-                    throw new RuntimeException(e);
-                }
-            }
-
-            LOGGER.info("Exiting...");
-            client.close();
-            LOGGER.info("Closed");
-        }
-
+        IChain consoleChain = new ConsoleClientChain(client.io);
+        client.io.chainManager.addChain(consoleChain);
+        consoleChain.sync();
+        LOGGER.info("Exiting...");
+        client.close();
     }
-
 }

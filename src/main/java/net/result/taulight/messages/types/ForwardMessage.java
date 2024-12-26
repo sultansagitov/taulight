@@ -6,7 +6,11 @@ import org.jetbrains.annotations.NotNull;
 import static net.result.taulight.messages.TauMessageTypes.FWD;
 
 public class ForwardMessage extends TextMessage {
+    public ForwardMessage(String data) {
+        this(new Headers(), data);
+    }
+
     public ForwardMessage(@NotNull Headers headers, String data) {
-        super(headers.set(FWD), data);
+        super(headers.setType(FWD), data);
     }
 }

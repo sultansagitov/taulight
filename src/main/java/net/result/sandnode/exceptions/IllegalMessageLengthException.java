@@ -1,7 +1,9 @@
 package net.result.sandnode.exceptions;
 
-public class IllegalMessageLengthException extends SandnodeException {
-    public IllegalMessageLengthException(String message) {
-        super(message);
+import net.result.sandnode.messages.IMessage;
+
+public class IllegalMessageLengthException extends SandnodeMessageException {
+    public IllegalMessageLengthException(IMessage snMessage, String message) {
+        super(snMessage, message);
     }
 }

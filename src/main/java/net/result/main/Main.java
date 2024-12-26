@@ -1,5 +1,6 @@
 package net.result.main;
 
+import net.result.sandnode.encryption.EncryptionManager;
 import net.result.taulight.messages.TauMessageTypes;
 import org.jetbrains.annotations.NotNull;
 
@@ -10,6 +11,7 @@ public class Main {
     public static void main(String @NotNull [] args) throws Exception {
         String randomId = UUID.randomUUID().toString();
         System.setProperty("randomId", randomId);
+        EncryptionManager.registerAll();
         TauMessageTypes.registerAll();
 
         if (args.length == 0) {

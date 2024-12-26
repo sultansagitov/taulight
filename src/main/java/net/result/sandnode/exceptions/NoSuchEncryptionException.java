@@ -1,6 +1,6 @@
 package net.result.sandnode.exceptions;
 
-import net.result.sandnode.encryption.Encryptions;
+import net.result.sandnode.encryption.EncryptionManager;
 
 public class NoSuchEncryptionException extends SandnodeException {
 
@@ -9,7 +9,7 @@ public class NoSuchEncryptionException extends SandnodeException {
     }
 
     public NoSuchEncryptionException(String encryptionName) {
-        super("No such encryption for " + encryptionName + ", registered: " + Encryptions.list.size());
+        super("No such encryption for " + encryptionName + ", registered: " + EncryptionManager.instance().list.size());
     }
 
 }

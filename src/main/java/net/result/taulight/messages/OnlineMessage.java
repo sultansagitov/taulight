@@ -7,7 +7,11 @@ import org.jetbrains.annotations.NotNull;
 import static net.result.taulight.messages.TauMessageTypes.ONL;
 
 public class OnlineMessage extends EmptyMessage {
+    public OnlineMessage() {
+        this(new Headers());
+    }
+
     public OnlineMessage(@NotNull Headers headers) {
-        super(headers.set(ONL));
+        super(headers.setType(ONL));
     }
 }

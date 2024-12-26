@@ -28,4 +28,9 @@ public record AESKeyStorage(SecretKey key) implements ISymmetricKeyStorage {
     public @NotNull ISymmetricEncryption encryption() {
         return AES;
     }
+
+    @Override
+    public byte[] toBytes() {
+        return AESKeyConvertor.toBytes(this);
+    }
 }

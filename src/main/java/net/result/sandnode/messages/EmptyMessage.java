@@ -7,7 +7,7 @@ import static net.result.sandnode.encryption.Encryption.NONE;
 
 public class EmptyMessage extends Message {
     public EmptyMessage(@NotNull Headers headers) {
-        super(headers.set(NONE));
+        super(headers.setBodyEncryption(NONE));
     }
 
     @Override

@@ -1,13 +1,14 @@
 package net.result.sandnode.encryption;
 
 import net.result.sandnode.encryption.interfaces.*;
+import net.result.sandnode.exceptions.CannotUseEncryption;
+import net.result.sandnode.exceptions.EncryptionTypeException;
 import net.result.sandnode.exceptions.KeyStorageNotFoundException;
-import net.result.sandnode.exceptions.WrongEncryptionException;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 import static net.result.sandnode.encryption.Encryption.NONE;
 
@@ -21,20 +22,18 @@ public class GlobalKeyStorage {
         set(keyStorage);
     }
 
-    public @Nullable IKeyStorage get(@NotNull IEncryption encryption) {
-        return keyStorageMap.get(encryption);
+    public Optional<IKeyStorage> get(@NotNull IEncryption encryption) {
+        IKeyStorage keyStorage = keyStorageMap.get(encryption);
+        return keyStorage == null ? Optional.empty() : Optional.of(keyStorage);
     }
 
     public @NotNull IKeyStorage getNonNull(@NotNull IEncryption encryption) throws KeyStorageNotFoundException {
         if (has(encryption))
-            return encryption == NONE ? NONE.generator().generate() : keyStorageMap.get(encryption);
+            return encryption == NONE ? NONE.generate() : keyStorageMap.get(encryption);
         throw new KeyStorageNotFoundException(encryption);
     }
 
-    public GlobalKeyStorage set(
-            @NotNull IEncryption encryption,
-            @NotNull IKeyStorage keyStorage
-    ) {
+    public GlobalKeyStorage set(@NotNull IEncryption encryption, @NotNull IKeyStorage keyStorage) {
         if (keyStorage.encryption() == encryption && encryption != NONE)
             keyStorageMap.put(encryption, keyStorage);
         return this;
@@ -50,17 +49,32 @@ public class GlobalKeyStorage {
         return encryption == NONE || keyStorageMap.containsKey(encryption);
     }
 
-    public IAsymmetricKeyStorage getAsymmetric(@NotNull IAsymmetricEncryption encryption)
-            throws WrongEncryptionException {
-        if (encryption.isAsymmetric())
-            return (IAsymmetricKeyStorage) get(encryption);
-        throw new WrongEncryptionException(encryption);
+    public Optional<IAsymmetricKeyStorage> getAsymmetric(@NotNull IAsymmetricEncryption encryption)
+            throws EncryptionTypeException {
+        Optional<IKeyStorage> opt = get(encryption);
+        if (opt.isPresent()) return Optional.ofNullable(opt.get().asymmetric());
+        return Optional.empty();
     }
 
-    public ISymmetricKeyStorage getSymmetric(@NotNull ISymmetricEncryption encryption) throws WrongEncryptionException {
-        if (encryption.isSymmetric())
-            return (ISymmetricKeyStorage) get(encryption);
-        throw new WrongEncryptionException(encryption);
+    public @NotNull IAsymmetricKeyStorage getAsymmetricNonNull(@NotNull IAsymmetricEncryption encryption)
+            throws KeyStorageNotFoundException, EncryptionTypeException {
+        Optional<IAsymmetricKeyStorage> opt = getAsymmetric(encryption);
+        if (opt.isPresent()) return opt.get();
+        throw new KeyStorageNotFoundException(encryption);
+    }
+
+    public Optional<ISymmetricKeyStorage> getSymmetric(@NotNull ISymmetricEncryption encryption)
+            throws EncryptionTypeException {
+        Optional<IKeyStorage> opt = get(encryption);
+        if (opt.isPresent()) return Optional.ofNullable(opt.get().symmetric());
+        return Optional.empty();
+    }
+
+    public @NotNull ISymmetricKeyStorage getSymmetricNonNull(@NotNull ISymmetricEncryption encryption)
+            throws CannotUseEncryption, EncryptionTypeException {
+        Optional<ISymmetricKeyStorage> opt = getSymmetric(encryption);
+        if (opt.isPresent()) return opt.get();
+        throw new CannotUseEncryption(encryption);
     }
 
     public GlobalKeyStorage copy() {
@@ -86,4 +100,3 @@ public class GlobalKeyStorage {
         return builder.append(">").toString();
     }
 }
-

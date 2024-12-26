@@ -1,32 +1,61 @@
 package net.result.main;
 
+import net.result.sandnode.encryption.interfaces.IAsymmetricConvertor;
+import net.result.sandnode.encryption.interfaces.IAsymmetricKeyStorage;
 import net.result.sandnode.exceptions.*;
-import net.result.taulight.TauHub;
-import net.result.sandnode.config.HubPropertiesConfig;
-import net.result.sandnode.config.ServerPropertiesConfig;
 import net.result.sandnode.link.Links;
+import net.result.sandnode.util.FileUtil;
+import net.result.sandnode.util.db.InMemoryDatabase;
+import net.result.sandnode.util.group.GroupManager;
+import net.result.sandnode.util.tokens.JWTConfig;
+import net.result.sandnode.util.tokens.JWTTokenizer;
+import net.result.taulight.TauHub;
+import net.result.main.config.ServerPropertiesConfig;
 import net.result.sandnode.server.SandnodeServer;
 import net.result.sandnode.encryption.GlobalKeyStorage;
 import net.result.sandnode.encryption.interfaces.IAsymmetricEncryption;
-import net.result.sandnode.encryption.interfaces.IKeyStorage;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import java.net.URI;
+import java.nio.file.Path;
 
 public class RunHubWork implements IWork {
 
-    @Override
-    public void run() throws NoSuchEncryptionException, ConfigurationException, CannotUseEncryption,
-            CreatingKeyException, KeyStorageNotFoundException, FSException, ServerStartException {
-        GlobalKeyStorage globalKeyStorage = new GlobalKeyStorage();
-        HubPropertiesConfig hubConfig = new HubPropertiesConfig();
-        IAsymmetricEncryption mainEncryption = hubConfig.mainEncryption();
-        ServerPropertiesConfig serverConfig = new ServerPropertiesConfig();
-        IKeyStorage keyStorage = mainEncryption.keyReader().readKeys(serverConfig);
-        globalKeyStorage.set(keyStorage);
+    private static final Logger LOGGER = LogManager.getLogger(RunHubWork.class);
 
-        TauHub hub = new TauHub(globalKeyStorage, hubConfig);
+    @Override
+    public void run() throws NoSuchEncryptionException, ConfigurationException, CreatingKeyException, FSException,
+            ServerStartException, KeyStorageNotFoundException, EncryptionTypeException {
+        ServerPropertiesConfig serverConfig = new ServerPropertiesConfig();
+        serverConfig.setGroupManager(new GroupManager());
+        serverConfig.setDatabase(new InMemoryDatabase());
+        serverConfig.setTokenizer(new JWTTokenizer(new JWTConfig("YourSuperSecretKey")));
+
+        IAsymmetricEncryption mainEncryption = serverConfig.mainEncryption();
+
+        Path publicKeyPath = serverConfig.publicKeyPath();
+        Path privateKeyPath = serverConfig.privateKeyPath();
+
+        LOGGER.info("Reading public key in \"{}\"", publicKeyPath);
+        IAsymmetricConvertor publicKeyConvertor = mainEncryption.publicKeyConvertor();
+        String publicKeyString = FileUtil.readString(publicKeyPath);
+        IAsymmetricKeyStorage publicKeyStorage = publicKeyConvertor.toKeyStorage(publicKeyString);
+
+        LOGGER.info("Reading private key in \"{}\"", privateKeyPath);
+        IAsymmetricConvertor privateKeyConvertor = mainEncryption.privateKeyConvertor();
+        String string = FileUtil.readString(privateKeyPath);
+        IAsymmetricKeyStorage privateKeyStorage = privateKeyConvertor.toKeyStorage(string);
+
+        IAsymmetricKeyStorage keyStorage = mainEncryption.merge(publicKeyStorage, privateKeyStorage);
+        GlobalKeyStorage globalKeyStorage = new GlobalKeyStorage(keyStorage);
+
+        TauHub hub = new TauHub(globalKeyStorage);
         SandnodeServer server = new SandnodeServer(hub, serverConfig);
         server.start();
 
-        String link = Links.getHubLink(server);
+
+        URI link = Links.getServerLink(server);
         System.out.println("Link for server:");
         System.out.println();
         System.out.println(link);
@@ -34,7 +63,8 @@ public class RunHubWork implements IWork {
 
         try {
             server.acceptSessions();
-        } catch (SocketAcceptionException ignored) {
+        } catch (SocketAcceptException ignored) {
         }
     }
+
 }

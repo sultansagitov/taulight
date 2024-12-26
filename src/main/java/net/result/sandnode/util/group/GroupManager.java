@@ -29,7 +29,9 @@ public class GroupManager implements IGroupManager {
 
     @Override
     public synchronized void addToGroup(@NotNull Set<String> groupNames, @NotNull Session session) {
-        groupNames.forEach(groupName -> addToGroup(groupName, session));
+        for (String groupName : groupNames) {
+            addToGroup(groupName, session);
+        }
     }
 
     @Override
@@ -42,6 +44,20 @@ public class GroupManager implements IGroupManager {
 
         return new HashSet<>();
     }
+
+    @Override
+    public @NotNull Set<String> getGroups(Session session) {
+        Set<String> groupNames = new HashSet<>();
+
+        for (IGroup group : groups) {
+            if (group instanceof ClientGroup && group.getSessions().contains(session)) {
+                groupNames.add(((ClientGroup) group).id);
+            }
+        }
+
+        return groupNames;
+    }
+
 
 
 }

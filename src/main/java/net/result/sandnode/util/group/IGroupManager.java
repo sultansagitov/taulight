@@ -11,4 +11,6 @@ public interface IGroupManager {
     void addToGroup(@NotNull Set<String> groupNames, @NotNull Session session);
 
     Set<Session> getSessions(@NotNull String fwd);
+
+    @NotNull Set<String> getGroups(Session session);
 }

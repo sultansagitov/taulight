@@ -1,75 +1,91 @@
 package net.result.sandnode.link;
 
-import net.result.sandnode.Agent;
-import net.result.sandnode.exceptions.CreatingKeyException;
-import net.result.sandnode.exceptions.InvalidLinkSyntaxException;
-import net.result.sandnode.exceptions.KeyStorageNotFoundException;
-import net.result.sandnode.exceptions.CannotUseEncryption;
-import net.result.sandnode.exceptions.NoSuchEncryptionException;
+import net.result.sandnode.encryption.EncryptionManager;
+import net.result.sandnode.encryption.interfaces.IAsymmetricEncryption;
+import net.result.sandnode.encryption.interfaces.IAsymmetricKeyStorage;
+import net.result.sandnode.exceptions.*;
 import net.result.sandnode.server.SandnodeServer;
 import net.result.sandnode.util.Endpoint;
 import net.result.sandnode.util.NetworkUtil;
-import net.result.sandnode.encryption.interfaces.IAsymmetricConvertor;
-import net.result.sandnode.encryption.interfaces.IAsymmetricEncryption;
-import net.result.sandnode.encryption.interfaces.IKeyStorage;
 import org.jetbrains.annotations.NotNull;
 
+import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.Map;
+import java.net.URLEncoder;
+
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 public class Links {
-    public static @NotNull String getHubLink(@NotNull SandnodeServer server) throws KeyStorageNotFoundException {
-        IAsymmetricEncryption encryption = server.node.nodeConfig.mainEncryption();
-        IAsymmetricConvertor convertor = encryption.publicKeyConvertor();
-        IKeyStorage keyStorage = server.node.globalKeyStorage.getNonNull(encryption);
-
-        String key = convertor.toEncodedString(keyStorage);
-        return String.format(
-                "h>>%s>%s>%s",
-                NetworkUtil.replaceZeroes(server.serverConfig.endpoint(), 52525),
-                encryption.name(),
-                key
-        );
+    public static @NotNull URI getServerLink(@NotNull SandnodeServer server) throws KeyStorageNotFoundException,
+            EncryptionTypeException {
+        IAsymmetricEncryption encryption = server.serverConfig.mainEncryption();
+        IAsymmetricKeyStorage keyStorage = server.node.globalKeyStorage.getAsymmetricNonNull(encryption);
+        String string;
+        try {
+            string = "sandnode://%s@%s?encryption=%s&key=%s".formatted(
+                    URLEncoder.encode(server.node.type().name().toLowerCase(), UTF_8),
+                    NetworkUtil.replaceZeroes(server.serverConfig.endpoint(), 52525),
+                    URLEncoder.encode(encryption.name(), UTF_8),
+                    URLEncoder.encode(keyStorage.encodedPublicKey(), UTF_8)
+            );
+        } catch (CannotUseEncryption e) {
+            throw new ImpossibleRuntimeException(e);
+        }
+        return URI.create(string);
     }
-
-    public static @NotNull String toString(
-            @NotNull Agent agent,
-            @NotNull Map<Endpoint, IAsymmetricEncryption> map
-    ) throws KeyStorageNotFoundException {
-        StringBuilder builder = new StringBuilder("a");
-
-        for (Map.Entry<Endpoint, IAsymmetricEncryption> entry : map.entrySet()) {
-            Endpoint endpoint = entry.getKey();
-            IAsymmetricEncryption encryption = entry.getValue();
-
-            IAsymmetricConvertor convertor = encryption.publicKeyConvertor();
-            IKeyStorage keyStorage = agent.globalKeyStorage.getNonNull(encryption);
-            String key = convertor.toEncodedString(keyStorage);
-
-            builder
-                    .append(">>")
-                    .append(endpoint.toString(52525))
-                    .append(">")
-                    .append(agent.memberID())
-                    .append(">")
-                    .append(encryption.name())
-                    .append(">")
-                    .append(key);
+    
+    public static SandnodeLinkRecord parse(String s) throws InvalidSandnodeLinkException, CreatingKeyException {
+        URI uri;
+        try {
+            uri = new URI(s);
+        } catch (URISyntaxException e) {
+            throw new InvalidSandnodeLinkException(e);
         }
 
-        return builder.toString();
-    }
+        Endpoint endpoint = new Endpoint(uri.getHost(), uri.getPort() == -1 ? 52525 : uri.getPort());
 
-    public static @NotNull LinkInfo fromString(@NotNull String string) throws CreatingKeyException, InvalidLinkSyntaxException,
-            NoSuchEncryptionException, CannotUseEncryption, URISyntaxException {
-        String clean = string.replaceAll("[\\s\\n\\t]+", "");
-        char c = clean.charAt(0);
-        String substring = clean.substring(3);
-        return switch (c) {
-            case 'h' -> HubInfo.parse(substring);
-            case 'a' -> AgentInfo.parse(substring);
-            default ->
-                    throw new InvalidLinkSyntaxException(String.format("Unknown link symbol \"%s\", should be 'h', 'a' or 'm'", c));
-        };
+        if (!"sandnode".equals(uri.getScheme())) {
+            throw new InvalidSandnodeLinkException("Invalid scheme: " + uri.getScheme());
+        }
+
+        String nodeType = uri.getUserInfo();
+        if (nodeType == null) {
+            throw new InvalidSandnodeLinkException("User info cannot be null");
+        }
+
+        String encryptionType = null;
+        String encodedKey = null;
+        String query = uri.getQuery();
+        if (query != null) {
+            String[] queryParams = query.split("&");
+            for (String param : queryParams) {
+                String[] keyValue = param.split("=");
+                if (keyValue.length == 2) {
+                    if ("encryption".equals(keyValue[0])) {
+                        encryptionType = keyValue[1];
+                    } else if ("key".equals(keyValue[0])) {
+                        encodedKey = keyValue[1];
+                    }
+                }
+            }
+        }
+
+        if (encryptionType == null) {
+            throw new InvalidSandnodeLinkException("Encryption type not found in query parameters");
+        }
+        if (encodedKey == null) {
+            throw new InvalidSandnodeLinkException("Key not found in query parameters");
+        }
+
+        IAsymmetricEncryption encryption;
+        try {
+            encryption = EncryptionManager.find(encryptionType).asymmetric();
+        } catch (NoSuchEncryptionException | EncryptionTypeException e) {
+            throw new InvalidSandnodeLinkException("Unknown encryption type: " + encryptionType, e);
+        }
+
+        IAsymmetricKeyStorage keyStorage = encryption.publicKeyConvertor().toKeyStorage(encodedKey);
+
+        return new SandnodeLinkRecord(endpoint, keyStorage);
     }
 }

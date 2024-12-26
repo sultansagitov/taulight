@@ -1,21 +1,57 @@
 package net.result.main;
 
-import net.result.sandnode.config.HubPropertiesConfig;
-import net.result.sandnode.config.IHubConfig;
 import net.result.sandnode.config.IServerConfig;
-import net.result.sandnode.config.ServerPropertiesConfig;
-import net.result.sandnode.exceptions.ConfigurationException;
-import net.result.sandnode.exceptions.CannotUseEncryption;
-import net.result.sandnode.exceptions.NoSuchEncryptionException;
+import net.result.main.config.ServerPropertiesConfig;
+import net.result.sandnode.encryption.interfaces.IAsymmetricKeyStorage;
+import net.result.sandnode.exceptions.*;
 import net.result.sandnode.encryption.interfaces.IAsymmetricEncryption;
-import net.result.sandnode.exceptions.FSException;
+import net.result.sandnode.util.FileUtil;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import java.io.FileWriter;
+import java.io.IOException;
+import java.nio.file.Path;
 
 public class GenerateKeysWork implements IWork {
+    private static final Logger LOGGER = LogManager.getLogger(GenerateKeysWork.class);
+
     @Override
-    public void run() throws NoSuchEncryptionException, ConfigurationException, CannotUseEncryption, FSException {
-        IHubConfig hubConfig = new HubPropertiesConfig();
+    public void run() throws NoSuchEncryptionException, ConfigurationException, FSException, EncryptionTypeException {
         IServerConfig serverConfig = new ServerPropertiesConfig();
-        IAsymmetricEncryption mainEncryption = hubConfig.mainEncryption();
-        mainEncryption.keySaver().saveServerKeys(serverConfig, mainEncryption.generator().generate());
+        IAsymmetricEncryption mainEncryption = serverConfig.mainEncryption();
+        IAsymmetricKeyStorage keyStorage = mainEncryption.generate();
+
+        Path publicKeyPath = serverConfig.publicKeyPath();
+        Path privateKeyPath = serverConfig.privateKeyPath();
+
+        boolean isPublicFileDeleted = FileUtil.deleteFile(publicKeyPath);
+        boolean isPrivateFileDeleted = FileUtil.deleteFile(privateKeyPath);
+
+        String publicString;
+        String privateString;
+        try {
+            publicString = keyStorage.encodedPublicKey();
+            privateString = keyStorage.encodedPrivateKey();
+        } catch (CannotUseEncryption e) {
+            throw new ImpossibleRuntimeException(e);
+        }
+
+        if (!isPublicFileDeleted || !isPrivateFileDeleted) {
+            try (
+                    FileWriter publicKeyWriter = new FileWriter(publicKeyPath.toString());
+                    FileWriter privateKeyWriter = new FileWriter(privateKeyPath.toString())
+            ) {
+                LOGGER.info("Writing public and private keys to files.");
+                publicKeyWriter.write(publicString);
+                privateKeyWriter.write(privateString);
+
+                LOGGER.info("Setting key file permissions.");
+                FileUtil.makeOwnerOnlyRead(publicKeyPath);
+                FileUtil.makeOwnerOnlyRead(privateKeyPath);
+            } catch (IOException e) {
+                throw new FSException("Error writing keys to files", e);
+            }
+        }
     }
 }

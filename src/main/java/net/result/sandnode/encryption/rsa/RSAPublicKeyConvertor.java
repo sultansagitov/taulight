@@ -3,6 +3,7 @@ package net.result.sandnode.encryption.rsa;
 import net.result.sandnode.exceptions.CreatingKeyException;
 import net.result.sandnode.encryption.interfaces.IAsymmetricConvertor;
 import net.result.sandnode.encryption.interfaces.IKeyStorage;
+import net.result.sandnode.exceptions.ImpossibleRuntimeException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
@@ -31,16 +32,16 @@ public class RSAPublicKeyConvertor implements IAsymmetricConvertor {
         return toKeyStorage(bytes);
     }
 
-    @Override
-    public @NotNull RSAKeyStorage toKeyStorage(byte @NotNull [] bytes) throws CreatingKeyException {
+    @NotNull
+    private RSAKeyStorage toKeyStorage(byte @NotNull [] bytes) throws CreatingKeyException {
         KeyFactory keyFactory;
         X509EncodedKeySpec keySpec = new X509EncodedKeySpec(bytes);
 
         try {
             keyFactory = KeyFactory.getInstance("RSA");
         } catch (NoSuchAlgorithmException e) {
-            LOGGER.error("I hope you never see this error in your logs", e);
-            throw new RuntimeException(e);
+            LOGGER.error(e);
+            throw new ImpossibleRuntimeException(e);
         }
 
         PublicKey publicKey;
@@ -55,7 +56,7 @@ public class RSAPublicKeyConvertor implements IAsymmetricConvertor {
     @Override
     public @NotNull String toEncodedString(@NotNull IKeyStorage keyStorage) {
         RSAKeyStorage rsaKeyStorage = (RSAKeyStorage) keyStorage;
-        PublicKey publicKey = rsaKeyStorage.getPublicKey();
+        PublicKey publicKey = rsaKeyStorage.publicKey();
         return Base64.getEncoder().encodeToString(publicKey.getEncoded());
     }
 

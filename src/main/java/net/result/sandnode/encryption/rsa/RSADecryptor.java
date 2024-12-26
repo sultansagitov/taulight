@@ -1,7 +1,6 @@
 package net.result.sandnode.encryption.rsa;
 
-import net.result.sandnode.exceptions.DecryptionException;
-import net.result.sandnode.encryption.interfaces.IDecryptor;
+import net.result.sandnode.exceptions.*;
 import net.result.sandnode.encryption.interfaces.IKeyStorage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -13,54 +12,51 @@ import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
+import java.security.PrivateKey;
 
-public class RSADecryptor implements IDecryptor {
+import static net.result.sandnode.encryption.AsymmetricEncryption.RSA;
+
+public class RSADecryptor {
     private static final Logger LOGGER = LogManager.getLogger(RSADecryptor.class);
-    private static final RSADecryptor INSTANCE = new RSADecryptor();
 
-    public static RSADecryptor instance() {
-        return INSTANCE;
+    public static String decrypt(byte @NotNull [] data, @NotNull IKeyStorage keyStorage) throws DecryptionException,
+            WrongKeyException, CannotUseEncryption, PrivateKeyNotFoundException {
+        return new String(decryptBytes(data, keyStorage));
     }
 
-    @Override
-    public String decrypt(byte @NotNull [] data, @NotNull IKeyStorage keyStorage) throws DecryptionException {
-        byte[] decryptedBytes = decryptBytes(data, keyStorage);
-        return new String(decryptedBytes);
-    }
-
-    public byte[] decryptBytes(byte @NotNull [] data, @NotNull RSAKeyStorage keyStorage) throws DecryptionException {
+    public static byte[] decryptBytes(byte @NotNull [] data, @NotNull IKeyStorage keyStorage)
+            throws DecryptionException, WrongKeyException, CannotUseEncryption, PrivateKeyNotFoundException {
+        RSAKeyStorage rsaKeyStorage = (RSAKeyStorage) keyStorage.expect(RSA);
         Cipher cipher;
-        byte[] decryptedBytes;
 
         try {
-            cipher = Cipher.getInstance("RSA/ECB/PKCS1Padding");
+            cipher = Cipher.getInstance("RSA/ECB/OAEPWithSHA-256AndMGF1Padding");
         } catch (NoSuchAlgorithmException | NoSuchPaddingException e) {
-            LOGGER.error("I hope you never see this error in your logs", e);
-            throw new RuntimeException(e);
+            LOGGER.error(e);
+            throw new ImpossibleRuntimeException(e);
+        }
+
+        PrivateKey privateKey = rsaKeyStorage.privateKey();
+
+        if (privateKey == null) {
+            throw new PrivateKeyNotFoundException("Private key is missing or not initialized.");
         }
 
         try {
-            cipher.init(Cipher.DECRYPT_MODE, keyStorage.getPrivateKey());
+            cipher.init(Cipher.DECRYPT_MODE, privateKey);
         } catch (InvalidKeyException e) {
-            LOGGER.error("Invalid RSA key has been used", e);
-            throw new DecryptionException(e);
+            LOGGER.error(e);
+            throw new WrongKeyException("The provided key is invalid for encryption", e);
         }
 
+        byte[] result;
         try {
-            decryptedBytes = cipher.doFinal(data);
+            result = cipher.doFinal(data);
             LOGGER.info("Data successfully decrypted with RSA");
         } catch (IllegalBlockSizeException | BadPaddingException e) {
-            LOGGER.error("Error when decrypt", e);
             throw new DecryptionException(e);
         }
 
-        return decryptedBytes;
+        return result;
     }
-
-    @Override
-    public byte[] decryptBytes(byte @NotNull [] data, @NotNull IKeyStorage keyStorage) throws DecryptionException {
-        RSAKeyStorage rsaKeyStorage = (RSAKeyStorage) keyStorage;
-        return decryptBytes(data, rsaKeyStorage);
-    }
-
 }

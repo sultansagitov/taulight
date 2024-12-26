@@ -7,7 +7,7 @@ public class RawMessage extends Message {
     private byte[] body;
 
     public RawMessage(@NotNull Headers headers) {
-        super(headers);
+        this(headers, new byte[] {});
     }
 
     public RawMessage(@NotNull Headers headers, byte @NotNull [] body) {

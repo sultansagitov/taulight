@@ -28,6 +28,6 @@ public class Member implements IMember {
 
     @Override
     public String toString() {
-        return String.format("<Member %s>", getID());
+        return "<Member %s>".formatted(getID());
     }
 }

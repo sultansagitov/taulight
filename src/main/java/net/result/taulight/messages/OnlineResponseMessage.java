@@ -17,7 +17,7 @@ public class OnlineResponseMessage extends JSONMessage {
     public final Set<String> members;
 
     public OnlineResponseMessage(@NotNull Headers headers, @NotNull Set<IMember> members) {
-        super(headers.set(ONL));
+        super(headers.setType(ONL));
         this.members = new HashSet<>();
         JSONArray list = new JSONArray();
         for (IMember member : members) {

@@ -1,9 +1,8 @@
 package net.result.sandnode.util.encryption;
 
-import net.result.sandnode.encryption.Encryptions;
+import net.result.sandnode.encryption.EncryptionManager;
 import net.result.sandnode.encryption.interfaces.*;
-import net.result.sandnode.exceptions.DecryptionException;
-import net.result.sandnode.exceptions.EncryptionException;
+import net.result.sandnode.exceptions.*;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -11,37 +10,38 @@ import java.util.Arrays;
 
 public class HybridEncryptionTest {
     @Test
-    public void hybridEncryptionTest() throws EncryptionException, DecryptionException {
-        for (IAsymmetricEncryption a : Encryptions.getAsymmetric()) {
-            for (ISymmetricEncryption s : Encryptions.getSymmetric()) {
-                IEncryptor asymmetricEncryptor = a.encryptor();
-                IDecryptor asymmetricDecryptor = a.decryptor();
-                IEncryptor symmetricEncryptor = s.encryptor();
-                IDecryptor symmetricDecryptor = s.decryptor();
+    public void hybridEncryptionTest() throws EncryptionException, DecryptionException, WrongKeyException,
+            PrivateKeyNotFoundException {
+        for (IAsymmetricEncryption a : EncryptionManager.getAsymmetric()) {
+            for (ISymmetricEncryption s : EncryptionManager.getSymmetric()) {
+                IAsymmetricKeyStorage asymmetricKeyStorage = a.generate();
+                ISymmetricKeyStorage symmetricKeyStorage = s.generate();
 
-                IGenerator asymmetricGenerator = a.generator();
-                IGenerator symmetricGenerator = s.generator();
+                byte[] bytes = symmetricKeyStorage.toBytes();
 
-                ISymmetricKeyConvertor symmetricKeyConvertor = s.keyConvertor();
+                byte[] encryptedBytes;
+                byte[] decryptedBytes;
+                try {
+                    encryptedBytes = a.encryptBytes(bytes, asymmetricKeyStorage);
+                    decryptedBytes = a.decryptBytes(encryptedBytes, asymmetricKeyStorage);
+                } catch (CannotUseEncryption e) {
+                    throw new ImpossibleRuntimeException(e);
+                }
 
-                IAsymmetricKeyStorage asymmetricKeyStorage = (IAsymmetricKeyStorage) asymmetricGenerator.generate();
-                ISymmetricKeyStorage symmetricKeyStorage = (ISymmetricKeyStorage) symmetricGenerator.generate();
-
-                byte[] bytes = symmetricKeyConvertor.toBytes(symmetricKeyStorage);
-
-                byte[] encryptedBytes = asymmetricEncryptor.encryptBytes(bytes, asymmetricKeyStorage);
-               Assertions.assertFalse(Arrays.equals(bytes, encryptedBytes));
-                byte[] decryptedBytes = asymmetricDecryptor.decryptBytes(encryptedBytes, asymmetricKeyStorage);
-
+                Assertions.assertFalse(Arrays.equals(bytes, encryptedBytes));
                 Assertions.assertArrayEquals(bytes, decryptedBytes);
 
-                ISymmetricKeyStorage secondKeyStorage = symmetricKeyConvertor.toKeyStorage(decryptedBytes);
+                ISymmetricKeyStorage secondKeyStorage = s.toKeyStorage(decryptedBytes);
 
-                String data = "HelloString";
-                byte[] encryptedData = symmetricEncryptor.encrypt(data, secondKeyStorage);
-                String decryptedData = symmetricDecryptor.decrypt(encryptedData, symmetricKeyStorage);
+                try {
+                    String data = "HelloString";
+                    byte[] encryptedData = s.encrypt(data, secondKeyStorage);
+                    String decryptedData = s.decrypt(encryptedData, symmetricKeyStorage);
+                    Assertions.assertEquals(data, decryptedData);
+                } catch (CannotUseEncryption e) {
+                    throw new ImpossibleRuntimeException(e);
+                }
 
-                Assertions.assertEquals(data, decryptedData);
             }
         }
     }

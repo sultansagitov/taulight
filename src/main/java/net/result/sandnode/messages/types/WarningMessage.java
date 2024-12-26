@@ -1,18 +1,17 @@
 package net.result.sandnode.messages.types;
 
-import net.result.sandnode.messages.Message;
+import net.result.sandnode.messages.EmptyMessage;
 import net.result.sandnode.messages.util.Headers;
 import org.jetbrains.annotations.NotNull;
 
-import static net.result.sandnode.messages.util.MessageTypes.WARN;
+import static net.result.sandnode.messages.util.MessageType.WARN;
 
-public class WarningMessage extends Message {
+public class WarningMessage extends EmptyMessage {
     public WarningMessage(@NotNull Headers headers) {
-        super(headers.set(WARN));
+        super(headers.setType(WARN));
     }
 
-    @Override
-    public byte[] getBody() {
-        return new byte[0];
+    public WarningMessage() {
+        this(new Headers());
     }
 }

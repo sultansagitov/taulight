@@ -1,61 +1,106 @@
 package net.result.sandnode.encryption;
 
-import net.result.sandnode.encryption.interfaces.IAsymmetricConvertor;
-import net.result.sandnode.encryption.interfaces.IAsymmetricEncryption;
-import net.result.sandnode.encryption.interfaces.IAsymmetricKeyReader;
-import net.result.sandnode.encryption.interfaces.IAsymmetricKeySaver;
+import net.result.sandnode.encryption.ecies.*;
+import net.result.sandnode.encryption.interfaces.*;
 import net.result.sandnode.encryption.rsa.*;
+
+import net.result.sandnode.exceptions.CannotUseEncryption;
+import net.result.sandnode.exceptions.DecryptionException;
+import net.result.sandnode.exceptions.EncryptionException;
+import net.result.sandnode.exceptions.PrivateKeyNotFoundException;
+import net.result.sandnode.exceptions.WrongKeyException;
 
 public enum AsymmetricEncryption implements IAsymmetricEncryption {
     RSA {
         @Override
-        public RSAGenerator generator() {
-            return RSAGenerator.instance();
-        }
-
-        @Override
-        public RSAEncryptor encryptor() {
-            return RSAEncryptor.instance();
-        }
-
-        @Override
-        public RSADecryptor decryptor() {
-            return RSADecryptor.instance();
-        }
-
-        @Override
         public byte asByte() {
             return 1;
         }
-
         @Override
-        public boolean isAsymmetric() {
-            return true;
+        public RSAKeyStorage generate() {
+            return RSAGenerator.generate();
+        }
+        @Override
+        public byte[] encrypt(String data, IKeyStorage keyStorage) throws EncryptionException, WrongKeyException,
+                CannotUseEncryption {
+            return RSAEncryptor.encrypt(data, keyStorage);
+        }
+        @Override
+        public byte[] encryptBytes(byte[] bytes, IKeyStorage keyStorage) throws EncryptionException, WrongKeyException,
+                CannotUseEncryption {
+            return RSAEncryptor.encryptBytes(bytes, keyStorage);
+        }
+        @Override
+        public String decrypt(byte[] encryptedData, IKeyStorage keyStorage) throws WrongKeyException,
+                CannotUseEncryption, DecryptionException, PrivateKeyNotFoundException {
+            return RSADecryptor.decrypt(encryptedData, keyStorage);
+        }
+        @Override
+        public byte[] decryptBytes(byte[] encryptedBytes, IKeyStorage keyStorage) throws DecryptionException,
+                WrongKeyException, CannotUseEncryption, PrivateKeyNotFoundException {
+            return RSADecryptor.decryptBytes(encryptedBytes, keyStorage);
+        }
+        @Override
+        public RSAKeyStorage merge(IAsymmetricKeyStorage publicKeyStorage, IAsymmetricKeyStorage privateKeyStorage) {
+            return new RSAKeyStorage(
+                    ((RSAKeyStorage) publicKeyStorage).publicKey(),
+                    ((RSAKeyStorage) privateKeyStorage).privateKey()
+            );
         }
 
         @Override
-        public boolean isSymmetric() {
-            return false;
-        }
-
-        @Override
-        public IAsymmetricConvertor publicKeyConvertor() {
+        public RSAPublicKeyConvertor publicKeyConvertor() {
             return RSAPublicKeyConvertor.instance();
         }
-
         @Override
-        public IAsymmetricConvertor privateKeyConvertor() {
+        public RSAPrivateKeyConvertor privateKeyConvertor() {
             return RSAPrivateKeyConvertor.instance();
         }
+    },
 
+    ECIES {
         @Override
-        public IAsymmetricKeySaver keySaver() {
-            return RSAKeySaver.instance();
+        public byte asByte() {
+            return 3;
         }
-
         @Override
-        public IAsymmetricKeyReader keyReader() {
-            return RSAKeyReader.instance();
+        public ECIESKeyStorage generate() {
+            return ECIESKeyGenerator.generate();
+        }
+        @Override
+        public byte[] encrypt(String data, IKeyStorage keyStorage) throws EncryptionException, WrongKeyException,
+                CannotUseEncryption {
+            return ECIESEncryptor.encrypt(data, keyStorage);
+        }
+        @Override
+        public byte[] encryptBytes(byte[] bytes, IKeyStorage keyStorage) throws EncryptionException,
+                WrongKeyException, CannotUseEncryption {
+            return ECIESEncryptor.encryptBytes(bytes, keyStorage);
+        }
+        @Override
+        public String decrypt(byte[] encryptedData, IKeyStorage keyStorage) throws WrongKeyException,
+                CannotUseEncryption, DecryptionException, PrivateKeyNotFoundException {
+            return ECIESDecryptor.decrypt(encryptedData, keyStorage);
+        }
+        @Override
+        public byte[] decryptBytes(byte[] encryptedBytes, IKeyStorage keyStorage) throws DecryptionException,
+                WrongKeyException, CannotUseEncryption, PrivateKeyNotFoundException {
+            return ECIESDecryptor.decryptBytes(encryptedBytes, keyStorage);
+        }
+        @Override
+        public ECIESKeyStorage merge(IAsymmetricKeyStorage publicKeyStorage, IAsymmetricKeyStorage privateKeyStorage) {
+            return new ECIESKeyStorage(
+                    ((ECIESKeyStorage) publicKeyStorage).publicKey(),
+                    ((ECIESKeyStorage) privateKeyStorage).privateKey()
+            );
+        }
+        @Override
+        public ECIESPublicKeyConvertor publicKeyConvertor() {
+            return ECIESPublicKeyConvertor.instance();
+        }
+        @Override
+        public ECIESPrivateKeyConvertor privateKeyConvertor() {
+            return ECIESPrivateKeyConvertor.instance();
         }
     }
 }

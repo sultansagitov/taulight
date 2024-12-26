@@ -12,6 +12,11 @@ public class StatusMessage extends JSONMessage implements IJSONMessage {
         this.code = code;
     }
 
+    public StatusMessage(IMessage response) {
+        super(response.getHeaders());
+        this.code = new JSONObject(new String(response.getBody())).getInt("code");
+    }
+
     public int getCode() {
         return code;
     }

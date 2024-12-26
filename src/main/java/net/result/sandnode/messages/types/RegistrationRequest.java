@@ -6,7 +6,7 @@ import net.result.sandnode.messages.JSONMessage;
 import net.result.sandnode.messages.util.Headers;
 import org.jetbrains.annotations.NotNull;
 
-import static net.result.sandnode.messages.util.MessageTypes.REG;
+import static net.result.sandnode.messages.util.MessageType.REG;
 
 public class RegistrationRequest extends JSONMessage {
     public RegistrationRequest(@NotNull IMessage message) throws ExpectedMessageException {
@@ -15,9 +15,13 @@ public class RegistrationRequest extends JSONMessage {
     }
 
     public RegistrationRequest(@NotNull Headers headers, @NotNull String memberID, @NotNull String password) {
-        super(headers.set(REG));
+        super(headers.setType(REG));
         setMemberID(memberID);
         setPassword(password);
+    }
+
+    public RegistrationRequest(@NotNull String memberID, @NotNull String password) {
+        this(new Headers(), memberID, password);
     }
 
     public String getMemberID() {

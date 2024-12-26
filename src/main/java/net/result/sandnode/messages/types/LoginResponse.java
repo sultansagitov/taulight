@@ -11,7 +11,7 @@ public class LoginResponse extends JSONMessage {
     public LoginResponse(@NotNull Headers headers, @NotNull IMember member) {
         super(headers);
         memberID = member.getID();
-        getContent().put("member-id", memberID);
+        getContent().put("member-id", getMemberID());
     }
 
     public String getMemberID() {

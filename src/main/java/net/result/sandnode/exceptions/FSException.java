@@ -1,5 +1,6 @@
 package net.result.sandnode.exceptions;
 
+import java.io.IOException;
 import java.nio.file.Path;
 
 public class FSException extends SandnodeException {
@@ -16,6 +17,10 @@ public class FSException extends SandnodeException {
     }
 
     public FSException(String message, Path path) {
-        super(String.format("%s: %s", message, path));
+        super("%s: %s".formatted(message, path));
+    }
+
+    public FSException(String message, Path path, IOException e) {
+        super("%s: %s".formatted(message, path), e);
     }
 }

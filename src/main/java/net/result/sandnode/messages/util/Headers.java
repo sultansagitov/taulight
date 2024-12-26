@@ -1,9 +1,9 @@
 package net.result.sandnode.messages.util;
 
-import net.result.sandnode.exceptions.MessageSerializationException;
+import net.result.sandnode.exceptions.HeadersSerializationException;
 import net.result.sandnode.exceptions.NoSuchMessageTypeException;
 import net.result.sandnode.exceptions.NoSuchEncryptionException;
-import net.result.sandnode.encryption.Encryptions;
+import net.result.sandnode.encryption.EncryptionManager;
 import net.result.sandnode.encryption.interfaces.IEncryption;
 import net.result.simplesix64.SimpleSix64;
 import org.jetbrains.annotations.NotNull;
@@ -13,67 +13,19 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.*;
 
+import static net.result.sandnode.encryption.Encryption.NONE;
 import static net.result.sandnode.messages.util.NodeType.HUB;
 
 public class Headers {
     private final Map<String, String> map = new HashMap<>();
+    private short chainID = -1;
+    private boolean fin = false;
     private @Nullable Connection connection;
     private @Nullable IMessageType type;
-    private @Nullable IEncryption encryption;
-    private boolean fin = false;
-
-    public static Headers getFromBytes(byte @NotNull [] data) throws NoSuchEncryptionException, NoSuchMessageTypeException {
-        if (data.length < 3) {
-            throw new IllegalArgumentException("Data is too short to extract the required information");
-        }
-
-        Headers headers = new Headers()
-                .set(Connection.fromByte(data[0]))
-                .set(MessageTypes.getMessageType(data[1]))
-                .set(Encryptions.find(data[2]))
-                .setFin((data[0] & 0b00100000) != 0);
-
-        // boolean flag1 = (data[0] & 0b00010000) != 0;
-        // boolean flag2 = (data[0] & 0b00001000) != 0;
-        // boolean flag3 = (data[0] & 0b00000100) != 0;
-        // boolean flag4 = (data[0] & 0b00000010) != 0;
-        // boolean flag5 = (data[0] & 0b00000001) != 0;
-
-        byte[] encoded = Arrays.copyOfRange(data, 3, data.length);
-        String headersString = SimpleSix64.decode(encoded);
-
-        for (String string : headersString.split(";")) {
-            if (string.contains(":")) {
-                String[] keyValue = string.split(":");
-                headers.set(keyValue[0], keyValue[1]);
-            }
-        }
-
-        return headers;
-    }
+    private IEncryption bodyEncryption = NONE;
 
     public Headers setFin(boolean fin) {
         this.fin = fin;
-        return this;
-    }
-
-    public Headers set(@NotNull Connection connection) {
-        this.connection = connection;
-        return this;
-    }
-
-    public Headers set(@NotNull IMessageType type) {
-        this.type = type;
-        return this;
-    }
-
-    public Headers set(@NotNull IEncryption encryption) {
-        this.encryption = encryption;
-        return this;
-    }
-
-    public Headers set(@NotNull String key, @NotNull String value) {
-        map.put(key, value);
         return this;
     }
 
@@ -81,26 +33,96 @@ public class Headers {
         return fin;
     }
 
+    public Headers setValue(@NotNull String key, @NotNull String value) {
+        map.put(key.toLowerCase(), value.toLowerCase());
+        return this;
+    }
+
+    public int getCount() {
+        return map.size();
+    }
+
+    public @NotNull String getValue(@NotNull String key) throws IllegalArgumentException {
+        if (!map.containsKey(key.toLowerCase())) {
+            throw new IllegalArgumentException("headers don't have key \"%s\"".formatted(key));
+        }
+        return map.get(key.toLowerCase());
+    }
+
+    public boolean hasValue(String key) {
+        return map.containsKey(key);
+    }
+
+    public Headers setType(@NotNull IMessageType type) {
+        this.type = type;
+        return this;
+    }
+
     public @NotNull IMessageType getType() throws NullPointerException {
         return Objects.requireNonNull(type);
     }
 
-    public @NotNull IEncryption getBodyEncryption() throws NullPointerException {
-        return Objects.requireNonNull(encryption);
+    public Headers setConnection(@NotNull Connection connection) {
+        this.connection = connection;
+        return this;
     }
 
     public @NotNull Connection getConnection() throws NullPointerException {
         return Objects.requireNonNull(connection);
     }
 
-    public @NotNull String get(@NotNull String key) throws IllegalArgumentException {
-        if (!map.containsKey(key)) {
-            throw new IllegalArgumentException(String.format("headers don't have key \"%s\"", key));
-        }
-        return map.get(key);
+    public Headers setBodyEncryption(@NotNull IEncryption bodyEncryption) {
+        this.bodyEncryption = bodyEncryption;
+        return this;
     }
 
-    public byte[] toByteArray() throws MessageSerializationException {
+    public @NotNull IEncryption getBodyEncryption() throws NullPointerException {
+        return Objects.requireNonNull(bodyEncryption);
+    }
+
+    public Headers setChainID(short chainID) {
+        this.chainID = chainID;
+        return this;
+    }
+
+    public short getChainID() {
+        return chainID;
+    }
+
+    public static Headers getFromBytes(byte @NotNull [] data) throws NoSuchEncryptionException,
+            NoSuchMessageTypeException {
+        if (data.length < 5) {
+            throw new IllegalArgumentException("Data is too short to extract the required information");
+        }
+
+        Headers headers = new Headers()
+                .setConnection(Connection.fromByte(data[0]))
+                .setType(MessageTypeManager.getMessageType(data[1]))
+                .setBodyEncryption(EncryptionManager.find(data[2]))
+                .setFin((data[0] & 0b00100000) != 0)
+                .setChainID((short) (((data[3] & 0xFF) << 8) | (data[4] & 0xFF)));
+
+
+        // boolean flag1 = (data[0] & 0b00010000) != 0;
+        // boolean flag2 = (data[0] & 0b00001000) != 0;
+        // boolean flag3 = (data[0] & 0b00000100) != 0;
+        // boolean flag4 = (data[0] & 0b00000010) != 0;
+        // boolean flag5 = (data[0] & 0b00000001) != 0;
+
+        byte[] encoded = Arrays.copyOfRange(data, 5, data.length);
+        String headersString = SimpleSix64.decode(encoded);
+
+        for (String string : headersString.split(";")) {
+            if (string.contains(":")) {
+                String[] keyValue = string.split(":");
+                headers.setValue(keyValue[0], keyValue[1]);
+            }
+        }
+
+        return headers;
+    }
+
+    public byte[] toByteArray() throws HeadersSerializationException {
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
 
         byte first = (byte) new Random().nextInt(16);
@@ -110,6 +132,8 @@ public class Headers {
         byteArrayOutputStream.write(first);
         byteArrayOutputStream.write(getType().asByte());
         byteArrayOutputStream.write(getBodyEncryption().asByte());
+        byteArrayOutputStream.write((getChainID() >> 8) & 0xFF);
+        byteArrayOutputStream.write(getChainID() & 0xFF);
 
         StringBuilder result = new StringBuilder();
 
@@ -127,10 +151,9 @@ public class Headers {
         try {
             byteArrayOutputStream.write(encoded);
         } catch (IOException e) {
-            throw new MessageSerializationException("Failed to serialize message to byte array", e);
+            throw new HeadersSerializationException("Failed to serialize headers to byte array", e);
         }
 
         return byteArrayOutputStream.toByteArray();
     }
-
 }
