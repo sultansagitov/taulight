@@ -6,6 +6,7 @@ import net.result.sandnode.messages.IMessage;
 import net.result.sandnode.messages.util.IMessageType;
 import net.result.sandnode.server.Session;
 import net.result.sandnode.util.db.IMember;
+import net.result.sandnode.util.group.IGroupManager;
 import net.result.taulight.messages.OnlineResponseMessage;
 import net.result.taulight.messages.TauMessageTypes;
 import net.result.taulight.messages.types.TextMessage;
@@ -29,6 +30,7 @@ public class TauHubServerChain extends ServerChain {
             IMessage request = queue.take();
             IMessageType type = request.getHeaders().getType();
             if (type instanceof TauMessageTypes tau) {
+                final IGroupManager groupManager = session.server.serverConfig.groupManager();
                 switch (tau) {
                     case ECHO -> {
                         TextMessage textMessage = new TextMessage(request);
@@ -39,17 +41,17 @@ public class TauHubServerChain extends ServerChain {
                         TextMessage textMessage = new TextMessage(request);
                         LOGGER.info("Forwarding message: {}", textMessage.data);
 
-                        for (Session s : session.server.serverConfig.groupManager().getSessions("fwd")) {
+                        for (Session s : groupManager.getGroup("fwd").getSessions()) {
                             Optional<IChain> opt = s.io.chainManager.getChain("fwd");
                             if (opt.isPresent()) opt.get().send(textMessage);
                             LOGGER.info("Message forwarded to session: {}", s);
                         }
                     }
                     case ONL -> {
-                        Set<Session> fwd = session.server.serverConfig.groupManager().getSessions("fwd");
+                        Set<Session> fwd = groupManager.getGroup("fwd").getSessions();
                         Set<IMember> list = fwd.stream().map(s -> s.member).collect(Collectors.toSet());
                         LOGGER.info("Online IPs: {}", list);
-                        OnlineResponseMessage response = new OnlineResponseMessage(request.getHeaders(), list);
+                        OnlineResponseMessage response = new OnlineResponseMessage(list);
                         send(response);
                     }
                 }

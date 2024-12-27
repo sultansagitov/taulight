@@ -6,6 +6,8 @@ import net.result.sandnode.exceptions.NoSuchEncryptionException;
 import net.result.sandnode.encryption.EncryptionManager;
 import net.result.sandnode.encryption.interfaces.IEncryption;
 import net.result.simplesix64.SimpleSix64;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -114,9 +116,14 @@ public class Headers {
 
         for (String string : headersString.split(";")) {
             if (string.contains(":")) {
-                String[] keyValue = string.split(":");
-                headers.setValue(keyValue[0], keyValue[1]);
+                int colonIndex = string.indexOf(":");
+                if (colonIndex > 0) {
+                    String key = string.substring(0, colonIndex).trim();
+                    String value = string.substring(colonIndex + 1).trim();
+                    headers.setValue(key, value);
+                }
             }
+
         }
 
         return headers;

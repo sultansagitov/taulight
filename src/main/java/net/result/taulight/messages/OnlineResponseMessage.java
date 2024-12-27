@@ -16,6 +16,10 @@ import static net.result.taulight.messages.TauMessageTypes.ONL;
 public class OnlineResponseMessage extends JSONMessage {
     public final Set<String> members;
 
+    public OnlineResponseMessage(@NotNull Set<IMember> members) {
+        this(new Headers(), members);
+    }
+
     public OnlineResponseMessage(@NotNull Headers headers, @NotNull Set<IMember> members) {
         super(headers.setType(ONL));
         this.members = new HashSet<>();

@@ -22,7 +22,9 @@ class HeadersTest {
                 .setConnection(HUB2AGENT)
                 .setType(LOGIN)
                 .setBodyEncryption(RSA)
-                .setValue("key", "value");
+                .setValue("key", "value")
+                .setValue("empty", "")
+                .setValue("", "empty");
 
         byte[] byteArray = headers.toByteArray();
         assertNotNull(byteArray);

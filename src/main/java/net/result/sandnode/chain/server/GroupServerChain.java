@@ -3,6 +3,7 @@ package net.result.sandnode.chain.server;
 import net.result.sandnode.exceptions.*;
 import net.result.sandnode.messages.types.GroupMessage;
 import net.result.sandnode.server.Session;
+import net.result.sandnode.util.group.ClientGroup;
 import net.result.sandnode.util.group.IGroupManager;
 
 import java.util.Set;
@@ -18,7 +19,11 @@ public class GroupServerChain extends ServerChain {
         GroupMessage groupMessage = new GroupMessage(queue.take());
         Set<String> groupNames = groupMessage.getGroupNames().stream().filter(s -> !s.isEmpty()).collect(Collectors.toSet());
         IGroupManager groupManager = session.server.serverConfig.groupManager();
-        groupManager.addToGroup(groupNames, session);
-        sendFin(new GroupMessage(groupManager.getGroups(session)));
+        groupNames.forEach(groupName -> groupManager.getGroup(groupName).add(session));
+        Set<String> collect = session.getGroups().stream()
+                .filter(ClientGroup.class::isInstance)
+                .map(s -> ((ClientGroup) s).name)
+                .collect(Collectors.toSet());
+        sendFin(new GroupMessage(collect));
     }
 }

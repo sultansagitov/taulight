@@ -1,16 +1,13 @@
 package net.result.sandnode.util.group;
 
-import net.result.sandnode.server.Session;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Set;
+import java.util.Optional;
 
 public interface IGroupManager {
-    void addToGroup(@NotNull String groupName, @NotNull Session session);
 
-    void addToGroup(@NotNull Set<String> groupNames, @NotNull Session session);
+    Optional<IGroup> getGroupOptional(@NotNull String groupName);
 
-    Set<Session> getSessions(@NotNull String fwd);
+    IGroup getGroup(@NotNull String groupName);
 
-    @NotNull Set<String> getGroups(Session session);
 }
