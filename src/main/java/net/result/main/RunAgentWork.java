@@ -4,7 +4,7 @@ import net.result.main.chains.ConsoleClientChain;
 import net.result.main.chains.ConsoleClientChainManager;
 import net.result.main.config.ClientPropertiesConfig;
 import net.result.sandnode.*;
-import net.result.sandnode.chain.IChain;
+import net.result.sandnode.chain.Chain;
 import net.result.sandnode.client.SandnodeClient;
 import net.result.sandnode.encryption.interfaces.*;
 import net.result.sandnode.exceptions.*;
@@ -18,6 +18,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.util.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import static net.result.sandnode.messages.util.NodeType.HUB;
 
@@ -95,14 +97,17 @@ public class RunAgentWork implements IWork {
 
         handleAuthentication(client, scanner);
 
-        IChain fwd = new ForwardClientChain(client.io);
-        client.io.chainManager.addChain(fwd);
-        fwd.async();
+        ExecutorService executorService = Executors.newCachedThreadPool();
 
-        IChain consoleChain = new ConsoleClientChain(client.io);
+        Chain fwd = new ForwardClientChain(client.io);
+        client.io.chainManager.addChain(fwd);
+        fwd.async(executorService);
+
+        Chain consoleChain = new ConsoleClientChain(client.io);
         client.io.chainManager.addChain(consoleChain);
         consoleChain.sync();
         LOGGER.info("Exiting...");
+        executorService.shutdownNow();
         client.close();
     }
 }

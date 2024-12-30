@@ -2,7 +2,7 @@ package net.result.taulight.chain;
 
 import net.result.sandnode.chain.client.ClientChain;
 import net.result.sandnode.messages.IMessage;
-import net.result.sandnode.messages.types.RequestContextMessage;
+import net.result.sandnode.messages.types.RequestChainNameMessage;
 import net.result.sandnode.util.IOControl;
 import net.result.taulight.messages.types.TextMessage;
 import org.apache.logging.log4j.LogManager;
@@ -17,10 +17,15 @@ public class ForwardClientChain extends ClientChain {
 
     @Override
     public void start() throws InterruptedException {
-        send(new RequestContextMessage("fwd"));
+        send(new RequestChainNameMessage("fwd"));
 
         while (io.isConnected()) {
-            IMessage request = queue.take();
+            IMessage request;
+            try {
+                request = queue.take();
+            } catch (InterruptedException e) {
+                break;
+            }
             LOGGER.info("Forwarded message: {}", new TextMessage(request).data);
         }
     }

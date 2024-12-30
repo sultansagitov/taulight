@@ -1,6 +1,7 @@
 package net.result.taulight.chain;
 
-import net.result.sandnode.chain.IChain;
+import net.result.sandnode.chain.Chain;
+
 import net.result.sandnode.chain.server.ServerChain;
 import net.result.sandnode.messages.IMessage;
 import net.result.sandnode.messages.util.IMessageType;
@@ -42,7 +43,7 @@ public class TauHubServerChain extends ServerChain {
                         LOGGER.info("Forwarding message: {}", textMessage.data);
 
                         for (Session s : groupManager.getGroup("fwd").getSessions()) {
-                            Optional<IChain> opt = s.io.chainManager.getChain("fwd");
+                            Optional<Chain> opt = s.io.chainManager.getChain("fwd");
                             if (opt.isPresent()) opt.get().send(textMessage);
                             LOGGER.info("Message forwarded to session: {}", s);
                         }

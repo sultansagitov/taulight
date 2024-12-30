@@ -13,7 +13,6 @@ import java.util.Set;
 import static net.result.sandnode.messages.util.MessageType.GROUP;
 
 public class GroupMessage extends EmptyMessage {
-
     @Unmodifiable
     private final Set<String> groupNames;
 
@@ -30,11 +29,15 @@ public class GroupMessage extends EmptyMessage {
         super(message.getHeaders());
         ExpectedMessageException.check(message, GROUP);
 
-        String s = new String(message.getBody());
+        String s = message.getHeaders().getValue("groups");
         groupNames = Set.of(s.split(","));
     }
 
     public Set<String> getGroupNames() {
         return groupNames;
+    }
+
+    public String toString() {
+        return super.toString() + " " + groupNames;
     }
 }

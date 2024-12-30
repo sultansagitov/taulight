@@ -11,7 +11,7 @@ import net.result.sandnode.messages.Message;
 import net.result.sandnode.messages.RawMessage;
 import net.result.sandnode.messages.types.ExitMessage;
 import net.result.sandnode.messages.util.Connection;
-import net.result.sandnode.chain.IChainManager;
+import net.result.sandnode.chain.ChainManager;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
@@ -40,11 +40,11 @@ public class IOControl {
     private final OutputStream out;
     private final Socket socket;
     private final BlockingQueue<IMessage> sendingQueue = new LinkedBlockingQueue<>();
-    public final IChainManager chainManager;
+    public final ChainManager chainManager;
 
     private IEncryption serverEncryption = NONE;
     private IEncryption symKeyEncryption = NONE;
-    private boolean isConnected = true;
+    public boolean connected = true;
 
     public IOControl(
             Socket socket,
@@ -79,7 +79,7 @@ public class IOControl {
             UnexpectedSocketDisconnectException {
         while (true) {
             IMessage message = sendingQueue.take();
-            if (isConnected) {
+            if (connected) {
                 message.getHeaders().setConnection(connection);
                 if (message.getHeadersEncryption() == NONE) {
                     message.setHeadersEncryption(getCurrentEncryption());
@@ -115,7 +115,7 @@ public class IOControl {
     public void receivingLoop() throws UnexpectedSocketDisconnectException, DecryptionException,
             NoSuchMessageTypeException, NoSuchEncryptionException, KeyStorageNotFoundException,
             WrongKeyException, InterruptedException, PrivateKeyNotFoundException {
-        while (isConnected) {
+        while (connected) {
             EncryptedMessage encrypted = EncryptedMessage.readMessage(in);
             RawMessage message = Message.decryptMessage(encrypted, globalKeyStorage);
             chainManager.distributeMessage(message);
@@ -140,7 +140,7 @@ public class IOControl {
         }
 
         synchronized (this) {
-            return isConnected;
+            return connected;
         }
     }
 
@@ -168,12 +168,15 @@ public class IOControl {
     public synchronized void disconnect() throws SocketClosingException, InterruptedException {
 
         synchronized (this) {
-            isConnected = false;
+            connected = false;
         }
 
         LOGGER.info("Sending exit message");
         sendMessage(new ExitMessage());
         LOGGER.info("Disconnecting from {}", getIP(socket));
+
+        chainManager.interruptAll();
+
         try {
             socket.close();
         } catch (IOException e) {

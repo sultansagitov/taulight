@@ -1,6 +1,6 @@
 package net.result.sandnode.chain.client;
 
-import net.result.sandnode.chain.IChainManager;
+import net.result.sandnode.chain.ChainManager;
 
-public interface IClientChainManager extends IChainManager {
+public interface IClientChainManager extends ChainManager {
 }

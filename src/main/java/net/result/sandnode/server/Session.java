@@ -52,7 +52,6 @@ public class Session {
                 if (io.isConnected()) {
                     LOGGER.error("Error receiving message", e);
                 }
-                Thread.currentThread().interrupt();
             }
         }, "%s/Receiving".formatted(IOControl.getIP(socket))).start();
     }

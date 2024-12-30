@@ -1,41 +1,75 @@
-package net.result.sandnode.util.bst;
+package net.result.sandnode.bst;
 
 import net.result.sandnode.exceptions.BSTBusyPosition;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-public class BinarySearchTree<S extends Searchable<S, ID>, ID> implements IBinarySearchTree<S, ID> {
+public class BinarySearchTree<S extends Searchable<S, ID>, ID> {
     public BSTNode<S, ID> root = null;
 
-    @Override
     public void add(S searchable) throws BSTBusyPosition {
         if (root == null) {
             root = new BSTNode<>(searchable);
-        } else {
-            root.add(searchable);
+            return;
+        }
+
+        BSTNode<S, ID> current = root;
+        while (true) {
+            int comparison = searchable.compareTo(current.value);
+
+            if (comparison == 0) {
+                throw new BSTBusyPosition();
+            } else if (comparison > 0) {
+                if (current.right == null) {
+                    current.right = new BSTNode<>(searchable);
+                    break;
+                }
+                current = current.right;
+            } else {
+                if (current.left == null) {
+                    current.left = new BSTNode<>(searchable);
+                    break;
+                }
+                current = current.left;
+            }
         }
     }
 
-    @Override
     public Optional<S> find(ID id) {
         BSTNode<S, ID> current = root;
 
         while (current != null) {
-            if (current.value.compareID(id) == 0) return Optional.of(current.value);
+            if (current.value.compareID(id) == 0)
+                return Optional.of(current.value);
             current = current.value.compareID(id) < 0 ? current.right : current.left;
         }
 
         return Optional.empty();
     }
 
-    @Override
     public List<S> getOrdered() {
-        return root != null ? root.getOrdered() : new ArrayList<>();
+        List<S> result = new ArrayList<>();
+        if (root == null) return result;
+
+        BSTNode<S, ID> current = root;
+        ArrayDeque<BSTNode<S, ID>> stack = new ArrayDeque<>();
+
+        while (current != null || !stack.isEmpty()) {
+            while (current != null) {
+                stack.push(current);
+                current = current.left;
+            }
+            current = stack.pop();
+            result.add(current.value);
+            current = current.right;
+        }
+
+        return result;
     }
 
-    @Override
     public boolean remove(S searchable) {
         if (root == null) return false;
 

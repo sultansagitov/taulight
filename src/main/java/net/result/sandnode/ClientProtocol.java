@@ -1,6 +1,6 @@
 package net.result.sandnode;
 
-import net.result.sandnode.chain.IChain;
+import net.result.sandnode.chain.Chain;
 import net.result.sandnode.client.SandnodeClient;
 import net.result.sandnode.exceptions.*;
 import net.result.sandnode.util.IOControl;
@@ -15,7 +15,7 @@ public class ClientProtocol {
     public static void PUB(@NotNull IOControl io) throws InterruptedException, EncryptionTypeException,
             NoSuchEncryptionException, CreatingKeyException, MemberNotFound, ExpectedMessageException,
             KeyNotCreatedException, KeyStorageNotFoundException, DataNotEncryptedException {
-        IChain pubkeyChain = new PublicKeyClientChain(io);
+        Chain pubkeyChain = new PublicKeyClientChain(io);
         io.chainManager.addChain(pubkeyChain);
         pubkeyChain.sync();
     }
@@ -23,7 +23,7 @@ public class ClientProtocol {
     public static void sendSYM(@NotNull SandnodeClient client) throws InterruptedException, KeyNotCreatedException,
             EncryptionTypeException, MemberNotFound, NoSuchEncryptionException, ExpectedMessageException,
             CreatingKeyException, KeyStorageNotFoundException, DataNotEncryptedException {
-        IChain symkeyChain = new SymKeyClientChain(client.io, client.clientConfig.symmetricKeyEncryption());
+        Chain symkeyChain = new SymKeyClientChain(client.io, client.clientConfig.symmetricKeyEncryption());
         client.io.chainManager.addChain(symkeyChain);
         symkeyChain.sync();
     }

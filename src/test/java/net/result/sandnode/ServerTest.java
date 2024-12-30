@@ -1,7 +1,7 @@
 package net.result.sandnode;
 
 import net.result.main.chains.ConsoleClientChainManager;
-import net.result.sandnode.chain.IChain;
+import net.result.sandnode.chain.Chain;
 import net.result.sandnode.client.SandnodeClient;
 import net.result.sandnode.config.*;
 import net.result.sandnode.encryption.AsymmetricEncryption;
@@ -89,7 +89,7 @@ public class ServerTest {
         Headers headers = prepareHeaders();
         EmptyMessage sentMessage = new EmptyMessage(headers);
 
-        IChain testClientChain = new TestClientChain(agentThread.client.io, sentMessage);
+        Chain testClientChain = new TestClientChain(agentThread.client.io, sentMessage);
         agentThread.client.io.chainManager.addChain(testClientChain);
 
         testClientChain.sync();
@@ -232,7 +232,7 @@ public class ServerTest {
         }
 
         @Override
-        public ServerChain defaultChain(RawMessage ignored) {
+        public Chain defaultChain(RawMessage ignored) {
             return new TestServerChain(session);
         }
     }

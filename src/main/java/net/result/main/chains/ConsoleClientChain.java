@@ -1,7 +1,7 @@
 package net.result.main.chains;
 
 import net.result.sandnode.ClientProtocol;
-import net.result.sandnode.chain.IChain;
+import net.result.sandnode.chain.Chain;
 import net.result.sandnode.exceptions.*;
 import net.result.sandnode.messages.IMessage;
 import net.result.sandnode.messages.util.IMessageType;
@@ -49,10 +49,10 @@ public class ConsoleClientChain extends ClientChain {
             }
 
             if (input.equalsIgnoreCase("chains")) {
-                Set<IChain> chains = io.chainManager.getAllChains();
+                Set<Chain> chains = io.chainManager.getAllChains();
                 LOGGER.info("All client chains: {}", chains);
 
-                Map<String, IChain> map = io.chainManager.getChainsMap();
+                Map<String, Chain> map = io.chainManager.getChainsMap();
                 LOGGER.info("All context client chains: {}", map);
 
                 continue;

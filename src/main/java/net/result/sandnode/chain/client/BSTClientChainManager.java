@@ -1,11 +1,11 @@
 package net.result.sandnode.chain.client;
 
+import net.result.sandnode.chain.Chain;
 import net.result.sandnode.exceptions.BSTBusyPosition;
 import net.result.sandnode.messages.RawMessage;
 import net.result.sandnode.messages.util.Headers;
 import net.result.sandnode.util.IOControl;
 import net.result.sandnode.chain.BSTChainManager;
-import net.result.sandnode.chain.IChain;
 
 public abstract class BSTClientChainManager extends BSTChainManager implements IClientChainManager {
     protected final IOControl io;
@@ -16,9 +16,9 @@ public abstract class BSTClientChainManager extends BSTChainManager implements I
     }
 
     @Override
-    public IChain createNew(RawMessage message) throws BSTBusyPosition {
+    public Chain createNew(RawMessage message) throws BSTBusyPosition {
         Headers headers = message.getHeaders();
-        IChain chain = defaultChain(message);
+        Chain chain = defaultChain(message);
         chain.setID(headers.getChainID());
         bst.add(chain);
 

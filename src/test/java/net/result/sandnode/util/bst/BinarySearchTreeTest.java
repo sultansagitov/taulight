@@ -1,5 +1,8 @@
 package net.result.sandnode.util.bst;
 
+import net.result.sandnode.bst.AVLTree;
+import net.result.sandnode.bst.BinarySearchTree;
+import net.result.sandnode.bst.Searchable;
 import net.result.sandnode.exceptions.BSTBusyPosition;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Assertions;
@@ -34,7 +37,7 @@ class BinarySearchTreeTest {
         }
     }
 
-    private BinarySearchTree<TestSearchable, Integer> tree;
+    public BinarySearchTree<TestSearchable, Integer> tree;
 
     @BeforeEach
     void setUp() {

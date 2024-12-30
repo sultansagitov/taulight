@@ -1,34 +1,38 @@
 package net.result.sandnode.chain;
 
+import net.result.sandnode.bst.AVLTree;
 import net.result.sandnode.exceptions.BSTBusyPosition;
 import net.result.sandnode.exceptions.ImpossibleRuntimeException;
 import net.result.sandnode.messages.RawMessage;
-import net.result.sandnode.util.bst.BinarySearchTree;
-import net.result.sandnode.util.bst.IBinarySearchTree;
+import net.result.sandnode.bst.BinarySearchTree;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.security.SecureRandom;
 import java.util.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
-
-public abstract class BSTChainManager implements IChainManager {
+public abstract class BSTChainManager implements ChainManager {
     private static final Logger LOGGER = LogManager.getLogger(BSTChainManager.class);
-    protected final IBinarySearchTree<IChain, Short> bst = new BinarySearchTree<>();
-    protected final Map<String, IChain> chainMap;
+    protected final BinarySearchTree<Chain, Short> bst = new AVLTree<>();
+    protected final Map<String, Chain> chainMap;
+    private final ExecutorService executorService = Executors.newCachedThreadPool();
 
     protected BSTChainManager() {
         this.chainMap = new HashMap<>();
     }
 
     @Override
-    public Optional<IChain> getByID(short id) {
+    public Optional<Chain> getByID(short id) {
         return bst.find(id);
     }
 
     @Override
-    public void addChain(IChain chain) {
-        List<Short> list = bst.getOrdered().stream().map(IChain::getID).toList();
+    public void addChain(Chain chain) {
+        List<Short> list = bst.getOrdered().stream().map(Chain::getID).toList();
+
+        LOGGER.info("Randomizing chain id");
         Random random = new SecureRandom();
         short chainID = -1;
         while (list.contains(chainID) || chainID == -1) {
@@ -45,8 +49,8 @@ public abstract class BSTChainManager implements IChainManager {
     }
 
     @Override
-    public void removeChain(IChain chain) {
-        for (Map.Entry<String, IChain> entry : chainMap.entrySet()) {
+    public void removeChain(Chain chain) {
+        for (Map.Entry<String, Chain> entry : chainMap.entrySet()) {
             if (entry.getValue() == chain) {
                 removeChain(entry.getKey());
             }
@@ -60,8 +64,8 @@ public abstract class BSTChainManager implements IChainManager {
         getByID(message.getHeaders().getChainID())
                 .orElseGet(() -> {
                     try {
-                        IChain aNew = createNew(message);
-                        if (aNew.isChainStartAllowed()) aNew.async();
+                        Chain aNew = createNew(message);
+                        if (aNew.isChainStartAllowed()) aNew.async(executorService);
                         return aNew;
                     } catch (BSTBusyPosition e) {
                         throw new ImpossibleRuntimeException(e);
@@ -71,17 +75,17 @@ public abstract class BSTChainManager implements IChainManager {
     }
 
     @Override
-    public Set<IChain> getAllChains() {
+    public Set<Chain> getAllChains() {
         return new HashSet<>(bst.getOrdered());
     }
 
     @Override
-    public Map<String, IChain> getChainsMap() {
+    public Map<String, Chain> getChainsMap() {
         return chainMap;
     }
 
     @Override
-    public Optional<IChain> getChain(String contextName) {
+    public Optional<Chain> getChain(String contextName) {
         return Optional.ofNullable(chainMap.get(contextName));
     }
 
@@ -91,9 +95,14 @@ public abstract class BSTChainManager implements IChainManager {
     }
 
     @Override
+    public void interruptAll() {
+        executorService.shutdownNow();
+    }
+
+    @Override
     public String toString() {
         List<String> list = new ArrayList<>();
-        for (IChain chain : bst.getOrdered())
+        for (Chain chain : bst.getOrdered())
             list.add(String.valueOf(chain.getID()));
         return "<%s chains=%s>".formatted(
                 getClass().getSimpleName(),
