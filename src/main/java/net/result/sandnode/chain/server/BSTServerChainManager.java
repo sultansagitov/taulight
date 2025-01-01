@@ -24,7 +24,7 @@ public abstract class BSTServerChainManager extends BSTChainManager implements I
             case PUB -> new PublicKeyServerChain(session);
             case SYM -> new SymKeyServerChain(session);
             case GROUP -> new GroupServerChain(session);
-            case REG -> new AuthServerChain(session);
+            case REG, LOGIN -> new AuthServerChain(session);
             default -> defaultChain(message);
         } : defaultChain(message);
 

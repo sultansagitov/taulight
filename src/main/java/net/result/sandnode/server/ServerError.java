@@ -12,6 +12,7 @@ public enum ServerError {
     TOO_FEW_ARGS(2012, "Too Few Args"),
     INCORRECT_ENCRYPTION(2014, "Incorrect Encryption"),
     UNKNOWN_ENCRYPTION(2014, "Unknown Encryption"),
+    MEMBER_NOT_FOUND(2015, "Member not found"),
 
     ENCRYPT(2100, "Encrypt"),
     DECRYPT(2150, "Decrypt");

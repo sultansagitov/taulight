@@ -5,6 +5,7 @@ import net.result.main.chains.ConsoleClientChainManager;
 import net.result.main.config.ClientPropertiesConfig;
 import net.result.sandnode.*;
 import net.result.sandnode.chain.Chain;
+import net.result.sandnode.client.ClientMember;
 import net.result.sandnode.client.SandnodeClient;
 import net.result.sandnode.encryption.interfaces.*;
 import net.result.sandnode.exceptions.*;
@@ -45,7 +46,9 @@ public class RunAgentWork implements IWork {
                 System.out.print("Token: ");
                 String token = scanner.nextLine();
 
-//                String token = AgentProtocol.getMemberFromToken(client, token);
+                ClientMember member = AgentProtocol.getMemberFromToken(client, token);
+
+                System.out.printf("You log in as %s%n", member.memberID());
             }
             default -> throw new RuntimeException(String.valueOf(choice));
         }

@@ -20,6 +20,10 @@ public class TokenMessage extends JSONMessage {
         getContent().put("token", token);
     }
 
+    public TokenMessage(@NotNull String token) {
+        this(new Headers(), token);
+    }
+
     public String getToken() {
         return token;
     }

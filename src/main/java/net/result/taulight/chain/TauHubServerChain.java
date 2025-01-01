@@ -42,14 +42,14 @@ public class TauHubServerChain extends ServerChain {
                         TextMessage textMessage = new TextMessage(request);
                         LOGGER.info("Forwarding message: {}", textMessage.data);
 
-                        for (Session s : groupManager.getGroup("fwd").getSessions()) {
+                        for (Session s : groupManager.getGroup("chat").getSessions()) {
                             Optional<Chain> opt = s.io.chainManager.getChain("fwd");
                             if (opt.isPresent()) opt.get().send(textMessage);
                             LOGGER.info("Message forwarded to session: {}", s);
                         }
                     }
                     case ONL -> {
-                        Set<Session> fwd = groupManager.getGroup("fwd").getSessions();
+                        Set<Session> fwd = groupManager.getGroup("chat").getSessions();
                         Set<IMember> list = fwd.stream().map(s -> s.member).collect(Collectors.toSet());
                         LOGGER.info("Online IPs: {}", list);
                         OnlineResponseMessage response = new OnlineResponseMessage(list);

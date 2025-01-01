@@ -42,42 +42,6 @@ public class ConsoleClientChain extends ClientChain {
 
             if (input.isEmpty()) continue;
 
-            if (input.equalsIgnoreCase("getOnline")) {
-                Set<String> members = TauAgentProtocol.getOnline(io);
-                LOGGER.info("Online agents: {}", members);
-                continue;
-            }
-
-            if (input.equalsIgnoreCase("chains")) {
-                Set<Chain> chains = io.chainManager.getAllChains();
-                LOGGER.info("All client chains: {}", chains);
-
-                Map<String, Chain> map = io.chainManager.getChainsMap();
-                LOGGER.info("All context client chains: {}", map);
-
-                continue;
-            }
-
-            if (input.equalsIgnoreCase("group")) {
-                Set<String> groups = ClientProtocol.GROUP(io, Set.of());
-                LOGGER.info("Your groups: {}", groups);
-                continue;
-            }
-
-            if (input.startsWith("group ")) {
-                String substring = input.substring(input.indexOf(" ") + 1);
-                Set<String> inputString = Arrays.stream(substring.split(" ")).filter(s -> !s.isEmpty()).collect(Collectors.toSet());
-                Set<String> groups = ClientProtocol.GROUP(io, inputString);
-                LOGGER.info("Your groups now: {}", groups);
-                continue;
-            }
-
-            if (input.startsWith("forward ")) {
-                String substring = input.substring(input.indexOf(" ") + 1);
-                send(new ForwardMessage(substring));
-                continue;
-            }
-
             if (input.equalsIgnoreCase("exit")) {
                 try {
                     io.disconnect();
@@ -85,15 +49,41 @@ public class ConsoleClientChain extends ClientChain {
                     LOGGER.error("Error during disconnect", e);
                 }
                 break;
-            }
 
-            send(new EchoMessage(input));
+            } else if (input.equalsIgnoreCase("getOnline")) {
+                Set<String> members = TauAgentProtocol.getOnline(io);
+                LOGGER.info("Online agents: {}", members);
 
-            IMessage response = queue.take();
-            if (response.getHeaders().getType() == EXIT) break;
-            IMessageType type = response.getHeaders().getType();
-            if (type instanceof TauMessageTypes) {
-                LOGGER.info("From server: {}", new TextMessage(response).data);
+            } else if (input.equalsIgnoreCase("chains")) {
+                Set<Chain> chains = io.chainManager.getAllChains();
+                Map<String, Chain> map = io.chainManager.getChainsMap();
+
+                LOGGER.info("All client chains: {}", chains);
+                LOGGER.info("All context client chains: {}", map);
+
+            } else if (input.equalsIgnoreCase("group")) {
+                Set<String> groups = ClientProtocol.GROUP(io, Set.of());
+                LOGGER.info("Your groups: {}", groups);
+
+            } else if (input.startsWith("group ")) {
+                String substring = input.substring(input.indexOf(" ") + 1);
+                Set<String> inputString = Arrays.stream(substring.split(" ")).filter(s -> !s.isEmpty()).collect(Collectors.toSet());
+                Set<String> groups = ClientProtocol.GROUP(io, inputString);
+                LOGGER.info("Your groups now: {}", groups);
+
+            } else if (input.startsWith("forward ")) {
+                String substring = input.substring(input.indexOf(" ") + 1);
+                send(new ForwardMessage(substring));
+
+            } else {
+                send(new EchoMessage(input));
+
+                IMessage response = queue.take();
+                if (response.getHeaders().getType() == EXIT) break;
+                IMessageType type = response.getHeaders().getType();
+                if (type instanceof TauMessageTypes) {
+                    LOGGER.info("From server: {}", new TextMessage(response).data);
+                }
             }
         }
     }

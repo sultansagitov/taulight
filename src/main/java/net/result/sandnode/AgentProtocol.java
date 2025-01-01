@@ -1,5 +1,7 @@
 package net.result.sandnode;
 
+import net.result.sandnode.chain.client.LoginClientChain;
+import net.result.sandnode.client.ClientMember;
 import net.result.sandnode.client.SandnodeClient;
 import net.result.sandnode.exceptions.*;
 import net.result.sandnode.chain.client.RegistrationClientChain;
@@ -17,5 +19,13 @@ public class AgentProtocol {
         client.io.chainManager.addChain(regChain);
         regChain.sync();
         return regChain.token;
+    }
+
+    public static ClientMember getMemberFromToken(SandnodeClient client, String token) throws EncryptionTypeException, MemberNotFound, NoSuchEncryptionException, ExpectedMessageException, CreatingKeyException, KeyNotCreatedException, KeyStorageNotFoundException, InterruptedException, DataNotEncryptedException {
+        LoginClientChain chain = new LoginClientChain(client.io, token);
+        client.io.chainManager.addChain(chain);
+        chain.sync();
+
+        return new ClientMember(chain.memberID);
     }
 }

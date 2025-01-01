@@ -19,6 +19,8 @@ import org.apache.logging.log4j.Logger;
 
 import java.util.Optional;
 
+import static net.result.sandnode.server.ServerError.MEMBER_NOT_FOUND;
+
 public class AuthServerChain extends ServerChain {
     private static final Logger LOGGER = LogManager.getLogger(AuthServerChain.class);
 
@@ -41,9 +43,7 @@ public class AuthServerChain extends ServerChain {
                 session.member = serverConfig.database().registerMember(regMsg.getMemberID(), regMsg.getPassword());
                 String token = serverConfig.tokenizer().tokenizeMember(session.member);
 
-                RegistrationResponse response = new RegistrationResponse(new Headers(), token);
-                send(response);
-                return;
+                sendFin(new RegistrationResponse(new Headers(), token));
             }
             case LOGIN -> {
                 TokenMessage msg = new TokenMessage(request);
@@ -52,14 +52,16 @@ public class AuthServerChain extends ServerChain {
                 IDatabase database = session.server.serverConfig.database();
                 Optional<IMember> opt = session.server.serverConfig.tokenizer().findMember(database, token);
 
-                if (opt.isEmpty()) throw new MemberNotFound();
+                if (opt.isEmpty()) {
+                    sendFin(MEMBER_NOT_FOUND.message());
+                    return;
+                }
 
                 session.member = opt.get();
 
-                IMessage response = new LoginResponse(new Headers(), session.member);
-                send(response);
+                sendFin(new LoginResponse(session.member));
             }
+            default -> LOGGER.error("not auth request");
         }
-        LOGGER.error("not auth request");
     }
 }
