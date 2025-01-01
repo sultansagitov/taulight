@@ -2,7 +2,6 @@ package net.result.sandnode.chain.server;
 
 import net.result.sandnode.config.IServerConfig;
 import net.result.sandnode.exceptions.ExpectedMessageException;
-import net.result.sandnode.exceptions.MemberNotFound;
 import net.result.sandnode.messages.IMessage;
 import net.result.sandnode.messages.types.LoginResponse;
 import net.result.sandnode.messages.types.RegistrationRequest;
@@ -29,7 +28,7 @@ public class AuthServerChain extends ServerChain {
     }
 
     @Override
-    public void start() throws InterruptedException, ExpectedMessageException, MemberNotFound {
+    public void start() throws InterruptedException, ExpectedMessageException {
         IMessage request = queue.take();
         IMessageType type = request.getHeaders().getType();
         if (!(type instanceof MessageType systemType)) {

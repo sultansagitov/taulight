@@ -44,7 +44,10 @@ public class TauHubServerChain extends ServerChain {
 
                         for (Session s : groupManager.getGroup("chat").getSessions()) {
                             Optional<Chain> opt = s.io.chainManager.getChain("fwd");
-                            if (opt.isPresent()) opt.get().send(textMessage);
+                            if (opt.isPresent()) {
+                                TextMessage textMessage1 = new TextMessage(textMessage.getHeaders().copy(), textMessage.data);
+                                opt.get().send(textMessage1);
+                            }
                             LOGGER.info("Message forwarded to session: {}", s);
                         }
                     }

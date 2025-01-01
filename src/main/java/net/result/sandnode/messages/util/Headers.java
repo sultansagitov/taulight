@@ -6,8 +6,6 @@ import net.result.sandnode.exceptions.NoSuchEncryptionException;
 import net.result.sandnode.encryption.EncryptionManager;
 import net.result.sandnode.encryption.interfaces.IEncryption;
 import net.result.simplesix64.SimpleSix64;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -163,4 +161,16 @@ public class Headers {
 
         return byteArrayOutputStream.toByteArray();
     }
+
+    public @NotNull Headers copy() {
+        Headers copy = new Headers();
+        copy.map.putAll(this.map);
+        copy.chainID = this.chainID;
+        copy.fin = this.fin;
+        copy.connection = this.connection;
+        copy.type = this.type;
+        copy.bodyEncryption = this.bodyEncryption;
+        return copy;
+    }
+
 }

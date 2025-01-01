@@ -5,7 +5,6 @@ import net.result.sandnode.messages.IMessage;
 import net.result.sandnode.messages.types.ErrorMessage;
 import net.result.sandnode.messages.types.LoginRequest;
 import net.result.sandnode.messages.types.LoginResponse;
-import net.result.sandnode.server.ServerError;
 import net.result.sandnode.util.IOControl;
 
 import static net.result.sandnode.messages.util.MessageType.ERR;
@@ -21,7 +20,7 @@ public class LoginClientChain extends ClientChain {
     }
 
     @Override
-    public void start() throws InterruptedException, ExpectedMessageException, MemberNotFound {
+    public void start() throws InterruptedException, MemberNotFound {
         LoginRequest loginRequest = new LoginRequest(token);
         send(loginRequest);
 

@@ -1,6 +1,5 @@
 package net.result.sandnode.util.bst;
 
-import net.result.sandnode.bst.AVLTree;
 import net.result.sandnode.bst.BinarySearchTree;
 import net.result.sandnode.bst.Searchable;
 import net.result.sandnode.exceptions.BSTBusyPosition;

@@ -6,12 +6,12 @@ public class SandnodeMessageException extends SandnodeException {
     public final IMessage snMessage;
 
     public SandnodeMessageException(IMessage snMessage, String message, Throwable e) {
-        super(message, e);
+         super("%s: %s".formatted(message, snMessage.toString()), e);
         this.snMessage = snMessage;
     }
 
     public SandnodeMessageException(IMessage snMessage, String message) {
-        super(message);
+        super("%s: %s".formatted(message, snMessage.toString()));
         this.snMessage = snMessage;
     }
 }
