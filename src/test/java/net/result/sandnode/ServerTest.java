@@ -194,13 +194,9 @@ public class ServerTest {
                 Agent agent = new TauAgent();
                 Endpoint endpoint = new Endpoint("localhost", port);
 
-                client = new SandnodeClient(
-                        endpoint,
-                        agent,
-                        HUB,
-                        new CustomClientConfig(),
-                        ConsoleClientChainManager::new
-                );
+                CustomClientConfig clientConfig = new CustomClientConfig();
+                client = new SandnodeClient(endpoint, agent, HUB, clientConfig);
+                client.start(ConsoleClientChainManager::new);
                 ClientProtocol.PUB(client.io);
                 ClientProtocol.sendSYM(client);
             } catch (SandnodeException | InterruptedException e) {

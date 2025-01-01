@@ -19,24 +19,28 @@ import java.util.function.Function;
 public class SandnodeClient {
     private static final Logger LOGGER = LogManager.getLogger(SandnodeClient.class);
 
-    public final Node node;
-    public final IOControl io;
     public final Endpoint endpoint;
-    public final Socket socket;
-
+    public final Node node;
+    public final NodeType nodeType;
     public final IClientConfig clientConfig;
+
+    public IOControl io;
+    public Socket socket;
 
     public SandnodeClient(
             @NotNull Endpoint endpoint,
             @NotNull Node node,
             @NotNull NodeType nodeType,
-            @NotNull IClientConfig clientConfig,
-            @NotNull Function<IOControl, IClientChainManager> chainManager
-    ) throws ConnectionException, OutputStreamException, InputStreamException {
+            @NotNull IClientConfig clientConfig
+    ) {
         this.endpoint = endpoint;
         this.node = node;
+        this.nodeType = nodeType;
         this.clientConfig = clientConfig;
+    }
 
+    public void start(@NotNull Function<IOControl, IClientChainManager> chainManager) throws InputStreamException,
+            OutputStreamException, ConnectionException {
         try {
             LOGGER.info("Connecting to {}", endpoint.toString());
             socket = new Socket(endpoint.host(), endpoint.port());

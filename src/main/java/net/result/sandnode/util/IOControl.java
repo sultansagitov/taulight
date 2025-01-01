@@ -74,26 +74,30 @@ public class IOControl {
         this.chainManager = chainManager;
     }
 
+    private void beforeSending(IMessage message) {
+        message.getHeaders().setConnection(connection);
+        if (message.getHeadersEncryption() == NONE) {
+            message.setHeadersEncryption(getCurrentEncryption());
+        }
+        if (message.getHeaders().getBodyEncryption() == NONE) {
+            message.getHeaders().setBodyEncryption(getCurrentEncryption());
+        }
+        Random random = new SecureRandom();
+        String s = "0123456789abcdefghijklmnopqrstuvwxyz!@$%&*()_+-={}[]\"'<>?,./ ~";
+        String sb = IntStream
+                .range(0, random.nextInt(16, 32))
+                .mapToObj(i -> "" + s.charAt(random.nextInt(61)))
+                .collect(Collectors.joining());
+        message.getHeaders().setValue("random", sb);
+    }
+
     public void sendingLoop() throws InterruptedException, EncryptionException, KeyStorageNotFoundException,
             MessageSerializationException, IllegalMessageLengthException, WrongKeyException, MessageWriteException,
             UnexpectedSocketDisconnectException {
         while (true) {
             IMessage message = sendingQueue.take();
             if (connected) {
-                message.getHeaders().setConnection(connection);
-                if (message.getHeadersEncryption() == NONE) {
-                    message.setHeadersEncryption(getCurrentEncryption());
-                }
-                if (message.getHeaders().getBodyEncryption() == NONE) {
-                    message.getHeaders().setBodyEncryption(getCurrentEncryption());
-                }
-                Random random = new SecureRandom();
-                String s = "0123456789abcdefghijklmnopqrstuvwxyz!@$%&*()_+-={}[]\"'<>?,./ ~";
-                String sb = IntStream
-                        .range(0, random.nextInt(16, 32))
-                        .mapToObj(i -> "" + s.charAt(random.nextInt(61)))
-                        .collect(Collectors.joining());
-                message.getHeaders().setValue("random", sb);
+                beforeSending(message);
 
                 byte[] byteArray = message.toByteArray(globalKeyStorage);
                 synchronized (out) {
