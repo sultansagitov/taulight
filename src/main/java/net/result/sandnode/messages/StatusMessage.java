@@ -4,7 +4,7 @@ import net.result.sandnode.messages.util.Headers;
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONObject;
 
-public class StatusMessage extends JSONMessage implements IJSONMessage {
+public class StatusMessage extends JSONMessage {
     private final int code;
 
     public StatusMessage(@NotNull Headers headers, int code) {

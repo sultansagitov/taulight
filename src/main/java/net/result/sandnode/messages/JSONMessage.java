@@ -6,7 +6,7 @@ import org.json.JSONObject;
 
 import static java.nio.charset.StandardCharsets.US_ASCII;
 
-public class JSONMessage extends Message implements IJSONMessage {
+public class JSONMessage extends Message {
     private final JSONObject content;
 
     public JSONMessage(@NotNull Headers headers, @NotNull JSONObject content) {
@@ -22,7 +22,6 @@ public class JSONMessage extends Message implements IJSONMessage {
         this(message.getHeaders(), new JSONObject(new String(message.getBody())));
     }
 
-    @Override
     public @NotNull JSONObject getContent() {
         return content;
     }
