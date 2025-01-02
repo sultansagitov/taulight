@@ -21,11 +21,6 @@ public abstract class BSTClientChainManager extends BSTChainManager implements I
         Chain chain = defaultChain(message);
         chain.setID(headers.getChainID());
         bst.add(chain);
-
-        if (headers.hasValue("chain-name")) {
-            String contextName = headers.getValue("chain-name");
-            chainMap.put(contextName, chain);
-        }
         return chain;
     }
 

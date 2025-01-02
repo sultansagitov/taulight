@@ -42,6 +42,10 @@ public class Headers {
         return map.size();
     }
 
+    public Optional<String> getOptionalValue(String key) {
+        return Optional.ofNullable(map.get(key.toLowerCase()));
+    }
+
     public @NotNull String getValue(@NotNull String key) throws IllegalArgumentException {
         if (!map.containsKey(key.toLowerCase())) {
             throw new IllegalArgumentException("headers don't have key \"%s\"".formatted(key));
@@ -172,5 +176,4 @@ public class Headers {
         copy.bodyEncryption = this.bodyEncryption;
         return copy;
     }
-
 }

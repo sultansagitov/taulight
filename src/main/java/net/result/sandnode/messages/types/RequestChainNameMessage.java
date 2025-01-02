@@ -1,9 +1,12 @@
 package net.result.sandnode.messages.types;
 
+import net.result.sandnode.messages.EmptyMessage;
 import net.result.sandnode.messages.util.Headers;
 
-public class RequestChainNameMessage extends RequestMessage {
+import static net.result.sandnode.messages.util.MessageType.CHAIN_NAME;
+
+public class RequestChainNameMessage extends EmptyMessage {
     public RequestChainNameMessage(String context) {
-        super(new Headers().setValue("chain-name", context));
+        super(new Headers().setType(CHAIN_NAME).setValue("chain-name", context));
     }
 }

@@ -31,9 +31,6 @@ public abstract class BSTServerChainManager extends BSTChainManager implements I
         chain.setID(headers.getChainID());
         bst.add(chain);
 
-        if (headers.hasValue("chain-name"))
-            chainMap.put(headers.getValue("chain-name"), chain);
-
         return chain;
     }
 

@@ -13,6 +13,8 @@ import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import static net.result.sandnode.messages.util.MessageType.CHAIN_NAME;
+
 public abstract class BSTChainManager implements ChainManager {
     private static final Logger LOGGER = LogManager.getLogger(BSTChainManager.class);
     protected final BinarySearchTree<Chain, Short> bst = new AVLTree<>();
@@ -61,7 +63,7 @@ public abstract class BSTChainManager implements ChainManager {
 
     @Override
     public void distributeMessage(RawMessage message) throws InterruptedException {
-        getByID(message.getHeaders().getChainID())
+        Chain chain = getByID(message.getHeaders().getChainID())
                 .orElseGet(() -> {
                     try {
                         Chain aNew = createNew(message);
@@ -70,8 +72,17 @@ public abstract class BSTChainManager implements ChainManager {
                     } catch (BSTBusyPosition e) {
                         throw new ImpossibleRuntimeException(e);
                     }
-                })
-                .put(message);
+                });
+
+        if (message.getHeaders().getType() == CHAIN_NAME) {
+            Optional<String> opt = message.getHeaders().getOptionalValue("chain-name");
+            if (opt.isPresent()) {
+                String contextName = opt.get();
+                chainMap.put(contextName, chain);
+            }
+        } else {
+            chain.put(message);
+        }
     }
 
     @Override

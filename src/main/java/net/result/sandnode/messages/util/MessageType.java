@@ -11,7 +11,8 @@ public enum MessageType implements IMessageType {
     LOGIN(7),
     TOKEN(8),
     GROUP(9),
-    HAPPY(50);
+    HAPPY(50),
+    CHAIN_NAME(86);
 
     private final byte type;
 
