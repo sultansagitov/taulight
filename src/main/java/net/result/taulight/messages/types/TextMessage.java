@@ -5,7 +5,7 @@ import net.result.sandnode.messages.Message;
 import net.result.sandnode.messages.util.Headers;
 import org.jetbrains.annotations.NotNull;
 
-public class TextMessage extends Message {
+public abstract class TextMessage extends Message {
     public final String data;
 
     public TextMessage(@NotNull Headers headers, @NotNull String data) {

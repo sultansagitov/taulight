@@ -11,7 +11,6 @@ import net.result.taulight.TauAgentProtocol;
 import net.result.taulight.messages.TauMessageTypes;
 import net.result.taulight.messages.types.EchoMessage;
 import net.result.taulight.messages.types.ForwardMessage;
-import net.result.taulight.messages.types.TextMessage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -82,7 +81,7 @@ public class ConsoleClientChain extends ClientChain {
                 if (response.getHeaders().getType() == EXIT) break;
                 IMessageType type = response.getHeaders().getType();
                 if (type instanceof TauMessageTypes) {
-                    LOGGER.info("From server: {}", new TextMessage(response).data);
+                    LOGGER.info("From server: {}", new EchoMessage(response).data);
                 }
             }
         }

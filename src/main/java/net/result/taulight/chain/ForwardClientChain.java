@@ -4,7 +4,7 @@ import net.result.sandnode.chain.client.ClientChain;
 import net.result.sandnode.messages.IMessage;
 import net.result.sandnode.messages.types.RequestChainNameMessage;
 import net.result.sandnode.util.IOControl;
-import net.result.taulight.messages.types.TextMessage;
+import net.result.taulight.messages.types.ForwardMessage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -26,7 +26,7 @@ public class ForwardClientChain extends ClientChain {
             } catch (InterruptedException e) {
                 break;
             }
-            LOGGER.info("Forwarded message: {}", new TextMessage(request).data);
+            LOGGER.info("Forwarded message: {}", new ForwardMessage(request).data);
         }
     }
 }

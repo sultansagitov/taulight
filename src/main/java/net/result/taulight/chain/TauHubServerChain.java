@@ -10,7 +10,8 @@ import net.result.sandnode.util.db.IMember;
 import net.result.sandnode.util.group.IGroupManager;
 import net.result.taulight.messages.OnlineResponseMessage;
 import net.result.taulight.messages.TauMessageTypes;
-import net.result.taulight.messages.types.TextMessage;
+import net.result.taulight.messages.types.EchoMessage;
+import net.result.taulight.messages.types.ForwardMessage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -34,18 +35,21 @@ public class TauHubServerChain extends ServerChain {
                 final IGroupManager groupManager = session.server.serverConfig.groupManager();
                 switch (tau) {
                     case ECHO -> {
-                        TextMessage textMessage = new TextMessage(request);
+                        EchoMessage textMessage = new EchoMessage(request);
                         LOGGER.info("Data: {}", textMessage.data);
                         send(textMessage);
                     }
                     case FWD -> {
-                        TextMessage textMessage = new TextMessage(request);
+                        ForwardMessage textMessage = new ForwardMessage(request);
                         LOGGER.info("Forwarding message: {}", textMessage.data);
 
                         for (Session s : groupManager.getGroup("chat").getSessions()) {
                             Optional<Chain> opt = s.io.chainManager.getChain("fwd");
                             if (opt.isPresent()) {
-                                TextMessage textMessage1 = new TextMessage(textMessage.getHeaders().copy(), textMessage.data);
+                                ForwardMessage textMessage1 = new ForwardMessage(
+                                        textMessage.getHeaders().copy(),
+                                        textMessage.data
+                                );
                                 opt.get().send(textMessage1);
                             }
                             LOGGER.info("Message forwarded to session: {}", s);
