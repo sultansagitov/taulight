@@ -10,7 +10,7 @@ import net.result.sandnode.chain.Chain;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import static net.result.sandnode.messages.util.MessageType.ERR;
+import static net.result.sandnode.messages.util.MessageTypes.ERR;
 
 public class PublicKeyClientChain extends Chain {
     private static final Logger LOGGER = LogManager.getLogger(PublicKeyClientChain.class);
@@ -20,7 +20,7 @@ public class PublicKeyClientChain extends Chain {
     }
 
     @Override
-    public void start() throws InterruptedException, EncryptionTypeException, NoSuchEncryptionException,
+    public void sync() throws InterruptedException, EncryptionTypeException, NoSuchEncryptionException,
             CreatingKeyException, ExpectedMessageException {
         IMessage request = new PublicKeyRequest();
         send(request);

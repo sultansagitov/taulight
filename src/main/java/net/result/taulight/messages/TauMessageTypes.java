@@ -1,11 +1,11 @@
 package net.result.taulight.messages;
 
-import net.result.sandnode.messages.util.IMessageType;
+import net.result.sandnode.messages.util.MessageType;
 import net.result.sandnode.messages.util.MessageTypeManager;
 
 import java.util.Arrays;
 
-public enum TauMessageTypes implements IMessageType {
+public enum TauMessageTypes implements MessageType {
     ONL(10),
     ECHO(11),
     FWD(12);

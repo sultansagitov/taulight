@@ -20,7 +20,7 @@ public class SymKeyClientChain extends Chain {
     }
 
     @Override
-    public void start() throws InterruptedException, KeyNotCreatedException, ExpectedMessageException {
+    public void sync() throws InterruptedException, KeyNotCreatedException, ExpectedMessageException {
         ISymmetricKeyStorage keyStorage = symmetricEncryption.generate();
 
         if (!io.globalKeyStorage.has(io.getServerEncryption()))

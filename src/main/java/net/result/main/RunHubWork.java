@@ -6,7 +6,7 @@ import net.result.sandnode.exceptions.*;
 import net.result.sandnode.link.Links;
 import net.result.sandnode.util.FileUtil;
 import net.result.sandnode.util.db.InMemoryDatabase;
-import net.result.sandnode.util.group.GroupManager;
+import net.result.sandnode.util.group.HashSetGroupManager;
 import net.result.sandnode.util.tokens.JWTConfig;
 import net.result.sandnode.util.tokens.JWTTokenizer;
 import net.result.taulight.TauHub;
@@ -28,7 +28,7 @@ public class RunHubWork implements IWork {
     public void run() throws NoSuchEncryptionException, ConfigurationException, CreatingKeyException, FSException,
             ServerStartException, KeyStorageNotFoundException, EncryptionTypeException {
         ServerPropertiesConfig serverConfig = new ServerPropertiesConfig();
-        serverConfig.setGroupManager(new GroupManager());
+        serverConfig.setGroupManager(new HashSetGroupManager());
         serverConfig.setDatabase(new InMemoryDatabase());
         serverConfig.setTokenizer(new JWTTokenizer(new JWTConfig("YourSuperSecretKey")));
 

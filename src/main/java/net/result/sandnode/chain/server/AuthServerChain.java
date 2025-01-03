@@ -1,6 +1,7 @@
 package net.result.sandnode.chain.server;
 
 import net.result.sandnode.config.IServerConfig;
+import net.result.sandnode.exceptions.BusyMemberIDException;
 import net.result.sandnode.exceptions.ExpectedMessageException;
 import net.result.sandnode.messages.IMessage;
 import net.result.sandnode.messages.types.LoginResponse;
@@ -8,8 +9,9 @@ import net.result.sandnode.messages.types.RegistrationRequest;
 import net.result.sandnode.messages.types.RegistrationResponse;
 import net.result.sandnode.messages.types.TokenMessage;
 import net.result.sandnode.messages.util.Headers;
-import net.result.sandnode.messages.util.IMessageType;
 import net.result.sandnode.messages.util.MessageType;
+import net.result.sandnode.messages.util.MessageTypes;
+import net.result.sandnode.server.ServerError;
 import net.result.sandnode.server.Session;
 import net.result.sandnode.util.db.IDatabase;
 import net.result.sandnode.util.db.IMember;
@@ -28,10 +30,10 @@ public class AuthServerChain extends ServerChain {
     }
 
     @Override
-    public void start() throws InterruptedException, ExpectedMessageException {
+    public void sync() throws InterruptedException, ExpectedMessageException {
         IMessage request = queue.take();
-        IMessageType type = request.getHeaders().getType();
-        if (!(type instanceof MessageType systemType)) {
+        MessageType type = request.getHeaders().getType();
+        if (!(type instanceof MessageTypes systemType)) {
             LOGGER.error("Not a sandnode system type");
             return;
         }
@@ -39,10 +41,13 @@ public class AuthServerChain extends ServerChain {
             case REG -> {
                 RegistrationRequest regMsg = new RegistrationRequest(request);
                 IServerConfig serverConfig = session.server.serverConfig;
-                session.member = serverConfig.database().registerMember(regMsg.getMemberID(), regMsg.getPassword());
-                String token = serverConfig.tokenizer().tokenizeMember(session.member);
-
-                sendFin(new RegistrationResponse(new Headers(), token));
+                try {
+                    session.member = serverConfig.database().registerMember(regMsg.getMemberID(), regMsg.getPassword());
+                    String token = serverConfig.tokenizer().tokenizeMember(session.member);
+                    sendFin(new RegistrationResponse(new Headers(), token));
+                } catch (BusyMemberIDException e) {
+                    sendFin(ServerError.MEMBER_ID_BUSY.message());
+                }
             }
             case LOGIN -> {
                 TokenMessage msg = new TokenMessage(request);

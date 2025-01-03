@@ -15,7 +15,8 @@ public enum ServerError {
     MEMBER_NOT_FOUND(2015, "Member not found"),
 
     ENCRYPT(2100, "Encrypt"),
-    DECRYPT(2150, "Decrypt");
+    DECRYPT(2150, "Decrypt"),
+    MEMBER_ID_BUSY(378, "MemberID is busy");
 
     public final int code;
     public final String desc;

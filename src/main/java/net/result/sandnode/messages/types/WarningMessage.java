@@ -4,7 +4,7 @@ import net.result.sandnode.messages.EmptyMessage;
 import net.result.sandnode.messages.util.Headers;
 import org.jetbrains.annotations.NotNull;
 
-import static net.result.sandnode.messages.util.MessageType.WARN;
+import static net.result.sandnode.messages.util.MessageTypes.WARN;
 
 public class WarningMessage extends EmptyMessage {
     public WarningMessage(@NotNull Headers headers) {

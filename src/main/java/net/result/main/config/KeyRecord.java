@@ -4,8 +4,8 @@ import net.result.sandnode.encryption.EncryptionManager;
 import net.result.sandnode.encryption.interfaces.IAsymmetricEncryption;
 import net.result.sandnode.encryption.interfaces.IAsymmetricKeyStorage;
 import net.result.sandnode.exceptions.*;
-import net.result.sandnode.hashers.Hashers;
-import net.result.sandnode.hashers.IHasher;
+import net.result.sandnode.hashers.HasherManager;
+import net.result.sandnode.hashers.Hasher;
 import net.result.sandnode.util.Endpoint;
 import net.result.sandnode.util.FileUtil;
 import org.jetbrains.annotations.NotNull;
@@ -13,12 +13,12 @@ import org.json.JSONObject;
 
 import java.nio.file.Path;
 
-import static net.result.sandnode.hashers.Hasher.SHA256;
+import static net.result.sandnode.hashers.Hashers.SHA256;
 
 public final class KeyRecord {
     public final Path publicKeyPath;
     public final IAsymmetricKeyStorage keyStorage;
-    public final IHasher hasher = SHA256;
+    public final Hasher hasher = SHA256;
     public final String hash;
     public final Endpoint endpoint;
 
@@ -44,7 +44,7 @@ public final class KeyRecord {
         } catch (CannotUseEncryption e) {
             throw new ImpossibleRuntimeException(e);
         }
-        IHasher hasher = Hashers.find(hashObject.getString("algorithm"));
+        Hasher hasher = HasherManager.find(hashObject.getString("algorithm"));
         String hash2 = hasher.hash(encodedString);
 
         if (!hash1.equals(hash2)) {

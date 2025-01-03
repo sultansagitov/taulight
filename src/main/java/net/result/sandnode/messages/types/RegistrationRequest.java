@@ -6,7 +6,7 @@ import net.result.sandnode.messages.JSONMessage;
 import net.result.sandnode.messages.util.Headers;
 import org.jetbrains.annotations.NotNull;
 
-import static net.result.sandnode.messages.util.MessageType.REG;
+import static net.result.sandnode.messages.util.MessageTypes.REG;
 
 public class RegistrationRequest extends JSONMessage {
     public RegistrationRequest(@NotNull IMessage message) throws ExpectedMessageException {

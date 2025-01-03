@@ -8,7 +8,7 @@ import net.result.sandnode.messages.util.Headers;
 import org.junit.jupiter.api.Test;
 
 import static net.result.sandnode.messages.util.Connection.HUB2AGENT;
-import static net.result.sandnode.messages.util.MessageType.LOGIN;
+import static net.result.sandnode.messages.util.MessageTypes.LOGIN;
 import static net.result.sandnode.encryption.AsymmetricEncryption.RSA;
 import static org.junit.jupiter.api.Assertions.*;
 

@@ -15,7 +15,7 @@ public class ForwardServerChain extends ServerChain {
     }
 
     @Override
-    public void start() {
+    public void sync() {
         throw new ImpossibleRuntimeException("This chain should no be started");
     }
 }

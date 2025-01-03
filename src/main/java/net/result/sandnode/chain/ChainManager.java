@@ -12,7 +12,7 @@ public interface ChainManager {
 
     Optional<Chain> getByID(short id);
 
-    void addChain(Chain chain);
+    void linkChain(Chain chain);
 
     Chain createNew(RawMessage message) throws BSTBusyPosition;
 
@@ -27,6 +27,4 @@ public interface ChainManager {
     Map<String, Chain> getChainsMap();
 
     Optional<Chain> getChain(String contextName);
-
-    void removeChain(String contextName);
 }

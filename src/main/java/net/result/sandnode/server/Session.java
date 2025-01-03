@@ -4,7 +4,7 @@ import net.result.sandnode.exceptions.*;
 import net.result.sandnode.util.IOControl;
 import net.result.sandnode.chain.server.IServerChainManager;
 import net.result.sandnode.util.db.IMember;
-import net.result.sandnode.util.group.IGroup;
+import net.result.sandnode.util.group.Group;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
@@ -15,7 +15,7 @@ import java.util.Set;
 
 public class Session {
     private static final Logger LOGGER = LogManager.getLogger(Session.class);
-    private final Set<IGroup> groups = new HashSet<>();
+    private final Set<Group> groups = new HashSet<>();
     public final SandnodeServer server;
     public final Socket socket;
     public final IOControl io;
@@ -61,11 +61,11 @@ public class Session {
         return "<%s %s %s>".formatted(getClass().getSimpleName(), IOControl.getIP(socket), member);
     }
 
-    public void addToGroup(IGroup group) {
+    public void addToGroup(Group group) {
         groups.add(group);
     }
 
-    public Set<IGroup> getGroups() {
+    public Set<Group> getGroups() {
         return groups;
     }
 }

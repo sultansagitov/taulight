@@ -17,27 +17,15 @@ public abstract class Chain implements Searchable<Chain, Short> {
     protected final BlockingQueue<IMessage> queue;
     protected final IOControl io;
     private short id = -1;
-    private ChainManager chainManager;
 
     public Chain(IOControl io) {
         this.io = io;
         queue = new LinkedBlockingQueue<>();
     }
 
-    public void setManager(ChainManager chainManager) {
-        this.chainManager = chainManager;
-    }
-
-    public abstract void start() throws InterruptedException, EncryptionTypeException, NoSuchEncryptionException,
-            CreatingKeyException, ExpectedMessageException, MemberNotFound, KeyNotCreatedException,
-            KeyStorageNotFoundException, DataNotEncryptedException;
-
-    public void sync() throws InterruptedException, ExpectedMessageException, MemberNotFound, EncryptionTypeException,
-            NoSuchEncryptionException, CreatingKeyException, KeyNotCreatedException, KeyStorageNotFoundException,
-            DataNotEncryptedException {
-        start();
-        chainManager.removeChain(this);
-    }
+    public abstract void sync() throws InterruptedException, EncryptionTypeException, NoSuchEncryptionException,
+            CreatingKeyException, ExpectedMessageException, BusyMemberIDException, KeyNotCreatedException,
+            DataNotEncryptedException;
 
     public void put(IMessage message) throws InterruptedException {
         queue.put(message);

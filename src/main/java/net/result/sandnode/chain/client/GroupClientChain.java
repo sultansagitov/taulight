@@ -16,7 +16,7 @@ public class GroupClientChain extends ClientChain {
     }
 
     @Override
-    public void start() throws InterruptedException, ExpectedMessageException {
+    public void sync() throws InterruptedException, ExpectedMessageException {
         send(new GroupMessage(groups));
         GroupMessage groupMessage = new GroupMessage(queue.take());
         groupNames = groupMessage.getGroupNames();

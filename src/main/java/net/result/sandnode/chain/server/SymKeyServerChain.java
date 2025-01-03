@@ -18,7 +18,7 @@ public class SymKeyServerChain extends ServerChain {
     }
 
     @Override
-    public void start() throws InterruptedException, EncryptionTypeException, NoSuchEncryptionException,
+    public void sync() throws InterruptedException, EncryptionTypeException, NoSuchEncryptionException,
             ExpectedMessageException, DataNotEncryptedException {
         SymMessage message = new SymMessage(queue.take());
         session.io.setClientKey(message.symmetricKeyStorage);

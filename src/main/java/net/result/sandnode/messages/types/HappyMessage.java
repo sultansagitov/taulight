@@ -6,7 +6,7 @@ import net.result.sandnode.messages.IMessage;
 import net.result.sandnode.messages.util.Headers;
 import org.jetbrains.annotations.NotNull;
 
-import static net.result.sandnode.messages.util.MessageType.HAPPY;
+import static net.result.sandnode.messages.util.MessageTypes.HAPPY;
 
 public class HappyMessage extends EmptyMessage {
     public HappyMessage() {

@@ -2,10 +2,10 @@ package net.result.sandnode.util.group;
 
 import org.jetbrains.annotations.NotNull;
 
-public class ClientGroup extends Group {
+public class ClientNamedGroup extends HashSetGroup {
     public final String name;
 
-    public ClientGroup(@NotNull String name) {
+    public ClientNamedGroup(@NotNull String name) {
         this.name = name;
     }
 

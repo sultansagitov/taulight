@@ -4,7 +4,7 @@ import net.result.sandnode.ClientProtocol;
 import net.result.sandnode.chain.Chain;
 import net.result.sandnode.exceptions.*;
 import net.result.sandnode.messages.IMessage;
-import net.result.sandnode.messages.util.IMessageType;
+import net.result.sandnode.messages.util.MessageType;
 import net.result.sandnode.util.IOControl;
 import net.result.sandnode.chain.client.ClientChain;
 import net.result.taulight.TauAgentProtocol;
@@ -20,7 +20,7 @@ import java.util.Scanner;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static net.result.sandnode.messages.util.MessageType.EXIT;
+import static net.result.sandnode.messages.util.MessageTypes.EXIT;
 
 public class ConsoleClientChain extends ClientChain {
 
@@ -31,9 +31,7 @@ public class ConsoleClientChain extends ClientChain {
     }
 
     @Override
-    public void start() throws InterruptedException, EncryptionTypeException, MemberNotFound,
-            NoSuchEncryptionException, ExpectedMessageException, CreatingKeyException, KeyNotCreatedException,
-            KeyStorageNotFoundException, DataNotEncryptedException {
+    public void sync() throws InterruptedException, ExpectedMessageException {
         Scanner scanner = new Scanner(System.in);
         while (true) {
             System.out.print(" [] ");
@@ -79,7 +77,7 @@ public class ConsoleClientChain extends ClientChain {
 
                 IMessage response = queue.take();
                 if (response.getHeaders().getType() == EXIT) break;
-                IMessageType type = response.getHeaders().getType();
+                MessageType type = response.getHeaders().getType();
                 if (type instanceof TauMessageTypes) {
                     LOGGER.info("From server: {}", new EchoMessage(response).data);
                 }

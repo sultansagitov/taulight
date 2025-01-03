@@ -13,7 +13,7 @@ import net.result.sandnode.encryption.interfaces.ISymmetricEncryption;
 import net.result.sandnode.exceptions.*;
 import net.result.sandnode.messages.*;
 import net.result.sandnode.messages.util.Headers;
-import net.result.sandnode.messages.util.IMessageType;
+import net.result.sandnode.messages.util.MessageType;
 import net.result.sandnode.messages.util.MessageTypeManager;
 import net.result.sandnode.server.*;
 import net.result.sandnode.util.Endpoint;
@@ -24,7 +24,7 @@ import net.result.sandnode.chain.server.BSTServerChainManager;
 import net.result.sandnode.chain.server.IServerChainManager;
 import net.result.sandnode.chain.server.ServerChain;
 import net.result.sandnode.util.db.InMemoryDatabase;
-import net.result.sandnode.util.group.GroupManager;
+import net.result.sandnode.util.group.HashSetGroupManager;
 import net.result.sandnode.util.tokens.JWTConfig;
 import net.result.sandnode.util.tokens.JWTTokenizer;
 import net.result.taulight.TauAgent;
@@ -52,24 +52,22 @@ public class ServerTest {
     private static final AsymmetricEncryption asymmetricEncryption = ECIES;
     private static final SymmetricEncryption symmetricEncryption = AES;
     private static final short CHAIN_ID = (short) ((0xAB << 8) + 0xCD);
-    private static final IMessageType testingType = new IMessageType() {
-        @Override
-        public int asByte() {
-            return 100;
-        }
 
-        @Override
-        public String name() {
-            return "TESTING";
+    private enum Testing implements MessageType {
+        TESTING {
+            @Override
+            public int asByte() {
+                return 100;
+            }
         }
-    };
+    }
 
     @Test
     public void testMessageTransmission() throws Exception {
         EncryptionManager.registerAll();
 
         int port = PORT_OFFSET + new Random().nextInt(PORT_RANGE);
-        MessageTypeManager.instance().add(testingType);
+        MessageTypeManager.instance().add(Testing.TESTING);
         LOGGER.info("Generated random port: {}", port);
 
         // Server setup
@@ -90,9 +88,9 @@ public class ServerTest {
         EmptyMessage sentMessage = new EmptyMessage(headers);
 
         Chain testClientChain = new TestClientChain(agentThread.client.io, sentMessage);
-        agentThread.client.io.chainManager.addChain(testClientChain);
-
+        agentThread.client.io.chainManager.linkChain(testClientChain);
         testClientChain.sync();
+        agentThread.client.io.chainManager.removeChain(testClientChain);
 
         while (TestServerChain.message == null) {
             Thread.onSpinWait();
@@ -112,7 +110,7 @@ public class ServerTest {
 
     private static Headers prepareHeaders() {
         return new Headers()
-                .setType(testingType)
+                .setType(Testing.TESTING)
                 .setConnection(AGENT2HUB)
                 .setBodyEncryption(ServerTest.symmetricEncryption)
                 .setValue("keyName", "valueData")
@@ -160,7 +158,7 @@ public class ServerTest {
                     null,
                     null,
                     asymmetricEncryption,
-                    new GroupManager(),
+                    new HashSetGroupManager(),
                     new InMemoryDatabase(),
                     new JWTTokenizer(new JWTConfig("justTesting"))
             );
@@ -241,9 +239,8 @@ public class ServerTest {
         }
 
         @Override
-        public void start() throws InterruptedException {
+        public void sync() throws InterruptedException {
             message = queue.take();
-            LOGGER.debug("messsssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss {}", message);
         }
     }
 
@@ -256,8 +253,8 @@ public class ServerTest {
         }
 
         @Override
-        public void start() throws InterruptedException {
-            send(message);
+        public void sync() throws InterruptedException {
+            sendFin(message);
         }
     }
 }

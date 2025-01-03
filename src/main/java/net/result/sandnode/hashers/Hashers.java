@@ -1,36 +1,71 @@
 package net.result.sandnode.hashers;
 
-import net.result.sandnode.exceptions.NoSuchHasherException;
-import net.result.sandnode.util.Manager;
+import net.result.sandnode.exceptions.ImpossibleRuntimeException;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.jetbrains.annotations.NotNull;
 
-import static net.result.sandnode.hashers.Hasher.MD5;
-import static net.result.sandnode.hashers.Hasher.SHA256;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 
-public class Hashers extends Manager<IHasher> {
-    private static final Hashers INSTANCE = new Hashers();
+import static java.nio.charset.StandardCharsets.US_ASCII;
 
-    public static Hashers instance() {
-        return INSTANCE;
-    }
-
-    private Hashers() {
-        super();
-        add(SHA256);
-        add(MD5);
-    }
-
-    @Override
-    protected void handleOverflow(IHasher hasher) {
-        list.removeIf(h -> h.name().equals(hasher.name()));
-    }
-
-    public static IHasher find(String algorithm) throws NoSuchHasherException {
-        for (IHasher hasher : instance().list) {
-            if (hasher.name().equals(algorithm)) {
-                return hasher;
-            }
+public enum Hashers implements Hasher {
+    SHA256 {
+        @Override
+        public @NotNull String hash(@NotNull String data) {
+            return hash(data.getBytes(US_ASCII));
         }
 
-        throw new NoSuchHasherException(algorithm);
-    }
+        @Override
+        public @NotNull String hash(byte @NotNull [] data) {
+            MessageDigest md;
+            try {
+                md = MessageDigest.getInstance("SHA-256");
+            } catch (NoSuchAlgorithmException e) {
+                LOGGER.error(e);
+                throw new ImpossibleRuntimeException(e);
+            }
+            byte[] digest = md.digest(data);
+
+            // Hex encoding
+            StringBuilder hexString = new StringBuilder();
+            for (byte b : digest) {
+                String hex = Integer.toHexString(0xff & b);
+                if (hex.length() == 1) hexString.append('0');
+                hexString.append(hex);
+            }
+            return hexString.toString().toUpperCase();
+        }
+    },
+    MD5 {
+        @Override
+        public @NotNull String hash(@NotNull String data) {
+            return hash(data.getBytes(US_ASCII));
+        }
+
+        @Override
+        public @NotNull String hash(byte @NotNull [] data) {
+            MessageDigest md;
+            try {
+                md = MessageDigest.getInstance("MD5");
+            } catch (NoSuchAlgorithmException e) {
+                LOGGER.error(e);
+                throw new ImpossibleRuntimeException(e);
+            }
+
+            byte[] digest = md.digest(data);
+
+            // Hex Encoding
+            StringBuilder hexString = new StringBuilder();
+            for (byte b : digest) {
+                String hex = Integer.toHexString(0xff & b);
+                if (hex.length() == 1) hexString.append('0');
+                hexString.append(hex);
+            }
+            return hexString.toString().toUpperCase();
+        }
+    };
+
+    private static final Logger LOGGER = LogManager.getLogger(Hashers.class);
 }

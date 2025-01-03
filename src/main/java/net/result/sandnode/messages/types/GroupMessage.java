@@ -10,7 +10,7 @@ import org.jetbrains.annotations.Unmodifiable;
 import java.util.HashSet;
 import java.util.Set;
 
-import static net.result.sandnode.messages.util.MessageType.GROUP;
+import static net.result.sandnode.messages.util.MessageTypes.GROUP;
 
 public class GroupMessage extends EmptyMessage {
     @Unmodifiable

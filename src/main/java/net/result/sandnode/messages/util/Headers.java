@@ -21,7 +21,7 @@ public class Headers {
     private short chainID = -1;
     private boolean fin = false;
     private @Nullable Connection connection;
-    private @Nullable IMessageType type;
+    private @Nullable MessageType type;
     private IEncryption bodyEncryption = NONE;
 
     public Headers setFin(boolean fin) {
@@ -53,16 +53,12 @@ public class Headers {
         return map.get(key.toLowerCase());
     }
 
-    public boolean hasValue(String key) {
-        return map.containsKey(key);
-    }
-
-    public Headers setType(@NotNull IMessageType type) {
+    public Headers setType(@NotNull MessageType type) {
         this.type = type;
         return this;
     }
 
-    public @NotNull IMessageType getType() throws NullPointerException {
+    public @NotNull MessageType getType() throws NullPointerException {
         return Objects.requireNonNull(type);
     }
 

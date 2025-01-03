@@ -16,7 +16,7 @@ public class ForwardClientChain extends ClientChain {
     }
 
     @Override
-    public void start() throws InterruptedException {
+    public void sync() throws InterruptedException {
         send(new RequestChainNameMessage("fwd"));
 
         while (io.isConnected()) {

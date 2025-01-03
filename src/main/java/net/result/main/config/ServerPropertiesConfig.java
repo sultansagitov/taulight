@@ -7,7 +7,7 @@ import net.result.sandnode.exceptions.*;
 import net.result.sandnode.util.Endpoint;
 import net.result.sandnode.util.FileUtil;
 import net.result.sandnode.util.db.IDatabase;
-import net.result.sandnode.util.group.IGroupManager;
+import net.result.sandnode.util.group.GroupManager;
 import net.result.sandnode.util.tokens.ITokenizer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -27,7 +27,7 @@ public class ServerPropertiesConfig implements IServerConfig {
     private final Path PUBLIC_KEY_PATH;
     private final Path PRIVATE_KEY_PATH;
     private final IAsymmetricEncryption MAIN_ENCRYPTION;
-    private IGroupManager groupManager;
+    private GroupManager groupManager;
     private IDatabase database;
     private ITokenizer tokenizer;
 
@@ -89,12 +89,12 @@ public class ServerPropertiesConfig implements IServerConfig {
         return MAIN_ENCRYPTION;
     }
 
-    public void setGroupManager(IGroupManager groupManager) {
+    public void setGroupManager(GroupManager groupManager) {
         this.groupManager = groupManager;
     }
 
     @Override
-    public IGroupManager groupManager() {
+    public GroupManager groupManager() {
         return groupManager;
     }
 

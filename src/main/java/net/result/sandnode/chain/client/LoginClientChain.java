@@ -7,7 +7,7 @@ import net.result.sandnode.messages.types.LoginRequest;
 import net.result.sandnode.messages.types.LoginResponse;
 import net.result.sandnode.util.IOControl;
 
-import static net.result.sandnode.messages.util.MessageType.ERR;
+import static net.result.sandnode.messages.util.MessageTypes.ERR;
 import static net.result.sandnode.server.ServerError.MEMBER_NOT_FOUND;
 
 public class LoginClientChain extends ClientChain {
@@ -20,7 +20,7 @@ public class LoginClientChain extends ClientChain {
     }
 
     @Override
-    public void start() throws InterruptedException, MemberNotFound {
+    public void sync() throws InterruptedException, MemberNotFoundException {
         LoginRequest loginRequest = new LoginRequest(token);
         send(loginRequest);
 
@@ -29,7 +29,7 @@ public class LoginClientChain extends ClientChain {
         if (message.getHeaders().getType() == ERR) {
             ErrorMessage errorMessage = new ErrorMessage(message);
             if (errorMessage.error == MEMBER_NOT_FOUND) {
-                throw new MemberNotFound();
+                throw new MemberNotFoundException();
             }
         }
 

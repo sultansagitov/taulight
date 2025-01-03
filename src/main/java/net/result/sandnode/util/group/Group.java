@@ -3,20 +3,12 @@ package net.result.sandnode.util.group;
 import net.result.sandnode.server.Session;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.HashSet;
 import java.util.Set;
 
-public class Group implements IGroup {
-    private final Set<Session> sessions = new HashSet<>();
+public interface Group {
 
-    @Override
-    public Set<Session> getSessions() {
-        return sessions;
-    }
+    Set<Session> getSessions();
 
-    @Override
-    public void add(@NotNull Session session) {
-        session.addToGroup(this);
-        sessions.add(session);
-    }
+    void add(@NotNull Session session);
+
 }

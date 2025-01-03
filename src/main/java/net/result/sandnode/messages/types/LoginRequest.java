@@ -2,7 +2,7 @@ package net.result.sandnode.messages.types;
 
 import net.result.sandnode.messages.util.Headers;
 
-import static net.result.sandnode.messages.util.MessageType.LOGIN;
+import static net.result.sandnode.messages.util.MessageTypes.LOGIN;
 
 public class LoginRequest extends TokenMessage {
     public LoginRequest(Headers headers, String token) {

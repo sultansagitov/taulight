@@ -29,7 +29,7 @@ public class RunAgentWork implements IWork {
     private static final Logger LOGGER = LogManager.getLogger(RunAgentWork.class);
 
     @Override
-    public void run() throws SandnodeException, InterruptedException {
+    public void run() throws InterruptedException, SandnodeException {
         Scanner scanner = new Scanner(System.in);
 
         System.out.print("Enter link: ");
@@ -64,19 +64,25 @@ public class RunAgentWork implements IWork {
         client.close();
     }
 
-    private static void startConsoleChain(IOControl io) throws InterruptedException, ExpectedMessageException, MemberNotFound, EncryptionTypeException, NoSuchEncryptionException, CreatingKeyException, KeyNotCreatedException, KeyStorageNotFoundException, DataNotEncryptedException {
+    private static void startConsoleChain(IOControl io) throws InterruptedException, ExpectedMessageException,
+            EncryptionTypeException, NoSuchEncryptionException, CreatingKeyException, KeyNotCreatedException,
+            DataNotEncryptedException, BusyMemberIDException {
         Chain consoleChain = new ConsoleClientChain(io);
-        io.chainManager.addChain(consoleChain);
+        io.chainManager.linkChain(consoleChain);
         consoleChain.sync();
+        io.chainManager.removeChain(consoleChain);
     }
 
     private static void startForwardChain(ExecutorService executorService, IOControl io) {
         Chain fwd = new ForwardClientChain(io);
-        io.chainManager.addChain(fwd);
+        io.chainManager.linkChain(fwd);
         fwd.async(executorService);
     }
 
-    private static void getPublicKey(SandnodeClient client, TauAgent agent, SandnodeLinkRecord link) throws FSException, KeyAlreadySaved, LinkDoesNotMatchException, InterruptedException, EncryptionTypeException, NoSuchEncryptionException, CreatingKeyException, MemberNotFound, ExpectedMessageException, KeyNotCreatedException, KeyStorageNotFoundException, DataNotEncryptedException {
+    private static void getPublicKey(SandnodeClient client, TauAgent agent, SandnodeLinkRecord link) throws FSException,
+            KeyAlreadySaved, LinkDoesNotMatchException, InterruptedException, EncryptionTypeException,
+            NoSuchEncryptionException, CreatingKeyException, ExpectedMessageException, KeyNotCreatedException,
+            KeyStorageNotFoundException, DataNotEncryptedException, BusyMemberIDException {
         Optional<IAsymmetricKeyStorage> filePublicKey = client.clientConfig.getPublicKey(link.endpoint());
         if (link.keyStorage() != null) {
             IAsymmetricKeyStorage linkKey = link.keyStorage();
@@ -103,8 +109,7 @@ public class RunAgentWork implements IWork {
     }
 
     private void handleAuthentication(IOControl io, Scanner scanner) throws InterruptedException,
-            ExpectedMessageException, EncryptionTypeException, MemberNotFound, NoSuchEncryptionException,
-            CreatingKeyException, KeyNotCreatedException, KeyStorageNotFoundException, DataNotEncryptedException {
+            ExpectedMessageException, MemberNotFoundException, BusyMemberIDException {
         System.out.print("[r for register, other for login]: ");
         String s = scanner.nextLine();
         char choice = s.isEmpty() ? 'r' : s.charAt(0);

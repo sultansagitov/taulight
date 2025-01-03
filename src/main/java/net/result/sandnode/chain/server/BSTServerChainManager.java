@@ -4,7 +4,7 @@ import net.result.sandnode.chain.Chain;
 import net.result.sandnode.exceptions.BSTBusyPosition;
 import net.result.sandnode.messages.RawMessage;
 import net.result.sandnode.messages.util.Headers;
-import net.result.sandnode.messages.util.MessageType;
+import net.result.sandnode.messages.util.MessageTypes;
 import net.result.sandnode.server.Session;
 import net.result.sandnode.chain.BSTChainManager;
 
@@ -20,7 +20,7 @@ public abstract class BSTServerChainManager extends BSTChainManager implements I
     public Chain createNew(RawMessage message) throws BSTBusyPosition {
         Headers headers = message.getHeaders();
 
-        Chain chain = headers.getType() instanceof MessageType sysType ? switch (sysType) {
+        Chain chain = headers.getType() instanceof MessageTypes sysType ? switch (sysType) {
             case PUB -> new PublicKeyServerChain(session);
             case SYM -> new SymKeyServerChain(session);
             case GROUP -> new GroupServerChain(session);

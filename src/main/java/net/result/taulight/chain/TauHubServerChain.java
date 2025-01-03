@@ -4,17 +4,20 @@ import net.result.sandnode.chain.Chain;
 
 import net.result.sandnode.chain.server.ServerChain;
 import net.result.sandnode.messages.IMessage;
-import net.result.sandnode.messages.util.IMessageType;
+import net.result.sandnode.messages.util.MessageType;
 import net.result.sandnode.server.Session;
 import net.result.sandnode.util.db.IMember;
-import net.result.sandnode.util.group.IGroupManager;
+import net.result.sandnode.util.group.GroupManager;
 import net.result.taulight.messages.OnlineResponseMessage;
 import net.result.taulight.messages.TauMessageTypes;
 import net.result.taulight.messages.types.EchoMessage;
 import net.result.taulight.messages.types.ForwardMessage;
+import net.result.taulight.messages.types.TimedForwardMessage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -27,12 +30,12 @@ public class TauHubServerChain extends ServerChain {
     }
 
     @Override
-    public void start() throws InterruptedException {
+    public void sync() throws InterruptedException {
         while (io.isConnected()) {
             IMessage request = queue.take();
-            IMessageType type = request.getHeaders().getType();
+            MessageType type = request.getHeaders().getType();
             if (type instanceof TauMessageTypes tau) {
-                final IGroupManager groupManager = session.server.serverConfig.groupManager();
+                final GroupManager groupManager = session.server.serverConfig.groupManager();
                 switch (tau) {
                     case ECHO -> {
                         EchoMessage textMessage = new EchoMessage(request);
@@ -40,16 +43,14 @@ public class TauHubServerChain extends ServerChain {
                         send(textMessage);
                     }
                     case FWD -> {
-                        ForwardMessage textMessage = new ForwardMessage(request);
-                        LOGGER.info("Forwarding message: {}", textMessage.data);
+                        ForwardMessage forwardMessage = new ForwardMessage(request);
+                        ZonedDateTime ztd = ZonedDateTime.now(ZoneId.of("UTC"));
+                        LOGGER.info("Forwarding message: {}", forwardMessage.data);
 
                         for (Session s : groupManager.getGroup("chat").getSessions()) {
                             Optional<Chain> opt = s.io.chainManager.getChain("fwd");
                             if (opt.isPresent()) {
-                                ForwardMessage textMessage1 = new ForwardMessage(
-                                        textMessage.getHeaders().copy(),
-                                        textMessage.data
-                                );
+                                ForwardMessage textMessage1 = new TimedForwardMessage(forwardMessage, ztd);
                                 opt.get().send(textMessage1);
                             }
                             LOGGER.info("Message forwarded to session: {}", s);

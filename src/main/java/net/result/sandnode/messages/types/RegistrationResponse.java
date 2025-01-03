@@ -5,7 +5,7 @@ import net.result.sandnode.messages.IMessage;
 import net.result.sandnode.messages.util.Headers;
 import org.jetbrains.annotations.NotNull;
 
-import static net.result.sandnode.messages.util.MessageType.REG;
+import static net.result.sandnode.messages.util.MessageTypes.REG;
 
 public class RegistrationResponse extends TokenMessage {
     public RegistrationResponse(@NotNull IMessage message) throws ExpectedMessageException {

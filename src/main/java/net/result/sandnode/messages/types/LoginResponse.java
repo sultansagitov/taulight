@@ -6,7 +6,7 @@ import net.result.sandnode.messages.util.Headers;
 import net.result.sandnode.util.db.IMember;
 import org.jetbrains.annotations.NotNull;
 
-import static net.result.sandnode.messages.util.MessageType.LOGIN;
+import static net.result.sandnode.messages.util.MessageTypes.LOGIN;
 
 public class LoginResponse extends JSONMessage {
     private final String memberID;

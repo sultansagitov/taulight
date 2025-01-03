@@ -12,28 +12,30 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Set;
 
 public class ClientProtocol {
-    public static void PUB(@NotNull IOControl io) throws InterruptedException, EncryptionTypeException,
-            NoSuchEncryptionException, CreatingKeyException, MemberNotFound, ExpectedMessageException,
-            KeyNotCreatedException, KeyStorageNotFoundException, DataNotEncryptedException {
+    public static void PUB(@NotNull IOControl io) throws EncryptionTypeException, BusyMemberIDException,
+            NoSuchEncryptionException, CreatingKeyException, ExpectedMessageException, KeyNotCreatedException,
+            InterruptedException, DataNotEncryptedException {
         Chain pubkeyChain = new PublicKeyClientChain(io);
-        io.chainManager.addChain(pubkeyChain);
+        io.chainManager.linkChain(pubkeyChain);
         pubkeyChain.sync();
+        io.chainManager.removeChain(pubkeyChain);
     }
 
     public static void sendSYM(@NotNull SandnodeClient client) throws InterruptedException, KeyNotCreatedException,
-            EncryptionTypeException, MemberNotFound, NoSuchEncryptionException, ExpectedMessageException,
-            CreatingKeyException, KeyStorageNotFoundException, DataNotEncryptedException {
+            EncryptionTypeException, NoSuchEncryptionException, ExpectedMessageException, CreatingKeyException,
+            DataNotEncryptedException, BusyMemberIDException {
         Chain symkeyChain = new SymKeyClientChain(client.io, client.clientConfig.symmetricKeyEncryption());
-        client.io.chainManager.addChain(symkeyChain);
+        client.io.chainManager.linkChain(symkeyChain);
         symkeyChain.sync();
+        client.io.chainManager.removeChain(symkeyChain);
     }
 
-    public static Set<String> GROUP(@NotNull IOControl io, Set<String> groups) throws ExpectedMessageException,
-            InterruptedException, EncryptionTypeException, MemberNotFound, NoSuchEncryptionException,
-            CreatingKeyException, KeyNotCreatedException, KeyStorageNotFoundException, DataNotEncryptedException {
+    public static Set<String> GROUP(@NotNull IOControl io, Set<String> groups) throws InterruptedException,
+            ExpectedMessageException {
         GroupClientChain groupClientChain = new GroupClientChain(io, groups);
-        io.chainManager.addChain(groupClientChain);
+        io.chainManager.linkChain(groupClientChain);
         groupClientChain.sync();
+        io.chainManager.removeChain(groupClientChain);
         return groupClientChain.groupNames;
     }
 }

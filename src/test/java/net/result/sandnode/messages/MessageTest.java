@@ -10,7 +10,7 @@ import org.junit.jupiter.api.Test;
 import java.io.ByteArrayInputStream;
 
 import static net.result.sandnode.messages.util.Connection.AGENT2HUB;
-import static net.result.sandnode.messages.util.MessageType.LOGIN;
+import static net.result.sandnode.messages.util.MessageTypes.LOGIN;
 import static net.result.sandnode.encryption.AsymmetricEncryption.RSA;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;

@@ -6,7 +6,7 @@ import net.result.sandnode.messages.StatusMessage;
 import net.result.sandnode.messages.util.Headers;
 import net.result.sandnode.server.ServerError;
 
-import static net.result.sandnode.messages.util.MessageType.ERR;
+import static net.result.sandnode.messages.util.MessageTypes.ERR;
 
 public class ErrorMessage extends StatusMessage {
     public final ServerError error;

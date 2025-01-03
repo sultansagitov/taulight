@@ -17,7 +17,7 @@ public class TauOnlineChain extends ClientChain {
     }
 
     @Override
-    public void start() throws ExpectedMessageException, InterruptedException {
+    public void sync() throws ExpectedMessageException, InterruptedException {
         OnlineMessage message = new OnlineMessage();
         send(message);
         IMessage response = queue.take();

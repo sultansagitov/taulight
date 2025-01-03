@@ -13,7 +13,7 @@ import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import static net.result.sandnode.messages.util.MessageType.CHAIN_NAME;
+import static net.result.sandnode.messages.util.MessageTypes.CHAIN_NAME;
 
 public abstract class BSTChainManager implements ChainManager {
     private static final Logger LOGGER = LogManager.getLogger(BSTChainManager.class);
@@ -31,7 +31,7 @@ public abstract class BSTChainManager implements ChainManager {
     }
 
     @Override
-    public void addChain(Chain chain) {
+    public void linkChain(Chain chain) {
         List<Short> list = bst.getOrdered().stream().map(Chain::getID).toList();
 
         LOGGER.info("Randomizing chain id");
@@ -41,7 +41,6 @@ public abstract class BSTChainManager implements ChainManager {
             chainID = (short) random.nextInt(Short.MIN_VALUE, Short.MAX_VALUE);
         }
         chain.setID(chainID);
-        chain.setManager(this);
         LOGGER.info("Adding new chain {}-{}", chain.getID(), chain.getClass().getSimpleName());
         try {
             bst.add(chain);
@@ -54,7 +53,7 @@ public abstract class BSTChainManager implements ChainManager {
     public void removeChain(Chain chain) {
         for (Map.Entry<String, Chain> entry : chainMap.entrySet()) {
             if (entry.getValue() == chain) {
-                removeChain(entry.getKey());
+                chainMap.remove(entry.getKey());
             }
         }
 
@@ -63,8 +62,7 @@ public abstract class BSTChainManager implements ChainManager {
 
     @Override
     public void distributeMessage(RawMessage message) throws InterruptedException {
-        Chain chain = getByID(message.getHeaders().getChainID())
-                .orElseGet(() -> {
+        Chain chain = getByID(message.getHeaders().getChainID()).orElseGet(() -> {
                     try {
                         Chain aNew = createNew(message);
                         if (aNew.isChainStartAllowed()) aNew.async(executorService);
@@ -98,11 +96,6 @@ public abstract class BSTChainManager implements ChainManager {
     @Override
     public Optional<Chain> getChain(String contextName) {
         return Optional.ofNullable(chainMap.get(contextName));
-    }
-
-    @Override
-    public void removeChain(String contextName) {
-        chainMap.remove(contextName);
     }
 
     @Override

@@ -12,7 +12,7 @@ import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
 
 import static java.nio.charset.StandardCharsets.US_ASCII;
-import static net.result.sandnode.messages.util.MessageType.PUB;
+import static net.result.sandnode.messages.util.MessageTypes.PUB;
 import static net.result.sandnode.encryption.Encryption.NONE;
 
 public class PublicKeyResponse extends Message {

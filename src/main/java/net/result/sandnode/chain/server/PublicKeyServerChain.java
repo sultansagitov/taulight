@@ -16,7 +16,7 @@ public class PublicKeyServerChain extends ServerChain {
     }
 
     @Override
-    public void start() throws InterruptedException {
+    public void sync() throws InterruptedException {
         queue.take();
         IAsymmetricEncryption encryption = session.server.serverConfig.mainEncryption();
         Headers headers = new Headers().setFin(true).setChainID(getID());

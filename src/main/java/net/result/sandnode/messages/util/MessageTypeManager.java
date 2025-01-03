@@ -6,7 +6,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
 
-public class MessageTypeManager extends Manager<IMessageType> {
+public class MessageTypeManager extends Manager<MessageType> {
     private static final MessageTypeManager INSTANCE = new MessageTypeManager();
 
     public static MessageTypeManager instance() {
@@ -14,16 +14,16 @@ public class MessageTypeManager extends Manager<IMessageType> {
     }
 
     private MessageTypeManager() {
-        Arrays.stream(MessageType.values()).forEach(this::add);
+        Arrays.stream(MessageTypes.values()).forEach(this::add);
     }
 
     @Override
-    protected void handleOverflow(IMessageType messageType) {
+    protected void handleOverflow(MessageType messageType) {
 
     }
 
-    public static @NotNull IMessageType getMessageType(byte type) throws NoSuchMessageTypeException {
-        for (IMessageType m : instance().list) {
+    public static @NotNull MessageType getMessageType(byte type) throws NoSuchMessageTypeException {
+        for (MessageType m : instance().list) {
             if (m.asByte() == type) {
                 return m;
             }

@@ -13,7 +13,7 @@ import net.result.sandnode.encryption.interfaces.ISymmetricKeyStorage;
 import org.jetbrains.annotations.NotNull;
 
 import static net.result.sandnode.encryption.Encryption.NONE;
-import static net.result.sandnode.messages.util.MessageType.SYM;
+import static net.result.sandnode.messages.util.MessageTypes.SYM;
 
 public class SymMessage extends Message {
     public final ISymmetricKeyStorage symmetricKeyStorage;
