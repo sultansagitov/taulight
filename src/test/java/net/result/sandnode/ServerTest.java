@@ -87,7 +87,7 @@ public class ServerTest {
         Headers headers = prepareHeaders();
         EmptyMessage sentMessage = new EmptyMessage(headers);
 
-        Chain testClientChain = new TestClientChain(agentThread.client.io, sentMessage);
+        TestClientChain testClientChain = new TestClientChain(agentThread.client.io, sentMessage);
         agentThread.client.io.chainManager.linkChain(testClientChain);
         testClientChain.sync();
         agentThread.client.io.chainManager.removeChain(testClientChain);

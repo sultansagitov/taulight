@@ -64,7 +64,10 @@ public class ConsoleClientChain extends ClientChain {
 
             } else if (input.startsWith("group ")) {
                 String substring = input.substring(input.indexOf(" ") + 1);
-                Set<String> inputString = Arrays.stream(substring.split(" ")).filter(s -> !s.isEmpty()).collect(Collectors.toSet());
+                Set<String> inputString = Arrays
+                        .stream(substring.split(" "))
+                        .filter(s -> !s.isEmpty())
+                        .collect(Collectors.toSet());
                 Set<String> groups = ClientProtocol.GROUP(io, inputString);
                 LOGGER.info("Your groups now: {}", groups);
 

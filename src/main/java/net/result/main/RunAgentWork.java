@@ -4,7 +4,6 @@ import net.result.main.chains.ConsoleClientChain;
 import net.result.main.chains.ConsoleClientChainManager;
 import net.result.main.config.ClientPropertiesConfig;
 import net.result.sandnode.*;
-import net.result.sandnode.chain.Chain;
 import net.result.sandnode.client.ClientMember;
 import net.result.sandnode.client.SandnodeClient;
 import net.result.sandnode.encryption.interfaces.*;
@@ -64,17 +63,15 @@ public class RunAgentWork implements IWork {
         client.close();
     }
 
-    private static void startConsoleChain(IOControl io) throws InterruptedException, ExpectedMessageException,
-            EncryptionTypeException, NoSuchEncryptionException, CreatingKeyException, KeyNotCreatedException,
-            DataNotEncryptedException, BusyMemberIDException, MemberNotFoundException {
-        Chain consoleChain = new ConsoleClientChain(io);
+    private static void startConsoleChain(IOControl io) throws InterruptedException, ExpectedMessageException {
+        ConsoleClientChain consoleChain = new ConsoleClientChain(io);
         io.chainManager.linkChain(consoleChain);
         consoleChain.sync();
         io.chainManager.removeChain(consoleChain);
     }
 
     private static void startForwardChain(ExecutorService executorService, IOControl io) {
-        Chain fwd = new ForwardClientChain(io);
+        ForwardClientChain fwd = new ForwardClientChain(io);
         io.chainManager.linkChain(fwd);
         fwd.async(executorService);
     }
