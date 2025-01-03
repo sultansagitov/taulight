@@ -8,7 +8,7 @@ import net.result.sandnode.messages.util.MessageTypes;
 import net.result.sandnode.server.Session;
 import net.result.sandnode.chain.BSTChainManager;
 
-public abstract class BSTServerChainManager extends BSTChainManager implements IServerChainManager {
+public abstract class BSTServerChainManager extends BSTChainManager implements ServerChainManager {
     protected Session session;
 
     @Override
@@ -20,11 +20,12 @@ public abstract class BSTServerChainManager extends BSTChainManager implements I
     public Chain createNew(RawMessage message) throws BSTBusyPosition {
         Headers headers = message.getHeaders();
 
-        Chain chain = headers.getType() instanceof MessageTypes sysType ? switch (sysType) {
+        ServerChain chain = (headers.getType() instanceof MessageTypes sysType) ? switch (sysType) {
             case PUB -> new PublicKeyServerChain(session);
             case SYM -> new SymKeyServerChain(session);
             case GROUP -> new GroupServerChain(session);
-            case REG, LOGIN -> new AuthServerChain(session);
+            case LOGIN -> new LoginServerChain(session);
+            case REG -> new RegistrationServerChain(session);
             default -> defaultChain(message);
         } : defaultChain(message);
 
@@ -33,5 +34,4 @@ public abstract class BSTServerChainManager extends BSTChainManager implements I
 
         return chain;
     }
-
 }

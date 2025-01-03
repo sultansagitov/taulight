@@ -1,6 +1,6 @@
 package net.result.taulight;
 
-import net.result.sandnode.chain.server.IServerChainManager;
+import net.result.sandnode.chain.server.ServerChainManager;
 import net.result.sandnode.Hub;
 import net.result.sandnode.encryption.GlobalKeyStorage;
 import org.jetbrains.annotations.NotNull;
@@ -12,7 +12,7 @@ public class TauHub extends Hub {
     }
 
     @Override
-    public @NotNull IServerChainManager createChainManager() {
+    public @NotNull ServerChainManager createChainManager() {
         return new TauBSTServerChainManager();
     }
 

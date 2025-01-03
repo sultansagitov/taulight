@@ -1,7 +1,7 @@
 package net.result.sandnode.client;
 
 import net.result.sandnode.Node;
-import net.result.sandnode.chain.client.IClientChainManager;
+import net.result.sandnode.chain.client.ClientChainManager;
 import net.result.sandnode.config.IClientConfig;
 import net.result.sandnode.exceptions.*;
 import net.result.sandnode.messages.util.Connection;
@@ -39,7 +39,7 @@ public class SandnodeClient {
         this.clientConfig = clientConfig;
     }
 
-    public void start(@NotNull Function<IOControl, IClientChainManager> chainManager) throws InputStreamException,
+    public void start(@NotNull Function<IOControl, ClientChainManager> chainManager) throws InputStreamException,
             OutputStreamException, ConnectionException {
         try {
             LOGGER.info("Connecting to {}", endpoint.toString());

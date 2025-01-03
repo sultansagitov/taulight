@@ -66,7 +66,7 @@ public class RunAgentWork implements IWork {
 
     private static void startConsoleChain(IOControl io) throws InterruptedException, ExpectedMessageException,
             EncryptionTypeException, NoSuchEncryptionException, CreatingKeyException, KeyNotCreatedException,
-            DataNotEncryptedException, BusyMemberIDException {
+            DataNotEncryptedException, BusyMemberIDException, MemberNotFoundException {
         Chain consoleChain = new ConsoleClientChain(io);
         io.chainManager.linkChain(consoleChain);
         consoleChain.sync();
@@ -81,8 +81,7 @@ public class RunAgentWork implements IWork {
 
     private static void getPublicKey(SandnodeClient client, TauAgent agent, SandnodeLinkRecord link) throws FSException,
             KeyAlreadySaved, LinkDoesNotMatchException, InterruptedException, EncryptionTypeException,
-            NoSuchEncryptionException, CreatingKeyException, ExpectedMessageException, KeyNotCreatedException,
-            KeyStorageNotFoundException, DataNotEncryptedException, BusyMemberIDException {
+            NoSuchEncryptionException, CreatingKeyException, ExpectedMessageException, KeyStorageNotFoundException {
         Optional<IAsymmetricKeyStorage> filePublicKey = client.clientConfig.getPublicKey(link.endpoint());
         if (link.keyStorage() != null) {
             IAsymmetricKeyStorage linkKey = link.keyStorage();

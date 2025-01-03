@@ -21,7 +21,7 @@ import net.result.sandnode.encryption.GlobalKeyStorage;
 import net.result.sandnode.util.IOControl;
 import net.result.sandnode.chain.client.ClientChain;
 import net.result.sandnode.chain.server.BSTServerChainManager;
-import net.result.sandnode.chain.server.IServerChainManager;
+import net.result.sandnode.chain.server.ServerChainManager;
 import net.result.sandnode.chain.server.ServerChain;
 import net.result.sandnode.util.db.InMemoryDatabase;
 import net.result.sandnode.util.group.HashSetGroupManager;
@@ -148,7 +148,7 @@ public class ServerTest {
             this.port = port;
             hub = new TauHub(serverKeyStorage) {
                 @Override
-                public @NotNull IServerChainManager createChainManager() {
+                public @NotNull ServerChainManager createChainManager() {
                     return new TestingBSTServerChainManager();
                 }
             };
@@ -226,7 +226,7 @@ public class ServerTest {
         }
 
         @Override
-        public Chain defaultChain(RawMessage ignored) {
+        public ServerChain defaultChain(RawMessage ignored) {
             return new TestServerChain(session);
         }
     }

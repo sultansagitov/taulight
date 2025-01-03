@@ -9,7 +9,7 @@ import net.result.sandnode.encryption.GlobalKeyStorage;
 import net.result.sandnode.server.SandnodeServer;
 import net.result.sandnode.server.Session;
 import net.result.sandnode.util.IOControl;
-import net.result.sandnode.chain.server.IServerChainManager;
+import net.result.sandnode.chain.server.ServerChainManager;
 import org.jetbrains.annotations.NotNull;
 
 import java.net.Socket;
@@ -30,7 +30,7 @@ public abstract class Hub extends Node {
     @Override
     public @NotNull Session createSession(SandnodeServer server, Socket socket, Connection connection)
             throws WrongNodeUsedException, OutputStreamException, InputStreamException {
-        IServerChainManager chainManager = createChainManager();
+        ServerChainManager chainManager = createChainManager();
         IOControl io = new IOControl(socket, connection, this.globalKeyStorage, chainManager);
         Session session = new Session(server, socket, chainManager, io);
         switch (connection) {
@@ -42,5 +42,5 @@ public abstract class Hub extends Node {
         return session;
     }
 
-    protected abstract IServerChainManager createChainManager();
+    protected abstract ServerChainManager createChainManager();
 }

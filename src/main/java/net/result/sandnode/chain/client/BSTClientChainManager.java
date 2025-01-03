@@ -7,7 +7,7 @@ import net.result.sandnode.messages.util.Headers;
 import net.result.sandnode.util.IOControl;
 import net.result.sandnode.chain.BSTChainManager;
 
-public abstract class BSTClientChainManager extends BSTChainManager implements IClientChainManager {
+public abstract class BSTClientChainManager extends BSTChainManager implements ClientChainManager {
     protected final IOControl io;
 
     public BSTClientChainManager(IOControl io) {

@@ -1,6 +1,6 @@
 package net.result.taulight;
 
-import net.result.sandnode.chain.Chain;
+import net.result.sandnode.chain.server.ServerChain;
 import net.result.sandnode.messages.RawMessage;
 import net.result.sandnode.chain.server.BSTServerChainManager;
 import net.result.sandnode.messages.util.Headers;
@@ -15,7 +15,7 @@ public class TauBSTServerChainManager extends BSTServerChainManager {
     }
 
     @Override
-    public Chain defaultChain(RawMessage message) {
+    public ServerChain defaultChain(RawMessage message) {
         Headers headers = message.getHeaders();
         Optional<String> opt = headers.getOptionalValue("chain-name");
         if (opt.isPresent() && opt.get().equals("fwd")) {

@@ -2,7 +2,7 @@ package net.result.sandnode.server;
 
 import net.result.sandnode.exceptions.*;
 import net.result.sandnode.util.IOControl;
-import net.result.sandnode.chain.server.IServerChainManager;
+import net.result.sandnode.chain.server.ServerChainManager;
 import net.result.sandnode.util.db.IMember;
 import net.result.sandnode.util.group.Group;
 import org.apache.logging.log4j.LogManager;
@@ -19,13 +19,13 @@ public class Session {
     public final SandnodeServer server;
     public final Socket socket;
     public final IOControl io;
-    public final IServerChainManager chainManager;
+    public final ServerChainManager chainManager;
     public IMember member;
 
     public Session(
             @NotNull SandnodeServer server,
             @NotNull Socket socket,
-            @NotNull IServerChainManager chainManager,
+            @NotNull ServerChainManager chainManager,
             @NotNull IOControl io
     ) {
         this.server = server;

@@ -1,7 +1,7 @@
 package net.result.sandnode.util;
 
-import net.result.sandnode.chain.client.IClientChainManager;
-import net.result.sandnode.chain.server.IServerChainManager;
+import net.result.sandnode.chain.client.ClientChainManager;
+import net.result.sandnode.chain.server.ServerChainManager;
 import net.result.sandnode.encryption.GlobalKeyStorage;
 import net.result.sandnode.encryption.interfaces.*;
 import net.result.sandnode.exceptions.*;
@@ -50,7 +50,7 @@ public class IOControl {
             Socket socket,
             Connection connection,
             GlobalKeyStorage globalKeyStorage,
-            Function<IOControl, IClientChainManager> chainManager
+            Function<IOControl, ClientChainManager> chainManager
     ) throws InputStreamException, OutputStreamException {
         this.in = StreamReader.inputStream(socket);
         this.out = StreamReader.outputStream(socket);
@@ -64,7 +64,7 @@ public class IOControl {
             Socket socket,
             Connection connection,
             GlobalKeyStorage globalKeyStorage,
-            IServerChainManager chainManager
+            ServerChainManager chainManager
     ) throws InputStreamException, OutputStreamException {
         this.in = StreamReader.inputStream(socket);
         this.out = StreamReader.outputStream(socket);
