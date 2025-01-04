@@ -1,24 +1,38 @@
 package net.result.taulight.messages.types;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import net.result.sandnode.exceptions.DeserializationException;
 import net.result.sandnode.messages.RawMessage;
+import net.result.sandnode.messages.MSGPackMessage;
 
-import java.time.Instant;
-import java.time.ZoneId;
 import java.time.ZonedDateTime;
 
-public class TimedForwardMessage extends ForwardMessage {
-    private final ZonedDateTime zdt;
+import static net.result.taulight.messages.TauMessageTypes.FWD;
 
-    public TimedForwardMessage(ForwardMessage forwardMessage, ZonedDateTime zdt) {
-        super(forwardMessage.getHeaders().copy(), forwardMessage.data);
-        this.zdt = zdt;
-        getContent().put("dt", zdt.toEpochSecond());
+public class TimedForwardMessage extends MSGPackMessage<TimedForwardMessage.TimedForwardData> {
+    public static class TimedForwardData extends ForwardMessage.ForwardData {
+        @JsonProperty
+        public ZonedDateTime zonedDateTime;
+
+        public TimedForwardData() {}
+        public TimedForwardData(String data, ZonedDateTime ztd) {
+            super(data);
+            zonedDateTime = ztd;
+        }
     }
 
-    public TimedForwardMessage(RawMessage message) {
-        super(message);
-        long dt = getContent().getNumber("dt").longValue();
-        Instant instant = Instant.ofEpochSecond(dt);
-        zdt = ZonedDateTime.ofInstant(instant, ZoneId.of("UTC"));
+    public final String data;
+    public final ZonedDateTime zdt;
+
+    public TimedForwardMessage(ForwardMessage forwardMessage, ZonedDateTime zdt) {
+        super(forwardMessage.getHeaders().setType(FWD), new TimedForwardData(forwardMessage.data, zdt));
+        this.data = forwardMessage.data;
+        this.zdt = zdt;
+    }
+
+    public TimedForwardMessage(RawMessage message) throws DeserializationException {
+        super(message, TimedForwardData.class);
+        data = object.content;
+        zdt = object.zonedDateTime;
     }
 }

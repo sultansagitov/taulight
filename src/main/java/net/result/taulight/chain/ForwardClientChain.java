@@ -1,10 +1,11 @@
 package net.result.taulight.chain;
 
 import net.result.sandnode.chain.client.ClientChain;
-import net.result.sandnode.messages.IMessage;
+import net.result.sandnode.exceptions.DeserializationException;
+import net.result.sandnode.messages.RawMessage;
 import net.result.sandnode.messages.types.RequestChainNameMessage;
 import net.result.sandnode.util.IOControl;
-import net.result.taulight.messages.types.ForwardMessage;
+import net.result.taulight.messages.types.TimedForwardMessage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -20,13 +21,14 @@ public class ForwardClientChain extends ClientChain {
         send(new RequestChainNameMessage("fwd"));
 
         while (io.isConnected()) {
-            IMessage request;
+            RawMessage request = queue.take();
             try {
-                request = queue.take();
-            } catch (InterruptedException e) {
-                break;
+                TimedForwardMessage forwardMessage = new TimedForwardMessage(request);
+                LOGGER.info("Forwarded message: {}", forwardMessage.data);
+            } catch (DeserializationException e) {
+                LOGGER.error("Deserialization error", e);
+                throw new RuntimeException(e);
             }
-            LOGGER.info("Forwarded message: {}", new ForwardMessage(request).data);
         }
     }
 }

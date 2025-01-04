@@ -3,6 +3,7 @@ package net.result.taulight.chain;
 import net.result.sandnode.chain.Chain;
 
 import net.result.sandnode.chain.server.ServerChain;
+import net.result.sandnode.exceptions.DeserializationException;
 import net.result.sandnode.messages.IMessage;
 import net.result.sandnode.messages.util.MessageType;
 import net.result.sandnode.server.Session;
@@ -43,15 +44,20 @@ public class TauHubServerChain extends ServerChain {
                         send(textMessage);
                     }
                     case FWD -> {
-                        ForwardMessage forwardMessage = new ForwardMessage(request);
+                        ForwardMessage forwardMessage;
+                        try {
+                            forwardMessage = new ForwardMessage(request);
+                        } catch (DeserializationException e) {
+                            LOGGER.error("Deserialization error", e);
+                            throw new RuntimeException(e);
+                        }
                         ZonedDateTime ztd = ZonedDateTime.now(ZoneId.of("UTC"));
                         LOGGER.info("Forwarding message: {}", forwardMessage.data);
 
                         for (Session s : groupManager.getGroup("chat").getSessions()) {
                             Optional<Chain> opt = s.io.chainManager.getChain("fwd");
                             if (opt.isPresent()) {
-                                ForwardMessage textMessage1 = new TimedForwardMessage(forwardMessage, ztd);
-                                opt.get().send(textMessage1);
+                                opt.get().send(new TimedForwardMessage(forwardMessage, ztd));
                             }
                             LOGGER.info("Message forwarded to session: {}", s);
                         }

@@ -3,6 +3,7 @@ package net.result.sandnode.chain;
 import net.result.sandnode.bst.Searchable;
 import net.result.sandnode.exceptions.*;
 import net.result.sandnode.messages.IMessage;
+import net.result.sandnode.messages.RawMessage;
 import net.result.sandnode.util.IOControl;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -14,7 +15,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 public abstract class Chain implements Searchable<Chain, Short> {
     private static final Logger LOGGER = LogManager.getLogger(Chain.class);
 
-    protected final BlockingQueue<IMessage> queue;
+    protected final BlockingQueue<RawMessage> queue;
     protected final IOControl io;
     private short id = -1;
 
@@ -27,7 +28,7 @@ public abstract class Chain implements Searchable<Chain, Short> {
             CreatingKeyException, ExpectedMessageException, BusyMemberIDException, KeyNotCreatedException,
             DataNotEncryptedException, MemberNotFoundException;
 
-    public void put(IMessage message) throws InterruptedException {
+    public void put(RawMessage message) throws InterruptedException {
         queue.put(message);
     }
 

@@ -21,7 +21,7 @@ public abstract class Message implements IMessage {
     private final Headers headers;
 
     public Message(@NotNull Headers headers) {
-        this.headers = headers;
+        this.headers = headers.copy();
     }
 
     @Override
