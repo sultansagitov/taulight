@@ -17,10 +17,10 @@ public class TauOnlineChain extends ClientChain {
     }
 
     @Override
-    public void sync() throws ExpectedMessageException, InterruptedException {
+    public void sync() throws ExpectedMessageException, InterruptedException, DeserializationException {
         OnlineMessage message = new OnlineMessage();
         send(message);
         IMessage response = queue.take();
-        members = new OnlineResponseMessage(response).members;
+        members = new OnlineResponseMessage(response).getMembers();
     }
 }

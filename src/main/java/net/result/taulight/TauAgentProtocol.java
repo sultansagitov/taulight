@@ -7,7 +7,7 @@ import net.result.taulight.chain.TauOnlineChain;
 import java.util.Set;
 
 public class TauAgentProtocol {
-    public static Set<String> getOnline(IOControl io) throws ExpectedMessageException, InterruptedException {
+    public static Set<String> getOnline(IOControl io) throws ExpectedMessageException, InterruptedException, DeserializationException {
         TauOnlineChain tauOnlineChain = new TauOnlineChain(io);
         io.chainManager.linkChain(tauOnlineChain);
         tauOnlineChain.sync();
