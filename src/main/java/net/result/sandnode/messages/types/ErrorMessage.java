@@ -1,5 +1,6 @@
 package net.result.sandnode.messages.types;
 
+import net.result.sandnode.exceptions.DeserializationException;
 import net.result.sandnode.exceptions.UnknownSandnodeErrorException;
 import net.result.sandnode.messages.IMessage;
 import net.result.sandnode.messages.StatusMessage;
@@ -16,7 +17,7 @@ public class ErrorMessage extends StatusMessage {
         this.error = serverError;
     }
 
-    public ErrorMessage(IMessage response) {
+    public ErrorMessage(IMessage response) throws DeserializationException {
         super(response);
 
         for (ServerError error : ServerError.values()) {

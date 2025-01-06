@@ -21,7 +21,7 @@ public class PublicKeyClientChain extends Chain {
 
     @Override
     public void sync() throws InterruptedException, EncryptionTypeException, NoSuchEncryptionException,
-            CreatingKeyException, ExpectedMessageException {
+            CreatingKeyException, ExpectedMessageException, DeserializationException {
         IMessage request = new PublicKeyRequest();
         send(request);
 

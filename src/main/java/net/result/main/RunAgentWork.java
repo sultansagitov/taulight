@@ -78,7 +78,7 @@ public class RunAgentWork implements IWork {
 
     private static void getPublicKey(SandnodeClient client, TauAgent agent, SandnodeLinkRecord link) throws FSException,
             KeyAlreadySaved, LinkDoesNotMatchException, InterruptedException, EncryptionTypeException,
-            NoSuchEncryptionException, CreatingKeyException, ExpectedMessageException, KeyStorageNotFoundException {
+            NoSuchEncryptionException, CreatingKeyException, ExpectedMessageException, KeyStorageNotFoundException, DeserializationException {
         Optional<IAsymmetricKeyStorage> filePublicKey = client.clientConfig.getPublicKey(link.endpoint());
         if (link.keyStorage() != null) {
             IAsymmetricKeyStorage linkKey = link.keyStorage();

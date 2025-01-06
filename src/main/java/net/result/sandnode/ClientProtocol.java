@@ -12,7 +12,7 @@ import java.util.Set;
 
 public class ClientProtocol {
     public static void PUB(@NotNull IOControl io) throws EncryptionTypeException, NoSuchEncryptionException,
-            CreatingKeyException, ExpectedMessageException, InterruptedException {
+            CreatingKeyException, ExpectedMessageException, InterruptedException, DeserializationException {
         PublicKeyClientChain pubkeyChain = new PublicKeyClientChain(io);
         io.chainManager.linkChain(pubkeyChain);
         pubkeyChain.sync();
