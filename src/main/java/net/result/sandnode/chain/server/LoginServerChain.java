@@ -1,5 +1,6 @@
 package net.result.sandnode.chain.server;
 
+import net.result.sandnode.exceptions.DeserializationException;
 import net.result.sandnode.exceptions.ExpectedMessageException;
 import net.result.sandnode.messages.IMessage;
 import net.result.sandnode.messages.types.LoginRequest;
@@ -19,7 +20,7 @@ public class LoginServerChain extends ServerChain {
     }
 
     @Override
-    public void sync() throws InterruptedException, ExpectedMessageException {
+    public void sync() throws InterruptedException, ExpectedMessageException, DeserializationException {
         IMessage request = queue.take();
         TokenMessage msg = new LoginRequest(request);
         String token = msg.getToken();

@@ -20,7 +20,8 @@ public class RegistrationClientChain extends ClientChain {
     }
 
     @Override
-    public void sync() throws InterruptedException, ExpectedMessageException, BusyMemberIDException {
+    public void sync() throws InterruptedException, ExpectedMessageException, BusyMemberIDException,
+            DeserializationException {
         RegistrationRequest request = new RegistrationRequest(memberID, password);
         send(request);
 

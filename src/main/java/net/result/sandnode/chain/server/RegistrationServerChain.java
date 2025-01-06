@@ -6,7 +6,6 @@ import net.result.sandnode.exceptions.ExpectedMessageException;
 import net.result.sandnode.messages.IMessage;
 import net.result.sandnode.messages.types.RegistrationRequest;
 import net.result.sandnode.messages.types.RegistrationResponse;
-import net.result.sandnode.messages.util.Headers;
 import net.result.sandnode.server.Session;
 
 import static net.result.sandnode.server.ServerError.MEMBER_ID_BUSY;
@@ -24,7 +23,7 @@ public class RegistrationServerChain extends ServerChain {
         try {
             session.member = serverConfig.database().registerMember(regMsg.getMemberID(), regMsg.getPassword());
             String token = serverConfig.tokenizer().tokenizeMember(session.member);
-            sendFin(new RegistrationResponse(new Headers(), token));
+            sendFin(new RegistrationResponse(token));
         } catch (BusyMemberIDException e) {
             sendFin(MEMBER_ID_BUSY.message());
         }

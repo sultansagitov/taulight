@@ -1,5 +1,6 @@
 package net.result.sandnode.messages.types;
 
+import net.result.sandnode.exceptions.DeserializationException;
 import net.result.sandnode.exceptions.ExpectedMessageException;
 import net.result.sandnode.messages.IMessage;
 import net.result.sandnode.messages.util.Headers;
@@ -15,7 +16,7 @@ public class LoginRequest extends TokenMessage {
         this(new Headers(), token);
     }
 
-    public LoginRequest(IMessage request) throws ExpectedMessageException {
+    public LoginRequest(IMessage request) throws ExpectedMessageException, DeserializationException {
         super(request);
         ExpectedMessageException.check(request, LOGIN);
     }
