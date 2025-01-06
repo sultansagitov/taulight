@@ -4,6 +4,7 @@ import net.result.sandnode.chain.Chain;
 
 import net.result.sandnode.chain.server.ServerChain;
 import net.result.sandnode.exceptions.DeserializationException;
+import net.result.sandnode.exceptions.ExpectedMessageException;
 import net.result.sandnode.messages.IMessage;
 import net.result.sandnode.messages.util.MessageType;
 import net.result.sandnode.server.Session;
@@ -31,7 +32,7 @@ public class TauHubServerChain extends ServerChain {
     }
 
     @Override
-    public void sync() throws InterruptedException {
+    public void sync() throws InterruptedException, DeserializationException, ExpectedMessageException {
         while (io.isConnected()) {
             IMessage request = queue.take();
             MessageType type = request.getHeaders().getType();

@@ -2,6 +2,7 @@ package net.result.taulight.chain;
 
 import net.result.sandnode.chain.client.ClientChain;
 import net.result.sandnode.exceptions.DeserializationException;
+import net.result.sandnode.exceptions.ExpectedMessageException;
 import net.result.sandnode.messages.RawMessage;
 import net.result.sandnode.messages.types.RequestChainNameMessage;
 import net.result.sandnode.util.IOControl;
@@ -17,18 +18,25 @@ public class ForwardClientChain extends ClientChain {
     }
 
     @Override
-    public void sync() throws InterruptedException {
+    public void sync() throws InterruptedException, DeserializationException, ExpectedMessageException {
         send(new RequestChainNameMessage("fwd"));
 
-        while (io.isConnected()) {
-            RawMessage request = queue.take();
+        while (true) {
+            RawMessage request;
             try {
-                TimedForwardMessage forwardMessage = new TimedForwardMessage(request);
-                LOGGER.info("Forwarded message: {}", forwardMessage.data);
-            } catch (DeserializationException e) {
-                LOGGER.error("Deserialization error", e);
-                throw new RuntimeException(e);
+                request = queue.take();
+            } catch (InterruptedException e) {
+                LOGGER.info("{} cid={} ended by interrupting", getClass().getSimpleName(), getID());
+                break;
             }
+
+            if (request.getHeaders().isFin()) {
+                LOGGER.info("{} cid={} ended by FIN flag in received message", getClass().getSimpleName(), getID());
+                break;
+            }
+
+            TimedForwardMessage forwardMessage = new TimedForwardMessage(request);
+            LOGGER.info("Forwarded message: {}", forwardMessage.data);
         }
     }
 }

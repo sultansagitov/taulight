@@ -1,6 +1,7 @@
 package net.result.sandnode.messages;
 
 import net.result.sandnode.exceptions.DeserializationException;
+import net.result.sandnode.exceptions.ExpectedMessageException;
 import net.result.sandnode.messages.util.Headers;
 import net.result.taulight.messages.types.ForwardMessage;
 import org.junit.jupiter.api.Test;
@@ -10,7 +11,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class ForwardMessageTest {
 
     @Test
-    void testSerializationAndDeserialization() {
+    void testSerializationAndDeserialization() throws ExpectedMessageException, DeserializationException {
         // Arrange
         String expectedContent = "This is a test message.";
         Headers headers = new Headers();
@@ -18,13 +19,7 @@ class ForwardMessageTest {
 
         // Act
         RawMessage serializedData = new RawMessage(originalMessage.getHeaders(), originalMessage.getBody());
-        ForwardMessage deserializedMessage;
-        try {
-            deserializedMessage = new ForwardMessage(serializedData);
-        } catch (DeserializationException e) {
-            fail("Deserialization failed with exception: " + e.getMessage());
-            return;
-        }
+        ForwardMessage deserializedMessage = new ForwardMessage(serializedData);
 
         // Assert
         assertNotNull(deserializedMessage, "Deserialized message should not be null.");

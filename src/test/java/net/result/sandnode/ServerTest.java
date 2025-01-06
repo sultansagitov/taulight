@@ -1,7 +1,6 @@
 package net.result.sandnode;
 
 import net.result.main.chains.ConsoleClientChainManager;
-import net.result.sandnode.chain.Chain;
 import net.result.sandnode.client.SandnodeClient;
 import net.result.sandnode.config.*;
 import net.result.sandnode.encryption.AsymmetricEncryption;
@@ -130,7 +129,7 @@ public class ServerTest {
         assertEquals(sentMessage.getHeaders().getType(), receivedMessage.getHeaders().getType());
         assertEquals(sentMessage.getHeaders().getBodyEncryption(), receivedMessage.getHeaders().getBodyEncryption());
         assertEquals(sentMessage.getHeaders().getValue("keyName"), receivedMessage.getHeaders().getValue("keyName"));
-        assertEquals(sentMessage.getHeaders().getFin(), receivedMessage.getHeaders().getFin());
+        assertEquals(sentMessage.getHeaders().isFin(), receivedMessage.getHeaders().isFin());
         assertEquals(sentMessage.getHeaders().getChainID(), receivedMessage.getHeaders().getChainID());
 
         // Validate body

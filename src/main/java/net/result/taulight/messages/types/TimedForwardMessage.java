@@ -2,6 +2,7 @@ package net.result.taulight.messages.types;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import net.result.sandnode.exceptions.DeserializationException;
+import net.result.sandnode.exceptions.ExpectedMessageException;
 import net.result.sandnode.messages.RawMessage;
 import net.result.sandnode.messages.MSGPackMessage;
 
@@ -30,8 +31,9 @@ public class TimedForwardMessage extends MSGPackMessage<TimedForwardMessage.Time
         this.zdt = zdt;
     }
 
-    public TimedForwardMessage(RawMessage message) throws DeserializationException {
+    public TimedForwardMessage(RawMessage message) throws DeserializationException, ExpectedMessageException {
         super(message, TimedForwardData.class);
+        ExpectedMessageException.check(message, FWD);
         data = object.content;
         zdt = object.zonedDateTime;
     }

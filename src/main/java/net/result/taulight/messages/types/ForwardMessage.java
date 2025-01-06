@@ -2,6 +2,7 @@ package net.result.taulight.messages.types;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import net.result.sandnode.exceptions.DeserializationException;
+import net.result.sandnode.exceptions.ExpectedMessageException;
 import net.result.sandnode.messages.IMessage;
 import net.result.sandnode.messages.util.Headers;
 import net.result.sandnode.messages.MSGPackMessage;
@@ -30,8 +31,9 @@ public class ForwardMessage extends MSGPackMessage<ForwardMessage.ForwardData> {
         this(new Headers(), data);
     }
 
-    public ForwardMessage(IMessage request) throws DeserializationException {
+    public ForwardMessage(IMessage request) throws DeserializationException, ExpectedMessageException {
         super(request, ForwardData.class);
+        ExpectedMessageException.check(request, FWD);
         data = object.content;
     }
 }

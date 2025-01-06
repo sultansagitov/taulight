@@ -1,27 +1,29 @@
 package net.result.taulight.messages.types;
 
+import net.result.sandnode.exceptions.DeserializationException;
+import net.result.sandnode.exceptions.ExpectedMessageException;
 import net.result.sandnode.messages.IMessage;
-import net.result.sandnode.messages.JSONMessage;
+import net.result.sandnode.messages.MSGPackMessage;
 import net.result.sandnode.messages.util.Headers;
-import org.jetbrains.annotations.NotNull;
-import org.json.JSONObject;
+import net.result.taulight.messages.types.ForwardMessage.ForwardData;
 
 import static net.result.taulight.messages.TauMessageTypes.ECHO;
 
-public class EchoMessage extends JSONMessage {
+public class EchoMessage extends MSGPackMessage<ForwardData> {
     public final String data;
 
-    public EchoMessage(@NotNull Headers headers, @NotNull String data) {
-        super(headers.setType(ECHO), new JSONObject().put("content", data));
+    public EchoMessage(Headers headers, String data) {
+        super(headers.setType(ECHO), new ForwardData(data));
         this.data = data;
     }
 
-    public EchoMessage(@NotNull String data) {
+    public EchoMessage(String data) {
         this(new Headers(), data);
     }
 
-    public EchoMessage(IMessage request) {
-        super(request);
-        this.data = getContent().getString("content");
+    public EchoMessage(IMessage request) throws DeserializationException, ExpectedMessageException {
+        super(request, ForwardData.class);
+        ExpectedMessageException.check(request, ECHO);
+        data = object.content;
     }
 }

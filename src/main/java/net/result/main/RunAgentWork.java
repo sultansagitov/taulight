@@ -63,7 +63,7 @@ public class RunAgentWork implements IWork {
         client.close();
     }
 
-    private static void startConsoleChain(IOControl io) throws InterruptedException, ExpectedMessageException {
+    private static void startConsoleChain(IOControl io) throws InterruptedException, ExpectedMessageException, DeserializationException {
         ConsoleClientChain consoleChain = new ConsoleClientChain(io);
         io.chainManager.linkChain(consoleChain);
         consoleChain.sync();

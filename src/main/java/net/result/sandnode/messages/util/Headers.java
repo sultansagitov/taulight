@@ -29,7 +29,7 @@ public class Headers {
         return this;
     }
 
-    public boolean getFin() {
+    public boolean isFin() {
         return fin;
     }
 
@@ -133,7 +133,7 @@ public class Headers {
         byte first = (byte) new Random().nextInt(16);
         if (getConnection().getFrom() == HUB) first |= (byte) 0b10000000;
         if (getConnection().getTo() == HUB) first |= (byte) 0b01000000;
-        if (getFin()) first |= (byte) 0b00100000;
+        if (isFin()) first |= (byte) 0b00100000;
         byteArrayOutputStream.write(first);
         byteArrayOutputStream.write(getType().asByte());
         byteArrayOutputStream.write(getBodyEncryption().asByte());

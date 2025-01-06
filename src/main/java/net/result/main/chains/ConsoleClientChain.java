@@ -31,7 +31,7 @@ public class ConsoleClientChain extends ClientChain {
     }
 
     @Override
-    public void sync() throws InterruptedException, ExpectedMessageException {
+    public void sync() throws InterruptedException, ExpectedMessageException, DeserializationException {
         Scanner scanner = new Scanner(System.in);
         while (true) {
             System.out.print(" [] ");
