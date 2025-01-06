@@ -1,23 +1,36 @@
 package net.result.sandnode.messages.types;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import net.result.sandnode.exceptions.DeserializationException;
 import net.result.sandnode.exceptions.ExpectedMessageException;
 import net.result.sandnode.messages.IMessage;
-import net.result.sandnode.messages.JSONMessage;
+import net.result.sandnode.messages.MSGPackMessage;
 import net.result.sandnode.messages.util.Headers;
 import org.jetbrains.annotations.NotNull;
 
 import static net.result.sandnode.messages.util.MessageTypes.REG;
 
-public class RegistrationRequest extends JSONMessage {
-    public RegistrationRequest(@NotNull IMessage message) throws ExpectedMessageException {
-        super(message);
+public class RegistrationRequest extends MSGPackMessage<RegistrationRequest.MemberData> {
+    public static class MemberData {
+        @JsonProperty
+        public String memberID;
+        @JsonProperty
+        public String password;
+
+        public MemberData() {}
+        public MemberData(@NotNull String memberID, @NotNull String password) {
+            this.memberID = memberID;
+            this.password = password;
+        }
+    }
+
+    public RegistrationRequest(@NotNull IMessage message) throws ExpectedMessageException, DeserializationException {
+        super(message, MemberData.class);
         ExpectedMessageException.check(message, REG);
     }
 
     public RegistrationRequest(@NotNull Headers headers, @NotNull String memberID, @NotNull String password) {
-        super(headers.setType(REG));
-        setMemberID(memberID);
-        setPassword(password);
+        super(headers.setType(REG), new MemberData(memberID, password));
     }
 
     public RegistrationRequest(@NotNull String memberID, @NotNull String password) {
@@ -25,18 +38,9 @@ public class RegistrationRequest extends JSONMessage {
     }
 
     public String getMemberID() {
-        return getContent().getString("member-id");
+        return object.memberID;
     }
-
     public String getPassword() {
-        return getContent().getString("password");
-    }
-
-    public void setMemberID(@NotNull String memberID) {
-        getContent().put("member-id", memberID);
-    }
-
-    public void setPassword(@NotNull String password) {
-        getContent().put("password", password);
+        return object.password;
     }
 }

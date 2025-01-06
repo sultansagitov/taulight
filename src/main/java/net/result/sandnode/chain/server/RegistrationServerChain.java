@@ -2,6 +2,7 @@ package net.result.sandnode.chain.server;
 
 import net.result.sandnode.config.IServerConfig;
 import net.result.sandnode.exceptions.BusyMemberIDException;
+import net.result.sandnode.exceptions.DeserializationException;
 import net.result.sandnode.exceptions.ExpectedMessageException;
 import net.result.sandnode.messages.IMessage;
 import net.result.sandnode.messages.types.RegistrationRequest;
@@ -16,7 +17,7 @@ public class RegistrationServerChain extends ServerChain {
     }
 
     @Override
-    public void sync() throws InterruptedException, ExpectedMessageException {
+    public void sync() throws InterruptedException, ExpectedMessageException, DeserializationException {
         IMessage request = queue.take();
         RegistrationRequest regMsg = new RegistrationRequest(request);
         IServerConfig serverConfig = session.server.serverConfig;
