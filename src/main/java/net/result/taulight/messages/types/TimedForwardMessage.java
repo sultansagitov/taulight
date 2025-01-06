@@ -22,19 +22,20 @@ public class TimedForwardMessage extends MSGPackMessage<TimedForwardMessage.Time
         }
     }
 
-    public final String data;
-    public final ZonedDateTime zdt;
-
     public TimedForwardMessage(ForwardMessage forwardMessage, ZonedDateTime zdt) {
-        super(forwardMessage.getHeaders().setType(FWD), new TimedForwardData(forwardMessage.data, zdt));
-        this.data = forwardMessage.data;
-        this.zdt = zdt;
+        super(forwardMessage.getHeaders().setType(FWD), new TimedForwardData(forwardMessage.getData(), zdt));
     }
 
     public TimedForwardMessage(RawMessage message) throws DeserializationException, ExpectedMessageException {
         super(message, TimedForwardData.class);
         ExpectedMessageException.check(message, FWD);
-        data = object.content;
-        zdt = object.zonedDateTime;
+    }
+
+    public String getData() {
+        return object.content;
+    }
+
+    public ZonedDateTime getZonedDateTime() {
+        return object.zonedDateTime;
     }
 }

@@ -10,11 +10,8 @@ import net.result.taulight.messages.types.ForwardMessage.ForwardData;
 import static net.result.taulight.messages.TauMessageTypes.ECHO;
 
 public class EchoMessage extends MSGPackMessage<ForwardData> {
-    public final String data;
-
     public EchoMessage(Headers headers, String data) {
         super(headers.setType(ECHO), new ForwardData(data));
-        this.data = data;
     }
 
     public EchoMessage(String data) {
@@ -24,6 +21,9 @@ public class EchoMessage extends MSGPackMessage<ForwardData> {
     public EchoMessage(IMessage request) throws DeserializationException, ExpectedMessageException {
         super(request, ForwardData.class);
         ExpectedMessageException.check(request, ECHO);
-        data = object.content;
+    }
+
+    public String getData() {
+        return object.content;
     }
 }

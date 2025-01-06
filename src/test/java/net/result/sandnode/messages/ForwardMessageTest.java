@@ -23,6 +23,6 @@ class ForwardMessageTest {
 
         // Assert
         assertNotNull(deserializedMessage, "Deserialized message should not be null.");
-        assertEquals(expectedContent, deserializedMessage.data, "The content of the deserialized message should match the original.");
+        assertEquals(expectedContent, deserializedMessage.getData(), "The content of the deserialized message should match the original.");
     }
 }

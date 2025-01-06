@@ -36,7 +36,7 @@ public class ForwardClientChain extends ClientChain {
             }
 
             TimedForwardMessage forwardMessage = new TimedForwardMessage(request);
-            LOGGER.info("Forwarded message: {}", forwardMessage.data);
+            LOGGER.info("Forwarded message: {}", forwardMessage.getData());
         }
     }
 }

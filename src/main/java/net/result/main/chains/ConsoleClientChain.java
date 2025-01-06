@@ -82,7 +82,7 @@ public class ConsoleClientChain extends ClientChain {
                 if (response.getHeaders().getType() == EXIT) break;
                 MessageType type = response.getHeaders().getType();
                 if (type instanceof TauMessageTypes) {
-                    LOGGER.info("From server: {}", new EchoMessage(response).data);
+                    LOGGER.info("From server: {}", new EchoMessage(response).getData());
                 }
             }
         }

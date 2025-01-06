@@ -13,18 +13,15 @@ public class ForwardMessage extends MSGPackMessage<ForwardMessage.ForwardData> {
     public static class ForwardData {
         @JsonProperty
         public String content;
-
         public ForwardData() {}
+
         public ForwardData(String data) {
             content = data;
         }
     }
 
-    public final String data;
-
     public ForwardMessage(Headers headers, String data) {
         super(headers.setType(FWD), new ForwardData(data));
-        this.data = data;
     }
 
     public ForwardMessage(String data) {
@@ -34,6 +31,9 @@ public class ForwardMessage extends MSGPackMessage<ForwardMessage.ForwardData> {
     public ForwardMessage(IMessage request) throws DeserializationException, ExpectedMessageException {
         super(request, ForwardData.class);
         ExpectedMessageException.check(request, FWD);
-        data = object.content;
+    }
+
+    public String getData() {
+        return object.content;
     }
 }

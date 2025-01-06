@@ -13,7 +13,7 @@ import static net.result.sandnode.messages.util.MessageTypes.LOGIN;
 public class LoginResponse extends MSGPackMessage<LoginResponse.LoginData> {
     public static class LoginData {
         @JsonProperty
-        String memberID;
+        public String memberID;
 
         public LoginData() {}
         public LoginData(String memberID) {
@@ -21,11 +21,8 @@ public class LoginResponse extends MSGPackMessage<LoginResponse.LoginData> {
         }
     }
 
-    private final String memberID;
-
     public LoginResponse(@NotNull Headers headers, @NotNull IMember member) {
         super(headers.setType(LOGIN), new LoginData(member.getID()));
-        memberID = object.memberID;
     }
 
     public LoginResponse(IMember member) {
@@ -34,10 +31,9 @@ public class LoginResponse extends MSGPackMessage<LoginResponse.LoginData> {
 
     public LoginResponse(IMessage message) throws DeserializationException {
         super(message, LoginData.class);
-        memberID = object.memberID;
     }
 
     public String getMemberID() {
-        return memberID;
+        return object.memberID;
     }
 }

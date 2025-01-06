@@ -10,7 +10,7 @@ import org.jetbrains.annotations.NotNull;
 public class TokenMessage extends MSGPackMessage<TokenMessage.TokenData> {
     public static class TokenData {
         @JsonProperty
-        private String token;
+        public String token;
 
         public TokenData() {}
         public TokenData(String token) {

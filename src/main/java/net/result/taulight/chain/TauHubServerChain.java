@@ -41,7 +41,7 @@ public class TauHubServerChain extends ServerChain {
                 switch (tau) {
                     case ECHO -> {
                         EchoMessage textMessage = new EchoMessage(request);
-                        LOGGER.info("Data: {}", textMessage.data);
+                        LOGGER.info("Data: {}", textMessage.getData());
                         send(textMessage);
                     }
                     case FWD -> {
@@ -53,7 +53,7 @@ public class TauHubServerChain extends ServerChain {
                             throw new RuntimeException(e);
                         }
                         ZonedDateTime ztd = ZonedDateTime.now(ZoneId.of("UTC"));
-                        LOGGER.info("Forwarding message: {}", forwardMessage.data);
+                        LOGGER.info("Forwarding message: {}", forwardMessage.getData());
 
                         for (Session s : groupManager.getGroup("chat").getSessions()) {
                             Optional<Chain> opt = s.io.chainManager.getChain("fwd");
