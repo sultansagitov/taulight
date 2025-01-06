@@ -105,7 +105,7 @@ public class RunAgentWork implements IWork {
     }
 
     private void handleAuthentication(IOControl io, Scanner scanner) throws InterruptedException,
-            ExpectedMessageException, MemberNotFoundException, BusyMemberIDException {
+            ExpectedMessageException, MemberNotFoundException, BusyMemberIDException, DeserializationException {
         System.out.print("[r for register, other for login]: ");
         String s = scanner.nextLine();
         char choice = s.isEmpty() ? 'r' : s.charAt(0);

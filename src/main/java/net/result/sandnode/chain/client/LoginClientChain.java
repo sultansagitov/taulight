@@ -20,7 +20,7 @@ public class LoginClientChain extends ClientChain {
     }
 
     @Override
-    public void sync() throws InterruptedException, MemberNotFoundException {
+    public void sync() throws InterruptedException, MemberNotFoundException, DeserializationException {
         LoginRequest loginRequest = new LoginRequest(token);
         send(loginRequest);
 
