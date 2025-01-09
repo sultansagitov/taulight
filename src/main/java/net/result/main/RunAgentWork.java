@@ -44,13 +44,10 @@ public class RunAgentWork implements IWork {
                 clientConfig
         );
 
-        client.start(ConsoleClientChainManager::new);
-
-        getPublicKey(client, agent, link);
-
-        ClientProtocol.sendSYM(client);
-
-        handleAuthentication(client.io, scanner);
+        client.start(ConsoleClientChainManager::new);   // Stating client
+        getPublicKey(client, agent, link);              // get key from fs or sending PUB if key not found
+        ClientProtocol.sendSYM(client);                 // sending symmetric key
+        handleAuthentication(client.io, scanner);       // registration or login
 
         ExecutorService executorService = Executors.newCachedThreadPool();
 
@@ -105,18 +102,30 @@ public class RunAgentWork implements IWork {
     }
 
     private void handleAuthentication(IOControl io, Scanner scanner) throws InterruptedException,
-            ExpectedMessageException, BusyMemberIDException, DeserializationException {
+            ExpectedMessageException, DeserializationException {
         System.out.print("[r for register, other for login]: ");
         String s = scanner.nextLine();
         char choice = s.isEmpty() ? 'r' : s.charAt(0);
 
         switch (choice) {
             case 'r' -> {
-                System.out.print("Member ID: "); String memberID = scanner.nextLine();
-                System.out.print("Password: ");  String password = scanner.nextLine();
+                boolean isRegistered = false;
+                while (!isRegistered) {
+                    System.out.print("Member ID: ");
+                    String memberID = scanner.nextLine();
+                    System.out.print("Password: ");
+                    String password = scanner.nextLine();
 
-                String token = AgentProtocol.getTokenFromRegistration(io, memberID, password);
-                LOGGER.info("Token for \"{}\":\n{}", memberID, token);
+                    try {
+                        String token = AgentProtocol.getTokenFromRegistration(io, memberID, password);
+                        System.out.printf("Token for \"%s\":\n%s%n", memberID, token);
+                        isRegistered = true;
+                    } catch (BusyMemberIDException e) {
+                        System.out.println("Member ID is busy");
+                    } catch (InvalidMemberIDPassword e) {
+                        System.out.println("Invalid Member ID or password");
+                    }
+                }
             }
             case 'l' -> {
                 boolean isLoggedIn = false;

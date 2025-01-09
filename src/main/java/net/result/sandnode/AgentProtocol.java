@@ -12,7 +12,8 @@ public class AgentProtocol {
             @NotNull IOControl io,
             @NotNull String memberID,
             @NotNull String password
-    ) throws ExpectedMessageException, InterruptedException, BusyMemberIDException, DeserializationException {
+    ) throws ExpectedMessageException, InterruptedException, BusyMemberIDException, DeserializationException,
+            InvalidMemberIDPassword {
         RegistrationClientChain regChain = new RegistrationClientChain(io, memberID, password);
         io.chainManager.linkChain(regChain);
         regChain.sync();

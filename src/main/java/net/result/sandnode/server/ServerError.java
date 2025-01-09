@@ -14,6 +14,7 @@ public enum ServerError {
     UNKNOWN_ENCRYPTION(2014, "Unknown Encryption"),
     INVALID_TOKEN(2080, "Invalid Token"),
     MEMBER_NOT_FOUND(2015, "Member not found"),
+    INVALID_MEMBER_ID_OR_PASSWORD(2555, "Invalid Member ID or password"),
 
     ENCRYPT(2100, "Encrypt"),
     DECRYPT(2150, "Decrypt"),
