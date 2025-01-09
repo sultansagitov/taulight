@@ -44,7 +44,7 @@ public class RunAgentWork implements IWork {
                 clientConfig
         );
 
-        client.start(ConsoleClientChainManager::new);   // Stating client
+        client.start(ConsoleClientChainManager::new);   // Starting client
         getPublicKey(client, agent, link);              // get key from fs or sending PUB if key not found
         ClientProtocol.sendSYM(client);                 // sending symmetric key
         handleAuthentication(client.io, scanner);       // registration or login
