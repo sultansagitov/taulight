@@ -105,7 +105,7 @@ public class RunAgentWork implements IWork {
     }
 
     private void handleAuthentication(IOControl io, Scanner scanner) throws InterruptedException,
-            ExpectedMessageException, MemberNotFoundException, BusyMemberIDException, DeserializationException {
+            ExpectedMessageException, BusyMemberIDException, DeserializationException {
         System.out.print("[r for register, other for login]: ");
         String s = scanner.nextLine();
         char choice = s.isEmpty() ? 'r' : s.charAt(0);
@@ -119,12 +119,24 @@ public class RunAgentWork implements IWork {
                 LOGGER.info("Token for \"{}\":\n{}", memberID, token);
             }
             case 'l' -> {
-                System.out.print("Token: ");
-                String token = scanner.nextLine();
+                boolean isLoggedIn = false;
 
-                ClientMember member = AgentProtocol.getMemberFromToken(io, token);
+                while (!isLoggedIn) {
+                    System.out.print("Token: ");
+                    String token = scanner.nextLine();
 
-                System.out.printf("You log in as %s%n", member.memberID());
+                    if (token.isEmpty()) continue;
+
+                    try {
+                        ClientMember member = AgentProtocol.getMemberFromToken(io, token);
+                        System.out.printf("You log in as %s%n", member.memberID());
+                        isLoggedIn = true;
+                    } catch (InvalidTokenException e) {
+                        System.out.println("Invalid token. Please try again.");
+                    } catch (MemberNotFoundException e) {
+                        System.out.println("Member not found. Please try again.");
+                    }
+                }
             }
             default -> throw new RuntimeException(String.valueOf(choice));
         }

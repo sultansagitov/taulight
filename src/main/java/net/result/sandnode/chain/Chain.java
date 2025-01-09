@@ -26,7 +26,7 @@ public abstract class Chain implements Searchable<Chain, Short> {
 
     public abstract void sync() throws InterruptedException, EncryptionTypeException, NoSuchEncryptionException,
             CreatingKeyException, ExpectedMessageException, BusyMemberIDException, KeyNotCreatedException,
-            DataNotEncryptedException, MemberNotFoundException, DeserializationException;
+            DataNotEncryptedException, MemberNotFoundException, DeserializationException, InvalidTokenException;
 
     public void put(RawMessage message) throws InterruptedException {
         queue.put(message);

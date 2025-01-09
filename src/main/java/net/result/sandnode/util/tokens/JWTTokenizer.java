@@ -4,6 +4,7 @@ import com.auth0.jwt.JWT;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.auth0.jwt.interfaces.JWTVerifier;
+import net.result.sandnode.exceptions.InvalidTokenException;
 import net.result.sandnode.util.db.IDatabase;
 import net.result.sandnode.util.db.IMember;
 import org.apache.logging.log4j.LogManager;
@@ -35,14 +36,14 @@ public class JWTTokenizer implements ITokenizer {
     }
 
     @Override
-    public Optional<IMember> findMember(@NotNull IDatabase database, @NotNull String token) {
+    public Optional<IMember> findMember(@NotNull IDatabase database, @NotNull String token) throws InvalidTokenException {
         try {
             DecodedJWT decodedJWT = VERIFIER.verify(token);
             String memberId = decodedJWT.getSubject();
             return database.findMemberByMemberID(memberId);
         } catch (JWTVerificationException e) {
             LOGGER.debug("Invalid token", e);
-            return Optional.empty();
+            throw new InvalidTokenException(e);
         }
     }
 }

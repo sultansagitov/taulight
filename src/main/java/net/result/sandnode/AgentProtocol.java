@@ -21,7 +21,7 @@ public class AgentProtocol {
     }
 
     public static ClientMember getMemberFromToken(IOControl io, String token) throws InterruptedException,
-            MemberNotFoundException, DeserializationException {
+            MemberNotFoundException, DeserializationException, InvalidTokenException {
         LoginClientChain loginClientChain = new LoginClientChain(io, token);
         io.chainManager.linkChain(loginClientChain);
         loginClientChain.sync();

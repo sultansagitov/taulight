@@ -20,7 +20,8 @@ public class LoginClientChain extends ClientChain {
     }
 
     @Override
-    public void sync() throws InterruptedException, MemberNotFoundException, DeserializationException {
+    public void sync() throws InterruptedException, MemberNotFoundException, DeserializationException,
+            InvalidTokenException {
         LoginRequest loginRequest = new LoginRequest(token);
         send(loginRequest);
 
@@ -28,8 +29,9 @@ public class LoginClientChain extends ClientChain {
 
         if (message.getHeaders().getType() == ERR) {
             ErrorMessage errorMessage = new ErrorMessage(message);
-            if (errorMessage.error == MEMBER_NOT_FOUND) {
-                throw new MemberNotFoundException();
+            switch (errorMessage.error) {
+                case INVALID_TOKEN -> throw new InvalidTokenException();
+                case MEMBER_NOT_FOUND -> throw new MemberNotFoundException();
             }
         }
 
