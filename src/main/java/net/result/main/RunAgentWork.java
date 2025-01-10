@@ -31,18 +31,21 @@ public class RunAgentWork implements IWork {
     public void run() throws InterruptedException, SandnodeException {
         Scanner scanner = new Scanner(System.in);
 
-        System.out.print("Enter link: ");
-        SandnodeLinkRecord link = Links.parse(scanner.nextLine());
+        SandnodeLinkRecord link;
+        while (true) {
+            try {
+                System.out.print("Enter link: ");
+                link = Links.parse(scanner.nextLine());
+                break;
+            } catch (InvalidSandnodeLinkException | CreatingKeyException e) {
+                System.out.println("Invalid link");
+            }
+        }
 
         Endpoint endpoint = link.endpoint();
         TauAgent agent = new TauAgent();
         ClientPropertiesConfig clientConfig = new ClientPropertiesConfig();
-        SandnodeClient client = new SandnodeClient(
-                endpoint,
-                agent,
-                HUB,
-                clientConfig
-        );
+        SandnodeClient client = new SandnodeClient(endpoint, agent, HUB, clientConfig);
 
         client.start(ConsoleClientChainManager::new);   // Starting client
         getPublicKey(client, agent, link);              // get key from fs or sending PUB if key not found
@@ -73,39 +76,58 @@ public class RunAgentWork implements IWork {
         fwd.async(executorService);
     }
 
-    private static void getPublicKey(SandnodeClient client, TauAgent agent, SandnodeLinkRecord link) throws FSException,
-            KeyAlreadySaved, LinkDoesNotMatchException, InterruptedException, EncryptionTypeException,
-            NoSuchEncryptionException, CreatingKeyException, ExpectedMessageException, KeyStorageNotFoundException, DeserializationException {
+    private static void getPublicKey(
+            SandnodeClient client,
+            TauAgent agent,
+            SandnodeLinkRecord link
+    ) throws FSException, KeyAlreadySaved, LinkDoesNotMatchException, InterruptedException, EncryptionTypeException,
+            NoSuchEncryptionException, CreatingKeyException, ExpectedMessageException, KeyStorageNotFoundException,
+            DeserializationException {
+
         Optional<IAsymmetricKeyStorage> filePublicKey = client.clientConfig.getPublicKey(link.endpoint());
-        if (link.keyStorage() != null) {
-            IAsymmetricKeyStorage linkKey = link.keyStorage();
+        IAsymmetricKeyStorage linkKeyStorage = link.keyStorage();
 
-            if (filePublicKey.isEmpty()) {
-                client.clientConfig.saveKey(link.endpoint(), linkKey);
-                client.io.setServerKey(linkKey);
-            } else if (EncryptionUtil.isPublicKeysEquals(filePublicKey.get(), linkKey)) {
+        if (linkKeyStorage != null) {
+            if (filePublicKey.isPresent()) {
+                IAsymmetricKeyStorage fileKey = filePublicKey.get();
+
+                if (!EncryptionUtil.isPublicKeysEquals(fileKey, linkKeyStorage))
+                    throw new LinkDoesNotMatchException("Key mismatch with saved configuration");
+
                 LOGGER.info("Key already saved and matches");
-                client.io.setServerKey(filePublicKey.get());
-            } else {
-                throw new LinkDoesNotMatchException("Key mismatch with saved configuration");
+                client.io.setServerKey(fileKey);
+                return;
             }
-        } else if (filePublicKey.isPresent()) {
-            client.io.setServerKey(filePublicKey.get());
-        } else {
-            ClientProtocol.PUB(client.io);
-            IAsymmetricEncryption encryption = client.io.getServerEncryption().asymmetric();
-            IAsymmetricKeyStorage serverKey = agent.globalKeyStorage.getAsymmetricNonNull(encryption);
 
-            client.clientConfig.saveKey(link.endpoint(), serverKey);
-            client.io.setServerKey(serverKey);
+            client.clientConfig.saveKey(link.endpoint(), linkKeyStorage);
+            client.io.setServerKey(linkKeyStorage);
+            return;
         }
+
+        if (filePublicKey.isPresent()) {
+            client.io.setServerKey(filePublicKey.get());
+            return;
+        }
+
+        ClientProtocol.PUB(client.io);
+        IAsymmetricEncryption encryption = client.io.getServerEncryption().asymmetric();
+        IAsymmetricKeyStorage serverKey = agent.globalKeyStorage.getAsymmetricNonNull(encryption);
+
+        client.clientConfig.saveKey(link.endpoint(), serverKey);
+        client.io.setServerKey(serverKey);
     }
 
     private void handleAuthentication(IOControl io, Scanner scanner) throws InterruptedException,
             ExpectedMessageException, DeserializationException {
-        System.out.print("[r for register, other for login]: ");
-        String s = scanner.nextLine();
-        char choice = s.isEmpty() ? 'r' : s.charAt(0);
+
+        String s;
+        do {
+            System.out.print("[r for register, other for login]: ");
+            s = scanner.nextLine();
+        }
+        while (s.isEmpty() || (s.charAt(0) != 'r' && s.charAt(0) != 'l'));
+
+        char choice = s.charAt(0);
 
         switch (choice) {
             case 'r' -> {
