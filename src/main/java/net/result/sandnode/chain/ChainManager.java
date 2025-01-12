@@ -27,4 +27,6 @@ public interface ChainManager {
     Map<String, Chain> getChainsMap();
 
     Optional<Chain> getChain(String contextName);
+
+    void setName(Chain chain, String chainName);
 }

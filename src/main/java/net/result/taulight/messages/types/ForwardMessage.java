@@ -20,17 +20,17 @@ public class ForwardMessage extends MSGPackMessage<ForwardMessage.ForwardData> {
         }
     }
 
+    public ForwardMessage(IMessage request) throws DeserializationException, ExpectedMessageException {
+        super(request, ForwardData.class);
+        ExpectedMessageException.check(request, FWD);
+    }
+
     public ForwardMessage(Headers headers, String data) {
         super(headers.setType(FWD), new ForwardData(data));
     }
 
     public ForwardMessage(String data) {
         this(new Headers(), data);
-    }
-
-    public ForwardMessage(IMessage request) throws DeserializationException, ExpectedMessageException {
-        super(request, ForwardData.class);
-        ExpectedMessageException.check(request, FWD);
     }
 
     public String getData() {

@@ -5,6 +5,7 @@ import net.result.sandnode.exceptions.BSTBusyPosition;
 import net.result.sandnode.exceptions.ImpossibleRuntimeException;
 import net.result.sandnode.messages.RawMessage;
 import net.result.sandnode.bst.BinarySearchTree;
+import net.result.sandnode.messages.util.Headers;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -62,7 +63,8 @@ public abstract class BSTChainManager implements ChainManager {
 
     @Override
     public void distributeMessage(RawMessage message) throws InterruptedException {
-        Chain chain = getByID(message.getHeaders().getChainID()).orElseGet(() -> {
+        Headers headers = message.getHeaders();
+        Chain chain = getByID(headers.getChainID()).orElseGet(() -> {
                     try {
                         Chain aNew = createNew(message);
                         if (aNew.isChainStartAllowed()) aNew.async(executorService);
@@ -72,12 +74,8 @@ public abstract class BSTChainManager implements ChainManager {
                     }
                 });
 
-        if (message.getHeaders().getType() == CHAIN_NAME) {
-            Optional<String> opt = message.getHeaders().getOptionalValue("chain-name");
-            if (opt.isPresent()) {
-                String contextName = opt.get();
-                chainMap.put(contextName, chain);
-            }
+        if (headers.getType() == CHAIN_NAME) {
+            headers.getOptionalValue("chain-name").ifPresent(s -> setName(chain, s));
         } else {
             chain.put(message);
         }
@@ -101,6 +99,11 @@ public abstract class BSTChainManager implements ChainManager {
     @Override
     public void interruptAll() {
         executorService.shutdownNow();
+    }
+
+    @Override
+    public void setName(Chain chain, String chainName) {
+        chainMap.put(chainName, chain);
     }
 
     @Override

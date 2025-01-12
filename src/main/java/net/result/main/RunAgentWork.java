@@ -10,11 +10,13 @@ import net.result.sandnode.encryption.interfaces.*;
 import net.result.sandnode.exceptions.*;
 import net.result.sandnode.link.Links;
 import net.result.sandnode.link.SandnodeLinkRecord;
+import net.result.sandnode.messages.types.RequestChainNameMessage;
 import net.result.sandnode.util.EncryptionUtil;
 import net.result.sandnode.util.Endpoint;
 import net.result.sandnode.util.IOControl;
 import net.result.taulight.TauAgent;
 import net.result.taulight.chain.client.ForwardClientChain;
+import net.result.taulight.chain.client.TaulightClientChain;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -56,11 +58,20 @@ public class RunAgentWork implements IWork {
 
         startForwardChain(executorService, client.io);
 
+        startTaulightChain(client.io);
+
         startConsoleChain(client.io);
 
         LOGGER.info("Exiting...");
         executorService.shutdownNow();
         client.close();
+    }
+
+    private static void startTaulightChain(IOControl io) throws InterruptedException {
+        TaulightClientChain taulightChain = new TaulightClientChain(io);
+        io.chainManager.linkChain(taulightChain);
+        io.chainManager.setName(taulightChain, "tau");
+        taulightChain.send(new RequestChainNameMessage("tau"));
     }
 
     private static void startConsoleChain(IOControl io) throws InterruptedException, ExpectedMessageException, DeserializationException {

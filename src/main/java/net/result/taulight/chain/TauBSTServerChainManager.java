@@ -14,6 +14,9 @@ import org.apache.logging.log4j.Logger;
 
 import java.util.Optional;
 
+import static net.result.taulight.messages.TauMessageTypes.FWD;
+import static net.result.taulight.messages.TauMessageTypes.TAULIGHT;
+
 public class TauBSTServerChainManager extends BSTServerChainManager {
 
     private static final Logger LOGGER = LogManager.getLogger(TauBSTServerChainManager.class);
@@ -26,25 +29,12 @@ public class TauBSTServerChainManager extends BSTServerChainManager {
 
     @Override
     public ServerChain defaultChain(RawMessage message) {
-        Headers headers = message.getHeaders();
-        Optional<String> opt = headers.getOptionalValue("chain-name");
-
-        LOGGER.debug(headers.getType());
-
-        if (opt.isPresent()) {
-            String s = opt.get();
-            if (s.equals("fwd")) {
-                LOGGER.error(headers.getType());
-                return new ForwardServerChain(session);
-            }
+        if (message.getHeaders().getType() == FWD) {
+            return new ForwardServerChain(session);
         }
 
-        if (headers.getType() instanceof TauMessageTypes tau) {
-            switch (tau) {
-                case TAULIGHT -> {
-                    return new TaulightServerChain(session, chatManager);
-                }
-            }
+        if (message.getHeaders().getType() == TAULIGHT) {
+            return new TaulightServerChain(session, chatManager);
         }
 
         return new TauHubServerChain(session);

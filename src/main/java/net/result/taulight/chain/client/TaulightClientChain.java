@@ -51,7 +51,7 @@ public class TaulightClientChain extends ClientChain {
     }
 
     @Deprecated(forRemoval = true)
-    public void addToGroup(String[] groups) throws InterruptedException, DeserializationException {
+    public void addToGroup(String group) throws InterruptedException, DeserializationException {
         send(new TaulightRequestMessage(DataType.ADD));
         RawMessage raw = queue.take();
 

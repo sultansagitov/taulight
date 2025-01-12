@@ -41,6 +41,7 @@ public class ConsoleClientChain extends ClientChain {
     @Override
     public void sync() throws InterruptedException, ExpectedMessageException, DeserializationException {
         Scanner scanner = new Scanner(System.in);
+
         while (true) {
             System.out.print(" [] ");
             String input = scanner.nextLine();
@@ -78,27 +79,18 @@ public class ConsoleClientChain extends ClientChain {
                         .collect(Collectors.toSet());
                 Set<String> groups = ClientProtocol.GROUP(io, inputString);
                 LOGGER.info("Your groups now: {}", groups);
+
             } else if (input.equalsIgnoreCase("tauChatGet")) {
-                TaulightClientChain chain = new TaulightClientChain(io);
-                io.chainManager.linkChain(chain);
-                Optional<Set<String>> opt = chain.getChats();
-                io.chainManager.removeChain(chain);
+                Optional<Set<String>> opt = ((TaulightClientChain) io.chainManager.getChain("tau").get()).getChats();
                 opt.ifPresent(LOGGER::info);
 
             } else if (input.startsWith("tauChatAdd ")) {
-                String substring = input.substring(input.indexOf(" ") + 1);
-
-                TaulightClientChain chain = new TaulightClientChain(io);
-                io.chainManager.linkChain(chain);
-                chain.addToGroup(substring.split(" "));
-                io.chainManager.removeChain(chain);
+                String s = input.substring(input.indexOf(" ") + 1).split(" ")[0];
+                ((TaulightClientChain) io.chainManager.getChain("tau").get()).addToGroup(s);
 
             } else if (input.startsWith("forward ")) {
                 String substring = input.substring(input.indexOf(" ") + 1);
-                TaulightClientChain chain = new TaulightClientChain(io);
-                io.chainManager.linkChain(chain);
-                chain.write("first", substring);
-                io.chainManager.removeChain(chain);
+                ((TaulightClientChain) io.chainManager.getChain("tau").get()).write("first", substring);
 
             } else {
                 send(new EchoMessage(input));
