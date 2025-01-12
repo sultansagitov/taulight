@@ -15,7 +15,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 public abstract class Chain implements Searchable<Chain, Short> {
     private static final Logger LOGGER = LogManager.getLogger(Chain.class);
 
-    protected final BlockingQueue<RawMessage> queue;
+    public final BlockingQueue<RawMessage> queue;
     protected final IOControl io;
     private short id = -1;
 

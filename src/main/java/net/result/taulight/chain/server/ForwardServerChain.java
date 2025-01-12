@@ -1,4 +1,4 @@
-package net.result.taulight.chain;
+package net.result.taulight.chain.server;
 
 import net.result.sandnode.chain.server.ServerChain;
 import net.result.sandnode.exceptions.*;

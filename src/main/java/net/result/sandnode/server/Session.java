@@ -36,11 +36,12 @@ public class Session {
 
         new Thread(() -> {
             try {
-                this.io.sendingLoop();
+                io.sendingLoop();
             } catch (InterruptedException | SandnodeException e) {
                 if (io.isConnected()) {
                     LOGGER.error("Error sending message", e);
                 }
+
                 Thread.currentThread().interrupt();
             }
         }, "%s/Sending".formatted(IOControl.getIP(socket))).start();

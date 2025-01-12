@@ -9,9 +9,12 @@ import net.result.sandnode.messages.EncryptedMessage;
 import net.result.sandnode.messages.IMessage;
 import net.result.sandnode.messages.Message;
 import net.result.sandnode.messages.RawMessage;
+import net.result.sandnode.messages.types.ErrorMessage;
 import net.result.sandnode.messages.types.ExitMessage;
 import net.result.sandnode.messages.util.Connection;
 import net.result.sandnode.chain.ChainManager;
+import net.result.sandnode.messages.util.Headers;
+import net.result.sandnode.server.ServerError;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
@@ -29,6 +32,7 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import static net.result.sandnode.encryption.Encryption.NONE;
+import static net.result.sandnode.server.ServerError.*;
 
 public class IOControl {
     private static final Logger LOGGER = LogManager.getLogger(IOControl.class);
@@ -91,28 +95,52 @@ public class IOControl {
         message.getHeaders().setValue("random", sb);
     }
 
-    public void sendingLoop() throws InterruptedException, EncryptionException, KeyStorageNotFoundException,
-            MessageSerializationException, IllegalMessageLengthException, WrongKeyException, MessageWriteException,
-            UnexpectedSocketDisconnectException {
-        while (true) {
+    public void sendingLoop() throws InterruptedException, IllegalMessageLengthException, MessageSerializationException,
+            EncryptionException, KeyStorageNotFoundException, WrongKeyException, MessageWriteException {
+        while (connected) {
             IMessage message = sendingQueue.take();
-            if (connected) {
-                beforeSending(message);
+            beforeSending(message);
 
-                byte[] byteArray = message.toByteArray(globalKeyStorage);
-                synchronized (out) {
-                    try {
-                        out.write(byteArray);
-                        out.flush();
-                    } catch (IOException e) {
-                        throw new MessageWriteException(message, "Failed to write message to output.", e);
-                    }
-                }
-
-                LOGGER.info("Message sent: {}", message);
-            } else {
-                throw new UnexpectedSocketDisconnectException("unknown");
+            IMessage sended = null;
+            byte[] byteArray = null;
+            ServerError error = null;
+            ErrorMessage errorMessage;
+            try {
+                byteArray = message.toByteArray(globalKeyStorage);
+                sended = message;
+            } catch (MessageSerializationException | IllegalMessageLengthException e) {
+                LOGGER.error("Serialization or message length issue", e);
+                error = ServerError.SERVER_ERROR;
+            } catch (EncryptionException | WrongKeyException e) {
+                LOGGER.error("Encryption or key issue", e);
+                error = ServerError.ENCRYPT;
+            } catch (KeyStorageNotFoundException e) {
+                LOGGER.error("Key storage not found", e);
+                error = ServerError.KEY_NOT_FOUND;
             }
+
+
+            if (error != null) {
+                errorMessage = error.message();
+                Headers headers = errorMessage.getHeaders();
+                errorMessage
+                        .setHeadersEncryption(message.getHeadersEncryption());
+                headers
+                        .setBodyEncryption(message.getHeaders().getBodyEncryption())
+                        .setChainID(message.getHeaders().getChainID())
+                        .setConnection(message.getHeaders().getConnection());
+                byteArray = errorMessage.toByteArray(globalKeyStorage);
+                sended = errorMessage;
+            }
+
+            try {
+                out.write(byteArray);
+                out.flush();
+            } catch (IOException e) {
+                throw new MessageWriteException(message, "Failed to write message to output.", e);
+            }
+
+            LOGGER.info("Message sent: {}", sended);
         }
     }
 

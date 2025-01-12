@@ -3,24 +3,32 @@ package net.result.main.chains;
 import net.result.sandnode.ClientProtocol;
 import net.result.sandnode.chain.Chain;
 import net.result.sandnode.exceptions.*;
+import net.result.sandnode.messages.EmptyMessage;
 import net.result.sandnode.messages.IMessage;
+import net.result.sandnode.messages.RawMessage;
+import net.result.sandnode.messages.types.ErrorMessage;
+import net.result.sandnode.messages.util.Headers;
 import net.result.sandnode.messages.util.MessageType;
+import net.result.sandnode.messages.util.MessageTypes;
+import net.result.sandnode.server.ServerError;
 import net.result.sandnode.util.IOControl;
 import net.result.sandnode.chain.client.ClientChain;
 import net.result.taulight.TauAgentProtocol;
+import net.result.taulight.chain.client.TaulightClientChain;
 import net.result.taulight.messages.TauMessageTypes;
 import net.result.taulight.messages.types.EchoMessage;
 import net.result.taulight.messages.types.ForwardMessage;
+import net.result.taulight.messages.types.TaulightRequestMessage;
+import net.result.taulight.messages.types.TaulightResponseMessage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.util.Arrays;
-import java.util.Map;
-import java.util.Scanner;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
+import static net.result.sandnode.messages.util.MessageTypes.ERR;
 import static net.result.sandnode.messages.util.MessageTypes.EXIT;
+import static net.result.taulight.messages.TauMessageTypes.TAULIGHT;
 
 public class ConsoleClientChain extends ClientChain {
 
@@ -70,10 +78,27 @@ public class ConsoleClientChain extends ClientChain {
                         .collect(Collectors.toSet());
                 Set<String> groups = ClientProtocol.GROUP(io, inputString);
                 LOGGER.info("Your groups now: {}", groups);
+            } else if (input.equalsIgnoreCase("tauChatGet")) {
+                TaulightClientChain chain = new TaulightClientChain(io);
+                io.chainManager.linkChain(chain);
+                Optional<Set<String>> opt = chain.getChats();
+                io.chainManager.removeChain(chain);
+                opt.ifPresent(LOGGER::info);
+
+            } else if (input.startsWith("tauChatAdd ")) {
+                String substring = input.substring(input.indexOf(" ") + 1);
+
+                TaulightClientChain chain = new TaulightClientChain(io);
+                io.chainManager.linkChain(chain);
+                chain.addToGroup(substring.split(" "));
+                io.chainManager.removeChain(chain);
 
             } else if (input.startsWith("forward ")) {
                 String substring = input.substring(input.indexOf(" ") + 1);
-                send(new ForwardMessage(substring));
+                TaulightClientChain chain = new TaulightClientChain(io);
+                io.chainManager.linkChain(chain);
+                chain.write("first", substring);
+                io.chainManager.removeChain(chain);
 
             } else {
                 send(new EchoMessage(input));

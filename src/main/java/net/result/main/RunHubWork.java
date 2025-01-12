@@ -9,11 +9,13 @@ import net.result.sandnode.util.db.InMemoryDatabase;
 import net.result.sandnode.util.group.HashSetGroupManager;
 import net.result.sandnode.util.tokens.JWTConfig;
 import net.result.sandnode.util.tokens.JWTTokenizer;
+import net.result.taulight.TauChatManager;
 import net.result.taulight.TauHub;
 import net.result.main.config.ServerPropertiesConfig;
 import net.result.sandnode.server.SandnodeServer;
 import net.result.sandnode.encryption.GlobalKeyStorage;
 import net.result.sandnode.encryption.interfaces.IAsymmetricEncryption;
+import net.result.taulight.messenger.TauChat;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -50,10 +52,12 @@ public class RunHubWork implements IWork {
         IAsymmetricKeyStorage keyStorage = mainEncryption.merge(publicKeyStorage, privateKeyStorage);
         GlobalKeyStorage globalKeyStorage = new GlobalKeyStorage(keyStorage);
 
-        TauHub hub = new TauHub(globalKeyStorage);
+        TauChatManager chatManager = new TauChatManager();
+        chatManager.addNew(new TauChat("first"));
+        chatManager.addNew(new TauChat("second"));
+        TauHub hub = new TauHub(globalKeyStorage, chatManager);
         SandnodeServer server = new SandnodeServer(hub, serverConfig);
         server.start();
-
 
         URI link = Links.getServerLink(server);
         System.out.println("Link for server:");

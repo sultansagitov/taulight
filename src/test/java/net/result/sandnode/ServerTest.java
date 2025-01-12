@@ -27,6 +27,7 @@ import net.result.sandnode.util.group.HashSetGroupManager;
 import net.result.sandnode.util.tokens.JWTConfig;
 import net.result.sandnode.util.tokens.JWTTokenizer;
 import net.result.taulight.TauAgent;
+import net.result.taulight.TauChatManager;
 import net.result.taulight.TauHub;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -145,7 +146,11 @@ public class ServerTest {
         public HubThread(GlobalKeyStorage serverKeyStorage, int port) {
             setName("HubThread");
             this.port = port;
-            hub = new TauHub(serverKeyStorage) {
+            hub = new Hub(serverKeyStorage) {
+                @Override
+                public void close() {
+                }
+
                 @Override
                 public @NotNull ServerChainManager createChainManager() {
                     return new TestingBSTServerChainManager();

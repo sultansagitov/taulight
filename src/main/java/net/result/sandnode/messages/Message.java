@@ -94,8 +94,12 @@ public abstract class Message implements IMessage {
             byteArrayOutputStream.write(encryptedHeaders);
         } catch (IOException e) {
             throw new MessageSerializationException(this, "Failed to serialize message headers", e);
-        } catch (HeadersSerializationException e) {
-            throw new MessageSerializationException(this, e.getMessage(), e);
+        } catch (HeadersSerializationException | NullPointerException e) {
+            throw new MessageSerializationException(
+                    this,
+                    "%s: %s".formatted(e.getClass().getSimpleName(), e.getMessage()),
+                    e
+            );
         }
 
         try {

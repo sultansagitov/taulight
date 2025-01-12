@@ -1,4 +1,4 @@
-package net.result.taulight.chain;
+package net.result.taulight.chain.client;
 
 import net.result.sandnode.chain.client.ClientChain;
 import net.result.sandnode.exceptions.DeserializationException;

@@ -14,7 +14,7 @@ import net.result.sandnode.util.EncryptionUtil;
 import net.result.sandnode.util.Endpoint;
 import net.result.sandnode.util.IOControl;
 import net.result.taulight.TauAgent;
-import net.result.taulight.chain.ForwardClientChain;
+import net.result.taulight.chain.client.ForwardClientChain;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 

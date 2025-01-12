@@ -1,24 +1,30 @@
 package net.result.sandnode.server;
 
-import net.result.sandnode.messages.IMessage;
 import net.result.sandnode.messages.types.ErrorMessage;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
 public enum ServerError {
-    SERVER_ERROR(0, "Server error"),
-    UNKNOWN(2000, "Unknown"),
-    DECODE(2002, "Decode"),
-    JSON_PARSING(2010, "JSON Parsing"),
-    TOO_FEW_ARGS(2012, "Too Few Args"),
-    INCORRECT_ENCRYPTION(2014, "Incorrect Encryption"),
-    UNKNOWN_ENCRYPTION(2014, "Unknown Encryption"),
-    INVALID_TOKEN(2080, "Invalid Token"),
-    MEMBER_NOT_FOUND(2015, "Member not found"),
-    INVALID_MEMBER_ID_OR_PASSWORD(2555, "Invalid Member ID or password"),
 
-    ENCRYPT(2100, "Encrypt"),
-    DECRYPT(2150, "Decrypt"),
-    MEMBER_ID_BUSY(378, "MemberID is busy");
+    // General server errors
+    SERVER_ERROR(1000, "Server"),
+    UNKNOWN(1001, "Unknown"),
+    DECODE(1002, "Decode"),
+    JSON_PARSING(1003, "JSON Parsing"),
+    TOO_FEW_ARGS(1004, "Too few arguments"),
+
+    // Encryption-related errors
+    INCORRECT_ENCRYPTION(2000, "Incorrect encryption"),
+    UNKNOWN_ENCRYPTION(2001, "Unknown encryption method"),
+    ENCRYPT(2002, "Encryption"),
+    DECRYPT(2003, "Decryption"),
+    KEY_NOT_FOUND(2004, "Key not found"),
+
+    // Member-related errors
+    INVALID_TOKEN(3000, "Invalid token"),
+    MEMBER_NOT_FOUND(3001, "Member not found"),
+    INVALID_MEMBER_ID_OR_PASSWORD(3002, "Invalid Member ID or password"),
+    MEMBER_ID_BUSY(3003, "Member ID is already in use");
 
     public final int code;
     public final String desc;
@@ -28,7 +34,8 @@ public enum ServerError {
         this.desc = desc;
     }
 
-    public IMessage message() {
+    @Contract(" -> new")
+    public @NotNull ErrorMessage message() {
         return new ErrorMessage(this);
     }
 }
