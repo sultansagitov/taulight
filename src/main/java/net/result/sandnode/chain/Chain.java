@@ -45,7 +45,7 @@ public abstract class Chain implements Searchable<Chain, Short> {
         String threadName = Thread.currentThread().getName();
         executorService.submit(() -> {
             Thread.currentThread().setName("%s/%s-%s".formatted(threadName, getID(), getClass().getSimpleName()));
-            Thread.currentThread().setName(getClass().toString());
+
             try {
                 sync();
             } catch (InterruptedException | SandnodeException e) {
