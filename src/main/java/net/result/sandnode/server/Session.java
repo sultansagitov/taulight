@@ -44,7 +44,7 @@ public class Session {
 
                 Thread.currentThread().interrupt();
             }
-        }, "%s/Sending".formatted(IOControl.getIP(socket))).start();
+        }, "%s/Sending".formatted(IOControl.getIpString(socket))).start();
 
         new Thread(() -> {
             try {
@@ -54,12 +54,12 @@ public class Session {
                     LOGGER.error("Error receiving message", e);
                 }
             }
-        }, "%s/Receiving".formatted(IOControl.getIP(socket))).start();
+        }, "%s/Receiving".formatted(IOControl.getIpString(socket))).start();
     }
 
     @Override
     public String toString() {
-        return "<%s %s %s>".formatted(getClass().getSimpleName(), IOControl.getIP(socket), member);
+        return "<%s %s %s>".formatted(getClass().getSimpleName(), IOControl.getIpString(socket), member);
     }
 
     public void addToGroup(Group group) {

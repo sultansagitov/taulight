@@ -1,5 +1,6 @@
 package net.result.main.chains;
 
+import net.result.main.chains.client.ConsoleClientChain;
 import net.result.sandnode.chain.client.ClientChain;
 import net.result.sandnode.messages.RawMessage;
 import net.result.sandnode.chain.client.BSTClientChainManager;

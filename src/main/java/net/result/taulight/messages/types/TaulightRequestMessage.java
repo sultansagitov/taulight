@@ -1,7 +1,6 @@
 package net.result.taulight.messages.types;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonUnwrapped;
 import net.result.sandnode.exceptions.DeserializationException;
 import net.result.sandnode.messages.MSGPackMessage;
 import net.result.sandnode.messages.RawMessage;
@@ -16,16 +15,28 @@ public class TaulightRequestMessage extends MSGPackMessage<TaulightRequestMessag
         @JsonProperty
         public String message;
         @JsonProperty
-        private DataType dataType;
+        public DataType dataType;
+        @JsonProperty
+        public String chatID;
 
         public TaulightRequestData() {}
         public TaulightRequestData(DataType dataType) {
             this.dataType = dataType;
         }
 
-        public TaulightRequestData(DataType dataType, String message) {
-            this(dataType);
-            this.message = message;
+        public static TaulightRequestData write(String chatID, String message) {
+            TaulightRequestData result = new TaulightRequestData();
+            result.dataType = DataType.WRITE;
+            result.chatID = chatID;
+            result.message = message;
+            return result;
+        }
+
+        public static TaulightRequestData addGroup(String chatID) {
+            TaulightRequestData result = new TaulightRequestData();
+            result.dataType = DataType.ADD;
+            result.chatID = chatID;
+            return result;
         }
     }
 
@@ -43,6 +54,10 @@ public class TaulightRequestMessage extends MSGPackMessage<TaulightRequestMessag
 
     public TaulightRequestMessage(RawMessage raw) throws DeserializationException {
         super(raw, TaulightRequestData.class);
+    }
+
+    public String getChatID() {
+        return object.chatID;
     }
 
     public DataType getMessageType() {

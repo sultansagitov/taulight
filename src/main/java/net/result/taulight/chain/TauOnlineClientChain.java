@@ -9,10 +9,10 @@ import net.result.taulight.messages.OnlineResponseMessage;
 
 import java.util.Set;
 
-public class TauOnlineChain extends ClientChain {
+public class TauOnlineClientChain extends ClientChain {
     public Set<String> members;
 
-    public TauOnlineChain(IOControl io) {
+    public TauOnlineClientChain(IOControl io) {
         super(io);
     }
 

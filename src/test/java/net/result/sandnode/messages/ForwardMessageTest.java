@@ -15,7 +15,7 @@ class ForwardMessageTest {
         // Arrange
         String expectedContent = "This is a test message.";
         Headers headers = new Headers();
-        ForwardMessage originalMessage = new ForwardMessage(headers, expectedContent);
+        ForwardMessage originalMessage = new ForwardMessage(headers, new ForwardMessage.ForwardData("chat", expectedContent));
 
         // Act
         RawMessage serializedData = new RawMessage(originalMessage.getHeaders(), originalMessage.getBody());

@@ -61,7 +61,7 @@ public abstract class Message implements IMessage {
 
         RawMessage request = new RawMessage(headers, decryptedBody);
         request.setHeadersEncryption(headersEncryption);
-        LOGGER.info("Requested by {} {}", request.getHeaders().getBodyEncryption().name(), request);
+        LOGGER.info("Requested by {}", request);
         return request;
     }
 
@@ -134,7 +134,7 @@ public abstract class Message implements IMessage {
     @Override
     public String toString() {
         try {
-            return "<%s %s(headers %s %s cid=%d %d) %s(body %d)>".formatted(
+            return "<%s %s(headers %s %s cid=%04X %d) %s(body %d)>".formatted(
                     getClass().getSimpleName(),
                     getHeadersEncryption(),
                     getHeaders().getType().name(),

@@ -10,6 +10,10 @@ import net.result.taulight.messages.types.TimedForwardMessage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+
 public class ForwardClientChain extends ClientChain {
     private static final Logger LOGGER = LogManager.getLogger(ForwardClientChain.class);
 
@@ -23,20 +27,29 @@ public class ForwardClientChain extends ClientChain {
 
         while (true) {
             RawMessage request;
+
             try {
                 request = queue.take();
             } catch (InterruptedException e) {
-                LOGGER.info("{} cid={} ended by interrupting", getClass().getSimpleName(), getID());
+                LOGGER.info("{} ended by interrupting", toString());
                 break;
             }
 
             if (request.getHeaders().isFin()) {
-                LOGGER.info("{} cid={} ended by FIN flag in received message", getClass().getSimpleName(), getID());
+                LOGGER.info("{} ended by FIN flag in received message", toString());
                 break;
             }
 
-            TimedForwardMessage forwardMessage = new TimedForwardMessage(request);
-            LOGGER.info("Forwarded message: {}", forwardMessage.getData());
+            TimedForwardMessage tfm = new TimedForwardMessage(request);
+
+            ZonedDateTime zonedDateTime = tfm.getZonedDateTime();
+
+            ZonedDateTime localZonedDateTime = zonedDateTime.withZoneSameInstant(ZoneId.systemDefault());
+            String formattedDateTime = localZonedDateTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss z"));
+
+            LOGGER.info("Forwarded message details - local time: {}, chatID: {}, data: {}",
+                    formattedDateTime, tfm.getChatID(), tfm.getData());
+
         }
     }
 }

@@ -1,16 +1,18 @@
 package net.result.taulight.messages.types;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonUnwrapped;
 import net.result.sandnode.exceptions.DeserializationException;
 import net.result.sandnode.exceptions.ExpectedMessageException;
 import net.result.sandnode.messages.MSGPackMessage;
 import net.result.sandnode.messages.RawMessage;
 import net.result.sandnode.messages.util.Headers;
 import net.result.taulight.messages.DataType;
+import net.result.taulight.messenger.TauChat;
 
 import java.util.Set;
+import java.util.stream.Collectors;
 
+import static net.result.taulight.messages.DataType.GET;
 import static net.result.taulight.messages.TauMessageTypes.TAULIGHT;
 
 public class TaulightResponseMessage extends MSGPackMessage<TaulightResponseMessage.TaulightResponseData> {
@@ -28,6 +30,10 @@ public class TaulightResponseMessage extends MSGPackMessage<TaulightResponseMess
 
         public TaulightResponseData(DataType messageType) {
             this.messageType = messageType;
+        }
+
+        public static TaulightResponseData get(Set<TauChat> chats) {
+            return new TaulightResponseData(GET, chats.stream().map(chat -> chat.name).collect(Collectors.toSet()));
         }
     }
 

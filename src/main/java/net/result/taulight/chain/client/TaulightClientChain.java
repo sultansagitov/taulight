@@ -52,7 +52,7 @@ public class TaulightClientChain extends ClientChain {
 
     @Deprecated(forRemoval = true)
     public void addToGroup(String group) throws InterruptedException, DeserializationException {
-        send(new TaulightRequestMessage(DataType.ADD));
+        send(new TaulightRequestMessage(TaulightRequestMessage.TaulightRequestData.addGroup(group)));
         RawMessage raw = queue.take();
 
         if (raw.getHeaders().getType() == ERR) {
@@ -63,7 +63,7 @@ public class TaulightClientChain extends ClientChain {
 
     @Deprecated(forRemoval = true)
     public void write(String group, String message) throws InterruptedException, DeserializationException {
-        send(new TaulightRequestMessage(new TaulightRequestMessage.TaulightRequestData(DataType.WRITE, message)));
+        send(new TaulightRequestMessage(TaulightRequestMessage.TaulightRequestData.write(group, message)));
         RawMessage raw = queue.take();
 
         if (raw.getHeaders().getType() == ERR) {

@@ -1,6 +1,6 @@
 package net.result.main;
 
-import net.result.main.chains.ConsoleClientChain;
+import net.result.main.chains.client.ConsoleClientChain;
 import net.result.main.chains.ConsoleClientChainManager;
 import net.result.main.config.ClientPropertiesConfig;
 import net.result.sandnode.*;

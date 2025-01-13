@@ -7,7 +7,6 @@ import java.util.Arrays;
 
 public enum TauMessageTypes implements MessageType {
     ONL(10),
-    ECHO(11),
     FWD(12),
     TAULIGHT(13);
 

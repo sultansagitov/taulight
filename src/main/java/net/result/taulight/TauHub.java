@@ -8,7 +8,7 @@ import org.jetbrains.annotations.NotNull;
 
 public class TauHub extends Hub {
 
-    private final TauChatManager chatManager;
+    public final TauChatManager chatManager;
 
     public TauHub(GlobalKeyStorage hubKeyStorage, TauChatManager chatManager) {
         super(hubKeyStorage);
@@ -17,7 +17,7 @@ public class TauHub extends Hub {
 
     @Override
     public @NotNull ServerChainManager createChainManager() {
-        return new TauBSTServerChainManager(chatManager);
+        return new TauBSTServerChainManager();
     }
 
     @Override

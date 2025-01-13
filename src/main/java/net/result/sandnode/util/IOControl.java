@@ -32,7 +32,6 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import static net.result.sandnode.encryption.Encryption.NONE;
-import static net.result.sandnode.server.ServerError.*;
 
 public class IOControl {
     private static final Logger LOGGER = LogManager.getLogger(IOControl.class);
@@ -154,8 +153,12 @@ public class IOControl {
         }
     }
 
-    public static @NotNull String getIP(@NotNull Socket socket) {
+    public static @NotNull String getIpString(@NotNull Socket socket) {
         return "%s:%d".formatted(socket.getInetAddress().getHostAddress(), socket.getPort());
+    }
+
+    public @NotNull String getIpString() {
+        return getIpString(socket);
     }
 
     public @NotNull IEncryption getServerEncryption() {
@@ -167,7 +170,7 @@ public class IOControl {
     }
 
     public synchronized boolean isConnected() {
-        if (socket == null || !socket.isConnected()) {
+        if (!socket.isConnected()) {
             return false;
         }
 
@@ -205,7 +208,7 @@ public class IOControl {
 
         LOGGER.info("Sending exit message");
         sendMessage(new ExitMessage());
-        LOGGER.info("Disconnecting from {}", getIP(socket));
+        LOGGER.info("Disconnecting from {}", getIpString(socket));
 
         chainManager.interruptAll();
 

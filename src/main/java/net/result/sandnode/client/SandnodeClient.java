@@ -57,7 +57,7 @@ public class SandnodeClient {
                     }
                     Thread.currentThread().interrupt();
                 }
-            }, "Client/%s/Sending".formatted(IOControl.getIP(socket))).start();
+            }, "Client/%s/Sending".formatted(IOControl.getIpString(socket))).start();
 
             new Thread(() -> {
                 try {
@@ -68,7 +68,7 @@ public class SandnodeClient {
                     }
                     Thread.currentThread().interrupt();
                 }
-            }, "Client/%s/Receiving".formatted(IOControl.getIP(socket))).start();
+            }, "Client/%s/Receiving".formatted(IOControl.getIpString(socket))).start();
 
         } catch (InputStreamException | OutputStreamException e) {
             LOGGER.error("Error connecting to server", e);

@@ -1,25 +1,18 @@
-package net.result.main.chains;
+package net.result.main.chains.client;
 
 import net.result.sandnode.ClientProtocol;
 import net.result.sandnode.chain.Chain;
 import net.result.sandnode.exceptions.*;
-import net.result.sandnode.messages.EmptyMessage;
-import net.result.sandnode.messages.IMessage;
 import net.result.sandnode.messages.RawMessage;
 import net.result.sandnode.messages.types.ErrorMessage;
-import net.result.sandnode.messages.util.Headers;
 import net.result.sandnode.messages.util.MessageType;
-import net.result.sandnode.messages.util.MessageTypes;
 import net.result.sandnode.server.ServerError;
 import net.result.sandnode.util.IOControl;
 import net.result.sandnode.chain.client.ClientChain;
 import net.result.taulight.TauAgentProtocol;
 import net.result.taulight.chain.client.TaulightClientChain;
-import net.result.taulight.messages.TauMessageTypes;
-import net.result.taulight.messages.types.EchoMessage;
 import net.result.taulight.messages.types.ForwardMessage;
-import net.result.taulight.messages.types.TaulightRequestMessage;
-import net.result.taulight.messages.types.TaulightResponseMessage;
+import net.result.taulight.messages.types.ForwardMessage.ForwardData;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -28,7 +21,6 @@ import java.util.stream.Collectors;
 
 import static net.result.sandnode.messages.util.MessageTypes.ERR;
 import static net.result.sandnode.messages.util.MessageTypes.EXIT;
-import static net.result.taulight.messages.TauMessageTypes.TAULIGHT;
 
 public class ConsoleClientChain extends ClientChain {
 
@@ -42,8 +34,10 @@ public class ConsoleClientChain extends ClientChain {
     public void sync() throws InterruptedException, ExpectedMessageException, DeserializationException {
         Scanner scanner = new Scanner(System.in);
 
+        String currentChat = "";
+
         while (true) {
-            System.out.print(" [] ");
+            System.out.printf(" [%s] ", currentChat);
             String input = scanner.nextLine();
 
             if (input.isEmpty()) continue;
@@ -81,26 +75,36 @@ public class ConsoleClientChain extends ClientChain {
                 LOGGER.info("Your groups now: {}", groups);
 
             } else if (input.equalsIgnoreCase("tauChatGet")) {
-                Optional<Set<String>> opt = ((TaulightClientChain) io.chainManager.getChain("tau").get()).getChats();
-                opt.ifPresent(LOGGER::info);
-
+                Optional<Chain> tau = io.chainManager.getChain("tau");
+                if (tau.isPresent()) {
+                    Optional<Set<String>> opt = ((TaulightClientChain) tau.get()).getChats();
+                    opt.ifPresent(LOGGER::info);
+                }
             } else if (input.startsWith("tauChatAdd ")) {
-                String s = input.substring(input.indexOf(" ") + 1).split(" ")[0];
-                ((TaulightClientChain) io.chainManager.getChain("tau").get()).addToGroup(s);
+                String s = input.split(" ")[1];
+                Optional<Chain> tau = io.chainManager.getChain("tau");
+                if (tau.isPresent()) {
+                    ((TaulightClientChain) tau.get()).addToGroup(s);
+                }
 
-            } else if (input.startsWith("forward ")) {
-                String substring = input.substring(input.indexOf(" ") + 1);
-                ((TaulightClientChain) io.chainManager.getChain("tau").get()).write("first", substring);
+            } else if (input.startsWith(": ")) {
+                currentChat = input.split(" ")[1];
 
             } else {
-                send(new EchoMessage(input));
+                if (!currentChat.isEmpty()) {
+                    send(new ForwardMessage(new ForwardData(currentChat, input)));
+                    RawMessage raw = queue.take();
+                    MessageType type = raw.getHeaders().getType();
+                    if (type == EXIT) break;
 
-                IMessage response = queue.take();
-                if (response.getHeaders().getType() == EXIT) break;
-                MessageType type = response.getHeaders().getType();
-                if (type instanceof TauMessageTypes) {
-                    LOGGER.info("From server: {}", new EchoMessage(response).getData());
+                    if (type == ERR) {
+                        ServerError error = new ErrorMessage(raw).error;
+                        LOGGER.error("Error code: {} description: {}", error.code, error.desc);
+                    }
+                } else {
+                    System.out.println("chat not selected");
                 }
+
             }
         }
     }

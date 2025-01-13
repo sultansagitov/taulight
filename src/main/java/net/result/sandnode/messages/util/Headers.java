@@ -18,7 +18,7 @@ import static net.result.sandnode.messages.util.NodeType.HUB;
 
 public class Headers {
     private final Map<String, String> map = new HashMap<>();
-    private short chainID = -1;
+    private short chainID;
     private boolean fin = false;
     private @Nullable Connection connection;
     private @Nullable MessageType type;

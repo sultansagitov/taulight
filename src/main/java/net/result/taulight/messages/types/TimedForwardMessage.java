@@ -16,14 +16,18 @@ public class TimedForwardMessage extends MSGPackMessage<TimedForwardMessage.Time
         public ZonedDateTime zonedDateTime;
 
         public TimedForwardData() {}
-        public TimedForwardData(String data, ZonedDateTime ztd) {
-            super(data);
+        public TimedForwardData(String chatID, String data, ZonedDateTime ztd) {
+            super(chatID, data);
             zonedDateTime = ztd;
         }
     }
 
     public TimedForwardMessage(ForwardMessage forwardMessage, ZonedDateTime zdt) {
-        super(forwardMessage.getHeaders().setType(FWD), new TimedForwardData(forwardMessage.getData(), zdt));
+        super(forwardMessage.getHeaders(), new TimedForwardData(
+                forwardMessage.getChatID(),
+                forwardMessage.getData(),
+                zdt
+        ));
     }
 
     public TimedForwardMessage(RawMessage message) throws DeserializationException, ExpectedMessageException {
@@ -33,6 +37,10 @@ public class TimedForwardMessage extends MSGPackMessage<TimedForwardMessage.Time
 
     public String getData() {
         return object.content;
+    }
+
+    public String getChatID() {
+        return object.chatID;
     }
 
     public ZonedDateTime getZonedDateTime() {

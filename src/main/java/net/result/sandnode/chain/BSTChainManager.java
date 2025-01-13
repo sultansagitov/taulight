@@ -35,14 +35,13 @@ public abstract class BSTChainManager implements ChainManager {
     public void linkChain(Chain chain) {
         List<Short> list = bst.getOrdered().stream().map(Chain::getID).toList();
 
-        LOGGER.info("Randomizing chain id");
         Random random = new SecureRandom();
-        short chainID = -1;
-        while (list.contains(chainID) || chainID == -1) {
+        short chainID;
+        do {
             chainID = (short) random.nextInt(Short.MIN_VALUE, Short.MAX_VALUE);
-        }
+        } while (list.contains(chainID));
         chain.setID(chainID);
-        LOGGER.info("Adding new chain {}-{}", chain.getID(), chain.getClass().getSimpleName());
+        LOGGER.info("Adding new chain {}", chain);
         try {
             bst.add(chain);
         } catch (BSTBusyPosition e) {
@@ -110,7 +109,7 @@ public abstract class BSTChainManager implements ChainManager {
     public String toString() {
         List<String> list = new ArrayList<>();
         for (Chain chain : bst.getOrdered())
-            list.add(String.valueOf(chain.getID()));
+            list.add(String.format("%04X", chain.getID()));
         return "<%s chains=%s>".formatted(
                 getClass().getSimpleName(),
                 String.join(",", list)

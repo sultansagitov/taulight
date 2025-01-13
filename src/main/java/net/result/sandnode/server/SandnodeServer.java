@@ -50,7 +50,7 @@ public class SandnodeServer {
                 throw new SocketAcceptException("Error accepting client socket connection", e);
             }
 
-            String ip = IOControl.getIP(clientSocket);
+            String ip = IOControl.getIpString(clientSocket);
             LOGGER.info("Client connected {}", ip);
 
             sessionExecutor.submit(() -> {

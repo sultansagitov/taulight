@@ -9,7 +9,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 public class TauChatManager {
-    Set<TauChat> chats = new HashSet<>();
+    public final Set<TauChat> chats = new HashSet<>();
 
     public Set<TauChat> getChats(IMember member) {
         return chats.stream()

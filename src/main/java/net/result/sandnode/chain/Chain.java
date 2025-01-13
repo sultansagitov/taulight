@@ -17,7 +17,7 @@ public abstract class Chain implements Searchable<Chain, Short> {
 
     public final BlockingQueue<RawMessage> queue;
     protected final IOControl io;
-    private short id = -1;
+    private short id;
 
     public Chain(IOControl io) {
         this.io = io;
@@ -42,9 +42,8 @@ public abstract class Chain implements Searchable<Chain, Short> {
     }
 
     public void async(ExecutorService executorService) {
-        String threadName = Thread.currentThread().getName();
         executorService.submit(() -> {
-            Thread.currentThread().setName("%s/%s-%s".formatted(threadName, getID(), getClass().getSimpleName()));
+            Thread.currentThread().setName("%s/%s/%s".formatted(io.getIpString(), getClass().getSimpleName(), String.format("%04X", getID())));
 
             try {
                 sync();
@@ -75,5 +74,9 @@ public abstract class Chain implements Searchable<Chain, Short> {
 
     public int compareID(Short id) {
         return ((Comparable<Short>) getID()).compareTo(id);
+    }
+
+    public String toString() {
+        return "<%s cid=%s>".formatted(getClass().getSimpleName(), String.format("%04X", getID()));
     }
 }

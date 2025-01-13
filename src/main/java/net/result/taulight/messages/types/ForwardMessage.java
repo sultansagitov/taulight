@@ -13,9 +13,13 @@ public class ForwardMessage extends MSGPackMessage<ForwardMessage.ForwardData> {
     public static class ForwardData {
         @JsonProperty
         public String content;
-        public ForwardData() {}
 
-        public ForwardData(String data) {
+        @JsonProperty
+        public String chatID;
+
+        public ForwardData() {}
+        public ForwardData(String chatID, String data) {
+            this.chatID = chatID;
             content = data;
         }
     }
@@ -25,15 +29,19 @@ public class ForwardMessage extends MSGPackMessage<ForwardMessage.ForwardData> {
         ExpectedMessageException.check(request, FWD);
     }
 
-    public ForwardMessage(Headers headers, String data) {
-        super(headers.setType(FWD), new ForwardData(data));
+    public ForwardMessage(Headers headers, ForwardData data) {
+        super(headers.setType(FWD), data);
     }
 
-    public ForwardMessage(String data) {
+    public ForwardMessage(ForwardData data) {
         this(new Headers(), data);
     }
 
     public String getData() {
         return object.content;
+    }
+
+    public String getChatID() {
+        return object.chatID;
     }
 }

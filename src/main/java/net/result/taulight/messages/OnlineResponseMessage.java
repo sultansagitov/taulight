@@ -26,15 +26,15 @@ public class OnlineResponseMessage extends MSGPackMessage<OnlineResponseMessage.
         }
     }
 
-    public OnlineResponseMessage(@NotNull Set<IMember> members) {
-        this(new Headers(), members);
-    }
-
     public OnlineResponseMessage(@NotNull Headers headers, @NotNull Set<IMember> members) {
         super(
                 headers.setType(ONL),
                 new MemberSetData(members.stream().map(IMember::getID).collect(Collectors.toSet()))
         );
+    }
+
+    public OnlineResponseMessage(@NotNull Set<IMember> members) {
+        this(new Headers(), members);
     }
 
     public OnlineResponseMessage(@NotNull IMessage message) throws DeserializationException, ExpectedMessageException {
