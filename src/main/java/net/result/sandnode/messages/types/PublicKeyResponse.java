@@ -32,7 +32,8 @@ public class PublicKeyResponse extends Message {
         super(response.getHeaders());
         LOGGER.debug(response);
         ExpectedMessageException.check(response, PUB);
-        IAsymmetricEncryption encryption = EncryptionManager.findAsymmetric(Byte.parseByte(getHeaders().getValue("encryption")));
+        byte encryptionByte = Byte.parseByte(getHeaders().getValue("encryption"));
+        IAsymmetricEncryption encryption = EncryptionManager.findAsymmetric(encryptionByte);
         keyStorage = encryption.publicKeyConvertor().toKeyStorage(new String(response.getBody()));
     }
 

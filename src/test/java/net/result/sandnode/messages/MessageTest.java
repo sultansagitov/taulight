@@ -17,9 +17,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class MessageTest {
     @Test
-    void toByteArray() throws EncryptionException, NoSuchEncryptionException, DecryptionException,
-            NoSuchMessageTypeException, KeyStorageNotFoundException, UnexpectedSocketDisconnectException,
-            IllegalMessageLengthException, MessageSerializationException, WrongKeyException, PrivateKeyNotFoundException {
+    void toByteArray() throws Exception {
 
         EncryptionManager.registerAll();
 

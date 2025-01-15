@@ -15,11 +15,13 @@ import java.security.NoSuchAlgorithmException;
 public class AESDecryptor {
     private static final Logger LOGGER = LogManager.getLogger(AESDecryptor.class);
 
-    public static String decrypt(byte @NotNull [] data, @NotNull AESKeyStorage aesKeyStorage) throws DecryptionException {
+    public static String decrypt(byte @NotNull [] data, @NotNull AESKeyStorage aesKeyStorage)
+            throws DecryptionException {
         return new String(decryptBytes(data, aesKeyStorage));
     }
 
-    public static byte[] decryptBytes(byte @NotNull [] data, @NotNull AESKeyStorage aesKeyStorage) throws DecryptionException {
+    public static byte[] decryptBytes(byte @NotNull [] data, @NotNull AESKeyStorage aesKeyStorage)
+            throws DecryptionException {
         SecretKey aesKey = aesKeyStorage.key();
 
         Cipher cipher;

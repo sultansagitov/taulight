@@ -24,7 +24,8 @@ public class AESEncryptor {
         return encryptBytes(bytes, keyStorage);
     }
 
-    public static byte[] encryptBytes(byte @NotNull [] data, @NotNull IKeyStorage keyStorage) throws EncryptionException {
+    public static byte[] encryptBytes(byte @NotNull [] data, @NotNull IKeyStorage keyStorage)
+            throws EncryptionException {
         int IV_LENGTH = 16;
         byte[] iv = new byte[IV_LENGTH];
         SecureRandom secureRandom = new SecureRandom();

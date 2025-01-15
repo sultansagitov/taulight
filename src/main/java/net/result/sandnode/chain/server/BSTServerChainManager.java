@@ -2,6 +2,7 @@ package net.result.sandnode.chain.server;
 
 import net.result.sandnode.chain.Chain;
 import net.result.sandnode.exceptions.BSTBusyPosition;
+import net.result.sandnode.exceptions.BusyChainID;
 import net.result.sandnode.messages.RawMessage;
 import net.result.sandnode.messages.util.Headers;
 import net.result.sandnode.messages.util.MessageTypes;
@@ -17,7 +18,7 @@ public abstract class BSTServerChainManager extends BSTChainManager implements S
     }
 
     @Override
-    public Chain createNew(RawMessage message) throws BSTBusyPosition {
+    public Chain createNew(RawMessage message) throws BusyChainID {
         Headers headers = message.getHeaders();
 
         ServerChain chain = (headers.getType() instanceof MessageTypes sysType) ? switch (sysType) {
@@ -30,7 +31,11 @@ public abstract class BSTServerChainManager extends BSTChainManager implements S
         } : defaultChain(message);
 
         chain.setID(headers.getChainID());
-        bst.add(chain);
+        try {
+            bst.add(chain);
+        } catch (BSTBusyPosition e) {
+            throw new BusyChainID(e);
+        }
 
         return chain;
     }

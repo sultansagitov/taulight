@@ -4,6 +4,7 @@ import net.result.sandnode.exceptions.DeserializationException;
 import net.result.sandnode.exceptions.ExpectedMessageException;
 import net.result.sandnode.messages.util.Headers;
 import net.result.taulight.messages.types.ForwardMessage;
+import net.result.taulight.messages.types.ForwardMessage.ForwardData;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -15,7 +16,7 @@ class ForwardMessageTest {
         // Arrange
         String expectedContent = "This is a test message.";
         Headers headers = new Headers();
-        ForwardMessage originalMessage = new ForwardMessage(headers, new ForwardMessage.ForwardData("chat", expectedContent));
+        ForwardMessage originalMessage = new ForwardMessage(headers, new ForwardData("chat", expectedContent));
 
         // Act
         RawMessage serializedData = new RawMessage(originalMessage.getHeaders(), originalMessage.getBody());
@@ -23,6 +24,7 @@ class ForwardMessageTest {
 
         // Assert
         assertNotNull(deserializedMessage, "Deserialized message should not be null.");
-        assertEquals(expectedContent, deserializedMessage.getData(), "The content of the deserialized message should match the original.");
+        assertEquals(expectedContent, deserializedMessage.getData(),
+                "The content of the deserialized message should match the original.");
     }
 }

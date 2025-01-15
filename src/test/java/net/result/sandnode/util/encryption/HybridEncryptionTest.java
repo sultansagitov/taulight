@@ -10,8 +10,7 @@ import java.util.Arrays;
 
 public class HybridEncryptionTest {
     @Test
-    public void hybridEncryptionTest() throws EncryptionException, DecryptionException, WrongKeyException,
-            PrivateKeyNotFoundException {
+    public void hybridEncryptionTest() throws Exception {
         for (IAsymmetricEncryption a : EncryptionManager.getAsymmetric()) {
             for (ISymmetricEncryption s : EncryptionManager.getSymmetric()) {
                 IAsymmetricKeyStorage asymmetricKeyStorage = a.generate();

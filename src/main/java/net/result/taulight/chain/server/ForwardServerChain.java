@@ -6,6 +6,7 @@ import net.result.sandnode.exceptions.*;
 import net.result.sandnode.messages.RawMessage;
 import net.result.sandnode.messages.types.HappyMessage;
 import net.result.sandnode.server.Session;
+import net.result.sandnode.util.db.IMember;
 import net.result.taulight.TauChatManager;
 import net.result.taulight.TauHub;
 import net.result.taulight.messages.types.ForwardMessage;
@@ -17,6 +18,7 @@ import org.apache.logging.log4j.Logger;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Optional;
+import java.util.Set;
 
 import static net.result.sandnode.server.ServerError.SERVER_ERROR;
 
@@ -50,17 +52,25 @@ public class ForwardServerChain extends ServerChain {
 
             if (tauChat.isEmpty()) {
                 LOGGER.error("Failed to find chat with ID: {}", chatID);
-                send(SERVER_ERROR.message());
+                send(SERVER_ERROR.message()); // TODO: make own error
+                continue;
+            }
+
+            TauChat chat = tauChat.get();
+            Set<IMember> members = chat.members;
+
+            if (!members.contains(session.member)) {
+                send(SERVER_ERROR.message()); // TODO: make own error
                 continue;
             }
 
             for (Session s : tauHub.agentSessionList) {
-                if (!tauChat.get().members.contains(s.member)) continue;
+                if (!members.contains(s.member)) continue;
 
                 Optional<Chain> fwd = s.io.chainManager.getChain("fwd");
 
                 if (fwd.isEmpty()) {
-                    LOGGER.error("Failed to find forwarding chain for session: {}", s);
+                    LOGGER.warn("Failed to find forwarding chain for session: {}", s);
                     continue;
                 }
 
@@ -72,3 +82,4 @@ public class ForwardServerChain extends ServerChain {
         }
     }
 }
+

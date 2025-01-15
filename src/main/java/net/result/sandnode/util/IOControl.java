@@ -94,8 +94,9 @@ public class IOControl {
         message.getHeaders().setValue("random", sb);
     }
 
-    public void sendingLoop() throws InterruptedException, IllegalMessageLengthException, MessageSerializationException,
-            EncryptionException, KeyStorageNotFoundException, WrongKeyException, MessageWriteException {
+    public void sendingLoop() throws InterruptedException, IllegalMessageLengthException,
+            MessageSerializationException, EncryptionException, KeyStorageNotFoundException, WrongKeyException,
+            MessageWriteException {
         while (connected) {
             IMessage message = sendingQueue.take();
             beforeSending(message);

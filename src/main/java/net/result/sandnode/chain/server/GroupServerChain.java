@@ -17,7 +17,10 @@ public class GroupServerChain extends ServerChain {
     @Override
     public void sync() throws InterruptedException, ExpectedMessageException {
         GroupMessage groupMessage = new GroupMessage(queue.take());
-        Set<String> groupNames = groupMessage.getGroupNames().stream().filter(s -> !s.isEmpty()).collect(Collectors.toSet());
+        Set<String> groupNames = groupMessage
+                .getGroupNames().stream()
+                .filter(s -> !s.isEmpty())
+                .collect(Collectors.toSet());
         GroupManager groupManager = session.server.serverConfig.groupManager();
         groupNames.forEach(groupName -> groupManager.getGroup(groupName).add(session));
         Set<String> collect = session.getGroups().stream()

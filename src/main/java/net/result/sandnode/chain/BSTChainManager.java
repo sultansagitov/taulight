@@ -2,6 +2,7 @@ package net.result.sandnode.chain;
 
 import net.result.sandnode.bst.AVLTree;
 import net.result.sandnode.exceptions.BSTBusyPosition;
+import net.result.sandnode.exceptions.BusyChainID;
 import net.result.sandnode.exceptions.ImpossibleRuntimeException;
 import net.result.sandnode.messages.RawMessage;
 import net.result.sandnode.bst.BinarySearchTree;
@@ -63,21 +64,26 @@ public abstract class BSTChainManager implements ChainManager {
     @Override
     public void distributeMessage(RawMessage message) throws InterruptedException {
         Headers headers = message.getHeaders();
-        Chain chain = getByID(headers.getChainID()).orElseGet(() -> {
-                    try {
-                        Chain aNew = createNew(message);
-                        if (aNew.isChainStartAllowed()) aNew.async(executorService);
-                        return aNew;
-                    } catch (BSTBusyPosition e) {
-                        throw new ImpossibleRuntimeException(e);
-                    }
-                });
+        Optional<Chain> opt = getByID(headers.getChainID());
+        Chain chain;
+        if (opt.isPresent()) {
+            chain = opt.get();
+        } else {
+            try {
+                Chain aNew = createNew(message);
+                if (aNew.isChainStartAllowed()) aNew.async(executorService);
+                chain = aNew;
+            } catch (BusyChainID e) {
+                throw new RuntimeException(e);
+            }
+        }
 
         if (headers.getType() == CHAIN_NAME) {
             headers.getOptionalValue("chain-name").ifPresent(s -> setName(chain, s));
-        } else {
-            chain.put(message);
+            return;
         }
+
+        chain.put(message);
     }
 
     @Override

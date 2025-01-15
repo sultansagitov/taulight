@@ -17,6 +17,8 @@ import net.result.sandnode.util.IOControl;
 import net.result.taulight.TauAgent;
 import net.result.taulight.chain.client.ForwardClientChain;
 import net.result.taulight.chain.client.TaulightClientChain;
+import net.result.taulight.messages.types.TaulightRequestMessage;
+import net.result.taulight.messages.types.TaulightRequestMessage.TaulightRequestData;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -25,6 +27,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import static net.result.sandnode.messages.util.NodeType.HUB;
+import static net.result.taulight.messages.DataType.REMOVE;
 
 public class RunAgentWork implements IWork {
     private static final Logger LOGGER = LogManager.getLogger(RunAgentWork.class);
@@ -71,10 +74,12 @@ public class RunAgentWork implements IWork {
         TaulightClientChain taulightChain = new TaulightClientChain(io);
         io.chainManager.linkChain(taulightChain);
         io.chainManager.setName(taulightChain, "tau");
+        taulightChain.send(new TaulightRequestMessage(new TaulightRequestData(REMOVE)));
         taulightChain.send(new RequestChainNameMessage("tau"));
     }
 
-    private static void startConsoleChain(IOControl io) throws InterruptedException, ExpectedMessageException, DeserializationException {
+    private static void startConsoleChain(IOControl io) throws InterruptedException, ExpectedMessageException,
+            DeserializationException {
         ConsoleClientChain consoleChain = new ConsoleClientChain(io);
         io.chainManager.linkChain(consoleChain);
         consoleChain.sync();

@@ -2,7 +2,6 @@ package net.result.sandnode.util.encryption;
 
 import net.result.sandnode.encryption.EncryptionManager;
 import net.result.sandnode.encryption.interfaces.*;
-import net.result.sandnode.exceptions.*;
 import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
@@ -14,8 +13,7 @@ import static org.junit.jupiter.api.Assertions.*;
 public class EncryptionTest {
 
     @Test
-    public void testEncryptionDecryption() throws EncryptionException, WrongKeyException, CannotUseEncryption,
-            DecryptionException, PrivateKeyNotFoundException {
+    public void testEncryptionDecryption() throws Exception {
         for (IEncryption encryption : EncryptionManager.instance().list) {
             IKeyStorage keyStorage = encryption.generate();
 

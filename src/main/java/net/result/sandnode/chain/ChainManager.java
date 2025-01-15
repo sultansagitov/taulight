@@ -1,6 +1,6 @@
 package net.result.sandnode.chain;
 
-import net.result.sandnode.exceptions.BSTBusyPosition;
+import net.result.sandnode.exceptions.BusyChainID;
 import net.result.sandnode.messages.RawMessage;
 
 import java.util.Map;
@@ -14,7 +14,7 @@ public interface ChainManager {
 
     void linkChain(Chain chain);
 
-    Chain createNew(RawMessage message) throws BSTBusyPosition;
+    Chain createNew(RawMessage message) throws BusyChainID;
 
     Chain defaultChain(RawMessage message);
 

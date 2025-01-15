@@ -71,7 +71,7 @@ class GlobalKeyStorageTest {
     }
 
     @Test
-    void testCopy() throws EncryptionException, KeyStorageNotFoundException, WrongKeyException, CannotUseEncryption, DecryptionException, PrivateKeyNotFoundException {
+    void testCopy() throws Exception {
         globalKeyStorage.set(RSA, rsaKeyStorage);
         GlobalKeyStorage copy = globalKeyStorage.copy();
         IKeyStorage copiedKeyStorage = copy.getNonNull(RSA);

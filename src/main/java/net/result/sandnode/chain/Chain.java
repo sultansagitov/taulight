@@ -43,7 +43,12 @@ public abstract class Chain implements Searchable<Chain, Short> {
 
     public void async(ExecutorService executorService) {
         executorService.submit(() -> {
-            Thread.currentThread().setName("%s/%s/%s".formatted(io.getIpString(), getClass().getSimpleName(), String.format("%04X", getID())));
+            String threadName = "%s/%s/%s".formatted(
+                    io.getIpString(),
+                    getClass().getSimpleName(),
+                    String.format("%04X", getID())
+            );
+            Thread.currentThread().setName(threadName);
 
             try {
                 sync();

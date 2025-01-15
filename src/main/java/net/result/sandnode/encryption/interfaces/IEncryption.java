@@ -14,7 +14,8 @@ public interface IEncryption {
 
     IKeyStorage generate();
 
-    byte[] encrypt(String data, IKeyStorage keyStorage) throws EncryptionException, WrongKeyException, CannotUseEncryption;
+    byte[] encrypt(String data, IKeyStorage keyStorage) throws EncryptionException, WrongKeyException,
+            CannotUseEncryption;
 
     byte[] encryptBytes(byte[] bytes, IKeyStorage keyStorage) throws EncryptionException, WrongKeyException,
             CannotUseEncryption;
