@@ -35,8 +35,7 @@ public class ClientPropertiesConfig implements IClientConfig {
     }
 
     public ClientPropertiesConfig(@NotNull String fileName) throws ConfigurationException, FSException,
-            NoSuchEncryptionException, CreatingKeyException, NoSuchHasherException, KeyHashCheckingSecurityException,
-            EncryptionTypeException, InvalidEndpointSyntax {
+            NoSuchEncryptionException, EncryptionTypeException {
         Properties properties = new Properties();
         try (InputStream input = getClass().getClassLoader().getResourceAsStream(fileName)) {
             properties.load(input);
@@ -51,20 +50,26 @@ public class ClientPropertiesConfig implements IClientConfig {
 
         KEYS_JSON_PATH = FileUtil.resolveHome(properties.getProperty("client.keys.json_file_name"));
 
-        if (Files.exists(KEYS_JSON_PATH)) {
-            FileUtil.checkNotDirectory(KEYS_JSON_PATH);
-            String data = FileUtil.readString(KEYS_JSON_PATH);
-            for (Object key : new JSONObject(data).getJSONArray("keys")) {
-                JSONObject jsonObject = (JSONObject) key;
-                KeyRecord keyRecord = KeyRecord.fromJSON(jsonObject);
-                records.add(keyRecord);
-            }
-        } else {
+        SYMMETRIC_ENCRYPTION = EncryptionManager.find(properties.getProperty("client.keys.symmetric")).symmetric();
+
+        if (!Files.exists(KEYS_JSON_PATH)) {
             FileUtil.createFile(KEYS_JSON_PATH);
             saveKeysJSON();
+            return;
         }
 
-        SYMMETRIC_ENCRYPTION = EncryptionManager.find(properties.getProperty("client.keys.symmetric")).symmetric();
+        FileUtil.checkNotDirectory(KEYS_JSON_PATH);
+        String data = FileUtil.readString(KEYS_JSON_PATH);
+        for (Object key : new JSONObject(data).getJSONArray("keys")) {
+            JSONObject jsonObject = (JSONObject) key;
+            try {
+                KeyRecord keyRecord = KeyRecord.fromJSON(jsonObject);
+                records.add(keyRecord);
+            } catch (SandnodeSecurityException | NoSuchEncryptionException | CreatingKeyException | FSException |
+                     NoSuchHasherException | EncryptionTypeException | InvalidEndpointSyntax e) {
+                LOGGER.error("Error while validating \"{}\"", KEYS_JSON_PATH, e);
+            }
+        }
     }
 
     private JSONObject getKeysJson() {

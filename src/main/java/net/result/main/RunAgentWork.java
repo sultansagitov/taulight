@@ -37,19 +37,24 @@ public class RunAgentWork implements IWork {
         Scanner scanner = new Scanner(System.in);
 
         SandnodeLinkRecord link;
+        ClientPropertiesConfig clientConfig;
         while (true) {
             try {
                 System.out.print("Enter link: ");
                 link = Links.parse(scanner.nextLine());
+
+                clientConfig = new ClientPropertiesConfig();
+
                 break;
             } catch (InvalidSandnodeLinkException | CreatingKeyException e) {
                 System.out.println("Invalid link");
+            } catch (SandnodeException e) {
+                System.out.printf("%s: %s%n", e.getClass().getName(), e.getMessage());
             }
         }
 
         Endpoint endpoint = link.endpoint();
         TauAgent agent = new TauAgent();
-        ClientPropertiesConfig clientConfig = new ClientPropertiesConfig();
         SandnodeClient client = new SandnodeClient(endpoint, agent, HUB, clientConfig);
 
         client.start(ConsoleClientChainManager::new);   // Starting client
@@ -176,7 +181,7 @@ public class RunAgentWork implements IWork {
 
                     try {
                         ClientMember member = AgentProtocol.getMemberFromToken(io, token);
-                        System.out.printf("You log in as %s%n", member.memberID());
+                        System.out.printf("You log in as %s%n", member.memberID);
                         isLoggedIn = true;
                     } catch (InvalidTokenException e) {
                         System.out.println("Invalid token. Please try again.");

@@ -1,10 +1,12 @@
 package net.result.taulight.messages.types;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import net.result.sandnode.client.ClientMember;
 import net.result.sandnode.exceptions.DeserializationException;
 import net.result.sandnode.exceptions.ExpectedMessageException;
 import net.result.sandnode.messages.RawMessage;
 import net.result.sandnode.messages.MSGPackMessage;
+import net.result.sandnode.util.db.IMember;
 
 import java.time.ZonedDateTime;
 
@@ -14,19 +16,23 @@ public class TimedForwardMessage extends MSGPackMessage<TimedForwardMessage.Time
     public static class TimedForwardData extends ForwardMessage.ForwardData {
         @JsonProperty
         public ZonedDateTime zonedDateTime;
+        @JsonProperty
+        public ClientMember clientMember;
 
         public TimedForwardData() {}
-        public TimedForwardData(String chatID, String data, ZonedDateTime ztd) {
+        public TimedForwardData(String chatID, String data, ZonedDateTime ztd, ClientMember clientMember) {
             super(chatID, data);
             zonedDateTime = ztd;
+            this.clientMember = clientMember;
         }
     }
 
-    public TimedForwardMessage(ForwardMessage forwardMessage, ZonedDateTime zdt) {
+    public TimedForwardMessage(ForwardMessage forwardMessage, ZonedDateTime zdt, IMember member) {
         super(forwardMessage.getHeaders(), new TimedForwardData(
                 forwardMessage.getChatID(),
                 forwardMessage.getData(),
-                zdt
+                zdt,
+                ClientMember.of(member)
         ));
     }
 
@@ -45,5 +51,9 @@ public class TimedForwardMessage extends MSGPackMessage<TimedForwardMessage.Time
 
     public ZonedDateTime getZonedDateTime() {
         return object.zonedDateTime;
+    }
+
+    public ClientMember getMember() {
+        return object.clientMember;
     }
 }

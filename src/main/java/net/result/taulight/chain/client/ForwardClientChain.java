@@ -47,8 +47,8 @@ public class ForwardClientChain extends ClientChain {
             ZonedDateTime localZonedDateTime = zonedDateTime.withZoneSameInstant(ZoneId.systemDefault());
             String formattedDateTime = localZonedDateTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss z"));
 
-            LOGGER.info("Forwarded message details - local time: {}, chatID: {}, data: {}",
-                    formattedDateTime, tfm.getChatID(), tfm.getData());
+            LOGGER.info("Forwarded message details - member: {} time: {}, chatID: {}, data: {}",
+                    tfm.getMember().memberID, formattedDateTime, tfm.getChatID(), tfm.getData());
 
         }
     }

@@ -74,7 +74,7 @@ public class ForwardServerChain extends ServerChain {
                     continue;
                 }
 
-                fwd.get().send(new TimedForwardMessage(forwardMessage, ztd));
+                fwd.get().send(new TimedForwardMessage(forwardMessage, ztd, session.member));
                 LOGGER.info("Message forwarded to session: {}", s);
             }
 
