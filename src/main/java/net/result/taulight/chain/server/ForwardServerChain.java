@@ -5,6 +5,7 @@ import net.result.sandnode.chain.server.ServerChain;
 import net.result.sandnode.exceptions.*;
 import net.result.sandnode.messages.RawMessage;
 import net.result.sandnode.messages.types.HappyMessage;
+import net.result.sandnode.server.ServerError;
 import net.result.sandnode.server.Session;
 import net.result.sandnode.util.db.IMember;
 import net.result.taulight.TauChatManager;
@@ -19,8 +20,6 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Optional;
 import java.util.Set;
-
-import static net.result.sandnode.server.ServerError.SERVER_ERROR;
 
 public class ForwardServerChain extends ServerChain {
     private static final Logger LOGGER = LogManager.getLogger(ForwardServerChain.class);
@@ -52,7 +51,7 @@ public class ForwardServerChain extends ServerChain {
 
             if (tauChat.isEmpty()) {
                 LOGGER.error("Failed to find chat with ID: {}", chatID);
-                send(SERVER_ERROR.message()); // TODO: make own error
+                send(ServerError.SERVER_ERROR.message()); // TODO: make own error
                 continue;
             }
 
@@ -60,7 +59,7 @@ public class ForwardServerChain extends ServerChain {
             Set<IMember> members = chat.members;
 
             if (!members.contains(session.member)) {
-                send(SERVER_ERROR.message()); // TODO: make own error
+                send(ServerError.UNAUTHORIZED.message());
                 continue;
             }
 
