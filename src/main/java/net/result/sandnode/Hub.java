@@ -26,7 +26,6 @@ public abstract class Hub extends Node {
         return HUB;
     }
 
-
     @Override
     public @NotNull Session createSession(
             SandnodeServer server,
@@ -37,8 +36,8 @@ public abstract class Hub extends Node {
         IOControl io = new IOControl(socket, connection, this.globalKeyStorage, chainManager);
         Session session = new Session(server, socket, chainManager, io);
         switch (connection) {
-            case HUB2AGENT -> agentSessionList.add(session);
-            case HUB2HUB -> hubSessionList.add(session);
+            case HUB2AGENT -> addAsAgent(session);
+            case HUB2HUB -> addAsHub(session);
             default -> throw new WrongNodeUsedException(connection);
         }
 
