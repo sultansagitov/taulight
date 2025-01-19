@@ -59,7 +59,7 @@ public class ConsoleClientChain extends ClientChain {
                 Map<String, Chain> map = io.chainManager.getChainsMap();
 
                 LOGGER.info("All client chains: {}", chains);
-                LOGGER.info("All context client chains: {}", map);
+                LOGGER.info("All named client chains: {}", map);
 
             } else if (input.equalsIgnoreCase("group")) {
                 Set<String> groups = ClientProtocol.GROUP(io, Set.of());

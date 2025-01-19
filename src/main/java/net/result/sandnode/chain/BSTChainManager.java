@@ -97,8 +97,8 @@ public abstract class BSTChainManager implements ChainManager {
     }
 
     @Override
-    public Optional<Chain> getChain(String contextName) {
-        return Optional.ofNullable(chainMap.get(contextName));
+    public Optional<Chain> getChain(String chainName) {
+        return Optional.ofNullable(chainMap.get(chainName));
     }
 
     @Override
