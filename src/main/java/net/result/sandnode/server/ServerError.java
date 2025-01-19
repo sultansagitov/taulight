@@ -4,7 +4,7 @@ import net.result.sandnode.messages.types.ErrorMessage;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
-public enum ServerError {
+public enum ServerError implements ServerErrorInterface {
 
     // General server errors
     SERVER_ERROR(1000, "Server"),
@@ -27,8 +27,8 @@ public enum ServerError {
     MEMBER_ID_BUSY(3003, "Member ID is already in use"),
     UNAUTHORIZED(3004, "Member unauthorized");
 
-    public final int code;
-    public final String desc;
+    private final int code;
+    private final String desc;
 
     ServerError(int code, @NotNull String desc) {
         this.code = code;
@@ -38,5 +38,15 @@ public enum ServerError {
     @Contract(" -> new")
     public @NotNull ErrorMessage message() {
         return new ErrorMessage(this);
+    }
+
+    @Override
+    public int getCode() {
+        return code;
+    }
+
+    @Override
+    public String getDescription() {
+        return desc;
     }
 }

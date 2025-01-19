@@ -6,7 +6,7 @@ import net.result.sandnode.exceptions.*;
 import net.result.sandnode.messages.RawMessage;
 import net.result.sandnode.messages.types.ErrorMessage;
 import net.result.sandnode.messages.util.MessageType;
-import net.result.sandnode.server.ServerError;
+import net.result.sandnode.server.ServerErrorInterface;
 import net.result.sandnode.util.IOControl;
 import net.result.sandnode.chain.client.ClientChain;
 import net.result.taulight.TauAgentProtocol;
@@ -98,8 +98,8 @@ public class ConsoleClientChain extends ClientChain {
                     if (type == EXIT) break;
 
                     if (type == ERR) {
-                        ServerError error = new ErrorMessage(raw).error;
-                        LOGGER.error("Error code: {} description: {}", error.code, error.desc);
+                        ServerErrorInterface error = new ErrorMessage(raw).error;
+                        LOGGER.error("Error code: {} description: {}", error.getCode(), error.getDescription());
                     }
                 } else {
                     System.out.println("chat not selected");

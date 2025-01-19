@@ -6,7 +6,7 @@ import net.result.sandnode.exceptions.ExpectedMessageException;
 import net.result.sandnode.exceptions.ImpossibleRuntimeException;
 import net.result.sandnode.messages.RawMessage;
 import net.result.sandnode.messages.types.ErrorMessage;
-import net.result.sandnode.server.ServerError;
+import net.result.sandnode.server.ServerErrorInterface;
 import net.result.sandnode.util.IOControl;
 import net.result.taulight.messages.types.TaulightRequestMessage;
 import net.result.taulight.messages.DataType;
@@ -42,8 +42,8 @@ public class TaulightClientChain extends ClientChain {
         RawMessage raw = queue.take();
 
         if (raw.getHeaders().getType() == ERR) {
-            ServerError error = new ErrorMessage(raw).error;
-            LOGGER.error("Error Code: {}, Error Description: {}", error.code, error.desc);
+            ServerErrorInterface error = new ErrorMessage(raw).error;
+            LOGGER.error("Error Code: {}, Error Description: {}", error.getCode(), error.getDescription());
             return Optional.empty();
         }
 
@@ -57,8 +57,8 @@ public class TaulightClientChain extends ClientChain {
         RawMessage raw = queue.take();
 
         if (raw.getHeaders().getType() == ERR) {
-            ServerError error = new ErrorMessage(raw).error;
-            LOGGER.error("Error code: {} description: {}", error.code, error.desc);
+            ServerErrorInterface error = new ErrorMessage(raw).error;
+            LOGGER.error("Error code: {} description: {}", error.getCode(), error.getDescription());
         }
     }
 
@@ -68,8 +68,8 @@ public class TaulightClientChain extends ClientChain {
         RawMessage raw = queue.take();
 
         if (raw.getHeaders().getType() == ERR) {
-            ServerError error = new ErrorMessage(raw).error;
-            LOGGER.error("Error code: {} description: {}", error.code, error.desc);
+            ServerErrorInterface error = new ErrorMessage(raw).error;
+            LOGGER.error("Error code: {} description: {}", error.getCode(), error.getDescription());
         }
     }
 }

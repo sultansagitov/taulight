@@ -30,7 +30,7 @@ public class PublicKeyClientChain extends Chain {
         if (response.getHeaders().getType() == ERR) {
             ErrorMessage errorMessage = new ErrorMessage(response);
             request.getHeaders().setChainID(getID());
-            LOGGER.info("Handle error {} : {}", errorMessage.error.code, errorMessage.error.desc);
+            LOGGER.info("Handle error {} : {}", errorMessage.error.getCode(), errorMessage.error.getDescription());
             return;
         }
 
