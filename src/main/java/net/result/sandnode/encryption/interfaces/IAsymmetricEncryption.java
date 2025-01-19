@@ -11,12 +11,11 @@ public interface IAsymmetricEncryption extends IEncryption {
     IAsymmetricKeyStorage generate();
 
     @Override
-    byte[] encryptBytes(byte[] bytes, IKeyStorage keyStorage) throws EncryptionException, WrongKeyException,
-            CannotUseEncryption;
+    byte[] encryptBytes(byte[] bytes, IKeyStorage keyStorage) throws EncryptionException, CannotUseEncryption;
 
     @Override
-    byte[] decryptBytes(byte[] encryptedBytes, IKeyStorage keyStorage) throws DecryptionException, WrongKeyException,
-            CannotUseEncryption, PrivateKeyNotFoundException;
+    byte[] decryptBytes(byte[] encryptedBytes, IKeyStorage keyStorage)
+            throws DecryptionException, WrongKeyException, CannotUseEncryption, PrivateKeyNotFoundException;
 
     IAsymmetricKeyStorage merge(IAsymmetricKeyStorage publicKeyStorage, IAsymmetricKeyStorage privateKeyStorage);
 

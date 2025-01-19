@@ -31,13 +31,13 @@ public class ServerPropertiesConfig implements IServerConfig {
     private IDatabase database;
     private ITokenizer tokenizer;
 
-    public ServerPropertiesConfig() throws ConfigurationException, FSException, NoSuchEncryptionException,
-            EncryptionTypeException {
+    public ServerPropertiesConfig()
+            throws ConfigurationException, FSException, NoSuchEncryptionException, EncryptionTypeException {
         this("taulight.properties", null);
     }
 
-    public ServerPropertiesConfig(@NotNull String fileName, @Nullable Endpoint endpoint) throws ConfigurationException,
-            FSException, NoSuchEncryptionException, EncryptionTypeException {
+    public ServerPropertiesConfig(String fileName, @Nullable Endpoint endpoint)
+            throws ConfigurationException, FSException, NoSuchEncryptionException, EncryptionTypeException {
         Properties properties = new Properties();
 
         try (InputStream input = getClass().getClassLoader().getResourceAsStream(fileName)) {

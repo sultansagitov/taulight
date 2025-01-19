@@ -12,8 +12,10 @@ import java.net.Socket;
 import java.nio.ByteBuffer;
 
 public class StreamReader {
-    public static byte readByte(@NotNull InputStream in, @NotNull String message)
-            throws UnexpectedSocketDisconnectException {
+    public static byte readByte(
+            @NotNull InputStream in,
+            @NotNull String message
+    ) throws UnexpectedSocketDisconnectException {
         int integer;
         try {
             integer = in.read();
@@ -25,8 +27,10 @@ public class StreamReader {
         return (byte) integer;
     }
 
-    public static short readShort(@NotNull InputStream in, @NotNull String message)
-            throws UnexpectedSocketDisconnectException {
+    public static short readShort(
+            @NotNull InputStream in,
+            @NotNull String message
+    ) throws UnexpectedSocketDisconnectException {
         byte[] bytes;
         try {
             bytes = in.readNBytes(2);
@@ -38,8 +42,10 @@ public class StreamReader {
         return ByteBuffer.wrap(bytes).getShort();
     }
 
-    public static int readInt(@NotNull InputStream in, @NotNull String message)
-            throws UnexpectedSocketDisconnectException {
+    public static int readInt(
+            @NotNull InputStream in,
+            @NotNull String message
+    ) throws UnexpectedSocketDisconnectException {
         byte[] bytes;
         try {
             bytes = in.readNBytes(4);
@@ -51,8 +57,10 @@ public class StreamReader {
         return ByteBuffer.wrap(bytes).getInt();
     }
 
-    public static byte @NotNull [] readN(@NotNull InputStream in, int length, @NotNull String message)
-            throws UnexpectedSocketDisconnectException {
+    public static byte @NotNull [] readN(
+            @NotNull InputStream in, int length,
+            @NotNull String message
+    ) throws UnexpectedSocketDisconnectException {
         byte[] bytes;
         try {
             bytes = in.readNBytes(length);

@@ -24,13 +24,13 @@ import static net.result.sandnode.encryption.AsymmetricEncryption.ECIES;
 public class ECIESEncryptor {
     private static final Logger LOGGER = LogManager.getLogger(ECIESEncryptor.class);
 
-    public static byte[] encrypt(@NotNull String data, @NotNull IKeyStorage keyStorage) throws EncryptionException,
-            WrongKeyException, CannotUseEncryption {
+    public static byte[] encrypt(@NotNull String data, @NotNull IKeyStorage keyStorage)
+            throws EncryptionException, CannotUseEncryption {
         return encryptBytes(data.getBytes(StandardCharsets.US_ASCII), keyStorage);
     }
 
     public static byte[] encryptBytes(byte @NotNull [] data, @NotNull IKeyStorage keyStorage)
-            throws EncryptionException, CannotUseEncryption, WrongKeyException {
+            throws EncryptionException, CannotUseEncryption {
         ECIESKeyStorage eciesKeyStorage = (ECIESKeyStorage) keyStorage.expect(ECIES);
         Cipher cipher;
         try {

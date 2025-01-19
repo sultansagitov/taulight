@@ -34,11 +34,9 @@ public abstract class Message implements IMessage {
         return headersEncryption;
     }
 
-    public static @NotNull RawMessage decryptMessage(
-            @NotNull EncryptedMessage encrypted,
-            @NotNull GlobalKeyStorage globalKeyStorage
-    ) throws DecryptionException, NoSuchMessageTypeException, NoSuchEncryptionException, KeyStorageNotFoundException,
-            WrongKeyException, PrivateKeyNotFoundException {
+    public static @NotNull RawMessage decryptMessage(EncryptedMessage encrypted, GlobalKeyStorage globalKeyStorage)
+            throws DecryptionException, NoSuchMessageTypeException, NoSuchEncryptionException,
+            KeyStorageNotFoundException, WrongKeyException, PrivateKeyNotFoundException {
         IEncryption headersEncryption = EncryptionManager.find(encrypted.encryptionByte);
         byte[] decryptedHeaders;
         IKeyStorage headersKeyStorage = globalKeyStorage.getNonNull(headersEncryption);
@@ -66,9 +64,8 @@ public abstract class Message implements IMessage {
     }
 
     @Override
-    public byte[] toByteArray(@NotNull GlobalKeyStorage globalKeyStorage) throws EncryptionException,
-            KeyStorageNotFoundException, MessageSerializationException, IllegalMessageLengthException,
-            WrongKeyException {
+    public byte[] toByteArray(@NotNull GlobalKeyStorage globalKeyStorage)
+            throws EncryptionException, MessageSerializationException, IllegalMessageLengthException {
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
         IEncryption encryption = getHeadersEncryption();
         byteArrayOutputStream.write(1); // Version

@@ -27,8 +27,8 @@ public class PublicKeyResponse extends Message {
         this.keyStorage = keyStorage;
     }
 
-    public PublicKeyResponse(@NotNull IMessage response) throws NoSuchEncryptionException, CreatingKeyException,
-            EncryptionTypeException, ExpectedMessageException {
+    public PublicKeyResponse(@NotNull IMessage response)
+            throws NoSuchEncryptionException, CreatingKeyException, EncryptionTypeException, ExpectedMessageException {
         super(response.getHeaders());
         LOGGER.debug(response);
         ExpectedMessageException.check(response, PUB);

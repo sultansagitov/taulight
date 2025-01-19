@@ -12,9 +12,8 @@ public interface IMessage {
 
     byte[] getBody();
 
-    byte[] toByteArray(@NotNull GlobalKeyStorage globalKeyStorage) throws EncryptionException,
-            KeyStorageNotFoundException, MessageSerializationException, IllegalMessageLengthException,
-            WrongKeyException;
+    byte[] toByteArray(@NotNull GlobalKeyStorage globalKeyStorage)
+            throws EncryptionException, MessageSerializationException, IllegalMessageLengthException;
 
     void setHeadersEncryption(@NotNull IEncryption encryption);
 

@@ -8,7 +8,6 @@ import net.result.sandnode.messages.types.LoginResponse;
 import net.result.sandnode.util.IOControl;
 
 import static net.result.sandnode.messages.util.MessageTypes.ERR;
-import static net.result.sandnode.server.ServerError.MEMBER_NOT_FOUND;
 
 public class LoginClientChain extends ClientChain {
     private final String token;
@@ -20,8 +19,8 @@ public class LoginClientChain extends ClientChain {
     }
 
     @Override
-    public void sync() throws InterruptedException, MemberNotFoundException, DeserializationException,
-            InvalidTokenException {
+    public void sync()
+            throws InterruptedException, MemberNotFoundException, DeserializationException, InvalidTokenException {
         LoginRequest loginRequest = new LoginRequest(token);
         send(loginRequest);
 

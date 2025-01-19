@@ -36,8 +36,8 @@ public class TaulightClientChain extends ClientChain {
         throw new ImpossibleRuntimeException("This chain should no be started");
     }
 
-    public Optional<Set<String>> getChats() throws InterruptedException, DeserializationException,
-            ExpectedMessageException {
+    public Optional<Set<String>> getChats()
+            throws InterruptedException, DeserializationException, ExpectedMessageException {
         send(new TaulightRequestMessage(DataType.GET));
         RawMessage raw = queue.take();
 

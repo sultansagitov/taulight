@@ -20,8 +20,8 @@ import static net.result.sandnode.encryption.AsymmetricEncryption.ECIES;
 public class ECIESDecryptor {
     private static final Logger LOGGER = LogManager.getLogger(ECIESDecryptor.class);
 
-    public static String decrypt(byte @NotNull [] data, @NotNull IKeyStorage keyStorage) throws DecryptionException,
-            WrongKeyException, CannotUseEncryption, PrivateKeyNotFoundException {
+    public static String decrypt(byte @NotNull [] data, @NotNull IKeyStorage keyStorage)
+            throws DecryptionException, WrongKeyException, CannotUseEncryption, PrivateKeyNotFoundException {
         return new String(decryptBytes(data, keyStorage));
     }
 

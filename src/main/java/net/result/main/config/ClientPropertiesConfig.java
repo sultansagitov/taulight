@@ -28,14 +28,13 @@ public class ClientPropertiesConfig implements IClientConfig {
     private final ISymmetricEncryption SYMMETRIC_ENCRYPTION;
     private final List<KeyRecord> records = new ArrayList<>();
 
-    public ClientPropertiesConfig() throws ConfigurationException, FSException, NoSuchEncryptionException,
-            CreatingKeyException, NoSuchHasherException, KeyHashCheckingSecurityException, EncryptionTypeException,
-            InvalidEndpointSyntax {
+    public ClientPropertiesConfig()
+            throws ConfigurationException, FSException, NoSuchEncryptionException, EncryptionTypeException {
         this("taulight.properties");
     }
 
-    public ClientPropertiesConfig(@NotNull String fileName) throws ConfigurationException, FSException,
-            NoSuchEncryptionException, EncryptionTypeException {
+    public ClientPropertiesConfig(@NotNull String fileName)
+            throws ConfigurationException, FSException, NoSuchEncryptionException, EncryptionTypeException {
         Properties properties = new Properties();
         try (InputStream input = getClass().getClassLoader().getResourceAsStream(fileName)) {
             properties.load(input);
@@ -84,8 +83,10 @@ public class ClientPropertiesConfig implements IClientConfig {
     }
 
     @Override
-    public synchronized void saveKey(@NotNull Endpoint endpoint, @NotNull IAsymmetricKeyStorage keyStorage)
-            throws FSException, KeyAlreadySaved {
+    public synchronized void saveKey(
+            @NotNull Endpoint endpoint,
+            @NotNull IAsymmetricKeyStorage keyStorage
+    ) throws FSException, KeyAlreadySaved {
         String filename = "%s_%s_public.key".formatted(
                 endpoint.toString().replaceAll("[.:\\\\/*?\"<>|]", "_"),
                 UUID.randomUUID().toString().substring(0, 6)

@@ -19,13 +19,15 @@ import static net.result.sandnode.encryption.AsymmetricEncryption.RSA;
 public class RSADecryptor {
     private static final Logger LOGGER = LogManager.getLogger(RSADecryptor.class);
 
-    public static String decrypt(byte @NotNull [] data, @NotNull IKeyStorage keyStorage) throws DecryptionException,
-            WrongKeyException, CannotUseEncryption, PrivateKeyNotFoundException {
+    public static String decrypt(byte @NotNull [] data, @NotNull IKeyStorage keyStorage)
+            throws DecryptionException, WrongKeyException, CannotUseEncryption, PrivateKeyNotFoundException {
         return new String(decryptBytes(data, keyStorage));
     }
 
-    public static byte[] decryptBytes(byte @NotNull [] data, @NotNull IKeyStorage keyStorage)
-            throws DecryptionException, WrongKeyException, CannotUseEncryption, PrivateKeyNotFoundException {
+    public static byte[] decryptBytes(
+            byte @NotNull [] data,
+            @NotNull IKeyStorage keyStorage
+    ) throws DecryptionException, WrongKeyException, CannotUseEncryption, PrivateKeyNotFoundException {
         RSAKeyStorage rsaKeyStorage = (RSAKeyStorage) keyStorage.expect(RSA);
         Cipher cipher;
 

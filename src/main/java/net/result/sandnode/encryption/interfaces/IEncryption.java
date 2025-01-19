@@ -14,17 +14,15 @@ public interface IEncryption {
 
     IKeyStorage generate();
 
-    byte[] encrypt(String data, IKeyStorage keyStorage) throws EncryptionException, WrongKeyException,
-            CannotUseEncryption;
+    byte[] encrypt(String data, IKeyStorage keyStorage) throws EncryptionException, CannotUseEncryption;
 
-    byte[] encryptBytes(byte[] bytes, IKeyStorage keyStorage) throws EncryptionException, WrongKeyException,
-            CannotUseEncryption;
+    byte[] encryptBytes(byte[] bytes, IKeyStorage keyStorage) throws EncryptionException, CannotUseEncryption;
 
-    String decrypt(byte[] encryptedData, IKeyStorage keyStorage) throws WrongKeyException, CannotUseEncryption,
-            DecryptionException, PrivateKeyNotFoundException;
+    String decrypt(byte[] encryptedData, IKeyStorage keyStorage)
+            throws WrongKeyException, CannotUseEncryption, DecryptionException, PrivateKeyNotFoundException;
 
-    byte[] decryptBytes(byte[] encryptedBytes, IKeyStorage keyStorage) throws DecryptionException, WrongKeyException,
-            CannotUseEncryption, PrivateKeyNotFoundException;
+    byte[] decryptBytes(byte[] encryptedBytes, IKeyStorage keyStorage)
+            throws DecryptionException, WrongKeyException, CannotUseEncryption, PrivateKeyNotFoundException;
 
     default IAsymmetricEncryption asymmetric() throws EncryptionTypeException {
         if (isAsymmetric())

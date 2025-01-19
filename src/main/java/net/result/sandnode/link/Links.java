@@ -16,8 +16,8 @@ import java.net.URLEncoder;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 public class Links {
-    public static @NotNull URI getServerLink(@NotNull SandnodeServer server) throws KeyStorageNotFoundException,
-            EncryptionTypeException {
+    public static @NotNull URI getServerLink(@NotNull SandnodeServer server)
+            throws KeyStorageNotFoundException, EncryptionTypeException {
         IAsymmetricEncryption encryption = server.serverConfig.mainEncryption();
         IAsymmetricKeyStorage keyStorage = server.node.globalKeyStorage.getAsymmetricNonNull(encryption);
         String string;

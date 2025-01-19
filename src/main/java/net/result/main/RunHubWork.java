@@ -27,8 +27,7 @@ public class RunHubWork implements IWork {
     private static final Logger LOGGER = LogManager.getLogger(RunHubWork.class);
 
     @Override
-    public void run() throws NoSuchEncryptionException, ConfigurationException, CreatingKeyException, FSException,
-            ServerStartException, KeyStorageNotFoundException, EncryptionTypeException {
+    public void run() throws SandnodeException {
         ServerPropertiesConfig serverConfig = new ServerPropertiesConfig();
         serverConfig.setGroupManager(new HashSetGroupManager());
         serverConfig.setDatabase(new InMemoryDatabase());

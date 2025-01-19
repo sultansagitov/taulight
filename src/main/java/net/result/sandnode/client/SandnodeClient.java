@@ -39,8 +39,8 @@ public class SandnodeClient {
         this.clientConfig = clientConfig;
     }
 
-    public void start(@NotNull Function<IOControl, ClientChainManager> chainManager) throws InputStreamException,
-            OutputStreamException, ConnectionException {
+    public void start(@NotNull Function<IOControl, ClientChainManager> chainManager)
+            throws InputStreamException, OutputStreamException, ConnectionException {
         try {
             LOGGER.info("Connecting to {}", endpoint.toString());
             socket = new Socket(endpoint.host(), endpoint.port());

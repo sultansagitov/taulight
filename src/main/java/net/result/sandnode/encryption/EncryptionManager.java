@@ -48,16 +48,16 @@ public class EncryptionManager extends Manager<IEncryption> {
         throw new NoSuchEncryptionException(e);
     }
 
-    public static @NotNull IAsymmetricEncryption findAsymmetric(byte e) throws NoSuchEncryptionException,
-            EncryptionTypeException {
+    public static @NotNull IAsymmetricEncryption findAsymmetric(byte e)
+            throws NoSuchEncryptionException, EncryptionTypeException {
         for (IEncryption encryption : instance().list)
             if (encryption.asByte() == e)
                 return encryption.asymmetric();
         throw new NoSuchEncryptionException(e);
     }
 
-    public static @NotNull ISymmetricEncryption findSymmetric(byte e) throws NoSuchEncryptionException,
-            EncryptionTypeException {
+    public static @NotNull ISymmetricEncryption findSymmetric(byte e)
+            throws NoSuchEncryptionException, EncryptionTypeException {
         for (IEncryption encryption : instance().list)
             if (encryption.asByte() == e)
                 return encryption.symmetric();

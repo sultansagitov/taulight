@@ -27,8 +27,11 @@ public abstract class Node {
         this(new GlobalKeyStorage());
     }
 
-    public abstract @NotNull Session createSession(SandnodeServer server, Socket socket, Connection connection)
-            throws WrongNodeUsedException, OutputStreamException, InputStreamException;
+    public abstract @NotNull Session createSession(
+            SandnodeServer server,
+            Socket socket,
+            Connection connection
+    ) throws WrongNodeUsedException, OutputStreamException, InputStreamException;
 
     public abstract @NotNull NodeType type();
 

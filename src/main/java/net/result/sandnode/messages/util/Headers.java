@@ -89,8 +89,8 @@ public class Headers {
         return chainID;
     }
 
-    public static Headers getFromBytes(byte @NotNull [] data) throws NoSuchEncryptionException,
-            NoSuchMessageTypeException {
+    public static Headers getFromBytes(byte @NotNull [] data)
+            throws NoSuchEncryptionException, NoSuchMessageTypeException {
         if (data.length < 5) {
             throw new IllegalArgumentException("Data is too short to extract the required information");
         }

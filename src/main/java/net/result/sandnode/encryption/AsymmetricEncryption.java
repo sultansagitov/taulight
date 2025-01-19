@@ -21,23 +21,22 @@ public enum AsymmetricEncryption implements IAsymmetricEncryption {
             return RSAGenerator.generate();
         }
         @Override
-        public byte[] encrypt(String data, IKeyStorage keyStorage) throws EncryptionException, WrongKeyException,
-                CannotUseEncryption {
+        public byte[] encrypt(String data, IKeyStorage keyStorage) throws EncryptionException, CannotUseEncryption {
             return RSAEncryptor.encrypt(data, keyStorage);
         }
         @Override
-        public byte[] encryptBytes(byte[] bytes, IKeyStorage keyStorage) throws EncryptionException, WrongKeyException,
-                CannotUseEncryption {
+        public byte[] encryptBytes(byte[] bytes, IKeyStorage keyStorage)
+                throws EncryptionException, CannotUseEncryption {
             return RSAEncryptor.encryptBytes(bytes, keyStorage);
         }
         @Override
-        public String decrypt(byte[] encryptedData, IKeyStorage keyStorage) throws WrongKeyException,
-                CannotUseEncryption, DecryptionException, PrivateKeyNotFoundException {
+        public String decrypt(byte[] encryptedData, IKeyStorage keyStorage)
+                throws WrongKeyException, CannotUseEncryption, DecryptionException, PrivateKeyNotFoundException {
             return RSADecryptor.decrypt(encryptedData, keyStorage);
         }
         @Override
-        public byte[] decryptBytes(byte[] encryptedBytes, IKeyStorage keyStorage) throws DecryptionException,
-                WrongKeyException, CannotUseEncryption, PrivateKeyNotFoundException {
+        public byte[] decryptBytes(byte[] encryptedBytes, IKeyStorage keyStorage)
+                throws DecryptionException, WrongKeyException, CannotUseEncryption, PrivateKeyNotFoundException {
             return RSADecryptor.decryptBytes(encryptedBytes, keyStorage);
         }
         @Override
@@ -68,30 +67,31 @@ public enum AsymmetricEncryption implements IAsymmetricEncryption {
             return ECIESKeyGenerator.generate();
         }
         @Override
-        public byte[] encrypt(String data, IKeyStorage keyStorage) throws EncryptionException, WrongKeyException,
-                CannotUseEncryption {
+        public byte[] encrypt(String data, IKeyStorage keyStorage) throws EncryptionException, CannotUseEncryption {
             return ECIESEncryptor.encrypt(data, keyStorage);
         }
         @Override
-        public byte[] encryptBytes(byte[] bytes, IKeyStorage keyStorage) throws EncryptionException,
-                WrongKeyException, CannotUseEncryption {
+        public byte[] encryptBytes(
+                byte[] bytes,
+                IKeyStorage keyStorage
+        ) throws EncryptionException, CannotUseEncryption {
             return ECIESEncryptor.encryptBytes(bytes, keyStorage);
         }
         @Override
-        public String decrypt(byte[] encryptedData, IKeyStorage keyStorage) throws WrongKeyException,
-                CannotUseEncryption, DecryptionException, PrivateKeyNotFoundException {
+        public String decrypt(byte[] encryptedData, IKeyStorage keyStorage)
+                throws WrongKeyException, CannotUseEncryption, DecryptionException, PrivateKeyNotFoundException {
             return ECIESDecryptor.decrypt(encryptedData, keyStorage);
         }
         @Override
-        public byte[] decryptBytes(byte[] encryptedBytes, IKeyStorage keyStorage) throws DecryptionException,
-                WrongKeyException, CannotUseEncryption, PrivateKeyNotFoundException {
+        public byte[] decryptBytes(byte[] encryptedBytes, IKeyStorage keyStorage)
+                throws DecryptionException, WrongKeyException, CannotUseEncryption, PrivateKeyNotFoundException {
             return ECIESDecryptor.decryptBytes(encryptedBytes, keyStorage);
         }
         @Override
         public ECIESKeyStorage merge(IAsymmetricKeyStorage publicKeyStorage, IAsymmetricKeyStorage privateKeyStorage) {
             return new ECIESKeyStorage(
-                    ((ECIESKeyStorage) publicKeyStorage).publicKey(),
-                    ((ECIESKeyStorage) privateKeyStorage).privateKey()
+                ((ECIESKeyStorage) publicKeyStorage).publicKey(),
+                ((ECIESKeyStorage) privateKeyStorage).privateKey()
             );
         }
         @Override

@@ -21,13 +21,13 @@ import static net.result.sandnode.encryption.AsymmetricEncryption.RSA;
 public class RSAEncryptor {
     private static final Logger LOGGER = LogManager.getLogger(RSAEncryptor.class);
 
-    public static byte[] encrypt(@NotNull String data, @NotNull IKeyStorage rsaKeyStorage) throws EncryptionException,
-            WrongKeyException, CannotUseEncryption {
+    public static byte[] encrypt(@NotNull String data, @NotNull IKeyStorage rsaKeyStorage)
+            throws EncryptionException, CannotUseEncryption {
         return encryptBytes(data.getBytes(US_ASCII), rsaKeyStorage);
     }
 
     public static byte[] encryptBytes(byte @NotNull [] data, @NotNull IKeyStorage keyStorage)
-            throws EncryptionException, WrongKeyException, CannotUseEncryption {
+            throws EncryptionException, CannotUseEncryption {
         Cipher cipher;
         byte[] encryptedBytes;
 

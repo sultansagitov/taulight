@@ -95,8 +95,7 @@ public class IOControl {
     }
 
     public void sendingLoop() throws InterruptedException, IllegalMessageLengthException,
-            MessageSerializationException, EncryptionException, KeyStorageNotFoundException, WrongKeyException,
-            MessageWriteException {
+            MessageSerializationException, EncryptionException, MessageWriteException {
         while (connected) {
             IMessage message = sendingQueue.take();
             beforeSending(message);
@@ -111,12 +110,12 @@ public class IOControl {
             } catch (MessageSerializationException | IllegalMessageLengthException e) {
                 LOGGER.error("Serialization or message length issue", e);
                 error = ServerError.SERVER_ERROR;
-            } catch (EncryptionException | WrongKeyException e) {
-                LOGGER.error("Encryption or key issue", e);
-                error = ServerError.ENCRYPT;
             } catch (KeyStorageNotFoundException e) {
                 LOGGER.error("Key storage not found", e);
                 error = ServerError.KEY_NOT_FOUND;
+            } catch (EncryptionException e) {
+                LOGGER.error("Encryption or key issue", e);
+                error = ServerError.ENCRYPT;
             }
 
 

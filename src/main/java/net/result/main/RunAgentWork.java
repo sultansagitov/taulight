@@ -83,8 +83,8 @@ public class RunAgentWork implements IWork {
         taulightChain.send(new RequestChainNameMessage("tau"));
     }
 
-    private static void startConsoleChain(IOControl io) throws InterruptedException, ExpectedMessageException,
-            DeserializationException {
+    private static void startConsoleChain(IOControl io)
+            throws InterruptedException, ExpectedMessageException, DeserializationException {
         ConsoleClientChain consoleChain = new ConsoleClientChain(io);
         io.chainManager.linkChain(consoleChain);
         consoleChain.sync();
@@ -97,13 +97,10 @@ public class RunAgentWork implements IWork {
         fwd.async(executorService);
     }
 
-    private static void getPublicKey(
-            SandnodeClient client,
-            TauAgent agent,
-            SandnodeLinkRecord link
-    ) throws FSException, KeyAlreadySaved, LinkDoesNotMatchException, InterruptedException, EncryptionTypeException,
-            NoSuchEncryptionException, CreatingKeyException, ExpectedMessageException, KeyStorageNotFoundException,
-            DeserializationException {
+    private static void getPublicKey(SandnodeClient client, TauAgent agent, SandnodeLinkRecord link)
+            throws FSException, KeyAlreadySaved, LinkDoesNotMatchException, InterruptedException,
+            EncryptionTypeException, NoSuchEncryptionException, CreatingKeyException, ExpectedMessageException,
+            KeyStorageNotFoundException, DeserializationException {
 
         Optional<IAsymmetricKeyStorage> filePublicKey = client.clientConfig.getPublicKey(link.endpoint());
         IAsymmetricKeyStorage linkKeyStorage = link.keyStorage();
@@ -138,8 +135,8 @@ public class RunAgentWork implements IWork {
         client.io.setServerKey(serverKey);
     }
 
-    private void handleAuthentication(IOControl io, Scanner scanner) throws InterruptedException,
-            ExpectedMessageException, DeserializationException {
+    private void handleAuthentication(IOControl io, Scanner scanner)
+            throws InterruptedException, ExpectedMessageException, DeserializationException {
 
         String s;
         do {

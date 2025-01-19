@@ -29,9 +29,9 @@ public final class KeyRecord {
         this.hash = hasher.hash(encodedKey);
     }
 
-    public static @NotNull KeyRecord fromJSON(@NotNull JSONObject json) throws NoSuchEncryptionException,
-            CreatingKeyException, FSException, NoSuchHasherException, KeyHashCheckingSecurityException,
-            EncryptionTypeException, InvalidEndpointSyntax {
+    public static @NotNull KeyRecord fromJSON(@NotNull JSONObject json)
+            throws NoSuchEncryptionException, CreatingKeyException, FSException, NoSuchHasherException,
+            KeyHashCheckingSecurityException, EncryptionTypeException, InvalidEndpointSyntax {
         Path path = Path.of(json.getString("path"));
         IAsymmetricEncryption encryption = EncryptionManager.find(json.getString("encryption")).asymmetric();
         IAsymmetricKeyStorage keyStorage = encryption.publicKeyConvertor().toKeyStorage(FileUtil.readString(path));
