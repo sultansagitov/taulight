@@ -35,6 +35,10 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Optional;
 import java.util.Random;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 import static net.result.sandnode.encryption.AsymmetricEncryption.ECIES;
 import static net.result.sandnode.messages.util.Connection.AGENT2HUB;
@@ -78,17 +82,18 @@ public class ServerTest {
         AgentThread agentThread = new AgentThread(port);
         agentThread.start();
 
-        while (hubThread.hub.agentSessionList.isEmpty())
-            Thread.onSpinWait();
+        assertTrue(hubThread.condition.await(3, TimeUnit.SECONDS));
+
+        IOControl io = agentThread.client.io;
 
         // Client sends message via chain
         Headers headers = prepareHeaders();
         EmptyMessage sentMessage = new EmptyMessage(headers);
 
-        TestClientChain testClientChain = new TestClientChain(agentThread.client.io, sentMessage);
-        agentThread.client.io.chainManager.linkChain(testClientChain);
+        TestClientChain testClientChain = new TestClientChain(io, sentMessage);
+        io.chainManager.linkChain(testClientChain);
         testClientChain.sync();
-        agentThread.client.io.chainManager.removeChain(testClientChain);
+        io.chainManager.removeChain(testClientChain);
 
         while (TestServerChain.message == null) {
             Thread.onSpinWait();
@@ -136,6 +141,8 @@ public class ServerTest {
     }
 
     public static class HubThread extends Thread {
+        public Lock lock = new ReentrantLock();
+        public final Condition condition;
 
         public final SandnodeServer server;
         public final Hub hub;
@@ -144,6 +151,8 @@ public class ServerTest {
         public HubThread(GlobalKeyStorage serverKeyStorage, int port) {
             setName("HubThread");
             this.port = port;
+            lock.lock();
+            condition = lock.newCondition();
             hub = new Hub(serverKeyStorage) {
                 @Override
                 public void close() {
@@ -152,6 +161,12 @@ public class ServerTest {
                 @Override
                 public @NotNull ServerChainManager createChainManager() {
                     return new TestingBSTServerChainManager();
+                }
+
+                @Override
+                protected void addAsAgent(Session session) {
+                    super.addAsAgent(session);
+                    condition.signal();
                 }
             };
 
