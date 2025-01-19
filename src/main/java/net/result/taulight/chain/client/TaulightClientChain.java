@@ -16,11 +16,14 @@ import org.apache.logging.log4j.Logger;
 
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 import static net.result.sandnode.messages.util.MessageTypes.ERR;
 
 public class TaulightClientChain extends ClientChain {
     private static final Logger LOGGER = LogManager.getLogger(TaulightClientChain.class);
+    private final Lock lock = new ReentrantLock();
 
     public TaulightClientChain(IOControl io) {
         super(io);
@@ -33,43 +36,56 @@ public class TaulightClientChain extends ClientChain {
 
     @Override
     public void sync() {
-        throw new ImpossibleRuntimeException("This chain should no be started");
+        throw new ImpossibleRuntimeException("This chain should not be started");
     }
 
     public Optional<Set<String>> getChats()
             throws InterruptedException, DeserializationException, ExpectedMessageException {
-        send(new TaulightRequestMessage(DataType.GET));
-        RawMessage raw = queue.take();
+        lock.lock();
+        try {
+            send(new TaulightRequestMessage(DataType.GET));
+            RawMessage raw = queue.take();
 
-        if (raw.getHeaders().getType() == ERR) {
-            ServerErrorInterface error = new ErrorMessage(raw).error;
-            LOGGER.error("Error Code: {}, Error Description: {}", error.getCode(), error.getDescription());
-            return Optional.empty();
+            if (raw.getHeaders().getType() == ERR) {
+                ServerErrorInterface error = new ErrorMessage(raw).error;
+                LOGGER.error("Error Code: {}, Error Description: {}", error.getCode(), error.getDescription());
+                return Optional.empty();
+            }
+
+            Set<String> chats = new TaulightResponseMessage(raw).getChats();
+            return Optional.of(chats);
+        } finally {
+            lock.unlock();
         }
-
-        Set<String> chats = new TaulightResponseMessage(raw).getChats();
-        return Optional.of(chats);
     }
 
-    @Deprecated(forRemoval = true)
     public void addToGroup(String group) throws InterruptedException, DeserializationException {
-        send(new TaulightRequestMessage(TaulightRequestMessage.TaulightRequestData.addGroup(group)));
-        RawMessage raw = queue.take();
+        lock.lock();
+        try {
+            send(new TaulightRequestMessage(TaulightRequestMessage.TaulightRequestData.addGroup(group)));
+            RawMessage raw = queue.take();
 
-        if (raw.getHeaders().getType() == ERR) {
-            ServerErrorInterface error = new ErrorMessage(raw).error;
-            LOGGER.error("Error code: {} description: {}", error.getCode(), error.getDescription());
+            if (raw.getHeaders().getType() == ERR) {
+                ServerErrorInterface error = new ErrorMessage(raw).error;
+                LOGGER.error("Error code: {}, description: {}", error.getCode(), error.getDescription());
+            }
+        } finally {
+            lock.unlock();
         }
     }
 
-    @Deprecated(forRemoval = true)
     public void write(String group, String message) throws InterruptedException, DeserializationException {
-        send(new TaulightRequestMessage(TaulightRequestMessage.TaulightRequestData.write(group, message)));
-        RawMessage raw = queue.take();
+        lock.lock();
+        try {
+            send(new TaulightRequestMessage(TaulightRequestMessage.TaulightRequestData.write(group, message)));
+            RawMessage raw = queue.take();
 
-        if (raw.getHeaders().getType() == ERR) {
-            ServerErrorInterface error = new ErrorMessage(raw).error;
-            LOGGER.error("Error code: {} description: {}", error.getCode(), error.getDescription());
+            if (raw.getHeaders().getType() == ERR) {
+                ServerErrorInterface error = new ErrorMessage(raw).error;
+                LOGGER.error("Error code: {}, description: {}", error.getCode(), error.getDescription());
+            }
+        } finally {
+            lock.unlock();
         }
     }
 }
