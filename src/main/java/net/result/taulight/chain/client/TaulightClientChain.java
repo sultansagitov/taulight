@@ -39,6 +39,11 @@ public class TaulightClientChain extends ClientChain {
         throw new ImpossibleRuntimeException("This chain should not be started");
     }
 
+    private static void handleError(RawMessage raw) throws DeserializationException {
+        ServerErrorInterface error = new ErrorMessage(raw).error;
+        LOGGER.error("Error Code: {}, Error Description: {}", error.getCode(), error.getDescription());
+    }
+
     public Optional<Set<String>> getChats()
             throws InterruptedException, DeserializationException, ExpectedMessageException {
         lock.lock();
@@ -47,8 +52,7 @@ public class TaulightClientChain extends ClientChain {
             RawMessage raw = queue.take();
 
             if (raw.getHeaders().getType() == ERR) {
-                ServerErrorInterface error = new ErrorMessage(raw).error;
-                LOGGER.error("Error Code: {}, Error Description: {}", error.getCode(), error.getDescription());
+                handleError(raw);
                 return Optional.empty();
             }
 
@@ -66,8 +70,7 @@ public class TaulightClientChain extends ClientChain {
             RawMessage raw = queue.take();
 
             if (raw.getHeaders().getType() == ERR) {
-                ServerErrorInterface error = new ErrorMessage(raw).error;
-                LOGGER.error("Error code: {}, description: {}", error.getCode(), error.getDescription());
+                handleError(raw);
             }
         } finally {
             lock.unlock();
@@ -81,8 +84,7 @@ public class TaulightClientChain extends ClientChain {
             RawMessage raw = queue.take();
 
             if (raw.getHeaders().getType() == ERR) {
-                ServerErrorInterface error = new ErrorMessage(raw).error;
-                LOGGER.error("Error code: {}, description: {}", error.getCode(), error.getDescription());
+                handleError(raw);
             }
         } finally {
             lock.unlock();
