@@ -40,5 +40,5 @@ public abstract class Node {
 
     public abstract @NotNull NodeType type();
 
-    public abstract void close();
+    public void close() {}
 }

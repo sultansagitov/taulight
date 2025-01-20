@@ -90,21 +90,19 @@ public class ConsoleClientChain extends ClientChain {
             } else if (input.startsWith(": ")) {
                 currentChat = input.split(" ")[1];
 
+            } else if (currentChat.isEmpty()) {
+                System.out.println("chat not selected");
+
             } else {
-                if (!currentChat.isEmpty()) {
-                    send(new ForwardMessage(new ForwardData(currentChat, input)));
-                    RawMessage raw = queue.take();
-                    MessageType type = raw.getHeaders().getType();
-                    if (type == EXIT) break;
+                send(new ForwardMessage(new ForwardData(currentChat, input)));
+                RawMessage raw = queue.take();
+                MessageType type = raw.getHeaders().getType();
+                if (type == EXIT) break;
 
-                    if (type == ERR) {
-                        ServerErrorInterface error = new ErrorMessage(raw).error;
-                        LOGGER.error("Error code: {} description: {}", error.getCode(), error.getDescription());
-                    }
-                } else {
-                    System.out.println("chat not selected");
+                if (type == ERR) {
+                    ServerErrorInterface error = new ErrorMessage(raw).error;
+                    LOGGER.error("Error code: {} description: {}", error.getCode(), error.getDescription());
                 }
-
             }
         }
     }

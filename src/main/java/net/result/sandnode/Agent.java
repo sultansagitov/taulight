@@ -18,8 +18,4 @@ public abstract class Agent extends Node {
     public @NotNull NodeType type() {
         return AGENT;
     }
-
-    @Override
-    public void close() {
-    }
 }

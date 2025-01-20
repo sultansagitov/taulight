@@ -19,7 +19,6 @@ public class PublicKeyServerChain extends ServerChain {
     public void sync() throws InterruptedException {
         queue.take();
         IAsymmetricEncryption encryption = session.server.serverConfig.mainEncryption();
-        Headers headers = new Headers().setFin(true).setChainID(getID());
         IAsymmetricKeyStorage asymmetricKeyStorage;
         try {
             asymmetricKeyStorage = session.server.node.globalKeyStorage.getAsymmetricNonNull(encryption);
@@ -31,6 +30,7 @@ public class PublicKeyServerChain extends ServerChain {
             return;
         }
 
+        Headers headers = new Headers().setFin(true);
         PublicKeyResponse request = new PublicKeyResponse(headers, asymmetricKeyStorage);
         send(request);
     }

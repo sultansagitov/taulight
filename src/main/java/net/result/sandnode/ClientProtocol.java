@@ -22,10 +22,11 @@ public class ClientProtocol {
 
     public static void sendSYM(@NotNull SandnodeClient client)
             throws InterruptedException, ExpectedMessageException, KeyNotCreatedException {
-        SymKeyClientChain symkeyChain = new SymKeyClientChain(client.io, client.clientConfig.symmetricKeyEncryption());
-        client.io.chainManager.linkChain(symkeyChain);
-        symkeyChain.sync();
-        client.io.chainManager.removeChain(symkeyChain);
+        IOControl io = client.io;
+        SymKeyClientChain symKeyChain = new SymKeyClientChain(io, client.clientConfig.symmetricKeyEncryption());
+        io.chainManager.linkChain(symKeyChain);
+        symKeyChain.sync();
+        io.chainManager.removeChain(symKeyChain);
     }
 
     public static Set<String> GROUP(@NotNull IOControl io, Set<String> groups)

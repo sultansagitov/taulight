@@ -76,18 +76,4 @@ public class TaulightClientChain extends ClientChain {
             lock.unlock();
         }
     }
-
-    public void write(String group, String message) throws InterruptedException, DeserializationException {
-        lock.lock();
-        try {
-            send(new TaulightRequestMessage(TaulightRequestMessage.TaulightRequestData.write(group, message)));
-            RawMessage raw = queue.take();
-
-            if (raw.getHeaders().getType() == ERR) {
-                handleError(raw);
-            }
-        } finally {
-            lock.unlock();
-        }
-    }
 }

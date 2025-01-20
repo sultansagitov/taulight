@@ -100,13 +100,13 @@ public class IOControl {
             IMessage message = sendingQueue.take();
             beforeSending(message);
 
-            IMessage sended = null;
+            IMessage sent = null;
             byte[] byteArray = null;
             ServerError error = null;
             ErrorMessage errorMessage;
             try {
                 byteArray = message.toByteArray(globalKeyStorage);
-                sended = message;
+                sent = message;
             } catch (MessageSerializationException | IllegalMessageLengthException e) {
                 LOGGER.error("Serialization or message length issue", e);
                 error = ServerError.SERVER_ERROR;
@@ -129,7 +129,7 @@ public class IOControl {
                         .setChainID(message.getHeaders().getChainID())
                         .setConnection(message.getHeaders().getConnection());
                 byteArray = errorMessage.toByteArray(globalKeyStorage);
-                sended = errorMessage;
+                sent = errorMessage;
             }
 
             try {
@@ -139,7 +139,7 @@ public class IOControl {
                 throw new MessageWriteException(message, "Failed to write message to output.", e);
             }
 
-            LOGGER.info("Message sent: {}", sended);
+            LOGGER.info("Message sent: {}", sent);
         }
     }
 

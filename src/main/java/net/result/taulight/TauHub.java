@@ -19,8 +19,4 @@ public class TauHub extends Hub {
     public @NotNull ServerChainManager createChainManager() {
         return new TauBSTServerChainManager();
     }
-
-    @Override
-    public void close() {
-    }
 }

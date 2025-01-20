@@ -45,7 +45,7 @@ public class JWTTokenizer implements ITokenizer {
             String memberId = decodedJWT.getSubject();
             return database.findMemberByMemberID(memberId);
         } catch (JWTVerificationException e) {
-            LOGGER.debug("Invalid token", e);
+            LOGGER.error("Invalid token", e);
             throw new InvalidTokenException(e);
         }
     }

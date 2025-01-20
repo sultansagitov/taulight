@@ -78,31 +78,16 @@ public class ServerTest {
         HubThread hubThread = new HubThread(serverKeyStorage, port);
         hubThread.start();
 
+        TestServerChain.lock.lock();
+        TestServerChain.condition = TestServerChain.lock.newCondition();
+
         // Client setup
         AgentThread agentThread = new AgentThread(port);
         agentThread.start();
 
-        assertTrue(hubThread.condition.await(3, TimeUnit.SECONDS));
-
-        IOControl io = agentThread.client.io;
-
-        // Client sends message via chain
-        Headers headers = prepareHeaders();
-        EmptyMessage sentMessage = new EmptyMessage(headers);
-
-        TestClientChain testClientChain = new TestClientChain(io, sentMessage);
-        io.chainManager.linkChain(testClientChain);
-        testClientChain.sync();
-        io.chainManager.removeChain(testClientChain);
-
-        while (TestServerChain.message == null) {
-            Thread.onSpinWait();
-        }
-
-        IMessage receivedMessage = TestServerChain.message;
-
-        // Validate the message on the server side
-        validateMessage(sentMessage, receivedMessage);
+        try {
+            assertTrue(TestServerChain.condition.await(10, TimeUnit.SECONDS));
+        } catch (IllegalMonitorStateException ignored) {}
 
         // Cleanup
         agentThread.client.close();
@@ -126,9 +111,6 @@ public class ServerTest {
 
     private static void validateMessage(IMessage sentMessage, IMessage receivedMessage) {
         // Validate headers
-
-        LOGGER.debug("{} {}", sentMessage, receivedMessage);
-
         assertEquals(sentMessage.getHeaders().getConnection(), receivedMessage.getHeaders().getConnection());
         assertEquals(sentMessage.getHeaders().getType(), receivedMessage.getHeaders().getType());
         assertEquals(sentMessage.getHeaders().getBodyEncryption(), receivedMessage.getHeaders().getBodyEncryption());
@@ -141,8 +123,6 @@ public class ServerTest {
     }
 
     public static class HubThread extends Thread {
-        public Lock lock = new ReentrantLock();
-        public final Condition condition;
 
         public final SandnodeServer server;
         public final Hub hub;
@@ -151,13 +131,7 @@ public class ServerTest {
         public HubThread(GlobalKeyStorage serverKeyStorage, int port) {
             setName("HubThread");
             this.port = port;
-            lock.lock();
-            condition = lock.newCondition();
             hub = new Hub(serverKeyStorage) {
-                @Override
-                public void close() {
-                }
-
                 @Override
                 public @NotNull ServerChainManager createChainManager() {
                     return new TestingBSTServerChainManager();
@@ -166,7 +140,6 @@ public class ServerTest {
                 @Override
                 protected void addAsAgent(Session session) {
                     super.addAsAgent(session);
-                    condition.signal();
                 }
             };
 
@@ -214,6 +187,15 @@ public class ServerTest {
                 client.start(ConsoleClientChainManager::new);
                 ClientProtocol.PUB(client.io);
                 ClientProtocol.sendSYM(client);
+
+                IMessage sentMessage = prepareMessage();
+
+                IOControl io = client.io;
+
+                TestClientChain testClientChain = new TestClientChain(io, sentMessage);
+                io.chainManager.linkChain(testClientChain);
+                testClientChain.sync();
+                io.chainManager.removeChain(testClientChain);
             } catch (SandnodeException | InterruptedException e) {
                 LOGGER.error("Client encountered an error.", e);
                 throw new RuntimeException(e);
@@ -238,10 +220,6 @@ public class ServerTest {
     }
 
     private static class TestingBSTServerChainManager extends BSTServerChainManager {
-        private TestingBSTServerChainManager() {
-            super();
-        }
-
         @Override
         public ServerChain defaultChain(RawMessage ignored) {
             return new TestServerChain(session);
@@ -249,7 +227,8 @@ public class ServerTest {
     }
 
     private static class TestServerChain extends ServerChain {
-        public static IMessage message;
+        public static final Lock lock = new ReentrantLock();
+        public static Condition condition;
 
         public TestServerChain(Session session) {
             super(session);
@@ -257,8 +236,36 @@ public class ServerTest {
 
         @Override
         public void sync() throws InterruptedException {
-            message = queue.take();
+            IMessage receivedMessage = queue.take();
+
+            // Client sends message via chain
+            IMessage sentMessage = prepareMessage();
+            sentMessage.getHeaders().setChainID(getID());
+
+            // Validate the message on the server side
+            validateMessage(sentMessage, receivedMessage);
+
+            lock.lock();
+
+            try {
+                condition.signal();
+            } catch (Exception e) {
+                LOGGER.error("condition.signal error", e);
+            } finally {
+                try {
+                    lock.unlock();
+                } catch (Exception e1) {
+                    LOGGER.error("lock.unlock error", e1);
+                }
+            }
         }
+    }
+
+    private static @NotNull IMessage prepareMessage() {
+        Headers headers = prepareHeaders();
+        IMessage sentMessage = new RawMessage(headers);
+        sentMessage.setHeadersEncryption(AES);
+        return sentMessage;
     }
 
     private static class TestClientChain extends ClientChain {
