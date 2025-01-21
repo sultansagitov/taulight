@@ -7,14 +7,12 @@ import net.result.sandnode.messages.IMessage;
 import net.result.sandnode.messages.types.LoginRequest;
 import net.result.sandnode.messages.types.LoginResponse;
 import net.result.sandnode.messages.types.TokenMessage;
+import net.result.sandnode.server.Errors;
 import net.result.sandnode.server.Session;
 import net.result.sandnode.util.db.IDatabase;
 import net.result.sandnode.util.db.IMember;
 
 import java.util.Optional;
-
-import static net.result.sandnode.server.ServerError.INVALID_TOKEN;
-import static net.result.sandnode.server.ServerError.MEMBER_NOT_FOUND;
 
 public class LoginServerChain extends ServerChain {
     public LoginServerChain(Session session) {
@@ -33,12 +31,12 @@ public class LoginServerChain extends ServerChain {
         try {
             opt = session.server.serverConfig.tokenizer().findMember(database, token);
         } catch (InvalidTokenException e) {
-            sendFin(INVALID_TOKEN.message());
+            sendFin(Errors.INVALID_TOKEN.message());
             return;
         }
 
         if (opt.isEmpty()) {
-            sendFin(MEMBER_NOT_FOUND.message());
+            sendFin(Errors.MEMBER_NOT_FOUND.message());
             return;
         }
 

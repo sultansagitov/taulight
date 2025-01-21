@@ -2,7 +2,7 @@ package net.result.sandnode.server;
 
 import net.result.sandnode.util.Manager;
 
-public class ServerErrorManager extends Manager<ServerErrorInterface> {
+public class ServerErrorManager extends Manager<SandnodeError> {
     private static final ServerErrorManager INSTANCE = new ServerErrorManager();
 
     private ServerErrorManager() {}
@@ -12,13 +12,13 @@ public class ServerErrorManager extends Manager<ServerErrorInterface> {
     }
 
     static {
-        for (ServerError value : ServerError.values()) {
+        for (Errors value : Errors.values()) {
             instance().add(value);
         }
     }
 
     @Override
-    protected void handleOverflow(ServerErrorInterface error) {
+    protected void handleOverflow(SandnodeError error) {
         list.removeIf(e -> e.getCode() == error.getCode());
     }
 }

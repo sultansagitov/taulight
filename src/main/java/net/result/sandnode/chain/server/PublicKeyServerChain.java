@@ -5,10 +5,8 @@ import net.result.sandnode.encryption.interfaces.IAsymmetricKeyStorage;
 import net.result.sandnode.exceptions.*;
 import net.result.sandnode.messages.types.PublicKeyResponse;
 import net.result.sandnode.messages.util.Headers;
+import net.result.sandnode.server.Errors;
 import net.result.sandnode.server.Session;
-
-import static net.result.sandnode.server.ServerError.INCORRECT_ENCRYPTION;
-import static net.result.sandnode.server.ServerError.SERVER_ERROR;
 
 public class PublicKeyServerChain extends ServerChain {
     public PublicKeyServerChain(Session session) {
@@ -23,10 +21,10 @@ public class PublicKeyServerChain extends ServerChain {
         try {
             asymmetricKeyStorage = session.server.node.globalKeyStorage.getAsymmetricNonNull(encryption);
         } catch (KeyStorageNotFoundException e) {
-            send(SERVER_ERROR.message());
+            send(Errors.SERVER_ERROR.message());
             return;
         } catch (EncryptionTypeException e) {
-            send(INCORRECT_ENCRYPTION.message());
+            send(Errors.INCORRECT_ENCRYPTION.message());
             return;
         }
 

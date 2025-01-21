@@ -7,10 +7,8 @@ import net.result.sandnode.exceptions.ExpectedMessageException;
 import net.result.sandnode.messages.IMessage;
 import net.result.sandnode.messages.types.RegistrationRequest;
 import net.result.sandnode.messages.types.RegistrationResponse;
+import net.result.sandnode.server.Errors;
 import net.result.sandnode.server.Session;
-
-import static net.result.sandnode.server.ServerError.INVALID_MEMBER_ID_OR_PASSWORD;
-import static net.result.sandnode.server.ServerError.MEMBER_ID_BUSY;
 
 public class RegistrationServerChain extends ServerChain {
     public RegistrationServerChain(Session session) {
@@ -26,7 +24,7 @@ public class RegistrationServerChain extends ServerChain {
         String password = regMsg.getPassword();
 
         if (memberID.isEmpty() || password.isEmpty()) {
-            sendFin(INVALID_MEMBER_ID_OR_PASSWORD.message());
+            sendFin(Errors.INVALID_MEMBER_ID_OR_PASSWORD.message());
             return;
         }
 
@@ -35,7 +33,7 @@ public class RegistrationServerChain extends ServerChain {
             String token = serverConfig.tokenizer().tokenizeMember(session.member);
             sendFin(new RegistrationResponse(token));
         } catch (BusyMemberIDException e) {
-            sendFin(MEMBER_ID_BUSY.message());
+            sendFin(Errors.MEMBER_ID_BUSY.message());
         }
     }
 }

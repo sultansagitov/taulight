@@ -6,7 +6,7 @@ import net.result.sandnode.exceptions.*;
 import net.result.sandnode.messages.RawMessage;
 import net.result.sandnode.messages.types.ErrorMessage;
 import net.result.sandnode.messages.util.MessageType;
-import net.result.sandnode.server.ServerErrorInterface;
+import net.result.sandnode.server.SandnodeError;
 import net.result.sandnode.util.IOControl;
 import net.result.sandnode.chain.client.ClientChain;
 import net.result.taulight.TauAgentProtocol;
@@ -100,7 +100,7 @@ public class ConsoleClientChain extends ClientChain {
                 if (type == EXIT) break;
 
                 if (type == ERR) {
-                    ServerErrorInterface error = new ErrorMessage(raw).error;
+                    SandnodeError error = new ErrorMessage(raw).error;
                     LOGGER.error("Error code: {} description: {}", error.getCode(), error.getDescription());
                 }
             }

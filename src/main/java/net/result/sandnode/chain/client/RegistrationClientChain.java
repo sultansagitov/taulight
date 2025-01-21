@@ -5,8 +5,8 @@ import net.result.sandnode.messages.IMessage;
 import net.result.sandnode.messages.types.ErrorMessage;
 import net.result.sandnode.messages.types.RegistrationRequest;
 import net.result.sandnode.messages.types.RegistrationResponse;
-import net.result.sandnode.server.ServerError;
-import net.result.sandnode.server.ServerErrorInterface;
+import net.result.sandnode.server.Errors;
+import net.result.sandnode.server.SandnodeError;
 import net.result.sandnode.util.IOControl;
 
 import static net.result.sandnode.messages.util.MessageTypes.ERR;
@@ -32,8 +32,8 @@ public class RegistrationClientChain extends ClientChain {
 
         if (response.getHeaders().getType() == ERR) {
             ErrorMessage errorMessage = new ErrorMessage(response);
-            ServerErrorInterface type = errorMessage.error;
-            if (type instanceof ServerError enumError) {
+            SandnodeError type = errorMessage.error;
+            if (type instanceof Errors enumError) {
                 switch (enumError) {
                     case INVALID_MEMBER_ID_OR_PASSWORD -> throw new InvalidMemberIDPassword();
                     case MEMBER_ID_BUSY -> throw new BusyMemberIDException(memberID);

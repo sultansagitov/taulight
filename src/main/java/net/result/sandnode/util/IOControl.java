@@ -14,7 +14,8 @@ import net.result.sandnode.messages.types.ExitMessage;
 import net.result.sandnode.messages.util.Connection;
 import net.result.sandnode.chain.ChainManager;
 import net.result.sandnode.messages.util.Headers;
-import net.result.sandnode.server.ServerError;
+import net.result.sandnode.server.Errors;
+import net.result.sandnode.server.SandnodeError;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
@@ -102,20 +103,20 @@ public class IOControl {
 
             IMessage sent = null;
             byte[] byteArray = null;
-            ServerError error = null;
+            SandnodeError error = null;
             ErrorMessage errorMessage;
             try {
                 byteArray = message.toByteArray(globalKeyStorage);
                 sent = message;
             } catch (MessageSerializationException | IllegalMessageLengthException e) {
                 LOGGER.error("Serialization or message length issue", e);
-                error = ServerError.SERVER_ERROR;
+                error = Errors.SERVER_ERROR;
             } catch (KeyStorageNotFoundException e) {
                 LOGGER.error("Key storage not found", e);
-                error = ServerError.KEY_NOT_FOUND;
+                error = Errors.KEY_NOT_FOUND;
             } catch (EncryptionException e) {
                 LOGGER.error("Encryption or key issue", e);
-                error = ServerError.ENCRYPT;
+                error = Errors.ENCRYPT;
             }
 
 

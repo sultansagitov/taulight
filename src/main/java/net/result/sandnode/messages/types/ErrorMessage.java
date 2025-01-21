@@ -5,15 +5,15 @@ import net.result.sandnode.exceptions.UnknownSandnodeErrorException;
 import net.result.sandnode.messages.IMessage;
 import net.result.sandnode.messages.StatusMessage;
 import net.result.sandnode.messages.util.Headers;
-import net.result.sandnode.server.ServerErrorInterface;
+import net.result.sandnode.server.SandnodeError;
 import net.result.sandnode.server.ServerErrorManager;
 
 import static net.result.sandnode.messages.util.MessageTypes.ERR;
 
 public class ErrorMessage extends StatusMessage {
-    public final ServerErrorInterface error;
+    public final SandnodeError error;
 
-    public ErrorMessage(ServerErrorInterface serverError) {
+    public ErrorMessage(SandnodeError serverError) {
         super(new Headers().setType(ERR), serverError.getCode());
         this.error = serverError;
     }
@@ -21,7 +21,7 @@ public class ErrorMessage extends StatusMessage {
     public ErrorMessage(IMessage response) throws DeserializationException {
         super(response);
 
-        for (ServerErrorInterface error : ServerErrorManager.instance().list) {
+        for (SandnodeError error : ServerErrorManager.instance().list) {
             if (error.getCode() == this.getCode()) {
                 this.error = error;
                 return;

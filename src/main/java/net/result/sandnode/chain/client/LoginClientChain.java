@@ -5,8 +5,8 @@ import net.result.sandnode.messages.IMessage;
 import net.result.sandnode.messages.types.ErrorMessage;
 import net.result.sandnode.messages.types.LoginRequest;
 import net.result.sandnode.messages.types.LoginResponse;
-import net.result.sandnode.server.ServerError;
-import net.result.sandnode.server.ServerErrorInterface;
+import net.result.sandnode.server.Errors;
+import net.result.sandnode.server.SandnodeError;
 import net.result.sandnode.util.IOControl;
 
 import static net.result.sandnode.messages.util.MessageTypes.ERR;
@@ -30,8 +30,8 @@ public class LoginClientChain extends ClientChain {
 
         if (message.getHeaders().getType() == ERR) {
             ErrorMessage errorMessage = new ErrorMessage(message);
-            ServerErrorInterface error = errorMessage.error;
-            if (error instanceof ServerError enumError) {
+            SandnodeError error = errorMessage.error;
+            if (error instanceof Errors enumError) {
                 switch (enumError) {
                     case INVALID_TOKEN -> throw new InvalidTokenException();
                     case MEMBER_NOT_FOUND -> throw new MemberNotFoundException();

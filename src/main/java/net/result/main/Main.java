@@ -1,6 +1,7 @@
 package net.result.main;
 
 import net.result.sandnode.encryption.EncryptionManager;
+import net.result.taulight.TauErrors;
 import net.result.taulight.messages.TauMessageTypes;
 import org.jetbrains.annotations.NotNull;
 
@@ -13,6 +14,7 @@ public class Main {
         System.setProperty("randomId", randomId);
         EncryptionManager.registerAll();
         TauMessageTypes.registerAll();
+        TauErrors.registerAll();
 
         if (args.length == 0) {
             System.out.println("Too few arguments");

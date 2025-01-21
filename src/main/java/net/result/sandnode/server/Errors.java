@@ -4,8 +4,7 @@ import net.result.sandnode.messages.types.ErrorMessage;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
-public enum ServerError implements ServerErrorInterface {
-
+public enum Errors implements SandnodeError {
     // General server errors
     SERVER_ERROR(1000, "Server"),
     UNKNOWN(1001, "Unknown"),
@@ -30,11 +29,12 @@ public enum ServerError implements ServerErrorInterface {
     private final int code;
     private final String desc;
 
-    ServerError(int code, @NotNull String desc) {
+    Errors(int code, @NotNull String desc) {
         this.code = code;
         this.desc = desc;
     }
 
+    @Override
     @Contract(" -> new")
     public @NotNull ErrorMessage message() {
         return new ErrorMessage(this);

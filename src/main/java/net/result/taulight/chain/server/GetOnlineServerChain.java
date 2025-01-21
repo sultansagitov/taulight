@@ -8,6 +8,7 @@ import net.result.sandnode.server.Session;
 import net.result.sandnode.util.db.IMember;
 import net.result.sandnode.util.group.GroupManager;
 import net.result.taulight.TauChatManager;
+import net.result.taulight.TauErrors;
 import net.result.taulight.TauHub;
 import net.result.taulight.messages.OnlineResponseMessage;
 import net.result.taulight.messages.types.TaulightRequestMessage;
@@ -21,7 +22,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static net.result.sandnode.server.ServerError.SERVER_ERROR;
 import static net.result.taulight.messages.TauMessageTypes.ONL;
 import static net.result.taulight.messages.TauMessageTypes.TAULIGHT;
 
@@ -48,11 +48,11 @@ public class GetOnlineServerChain extends ServerChain {
                         send(new TaulightResponseMessage(TaulightResponseData.get(chats)));
                     }
                     case ADD -> {
-                        String chatId = taulightRequest.getChatID();
-                        Optional<TauChat> opt = chatManager.find(chatId);
+                        String chatID = taulightRequest.getChatID();
+                        Optional<TauChat> opt = chatManager.find(chatID);
                         if (opt.isEmpty()) {
-                            send(SERVER_ERROR.message()); // TODO: make own error
-                            LOGGER.warn("Attempted to add member to a non-existent chat: {}", chatId);
+                            send(TauErrors.CHAT_NOT_FOUND.message());
+                            LOGGER.warn("Attempted to add member to a non-existent chat: {}", chatID);
                             return;
                         }
 
@@ -60,14 +60,14 @@ public class GetOnlineServerChain extends ServerChain {
 
                         if (chat.members.contains(session.member)) {
                             send(new HappyMessage());
-                            LOGGER.info("Member {} is already part of chat {}", session.member.getID(), chatId);
+                            LOGGER.info("Member {} is already part of chat {}", session.member.getID(), chatID);
                             return;
                         }
 
                         chatManager.addMember(chat, session.member);
 
                         send(new HappyMessage());
-                        LOGGER.info("Member {} added to chat {}", session.member.getID(), chatId);
+                        LOGGER.info("Member {} added to chat {}", session.member.getID(), chatID);
                     }
 
                 }

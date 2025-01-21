@@ -5,11 +5,12 @@ import net.result.sandnode.chain.server.ServerChain;
 import net.result.sandnode.exceptions.*;
 import net.result.sandnode.messages.RawMessage;
 import net.result.sandnode.messages.types.HappyMessage;
-import net.result.sandnode.server.ServerError;
+import net.result.sandnode.server.Errors;
 import net.result.sandnode.server.Session;
 import net.result.sandnode.util.db.IMember;
 import net.result.taulight.TauChatManager;
 import net.result.taulight.TauHub;
+import net.result.taulight.TauErrors;
 import net.result.taulight.messages.types.ForwardMessage;
 import net.result.taulight.messages.types.TimedForwardMessage;
 import net.result.taulight.messenger.TauChat;
@@ -50,8 +51,8 @@ public class ForwardServerChain extends ServerChain {
             Optional<TauChat> tauChat = chatManager.find(chatID);
 
             if (tauChat.isEmpty()) {
-                LOGGER.error("Failed to find chat with ID: {}", chatID);
-                send(ServerError.SERVER_ERROR.message()); // TODO: make own error
+                send(TauErrors.CHAT_NOT_FOUND.message());
+                LOGGER.warn("Attempted to add member to a non-existent chat: {}", chatID);
                 continue;
             }
 
@@ -59,7 +60,7 @@ public class ForwardServerChain extends ServerChain {
             Set<IMember> members = chat.members;
 
             if (!members.contains(session.member)) {
-                send(ServerError.UNAUTHORIZED.message());
+                send(Errors.UNAUTHORIZED.message());
                 continue;
             }
 

@@ -7,9 +7,6 @@ import org.jetbrains.annotations.NotNull;
 import static net.result.sandnode.messages.util.NodeType.AGENT;
 
 public abstract class Agent extends Node {
-    public Agent() {
-    }
-
     public Agent(@NotNull GlobalKeyStorage globalKeyStorage) {
         super(globalKeyStorage);
     }
