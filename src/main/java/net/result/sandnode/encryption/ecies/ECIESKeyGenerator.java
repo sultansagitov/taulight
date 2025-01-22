@@ -1,6 +1,6 @@
 package net.result.sandnode.encryption.ecies;
 
-import net.result.sandnode.exceptions.ImpossibleRuntimeException;
+import net.result.sandnode.exception.ImpossibleRuntimeException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;

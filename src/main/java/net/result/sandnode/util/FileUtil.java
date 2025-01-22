@@ -1,6 +1,6 @@
 package net.result.sandnode.util;
 
-import net.result.sandnode.exceptions.FSException;
+import net.result.sandnode.exception.FSException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;

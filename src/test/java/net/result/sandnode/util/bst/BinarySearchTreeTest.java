@@ -1,8 +1,6 @@
 package net.result.sandnode.util.bst;
 
-import net.result.sandnode.bst.BinarySearchTree;
-import net.result.sandnode.bst.Searchable;
-import net.result.sandnode.exceptions.BSTBusyPosition;
+import net.result.sandnode.exception.BSTBusyPosition;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;

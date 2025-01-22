@@ -1,12 +1,12 @@
 package net.result.sandnode.chain;
 
-import net.result.sandnode.bst.AVLTree;
-import net.result.sandnode.exceptions.BSTBusyPosition;
-import net.result.sandnode.exceptions.BusyChainID;
-import net.result.sandnode.exceptions.ImpossibleRuntimeException;
-import net.result.sandnode.messages.RawMessage;
-import net.result.sandnode.bst.BinarySearchTree;
-import net.result.sandnode.messages.util.Headers;
+import net.result.sandnode.util.bst.AVLTree;
+import net.result.sandnode.exception.BSTBusyPosition;
+import net.result.sandnode.exception.BusyChainID;
+import net.result.sandnode.exception.ImpossibleRuntimeException;
+import net.result.sandnode.message.RawMessage;
+import net.result.sandnode.util.bst.BinarySearchTree;
+import net.result.sandnode.message.util.Headers;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -15,7 +15,7 @@ import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import static net.result.sandnode.messages.util.MessageTypes.CHAIN_NAME;
+import static net.result.sandnode.message.util.MessageTypes.CHAIN_NAME;
 
 public abstract class BSTChainManager implements ChainManager {
     private static final Logger LOGGER = LogManager.getLogger(BSTChainManager.class);

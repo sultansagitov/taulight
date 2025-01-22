@@ -2,8 +2,8 @@ package net.result.sandnode.encryption.ecies;
 
 import net.result.sandnode.encryption.interfaces.IAsymmetricConvertor;
 import net.result.sandnode.encryption.interfaces.IKeyStorage;
-import net.result.sandnode.exceptions.CannotUseEncryption;
-import net.result.sandnode.exceptions.CreatingKeyException;
+import net.result.sandnode.exception.CannotUseEncryption;
+import net.result.sandnode.exception.CreatingKeyException;
 import org.jetbrains.annotations.NotNull;
 
 import java.security.KeyFactory;

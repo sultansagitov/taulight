@@ -1,9 +1,9 @@
 package net.result.sandnode.encryption;
 
 import net.result.sandnode.encryption.interfaces.*;
-import net.result.sandnode.exceptions.CannotUseEncryption;
-import net.result.sandnode.exceptions.EncryptionTypeException;
-import net.result.sandnode.exceptions.KeyStorageNotFoundException;
+import net.result.sandnode.exception.CannotUseEncryption;
+import net.result.sandnode.exception.EncryptionTypeException;
+import net.result.sandnode.exception.KeyStorageNotFoundException;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;

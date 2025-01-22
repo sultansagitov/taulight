@@ -1,7 +1,7 @@
 package net.result.sandnode.encryption.ecies;
 
 import net.result.sandnode.encryption.interfaces.IKeyStorage;
-import net.result.sandnode.exceptions.*;
+import net.result.sandnode.exception.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;

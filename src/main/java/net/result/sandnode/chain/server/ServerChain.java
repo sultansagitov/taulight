@@ -1,6 +1,6 @@
 package net.result.sandnode.chain.server;
 
-import net.result.sandnode.server.Session;
+import net.result.sandnode.serverclient.Session;
 import net.result.sandnode.chain.Chain;
 
 public abstract class ServerChain extends Chain {

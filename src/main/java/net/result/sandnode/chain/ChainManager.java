@@ -1,7 +1,7 @@
 package net.result.sandnode.chain;
 
-import net.result.sandnode.exceptions.BusyChainID;
-import net.result.sandnode.messages.RawMessage;
+import net.result.sandnode.exception.BusyChainID;
+import net.result.sandnode.message.RawMessage;
 
 import java.util.Map;
 import java.util.Optional;

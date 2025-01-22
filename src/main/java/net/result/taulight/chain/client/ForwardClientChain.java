@@ -1,12 +1,12 @@
 package net.result.taulight.chain.client;
 
 import net.result.sandnode.chain.client.ClientChain;
-import net.result.sandnode.exceptions.DeserializationException;
-import net.result.sandnode.exceptions.ExpectedMessageException;
-import net.result.sandnode.messages.RawMessage;
-import net.result.sandnode.messages.types.RequestChainNameMessage;
+import net.result.sandnode.exception.DeserializationException;
+import net.result.sandnode.exception.ExpectedMessageException;
+import net.result.sandnode.message.RawMessage;
+import net.result.sandnode.message.types.RequestChainNameMessage;
 import net.result.sandnode.util.IOControl;
-import net.result.taulight.messages.types.TimedForwardMessage;
+import net.result.taulight.message.types.TimedForwardMessage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 

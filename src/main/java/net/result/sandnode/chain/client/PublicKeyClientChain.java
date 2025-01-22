@@ -1,16 +1,16 @@
 package net.result.sandnode.chain.client;
 
-import net.result.sandnode.exceptions.*;
-import net.result.sandnode.messages.IMessage;
-import net.result.sandnode.messages.types.ErrorMessage;
-import net.result.sandnode.messages.types.PublicKeyRequest;
-import net.result.sandnode.messages.types.PublicKeyResponse;
+import net.result.sandnode.exception.*;
+import net.result.sandnode.message.IMessage;
+import net.result.sandnode.message.types.ErrorMessage;
+import net.result.sandnode.message.types.PublicKeyRequest;
+import net.result.sandnode.message.types.PublicKeyResponse;
 import net.result.sandnode.util.IOControl;
 import net.result.sandnode.chain.Chain;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import static net.result.sandnode.messages.util.MessageTypes.ERR;
+import static net.result.sandnode.message.util.MessageTypes.ERR;
 
 public class PublicKeyClientChain extends Chain {
     private static final Logger LOGGER = LogManager.getLogger(PublicKeyClientChain.class);

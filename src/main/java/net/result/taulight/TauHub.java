@@ -1,7 +1,7 @@
 package net.result.taulight;
 
 import net.result.sandnode.chain.server.ServerChainManager;
-import net.result.sandnode.Hub;
+import net.result.sandnode.hubagent.Hub;
 import net.result.sandnode.encryption.GlobalKeyStorage;
 import net.result.taulight.chain.TauBSTServerChainManager;
 import org.jetbrains.annotations.NotNull;

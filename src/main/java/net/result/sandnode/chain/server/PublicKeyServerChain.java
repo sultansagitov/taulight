@@ -2,11 +2,11 @@ package net.result.sandnode.chain.server;
 
 import net.result.sandnode.encryption.interfaces.IAsymmetricEncryption;
 import net.result.sandnode.encryption.interfaces.IAsymmetricKeyStorage;
-import net.result.sandnode.exceptions.*;
-import net.result.sandnode.messages.types.PublicKeyResponse;
-import net.result.sandnode.messages.util.Headers;
-import net.result.sandnode.server.Errors;
-import net.result.sandnode.server.Session;
+import net.result.sandnode.exception.*;
+import net.result.sandnode.message.types.PublicKeyResponse;
+import net.result.sandnode.message.util.Headers;
+import net.result.sandnode.error.Errors;
+import net.result.sandnode.serverclient.Session;
 
 public class PublicKeyServerChain extends ServerChain {
     public PublicKeyServerChain(Session session) {

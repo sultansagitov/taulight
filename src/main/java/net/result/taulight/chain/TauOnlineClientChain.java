@@ -1,11 +1,11 @@
 package net.result.taulight.chain;
 
 import net.result.sandnode.chain.client.ClientChain;
-import net.result.sandnode.exceptions.*;
-import net.result.sandnode.messages.IMessage;
+import net.result.sandnode.exception.*;
+import net.result.sandnode.message.IMessage;
 import net.result.sandnode.util.IOControl;
-import net.result.taulight.messages.OnlineMessage;
-import net.result.taulight.messages.OnlineResponseMessage;
+import net.result.taulight.message.OnlineMessage;
+import net.result.taulight.message.OnlineResponseMessage;
 
 import java.util.Set;
 

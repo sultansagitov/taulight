@@ -1,12 +1,12 @@
 package net.result.sandnode.chain.server;
 
 import net.result.sandnode.chain.Chain;
-import net.result.sandnode.exceptions.BSTBusyPosition;
-import net.result.sandnode.exceptions.BusyChainID;
-import net.result.sandnode.messages.RawMessage;
-import net.result.sandnode.messages.util.Headers;
-import net.result.sandnode.messages.util.MessageTypes;
-import net.result.sandnode.server.Session;
+import net.result.sandnode.exception.BSTBusyPosition;
+import net.result.sandnode.exception.BusyChainID;
+import net.result.sandnode.message.RawMessage;
+import net.result.sandnode.message.util.Headers;
+import net.result.sandnode.message.util.MessageTypes;
+import net.result.sandnode.serverclient.Session;
 import net.result.sandnode.chain.BSTChainManager;
 
 public abstract class BSTServerChainManager extends BSTChainManager implements ServerChainManager {

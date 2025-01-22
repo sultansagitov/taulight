@@ -1,14 +1,14 @@
 package net.result.sandnode.chain.server;
 
 import net.result.sandnode.config.IServerConfig;
-import net.result.sandnode.exceptions.BusyMemberIDException;
-import net.result.sandnode.exceptions.DeserializationException;
-import net.result.sandnode.exceptions.ExpectedMessageException;
-import net.result.sandnode.messages.IMessage;
-import net.result.sandnode.messages.types.RegistrationRequest;
-import net.result.sandnode.messages.types.RegistrationResponse;
-import net.result.sandnode.server.Errors;
-import net.result.sandnode.server.Session;
+import net.result.sandnode.exception.BusyMemberIDException;
+import net.result.sandnode.exception.DeserializationException;
+import net.result.sandnode.exception.ExpectedMessageException;
+import net.result.sandnode.message.IMessage;
+import net.result.sandnode.message.types.RegistrationRequest;
+import net.result.sandnode.message.types.RegistrationResponse;
+import net.result.sandnode.error.Errors;
+import net.result.sandnode.serverclient.Session;
 
 public class RegistrationServerChain extends ServerChain {
     public RegistrationServerChain(Session session) {

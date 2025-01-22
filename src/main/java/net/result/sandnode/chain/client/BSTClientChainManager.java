@@ -1,10 +1,10 @@
 package net.result.sandnode.chain.client;
 
 import net.result.sandnode.chain.Chain;
-import net.result.sandnode.exceptions.BSTBusyPosition;
-import net.result.sandnode.exceptions.BusyChainID;
-import net.result.sandnode.messages.RawMessage;
-import net.result.sandnode.messages.util.Headers;
+import net.result.sandnode.exception.BSTBusyPosition;
+import net.result.sandnode.exception.BusyChainID;
+import net.result.sandnode.message.RawMessage;
+import net.result.sandnode.message.util.Headers;
 import net.result.sandnode.util.IOControl;
 import net.result.sandnode.chain.BSTChainManager;
 

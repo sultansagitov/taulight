@@ -3,8 +3,8 @@ package net.result.sandnode.encryption;
 import net.result.sandnode.encryption.aes.*;
 import net.result.sandnode.encryption.interfaces.IKeyStorage;
 import net.result.sandnode.encryption.interfaces.ISymmetricEncryption;
-import net.result.sandnode.exceptions.DecryptionException;
-import net.result.sandnode.exceptions.EncryptionException;
+import net.result.sandnode.exception.DecryptionException;
+import net.result.sandnode.exception.EncryptionException;
 import org.jetbrains.annotations.NotNull;
 
 public enum SymmetricEncryption implements ISymmetricEncryption {

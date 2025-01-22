@@ -1,12 +1,12 @@
 package net.result.sandnode.chain.server;
 
-import net.result.sandnode.exceptions.DataNotEncryptedException;
-import net.result.sandnode.exceptions.EncryptionTypeException;
-import net.result.sandnode.exceptions.ExpectedMessageException;
-import net.result.sandnode.exceptions.NoSuchEncryptionException;
-import net.result.sandnode.messages.types.HappyMessage;
-import net.result.sandnode.messages.types.SymMessage;
-import net.result.sandnode.server.Session;
+import net.result.sandnode.exception.DataNotEncryptedException;
+import net.result.sandnode.exception.EncryptionTypeException;
+import net.result.sandnode.exception.ExpectedMessageException;
+import net.result.sandnode.exception.NoSuchEncryptionException;
+import net.result.sandnode.message.types.HappyMessage;
+import net.result.sandnode.message.types.SymMessage;
+import net.result.sandnode.serverclient.Session;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 

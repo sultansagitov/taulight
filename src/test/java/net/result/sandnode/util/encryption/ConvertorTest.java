@@ -2,11 +2,11 @@ package net.result.sandnode.util.encryption;
 
 import net.result.sandnode.encryption.EncryptionManager;
 import net.result.sandnode.encryption.interfaces.IAsymmetricKeyStorage;
-import net.result.sandnode.exceptions.CannotUseEncryption;
-import net.result.sandnode.exceptions.CreatingKeyException;
+import net.result.sandnode.exception.CannotUseEncryption;
+import net.result.sandnode.exception.CreatingKeyException;
 import net.result.sandnode.encryption.interfaces.IAsymmetricConvertor;
 import net.result.sandnode.encryption.interfaces.IAsymmetricEncryption;
-import net.result.sandnode.exceptions.ImpossibleRuntimeException;
+import net.result.sandnode.exception.ImpossibleRuntimeException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 

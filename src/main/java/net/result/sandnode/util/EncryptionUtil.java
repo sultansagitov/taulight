@@ -2,8 +2,8 @@ package net.result.sandnode.util;
 
 import net.result.sandnode.encryption.interfaces.IAsymmetricEncryption;
 import net.result.sandnode.encryption.interfaces.IAsymmetricKeyStorage;
-import net.result.sandnode.exceptions.CannotUseEncryption;
-import net.result.sandnode.exceptions.ImpossibleRuntimeException;
+import net.result.sandnode.exception.CannotUseEncryption;
+import net.result.sandnode.exception.ImpossibleRuntimeException;
 
 public class EncryptionUtil {
     public static boolean isPublicKeysEquals(IAsymmetricKeyStorage key1, IAsymmetricKeyStorage key2) {

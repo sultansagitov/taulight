@@ -1,8 +1,8 @@
 package net.result.sandnode.encryption;
 
-import net.result.sandnode.exceptions.EncryptionTypeException;
-import net.result.sandnode.exceptions.ImpossibleRuntimeException;
-import net.result.sandnode.exceptions.NoSuchEncryptionException;
+import net.result.sandnode.exception.EncryptionTypeException;
+import net.result.sandnode.exception.ImpossibleRuntimeException;
+import net.result.sandnode.exception.NoSuchEncryptionException;
 import net.result.sandnode.encryption.interfaces.IAsymmetricEncryption;
 import net.result.sandnode.encryption.interfaces.IEncryption;
 import net.result.sandnode.encryption.interfaces.ISymmetricEncryption;

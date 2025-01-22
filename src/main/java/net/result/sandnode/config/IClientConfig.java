@@ -1,7 +1,7 @@
 package net.result.sandnode.config;
 
 import net.result.sandnode.encryption.interfaces.ISymmetricEncryption;
-import net.result.sandnode.exceptions.*;
+import net.result.sandnode.exception.*;
 import net.result.sandnode.util.Endpoint;
 import net.result.sandnode.encryption.interfaces.IAsymmetricKeyStorage;
 import org.jetbrains.annotations.NotNull;

@@ -1,21 +1,21 @@
 package net.result.taulight.chain.server;
 
 import net.result.sandnode.chain.server.ServerChain;
-import net.result.sandnode.exceptions.*;
-import net.result.sandnode.server.Session;
+import net.result.sandnode.exception.*;
+import net.result.sandnode.serverclient.Session;
 import net.result.taulight.TauChatManager;
 import net.result.taulight.TauHub;
-import net.result.taulight.messages.types.TaulightRequestMessage;
-import net.result.taulight.messages.types.TaulightResponseMessage;
-import net.result.taulight.messages.types.TaulightResponseMessage.TaulightResponseData;
+import net.result.taulight.message.types.TaulightRequestMessage;
+import net.result.taulight.message.types.TaulightResponseMessage;
+import net.result.taulight.message.types.TaulightResponseMessage.TaulightResponseData;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static net.result.taulight.messages.DataType.ADD;
-import static net.result.taulight.messages.DataType.GET;
+import static net.result.taulight.message.DataType.ADD;
+import static net.result.taulight.message.DataType.GET;
 
 public class TaulightServerChain extends ServerChain {
     private static final Logger LOGGER = LogManager.getLogger(TaulightServerChain.class);

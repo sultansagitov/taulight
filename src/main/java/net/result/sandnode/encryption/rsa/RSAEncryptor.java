@@ -1,9 +1,9 @@
 package net.result.sandnode.encryption.rsa;
 
 import net.result.sandnode.encryption.interfaces.IKeyStorage;
-import net.result.sandnode.exceptions.CannotUseEncryption;
-import net.result.sandnode.exceptions.EncryptionException;
-import net.result.sandnode.exceptions.WrongKeyException;
+import net.result.sandnode.exception.CannotUseEncryption;
+import net.result.sandnode.exception.EncryptionException;
+import net.result.sandnode.exception.WrongKeyException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;

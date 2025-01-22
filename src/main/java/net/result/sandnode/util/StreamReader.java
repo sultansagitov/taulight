@@ -1,8 +1,8 @@
 package net.result.sandnode.util;
 
-import net.result.sandnode.exceptions.InputStreamException;
-import net.result.sandnode.exceptions.OutputStreamException;
-import net.result.sandnode.exceptions.UnexpectedSocketDisconnectException;
+import net.result.sandnode.exception.InputStreamException;
+import net.result.sandnode.exception.OutputStreamException;
+import net.result.sandnode.exception.UnexpectedSocketDisconnectException;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;

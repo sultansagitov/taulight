@@ -2,7 +2,7 @@ package net.result.main;
 
 import net.result.sandnode.encryption.EncryptionManager;
 import net.result.taulight.TauErrors;
-import net.result.taulight.messages.TauMessageTypes;
+import net.result.taulight.message.TauMessageTypes;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.UUID;

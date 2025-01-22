@@ -1,7 +1,7 @@
 package net.result.sandnode.chain.client;
 
-import net.result.sandnode.exceptions.ExpectedMessageException;
-import net.result.sandnode.messages.types.GroupMessage;
+import net.result.sandnode.exception.ExpectedMessageException;
+import net.result.sandnode.message.types.GroupMessage;
 import net.result.sandnode.util.IOControl;
 
 import java.util.Set;

@@ -1,9 +1,9 @@
 package net.result.sandnode.chain;
 
-import net.result.sandnode.bst.Searchable;
-import net.result.sandnode.exceptions.*;
-import net.result.sandnode.messages.IMessage;
-import net.result.sandnode.messages.RawMessage;
+import net.result.sandnode.util.bst.Searchable;
+import net.result.sandnode.exception.*;
+import net.result.sandnode.message.IMessage;
+import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.util.IOControl;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

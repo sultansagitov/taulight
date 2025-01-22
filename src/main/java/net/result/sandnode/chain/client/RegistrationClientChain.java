@@ -1,15 +1,15 @@
 package net.result.sandnode.chain.client;
 
-import net.result.sandnode.exceptions.*;
-import net.result.sandnode.messages.IMessage;
-import net.result.sandnode.messages.types.ErrorMessage;
-import net.result.sandnode.messages.types.RegistrationRequest;
-import net.result.sandnode.messages.types.RegistrationResponse;
-import net.result.sandnode.server.Errors;
-import net.result.sandnode.server.SandnodeError;
+import net.result.sandnode.exception.*;
+import net.result.sandnode.message.IMessage;
+import net.result.sandnode.message.types.ErrorMessage;
+import net.result.sandnode.message.types.RegistrationRequest;
+import net.result.sandnode.message.types.RegistrationResponse;
+import net.result.sandnode.error.Errors;
+import net.result.sandnode.error.SandnodeError;
 import net.result.sandnode.util.IOControl;
 
-import static net.result.sandnode.messages.util.MessageTypes.ERR;
+import static net.result.sandnode.message.util.MessageTypes.ERR;
 
 public class RegistrationClientChain extends ClientChain {
     public String token;

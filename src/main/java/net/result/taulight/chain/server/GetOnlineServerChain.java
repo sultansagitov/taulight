@@ -1,19 +1,19 @@
 package net.result.taulight.chain.server;
 
 import net.result.sandnode.chain.server.ServerChain;
-import net.result.sandnode.exceptions.DeserializationException;
-import net.result.sandnode.messages.RawMessage;
-import net.result.sandnode.messages.types.HappyMessage;
-import net.result.sandnode.server.Session;
-import net.result.sandnode.util.db.IMember;
-import net.result.sandnode.util.group.GroupManager;
+import net.result.sandnode.exception.DeserializationException;
+import net.result.sandnode.message.RawMessage;
+import net.result.sandnode.message.types.HappyMessage;
+import net.result.sandnode.serverclient.Session;
+import net.result.sandnode.db.IMember;
+import net.result.sandnode.group.GroupManager;
 import net.result.taulight.TauChatManager;
 import net.result.taulight.TauErrors;
 import net.result.taulight.TauHub;
-import net.result.taulight.messages.OnlineResponseMessage;
-import net.result.taulight.messages.types.TaulightRequestMessage;
-import net.result.taulight.messages.types.TaulightResponseMessage;
-import net.result.taulight.messages.types.TaulightResponseMessage.TaulightResponseData;
+import net.result.taulight.message.OnlineResponseMessage;
+import net.result.taulight.message.types.TaulightRequestMessage;
+import net.result.taulight.message.types.TaulightResponseMessage;
+import net.result.taulight.message.types.TaulightResponseMessage.TaulightResponseData;
 import net.result.taulight.messenger.TauChat;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -22,8 +22,8 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static net.result.taulight.messages.TauMessageTypes.ONL;
-import static net.result.taulight.messages.TauMessageTypes.TAULIGHT;
+import static net.result.taulight.message.TauMessageTypes.ONL;
+import static net.result.taulight.message.TauMessageTypes.TAULIGHT;
 
 public class GetOnlineServerChain extends ServerChain {
     private static final Logger LOGGER = LogManager.getLogger(GetOnlineServerChain.class);

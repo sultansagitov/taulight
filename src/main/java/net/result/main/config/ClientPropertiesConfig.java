@@ -3,7 +3,7 @@ package net.result.main.config;
 import net.result.sandnode.config.IClientConfig;
 import net.result.sandnode.encryption.EncryptionManager;
 import net.result.sandnode.encryption.interfaces.ISymmetricEncryption;
-import net.result.sandnode.exceptions.*;
+import net.result.sandnode.exception.*;
 import net.result.sandnode.util.Endpoint;
 import net.result.sandnode.util.FileUtil;
 import net.result.sandnode.encryption.interfaces.IAsymmetricKeyStorage;

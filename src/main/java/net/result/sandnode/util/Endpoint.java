@@ -1,6 +1,6 @@
 package net.result.sandnode.util;
 
-import net.result.sandnode.exceptions.InvalidEndpointSyntax;
+import net.result.sandnode.exception.InvalidEndpointSyntax;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 

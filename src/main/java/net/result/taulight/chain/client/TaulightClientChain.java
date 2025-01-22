@@ -1,16 +1,16 @@
 package net.result.taulight.chain.client;
 
 import net.result.sandnode.chain.client.ClientChain;
-import net.result.sandnode.exceptions.DeserializationException;
-import net.result.sandnode.exceptions.ExpectedMessageException;
-import net.result.sandnode.exceptions.ImpossibleRuntimeException;
-import net.result.sandnode.messages.RawMessage;
-import net.result.sandnode.messages.types.ErrorMessage;
-import net.result.sandnode.server.SandnodeError;
+import net.result.sandnode.exception.DeserializationException;
+import net.result.sandnode.exception.ExpectedMessageException;
+import net.result.sandnode.exception.ImpossibleRuntimeException;
+import net.result.sandnode.message.RawMessage;
+import net.result.sandnode.message.types.ErrorMessage;
+import net.result.sandnode.error.SandnodeError;
 import net.result.sandnode.util.IOControl;
-import net.result.taulight.messages.types.TaulightRequestMessage;
-import net.result.taulight.messages.DataType;
-import net.result.taulight.messages.types.TaulightResponseMessage;
+import net.result.taulight.message.types.TaulightRequestMessage;
+import net.result.taulight.message.DataType;
+import net.result.taulight.message.types.TaulightResponseMessage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -19,7 +19,7 @@ import java.util.Set;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-import static net.result.sandnode.messages.util.MessageTypes.ERR;
+import static net.result.sandnode.message.util.MessageTypes.ERR;
 
 public class TaulightClientChain extends ClientChain {
     private static final Logger LOGGER = LogManager.getLogger(TaulightClientChain.class);

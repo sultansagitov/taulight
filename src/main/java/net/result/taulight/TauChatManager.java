@@ -1,6 +1,6 @@
 package net.result.taulight;
 
-import net.result.sandnode.util.db.IMember;
+import net.result.sandnode.db.IMember;
 import net.result.taulight.messenger.TauChat;
 
 import java.util.HashSet;

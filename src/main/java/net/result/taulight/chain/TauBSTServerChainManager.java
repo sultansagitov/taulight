@@ -1,12 +1,12 @@
 package net.result.taulight.chain;
 
 import net.result.sandnode.chain.server.ServerChain;
-import net.result.sandnode.messages.RawMessage;
+import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.chain.server.BSTServerChainManager;
 import net.result.taulight.chain.server.ForwardServerChain;
 import net.result.taulight.chain.server.GetOnlineServerChain;
 import net.result.taulight.chain.server.TaulightServerChain;
-import net.result.taulight.messages.TauMessageTypes;
+import net.result.taulight.message.TauMessageTypes;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 

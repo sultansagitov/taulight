@@ -3,9 +3,9 @@ package net.result.main.config;
 import net.result.sandnode.encryption.EncryptionManager;
 import net.result.sandnode.encryption.interfaces.IAsymmetricEncryption;
 import net.result.sandnode.encryption.interfaces.IAsymmetricKeyStorage;
-import net.result.sandnode.exceptions.*;
-import net.result.sandnode.hashers.HasherManager;
-import net.result.sandnode.hashers.Hasher;
+import net.result.sandnode.exception.*;
+import net.result.sandnode.hasher.HasherManager;
+import net.result.sandnode.hasher.Hasher;
 import net.result.sandnode.util.Endpoint;
 import net.result.sandnode.util.FileUtil;
 import org.jetbrains.annotations.NotNull;
@@ -13,7 +13,7 @@ import org.json.JSONObject;
 
 import java.nio.file.Path;
 
-import static net.result.sandnode.hashers.Hashers.SHA256;
+import static net.result.sandnode.hasher.Hashers.SHA256;
 
 public final class KeyRecord {
     public final Path publicKeyPath;

@@ -1,6 +1,6 @@
 package net.result.sandnode.encryption.interfaces;
 
-import net.result.sandnode.exceptions.*;
+import net.result.sandnode.exception.*;
 
 public interface IEncryption {
 

@@ -1,7 +1,7 @@
 package net.result.sandnode.encryption.interfaces;
 
-import net.result.sandnode.exceptions.CannotUseEncryption;
-import net.result.sandnode.exceptions.EncryptionTypeException;
+import net.result.sandnode.exception.CannotUseEncryption;
+import net.result.sandnode.exception.EncryptionTypeException;
 import org.jetbrains.annotations.CheckReturnValue;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;

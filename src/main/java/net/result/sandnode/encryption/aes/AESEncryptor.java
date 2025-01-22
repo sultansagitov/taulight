@@ -1,8 +1,8 @@
 package net.result.sandnode.encryption.aes;
 
-import net.result.sandnode.exceptions.EncryptionException;
+import net.result.sandnode.exception.EncryptionException;
 import net.result.sandnode.encryption.interfaces.IKeyStorage;
-import net.result.sandnode.exceptions.ImpossibleRuntimeException;
+import net.result.sandnode.exception.ImpossibleRuntimeException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;

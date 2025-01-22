@@ -1,7 +1,7 @@
 package net.result.sandnode.chain.client;
 
 import net.result.sandnode.chain.ChainManager;
-import net.result.sandnode.messages.RawMessage;
+import net.result.sandnode.message.RawMessage;
 
 public interface ClientChainManager extends ChainManager {
     @Override

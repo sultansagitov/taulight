@@ -4,11 +4,11 @@ import net.result.sandnode.encryption.ecies.*;
 import net.result.sandnode.encryption.interfaces.*;
 import net.result.sandnode.encryption.rsa.*;
 
-import net.result.sandnode.exceptions.CannotUseEncryption;
-import net.result.sandnode.exceptions.DecryptionException;
-import net.result.sandnode.exceptions.EncryptionException;
-import net.result.sandnode.exceptions.PrivateKeyNotFoundException;
-import net.result.sandnode.exceptions.WrongKeyException;
+import net.result.sandnode.exception.CannotUseEncryption;
+import net.result.sandnode.exception.DecryptionException;
+import net.result.sandnode.exception.EncryptionException;
+import net.result.sandnode.exception.PrivateKeyNotFoundException;
+import net.result.sandnode.exception.WrongKeyException;
 
 public enum AsymmetricEncryption implements IAsymmetricEncryption {
     RSA {

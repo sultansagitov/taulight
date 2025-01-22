@@ -1,10 +1,10 @@
 package net.result.taulight;
 
-import net.result.sandnode.Agent;
+import net.result.sandnode.hubagent.Agent;
 
-import net.result.sandnode.messages.util.Connection;
-import net.result.sandnode.server.SandnodeServer;
-import net.result.sandnode.server.Session;
+import net.result.sandnode.message.util.Connection;
+import net.result.sandnode.serverclient.SandnodeServer;
+import net.result.sandnode.serverclient.Session;
 import net.result.sandnode.encryption.GlobalKeyStorage;
 import org.jetbrains.annotations.NotNull;
 

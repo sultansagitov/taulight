@@ -3,7 +3,7 @@ package net.result.sandnode.encryption.ecies;
 import net.result.sandnode.encryption.interfaces.IAsymmetricEncryption;
 import net.result.sandnode.encryption.interfaces.IAsymmetricKeyStorage;
 import net.result.sandnode.encryption.interfaces.IKeyStorage;
-import net.result.sandnode.exceptions.CannotUseEncryption;
+import net.result.sandnode.exception.CannotUseEncryption;
 import org.jetbrains.annotations.NotNull;
 
 import java.security.PrivateKey;

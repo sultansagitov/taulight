@@ -1,10 +1,10 @@
 package net.result.sandnode.chain.server;
 
-import net.result.sandnode.exceptions.*;
-import net.result.sandnode.messages.types.GroupMessage;
-import net.result.sandnode.server.Session;
-import net.result.sandnode.util.group.ClientNamedGroup;
-import net.result.sandnode.util.group.GroupManager;
+import net.result.sandnode.exception.*;
+import net.result.sandnode.message.types.GroupMessage;
+import net.result.sandnode.serverclient.Session;
+import net.result.sandnode.group.ClientNamedGroup;
+import net.result.sandnode.group.GroupManager;
 
 import java.util.Set;
 import java.util.stream.Collectors;

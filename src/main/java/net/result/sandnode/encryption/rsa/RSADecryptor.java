@@ -1,6 +1,6 @@
 package net.result.sandnode.encryption.rsa;
 
-import net.result.sandnode.exceptions.*;
+import net.result.sandnode.exception.*;
 import net.result.sandnode.encryption.interfaces.IKeyStorage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

@@ -1,16 +1,16 @@
 package net.result.sandnode.chain.server;
 
-import net.result.sandnode.exceptions.DeserializationException;
-import net.result.sandnode.exceptions.ExpectedMessageException;
-import net.result.sandnode.exceptions.InvalidTokenException;
-import net.result.sandnode.messages.IMessage;
-import net.result.sandnode.messages.types.LoginRequest;
-import net.result.sandnode.messages.types.LoginResponse;
-import net.result.sandnode.messages.types.TokenMessage;
-import net.result.sandnode.server.Errors;
-import net.result.sandnode.server.Session;
-import net.result.sandnode.util.db.IDatabase;
-import net.result.sandnode.util.db.IMember;
+import net.result.sandnode.exception.DeserializationException;
+import net.result.sandnode.exception.ExpectedMessageException;
+import net.result.sandnode.exception.InvalidTokenException;
+import net.result.sandnode.message.IMessage;
+import net.result.sandnode.message.types.LoginRequest;
+import net.result.sandnode.message.types.LoginResponse;
+import net.result.sandnode.message.types.TokenMessage;
+import net.result.sandnode.error.Errors;
+import net.result.sandnode.serverclient.Session;
+import net.result.sandnode.db.IDatabase;
+import net.result.sandnode.db.IMember;
 
 import java.util.Optional;
 

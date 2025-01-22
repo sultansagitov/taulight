@@ -1,8 +1,8 @@
 package net.result.taulight;
 
-import net.result.sandnode.messages.types.ErrorMessage;
-import net.result.sandnode.server.SandnodeError;
-import net.result.sandnode.server.ServerErrorManager;
+import net.result.sandnode.message.types.ErrorMessage;
+import net.result.sandnode.error.SandnodeError;
+import net.result.sandnode.error.ServerErrorManager;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 

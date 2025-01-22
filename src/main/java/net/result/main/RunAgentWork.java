@@ -1,24 +1,25 @@
 package net.result.main;
 
-import net.result.main.chains.client.ConsoleClientChain;
-import net.result.main.chains.ConsoleClientChainManager;
+import net.result.main.chain.client.ConsoleClientChain;
+import net.result.main.chain.ConsoleClientChainManager;
 import net.result.main.config.ClientPropertiesConfig;
-import net.result.sandnode.*;
-import net.result.sandnode.client.ClientMember;
-import net.result.sandnode.client.SandnodeClient;
+import net.result.sandnode.hubagent.AgentProtocol;
+import net.result.sandnode.hubagent.ClientProtocol;
+import net.result.sandnode.serverclient.ClientMember;
+import net.result.sandnode.serverclient.SandnodeClient;
 import net.result.sandnode.encryption.interfaces.*;
-import net.result.sandnode.exceptions.*;
+import net.result.sandnode.exception.*;
 import net.result.sandnode.link.Links;
 import net.result.sandnode.link.SandnodeLinkRecord;
-import net.result.sandnode.messages.types.RequestChainNameMessage;
+import net.result.sandnode.message.types.RequestChainNameMessage;
 import net.result.sandnode.util.EncryptionUtil;
 import net.result.sandnode.util.Endpoint;
 import net.result.sandnode.util.IOControl;
 import net.result.taulight.TauAgent;
 import net.result.taulight.chain.client.ForwardClientChain;
 import net.result.taulight.chain.client.TaulightClientChain;
-import net.result.taulight.messages.types.TaulightRequestMessage;
-import net.result.taulight.messages.types.TaulightRequestMessage.TaulightRequestData;
+import net.result.taulight.message.types.TaulightRequestMessage;
+import net.result.taulight.message.types.TaulightRequestMessage.TaulightRequestData;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -26,8 +27,8 @@ import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import static net.result.sandnode.messages.util.NodeType.HUB;
-import static net.result.taulight.messages.DataType.REMOVE;
+import static net.result.sandnode.message.util.NodeType.HUB;
+import static net.result.taulight.message.DataType.REMOVE;
 
 public class RunAgentWork implements IWork {
     private static final Logger LOGGER = LogManager.getLogger(RunAgentWork.class);
