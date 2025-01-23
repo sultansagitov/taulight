@@ -17,10 +17,10 @@ public class FSException extends SandnodeException {
     }
 
     public FSException(String message, Path path) {
-        super("%s: %s".formatted(message, path));
+        this("%s: %s".formatted(message, path));
     }
 
     public FSException(String message, Path path, IOException e) {
-        super("%s: %s".formatted(message, path), e);
+        this("%s: %s".formatted(message, path), e);
     }
 }
