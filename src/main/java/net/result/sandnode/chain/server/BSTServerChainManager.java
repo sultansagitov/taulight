@@ -3,13 +3,17 @@ package net.result.sandnode.chain.server;
 import net.result.sandnode.chain.Chain;
 import net.result.sandnode.exception.BSTBusyPosition;
 import net.result.sandnode.exception.BusyChainID;
+import net.result.sandnode.exception.ImpossibleRuntimeException;
 import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.message.util.Headers;
 import net.result.sandnode.message.util.MessageTypes;
 import net.result.sandnode.serverclient.Session;
 import net.result.sandnode.chain.BSTChainManager;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public abstract class BSTServerChainManager extends BSTChainManager implements ServerChainManager {
+    private static final Logger LOGGER = LogManager.getLogger(BSTServerChainManager.class);
     protected Session session;
 
     @Override
@@ -31,6 +35,8 @@ public abstract class BSTServerChainManager extends BSTChainManager implements S
         } : defaultChain(message);
 
         chain.setID(headers.getChainID());
+
+        LOGGER.info("Adding new chain {}", chain);
         try {
             bst.add(chain);
         } catch (BSTBusyPosition e) {
