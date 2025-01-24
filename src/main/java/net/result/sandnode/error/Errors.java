@@ -9,7 +9,7 @@ public enum Errors implements SandnodeError {
     SERVER_ERROR(1000, "Server"),
     UNKNOWN(1001, "Unknown"),
     DECODE(1002, "Decode"),
-    JSON_PARSING(1003, "JSON Parsing"),
+    PARSING(1003, "Parsing"),
     TOO_FEW_ARGS(1004, "Too few arguments"),
 
     // Encryption-related errors
