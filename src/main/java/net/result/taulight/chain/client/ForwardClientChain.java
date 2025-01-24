@@ -25,31 +25,26 @@ public class ForwardClientChain extends ClientChain {
     public void sync() throws InterruptedException, DeserializationException, ExpectedMessageException {
         send(new RequestChainNameMessage("fwd"));
 
-        while (true) {
-            RawMessage request;
-
-            try {
-                request = queue.take();
-            } catch (InterruptedException e) {
-                LOGGER.info("{} ended by interrupting", toString());
-                break;
-            }
+        while (io.connected) {
+            RawMessage request = queue.take();
 
             if (request.getHeaders().isFin()) {
                 LOGGER.info("{} ended by FIN flag in received message", toString());
                 break;
             }
 
-            TimedForwardMessage tfm = new TimedForwardMessage(request);
-
-            ZonedDateTime zonedDateTime = tfm.getZonedDateTime();
-
-            ZonedDateTime localZonedDateTime = zonedDateTime.withZoneSameInstant(ZoneId.systemDefault());
-            String formattedDateTime = localZonedDateTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss z"));
-
-            LOGGER.info("Forwarded message details - member: {} time: {}, chatID: {}, data: {}",
-                    tfm.getMember().memberID, formattedDateTime, tfm.getChatID(), tfm.getData());
-
+            onMessage(new TimedForwardMessage(request));
         }
+    }
+
+    public void onMessage(TimedForwardMessage tfm) {
+        ZonedDateTime zonedDateTime = tfm.getZonedDateTime();
+
+        ZonedDateTime localZonedDateTime = zonedDateTime.withZoneSameInstant(ZoneId.systemDefault());
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss z");
+        String formattedDateTime = localZonedDateTime.format(formatter);
+
+        LOGGER.info("Forwarded message details - member: {} time: {}, chatID: {}, data: {}",
+                tfm.getMember().memberID, formattedDateTime, tfm.getChatID(), tfm.getData());
     }
 }
