@@ -1,17 +1,19 @@
 package net.result.sandnode.message.types;
 
 import net.result.sandnode.exception.ExpectedMessageException;
-import net.result.sandnode.message.EmptyMessage;
 import net.result.sandnode.message.IMessage;
+import net.result.sandnode.message.Message;
 import net.result.sandnode.message.util.Headers;
 import net.result.sandnode.message.util.MessageTypes;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Unmodifiable;
 
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 
-public class GroupMessage extends EmptyMessage {
+public class GroupMessage extends Message {
     @Unmodifiable
     private final Set<String> groupNames;
 
@@ -20,7 +22,7 @@ public class GroupMessage extends EmptyMessage {
     }
 
     public GroupMessage(@NotNull Headers headers, @NotNull Set<String> groupNames) {
-        super(headers.setValue("groups", String.join(",", groupNames)).setType(MessageTypes.GROUP));
+        super(headers.setType(MessageTypes.GROUP));
         this.groupNames = new HashSet<>(groupNames);
     }
 
@@ -28,8 +30,11 @@ public class GroupMessage extends EmptyMessage {
         super(message.getHeaders());
         ExpectedMessageException.check(message, MessageTypes.GROUP);
 
-        String s = message.getHeaders().getValue("groups");
-        groupNames = Set.of(s.split(","));
+        String[] groupNames = new String(message.getBody()).split(",");
+        this.groupNames = Arrays
+                .stream(groupNames)
+                .filter(s -> !s.isEmpty())
+                .collect(Collectors.toSet());
     }
 
     public Set<String> getGroupNames() {
@@ -38,5 +43,10 @@ public class GroupMessage extends EmptyMessage {
 
     public String toString() {
         return super.toString() + " " + groupNames;
+    }
+
+    @Override
+    public byte[] getBody() {
+        return String.join(",", groupNames).getBytes();
     }
 }
