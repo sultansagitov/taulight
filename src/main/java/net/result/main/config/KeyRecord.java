@@ -1,7 +1,7 @@
 package net.result.main.config;
 
 import net.result.sandnode.encryption.EncryptionManager;
-import net.result.sandnode.encryption.interfaces.IAsymmetricEncryption;
+import net.result.sandnode.encryption.interfaces.IAsymmetricConvertor;
 import net.result.sandnode.encryption.interfaces.IAsymmetricKeyStorage;
 import net.result.sandnode.exception.*;
 import net.result.sandnode.hasher.HasherManager;
@@ -33,8 +33,9 @@ public final class KeyRecord {
             throws NoSuchEncryptionException, CreatingKeyException, FSException, NoSuchHasherException,
             KeyHashCheckingSecurityException, EncryptionTypeException, InvalidEndpointSyntax {
         Path path = Path.of(json.getString("path"));
-        IAsymmetricEncryption encryption = EncryptionManager.find(json.getString("encryption")).asymmetric();
-        IAsymmetricKeyStorage keyStorage = encryption.publicKeyConvertor().toKeyStorage(FileUtil.readString(path));
+        var encryption = EncryptionManager.find(json.getString("encryption")).asymmetric();
+        IAsymmetricConvertor convertor = encryption.publicKeyConvertor();
+        IAsymmetricKeyStorage keyStorage = convertor.toKeyStorage(FileUtil.readString(path));
 
         JSONObject hashObject = json.getJSONObject("hash");
         String hash1 = hashObject.getString("content");

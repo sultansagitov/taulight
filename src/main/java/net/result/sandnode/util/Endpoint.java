@@ -9,7 +9,7 @@ import java.net.URISyntaxException;
 
 public record Endpoint(String host, int port) {
 
-    public static @NotNull Endpoint getFromString(@NotNull String input, int defaultPort) throws InvalidEndpointSyntax {
+    public static @NotNull Endpoint getFromString(String input, int defaultPort) throws InvalidEndpointSyntax {
         URI uri;
         try {
             uri = new URI("dummy://%s".formatted(input));

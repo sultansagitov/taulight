@@ -29,7 +29,11 @@ public class RegistrationRequest extends MSGPackMessage<RegistrationRequest.Memb
         ExpectedMessageException.check(message, REG);
     }
 
-    public RegistrationRequest(@NotNull Headers headers, @NotNull String memberID, @NotNull String password) {
+    public RegistrationRequest(
+            @NotNull Headers headers,
+            @NotNull String memberID,
+            @NotNull String password
+    ) {
         super(headers.setType(REG), new MemberData(memberID, password));
     }
 

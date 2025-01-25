@@ -49,7 +49,8 @@ public class ClientPropertiesConfig implements IClientConfig {
 
         KEYS_JSON_PATH = FileUtil.resolveHome(properties.getProperty("client.keys.json_file_name"));
 
-        SYMMETRIC_ENCRYPTION = EncryptionManager.find(properties.getProperty("client.keys.symmetric")).symmetric();
+        String symKeyProperty = properties.getProperty("client.keys.symmetric");
+        SYMMETRIC_ENCRYPTION = EncryptionManager.find(symKeyProperty).symmetric();
 
         if (!Files.exists(KEYS_JSON_PATH)) {
             FileUtil.createFile(KEYS_JSON_PATH);

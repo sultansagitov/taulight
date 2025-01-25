@@ -34,9 +34,11 @@ public abstract class Message implements IMessage {
         return headersEncryption;
     }
 
-    public static @NotNull RawMessage decryptMessage(EncryptedMessage encrypted, GlobalKeyStorage globalKeyStorage)
-            throws DecryptionException, NoSuchMessageTypeException, NoSuchEncryptionException,
-            KeyStorageNotFoundException, WrongKeyException, PrivateKeyNotFoundException {
+    public static @NotNull RawMessage decryptMessage(
+            EncryptedMessage encrypted,
+            GlobalKeyStorage globalKeyStorage
+    ) throws DecryptionException, NoSuchMessageTypeException, NoSuchEncryptionException, KeyStorageNotFoundException,
+            WrongKeyException, PrivateKeyNotFoundException {
         IEncryption headersEncryption = EncryptionManager.find(encrypted.encryptionByte);
         byte[] decryptedHeaders;
         IKeyStorage headersKeyStorage = globalKeyStorage.getNonNull(headersEncryption);

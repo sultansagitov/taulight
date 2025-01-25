@@ -58,8 +58,10 @@ public class ServerPropertiesConfig implements IServerConfig {
 
         Path KEYS_DIR = FileUtil.resolveHome(Path.of(properties.getProperty("server.keys.dir_path")));
 
-        PUBLIC_KEY_PATH = FileUtil.resolveHome(KEYS_DIR.resolve(properties.getProperty("server.keys.pubkey_path")));
-        PRIVATE_KEY_PATH = FileUtil.resolveHome(KEYS_DIR.resolve(properties.getProperty("server.keys.privkey_path")));
+        String publicKeyProperty = properties.getProperty("server.keys.pubkey_path");
+        String privateKeyProperty = properties.getProperty("server.keys.privkey_path");
+        PUBLIC_KEY_PATH = FileUtil.resolveHome(KEYS_DIR.resolve(publicKeyProperty));
+        PRIVATE_KEY_PATH = FileUtil.resolveHome(KEYS_DIR.resolve(privateKeyProperty));
 
         MAIN_ENCRYPTION = EncryptionManager.find(properties.getProperty("server.keys.main")).asymmetric();
 

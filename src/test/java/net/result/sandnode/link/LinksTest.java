@@ -44,7 +44,8 @@ public class LinksTest {
 
         IAsymmetricKeyStorage rsaKeyStorage = RSA.generate();
 
-        String validLink = "sandnode://hub@localhost:52525?encryption=RSA&key=" + rsaKeyStorage.encodedPublicKey();
+        String validLink = "sandnode://hub@localhost:52525?encryption=RSA&key=%s"
+                .formatted(rsaKeyStorage.encodedPublicKey());
 
         SandnodeLinkRecord record = Links.parse(validLink);
 
