@@ -4,13 +4,13 @@ import net.result.sandnode.exception.ExpectedMessageException;
 import net.result.sandnode.message.types.GroupMessage;
 import net.result.sandnode.util.IOControl;
 
-import java.util.Set;
+import java.util.Collection;
 
 public class GroupClientChain extends ClientChain {
-    private final Set<String> groups;
-    public Set<String> groupNames;
+    private final Collection<String> groups;
+    public Collection<String> groupNames;
 
-    public GroupClientChain(IOControl io, Set<String> groups) {
+    public GroupClientChain(IOControl io, Collection<String> groups) {
         super(io);
         this.groups = groups;
     }

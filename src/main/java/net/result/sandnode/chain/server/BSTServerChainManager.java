@@ -3,7 +3,6 @@ package net.result.sandnode.chain.server;
 import net.result.sandnode.chain.Chain;
 import net.result.sandnode.exception.BSTBusyPosition;
 import net.result.sandnode.exception.BusyChainID;
-import net.result.sandnode.exception.ImpossibleRuntimeException;
 import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.message.util.Headers;
 import net.result.sandnode.message.util.MessageTypes;

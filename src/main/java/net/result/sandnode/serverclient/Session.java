@@ -10,12 +10,12 @@ import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
 
 import java.net.Socket;
+import java.util.Collection;
 import java.util.HashSet;
-import java.util.Set;
 
 public class Session {
     private static final Logger LOGGER = LogManager.getLogger(Session.class);
-    private final Set<Group> groups = new HashSet<>();
+    private final Collection<Group> groups = new HashSet<>();
     public final SandnodeServer server;
     public final Socket socket;
     public final IOControl io;
@@ -66,7 +66,7 @@ public class Session {
         groups.add(group);
     }
 
-    public Set<Group> getGroups() {
+    public Collection<Group> getGroups() {
         return groups;
     }
 }

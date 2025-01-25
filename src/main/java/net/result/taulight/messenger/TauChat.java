@@ -2,15 +2,23 @@ package net.result.taulight.messenger;
 
 import net.result.sandnode.db.IMember;
 
+import java.util.Collection;
 import java.util.HashSet;
-import java.util.Set;
 
 public class TauChat {
-    public final String name;
-    public final Set<IMember> members;
+    private final String id;
+    private final Collection<IMember> members;
 
-    public TauChat(String name) {
-        this.name = name;
+    public TauChat(String id) {
+        this.id = id;
         this.members = new HashSet<>();
+    }
+
+    public String getID() {
+        return id;
+    }
+
+    public Collection<IMember> getMembers() {
+        return members;
     }
 }

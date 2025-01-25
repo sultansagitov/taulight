@@ -8,6 +8,7 @@ import net.result.sandnode.chain.client.PublicKeyClientChain;
 import net.result.sandnode.chain.client.SymKeyClientChain;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Collection;
 import java.util.Set;
 
 public class ClientProtocol {
@@ -29,12 +30,16 @@ public class ClientProtocol {
         io.chainManager.removeChain(symKeyChain);
     }
 
-    public static Set<String> GROUP(@NotNull IOControl io, Set<String> groups)
+    public static Collection<String> GROUP(@NotNull IOControl io, Collection<String> groups)
             throws InterruptedException, ExpectedMessageException {
         GroupClientChain groupClientChain = new GroupClientChain(io, groups);
         io.chainManager.linkChain(groupClientChain);
         groupClientChain.sync();
         io.chainManager.removeChain(groupClientChain);
         return groupClientChain.groupNames;
+    }
+
+    public static Collection<String> GROUP(IOControl io) throws ExpectedMessageException, InterruptedException {
+        return GROUP(io, Set.of());
     }
 }

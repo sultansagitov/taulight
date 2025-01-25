@@ -8,7 +8,6 @@ import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.message.types.HappyMessage;
 import net.result.sandnode.error.Errors;
 import net.result.sandnode.serverclient.Session;
-import net.result.sandnode.db.IMember;
 import net.result.taulight.TauChatManager;
 import net.result.taulight.TauHub;
 import net.result.taulight.TauErrors;
@@ -21,7 +20,6 @@ import org.apache.logging.log4j.Logger;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Optional;
-import java.util.Set;
 
 public class ForwardServerChain extends ServerChain {
     private static final Logger LOGGER = LogManager.getLogger(ForwardServerChain.class);
@@ -58,7 +56,7 @@ public class ForwardServerChain extends ServerChain {
             }
 
             TauChat chat = tauChat.get();
-            Set<IMember> members = chat.members;
+            var members = chat.getMembers();
 
             if (!members.contains(session.member)) {
                 send(Errors.UNAUTHORIZED.message());

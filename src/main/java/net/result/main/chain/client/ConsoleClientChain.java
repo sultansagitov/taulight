@@ -17,7 +17,10 @@ import net.result.taulight.message.types.ForwardMessage.ForwardData;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Optional;
+import java.util.Scanner;
 import java.util.stream.Collectors;
 
 import static net.result.sandnode.message.util.MessageTypes.ERR;
@@ -52,33 +55,31 @@ public class ConsoleClientChain extends ClientChain {
                 break;
 
             } else if (input.equalsIgnoreCase("getOnline")) {
-                Set<String> members = TauAgentProtocol.getOnline(io);
+                var members = TauAgentProtocol.getOnline(io);
                 LOGGER.info("Online agents: {}", members);
 
             } else if (input.equalsIgnoreCase("chains")) {
-                Set<Chain> chains = io.chainManager.getAllChains();
-                Map<String, Chain> map = io.chainManager.getChainsMap();
+                var chains = io.chainManager.getAllChains();
+                var map = io.chainManager.getChainsMap();
 
                 LOGGER.info("All client chains: {}", chains);
                 LOGGER.info("All named client chains: {}", map);
 
             } else if (input.equalsIgnoreCase("group")) {
-                Set<String> groups = ClientProtocol.GROUP(io, Set.of());
+                var groups = ClientProtocol.GROUP(io);
                 LOGGER.info("Your groups: {}", groups);
 
             } else if (input.startsWith("group ")) {
                 String substring = input.substring(input.indexOf(" ") + 1);
-                Set<String> inputString = Arrays
-                        .stream(substring.split(" "))
-                        .filter(s -> !s.isEmpty())
-                        .collect(Collectors.toSet());
-                Set<String> groups = ClientProtocol.GROUP(io, inputString);
-                LOGGER.info("Your groups now: {}", groups);
+                Collection<String> groups = Arrays.stream(substring.split(" ")).collect(Collectors.toSet());
+                Collection<String> groupsAfter = ClientProtocol.GROUP(io, groups);
+                LOGGER.info("Your groups now: {}", groupsAfter);
 
             } else if (input.equalsIgnoreCase("tauChatGet")) {
                 Optional<Chain> tau = io.chainManager.getChain("tau");
                 if (tau.isPresent()) {
-                    Optional<Set<String>> opt = ((TaulightClientChain) tau.get()).getChats();
+                    TaulightClientChain taulightClientChain = (TaulightClientChain) tau.get();
+                    Optional<Collection<String>> opt = taulightClientChain.getChats();
                     opt.ifPresent(LOGGER::info);
                 }
             } else if (input.startsWith("tauChatAdd ")) {

@@ -9,19 +9,19 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Unmodifiable;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashSet;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 public class GroupMessage extends Message {
     @Unmodifiable
-    private final Set<String> groupNames;
+    private final Collection<String> groupNames;
 
-    public GroupMessage(@NotNull Set<String> groupNames) {
+    public GroupMessage(@NotNull Collection<String> groupNames) {
         this(new Headers(), groupNames);
     }
 
-    public GroupMessage(@NotNull Headers headers, @NotNull Set<String> groupNames) {
+    public GroupMessage(@NotNull Headers headers, @NotNull Collection<String> groupNames) {
         super(headers.setType(MessageTypes.GROUP));
         this.groupNames = new HashSet<>(groupNames);
     }
@@ -37,7 +37,7 @@ public class GroupMessage extends Message {
                 .collect(Collectors.toSet());
     }
 
-    public Set<String> getGroupNames() {
+    public Collection<String> getGroupNames() {
         return groupNames;
     }
 

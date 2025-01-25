@@ -5,7 +5,6 @@ import net.result.sandnode.exception.DeserializationException;
 import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.message.types.HappyMessage;
 import net.result.sandnode.serverclient.Session;
-import net.result.sandnode.db.IMember;
 import net.result.sandnode.group.GroupManager;
 import net.result.taulight.TauChatManager;
 import net.result.taulight.TauErrors;
@@ -19,7 +18,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.util.Optional;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import static net.result.taulight.message.TauMessageTypes.ONL;
@@ -44,7 +42,7 @@ public class GetOnlineServerChain extends ServerChain {
                 TaulightRequestMessage taulightRequest = new TaulightRequestMessage(request);
                 switch (taulightRequest.getMessageType()) {
                     case GET -> {
-                        Set<TauChat> chats = chatManager.getChats(session.member);
+                        var chats = chatManager.getChats(session.member);
                         send(new TaulightResponseMessage(TaulightResponseData.get(chats)));
                     }
                     case ADD -> {
@@ -58,7 +56,7 @@ public class GetOnlineServerChain extends ServerChain {
 
                         TauChat chat = opt.get();
 
-                        if (chat.members.contains(session.member)) {
+                        if (chat.getMembers().contains(session.member)) {
                             send(new HappyMessage());
                             LOGGER.info("Member {} is already part of chat {}", session.member.getID(), chatID);
                             return;
@@ -75,8 +73,8 @@ public class GetOnlineServerChain extends ServerChain {
 
             if (request.getHeaders().getType() == ONL) {
                 final GroupManager groupManager = session.server.serverConfig.groupManager();
-                Set<Session> fwd = groupManager.getGroup("chat").getSessions();
-                Set<IMember> list = fwd.stream().map(s -> s.member).collect(Collectors.toSet());
+                var fwd = groupManager.getGroup("chat").getSessions();
+                var list = fwd.stream().map(s -> s.member).collect(Collectors.toSet());
                 LOGGER.info("Online IPs: {}", list);
                 OnlineResponseMessage response = new OnlineResponseMessage(list);
                 send(response);

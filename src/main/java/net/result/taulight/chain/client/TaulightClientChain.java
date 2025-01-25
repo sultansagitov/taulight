@@ -14,8 +14,8 @@ import net.result.taulight.message.types.TaulightResponseMessage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.util.Collection;
 import java.util.Optional;
-import java.util.Set;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -44,7 +44,7 @@ public class TaulightClientChain extends ClientChain {
         LOGGER.error("Error Code: {}, Error Description: {}", error.getCode(), error.getDescription());
     }
 
-    public Optional<Set<String>> getChats()
+    public Optional<Collection<String>> getChats()
             throws InterruptedException, DeserializationException, ExpectedMessageException {
         lock.lock();
         try {
@@ -56,7 +56,7 @@ public class TaulightClientChain extends ClientChain {
                 return Optional.empty();
             }
 
-            Set<String> chats = new TaulightResponseMessage(raw).getChats();
+            Collection<String> chats = new TaulightResponseMessage(raw).getChats();
             return Optional.of(chats);
         } finally {
             lock.unlock();

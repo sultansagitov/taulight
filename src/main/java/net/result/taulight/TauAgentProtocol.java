@@ -4,10 +4,10 @@ import net.result.sandnode.exception.*;
 import net.result.sandnode.util.IOControl;
 import net.result.taulight.chain.TauOnlineClientChain;
 
-import java.util.Set;
+import java.util.Collection;
 
 public class TauAgentProtocol {
-    public static Set<String> getOnline(IOControl io)
+    public static Collection<String> getOnline(IOControl io)
             throws ExpectedMessageException, InterruptedException, DeserializationException {
         TauOnlineClientChain tauOnlineChain = new TauOnlineClientChain(io);
         io.chainManager.linkChain(tauOnlineChain);

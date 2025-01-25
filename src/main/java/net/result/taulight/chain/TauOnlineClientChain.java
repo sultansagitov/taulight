@@ -7,10 +7,10 @@ import net.result.sandnode.util.IOControl;
 import net.result.taulight.message.OnlineMessage;
 import net.result.taulight.message.OnlineResponseMessage;
 
-import java.util.Set;
+import java.util.Collection;
 
 public class TauOnlineClientChain extends ClientChain {
-    public Set<String> members;
+    public Collection<String> members;
 
     public TauOnlineClientChain(IOControl io) {
         super(io);

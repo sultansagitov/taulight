@@ -8,10 +8,10 @@ import net.result.taulight.TauHub;
 import net.result.taulight.message.types.TaulightRequestMessage;
 import net.result.taulight.message.types.TaulightResponseMessage;
 import net.result.taulight.message.types.TaulightResponseMessage.TaulightResponseData;
+import net.result.taulight.messenger.TauChat;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import static net.result.taulight.message.DataType.ADD;
@@ -36,9 +36,9 @@ public class TaulightServerChain extends ServerChain {
 
             switch (request.getMessageType()) {
                 case GET -> {
-                    Set<String> set = chatManager
+                    var set = chatManager
                             .getChats(session.member).stream()
-                            .map(chat -> chat.name)
+                            .map(TauChat::getID)
                             .collect(Collectors.toSet());
                     send(new TaulightResponseMessage(new TaulightResponseData(GET, set)));
                 }

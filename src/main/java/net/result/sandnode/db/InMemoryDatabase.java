@@ -5,7 +5,7 @@ import net.result.sandnode.exception.BusyMemberIDException;
 import java.util.*;
 
 public class InMemoryDatabase implements IDatabase {
-    public final Set<IMember> db = new HashSet<>();
+    public final Collection<IMember> db = new HashSet<>();
 
     @Override
     public synchronized IMember registerMember(String memberID, String password) throws BusyMemberIDException {

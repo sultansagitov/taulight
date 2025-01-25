@@ -87,7 +87,7 @@ public abstract class BSTChainManager implements ChainManager {
     }
 
     @Override
-    public Set<Chain> getAllChains() {
+    public Collection<Chain> getAllChains() {
         return new HashSet<>(bst.getOrdered());
     }
 

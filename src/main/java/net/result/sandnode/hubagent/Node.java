@@ -9,22 +9,18 @@ import net.result.sandnode.encryption.GlobalKeyStorage;
 import org.jetbrains.annotations.NotNull;
 
 import java.net.Socket;
-import java.util.Set;
+import java.util.Collection;
 import java.util.concurrent.ConcurrentHashMap;
 
 public abstract class Node {
     public final GlobalKeyStorage globalKeyStorage;
-    public final Set<Session> agentSessionList;
-    public final Set<Session> hubSessionList;
+    public final Collection<Session> agentSessionList;
+    public final Collection<Session> hubSessionList;
 
     public Node(@NotNull GlobalKeyStorage globalKeyStorage) {
         this.globalKeyStorage = globalKeyStorage;
         hubSessionList = ConcurrentHashMap.newKeySet();
         agentSessionList = ConcurrentHashMap.newKeySet();
-    }
-
-    public Node() {
-        this(new GlobalKeyStorage());
     }
 
     public abstract @NotNull Session createSession(SandnodeServer server, Socket socket, Connection connection)

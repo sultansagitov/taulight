@@ -3,14 +3,14 @@ package net.result.sandnode.group;
 import net.result.sandnode.serverclient.Session;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Collection;
 import java.util.HashSet;
-import java.util.Set;
 
 public class HashSetGroup implements Group {
-    private final Set<Session> sessions = new HashSet<>();
+    private final Collection<Session> sessions = new HashSet<>();
 
     @Override
-    public Set<Session> getSessions() {
+    public Collection<Session> getSessions() {
         return sessions;
     }
 

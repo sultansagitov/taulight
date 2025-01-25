@@ -9,7 +9,7 @@ import net.result.sandnode.message.util.Headers;
 import net.result.taulight.message.DataType;
 import net.result.taulight.messenger.TauChat;
 
-import java.util.Set;
+import java.util.Collection;
 import java.util.stream.Collectors;
 
 import static net.result.taulight.message.DataType.GET;
@@ -20,10 +20,10 @@ public class TaulightResponseMessage extends MSGPackMessage<TaulightResponseMess
         @JsonProperty
         DataType messageType;
         @JsonProperty
-        Set<String> chats;
+        Collection<String> chats;
 
         public TaulightResponseData() {}
-        public TaulightResponseData(DataType messageType, Set<String> chats) {
+        public TaulightResponseData(DataType messageType, Collection<String> chats) {
             this.messageType = messageType;
             this.chats = chats;
         }
@@ -32,8 +32,11 @@ public class TaulightResponseMessage extends MSGPackMessage<TaulightResponseMess
             this.messageType = messageType;
         }
 
-        public static TaulightResponseData get(Set<TauChat> chats) {
-            return new TaulightResponseData(GET, chats.stream().map(chat -> chat.name).collect(Collectors.toSet()));
+        public static TaulightResponseData get(Collection<TauChat> chats) {
+            return new TaulightResponseData(GET,
+                    chats.stream()
+                            .map(TauChat::getID)
+                            .collect(Collectors.toSet()));
         }
     }
 
@@ -50,7 +53,7 @@ public class TaulightResponseMessage extends MSGPackMessage<TaulightResponseMess
         this(new Headers(), data);
     }
 
-    public Set<String> getChats() {
+    public Collection<String> getChats() {
         return object.chats;
     }
 }

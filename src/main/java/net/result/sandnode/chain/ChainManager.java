@@ -3,9 +3,9 @@ package net.result.sandnode.chain;
 import net.result.sandnode.exception.BusyChainID;
 import net.result.sandnode.message.RawMessage;
 
+import java.util.Collection;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 
 public interface ChainManager {
     void interruptAll();
@@ -22,7 +22,7 @@ public interface ChainManager {
 
     void distributeMessage(RawMessage message) throws InterruptedException;
 
-    Set<Chain> getAllChains();
+    Collection<Chain> getAllChains();
 
     Map<String, Chain> getChainsMap();
 
