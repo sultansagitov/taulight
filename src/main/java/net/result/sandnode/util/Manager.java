@@ -1,10 +1,10 @@
 package net.result.sandnode.util;
 
 import java.util.ArrayList;
-import java.util.List;
+import java.util.Collection;
 
 public abstract class Manager<T> {
-    public final List<T> list;
+    public final Collection<T> list;
 
     protected Manager() {
         list = new ArrayList<>();

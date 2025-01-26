@@ -1,23 +1,28 @@
 package net.result.sandnode;
 
 import net.result.main.chain.ConsoleClientChainManager;
+import net.result.sandnode.config.IClientConfig;
+import net.result.sandnode.config.ServerConfig;
+import net.result.sandnode.exception.ImpossibleRuntimeException;
+import net.result.sandnode.exception.ServerStartException;
+import net.result.sandnode.exception.SocketAcceptException;
 import net.result.sandnode.hubagent.Agent;
 import net.result.sandnode.hubagent.ClientProtocol;
 import net.result.sandnode.hubagent.Hub;
-import net.result.sandnode.serverclient.SandnodeClient;
-import net.result.sandnode.config.*;
 import net.result.sandnode.encryption.AsymmetricEncryption;
 import net.result.sandnode.encryption.EncryptionManager;
 import net.result.sandnode.encryption.SymmetricEncryption;
 import net.result.sandnode.encryption.interfaces.IAsymmetricKeyStorage;
 import net.result.sandnode.encryption.interfaces.IKeyStorage;
 import net.result.sandnode.encryption.interfaces.ISymmetricEncryption;
-import net.result.sandnode.exception.*;
-import net.result.sandnode.message.*;
+import net.result.sandnode.message.IMessage;
+import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.message.util.Headers;
 import net.result.sandnode.message.util.MessageType;
 import net.result.sandnode.message.util.MessageTypeManager;
-import net.result.sandnode.serverclient.*;
+import net.result.sandnode.serverclient.SandnodeClient;
+import net.result.sandnode.serverclient.SandnodeServer;
+import net.result.sandnode.serverclient.Session;
 import net.result.sandnode.util.Endpoint;
 import net.result.sandnode.encryption.GlobalKeyStorage;
 import net.result.sandnode.util.IOControl;
@@ -146,7 +151,7 @@ public class ServerTest {
                 }
             };
 
-            IServerConfig serverConfig = new ServerConfig(
+            ServerConfig serverConfig = new ServerConfig(
                     new Endpoint("localhost", port),
                     null,
                     null,
@@ -199,7 +204,7 @@ public class ServerTest {
                 io.chainManager.linkChain(testClientChain);
                 testClientChain.sync();
                 io.chainManager.removeChain(testClientChain);
-            } catch (SandnodeException | InterruptedException e) {
+            } catch (Exception e) {
                 LOGGER.error("Client encountered an error.", e);
                 throw new RuntimeException(e);
             }

@@ -26,7 +26,7 @@ public class ClientPropertiesConfig implements IClientConfig {
     private final Path KEYS_JSON_PATH;
     private final Path KEYS_PATH;
     private final ISymmetricEncryption SYMMETRIC_ENCRYPTION;
-    private final List<KeyRecord> records = new ArrayList<>();
+    private final Collection<KeyRecord> records = new ArrayList<>();
 
     public ClientPropertiesConfig()
             throws ConfigurationException, FSException, NoSuchEncryptionException, EncryptionTypeException {

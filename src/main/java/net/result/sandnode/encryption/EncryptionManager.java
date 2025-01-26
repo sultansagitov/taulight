@@ -12,7 +12,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.security.Security;
 import java.util.ArrayList;
-import java.util.List;
+import java.util.Collection;
 
 import static net.result.sandnode.encryption.AsymmetricEncryption.ECIES;
 import static net.result.sandnode.encryption.AsymmetricEncryption.RSA;
@@ -71,8 +71,8 @@ public class EncryptionManager extends Manager<IEncryption> {
         throw new NoSuchEncryptionException(e);
     }
 
-    public static @NotNull List<IAsymmetricEncryption> getAsymmetric() {
-        List<IAsymmetricEncryption> result = new ArrayList<>();
+    public static @NotNull Collection<IAsymmetricEncryption> getAsymmetric() {
+        Collection<IAsymmetricEncryption> result = new ArrayList<>();
         for (IEncryption encryption : instance().list) {
             if (encryption instanceof IAsymmetricEncryption) {
                 try {
@@ -85,8 +85,8 @@ public class EncryptionManager extends Manager<IEncryption> {
         return result;
     }
 
-    public static @NotNull List<ISymmetricEncryption> getSymmetric() {
-        List<ISymmetricEncryption> result = new ArrayList<>();
+    public static @NotNull Collection<ISymmetricEncryption> getSymmetric() {
+        Collection<ISymmetricEncryption> result = new ArrayList<>();
         for (IEncryption encryption : instance().list) {
             if (encryption instanceof ISymmetricEncryption) {
                 try {

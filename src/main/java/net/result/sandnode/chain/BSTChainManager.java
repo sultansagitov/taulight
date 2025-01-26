@@ -11,7 +11,13 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.security.SecureRandom;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Random;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -34,7 +40,7 @@ public abstract class BSTChainManager implements ChainManager {
 
     @Override
     public void linkChain(Chain chain) {
-        List<Short> list = bst.getOrdered().stream().map(Chain::getID).toList();
+        var list = bst.getOrdered().stream().map(Chain::getID).toList();
 
         Random random = new SecureRandom();
         short chainID;
@@ -113,7 +119,7 @@ public abstract class BSTChainManager implements ChainManager {
 
     @Override
     public String toString() {
-        List<String> list = new ArrayList<>();
+        Collection<String> list = new ArrayList<>();
         for (Chain chain : bst.getOrdered())
             list.add(String.format("%04X", chain.getID()));
         return "<%s chains=%s>".formatted(

@@ -89,10 +89,10 @@ class BinarySearchTreeTest {
         tree.add(item3);
         tree.add(item4);
 
-        List<TestSearchable> ordered = tree.getOrdered();
+        var orderedNodes = tree.getOrdered();
 
-        assertEquals(4, ordered.size(), "There should be 4 elements in the ordered list.");
-        assertIterableEquals(List.of(item4, item2, item1, item3), ordered,
+        assertEquals(4, orderedNodes.size(), "There should be 4 elements in the ordered list.");
+        assertIterableEquals(List.of(item4, item2, item1, item3), orderedNodes,
                 "The elements should be in ascending order.");
     }
 

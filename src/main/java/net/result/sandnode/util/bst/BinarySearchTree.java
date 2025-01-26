@@ -4,7 +4,7 @@ import net.result.sandnode.exception.BSTBusyPosition;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
-import java.util.List;
+import java.util.Collection;
 import java.util.Optional;
 
 public class BinarySearchTree<S extends Searchable<S, ID>, ID> {
@@ -50,8 +50,8 @@ public class BinarySearchTree<S extends Searchable<S, ID>, ID> {
         return Optional.empty();
     }
 
-    public List<S> getOrdered() {
-        List<S> result = new ArrayList<>();
+    public Collection<S> getOrdered() {
+        Collection<S> result = new ArrayList<>();
         if (root == null) return result;
 
         BSTNode<S, ID> current = root;
