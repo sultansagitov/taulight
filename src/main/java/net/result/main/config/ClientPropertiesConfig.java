@@ -126,7 +126,7 @@ public class ClientPropertiesConfig implements ClientConfig {
     }
 
     private boolean isHaveKey(@NotNull Endpoint endpoint) {
-        return records.stream().anyMatch(record -> endpoint.toString().equals(record.endpoint.toString()));
+        return records.stream().anyMatch(record -> endpoint.equals(record.endpoint));
     }
 
     public synchronized void saveKeysJSON() throws FSException {
@@ -138,12 +138,10 @@ public class ClientPropertiesConfig implements ClientConfig {
     }
 
     @Override
-    public synchronized Optional<AsymmetricKeyStorage> getPublicKey(@NotNull Endpoint endpoint) {
-        for (KeyRecord keyRecord : records) {
-            if (keyRecord.endpoint.toString().equals(endpoint.toString())) {
-                return Optional.of(keyRecord.keyStorage.asymmetric());
-            }
-        }
-        return Optional.empty();
+    public Optional<AsymmetricKeyStorage> getPublicKey(@NotNull Endpoint endpoint) {
+        return records.stream()
+                .filter(keyRecord -> keyRecord.endpoint.equals(endpoint))
+                .findFirst()
+                .map(keyRecord -> keyRecord.keyStorage.asymmetric());
     }
 }

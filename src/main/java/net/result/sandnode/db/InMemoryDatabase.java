@@ -19,13 +19,7 @@ public class InMemoryDatabase implements Database {
     }
 
     @Override
-    public synchronized Optional<Member> findMemberByMemberID(String agentID) {
-        for (Member member : db) {
-            if (member.getID().equals(agentID)) {
-                return Optional.of(member);
-            }
-        }
-
-        return Optional.empty();
+    public synchronized Optional<Member> findMemberByMemberID(String memberID) {
+        return db.stream().filter(m -> m.getID().equals(memberID)).findFirst();
     }
 }

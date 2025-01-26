@@ -25,8 +25,7 @@ public class GlobalKeyStorage {
     }
 
     public Optional<KeyStorage> get(@NotNull Encryption encryption) {
-        KeyStorage keyStorage = keyStorageMap.get(encryption);
-        return keyStorage == null ? Optional.empty() : Optional.of(keyStorage);
+        return Optional.ofNullable(keyStorageMap.get(encryption));
     }
 
     public @NotNull KeyStorage getNonNull(@NotNull Encryption encryption) throws KeyStorageNotFoundException {
