@@ -6,7 +6,7 @@ import net.result.sandnode.encryption.interfaces.ISymmetricEncryption;
 import net.result.sandnode.exception.*;
 import net.result.sandnode.util.Endpoint;
 import net.result.sandnode.util.FileUtil;
-import net.result.sandnode.encryption.interfaces.IAsymmetricKeyStorage;
+import net.result.sandnode.encryption.interfaces.AsymmetricKeyStorage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
@@ -86,7 +86,7 @@ public class ClientPropertiesConfig implements IClientConfig {
     @Override
     public synchronized void saveKey(
             @NotNull Endpoint endpoint,
-            @NotNull IAsymmetricKeyStorage keyStorage
+            @NotNull AsymmetricKeyStorage keyStorage
     ) throws FSException, KeyAlreadySaved {
         String filename = "%s_%s_public.key".formatted(
                 endpoint.toString().replaceAll("[.:\\\\/*?\"<>|]", "_"),
@@ -138,7 +138,7 @@ public class ClientPropertiesConfig implements IClientConfig {
     }
 
     @Override
-    public synchronized Optional<IAsymmetricKeyStorage> getPublicKey(@NotNull Endpoint endpoint) {
+    public synchronized Optional<AsymmetricKeyStorage> getPublicKey(@NotNull Endpoint endpoint) {
         for (KeyRecord keyRecord : records) {
             if (keyRecord.endpoint.toString().equals(endpoint.toString())) {
                 return Optional.of(keyRecord.keyStorage.asymmetric());

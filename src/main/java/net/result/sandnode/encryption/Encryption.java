@@ -16,22 +16,22 @@ public enum Encryption implements IEncryption {
         }
 
         @Override
-        public byte[] encrypt(String data, IKeyStorage keyStorage) {
+        public byte[] encrypt(String data, KeyStorage keyStorage) {
             return data.getBytes();
         }
 
         @Override
-        public byte[] encryptBytes(byte[] bytes, IKeyStorage keyStorage) {
+        public byte[] encryptBytes(byte[] bytes, KeyStorage keyStorage) {
             return bytes;
         }
 
         @Override
-        public String decrypt(byte[] encryptedData, IKeyStorage keyStorage) {
+        public String decrypt(byte[] encryptedData, KeyStorage keyStorage) {
             return new String(encryptedData);
         }
 
         @Override
-        public byte[] decryptBytes(byte[] encryptedBytes, IKeyStorage keyStorage) {
+        public byte[] decryptBytes(byte[] encryptedBytes, KeyStorage keyStorage) {
             return encryptedBytes;
         }
 

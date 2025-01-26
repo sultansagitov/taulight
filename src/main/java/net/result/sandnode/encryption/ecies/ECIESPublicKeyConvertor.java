@@ -1,7 +1,7 @@
 package net.result.sandnode.encryption.ecies;
 
 import net.result.sandnode.encryption.interfaces.IAsymmetricConvertor;
-import net.result.sandnode.encryption.interfaces.IKeyStorage;
+import net.result.sandnode.encryption.interfaces.KeyStorage;
 import net.result.sandnode.exception.CannotUseEncryption;
 import net.result.sandnode.exception.CreatingKeyException;
 import org.jetbrains.annotations.NotNull;
@@ -39,7 +39,7 @@ public class ECIESPublicKeyConvertor implements IAsymmetricConvertor {
     }
 
     @Override
-    public @NotNull String toEncodedString(@NotNull IKeyStorage keyStorage) throws CannotUseEncryption {
+    public @NotNull String toEncodedString(@NotNull KeyStorage keyStorage) throws CannotUseEncryption {
         Base64.Encoder encoder = Base64.getEncoder();
         ECIESKeyStorage eciesKeyStorage = (ECIESKeyStorage) keyStorage.expect(ECIES);
         byte[] encoded = eciesKeyStorage.publicKey().getEncoded();

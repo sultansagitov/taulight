@@ -6,18 +6,18 @@ import org.jetbrains.annotations.CheckReturnValue;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
-public interface IAsymmetricKeyStorage extends IKeyStorage {
+public interface AsymmetricKeyStorage extends KeyStorage {
     @Override
     @NotNull IAsymmetricEncryption encryption();
 
     @CheckReturnValue
     @Contract(value = " -> this", pure = true)
-    default IAsymmetricKeyStorage asymmetric() {
+    default AsymmetricKeyStorage asymmetric() {
         return this;
     }
 
     @Contract(value = " -> fail")
-    default ISymmetricKeyStorage symmetric() throws EncryptionTypeException {
+    default SymmetricKeyStorage symmetric() throws EncryptionTypeException {
         throw new EncryptionTypeException(encryption());
     }
 

@@ -6,7 +6,7 @@ import net.result.sandnode.message.Message;
 import net.result.sandnode.message.util.Headers;
 import net.result.sandnode.encryption.EncryptionManager;
 import net.result.sandnode.encryption.interfaces.IAsymmetricEncryption;
-import net.result.sandnode.encryption.interfaces.IAsymmetricKeyStorage;
+import net.result.sandnode.encryption.interfaces.AsymmetricKeyStorage;
 import org.jetbrains.annotations.NotNull;
 
 import static java.nio.charset.StandardCharsets.US_ASCII;
@@ -14,9 +14,9 @@ import static net.result.sandnode.message.util.MessageTypes.PUB;
 import static net.result.sandnode.encryption.Encryption.NONE;
 
 public class PublicKeyResponse extends Message {
-    public final IAsymmetricKeyStorage keyStorage;
+    public final AsymmetricKeyStorage keyStorage;
 
-    public PublicKeyResponse(@NotNull Headers headers, @NotNull IAsymmetricKeyStorage keyStorage) {
+    public PublicKeyResponse(@NotNull Headers headers, @NotNull AsymmetricKeyStorage keyStorage) {
         super(headers
                 .setType(PUB)
                 .setBodyEncryption(NONE)

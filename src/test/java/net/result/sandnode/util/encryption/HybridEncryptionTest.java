@@ -2,9 +2,9 @@ package net.result.sandnode.util.encryption;
 
 import net.result.sandnode.encryption.EncryptionManager;
 import net.result.sandnode.encryption.interfaces.IAsymmetricEncryption;
-import net.result.sandnode.encryption.interfaces.IAsymmetricKeyStorage;
+import net.result.sandnode.encryption.interfaces.AsymmetricKeyStorage;
 import net.result.sandnode.encryption.interfaces.ISymmetricEncryption;
-import net.result.sandnode.encryption.interfaces.ISymmetricKeyStorage;
+import net.result.sandnode.encryption.interfaces.SymmetricKeyStorage;
 import net.result.sandnode.exception.CannotUseEncryption;
 import net.result.sandnode.exception.ImpossibleRuntimeException;
 import org.junit.jupiter.api.Assertions;
@@ -17,8 +17,8 @@ public class HybridEncryptionTest {
     public void hybridEncryptionTest() throws Exception {
         for (IAsymmetricEncryption a : EncryptionManager.getAsymmetric()) {
             for (ISymmetricEncryption s : EncryptionManager.getSymmetric()) {
-                IAsymmetricKeyStorage asymmetricKeyStorage = a.generate();
-                ISymmetricKeyStorage symmetricKeyStorage = s.generate();
+                AsymmetricKeyStorage asymmetricKeyStorage = a.generate();
+                SymmetricKeyStorage symmetricKeyStorage = s.generate();
 
                 byte[] bytes = symmetricKeyStorage.toBytes();
 
@@ -34,7 +34,7 @@ public class HybridEncryptionTest {
                 Assertions.assertFalse(Arrays.equals(bytes, encryptedBytes));
                 Assertions.assertArrayEquals(bytes, decryptedBytes);
 
-                ISymmetricKeyStorage secondKeyStorage = s.toKeyStorage(decryptedBytes);
+                SymmetricKeyStorage secondKeyStorage = s.toKeyStorage(decryptedBytes);
 
                 try {
                     String data = "HelloString";

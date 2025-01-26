@@ -163,12 +163,12 @@ public class IOController {
         }
     }
 
-    public void setServerKey(@NotNull IAsymmetricKeyStorage publicKey) {
+    public void setServerKey(@NotNull AsymmetricKeyStorage publicKey) {
         serverEncryption = publicKey.encryption();
         globalKeyStorage.set(publicKey);
     }
 
-    public void setClientKey(@NotNull ISymmetricKeyStorage symmetricKeyStorage) {
+    public void setClientKey(@NotNull SymmetricKeyStorage symmetricKeyStorage) {
         symKeyEncryption = symmetricKeyStorage.encryption();
         globalKeyStorage.set(symmetricKeyStorage);
     }

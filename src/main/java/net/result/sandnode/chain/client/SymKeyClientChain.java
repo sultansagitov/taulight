@@ -1,7 +1,7 @@
 package net.result.sandnode.chain.client;
 
 import net.result.sandnode.encryption.interfaces.ISymmetricEncryption;
-import net.result.sandnode.encryption.interfaces.ISymmetricKeyStorage;
+import net.result.sandnode.encryption.interfaces.SymmetricKeyStorage;
 import net.result.sandnode.exception.ExpectedMessageException;
 import net.result.sandnode.exception.KeyNotCreatedException;
 import net.result.sandnode.message.IMessage;
@@ -21,7 +21,7 @@ public class SymKeyClientChain extends Chain {
 
     @Override
     public void sync() throws InterruptedException, KeyNotCreatedException, ExpectedMessageException {
-        ISymmetricKeyStorage keyStorage = symmetricEncryption.generate();
+        SymmetricKeyStorage keyStorage = symmetricEncryption.generate();
 
         if (!io.globalKeyStorage.has(io.getServerEncryption()))
             throw new KeyNotCreatedException(io.getServerEncryption());

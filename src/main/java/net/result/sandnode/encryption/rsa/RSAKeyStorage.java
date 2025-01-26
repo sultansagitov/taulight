@@ -1,8 +1,8 @@
 package net.result.sandnode.encryption.rsa;
 
 import net.result.sandnode.encryption.interfaces.IAsymmetricEncryption;
-import net.result.sandnode.encryption.interfaces.IAsymmetricKeyStorage;
-import net.result.sandnode.encryption.interfaces.IKeyStorage;
+import net.result.sandnode.encryption.interfaces.AsymmetricKeyStorage;
+import net.result.sandnode.encryption.interfaces.KeyStorage;
 import net.result.sandnode.exception.CannotUseEncryption;
 import org.jetbrains.annotations.NotNull;
 
@@ -12,7 +12,7 @@ import java.security.PublicKey;
 
 import static net.result.sandnode.encryption.AsymmetricEncryption.RSA;
 
-public class RSAKeyStorage implements IAsymmetricKeyStorage {
+public class RSAKeyStorage implements AsymmetricKeyStorage {
 
     private PublicKey publicKey;
     private PrivateKey privateKey;
@@ -71,7 +71,7 @@ public class RSAKeyStorage implements IAsymmetricKeyStorage {
     }
 
     @Override
-    public @NotNull IKeyStorage copy() {
+    public @NotNull KeyStorage copy() {
         return new RSAKeyStorage(publicKey(), privateKey());
     }
 

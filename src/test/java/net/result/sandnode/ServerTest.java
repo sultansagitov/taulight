@@ -12,8 +12,8 @@ import net.result.sandnode.hubagent.Hub;
 import net.result.sandnode.encryption.AsymmetricEncryption;
 import net.result.sandnode.encryption.EncryptionManager;
 import net.result.sandnode.encryption.SymmetricEncryption;
-import net.result.sandnode.encryption.interfaces.IAsymmetricKeyStorage;
-import net.result.sandnode.encryption.interfaces.IKeyStorage;
+import net.result.sandnode.encryption.interfaces.AsymmetricKeyStorage;
+import net.result.sandnode.encryption.interfaces.KeyStorage;
 import net.result.sandnode.encryption.interfaces.ISymmetricEncryption;
 import net.result.sandnode.message.IMessage;
 import net.result.sandnode.message.RawMessage;
@@ -81,7 +81,7 @@ public class ServerTest {
         LOGGER.info("Generated random port: {}", port);
 
         // Server setup
-        IKeyStorage rsaKeyStorage = asymmetricEncryption.generate();
+        KeyStorage rsaKeyStorage = asymmetricEncryption.generate();
         GlobalKeyStorage serverKeyStorage = new GlobalKeyStorage(rsaKeyStorage);
         HubThread hubThread = new HubThread(serverKeyStorage, port);
         hubThread.start();
@@ -219,11 +219,11 @@ public class ServerTest {
         }
 
         @Override
-        public void saveKey(@NotNull Endpoint endpoint, @NotNull IAsymmetricKeyStorage keyStorage) {
+        public void saveKey(@NotNull Endpoint endpoint, @NotNull AsymmetricKeyStorage keyStorage) {
         }
 
         @Override
-        public Optional<IAsymmetricKeyStorage> getPublicKey(@NotNull Endpoint endpoint) {
+        public Optional<AsymmetricKeyStorage> getPublicKey(@NotNull Endpoint endpoint) {
             return Optional.empty();
         }
     }

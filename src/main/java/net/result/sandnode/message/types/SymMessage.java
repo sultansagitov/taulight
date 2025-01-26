@@ -9,14 +9,14 @@ import net.result.sandnode.message.Message;
 import net.result.sandnode.message.util.Headers;
 import net.result.sandnode.encryption.EncryptionManager;
 import net.result.sandnode.encryption.interfaces.ISymmetricEncryption;
-import net.result.sandnode.encryption.interfaces.ISymmetricKeyStorage;
+import net.result.sandnode.encryption.interfaces.SymmetricKeyStorage;
 import org.jetbrains.annotations.NotNull;
 
 import static net.result.sandnode.encryption.Encryption.NONE;
 import static net.result.sandnode.message.util.MessageTypes.SYM;
 
 public class SymMessage extends Message {
-    public final ISymmetricKeyStorage symmetricKeyStorage;
+    public final SymmetricKeyStorage symmetricKeyStorage;
 
     public SymMessage(@NotNull IMessage message) throws ExpectedMessageException, NoSuchEncryptionException,
             EncryptionTypeException, DataNotEncryptedException {
@@ -35,7 +35,7 @@ public class SymMessage extends Message {
         symmetricKeyStorage = encryption.toKeyStorage(message.getBody());
     }
 
-    public SymMessage(@NotNull Headers headers, @NotNull ISymmetricKeyStorage symmetricKeyStorage) {
+    public SymMessage(@NotNull Headers headers, @NotNull SymmetricKeyStorage symmetricKeyStorage) {
         super(headers.setType(SYM).setValue("encryption", "" + symmetricKeyStorage.encryption().asByte()));
         this.symmetricKeyStorage = symmetricKeyStorage;
     }

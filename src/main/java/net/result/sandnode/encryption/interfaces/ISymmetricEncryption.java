@@ -4,9 +4,9 @@ import org.jetbrains.annotations.NotNull;
 
 public interface ISymmetricEncryption extends IEncryption {
 
-    @NotNull ISymmetricKeyStorage generate();
+    @NotNull SymmetricKeyStorage generate();
 
-    @NotNull ISymmetricKeyStorage toKeyStorage(byte[] body);
+    @NotNull SymmetricKeyStorage toKeyStorage(byte[] body);
 
     @Override
     default boolean isAsymmetric() {

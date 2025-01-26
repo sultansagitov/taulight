@@ -5,7 +5,7 @@ import net.result.sandnode.message.util.Headers;
 import net.result.sandnode.encryption.EncryptionManager;
 import net.result.sandnode.encryption.GlobalKeyStorage;
 import net.result.sandnode.encryption.interfaces.IEncryption;
-import net.result.sandnode.encryption.interfaces.IKeyStorage;
+import net.result.sandnode.encryption.interfaces.KeyStorage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
@@ -41,7 +41,7 @@ public abstract class Message implements IMessage {
             WrongKeyException, PrivateKeyNotFoundException {
         IEncryption headersEncryption = EncryptionManager.find(encrypted.encryptionByte);
         byte[] decryptedHeaders;
-        IKeyStorage headersKeyStorage = globalKeyStorage.getNonNull(headersEncryption);
+        KeyStorage headersKeyStorage = globalKeyStorage.getNonNull(headersEncryption);
         try {
             decryptedHeaders = headersEncryption.decryptBytes(encrypted.headersBytes, headersKeyStorage);
         } catch (CannotUseEncryption e) {
@@ -52,7 +52,7 @@ public abstract class Message implements IMessage {
 
         IEncryption bodyEncryption = headers.getBodyEncryption();
         byte[] decryptedBody;
-        IKeyStorage bodyKeyStorage = globalKeyStorage.getNonNull(bodyEncryption);
+        KeyStorage bodyKeyStorage = globalKeyStorage.getNonNull(bodyEncryption);
         try {
             decryptedBody = bodyEncryption.decryptBytes(encrypted.bodyBytes, bodyKeyStorage);
         } catch (CannotUseEncryption e) {
@@ -75,7 +75,7 @@ public abstract class Message implements IMessage {
 
         try {
             byte[] headersBytes = getHeaders().toByteArray();
-            IKeyStorage keyStorage = globalKeyStorage.getNonNull(encryption);
+            KeyStorage keyStorage = globalKeyStorage.getNonNull(encryption);
             byte[] encryptedHeaders;
             try {
                 encryptedHeaders = encryption.encryptBytes(headersBytes, keyStorage);
@@ -104,7 +104,7 @@ public abstract class Message implements IMessage {
         try {
             byte[] bodyBytes = getBody();
             IEncryption bodyEncryption = getHeaders().getBodyEncryption();
-            IKeyStorage keyStorage = globalKeyStorage.getNonNull(bodyEncryption);
+            KeyStorage keyStorage = globalKeyStorage.getNonNull(bodyEncryption);
             byte[] encryptionBody;
             try {
                 encryptionBody = bodyEncryption.encryptBytes(bodyBytes, keyStorage);

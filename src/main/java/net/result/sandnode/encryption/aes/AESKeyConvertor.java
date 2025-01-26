@@ -1,13 +1,13 @@
 package net.result.sandnode.encryption.aes;
 
-import net.result.sandnode.encryption.interfaces.ISymmetricKeyStorage;
+import net.result.sandnode.encryption.interfaces.SymmetricKeyStorage;
 import org.jetbrains.annotations.NotNull;
 
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 
 public class AESKeyConvertor {
-    public static byte @NotNull [] toBytes(ISymmetricKeyStorage keyStorage) {
+    public static byte @NotNull [] toBytes(SymmetricKeyStorage keyStorage) {
         AESKeyStorage aesKeyStorage = (AESKeyStorage) keyStorage;
         return aesKeyStorage.key().getEncoded();
     }

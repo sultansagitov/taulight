@@ -1,7 +1,7 @@
 package net.result.sandnode.util.encryption;
 
 import net.result.sandnode.encryption.EncryptionManager;
-import net.result.sandnode.encryption.interfaces.IAsymmetricKeyStorage;
+import net.result.sandnode.encryption.interfaces.AsymmetricKeyStorage;
 import net.result.sandnode.exception.CannotUseEncryption;
 import net.result.sandnode.exception.CreatingKeyException;
 import net.result.sandnode.encryption.interfaces.IAsymmetricConvertor;
@@ -14,13 +14,13 @@ public class ConvertorTest {
     @Test
     public void convertTest() throws CreatingKeyException {
         for (IAsymmetricEncryption encryption : EncryptionManager.getAsymmetric()) {
-            IAsymmetricKeyStorage keyStorage = encryption.generate();
+            AsymmetricKeyStorage keyStorage = encryption.generate();
 
             try {
                 String original = keyStorage.encodedPublicKey();
 
                 IAsymmetricConvertor convertor = encryption.publicKeyConvertor();
-                IAsymmetricKeyStorage keyStorage1 = convertor.toKeyStorage(original);
+                AsymmetricKeyStorage keyStorage1 = convertor.toKeyStorage(original);
 
                 String string = keyStorage1.encodedPublicKey();
 
@@ -33,7 +33,7 @@ public class ConvertorTest {
                 String original = keyStorage.encodedPrivateKey();
 
                 IAsymmetricConvertor convertor = encryption.privateKeyConvertor();
-                IAsymmetricKeyStorage keyStorage1 = convertor.toKeyStorage(original);
+                AsymmetricKeyStorage keyStorage1 = convertor.toKeyStorage(original);
 
                 String string = keyStorage1.encodedPrivateKey();
 

@@ -8,16 +8,16 @@ public interface IAsymmetricEncryption extends IEncryption {
     IAsymmetricConvertor privateKeyConvertor();
 
     @Override
-    IAsymmetricKeyStorage generate();
+    AsymmetricKeyStorage generate();
 
     @Override
-    byte[] encryptBytes(byte[] bytes, IKeyStorage keyStorage) throws EncryptionException, CannotUseEncryption;
+    byte[] encryptBytes(byte[] bytes, KeyStorage keyStorage) throws EncryptionException, CannotUseEncryption;
 
     @Override
-    byte[] decryptBytes(byte[] encryptedBytes, IKeyStorage keyStorage)
+    byte[] decryptBytes(byte[] encryptedBytes, KeyStorage keyStorage)
             throws DecryptionException, WrongKeyException, CannotUseEncryption, PrivateKeyNotFoundException;
 
-    IAsymmetricKeyStorage merge(IAsymmetricKeyStorage publicKeyStorage, IAsymmetricKeyStorage privateKeyStorage);
+    AsymmetricKeyStorage merge(AsymmetricKeyStorage publicKeyStorage, AsymmetricKeyStorage privateKeyStorage);
 
     @Override
     default boolean isAsymmetric() {

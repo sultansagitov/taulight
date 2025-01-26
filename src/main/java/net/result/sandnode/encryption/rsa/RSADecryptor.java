@@ -1,7 +1,7 @@
 package net.result.sandnode.encryption.rsa;
 
 import net.result.sandnode.exception.*;
-import net.result.sandnode.encryption.interfaces.IKeyStorage;
+import net.result.sandnode.encryption.interfaces.KeyStorage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
@@ -19,14 +19,14 @@ import static net.result.sandnode.encryption.AsymmetricEncryption.RSA;
 public class RSADecryptor {
     private static final Logger LOGGER = LogManager.getLogger(RSADecryptor.class);
 
-    public static String decrypt(byte @NotNull [] data, @NotNull IKeyStorage keyStorage)
+    public static String decrypt(byte @NotNull [] data, @NotNull KeyStorage keyStorage)
             throws DecryptionException, WrongKeyException, CannotUseEncryption, PrivateKeyNotFoundException {
         return new String(decryptBytes(data, keyStorage));
     }
 
     public static byte[] decryptBytes(
             byte @NotNull [] data,
-            @NotNull IKeyStorage keyStorage
+            @NotNull KeyStorage keyStorage
     ) throws DecryptionException, WrongKeyException, CannotUseEncryption, PrivateKeyNotFoundException {
         RSAKeyStorage rsaKeyStorage = (RSAKeyStorage) keyStorage.expect(RSA);
         Cipher cipher;

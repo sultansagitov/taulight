@@ -15,7 +15,7 @@ public class EncryptionTest {
     @Test
     public void testEncryptionDecryption() throws Exception {
         for (IEncryption encryption : EncryptionManager.instance().list) {
-            IKeyStorage keyStorage = encryption.generate();
+            KeyStorage keyStorage = encryption.generate();
 
             String originalString = "Hello, World!";
             byte[] originalData = originalString.getBytes(US_ASCII);

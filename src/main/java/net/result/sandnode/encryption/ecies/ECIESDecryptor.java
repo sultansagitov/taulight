@@ -1,6 +1,6 @@
 package net.result.sandnode.encryption.ecies;
 
-import net.result.sandnode.encryption.interfaces.IKeyStorage;
+import net.result.sandnode.encryption.interfaces.KeyStorage;
 import net.result.sandnode.exception.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -20,12 +20,12 @@ import static net.result.sandnode.encryption.AsymmetricEncryption.ECIES;
 public class ECIESDecryptor {
     private static final Logger LOGGER = LogManager.getLogger(ECIESDecryptor.class);
 
-    public static String decrypt(byte @NotNull [] data, @NotNull IKeyStorage keyStorage)
+    public static String decrypt(byte @NotNull [] data, @NotNull KeyStorage keyStorage)
             throws DecryptionException, WrongKeyException, CannotUseEncryption, PrivateKeyNotFoundException {
         return new String(decryptBytes(data, keyStorage));
     }
 
-    public static byte[] decryptBytes(byte @NotNull [] data, @NotNull IKeyStorage keyStorage)
+    public static byte[] decryptBytes(byte @NotNull [] data, @NotNull KeyStorage keyStorage)
             throws DecryptionException, WrongKeyException, CannotUseEncryption, PrivateKeyNotFoundException {
         ECIESKeyStorage eciesKeyStorage = (ECIESKeyStorage) keyStorage.expect(ECIES);
         Cipher cipher;

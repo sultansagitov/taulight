@@ -1,7 +1,7 @@
 package net.result.sandnode.encryption.aes;
 
 import net.result.sandnode.exception.EncryptionException;
-import net.result.sandnode.encryption.interfaces.IKeyStorage;
+import net.result.sandnode.encryption.interfaces.KeyStorage;
 import net.result.sandnode.exception.ImpossibleRuntimeException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -19,12 +19,12 @@ import static java.nio.charset.StandardCharsets.US_ASCII;
 public class AESEncryptor {
     private static final Logger LOGGER = LogManager.getLogger(AESEncryptor.class);
 
-    public static byte[] encrypt(@NotNull String data, @NotNull IKeyStorage keyStorage) throws EncryptionException {
+    public static byte[] encrypt(@NotNull String data, @NotNull KeyStorage keyStorage) throws EncryptionException {
         byte[] bytes = data.trim().getBytes(US_ASCII);
         return encryptBytes(bytes, keyStorage);
     }
 
-    public static byte[] encryptBytes(byte @NotNull [] data, @NotNull IKeyStorage keyStorage)
+    public static byte[] encryptBytes(byte @NotNull [] data, @NotNull KeyStorage keyStorage)
             throws EncryptionException {
         int IV_LENGTH = 16;
         byte[] iv = new byte[IV_LENGTH];

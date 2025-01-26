@@ -2,7 +2,7 @@ package net.result.sandnode.encryption.rsa;
 
 import net.result.sandnode.exception.CreatingKeyException;
 import net.result.sandnode.encryption.interfaces.IAsymmetricConvertor;
-import net.result.sandnode.encryption.interfaces.IKeyStorage;
+import net.result.sandnode.encryption.interfaces.KeyStorage;
 import net.result.sandnode.exception.ImpossibleRuntimeException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -54,7 +54,7 @@ public class RSAPublicKeyConvertor implements IAsymmetricConvertor {
     }
 
     @Override
-    public @NotNull String toEncodedString(@NotNull IKeyStorage keyStorage) {
+    public @NotNull String toEncodedString(@NotNull KeyStorage keyStorage) {
         RSAKeyStorage rsaKeyStorage = (RSAKeyStorage) keyStorage;
         PublicKey publicKey = rsaKeyStorage.publicKey();
         return Base64.getEncoder().encodeToString(publicKey.getEncoded());

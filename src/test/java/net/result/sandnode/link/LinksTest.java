@@ -4,7 +4,7 @@ import net.result.sandnode.config.IServerConfig;
 import net.result.sandnode.encryption.EncryptionManager;
 import net.result.sandnode.encryption.GlobalKeyStorage;
 import net.result.sandnode.encryption.interfaces.IAsymmetricEncryption;
-import net.result.sandnode.encryption.interfaces.IAsymmetricKeyStorage;
+import net.result.sandnode.encryption.interfaces.AsymmetricKeyStorage;
 import net.result.sandnode.exception.*;
 import net.result.sandnode.serverclient.SandnodeServer;
 import net.result.sandnode.util.Endpoint;
@@ -42,7 +42,7 @@ public class LinksTest {
     public void testParse() throws CreatingKeyException, InvalidSandnodeLinkException, CannotUseEncryption {
         EncryptionManager.registerAll();
 
-        IAsymmetricKeyStorage rsaKeyStorage = RSA.generate();
+        AsymmetricKeyStorage rsaKeyStorage = RSA.generate();
 
         String validLink = "sandnode://hub@localhost:52525?encryption=RSA&key=%s"
                 .formatted(rsaKeyStorage.encodedPublicKey());

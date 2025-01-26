@@ -1,7 +1,7 @@
 package net.result.sandnode.encryption;
 
 import net.result.sandnode.encryption.aes.*;
-import net.result.sandnode.encryption.interfaces.IKeyStorage;
+import net.result.sandnode.encryption.interfaces.KeyStorage;
 import net.result.sandnode.encryption.interfaces.ISymmetricEncryption;
 import net.result.sandnode.exception.DecryptionException;
 import net.result.sandnode.exception.EncryptionException;
@@ -20,22 +20,22 @@ public enum SymmetricEncryption implements ISymmetricEncryption {
         }
 
         @Override
-        public byte[] encrypt(String data, IKeyStorage keyStorage) throws EncryptionException {
+        public byte[] encrypt(String data, KeyStorage keyStorage) throws EncryptionException {
             return AESEncryptor.encrypt(data, keyStorage);
         }
 
         @Override
-        public byte[] encryptBytes(byte[] bytes, IKeyStorage keyStorage) throws EncryptionException {
+        public byte[] encryptBytes(byte[] bytes, KeyStorage keyStorage) throws EncryptionException {
             return AESEncryptor.encryptBytes(bytes, keyStorage);
         }
 
         @Override
-        public String decrypt(byte[] encryptedData, IKeyStorage keyStorage) throws DecryptionException {
+        public String decrypt(byte[] encryptedData, KeyStorage keyStorage) throws DecryptionException {
             return AESDecryptor.decrypt(encryptedData, (AESKeyStorage) keyStorage);
         }
 
         @Override
-        public byte[] decryptBytes(byte[] encryptedBytes, IKeyStorage keyStorage) throws DecryptionException {
+        public byte[] decryptBytes(byte[] encryptedBytes, KeyStorage keyStorage) throws DecryptionException {
             return AESDecryptor.decryptBytes(encryptedBytes, (AESKeyStorage) keyStorage);
         }
 

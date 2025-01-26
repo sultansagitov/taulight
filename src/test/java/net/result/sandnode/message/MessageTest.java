@@ -5,7 +5,7 @@ import net.result.sandnode.encryption.EncryptionManager;
 import net.result.sandnode.message.util.Connection;
 import net.result.sandnode.message.util.Headers;
 import net.result.sandnode.encryption.GlobalKeyStorage;
-import net.result.sandnode.encryption.interfaces.IKeyStorage;
+import net.result.sandnode.encryption.interfaces.KeyStorage;
 import net.result.sandnode.message.util.MessageTypes;
 import org.junit.jupiter.api.Test;
 
@@ -31,7 +31,7 @@ class MessageTest {
         node1Message.setHeadersEncryption(AsymmetricEncryption.RSA);
         node1Message.setBody(originalBody);
 
-        IKeyStorage keyStorage = AsymmetricEncryption.RSA.generate();
+        KeyStorage keyStorage = AsymmetricEncryption.RSA.generate();
         GlobalKeyStorage globalKeyStorage = new GlobalKeyStorage(keyStorage);
 
         byte[] byteArray = node1Message.toByteArray(globalKeyStorage);

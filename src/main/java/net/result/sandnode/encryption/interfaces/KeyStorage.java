@@ -4,23 +4,23 @@ import net.result.sandnode.exception.CannotUseEncryption;
 import net.result.sandnode.exception.EncryptionTypeException;
 import org.jetbrains.annotations.NotNull;
 
-public interface IKeyStorage {
+public interface KeyStorage {
     @NotNull IEncryption encryption();
 
-    @NotNull IKeyStorage copy();
+    @NotNull KeyStorage copy();
 
-    default IKeyStorage expect(IEncryption encryption) throws CannotUseEncryption {
+    default KeyStorage expect(IEncryption encryption) throws CannotUseEncryption {
         if (encryption() == encryption) return this;
         throw new CannotUseEncryption(encryption(), encryption);
     }
 
-    default IAsymmetricKeyStorage asymmetric() throws EncryptionTypeException {
-        if (encryption().isAsymmetric()) return (IAsymmetricKeyStorage) this;
+    default AsymmetricKeyStorage asymmetric() throws EncryptionTypeException {
+        if (encryption().isAsymmetric()) return (AsymmetricKeyStorage) this;
         throw new EncryptionTypeException(encryption());
     }
 
-    default ISymmetricKeyStorage symmetric() throws EncryptionTypeException {
-        if (encryption().isSymmetric()) return (ISymmetricKeyStorage) this;
+    default SymmetricKeyStorage symmetric() throws EncryptionTypeException {
+        if (encryption().isSymmetric()) return (SymmetricKeyStorage) this;
         throw new EncryptionTypeException(encryption());
     }
 }

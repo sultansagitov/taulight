@@ -2,7 +2,7 @@ package net.result.main.config;
 
 import net.result.sandnode.encryption.EncryptionManager;
 import net.result.sandnode.encryption.interfaces.IAsymmetricConvertor;
-import net.result.sandnode.encryption.interfaces.IAsymmetricKeyStorage;
+import net.result.sandnode.encryption.interfaces.AsymmetricKeyStorage;
 import net.result.sandnode.exception.*;
 import net.result.sandnode.hasher.HasherManager;
 import net.result.sandnode.hasher.Hasher;
@@ -17,12 +17,12 @@ import static net.result.sandnode.hasher.Hashers.SHA256;
 
 public final class KeyRecord {
     public final Path publicKeyPath;
-    public final IAsymmetricKeyStorage keyStorage;
+    public final AsymmetricKeyStorage keyStorage;
     public final Hasher hasher = SHA256;
     public final String hash;
     public final Endpoint endpoint;
 
-    public KeyRecord(Path publicKeyPath, IAsymmetricKeyStorage keyStorage, Endpoint endpoint, String encodedKey) {
+    public KeyRecord(Path publicKeyPath, AsymmetricKeyStorage keyStorage, Endpoint endpoint, String encodedKey) {
         this.publicKeyPath = publicKeyPath;
         this.keyStorage = keyStorage;
         this.endpoint = endpoint;
@@ -35,7 +35,7 @@ public final class KeyRecord {
         Path path = Path.of(json.getString("path"));
         var encryption = EncryptionManager.find(json.getString("encryption")).asymmetric();
         IAsymmetricConvertor convertor = encryption.publicKeyConvertor();
-        IAsymmetricKeyStorage keyStorage = convertor.toKeyStorage(FileUtil.readString(path));
+        AsymmetricKeyStorage keyStorage = convertor.toKeyStorage(FileUtil.readString(path));
 
         JSONObject hashObject = json.getJSONObject("hash");
         String hash1 = hashObject.getString("content");

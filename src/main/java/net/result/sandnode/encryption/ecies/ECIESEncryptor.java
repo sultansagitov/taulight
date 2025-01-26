@@ -1,6 +1,6 @@
 package net.result.sandnode.encryption.ecies;
 
-import net.result.sandnode.encryption.interfaces.IKeyStorage;
+import net.result.sandnode.encryption.interfaces.KeyStorage;
 import net.result.sandnode.exception.CannotUseEncryption;
 import net.result.sandnode.exception.EncryptionException;
 import net.result.sandnode.exception.ImpossibleRuntimeException;
@@ -24,12 +24,12 @@ import static net.result.sandnode.encryption.AsymmetricEncryption.ECIES;
 public class ECIESEncryptor {
     private static final Logger LOGGER = LogManager.getLogger(ECIESEncryptor.class);
 
-    public static byte[] encrypt(@NotNull String data, @NotNull IKeyStorage keyStorage)
+    public static byte[] encrypt(@NotNull String data, @NotNull KeyStorage keyStorage)
             throws EncryptionException, CannotUseEncryption {
         return encryptBytes(data.getBytes(StandardCharsets.US_ASCII), keyStorage);
     }
 
-    public static byte[] encryptBytes(byte @NotNull [] data, @NotNull IKeyStorage keyStorage)
+    public static byte[] encryptBytes(byte @NotNull [] data, @NotNull KeyStorage keyStorage)
             throws EncryptionException, CannotUseEncryption {
         ECIESKeyStorage eciesKeyStorage = (ECIESKeyStorage) keyStorage.expect(ECIES);
         Cipher cipher;

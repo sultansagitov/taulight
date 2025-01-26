@@ -1,6 +1,6 @@
 package net.result.sandnode.encryption.rsa;
 
-import net.result.sandnode.encryption.interfaces.IKeyStorage;
+import net.result.sandnode.encryption.interfaces.KeyStorage;
 import net.result.sandnode.exception.CannotUseEncryption;
 import net.result.sandnode.exception.EncryptionException;
 import net.result.sandnode.exception.WrongKeyException;
@@ -21,12 +21,12 @@ import static net.result.sandnode.encryption.AsymmetricEncryption.RSA;
 public class RSAEncryptor {
     private static final Logger LOGGER = LogManager.getLogger(RSAEncryptor.class);
 
-    public static byte[] encrypt(@NotNull String data, @NotNull IKeyStorage rsaKeyStorage)
+    public static byte[] encrypt(@NotNull String data, @NotNull KeyStorage rsaKeyStorage)
             throws EncryptionException, CannotUseEncryption {
         return encryptBytes(data.getBytes(US_ASCII), rsaKeyStorage);
     }
 
-    public static byte[] encryptBytes(byte @NotNull [] data, @NotNull IKeyStorage keyStorage)
+    public static byte[] encryptBytes(byte @NotNull [] data, @NotNull KeyStorage keyStorage)
             throws EncryptionException, CannotUseEncryption {
         Cipher cipher;
         byte[] encryptedBytes;

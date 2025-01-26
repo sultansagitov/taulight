@@ -5,7 +5,7 @@ import net.result.sandnode.exception.CreatingKeyException;
 import org.jetbrains.annotations.NotNull;
 
 public interface IAsymmetricConvertor {
-    @NotNull IAsymmetricKeyStorage toKeyStorage(@NotNull String encodedString) throws CreatingKeyException;
+    @NotNull AsymmetricKeyStorage toKeyStorage(@NotNull String encodedString) throws CreatingKeyException;
 
-    @NotNull String toEncodedString(@NotNull IKeyStorage keyStorage) throws CannotUseEncryption;
+    @NotNull String toEncodedString(@NotNull KeyStorage keyStorage) throws CannotUseEncryption;
 }

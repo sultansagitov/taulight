@@ -104,12 +104,12 @@ public class RunAgentWork implements IWork {
             EncryptionTypeException, NoSuchEncryptionException, CreatingKeyException, ExpectedMessageException,
             KeyStorageNotFoundException, DeserializationException {
 
-        Optional<IAsymmetricKeyStorage> filePublicKey = client.clientConfig.getPublicKey(link.endpoint());
-        IAsymmetricKeyStorage linkKeyStorage = link.keyStorage();
+        Optional<AsymmetricKeyStorage> filePublicKey = client.clientConfig.getPublicKey(link.endpoint());
+        AsymmetricKeyStorage linkKeyStorage = link.keyStorage();
 
         if (linkKeyStorage != null) {
             if (filePublicKey.isPresent()) {
-                IAsymmetricKeyStorage fileKey = filePublicKey.get();
+                AsymmetricKeyStorage fileKey = filePublicKey.get();
 
                 if (!EncryptionUtil.isPublicKeysEquals(fileKey, linkKeyStorage))
                     throw new LinkDoesNotMatchException("Key mismatch with saved configuration");
@@ -131,7 +131,7 @@ public class RunAgentWork implements IWork {
 
         ClientProtocol.PUB(client.io);
         IAsymmetricEncryption encryption = client.io.getServerEncryption().asymmetric();
-        IAsymmetricKeyStorage serverKey = agent.globalKeyStorage.getAsymmetricNonNull(encryption);
+        AsymmetricKeyStorage serverKey = agent.globalKeyStorage.getAsymmetricNonNull(encryption);
 
         client.clientConfig.saveKey(link.endpoint(), serverKey);
         client.io.setServerKey(serverKey);

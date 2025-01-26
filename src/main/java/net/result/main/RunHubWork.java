@@ -1,7 +1,7 @@
 package net.result.main;
 
 import net.result.sandnode.encryption.interfaces.IAsymmetricConvertor;
-import net.result.sandnode.encryption.interfaces.IAsymmetricKeyStorage;
+import net.result.sandnode.encryption.interfaces.AsymmetricKeyStorage;
 import net.result.sandnode.exception.*;
 import net.result.sandnode.link.Links;
 import net.result.sandnode.util.FileUtil;
@@ -41,14 +41,14 @@ public class RunHubWork implements IWork {
         LOGGER.info("Reading public key in \"{}\"", publicKeyPath);
         IAsymmetricConvertor publicKeyConvertor = mainEncryption.publicKeyConvertor();
         String publicKeyString = FileUtil.readString(publicKeyPath);
-        IAsymmetricKeyStorage publicKeyStorage = publicKeyConvertor.toKeyStorage(publicKeyString);
+        AsymmetricKeyStorage publicKeyStorage = publicKeyConvertor.toKeyStorage(publicKeyString);
 
         LOGGER.info("Reading private key in \"{}\"", privateKeyPath);
         IAsymmetricConvertor privateKeyConvertor = mainEncryption.privateKeyConvertor();
         String string = FileUtil.readString(privateKeyPath);
-        IAsymmetricKeyStorage privateKeyStorage = privateKeyConvertor.toKeyStorage(string);
+        AsymmetricKeyStorage privateKeyStorage = privateKeyConvertor.toKeyStorage(string);
 
-        IAsymmetricKeyStorage keyStorage = mainEncryption.merge(publicKeyStorage, privateKeyStorage);
+        AsymmetricKeyStorage keyStorage = mainEncryption.merge(publicKeyStorage, privateKeyStorage);
         GlobalKeyStorage globalKeyStorage = new GlobalKeyStorage(keyStorage);
 
         TauChatManager chatManager = new TauChatManager();

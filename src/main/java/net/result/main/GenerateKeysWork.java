@@ -2,7 +2,7 @@ package net.result.main;
 
 import net.result.sandnode.config.IServerConfig;
 import net.result.main.config.ServerPropertiesConfig;
-import net.result.sandnode.encryption.interfaces.IAsymmetricKeyStorage;
+import net.result.sandnode.encryption.interfaces.AsymmetricKeyStorage;
 import net.result.sandnode.exception.*;
 import net.result.sandnode.encryption.interfaces.IAsymmetricEncryption;
 import net.result.sandnode.util.FileUtil;
@@ -20,7 +20,7 @@ public class GenerateKeysWork implements IWork {
     public void run() throws NoSuchEncryptionException, ConfigurationException, FSException, EncryptionTypeException {
         IServerConfig serverConfig = new ServerPropertiesConfig();
         IAsymmetricEncryption mainEncryption = serverConfig.mainEncryption();
-        IAsymmetricKeyStorage keyStorage = mainEncryption.generate();
+        AsymmetricKeyStorage keyStorage = mainEncryption.generate();
 
         Path publicKeyPath = serverConfig.publicKeyPath();
         Path privateKeyPath = serverConfig.privateKeyPath();

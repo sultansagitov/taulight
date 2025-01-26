@@ -2,7 +2,7 @@ package net.result.sandnode.link;
 
 import net.result.sandnode.encryption.EncryptionManager;
 import net.result.sandnode.encryption.interfaces.IAsymmetricEncryption;
-import net.result.sandnode.encryption.interfaces.IAsymmetricKeyStorage;
+import net.result.sandnode.encryption.interfaces.AsymmetricKeyStorage;
 import net.result.sandnode.exception.*;
 import net.result.sandnode.serverclient.SandnodeServer;
 import net.result.sandnode.util.Endpoint;
@@ -19,7 +19,7 @@ public class Links {
     public static @NotNull URI getServerLink(@NotNull SandnodeServer server)
             throws KeyStorageNotFoundException, EncryptionTypeException {
         IAsymmetricEncryption encryption = server.serverConfig.mainEncryption();
-        IAsymmetricKeyStorage keyStorage = server.node.globalKeyStorage.getAsymmetricNonNull(encryption);
+        AsymmetricKeyStorage keyStorage = server.node.globalKeyStorage.getAsymmetricNonNull(encryption);
         String string;
         try {
             string = "sandnode://%s@%s?encryption=%s&key=%s".formatted(
@@ -84,7 +84,7 @@ public class Links {
             throw new InvalidSandnodeLinkException("Unknown encryption type: " + encryptionType, e);
         }
 
-        IAsymmetricKeyStorage keyStorage = encryption.publicKeyConvertor().toKeyStorage(encodedKey);
+        AsymmetricKeyStorage keyStorage = encryption.publicKeyConvertor().toKeyStorage(encodedKey);
 
         return new SandnodeLinkRecord(endpoint, keyStorage);
     }

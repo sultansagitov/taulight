@@ -1,8 +1,8 @@
 package net.result.sandnode.encryption;
 
-import net.result.sandnode.encryption.interfaces.IAsymmetricKeyStorage;
-import net.result.sandnode.encryption.interfaces.IKeyStorage;
-import net.result.sandnode.encryption.interfaces.ISymmetricKeyStorage;
+import net.result.sandnode.encryption.interfaces.AsymmetricKeyStorage;
+import net.result.sandnode.encryption.interfaces.KeyStorage;
+import net.result.sandnode.encryption.interfaces.SymmetricKeyStorage;
 import net.result.sandnode.exception.CannotUseEncryption;
 import net.result.sandnode.exception.EncryptionTypeException;
 import net.result.sandnode.exception.KeyStorageNotFoundException;
@@ -20,9 +20,9 @@ class GlobalKeyStorageTest {
 
     private GlobalKeyStorage globalKeyStorage;
 
-    private IKeyStorage rsaKeyStorage;
-    private IKeyStorage eciesKeyStorage;
-    private IKeyStorage aesKeyStorage;
+    private KeyStorage rsaKeyStorage;
+    private KeyStorage eciesKeyStorage;
+    private KeyStorage aesKeyStorage;
 
     @BeforeEach
     void setUp() {
@@ -37,14 +37,14 @@ class GlobalKeyStorageTest {
     @Test
     void testSetAndGetNonNull() throws KeyStorageNotFoundException {
         globalKeyStorage.set(RSA, rsaKeyStorage);
-        IKeyStorage retrieved = globalKeyStorage.getNonNull(RSA);
+        KeyStorage retrieved = globalKeyStorage.getNonNull(RSA);
         assertEquals(rsaKeyStorage, retrieved);
     }
 
     @Test
     void testSetAndGetOptional() {
         globalKeyStorage.set(ECIES, eciesKeyStorage);
-        Optional<IKeyStorage> retrieved = globalKeyStorage.get(ECIES);
+        Optional<KeyStorage> retrieved = globalKeyStorage.get(ECIES);
         assertTrue(retrieved.isPresent());
         assertEquals(eciesKeyStorage, retrieved.get());
     }
@@ -58,7 +58,7 @@ class GlobalKeyStorageTest {
     @Test
     void testGetAsymmetricNonNull() throws KeyStorageNotFoundException, EncryptionTypeException {
         globalKeyStorage.set(RSA, rsaKeyStorage);
-        IAsymmetricKeyStorage retrieved = globalKeyStorage.getAsymmetricNonNull(RSA);
+        AsymmetricKeyStorage retrieved = globalKeyStorage.getAsymmetricNonNull(RSA);
         assertNotNull(retrieved);
     }
 
@@ -70,7 +70,7 @@ class GlobalKeyStorageTest {
     @Test
     void testGetSymmetricNonNull() throws CannotUseEncryption, EncryptionTypeException {
         globalKeyStorage.set(AES, aesKeyStorage);
-        ISymmetricKeyStorage retrieved = globalKeyStorage.getSymmetricNonNull(AES);
+        SymmetricKeyStorage retrieved = globalKeyStorage.getSymmetricNonNull(AES);
         assertNotNull(retrieved);
     }
 
@@ -78,7 +78,7 @@ class GlobalKeyStorageTest {
     void testCopy() throws Exception {
         globalKeyStorage.set(RSA, rsaKeyStorage);
         GlobalKeyStorage copy = globalKeyStorage.copy();
-        IKeyStorage copiedKeyStorage = copy.getNonNull(RSA);
+        KeyStorage copiedKeyStorage = copy.getNonNull(RSA);
 
         String originalData = "HelloWorld";
 
