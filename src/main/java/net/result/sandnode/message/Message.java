@@ -4,7 +4,7 @@ import net.result.sandnode.exception.*;
 import net.result.sandnode.message.util.Headers;
 import net.result.sandnode.encryption.EncryptionManager;
 import net.result.sandnode.encryption.GlobalKeyStorage;
-import net.result.sandnode.encryption.interfaces.IEncryption;
+import net.result.sandnode.encryption.interfaces.Encryption;
 import net.result.sandnode.encryption.interfaces.KeyStorage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -13,11 +13,11 @@ import org.jetbrains.annotations.NotNull;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
-import static net.result.sandnode.encryption.Encryption.NONE;
+import static net.result.sandnode.encryption.Encryptions.NONE;
 
 public abstract class Message implements IMessage {
     private static final Logger LOGGER = LogManager.getLogger(Message.class);
-    private IEncryption headersEncryption = NONE;
+    private Encryption headersEncryption = NONE;
     private final Headers headers;
 
     public Message(@NotNull Headers headers) {
@@ -25,21 +25,19 @@ public abstract class Message implements IMessage {
     }
 
     @Override
-    public void setHeadersEncryption(@NotNull IEncryption encryption) {
+    public void setHeadersEncryption(@NotNull Encryption encryption) {
         headersEncryption = encryption;
     }
 
     @Override
-    public @NotNull IEncryption getHeadersEncryption() {
+    public @NotNull Encryption getHeadersEncryption() {
         return headersEncryption;
     }
 
-    public static @NotNull RawMessage decryptMessage(
-            EncryptedMessage encrypted,
-            GlobalKeyStorage globalKeyStorage
-    ) throws DecryptionException, NoSuchMessageTypeException, NoSuchEncryptionException, KeyStorageNotFoundException,
-            WrongKeyException, PrivateKeyNotFoundException {
-        IEncryption headersEncryption = EncryptionManager.find(encrypted.encryptionByte);
+    public static @NotNull RawMessage decryptMessage(EncryptedMessage encrypted, GlobalKeyStorage globalKeyStorage)
+            throws DecryptionException, NoSuchMessageTypeException, NoSuchEncryptionException,
+            KeyStorageNotFoundException, WrongKeyException, PrivateKeyNotFoundException {
+        Encryption headersEncryption = EncryptionManager.find(encrypted.encryptionByte);
         byte[] decryptedHeaders;
         KeyStorage headersKeyStorage = globalKeyStorage.getNonNull(headersEncryption);
         try {
@@ -50,7 +48,7 @@ public abstract class Message implements IMessage {
 
         Headers headers = Headers.getFromBytes(decryptedHeaders);
 
-        IEncryption bodyEncryption = headers.getBodyEncryption();
+        Encryption bodyEncryption = headers.getBodyEncryption();
         byte[] decryptedBody;
         KeyStorage bodyKeyStorage = globalKeyStorage.getNonNull(bodyEncryption);
         try {
@@ -69,7 +67,7 @@ public abstract class Message implements IMessage {
     public byte[] toByteArray(@NotNull GlobalKeyStorage globalKeyStorage)
             throws EncryptionException, MessageSerializationException, IllegalMessageLengthException {
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-        IEncryption encryption = getHeadersEncryption();
+        Encryption encryption = getHeadersEncryption();
         byteArrayOutputStream.write(1); // Version
         byteArrayOutputStream.write(encryption.asByte()); // Headers encryption
 
@@ -103,7 +101,7 @@ public abstract class Message implements IMessage {
 
         try {
             byte[] bodyBytes = getBody();
-            IEncryption bodyEncryption = getHeaders().getBodyEncryption();
+            Encryption bodyEncryption = getHeaders().getBodyEncryption();
             KeyStorage keyStorage = globalKeyStorage.getNonNull(bodyEncryption);
             byte[] encryptionBody;
             try {

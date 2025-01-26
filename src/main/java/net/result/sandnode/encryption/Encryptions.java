@@ -3,7 +3,7 @@ package net.result.sandnode.encryption;
 import net.result.sandnode.encryption.interfaces.*;
 import net.result.sandnode.encryption.none.NoneKeyStorage;
 
-public enum Encryption implements IEncryption {
+public enum Encryptions implements Encryption {
     NONE {
         @Override
         public byte asByte() {

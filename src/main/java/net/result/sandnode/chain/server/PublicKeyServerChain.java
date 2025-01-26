@@ -1,6 +1,6 @@
 package net.result.sandnode.chain.server;
 
-import net.result.sandnode.encryption.interfaces.IAsymmetricEncryption;
+import net.result.sandnode.encryption.interfaces.AsymmetricEncryption;
 import net.result.sandnode.encryption.interfaces.AsymmetricKeyStorage;
 import net.result.sandnode.exception.*;
 import net.result.sandnode.message.types.PublicKeyResponse;
@@ -16,7 +16,7 @@ public class PublicKeyServerChain extends ServerChain {
     @Override
     public void sync() throws InterruptedException {
         queue.take();
-        IAsymmetricEncryption encryption = session.server.serverConfig.mainEncryption();
+        AsymmetricEncryption encryption = session.server.serverConfig.mainEncryption();
         AsymmetricKeyStorage asymmetricKeyStorage;
         try {
             asymmetricKeyStorage = session.server.node.globalKeyStorage.getAsymmetricNonNull(encryption);

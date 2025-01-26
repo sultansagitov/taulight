@@ -1,13 +1,13 @@
 package net.result.sandnode.encryption.aes;
 
 import net.result.sandnode.encryption.interfaces.KeyStorage;
-import net.result.sandnode.encryption.interfaces.ISymmetricEncryption;
+import net.result.sandnode.encryption.interfaces.SymmetricEncryption;
 import net.result.sandnode.encryption.interfaces.SymmetricKeyStorage;
 import org.jetbrains.annotations.NotNull;
 
 import javax.crypto.SecretKey;
 
-import static net.result.sandnode.encryption.SymmetricEncryption.AES;
+import static net.result.sandnode.encryption.SymmetricEncryptions.AES;
 
 public record AESKeyStorage(SecretKey key) implements SymmetricKeyStorage {
     public AESKeyStorage(@NotNull SecretKey key) {
@@ -25,7 +25,7 @@ public record AESKeyStorage(SecretKey key) implements SymmetricKeyStorage {
     }
 
     @Override
-    public @NotNull ISymmetricEncryption encryption() {
+    public @NotNull SymmetricEncryption encryption() {
         return AES;
     }
 

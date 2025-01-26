@@ -1,6 +1,6 @@
 package net.result.sandnode.exception;
 
-import net.result.sandnode.encryption.interfaces.IEncryption;
+import net.result.sandnode.encryption.interfaces.Encryption;
 
 public class EncryptionException extends SandnodeException {
     public EncryptionException(Throwable e) {
@@ -15,7 +15,7 @@ public class EncryptionException extends SandnodeException {
         super(message);
     }
 
-    public EncryptionException(IEncryption encryption) {
+    public EncryptionException(Encryption encryption) {
         super(encryption.name());
     }
 }

@@ -1,7 +1,7 @@
 package net.result.sandnode.encryption.rsa;
 
 import net.result.sandnode.exception.CreatingKeyException;
-import net.result.sandnode.encryption.interfaces.IAsymmetricConvertor;
+import net.result.sandnode.encryption.interfaces.AsymmetricConvertor;
 import net.result.sandnode.encryption.interfaces.KeyStorage;
 import net.result.sandnode.exception.ImpossibleRuntimeException;
 import org.apache.logging.log4j.LogManager;
@@ -15,9 +15,9 @@ import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.util.Base64;
 
-import static net.result.sandnode.encryption.AsymmetricEncryption.RSA;
+import static net.result.sandnode.encryption.AsymmetricEncryptions.RSA;
 
-public class RSAPrivateKeyConvertor implements IAsymmetricConvertor {
+public class RSAPrivateKeyConvertor implements AsymmetricConvertor {
     private static final Logger LOGGER = LogManager.getLogger(RSAPrivateKeyConvertor.class);
     private static final RSAPrivateKeyConvertor INSTANCE = new RSAPrivateKeyConvertor();
 

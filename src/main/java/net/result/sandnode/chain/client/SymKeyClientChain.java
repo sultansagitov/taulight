@@ -1,6 +1,6 @@
 package net.result.sandnode.chain.client;
 
-import net.result.sandnode.encryption.interfaces.ISymmetricEncryption;
+import net.result.sandnode.encryption.interfaces.SymmetricEncryption;
 import net.result.sandnode.encryption.interfaces.SymmetricKeyStorage;
 import net.result.sandnode.exception.ExpectedMessageException;
 import net.result.sandnode.exception.KeyNotCreatedException;
@@ -12,9 +12,9 @@ import net.result.sandnode.util.IOController;
 import net.result.sandnode.chain.Chain;
 
 public class SymKeyClientChain extends Chain {
-    private final ISymmetricEncryption symmetricEncryption;
+    private final SymmetricEncryption symmetricEncryption;
 
-    public SymKeyClientChain(IOController io, ISymmetricEncryption symmetricEncryption) {
+    public SymKeyClientChain(IOController io, SymmetricEncryption symmetricEncryption) {
         super(io);
         this.symmetricEncryption = symmetricEncryption;
     }

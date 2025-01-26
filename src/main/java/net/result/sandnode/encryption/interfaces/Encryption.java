@@ -2,7 +2,7 @@ package net.result.sandnode.encryption.interfaces;
 
 import net.result.sandnode.exception.*;
 
-public interface IEncryption {
+public interface Encryption {
 
     byte asByte();
 
@@ -24,15 +24,15 @@ public interface IEncryption {
     byte[] decryptBytes(byte[] encryptedBytes, KeyStorage keyStorage)
             throws DecryptionException, WrongKeyException, CannotUseEncryption, PrivateKeyNotFoundException;
 
-    default IAsymmetricEncryption asymmetric() throws EncryptionTypeException {
+    default AsymmetricEncryption asymmetric() throws EncryptionTypeException {
         if (isAsymmetric())
-            return (IAsymmetricEncryption) this;
+            return (AsymmetricEncryption) this;
         throw new EncryptionTypeException(this);
     }
 
-    default ISymmetricEncryption symmetric() throws EncryptionTypeException {
+    default SymmetricEncryption symmetric() throws EncryptionTypeException {
         if (isSymmetric())
-            return (ISymmetricEncryption) this;
+            return (SymmetricEncryption) this;
         throw new EncryptionTypeException(this);
     }
 }

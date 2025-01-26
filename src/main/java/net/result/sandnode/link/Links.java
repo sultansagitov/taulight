@@ -1,7 +1,7 @@
 package net.result.sandnode.link;
 
 import net.result.sandnode.encryption.EncryptionManager;
-import net.result.sandnode.encryption.interfaces.IAsymmetricEncryption;
+import net.result.sandnode.encryption.interfaces.AsymmetricEncryption;
 import net.result.sandnode.encryption.interfaces.AsymmetricKeyStorage;
 import net.result.sandnode.exception.*;
 import net.result.sandnode.serverclient.SandnodeServer;
@@ -18,7 +18,7 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 public class Links {
     public static @NotNull URI getServerLink(@NotNull SandnodeServer server)
             throws KeyStorageNotFoundException, EncryptionTypeException {
-        IAsymmetricEncryption encryption = server.serverConfig.mainEncryption();
+        AsymmetricEncryption encryption = server.serverConfig.mainEncryption();
         AsymmetricKeyStorage keyStorage = server.node.globalKeyStorage.getAsymmetricNonNull(encryption);
         String string;
         try {
@@ -77,7 +77,7 @@ public class Links {
             throw new InvalidSandnodeLinkException("Key not found in query parameters");
         }
 
-        IAsymmetricEncryption encryption;
+        AsymmetricEncryption encryption;
         try {
             encryption = EncryptionManager.find(encryptionType).asymmetric();
         } catch (NoSuchEncryptionException | EncryptionTypeException e) {

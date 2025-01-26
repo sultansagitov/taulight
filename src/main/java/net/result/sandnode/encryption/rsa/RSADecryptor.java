@@ -14,7 +14,7 @@ import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 
-import static net.result.sandnode.encryption.AsymmetricEncryption.RSA;
+import static net.result.sandnode.encryption.AsymmetricEncryptions.RSA;
 
 public class RSADecryptor {
     private static final Logger LOGGER = LogManager.getLogger(RSADecryptor.class);

@@ -7,14 +7,14 @@ import org.junit.jupiter.api.Test;
 import java.util.Arrays;
 
 import static java.nio.charset.StandardCharsets.US_ASCII;
-import static net.result.sandnode.encryption.Encryption.NONE;
+import static net.result.sandnode.encryption.Encryptions.NONE;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class EncryptionTest {
 
     @Test
     public void testEncryptionDecryption() throws Exception {
-        for (IEncryption encryption : EncryptionManager.instance().list) {
+        for (Encryption encryption : EncryptionManager.instance().list) {
             KeyStorage keyStorage = encryption.generate();
 
             String originalString = "Hello, World!";

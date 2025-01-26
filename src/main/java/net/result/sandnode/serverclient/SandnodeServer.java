@@ -1,7 +1,7 @@
 package net.result.sandnode.serverclient;
 
 import net.result.sandnode.hubagent.Node;
-import net.result.sandnode.config.IServerConfig;
+import net.result.sandnode.config.ServerConfig;
 import net.result.sandnode.exception.*;
 import net.result.sandnode.message.*;
 import net.result.sandnode.message.util.Connection;
@@ -19,11 +19,11 @@ import java.util.concurrent.Executors;
 public class SandnodeServer {
     private static final Logger LOGGER = LogManager.getLogger(SandnodeServer.class);
     public final Node node;
-    public final IServerConfig serverConfig;
+    public final ServerConfig serverConfig;
     public ServerSocket serverSocket;
     private final ExecutorService sessionExecutor = Executors.newCachedThreadPool();
 
-    public SandnodeServer(Node node, IServerConfig serverConfig) {
+    public SandnodeServer(Node node, ServerConfig serverConfig) {
         this.node = node;
         this.serverConfig = serverConfig;
     }

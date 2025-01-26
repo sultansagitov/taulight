@@ -1,6 +1,6 @@
 package net.result.sandnode.message;
 
-import net.result.sandnode.encryption.AsymmetricEncryption;
+import net.result.sandnode.encryption.AsymmetricEncryptions;
 import net.result.sandnode.encryption.EncryptionManager;
 import net.result.sandnode.message.util.Connection;
 import net.result.sandnode.message.util.Headers;
@@ -22,16 +22,16 @@ class MessageTest {
         Headers headers = new Headers()
                 .setType(MessageTypes.LOGIN)
                 .setConnection(Connection.AGENT2HUB)
-                .setBodyEncryption(AsymmetricEncryption.RSA)
+                .setBodyEncryption(AsymmetricEncryptions.RSA)
                 .setValue("keyName", "valueData");
 
         byte[] originalBody = "Hello World!".getBytes();
 
         RawMessage node1Message = new RawMessage(headers);
-        node1Message.setHeadersEncryption(AsymmetricEncryption.RSA);
+        node1Message.setHeadersEncryption(AsymmetricEncryptions.RSA);
         node1Message.setBody(originalBody);
 
-        KeyStorage keyStorage = AsymmetricEncryption.RSA.generate();
+        KeyStorage keyStorage = AsymmetricEncryptions.RSA.generate();
         GlobalKeyStorage globalKeyStorage = new GlobalKeyStorage(keyStorage);
 
         byte[] byteArray = node1Message.toByteArray(globalKeyStorage);

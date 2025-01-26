@@ -1,8 +1,8 @@
 package net.result.main.config;
 
-import net.result.sandnode.config.IClientConfig;
+import net.result.sandnode.config.ClientConfig;
 import net.result.sandnode.encryption.EncryptionManager;
-import net.result.sandnode.encryption.interfaces.ISymmetricEncryption;
+import net.result.sandnode.encryption.interfaces.SymmetricEncryption;
 import net.result.sandnode.exception.*;
 import net.result.sandnode.util.Endpoint;
 import net.result.sandnode.util.FileUtil;
@@ -21,11 +21,11 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
 
-public class ClientPropertiesConfig implements IClientConfig {
+public class ClientPropertiesConfig implements ClientConfig {
     private static final Logger LOGGER = LogManager.getLogger(ClientPropertiesConfig.class);
     private final Path KEYS_JSON_PATH;
     private final Path KEYS_PATH;
-    private final ISymmetricEncryption SYMMETRIC_ENCRYPTION;
+    private final SymmetricEncryption SYMMETRIC_ENCRYPTION;
     private final Collection<KeyRecord> records = new ArrayList<>();
 
     public ClientPropertiesConfig()
@@ -79,7 +79,7 @@ public class ClientPropertiesConfig implements IClientConfig {
     }
 
     @Override
-    public @NotNull ISymmetricEncryption symmetricKeyEncryption() {
+    public @NotNull SymmetricEncryption symmetricKeyEncryption() {
         return SYMMETRIC_ENCRYPTION;
     }
 

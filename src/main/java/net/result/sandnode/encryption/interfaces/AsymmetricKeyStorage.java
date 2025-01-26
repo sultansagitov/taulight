@@ -8,7 +8,7 @@ import org.jetbrains.annotations.NotNull;
 
 public interface AsymmetricKeyStorage extends KeyStorage {
     @Override
-    @NotNull IAsymmetricEncryption encryption();
+    @NotNull AsymmetricEncryption encryption();
 
     @CheckReturnValue
     @Contract(value = " -> this", pure = true)

@@ -6,6 +6,6 @@ public interface Member {
 
     String getHashedPassword();
 
-    IDatabase getDatabase();
+    Database getDatabase();
 
 }

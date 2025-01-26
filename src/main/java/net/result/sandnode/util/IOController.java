@@ -29,7 +29,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import static net.result.sandnode.encryption.Encryption.NONE;
+import static net.result.sandnode.encryption.Encryptions.NONE;
 
 public class IOController {
     private static final Logger LOGGER = LogManager.getLogger(IOController.class);
@@ -43,8 +43,8 @@ public class IOController {
     private final BlockingQueue<IMessage> sendingQueue = new LinkedBlockingQueue<>();
     public final ChainManager chainManager;
 
-    private IEncryption serverEncryption = NONE;
-    private IEncryption symKeyEncryption = NONE;
+    private Encryption serverEncryption = NONE;
+    private Encryption symKeyEncryption = NONE;
     public boolean connected = true;
 
     public IOController(
@@ -145,11 +145,11 @@ public class IOController {
         return getIpString(socket);
     }
 
-    public @NotNull IEncryption getServerEncryption() {
+    public @NotNull Encryption getServerEncryption() {
         return serverEncryption;
     }
 
-    public @NotNull IEncryption getSymKeyEncryption() {
+    public @NotNull Encryption getSymKeyEncryption() {
         return symKeyEncryption;
     }
 
@@ -173,7 +173,7 @@ public class IOController {
         globalKeyStorage.set(symmetricKeyStorage);
     }
 
-    private @NotNull IEncryption getCurrentEncryption() {
+    private @NotNull Encryption getCurrentEncryption() {
         return getSymKeyEncryption() != NONE ? getSymKeyEncryption() : getServerEncryption();
     }
 

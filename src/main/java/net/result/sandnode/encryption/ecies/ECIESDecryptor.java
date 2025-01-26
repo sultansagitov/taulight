@@ -15,7 +15,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
 import java.security.PrivateKey;
 
-import static net.result.sandnode.encryption.AsymmetricEncryption.ECIES;
+import static net.result.sandnode.encryption.AsymmetricEncryptions.ECIES;
 
 public class ECIESDecryptor {
     private static final Logger LOGGER = LogManager.getLogger(ECIESDecryptor.class);

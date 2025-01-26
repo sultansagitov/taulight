@@ -1,6 +1,6 @@
 package net.result.main;
 
-import net.result.sandnode.encryption.interfaces.IAsymmetricConvertor;
+import net.result.sandnode.encryption.interfaces.AsymmetricConvertor;
 import net.result.sandnode.encryption.interfaces.AsymmetricKeyStorage;
 import net.result.sandnode.exception.*;
 import net.result.sandnode.link.Links;
@@ -14,7 +14,7 @@ import net.result.taulight.TauHub;
 import net.result.main.config.ServerPropertiesConfig;
 import net.result.sandnode.serverclient.SandnodeServer;
 import net.result.sandnode.encryption.GlobalKeyStorage;
-import net.result.sandnode.encryption.interfaces.IAsymmetricEncryption;
+import net.result.sandnode.encryption.interfaces.AsymmetricEncryption;
 import net.result.taulight.messenger.TauChat;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -33,18 +33,18 @@ public class RunHubWork implements IWork {
         serverConfig.setDatabase(new InMemoryDatabase());
         serverConfig.setTokenizer(new JWTTokenizer(new JWTConfig("YourSuperSecretKey")));
 
-        IAsymmetricEncryption mainEncryption = serverConfig.mainEncryption();
+        AsymmetricEncryption mainEncryption = serverConfig.mainEncryption();
 
         Path publicKeyPath = serverConfig.publicKeyPath();
         Path privateKeyPath = serverConfig.privateKeyPath();
 
         LOGGER.info("Reading public key in \"{}\"", publicKeyPath);
-        IAsymmetricConvertor publicKeyConvertor = mainEncryption.publicKeyConvertor();
+        AsymmetricConvertor publicKeyConvertor = mainEncryption.publicKeyConvertor();
         String publicKeyString = FileUtil.readString(publicKeyPath);
         AsymmetricKeyStorage publicKeyStorage = publicKeyConvertor.toKeyStorage(publicKeyString);
 
         LOGGER.info("Reading private key in \"{}\"", privateKeyPath);
-        IAsymmetricConvertor privateKeyConvertor = mainEncryption.privateKeyConvertor();
+        AsymmetricConvertor privateKeyConvertor = mainEncryption.privateKeyConvertor();
         String string = FileUtil.readString(privateKeyPath);
         AsymmetricKeyStorage privateKeyStorage = privateKeyConvertor.toKeyStorage(string);
 

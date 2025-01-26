@@ -130,7 +130,7 @@ public class RunAgentWork implements IWork {
         }
 
         ClientProtocol.PUB(client.io);
-        IAsymmetricEncryption encryption = client.io.getServerEncryption().asymmetric();
+        AsymmetricEncryption encryption = client.io.getServerEncryption().asymmetric();
         AsymmetricKeyStorage serverKey = agent.globalKeyStorage.getAsymmetricNonNull(encryption);
 
         client.clientConfig.saveKey(link.endpoint(), serverKey);

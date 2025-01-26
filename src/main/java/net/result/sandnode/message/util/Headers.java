@@ -4,7 +4,7 @@ import net.result.sandnode.exception.HeadersSerializationException;
 import net.result.sandnode.exception.NoSuchMessageTypeException;
 import net.result.sandnode.exception.NoSuchEncryptionException;
 import net.result.sandnode.encryption.EncryptionManager;
-import net.result.sandnode.encryption.interfaces.IEncryption;
+import net.result.sandnode.encryption.interfaces.Encryption;
 import net.result.simplesix64.SimpleSix64;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -13,7 +13,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.*;
 
-import static net.result.sandnode.encryption.Encryption.NONE;
+import static net.result.sandnode.encryption.Encryptions.NONE;
 import static net.result.sandnode.message.util.NodeType.HUB;
 
 public class Headers {
@@ -22,7 +22,7 @@ public class Headers {
     private boolean fin = false;
     private @Nullable Connection connection;
     private @Nullable MessageType type;
-    private IEncryption bodyEncryption = NONE;
+    private Encryption bodyEncryption = NONE;
 
     public Headers setFin(boolean fin) {
         this.fin = fin;
@@ -71,12 +71,12 @@ public class Headers {
         return Objects.requireNonNull(connection);
     }
 
-    public Headers setBodyEncryption(@NotNull IEncryption bodyEncryption) {
+    public Headers setBodyEncryption(@NotNull Encryption bodyEncryption) {
         this.bodyEncryption = bodyEncryption;
         return this;
     }
 
-    public @NotNull IEncryption getBodyEncryption() throws NullPointerException {
+    public @NotNull Encryption getBodyEncryption() throws NullPointerException {
         return Objects.requireNonNull(bodyEncryption);
     }
 

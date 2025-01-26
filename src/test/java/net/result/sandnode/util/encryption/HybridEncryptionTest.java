@@ -1,9 +1,9 @@
 package net.result.sandnode.util.encryption;
 
 import net.result.sandnode.encryption.EncryptionManager;
-import net.result.sandnode.encryption.interfaces.IAsymmetricEncryption;
+import net.result.sandnode.encryption.interfaces.AsymmetricEncryption;
 import net.result.sandnode.encryption.interfaces.AsymmetricKeyStorage;
-import net.result.sandnode.encryption.interfaces.ISymmetricEncryption;
+import net.result.sandnode.encryption.interfaces.SymmetricEncryption;
 import net.result.sandnode.encryption.interfaces.SymmetricKeyStorage;
 import net.result.sandnode.exception.CannotUseEncryption;
 import net.result.sandnode.exception.ImpossibleRuntimeException;
@@ -15,8 +15,8 @@ import java.util.Arrays;
 public class HybridEncryptionTest {
     @Test
     public void hybridEncryptionTest() throws Exception {
-        for (IAsymmetricEncryption a : EncryptionManager.getAsymmetric()) {
-            for (ISymmetricEncryption s : EncryptionManager.getSymmetric()) {
+        for (AsymmetricEncryption a : EncryptionManager.getAsymmetric()) {
+            for (SymmetricEncryption s : EncryptionManager.getSymmetric()) {
                 AsymmetricKeyStorage asymmetricKeyStorage = a.generate();
                 SymmetricKeyStorage symmetricKeyStorage = s.generate();
 

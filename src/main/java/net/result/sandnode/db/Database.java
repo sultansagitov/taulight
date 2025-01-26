@@ -4,7 +4,7 @@ import net.result.sandnode.exception.BusyMemberIDException;
 
 import java.util.Optional;
 
-public interface IDatabase {
+public interface Database {
 
     Member registerMember(String agentID, String password) throws BusyMemberIDException;
 

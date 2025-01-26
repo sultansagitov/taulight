@@ -9,7 +9,7 @@ import net.result.sandnode.message.types.LoginResponse;
 import net.result.sandnode.message.types.TokenMessage;
 import net.result.sandnode.error.Errors;
 import net.result.sandnode.serverclient.Session;
-import net.result.sandnode.db.IDatabase;
+import net.result.sandnode.db.Database;
 import net.result.sandnode.db.Member;
 
 import java.util.Optional;
@@ -25,7 +25,7 @@ public class LoginServerChain extends ServerChain {
         TokenMessage msg = new LoginRequest(request);
         String token = msg.getToken();
 
-        IDatabase database = session.server.serverConfig.database();
+        Database database = session.server.serverConfig.database();
         Optional<Member> opt;
 
         try {

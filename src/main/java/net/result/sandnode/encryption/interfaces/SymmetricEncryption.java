@@ -2,7 +2,7 @@ package net.result.sandnode.encryption.interfaces;
 
 import org.jetbrains.annotations.NotNull;
 
-public interface ISymmetricEncryption extends IEncryption {
+public interface SymmetricEncryption extends Encryption {
 
     @NotNull SymmetricKeyStorage generate();
 

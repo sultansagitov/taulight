@@ -1,13 +1,13 @@
 package net.result.sandnode.exception;
 
-import net.result.sandnode.encryption.interfaces.IEncryption;
+import net.result.sandnode.encryption.interfaces.Encryption;
 
 public class CannotUseEncryption extends SandnodeException {
-    public CannotUseEncryption(IEncryption encryption) {
+    public CannotUseEncryption(Encryption encryption) {
         super(encryption.name());
     }
 
-    public CannotUseEncryption(IEncryption encryption, IEncryption expected) {
+    public CannotUseEncryption(Encryption encryption, Encryption expected) {
         super("Got %s, instead of %s".formatted(encryption, expected));
     }
 }

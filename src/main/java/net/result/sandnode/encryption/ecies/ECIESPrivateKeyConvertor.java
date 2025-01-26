@@ -1,6 +1,6 @@
 package net.result.sandnode.encryption.ecies;
 
-import net.result.sandnode.encryption.interfaces.IAsymmetricConvertor;
+import net.result.sandnode.encryption.interfaces.AsymmetricConvertor;
 import net.result.sandnode.encryption.interfaces.KeyStorage;
 import net.result.sandnode.exception.CannotUseEncryption;
 import net.result.sandnode.exception.CreatingKeyException;
@@ -11,9 +11,9 @@ import java.security.PrivateKey;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.util.Base64;
 
-import static net.result.sandnode.encryption.AsymmetricEncryption.ECIES;
+import static net.result.sandnode.encryption.AsymmetricEncryptions.ECIES;
 
-public class ECIESPrivateKeyConvertor implements IAsymmetricConvertor {
+public class ECIESPrivateKeyConvertor implements AsymmetricConvertor {
     private static final ECIESPrivateKeyConvertor INSTANCE = new ECIESPrivateKeyConvertor();
 
     public static ECIESPrivateKeyConvertor instance() {

@@ -1,6 +1,6 @@
 package net.result.sandnode.chain.server;
 
-import net.result.sandnode.config.IServerConfig;
+import net.result.sandnode.config.ServerConfig;
 import net.result.sandnode.exception.BusyMemberIDException;
 import net.result.sandnode.exception.DeserializationException;
 import net.result.sandnode.exception.ExpectedMessageException;
@@ -19,7 +19,7 @@ public class RegistrationServerChain extends ServerChain {
     public void sync() throws InterruptedException, ExpectedMessageException, DeserializationException {
         IMessage request = queue.take();
         RegistrationRequest regMsg = new RegistrationRequest(request);
-        IServerConfig serverConfig = session.server.serverConfig;
+        ServerConfig serverConfig = session.server.serverConfig;
         String memberID = regMsg.getMemberID();
         String password = regMsg.getPassword();
 

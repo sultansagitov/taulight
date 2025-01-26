@@ -1,9 +1,9 @@
 package net.result.sandnode.exception;
 
-import net.result.sandnode.encryption.interfaces.IEncryption;
+import net.result.sandnode.encryption.interfaces.Encryption;
 
 public class KeyStorageNotFoundException extends EncryptionException {
-    public KeyStorageNotFoundException(IEncryption encryption) {
+    public KeyStorageNotFoundException(Encryption encryption) {
         super(encryption.name());
     }
 }

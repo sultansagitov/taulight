@@ -4,7 +4,7 @@ import net.result.sandnode.exception.BusyMemberIDException;
 
 import java.util.*;
 
-public class InMemoryDatabase implements IDatabase {
+public class InMemoryDatabase implements Database {
     public final Collection<Member> db = new HashSet<>();
 
     @Override

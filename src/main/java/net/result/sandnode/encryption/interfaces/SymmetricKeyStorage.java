@@ -6,7 +6,7 @@ import org.jetbrains.annotations.NotNull;
 
 public interface SymmetricKeyStorage extends KeyStorage {
     @Override
-    @NotNull ISymmetricEncryption encryption();
+    @NotNull SymmetricEncryption encryption();
 
     byte[] toBytes();
 

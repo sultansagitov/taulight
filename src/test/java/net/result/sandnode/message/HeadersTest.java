@@ -1,6 +1,6 @@
 package net.result.sandnode.message;
 
-import net.result.sandnode.encryption.AsymmetricEncryption;
+import net.result.sandnode.encryption.AsymmetricEncryptions;
 import net.result.sandnode.encryption.EncryptionManager;
 import net.result.sandnode.exception.HeadersSerializationException;
 import net.result.sandnode.exception.NoSuchMessageTypeException;
@@ -21,7 +21,7 @@ class HeadersTest {
         Headers headers = new Headers()
                 .setConnection(Connection.HUB2AGENT)
                 .setType(MessageTypes.LOGIN)
-                .setBodyEncryption(AsymmetricEncryption.RSA)
+                .setBodyEncryption(AsymmetricEncryptions.RSA)
                 .setValue("key", "value")
                 .setValue("empty", "")
                 .setValue("", "empty");

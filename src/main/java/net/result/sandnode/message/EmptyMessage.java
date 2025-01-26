@@ -3,7 +3,7 @@ package net.result.sandnode.message;
 import net.result.sandnode.message.util.Headers;
 import org.jetbrains.annotations.NotNull;
 
-import static net.result.sandnode.encryption.Encryption.NONE;
+import static net.result.sandnode.encryption.Encryptions.NONE;
 
 public class EmptyMessage extends Message {
     public EmptyMessage(@NotNull Headers headers) {

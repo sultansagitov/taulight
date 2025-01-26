@@ -1,9 +1,9 @@
 package net.result.sandnode.exception;
 
-import net.result.sandnode.encryption.interfaces.IEncryption;
+import net.result.sandnode.encryption.interfaces.Encryption;
 
 public class KeyNotCreatedException extends EncryptionException {
-    public KeyNotCreatedException(IEncryption encryption) {
+    public KeyNotCreatedException(Encryption encryption) {
         super(encryption.name());
     }
 }

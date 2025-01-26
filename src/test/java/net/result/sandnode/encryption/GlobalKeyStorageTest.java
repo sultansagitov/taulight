@@ -11,9 +11,9 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Optional;
 
-import static net.result.sandnode.encryption.AsymmetricEncryption.ECIES;
-import static net.result.sandnode.encryption.AsymmetricEncryption.RSA;
-import static net.result.sandnode.encryption.SymmetricEncryption.AES;
+import static net.result.sandnode.encryption.AsymmetricEncryptions.ECIES;
+import static net.result.sandnode.encryption.AsymmetricEncryptions.RSA;
+import static net.result.sandnode.encryption.SymmetricEncryptions.AES;
 import static org.junit.jupiter.api.Assertions.*;
 
 class GlobalKeyStorageTest {

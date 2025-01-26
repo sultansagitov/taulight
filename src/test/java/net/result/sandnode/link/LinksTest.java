@@ -1,16 +1,16 @@
 package net.result.sandnode.link;
 
-import net.result.sandnode.config.IServerConfig;
+import net.result.sandnode.config.ServerConfig;
 import net.result.sandnode.encryption.EncryptionManager;
 import net.result.sandnode.encryption.GlobalKeyStorage;
-import net.result.sandnode.encryption.interfaces.IAsymmetricEncryption;
+import net.result.sandnode.encryption.interfaces.AsymmetricEncryption;
 import net.result.sandnode.encryption.interfaces.AsymmetricKeyStorage;
 import net.result.sandnode.exception.*;
 import net.result.sandnode.serverclient.SandnodeServer;
 import net.result.sandnode.util.Endpoint;
-import net.result.sandnode.db.IDatabase;
+import net.result.sandnode.db.Database;
 import net.result.sandnode.group.GroupManager;
-import net.result.sandnode.tokens.ITokenizer;
+import net.result.sandnode.tokens.Tokenizer;
 import net.result.taulight.TauHub;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
@@ -18,7 +18,7 @@ import org.junit.jupiter.api.Test;
 import java.net.URI;
 import java.nio.file.Path;
 
-import static net.result.sandnode.encryption.AsymmetricEncryption.RSA;
+import static net.result.sandnode.encryption.AsymmetricEncryptions.RSA;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class LinksTest {
@@ -83,7 +83,7 @@ public class LinksTest {
         );
     }
 
-    static class TestServerConfig implements IServerConfig {
+    static class TestServerConfig implements ServerConfig {
         public Endpoint endpoint() {
             return new Endpoint("localhost", 52525);
         }
@@ -99,7 +99,7 @@ public class LinksTest {
         }
 
         @Override
-        public @NotNull IAsymmetricEncryption mainEncryption() {
+        public @NotNull AsymmetricEncryption mainEncryption() {
             return RSA;
         }
 
@@ -109,12 +109,12 @@ public class LinksTest {
         }
 
         @Override
-        public IDatabase database() {
+        public Database database() {
             return null;
         }
 
         @Override
-        public ITokenizer tokenizer() {
+        public Tokenizer tokenizer() {
             return null;
         }
     }

@@ -2,12 +2,12 @@ package net.result.sandnode.encryption;
 
 import net.result.sandnode.encryption.aes.*;
 import net.result.sandnode.encryption.interfaces.KeyStorage;
-import net.result.sandnode.encryption.interfaces.ISymmetricEncryption;
+import net.result.sandnode.encryption.interfaces.SymmetricEncryption;
 import net.result.sandnode.exception.DecryptionException;
 import net.result.sandnode.exception.EncryptionException;
 import org.jetbrains.annotations.NotNull;
 
-public enum SymmetricEncryption implements ISymmetricEncryption {
+public enum SymmetricEncryptions implements SymmetricEncryption {
     AES {
         @Override
         public byte asByte() {

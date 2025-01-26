@@ -2,10 +2,10 @@ package net.result.sandnode.encryption.interfaces;
 
 import net.result.sandnode.exception.*;
 
-public interface IAsymmetricEncryption extends IEncryption {
-    IAsymmetricConvertor publicKeyConvertor();
+public interface AsymmetricEncryption extends Encryption {
+    AsymmetricConvertor publicKeyConvertor();
 
-    IAsymmetricConvertor privateKeyConvertor();
+    AsymmetricConvertor privateKeyConvertor();
 
     @Override
     AsymmetricKeyStorage generate();

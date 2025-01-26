@@ -1,10 +1,10 @@
 package net.result.main;
 
-import net.result.sandnode.config.IServerConfig;
+import net.result.sandnode.config.ServerConfig;
 import net.result.main.config.ServerPropertiesConfig;
 import net.result.sandnode.encryption.interfaces.AsymmetricKeyStorage;
 import net.result.sandnode.exception.*;
-import net.result.sandnode.encryption.interfaces.IAsymmetricEncryption;
+import net.result.sandnode.encryption.interfaces.AsymmetricEncryption;
 import net.result.sandnode.util.FileUtil;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -18,8 +18,8 @@ public class GenerateKeysWork implements IWork {
 
     @Override
     public void run() throws NoSuchEncryptionException, ConfigurationException, FSException, EncryptionTypeException {
-        IServerConfig serverConfig = new ServerPropertiesConfig();
-        IAsymmetricEncryption mainEncryption = serverConfig.mainEncryption();
+        ServerConfig serverConfig = new ServerPropertiesConfig();
+        AsymmetricEncryption mainEncryption = serverConfig.mainEncryption();
         AsymmetricKeyStorage keyStorage = mainEncryption.generate();
 
         Path publicKeyPath = serverConfig.publicKeyPath();

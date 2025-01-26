@@ -5,13 +5,13 @@ import net.result.sandnode.message.IMessage;
 import net.result.sandnode.message.Message;
 import net.result.sandnode.message.util.Headers;
 import net.result.sandnode.encryption.EncryptionManager;
-import net.result.sandnode.encryption.interfaces.IAsymmetricEncryption;
+import net.result.sandnode.encryption.interfaces.AsymmetricEncryption;
 import net.result.sandnode.encryption.interfaces.AsymmetricKeyStorage;
 import org.jetbrains.annotations.NotNull;
 
 import static java.nio.charset.StandardCharsets.US_ASCII;
 import static net.result.sandnode.message.util.MessageTypes.PUB;
-import static net.result.sandnode.encryption.Encryption.NONE;
+import static net.result.sandnode.encryption.Encryptions.NONE;
 
 public class PublicKeyResponse extends Message {
     public final AsymmetricKeyStorage keyStorage;
@@ -28,7 +28,7 @@ public class PublicKeyResponse extends Message {
             throws NoSuchEncryptionException, CreatingKeyException, EncryptionTypeException, ExpectedMessageException {
         super(response.expect(PUB).getHeaders());
         byte encryptionByte = Byte.parseByte(getHeaders().getValue("encryption"));
-        IAsymmetricEncryption encryption = EncryptionManager.findAsymmetric(encryptionByte);
+        AsymmetricEncryption encryption = EncryptionManager.findAsymmetric(encryptionByte);
         keyStorage = encryption.publicKeyConvertor().toKeyStorage(new String(response.getBody()));
     }
 

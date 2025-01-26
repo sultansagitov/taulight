@@ -1,14 +1,14 @@
 package net.result.main.config;
 
-import net.result.sandnode.config.IServerConfig;
+import net.result.sandnode.config.ServerConfig;
 import net.result.sandnode.encryption.EncryptionManager;
-import net.result.sandnode.encryption.interfaces.IAsymmetricEncryption;
+import net.result.sandnode.encryption.interfaces.AsymmetricEncryption;
 import net.result.sandnode.exception.*;
 import net.result.sandnode.util.Endpoint;
 import net.result.sandnode.util.FileUtil;
-import net.result.sandnode.db.IDatabase;
+import net.result.sandnode.db.Database;
 import net.result.sandnode.group.GroupManager;
-import net.result.sandnode.tokens.ITokenizer;
+import net.result.sandnode.tokens.Tokenizer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
@@ -21,15 +21,15 @@ import java.nio.file.Path;
 import java.util.Objects;
 import java.util.Properties;
 
-public class ServerPropertiesConfig implements IServerConfig {
+public class ServerPropertiesConfig implements ServerConfig {
     private static final Logger LOGGER = LogManager.getLogger(ServerPropertiesConfig.class);
     private final Endpoint endpoint;
     private final Path PUBLIC_KEY_PATH;
     private final Path PRIVATE_KEY_PATH;
-    private final IAsymmetricEncryption MAIN_ENCRYPTION;
+    private final AsymmetricEncryption MAIN_ENCRYPTION;
     private GroupManager groupManager;
-    private IDatabase database;
-    private ITokenizer tokenizer;
+    private Database database;
+    private Tokenizer tokenizer;
 
     public ServerPropertiesConfig()
             throws ConfigurationException, FSException, NoSuchEncryptionException, EncryptionTypeException {
@@ -87,7 +87,7 @@ public class ServerPropertiesConfig implements IServerConfig {
     }
 
     @Override
-    public @NotNull IAsymmetricEncryption mainEncryption() {
+    public @NotNull AsymmetricEncryption mainEncryption() {
         return MAIN_ENCRYPTION;
     }
 
@@ -100,21 +100,21 @@ public class ServerPropertiesConfig implements IServerConfig {
         return groupManager;
     }
 
-    public void setDatabase(IDatabase database) {
+    public void setDatabase(Database database) {
         this.database = database;
     }
 
     @Override
-    public IDatabase database() {
+    public Database database() {
         return database;
     }
 
-    public void setTokenizer(ITokenizer tokenizer) {
+    public void setTokenizer(Tokenizer tokenizer) {
         this.tokenizer = tokenizer;
     }
 
     @Override
-    public ITokenizer tokenizer() {
+    public Tokenizer tokenizer() {
         return tokenizer;
     }
 }

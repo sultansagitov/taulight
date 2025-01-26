@@ -10,7 +10,7 @@ import net.result.sandnode.exception.EncryptionException;
 import net.result.sandnode.exception.PrivateKeyNotFoundException;
 import net.result.sandnode.exception.WrongKeyException;
 
-public enum AsymmetricEncryption implements IAsymmetricEncryption {
+public enum AsymmetricEncryptions implements AsymmetricEncryption {
     RSA {
         @Override
         public byte asByte() {

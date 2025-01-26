@@ -16,7 +16,7 @@ import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 
 import static java.nio.charset.StandardCharsets.US_ASCII;
-import static net.result.sandnode.encryption.AsymmetricEncryption.RSA;
+import static net.result.sandnode.encryption.AsymmetricEncryptions.RSA;
 
 public class RSAEncryptor {
     private static final Logger LOGGER = LogManager.getLogger(RSAEncryptor.class);

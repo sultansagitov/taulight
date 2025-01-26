@@ -2,7 +2,7 @@ package net.result.sandnode.serverclient;
 
 import net.result.sandnode.hubagent.Node;
 import net.result.sandnode.chain.client.ClientChainManager;
-import net.result.sandnode.config.IClientConfig;
+import net.result.sandnode.config.ClientConfig;
 import net.result.sandnode.exception.*;
 import net.result.sandnode.message.util.Connection;
 import net.result.sandnode.message.util.NodeType;
@@ -21,7 +21,7 @@ public class SandnodeClient {
     public final Endpoint endpoint;
     public final Node node;
     public final NodeType nodeType;
-    public final IClientConfig clientConfig;
+    public final ClientConfig clientConfig;
 
     public IOController io;
     public Socket socket;
@@ -30,7 +30,7 @@ public class SandnodeClient {
             @NotNull Endpoint endpoint,
             @NotNull Node node,
             @NotNull NodeType nodeType,
-            @NotNull IClientConfig clientConfig
+            @NotNull ClientConfig clientConfig
     ) {
         this.endpoint = endpoint;
         this.node = node;

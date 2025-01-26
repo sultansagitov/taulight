@@ -3,9 +3,9 @@ package net.result.sandnode.db;
 public class StandardMember implements Member {
     private final String memberID;
     private final String password;
-    private final IDatabase database;
+    private final Database database;
 
-    public StandardMember(String memberID, String password, IDatabase database) {
+    public StandardMember(String memberID, String password, Database database) {
         this.memberID = memberID;
         this.password = password;
         this.database = database;
@@ -22,7 +22,7 @@ public class StandardMember implements Member {
     }
 
     @Override
-    public IDatabase getDatabase() {
+    public Database getDatabase() {
         return database;
     }
 

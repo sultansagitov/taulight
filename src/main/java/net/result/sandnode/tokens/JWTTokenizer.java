@@ -5,7 +5,7 @@ import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.auth0.jwt.interfaces.JWTVerifier;
 import net.result.sandnode.exception.InvalidTokenException;
-import net.result.sandnode.db.IDatabase;
+import net.result.sandnode.db.Database;
 import net.result.sandnode.db.Member;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -14,7 +14,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Date;
 import java.util.Optional;
 
-public class JWTTokenizer implements ITokenizer {
+public class JWTTokenizer implements Tokenizer {
     private static final Logger LOGGER = LogManager.getLogger(JWTTokenizer.class);
     private final JWTVerifier VERIFIER;
     private final JWTConfig jwtConfig;
@@ -37,7 +37,7 @@ public class JWTTokenizer implements ITokenizer {
 
     @Override
     public Optional<Member> findMember(
-            @NotNull IDatabase database,
+            @NotNull Database database,
             @NotNull String token
     ) throws InvalidTokenException {
         try {

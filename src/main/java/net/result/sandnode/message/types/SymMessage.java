@@ -8,11 +8,11 @@ import net.result.sandnode.message.IMessage;
 import net.result.sandnode.message.Message;
 import net.result.sandnode.message.util.Headers;
 import net.result.sandnode.encryption.EncryptionManager;
-import net.result.sandnode.encryption.interfaces.ISymmetricEncryption;
+import net.result.sandnode.encryption.interfaces.SymmetricEncryption;
 import net.result.sandnode.encryption.interfaces.SymmetricKeyStorage;
 import org.jetbrains.annotations.NotNull;
 
-import static net.result.sandnode.encryption.Encryption.NONE;
+import static net.result.sandnode.encryption.Encryptions.NONE;
 import static net.result.sandnode.message.util.MessageTypes.SYM;
 
 public class SymMessage extends Message {
@@ -29,7 +29,7 @@ public class SymMessage extends Message {
             throw new DataNotEncryptedException("Body not encrypted");
         }
 
-        ISymmetricEncryption encryption =
+        SymmetricEncryption encryption =
                 EncryptionManager.findSymmetric(Byte.parseByte(message.getHeaders().getValue("encryption")));
 
         symmetricKeyStorage = encryption.toKeyStorage(message.getBody());

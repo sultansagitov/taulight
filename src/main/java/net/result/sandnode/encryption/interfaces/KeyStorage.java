@@ -5,11 +5,11 @@ import net.result.sandnode.exception.EncryptionTypeException;
 import org.jetbrains.annotations.NotNull;
 
 public interface KeyStorage {
-    @NotNull IEncryption encryption();
+    @NotNull Encryption encryption();
 
     @NotNull KeyStorage copy();
 
-    default KeyStorage expect(IEncryption encryption) throws CannotUseEncryption {
+    default KeyStorage expect(Encryption encryption) throws CannotUseEncryption {
         if (encryption() == encryption) return this;
         throw new CannotUseEncryption(encryption(), encryption);
     }

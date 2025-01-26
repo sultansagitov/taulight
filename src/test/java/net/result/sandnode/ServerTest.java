@@ -1,20 +1,21 @@
 package net.result.sandnode;
 
 import net.result.main.chain.ConsoleClientChainManager;
-import net.result.sandnode.config.IClientConfig;
+import net.result.sandnode.config.ClientConfig;
 import net.result.sandnode.config.ServerConfig;
+import net.result.sandnode.config.ServerConfigRecord;
+import net.result.sandnode.encryption.SymmetricEncryptions;
 import net.result.sandnode.exception.ImpossibleRuntimeException;
 import net.result.sandnode.exception.ServerStartException;
 import net.result.sandnode.exception.SocketAcceptException;
 import net.result.sandnode.hubagent.Agent;
 import net.result.sandnode.hubagent.ClientProtocol;
 import net.result.sandnode.hubagent.Hub;
-import net.result.sandnode.encryption.AsymmetricEncryption;
+import net.result.sandnode.encryption.AsymmetricEncryptions;
 import net.result.sandnode.encryption.EncryptionManager;
-import net.result.sandnode.encryption.SymmetricEncryption;
 import net.result.sandnode.encryption.interfaces.AsymmetricKeyStorage;
 import net.result.sandnode.encryption.interfaces.KeyStorage;
-import net.result.sandnode.encryption.interfaces.ISymmetricEncryption;
+import net.result.sandnode.encryption.interfaces.SymmetricEncryption;
 import net.result.sandnode.message.IMessage;
 import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.message.util.Headers;
@@ -48,10 +49,10 @@ import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-import static net.result.sandnode.encryption.AsymmetricEncryption.ECIES;
+import static net.result.sandnode.encryption.AsymmetricEncryptions.ECIES;
 import static net.result.sandnode.message.util.Connection.AGENT2HUB;
 import static net.result.sandnode.message.util.NodeType.HUB;
-import static net.result.sandnode.encryption.SymmetricEncryption.AES;
+import static net.result.sandnode.encryption.SymmetricEncryptions.AES;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class ServerTest {
@@ -59,8 +60,8 @@ public class ServerTest {
     private static final int PORT_OFFSET = 10240;
     private static final int PORT_RANGE = 5000;
 
-    private static final AsymmetricEncryption asymmetricEncryption = ECIES;
-    private static final SymmetricEncryption symmetricEncryption = AES;
+    private static final AsymmetricEncryptions asymmetricEncryption = ECIES;
+    private static final SymmetricEncryptions symmetricEncryption = AES;
     private static final short CHAIN_ID = (short) ((0xAB << 8) + 0xCD);
 
     private enum Testing implements MessageType {
@@ -151,7 +152,7 @@ public class ServerTest {
                 }
             };
 
-            ServerConfig serverConfig = new ServerConfig(
+            ServerConfig serverConfig = new ServerConfigRecord(
                     new Endpoint("localhost", port),
                     null,
                     null,
@@ -212,9 +213,9 @@ public class ServerTest {
         }
     }
 
-    private static class CustomClientConfig implements IClientConfig {
+    private static class CustomClientConfig implements ClientConfig {
         @Override
-        public @NotNull ISymmetricEncryption symmetricKeyEncryption() {
+        public @NotNull SymmetricEncryption symmetricKeyEncryption() {
             return symmetricEncryption;
         }
 
