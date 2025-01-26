@@ -76,8 +76,8 @@ public class SandnodeServer {
                         }
                     }
 
-                    node.hubSessionList.remove(session);
-                    node.agentSessionList.remove(session);
+                    node.removeHub(session);
+                    node.removeAgent(session);
 
                     session.close();
 

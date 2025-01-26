@@ -83,6 +83,7 @@ public class SandnodeClient {
     public void close() {
         try {
             if (socket != null) {
+                node.close();
                 io.disconnect();
                 LOGGER.info("Connection closed.");
             }

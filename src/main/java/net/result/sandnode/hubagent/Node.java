@@ -14,24 +14,40 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public abstract class Node {
     public final GlobalKeyStorage globalKeyStorage;
-    public final Collection<Session> agentSessionList;
-    public final Collection<Session> hubSessionList;
+    private final Collection<Session> agentSessions;
+    private final Collection<Session> hubSessions;
 
     public Node(@NotNull GlobalKeyStorage globalKeyStorage) {
         this.globalKeyStorage = globalKeyStorage;
-        hubSessionList = ConcurrentHashMap.newKeySet();
-        agentSessionList = ConcurrentHashMap.newKeySet();
+        hubSessions = ConcurrentHashMap.newKeySet();
+        agentSessions = ConcurrentHashMap.newKeySet();
     }
 
     public abstract @NotNull Session createSession(SandnodeServer server, Socket socket, Connection connection)
             throws WrongNodeUsedException, OutputStreamException, InputStreamException;
 
-    protected void addAsHub(Session session) {
-        hubSessionList.add(session);
+    protected void addAsAgent(Session session) {
+        agentSessions.add(session);
     }
 
-    protected void addAsAgent(Session session) {
-        agentSessionList.add(session);
+    protected void addAsHub(Session session) {
+        hubSessions.add(session);
+    }
+
+    public void removeAgent(Session session) {
+        agentSessions.remove(session);
+    }
+
+    public void removeHub(Session session) {
+        hubSessions.remove(session);
+    }
+
+    public Collection<Session> getAgents() {
+        return agentSessions;
+    }
+
+    public Collection<Session> getHubs() {
+        return hubSessions;
     }
 
     public abstract @NotNull NodeType type();
