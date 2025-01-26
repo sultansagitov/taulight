@@ -7,7 +7,7 @@ import net.result.sandnode.message.types.LoginRequest;
 import net.result.sandnode.message.types.LoginResponse;
 import net.result.sandnode.error.Errors;
 import net.result.sandnode.error.SandnodeError;
-import net.result.sandnode.util.IOControl;
+import net.result.sandnode.util.IOController;
 
 import static net.result.sandnode.message.util.MessageTypes.ERR;
 
@@ -15,7 +15,7 @@ public class LoginClientChain extends ClientChain {
     private final String token;
     public String memberID;
 
-    public LoginClientChain(IOControl io, String token) {
+    public LoginClientChain(IOController io, String token) {
         super(io);
         this.token = token;
     }

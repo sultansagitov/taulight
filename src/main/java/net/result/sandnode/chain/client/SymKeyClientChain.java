@@ -8,13 +8,13 @@ import net.result.sandnode.message.IMessage;
 import net.result.sandnode.message.types.HappyMessage;
 import net.result.sandnode.message.types.SymMessage;
 import net.result.sandnode.message.util.Headers;
-import net.result.sandnode.util.IOControl;
+import net.result.sandnode.util.IOController;
 import net.result.sandnode.chain.Chain;
 
 public class SymKeyClientChain extends Chain {
     private final ISymmetricEncryption symmetricEncryption;
 
-    public SymKeyClientChain(IOControl io, ISymmetricEncryption symmetricEncryption) {
+    public SymKeyClientChain(IOController io, ISymmetricEncryption symmetricEncryption) {
         super(io);
         this.symmetricEncryption = symmetricEncryption;
     }

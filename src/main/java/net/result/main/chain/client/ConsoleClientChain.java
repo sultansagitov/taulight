@@ -8,7 +8,7 @@ import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.message.types.ErrorMessage;
 import net.result.sandnode.message.util.MessageType;
 import net.result.sandnode.error.SandnodeError;
-import net.result.sandnode.util.IOControl;
+import net.result.sandnode.util.IOController;
 import net.result.sandnode.chain.client.ClientChain;
 import net.result.taulight.TauAgentProtocol;
 import net.result.taulight.chain.client.TaulightClientChain;
@@ -30,7 +30,7 @@ public class ConsoleClientChain extends ClientChain {
 
     private static final Logger LOGGER = LogManager.getLogger(ConsoleClientChain.class);
 
-    public ConsoleClientChain(IOControl io) {
+    public ConsoleClientChain(IOController io) {
         super(io);
     }
 

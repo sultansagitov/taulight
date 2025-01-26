@@ -25,7 +25,7 @@ import net.result.sandnode.serverclient.SandnodeServer;
 import net.result.sandnode.serverclient.Session;
 import net.result.sandnode.util.Endpoint;
 import net.result.sandnode.encryption.GlobalKeyStorage;
-import net.result.sandnode.util.IOControl;
+import net.result.sandnode.util.IOController;
 import net.result.sandnode.chain.client.ClientChain;
 import net.result.sandnode.chain.server.BSTServerChainManager;
 import net.result.sandnode.chain.server.ServerChainManager;
@@ -191,14 +191,15 @@ public class ServerTest {
                 Endpoint endpoint = new Endpoint("localhost", port);
 
                 CustomClientConfig clientConfig = new CustomClientConfig();
+                ConsoleClientChainManager chainManager = new ConsoleClientChainManager();
                 client = new SandnodeClient(endpoint, agent, HUB, clientConfig);
-                client.start(ConsoleClientChainManager::new);
+                client.start(chainManager);
                 ClientProtocol.PUB(client.io);
                 ClientProtocol.sendSYM(client);
 
                 IMessage sentMessage = prepareMessage();
 
-                IOControl io = client.io;
+                IOController io = client.io;
 
                 TestClientChain testClientChain = new TestClientChain(io, sentMessage);
                 io.chainManager.linkChain(testClientChain);
@@ -279,7 +280,7 @@ public class ServerTest {
     private static class TestClientChain extends ClientChain {
         private final IMessage message;
 
-        public TestClientChain(IOControl io, IMessage message) {
+        public TestClientChain(IOController io, IMessage message) {
             super(io);
             this.message = message;
         }

@@ -8,7 +8,7 @@ import net.result.sandnode.message.util.NodeType;
 import net.result.sandnode.encryption.GlobalKeyStorage;
 import net.result.sandnode.serverclient.SandnodeServer;
 import net.result.sandnode.serverclient.Session;
-import net.result.sandnode.util.IOControl;
+import net.result.sandnode.util.IOController;
 import net.result.sandnode.chain.server.ServerChainManager;
 import org.jetbrains.annotations.NotNull;
 
@@ -30,7 +30,7 @@ public abstract class Hub extends Node {
     public @NotNull Session createSession(SandnodeServer server, Socket socket, Connection connection)
             throws WrongNodeUsedException, OutputStreamException, InputStreamException {
         ServerChainManager chainManager = createChainManager();
-        IOControl io = new IOControl(socket, connection, this.globalKeyStorage, chainManager);
+        IOController io = new IOController(socket, connection, this.globalKeyStorage, chainManager);
         Session session = new Session(server, io);
         switch (connection) {
             case HUB2AGENT -> addAsAgent(session);

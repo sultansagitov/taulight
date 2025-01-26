@@ -1,7 +1,7 @@
 package net.result.sandnode.serverclient;
 
 import net.result.sandnode.exception.*;
-import net.result.sandnode.util.IOControl;
+import net.result.sandnode.util.IOController;
 import net.result.sandnode.chain.server.ServerChainManager;
 import net.result.sandnode.db.IMember;
 import net.result.sandnode.group.Group;
@@ -16,13 +16,10 @@ public class Session {
     private static final Logger LOGGER = LogManager.getLogger(Session.class);
     private final Collection<Group> groups = new HashSet<>();
     public final SandnodeServer server;
-    public final IOControl io;
+    public final IOController io;
     public IMember member;
 
-    public Session(
-            @NotNull SandnodeServer server,
-            @NotNull IOControl io
-    ) {
+    public Session(@NotNull SandnodeServer server, @NotNull IOController io) {
         this.server = server;
         this.io = io;
 

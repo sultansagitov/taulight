@@ -3,7 +3,7 @@ package net.result.taulight.chain;
 import net.result.sandnode.chain.client.ClientChain;
 import net.result.sandnode.exception.*;
 import net.result.sandnode.message.IMessage;
-import net.result.sandnode.util.IOControl;
+import net.result.sandnode.util.IOController;
 import net.result.taulight.message.OnlineRequestMessage;
 import net.result.taulight.message.OnlineResponseMessage;
 
@@ -12,7 +12,7 @@ import java.util.Collection;
 public class TauOnlineClientChain extends ClientChain {
     public Collection<String> members;
 
-    public TauOnlineClientChain(IOControl io) {
+    public TauOnlineClientChain(IOController io) {
         super(io);
     }
 

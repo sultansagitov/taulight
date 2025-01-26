@@ -1,7 +1,5 @@
 package net.result.sandnode.util;
 
-import net.result.sandnode.chain.client.ClientChainManager;
-import net.result.sandnode.chain.server.ServerChainManager;
 import net.result.sandnode.encryption.GlobalKeyStorage;
 import net.result.sandnode.encryption.interfaces.*;
 import net.result.sandnode.exception.*;
@@ -28,14 +26,13 @@ import java.security.SecureRandom;
 import java.util.Random;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import static net.result.sandnode.encryption.Encryption.NONE;
 
-public class IOControl {
-    private static final Logger LOGGER = LogManager.getLogger(IOControl.class);
+public class IOController {
+    private static final Logger LOGGER = LogManager.getLogger(IOController.class);
 
     private final Connection connection;
     public final GlobalKeyStorage globalKeyStorage;
@@ -50,25 +47,11 @@ public class IOControl {
     private IEncryption symKeyEncryption = NONE;
     public boolean connected = true;
 
-    public IOControl(
+    public IOController(
             Socket socket,
             Connection connection,
             GlobalKeyStorage globalKeyStorage,
-            Function<IOControl, ClientChainManager> chainManager
-    ) throws InputStreamException, OutputStreamException {
-        this.in = StreamReader.inputStream(socket);
-        this.out = StreamReader.outputStream(socket);
-        this.socket = socket;
-        this.connection = connection;
-        this.globalKeyStorage = globalKeyStorage;
-        this.chainManager = chainManager.apply(this);
-    }
-
-    public IOControl(
-            Socket socket,
-            Connection connection,
-            GlobalKeyStorage globalKeyStorage,
-            ServerChainManager chainManager
+            ChainManager chainManager
     ) throws InputStreamException, OutputStreamException {
         this.in = StreamReader.inputStream(socket);
         this.out = StreamReader.outputStream(socket);

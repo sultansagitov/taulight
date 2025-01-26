@@ -4,10 +4,10 @@ import net.result.sandnode.chain.client.LoginClientChain;
 import net.result.sandnode.serverclient.ClientMember;
 import net.result.sandnode.exception.*;
 import net.result.sandnode.chain.client.RegistrationClientChain;
-import net.result.sandnode.util.IOControl;
+import net.result.sandnode.util.IOController;
 
 public class AgentProtocol {
-    public static String getTokenFromRegistration(IOControl io, String memberID, String password)
+    public static String getTokenFromRegistration(IOController io, String memberID, String password)
             throws ExpectedMessageException, InterruptedException, BusyMemberIDException, DeserializationException,
             InvalidMemberIDPassword {
         RegistrationClientChain regChain = new RegistrationClientChain(io, memberID, password);
@@ -17,7 +17,7 @@ public class AgentProtocol {
         return regChain.token;
     }
 
-    public static ClientMember getMemberFromToken(IOControl io, String token)
+    public static ClientMember getMemberFromToken(IOController io, String token)
             throws InterruptedException, MemberNotFoundException, DeserializationException, InvalidTokenException {
         LoginClientChain loginClientChain = new LoginClientChain(io, token);
         io.chainManager.linkChain(loginClientChain);

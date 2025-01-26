@@ -5,7 +5,7 @@ import net.result.sandnode.config.IServerConfig;
 import net.result.sandnode.exception.*;
 import net.result.sandnode.message.*;
 import net.result.sandnode.message.util.Connection;
-import net.result.sandnode.util.IOControl;
+import net.result.sandnode.util.IOController;
 import net.result.sandnode.util.StreamReader;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -50,7 +50,7 @@ public class SandnodeServer {
                 throw new SocketAcceptException("Error accepting client socket connection", e);
             }
 
-            String ip = IOControl.getIpString(clientSocket);
+            String ip = IOController.getIpString(clientSocket);
             LOGGER.info("Client connected {}", ip);
 
             sessionExecutor.submit(() -> {

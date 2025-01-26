@@ -4,7 +4,7 @@ import net.result.sandnode.util.bst.Searchable;
 import net.result.sandnode.exception.*;
 import net.result.sandnode.message.IMessage;
 import net.result.sandnode.message.RawMessage;
-import net.result.sandnode.util.IOControl;
+import net.result.sandnode.util.IOController;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -16,10 +16,10 @@ public abstract class Chain implements Searchable<Chain, Short> {
     private static final Logger LOGGER = LogManager.getLogger(Chain.class);
 
     public final BlockingQueue<RawMessage> queue;
-    protected final IOControl io;
+    protected final IOController io;
     private short id;
 
-    public Chain(IOControl io) {
+    public Chain(IOController io) {
         this.io = io;
         queue = new LinkedBlockingQueue<>();
     }

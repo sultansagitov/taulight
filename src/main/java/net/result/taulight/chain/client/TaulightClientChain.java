@@ -7,7 +7,7 @@ import net.result.sandnode.exception.ImpossibleRuntimeException;
 import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.message.types.ErrorMessage;
 import net.result.sandnode.error.SandnodeError;
-import net.result.sandnode.util.IOControl;
+import net.result.sandnode.util.IOController;
 import net.result.taulight.message.types.TaulightRequestMessage;
 import net.result.taulight.message.DataType;
 import net.result.taulight.message.types.TaulightResponseMessage;
@@ -25,7 +25,7 @@ public class TaulightClientChain extends ClientChain {
     private static final Logger LOGGER = LogManager.getLogger(TaulightClientChain.class);
     private final Lock lock = new ReentrantLock();
 
-    public TaulightClientChain(IOControl io) {
+    public TaulightClientChain(IOController io) {
         super(io);
     }
 

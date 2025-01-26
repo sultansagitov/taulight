@@ -5,7 +5,7 @@ import net.result.sandnode.exception.DeserializationException;
 import net.result.sandnode.exception.ExpectedMessageException;
 import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.message.types.RequestChainNameMessage;
-import net.result.sandnode.util.IOControl;
+import net.result.sandnode.util.IOController;
 import net.result.taulight.message.types.TimedForwardMessage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -17,7 +17,7 @@ import java.time.format.DateTimeFormatter;
 public class ForwardClientChain extends ClientChain {
     private static final Logger LOGGER = LogManager.getLogger(ForwardClientChain.class);
 
-    public ForwardClientChain(IOControl io) {
+    public ForwardClientChain(IOController io) {
         super(io);
     }
 

@@ -7,7 +7,7 @@ import net.result.sandnode.message.types.RegistrationRequest;
 import net.result.sandnode.message.types.RegistrationResponse;
 import net.result.sandnode.error.Errors;
 import net.result.sandnode.error.SandnodeError;
-import net.result.sandnode.util.IOControl;
+import net.result.sandnode.util.IOController;
 
 import static net.result.sandnode.message.util.MessageTypes.ERR;
 
@@ -16,7 +16,7 @@ public class RegistrationClientChain extends ClientChain {
     private final String memberID;
     private final String password;
 
-    public RegistrationClientChain(IOControl io, String memberID, String password) {
+    public RegistrationClientChain(IOController io, String memberID, String password) {
         super(io);
         this.memberID = memberID;
         this.password = password;

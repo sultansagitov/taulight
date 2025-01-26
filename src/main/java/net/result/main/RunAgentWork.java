@@ -14,7 +14,7 @@ import net.result.sandnode.link.SandnodeLinkRecord;
 import net.result.sandnode.message.types.RequestChainNameMessage;
 import net.result.sandnode.util.EncryptionUtil;
 import net.result.sandnode.util.Endpoint;
-import net.result.sandnode.util.IOControl;
+import net.result.sandnode.util.IOController;
 import net.result.taulight.TauAgent;
 import net.result.taulight.chain.client.ForwardClientChain;
 import net.result.taulight.chain.client.TaulightClientChain;
@@ -56,12 +56,13 @@ public class RunAgentWork implements IWork {
 
         Endpoint endpoint = link.endpoint();
         TauAgent agent = new TauAgent();
-        SandnodeClient client = new SandnodeClient(endpoint, agent, HUB, clientConfig);
+        ConsoleClientChainManager chainManager = new ConsoleClientChainManager();
 
-        client.start(ConsoleClientChainManager::new);   // Starting client
-        getPublicKey(client, agent, link);              // get key from fs or sending PUB if key not found
-        ClientProtocol.sendSYM(client);                 // sending symmetric key
-        handleAuthentication(client.io, scanner);       // registration or login
+        SandnodeClient client = new SandnodeClient(endpoint, agent, HUB, clientConfig);
+        client.start(chainManager);                 // Starting client
+        getPublicKey(client, agent, link);          // get key from fs or sending PUB if key not found
+        ClientProtocol.sendSYM(client);             // sending symmetric key
+        handleAuthentication(client.io, scanner);   // registration or login
 
         ExecutorService executorService = Executors.newCachedThreadPool();
 
@@ -76,7 +77,7 @@ public class RunAgentWork implements IWork {
         client.close();
     }
 
-    private static void startTaulightChain(IOControl io) throws InterruptedException {
+    private static void startTaulightChain(IOController io) throws InterruptedException {
         TaulightClientChain taulightChain = new TaulightClientChain(io);
         io.chainManager.linkChain(taulightChain);
         io.chainManager.setName(taulightChain, "tau");
@@ -84,7 +85,7 @@ public class RunAgentWork implements IWork {
         taulightChain.send(new RequestChainNameMessage("tau"));
     }
 
-    private static void startConsoleChain(IOControl io)
+    private static void startConsoleChain(IOController io)
             throws InterruptedException, ExpectedMessageException, DeserializationException {
         ConsoleClientChain consoleChain = new ConsoleClientChain(io);
         io.chainManager.linkChain(consoleChain);
@@ -92,7 +93,7 @@ public class RunAgentWork implements IWork {
         io.chainManager.removeChain(consoleChain);
     }
 
-    private static void startForwardChain(ExecutorService executorService, IOControl io) {
+    private static void startForwardChain(ExecutorService executorService, IOController io) {
         ForwardClientChain fwd = new ForwardClientChain(io);
         io.chainManager.linkChain(fwd);
         fwd.async(executorService);
@@ -136,7 +137,7 @@ public class RunAgentWork implements IWork {
         client.io.setServerKey(serverKey);
     }
 
-    private void handleAuthentication(IOControl io, Scanner scanner)
+    private void handleAuthentication(IOController io, Scanner scanner)
             throws InterruptedException, ExpectedMessageException, DeserializationException {
 
         String s;

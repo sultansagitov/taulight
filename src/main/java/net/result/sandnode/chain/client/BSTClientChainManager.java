@@ -5,15 +5,14 @@ import net.result.sandnode.exception.BSTBusyPosition;
 import net.result.sandnode.exception.BusyChainID;
 import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.message.util.Headers;
-import net.result.sandnode.util.IOControl;
+import net.result.sandnode.util.IOController;
 import net.result.sandnode.chain.BSTChainManager;
 
 public abstract class BSTClientChainManager extends BSTChainManager implements ClientChainManager {
-    protected final IOControl io;
+    protected IOController io;
 
-    public BSTClientChainManager(IOControl io) {
+    public BSTClientChainManager() {
         super();
-        this.io = io;
     }
 
     @Override
@@ -29,5 +28,8 @@ public abstract class BSTClientChainManager extends BSTChainManager implements C
         return chain;
     }
 
-
+    @Override
+    public void setIOController(IOController io) {
+        this.io = io;
+    }
 }

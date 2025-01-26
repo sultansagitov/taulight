@@ -5,7 +5,7 @@ import net.result.sandnode.message.IMessage;
 import net.result.sandnode.message.types.ErrorMessage;
 import net.result.sandnode.message.types.PublicKeyRequest;
 import net.result.sandnode.message.types.PublicKeyResponse;
-import net.result.sandnode.util.IOControl;
+import net.result.sandnode.util.IOController;
 import net.result.sandnode.chain.Chain;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -15,7 +15,7 @@ import static net.result.sandnode.message.util.MessageTypes.ERR;
 public class PublicKeyClientChain extends Chain {
     private static final Logger LOGGER = LogManager.getLogger(PublicKeyClientChain.class);
 
-    public PublicKeyClientChain(IOControl io) {
+    public PublicKeyClientChain(IOController io) {
         super(io);
     }
 
