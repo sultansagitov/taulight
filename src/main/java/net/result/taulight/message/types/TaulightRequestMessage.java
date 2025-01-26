@@ -24,14 +24,6 @@ public class TaulightRequestMessage extends MSGPackMessage<TaulightRequestMessag
             this.dataType = dataType;
         }
 
-        public static TaulightRequestData write(String chatID, String message) {
-            TaulightRequestData result = new TaulightRequestData();
-            result.dataType = DataType.WRITE;
-            result.chatID = chatID;
-            result.message = message;
-            return result;
-        }
-
         public static TaulightRequestData addGroup(String chatID) {
             TaulightRequestData result = new TaulightRequestData();
             result.dataType = DataType.ADD;

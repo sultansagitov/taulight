@@ -20,6 +20,7 @@ public class OnlineResponseMessage extends MSGPackMessage<OnlineResponseMessage.
         @JsonProperty
         public Collection<String> members;
 
+        @SuppressWarnings("unused")
         public MemberSetData() {}
         public MemberSetData(Collection<String> members) {
             this.members = new HashSet<>(members);

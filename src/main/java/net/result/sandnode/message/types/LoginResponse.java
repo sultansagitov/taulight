@@ -15,6 +15,7 @@ public class LoginResponse extends MSGPackMessage<LoginResponse.LoginData> {
         @JsonProperty
         public String memberID;
 
+        @SuppressWarnings("unused")
         public LoginData() {}
         public LoginData(String memberID) {
             this.memberID = memberID;

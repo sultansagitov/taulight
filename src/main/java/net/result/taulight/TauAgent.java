@@ -16,9 +16,12 @@ public class TauAgent extends Agent {
         this(new GlobalKeyStorage());
     }
 
+    //TODO:
+    // remove SuppressWarnings
+    // realize it when add agent as server
+    @SuppressWarnings("DataFlowIssue")
     @Override
     public @NotNull Session createSession(SandnodeServer server, Socket socket, Connection connection) {
-        //TODO realize it when add agent as server
         return null;
     }
 

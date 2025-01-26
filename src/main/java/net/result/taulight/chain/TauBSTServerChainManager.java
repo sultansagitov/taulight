@@ -7,12 +7,8 @@ import net.result.taulight.chain.server.ForwardServerChain;
 import net.result.taulight.chain.server.GetOnlineServerChain;
 import net.result.taulight.chain.server.TaulightServerChain;
 import net.result.taulight.message.TauMessageTypes;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 public class TauBSTServerChainManager extends BSTServerChainManager {
-    private static final Logger LOGGER = LogManager.getLogger(TauBSTServerChainManager.class);
-
     public TauBSTServerChainManager() {
         super();
     }

@@ -7,6 +7,7 @@ public final class ClientMember {
     @JsonProperty
     public String memberID;
 
+    @SuppressWarnings("unused")
     public ClientMember() {}
     public ClientMember(String memberID) {
         this.memberID = memberID;

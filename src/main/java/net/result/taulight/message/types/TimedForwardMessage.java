@@ -19,6 +19,7 @@ public class TimedForwardMessage extends MSGPackMessage<TimedForwardMessage.Time
         @JsonProperty
         public ClientMember clientMember;
 
+        @SuppressWarnings("unused")
         public TimedForwardData() {}
         public TimedForwardData(String chatID, String data, ZonedDateTime ztd, ClientMember clientMember) {
             super(chatID, data);
