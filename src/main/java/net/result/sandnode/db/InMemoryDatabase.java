@@ -5,22 +5,22 @@ import net.result.sandnode.exception.BusyMemberIDException;
 import java.util.*;
 
 public class InMemoryDatabase implements IDatabase {
-    public final Collection<IMember> db = new HashSet<>();
+    public final Collection<Member> db = new HashSet<>();
 
     @Override
-    public synchronized IMember registerMember(String memberID, String password) throws BusyMemberIDException {
+    public synchronized Member registerMember(String memberID, String password) throws BusyMemberIDException {
         if (db.stream().anyMatch(member -> member.getID().equals(memberID))) {
             throw new BusyMemberIDException(memberID);
         }
 
-        IMember member = new Member(memberID, password, this);
+        Member member = new StandardMember(memberID, password, this);
         db.add(member);
         return member;
     }
 
     @Override
-    public synchronized Optional<IMember> findMemberByMemberID(String agentID) {
-        for (IMember member : db) {
+    public synchronized Optional<Member> findMemberByMemberID(String agentID) {
+        for (Member member : db) {
             if (member.getID().equals(agentID)) {
                 return Optional.of(member);
             }

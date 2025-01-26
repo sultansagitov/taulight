@@ -1,13 +1,13 @@
 package net.result.taulight.messenger;
 
-import net.result.sandnode.db.IMember;
+import net.result.sandnode.db.Member;
 
 import java.util.Collection;
 import java.util.HashSet;
 
 public class TauChat {
     private final String id;
-    private final Collection<IMember> members;
+    private final Collection<Member> members;
 
     public TauChat(String id) {
         this.id = id;
@@ -18,7 +18,7 @@ public class TauChat {
         return id;
     }
 
-    public Collection<IMember> getMembers() {
+    public Collection<Member> getMembers() {
         return members;
     }
 }

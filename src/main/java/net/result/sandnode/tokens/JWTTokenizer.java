@@ -6,7 +6,7 @@ import com.auth0.jwt.interfaces.DecodedJWT;
 import com.auth0.jwt.interfaces.JWTVerifier;
 import net.result.sandnode.exception.InvalidTokenException;
 import net.result.sandnode.db.IDatabase;
-import net.result.sandnode.db.IMember;
+import net.result.sandnode.db.Member;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
@@ -25,7 +25,7 @@ public class JWTTokenizer implements ITokenizer {
     }
 
     @Override
-    public String tokenizeMember(@NotNull IMember member) {
+    public String tokenizeMember(@NotNull Member member) {
         long EXPIRATION_TIME_MS = 3600 * 1000;
         return JWT.create()
                 .withSubject(member.getID())
@@ -36,7 +36,7 @@ public class JWTTokenizer implements ITokenizer {
     }
 
     @Override
-    public Optional<IMember> findMember(
+    public Optional<Member> findMember(
             @NotNull IDatabase database,
             @NotNull String token
     ) throws InvalidTokenException {

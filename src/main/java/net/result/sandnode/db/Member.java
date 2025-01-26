@@ -1,33 +1,11 @@
 package net.result.sandnode.db;
 
-public class Member implements IMember {
-    private final String memberID;
-    private final String password;
-    private final IDatabase database;
+public interface Member {
 
-    public Member(String memberID, String password, IDatabase database) {
-        this.memberID = memberID;
-        this.password = password;
-        this.database = database;
-    }
+    String getID();
 
-    @Override
-    public String getID() {
-        return memberID;
-    }
+    String getHashedPassword();
 
-    @Override
-    public String getHashedPassword() {
-        return password;
-    }
+    IDatabase getDatabase();
 
-    @Override
-    public IDatabase getDatabase() {
-        return database;
-    }
-
-    @Override
-    public String toString() {
-        return "<Member %s>".formatted(getID());
-    }
 }

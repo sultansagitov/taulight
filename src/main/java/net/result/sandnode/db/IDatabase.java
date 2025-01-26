@@ -6,8 +6,8 @@ import java.util.Optional;
 
 public interface IDatabase {
 
-    IMember registerMember(String agentID, String password) throws BusyMemberIDException;
+    Member registerMember(String agentID, String password) throws BusyMemberIDException;
 
-    Optional<IMember> findMemberByMemberID(String agentID);
+    Optional<Member> findMemberByMemberID(String agentID);
 
 }

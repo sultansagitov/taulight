@@ -1,6 +1,6 @@
 package net.result.taulight;
 
-import net.result.sandnode.db.IMember;
+import net.result.sandnode.db.Member;
 import net.result.taulight.messenger.TauChat;
 
 import java.util.Collection;
@@ -11,7 +11,7 @@ import java.util.stream.Collectors;
 public class TauChatManager {
     public final Collection<TauChat> chats = new HashSet<>();
 
-    public Collection<TauChat> getChats(IMember member) {
+    public Collection<TauChat> getChats(Member member) {
         return chats.stream()
                 .filter(chat -> chat.getMembers().contains(member))
                 .collect(Collectors.toSet());
@@ -27,7 +27,7 @@ public class TauChatManager {
                 .findFirst();
     }
 
-    public void addMember(TauChat chat, IMember member) {
+    public void addMember(TauChat chat, Member member) {
         chat.getMembers().add(member);
     }
 }

@@ -6,7 +6,7 @@ import net.result.sandnode.exception.DeserializationException;
 import net.result.sandnode.exception.ExpectedMessageException;
 import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.message.MSGPackMessage;
-import net.result.sandnode.db.IMember;
+import net.result.sandnode.db.Member;
 
 import java.time.ZonedDateTime;
 
@@ -27,7 +27,7 @@ public class TimedForwardMessage extends MSGPackMessage<TimedForwardMessage.Time
         }
     }
 
-    public TimedForwardMessage(ForwardMessage forwardMessage, ZonedDateTime zdt, IMember member) {
+    public TimedForwardMessage(ForwardMessage forwardMessage, ZonedDateTime zdt, Member member) {
         super(forwardMessage.getHeaders(), new TimedForwardData(
                 forwardMessage.getChatID(),
                 forwardMessage.getData(),

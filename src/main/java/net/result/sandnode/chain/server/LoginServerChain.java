@@ -10,7 +10,7 @@ import net.result.sandnode.message.types.TokenMessage;
 import net.result.sandnode.error.Errors;
 import net.result.sandnode.serverclient.Session;
 import net.result.sandnode.db.IDatabase;
-import net.result.sandnode.db.IMember;
+import net.result.sandnode.db.Member;
 
 import java.util.Optional;
 
@@ -26,7 +26,7 @@ public class LoginServerChain extends ServerChain {
         String token = msg.getToken();
 
         IDatabase database = session.server.serverConfig.database();
-        Optional<IMember> opt;
+        Optional<Member> opt;
 
         try {
             opt = session.server.serverConfig.tokenizer().findMember(database, token);

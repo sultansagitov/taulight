@@ -1,7 +1,7 @@
 package net.result.sandnode.serverclient;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import net.result.sandnode.db.IMember;
+import net.result.sandnode.db.Member;
 
 public final class ClientMember {
     @JsonProperty
@@ -12,7 +12,7 @@ public final class ClientMember {
         this.memberID = memberID;
     }
 
-    public static ClientMember of(IMember member) {
+    public static ClientMember of(Member member) {
         return new ClientMember(member.getID());
     }
 }

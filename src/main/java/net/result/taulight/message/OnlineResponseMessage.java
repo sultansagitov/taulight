@@ -6,7 +6,7 @@ import net.result.sandnode.exception.ExpectedMessageException;
 import net.result.sandnode.message.IMessage;
 import net.result.sandnode.message.MSGPackMessage;
 import net.result.sandnode.message.util.Headers;
-import net.result.sandnode.db.IMember;
+import net.result.sandnode.db.Member;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Collection;
@@ -26,14 +26,14 @@ public class OnlineResponseMessage extends MSGPackMessage<OnlineResponseMessage.
         }
     }
 
-    public OnlineResponseMessage(@NotNull Headers headers, @NotNull Collection<IMember> members) {
+    public OnlineResponseMessage(@NotNull Headers headers, @NotNull Collection<Member> members) {
         super(
                 headers.setType(ONL),
-                new MemberSetData(members.stream().map(IMember::getID).collect(Collectors.toSet()))
+                new MemberSetData(members.stream().map(Member::getID).collect(Collectors.toSet()))
         );
     }
 
-    public OnlineResponseMessage(@NotNull Collection<IMember> members) {
+    public OnlineResponseMessage(@NotNull Collection<Member> members) {
         this(new Headers(), members);
     }
 
