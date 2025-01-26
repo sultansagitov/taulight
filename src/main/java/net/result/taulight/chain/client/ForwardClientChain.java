@@ -26,7 +26,13 @@ public class ForwardClientChain extends ClientChain {
         send(new RequestChainNameMessage("fwd"));
 
         while (io.connected) {
-            RawMessage request = queue.take();
+            RawMessage request;
+            try {
+                request = queue.take();
+            } catch (InterruptedException e) {
+                LOGGER.info("{} is ended", this);
+                break;
+            }
 
             if (request.getHeaders().isFin()) {
                 LOGGER.info("{} ended by FIN flag in received message", toString());
