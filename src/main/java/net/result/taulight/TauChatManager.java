@@ -21,9 +21,9 @@ public class TauChatManager {
         chats.add(chat);
     }
 
-    public Optional<TauChat> find(String groupName) {
+    public Optional<TauChat> find(String groupID) {
         return chats.stream()
-                .filter(chat -> chat.getID().equals(groupName))
+                .filter(chat -> chat.getID().equals(groupID))
                 .findFirst();
     }
 

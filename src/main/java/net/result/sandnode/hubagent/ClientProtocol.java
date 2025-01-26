@@ -36,7 +36,7 @@ public class ClientProtocol {
         io.chainManager.linkChain(groupClientChain);
         groupClientChain.sync();
         io.chainManager.removeChain(groupClientChain);
-        return groupClientChain.groupNames;
+        return groupClientChain.groupsID;
     }
 
     public static Collection<String> getGroups(@NotNull IOController io)
@@ -50,6 +50,6 @@ public class ClientProtocol {
         io.chainManager.linkChain(groupClientChain);
         groupClientChain.sync();
         io.chainManager.removeChain(groupClientChain);
-        return groupClientChain.groupNames;
+        return groupClientChain.groupsID;
     }
 }

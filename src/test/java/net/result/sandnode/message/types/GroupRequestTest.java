@@ -8,7 +8,7 @@ import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class GroupMessageTest {
+class GroupRequestTest {
 
     @Test
     void testGroupMessageInitializationAndRetrieval() throws ExpectedMessageException {
@@ -17,7 +17,7 @@ class GroupMessageTest {
                 "group with spaces", "group$special", "UPPERCASE", "", "  ", "что_то_на_русском"
         );
 
-        GroupMessage groupMessage = new GroupMessage(new GroupMessage(inputGroupNames));
+        GroupRequest request = new GroupRequest(new GroupRequest(inputGroupNames));
 
         Collection<String> expectedGroupNames = Set.of(
                 "#group1",
@@ -30,6 +30,6 @@ class GroupMessageTest {
                 "#uppercase"
         );
 
-        assertEquals(expectedGroupNames, groupMessage.getGroupNames());
+        assertEquals(expectedGroupNames, request.getGroupsID());
     }
 }

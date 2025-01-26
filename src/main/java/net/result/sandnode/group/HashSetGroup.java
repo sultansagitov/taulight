@@ -8,10 +8,20 @@ import java.util.HashSet;
 
 public class HashSetGroup implements Group {
     private final Collection<Session> sessions = new HashSet<>();
+    private final String name;
+
+    public HashSetGroup(@NotNull String name) {
+        this.name = name;
+    }
 
     @Override
     public Collection<Session> getSessions() {
         return sessions;
+    }
+
+    @Override
+    public String getID() {
+        return name;
     }
 
     @Override

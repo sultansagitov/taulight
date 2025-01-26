@@ -12,4 +12,6 @@ public interface Group {
     void add(@NotNull Session session);
 
     void remove(@NotNull Session session);
+
+    String getID();
 }

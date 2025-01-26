@@ -13,26 +13,26 @@ public class HashSetGroupManager implements GroupManager {
         groups = new HashSet<>();
     }
 
-    private @NotNull ClientGroup getClientGroup(@NotNull String groupName) {
-        return new HashSetClientGroup(groupName);
+    private @NotNull ClientGroup getClientGroup(@NotNull String clearGroupName) {
+        return new HashSetClientGroup(clearGroupName);
     }
 
     @Override
-    public Group getGroup(@NotNull String groupName) {
+    public Group getGroup(@NotNull String groupID) {
         Group group;
 
-        Optional<Group> opt = getGroupOptional(groupName);
+        Optional<Group> opt = getGroupOptional(groupID);
         if (opt.isPresent()) return opt.get();
 
-        group = getClientGroup(groupName);
+        group = getClientGroup(groupID.substring(1));
         groups.add(group);
         return group;
     }
 
     @Override
-    public Optional<Group> getGroupOptional(@NotNull String groupName) {
+    public Optional<Group> getGroupOptional(@NotNull String groupID) {
         for (Group group : groups) {
-            if (group instanceof ClientGroup clientGroup && clientGroup.getName().equals(groupName)) {
+            if (group.getID().equals(groupID)) {
                 return Optional.of(group);
             }
         }

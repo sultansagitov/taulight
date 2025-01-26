@@ -6,8 +6,8 @@ import java.util.Optional;
 
 public interface GroupManager {
 
-    Optional<Group> getGroupOptional(@NotNull String groupName);
+    Optional<Group> getGroupOptional(@NotNull String groupID);
 
-    Group getGroup(@NotNull String groupName);
+    Group getGroup(@NotNull String groupID);
 
 }

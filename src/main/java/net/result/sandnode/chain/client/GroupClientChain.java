@@ -1,7 +1,8 @@
 package net.result.sandnode.chain.client;
 
 import net.result.sandnode.exception.ExpectedMessageException;
-import net.result.sandnode.message.types.GroupMessage;
+import net.result.sandnode.message.types.GroupRequest;
+import net.result.sandnode.message.types.GroupResponse;
 import net.result.sandnode.util.IOController;
 import org.jetbrains.annotations.NotNull;
 
@@ -9,8 +10,8 @@ import java.util.Collection;
 
 public class GroupClientChain extends ClientChain {
     private final Collection<String> groups;
-    public Collection<String> groupNames;
-    private boolean remove = false;
+    public Collection<String> groupsID;
+    private boolean add = true;
 
     public GroupClientChain(IOController io, Collection<String> groups) {
         super(io);
@@ -19,16 +20,15 @@ public class GroupClientChain extends ClientChain {
 
     public static GroupClientChain remove(@NotNull IOController io, Collection<String> groups) {
         GroupClientChain groupClientChain = new GroupClientChain(io, groups);
-        groupClientChain.remove = true;
+        groupClientChain.add = false;
         return groupClientChain;
     }
 
     @Override
     public void sync() throws InterruptedException, ExpectedMessageException {
-        GroupMessage request = new GroupMessage(groups);
-        if (remove) request.getHeaders().setValue("remove", "true");
+        GroupRequest request = new GroupRequest(groups);
+        request.getHeaders().setValue("mode", add ? "add" : "remove");
         send(request);
-        GroupMessage groupMessage = new GroupMessage(queue.take());
-        groupNames = groupMessage.getGroupNames();
+        groupsID = new GroupResponse(queue.take()).getGroupsID();
     }
 }

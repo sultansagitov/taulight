@@ -16,16 +16,16 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public class GroupMessage extends Message {
-    private static final Logger LOGGER = LogManager.getLogger(GroupMessage.class);
+public class GroupRequest extends Message {
+    private static final Logger LOGGER = LogManager.getLogger(GroupRequest.class);
 
     @Unmodifiable
-    private final Collection<String> groupNames;
+    private final Collection<String> groupsID;
 
-    public GroupMessage(@NotNull Headers headers, @NotNull Collection<String> groupNames) {
+    public GroupRequest(@NotNull Headers headers, @NotNull Collection<String> groupsID) {
         super(headers.setType(MessageTypes.GROUP));
         Set<String> filteredGroupNames = new HashSet<>();
-        for (String s : groupNames) {
+        for (String s : groupsID) {
             if (s == null || s.trim().isEmpty()) {
                 LOGGER.warn("Skipping invalid group name: null or empty");
                 continue;
@@ -40,19 +40,19 @@ public class GroupMessage extends Message {
 
             filteredGroupNames.add(str);
         }
-        this.groupNames = filteredGroupNames;
+        this.groupsID = filteredGroupNames;
     }
 
-    public GroupMessage(@NotNull Collection<String> groupNames) {
-        this(new Headers(), groupNames);
+    public GroupRequest(@NotNull Collection<String> groupsID) {
+        this(new Headers(), groupsID);
     }
 
-    public GroupMessage(@NotNull IMessage message) throws ExpectedMessageException {
+    public GroupRequest(@NotNull IMessage message) throws ExpectedMessageException {
         super(message.expect(MessageTypes.GROUP).getHeaders());
 
-        String[] groupNames = new String(message.getBody()).split(",");
-        this.groupNames = Arrays
-                .stream(groupNames)
+        String[] groupsID = new String(message.getBody()).split(",");
+        this.groupsID = Arrays
+                .stream(groupsID)
                 .map(String::trim)
                 .filter(s -> !s.isEmpty())
                 .map(String::toLowerCase)
@@ -62,16 +62,16 @@ public class GroupMessage extends Message {
 
     }
 
-    public Collection<String> getGroupNames() {
-        return groupNames;
+    public Collection<String> getGroupsID() {
+        return groupsID;
     }
 
     public String toString() {
-        return super.toString() + " " + groupNames;
+        return super.toString() + " " + groupsID;
     }
 
     @Override
     public byte[] getBody() {
-        return String.join(",", groupNames).getBytes();
+        return String.join(",", groupsID).getBytes();
     }
 }
