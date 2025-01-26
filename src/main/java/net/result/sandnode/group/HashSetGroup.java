@@ -16,7 +16,6 @@ public class HashSetGroup implements Group {
 
     @Override
     public void add(@NotNull Session session) {
-        session.addToGroup(this);
         sessions.add(session);
     }
 }

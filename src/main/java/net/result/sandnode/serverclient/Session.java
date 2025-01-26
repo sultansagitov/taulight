@@ -64,6 +64,12 @@ public class Session {
 
     public void addToGroup(Group group) {
         groups.add(group);
+        group.add(this);
+        LOGGER.info("Session {} added to group {}", this, group);
+    }
+
+    public void addToGroups(Collection<Group> groups) {
+        groups.forEach(this::addToGroup);
     }
 
     public Collection<Group> getGroups() {
