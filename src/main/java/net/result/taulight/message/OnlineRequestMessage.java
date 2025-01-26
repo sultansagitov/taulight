@@ -6,12 +6,12 @@ import org.jetbrains.annotations.NotNull;
 
 import static net.result.taulight.message.TauMessageTypes.ONL;
 
-public class OnlineMessage extends EmptyMessage {
-    public OnlineMessage() {
+public class OnlineRequestMessage extends EmptyMessage {
+    public OnlineRequestMessage() {
         this(new Headers());
     }
 
-    public OnlineMessage(@NotNull Headers headers) {
+    public OnlineRequestMessage(@NotNull Headers headers) {
         super(headers.setType(ONL));
     }
 }

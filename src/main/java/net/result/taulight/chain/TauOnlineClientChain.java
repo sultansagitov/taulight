@@ -4,7 +4,7 @@ import net.result.sandnode.chain.client.ClientChain;
 import net.result.sandnode.exception.*;
 import net.result.sandnode.message.IMessage;
 import net.result.sandnode.util.IOControl;
-import net.result.taulight.message.OnlineMessage;
+import net.result.taulight.message.OnlineRequestMessage;
 import net.result.taulight.message.OnlineResponseMessage;
 
 import java.util.Collection;
@@ -18,8 +18,7 @@ public class TauOnlineClientChain extends ClientChain {
 
     @Override
     public void sync() throws ExpectedMessageException, InterruptedException, DeserializationException {
-        OnlineMessage message = new OnlineMessage();
-        send(message);
+        send(new OnlineRequestMessage());
         IMessage response = queue.take();
         members = new OnlineResponseMessage(response).getMembers();
     }
