@@ -31,7 +31,7 @@ public abstract class Hub extends Node {
             throws WrongNodeUsedException, OutputStreamException, InputStreamException {
         ServerChainManager chainManager = createChainManager();
         IOControl io = new IOControl(socket, connection, this.globalKeyStorage, chainManager);
-        Session session = new Session(server, socket, chainManager, io);
+        Session session = new Session(server, io);
         switch (connection) {
             case HUB2AGENT -> addAsAgent(session);
             case HUB2HUB -> addAsHub(session);

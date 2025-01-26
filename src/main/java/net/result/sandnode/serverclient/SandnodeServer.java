@@ -62,13 +62,13 @@ public class SandnodeServer {
                     RawMessage request = Message.decryptMessage(encrypted, node.globalKeyStorage);
                     Connection conn = request.getHeaders().getConnection();
                     Session session = node.createSession(this, clientSocket, conn.getOpposite());
-                    session.chainManager.distributeMessage(request);
+                    session.io.chainManager.distributeMessage(request);
 
-                    while (session.socket.isConnected()) {
+                    while (session.io.socket.isConnected()) {
                         Thread.onSpinWait();
                     }
 
-                    if (session.socket.isConnected()) {
+                    if (session.io.socket.isConnected()) {
                         try {
                             session.io.disconnect();
                         } catch (SocketClosingException e) {

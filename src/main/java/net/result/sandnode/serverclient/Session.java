@@ -9,7 +9,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
 
-import java.net.Socket;
 import java.util.Collection;
 import java.util.HashSet;
 
@@ -17,22 +16,17 @@ public class Session {
     private static final Logger LOGGER = LogManager.getLogger(Session.class);
     private final Collection<Group> groups = new HashSet<>();
     public final SandnodeServer server;
-    public final Socket socket;
     public final IOControl io;
-    public final ServerChainManager chainManager;
     public IMember member;
 
     public Session(
             @NotNull SandnodeServer server,
-            @NotNull Socket socket,
-            @NotNull ServerChainManager chainManager,
             @NotNull IOControl io
     ) {
         this.server = server;
-        this.socket = socket;
-        this.chainManager = chainManager;
-        chainManager.setSession(this);
         this.io = io;
+
+        ((ServerChainManager) io.chainManager).setSession(this);
 
         new Thread(() -> {
             try {
@@ -44,7 +38,7 @@ public class Session {
 
                 Thread.currentThread().interrupt();
             }
-        }, "%s/Sending".formatted(IOControl.getIpString(socket))).start();
+        }, "%s/Sending".formatted(io.getIpString())).start();
 
         new Thread(() -> {
             try {
@@ -54,12 +48,12 @@ public class Session {
                     LOGGER.error("Error receiving message", e);
                 }
             }
-        }, "%s/Receiving".formatted(IOControl.getIpString(socket))).start();
+        }, "%s/Receiving".formatted(io.getIpString())).start();
     }
 
     @Override
     public String toString() {
-        return "<%s %s %s>".formatted(getClass().getSimpleName(), IOControl.getIpString(socket), member);
+        return "<%s %s %s>".formatted(getClass().getSimpleName(), io.getIpString(), member);
     }
 
     public void addToGroup(Group group) {

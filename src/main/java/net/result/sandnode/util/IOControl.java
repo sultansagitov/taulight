@@ -42,7 +42,7 @@ public class IOControl {
 
     private final InputStream in;
     private final OutputStream out;
-    private final Socket socket;
+    public final Socket socket;
     private final BlockingQueue<IMessage> sendingQueue = new LinkedBlockingQueue<>();
     public final ChainManager chainManager;
 
