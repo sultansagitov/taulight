@@ -27,8 +27,7 @@ public class GroupMessage extends Message {
     }
 
     public GroupMessage(@NotNull IMessage message) throws ExpectedMessageException {
-        super(message.getHeaders());
-        ExpectedMessageException.check(message, MessageTypes.GROUP);
+        super(message.expect(MessageTypes.GROUP).getHeaders());
 
         String[] groupNames = new String(message.getBody()).split(",");
         this.groupNames = Arrays

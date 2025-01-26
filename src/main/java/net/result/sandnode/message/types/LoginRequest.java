@@ -17,7 +17,6 @@ public class LoginRequest extends TokenMessage {
     }
 
     public LoginRequest(IMessage request) throws ExpectedMessageException, DeserializationException {
-        super(request);
-        ExpectedMessageException.check(request, LOGIN);
+        super(request.expect(LOGIN));
     }
 }

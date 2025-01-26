@@ -10,8 +10,7 @@ import static net.result.sandnode.message.util.MessageTypes.REG;
 
 public class RegistrationResponse extends TokenMessage {
     public RegistrationResponse(@NotNull IMessage message) throws ExpectedMessageException, DeserializationException {
-        super(message);
-        ExpectedMessageException.check(message, REG);
+        super(message.expect(REG));
     }
 
     public RegistrationResponse(@NotNull Headers headers, @NotNull String token) {

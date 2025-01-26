@@ -38,8 +38,7 @@ public class OnlineResponseMessage extends MSGPackMessage<OnlineResponseMessage.
     }
 
     public OnlineResponseMessage(@NotNull IMessage message) throws DeserializationException, ExpectedMessageException {
-        super(message, MemberSetData.class);
-        ExpectedMessageException.check(message, ONL);
+        super(message.expect(ONL), MemberSetData.class);
     }
 
     public Collection<String> getMembers() {

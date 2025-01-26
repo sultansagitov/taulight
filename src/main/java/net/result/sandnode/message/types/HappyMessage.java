@@ -14,7 +14,6 @@ public class HappyMessage extends EmptyMessage {
     }
 
     public HappyMessage(@NotNull IMessage message) throws ExpectedMessageException {
-        super(message.getHeaders());
-        ExpectedMessageException.check(message, HAPPY);
+        super(message.expect(HAPPY).getHeaders());
     }
 }

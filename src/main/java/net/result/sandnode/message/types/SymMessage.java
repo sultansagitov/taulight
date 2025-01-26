@@ -20,8 +20,7 @@ public class SymMessage extends Message {
 
     public SymMessage(@NotNull IMessage message) throws ExpectedMessageException, NoSuchEncryptionException,
             EncryptionTypeException, DataNotEncryptedException {
-        super(message.getHeaders());
-        ExpectedMessageException.check(message, SYM);
+        super(message.expect(SYM).getHeaders());
 
         if (message.getHeadersEncryption() == NONE) {
             throw new DataNotEncryptedException("Headers not encrypted");

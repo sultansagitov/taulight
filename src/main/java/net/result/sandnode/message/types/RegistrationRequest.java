@@ -25,8 +25,7 @@ public class RegistrationRequest extends MSGPackMessage<RegistrationRequest.Memb
     }
 
     public RegistrationRequest(@NotNull IMessage message) throws ExpectedMessageException, DeserializationException {
-        super(message, MemberData.class);
-        ExpectedMessageException.check(message, REG);
+        super(message.expect(REG), MemberData.class);
     }
 
     public RegistrationRequest(

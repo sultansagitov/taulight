@@ -25,8 +25,7 @@ public class ForwardMessage extends MSGPackMessage<ForwardMessage.ForwardData> {
     }
 
     public ForwardMessage(IMessage request) throws DeserializationException, ExpectedMessageException {
-        super(request, ForwardData.class);
-        ExpectedMessageException.check(request, FWD);
+        super(request.expect(FWD), ForwardData.class);
     }
 
     public ForwardMessage(Headers headers, ForwardData data) {

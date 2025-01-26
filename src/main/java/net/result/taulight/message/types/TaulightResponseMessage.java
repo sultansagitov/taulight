@@ -41,8 +41,7 @@ public class TaulightResponseMessage extends MSGPackMessage<TaulightResponseMess
     }
 
     public TaulightResponseMessage(RawMessage raw) throws DeserializationException, ExpectedMessageException {
-        super(raw, TaulightResponseData.class);
-        ExpectedMessageException.check(raw, TAULIGHT);
+        super(raw.expect(TAULIGHT), TaulightResponseData.class);
     }
 
     public TaulightResponseMessage(Headers headers, TaulightResponseData data) {

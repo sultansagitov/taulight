@@ -37,8 +37,7 @@ public class TimedForwardMessage extends MSGPackMessage<TimedForwardMessage.Time
     }
 
     public TimedForwardMessage(RawMessage message) throws DeserializationException, ExpectedMessageException {
-        super(message, TimedForwardData.class);
-        ExpectedMessageException.check(message, FWD);
+        super(message.expect(FWD), TimedForwardData.class);
     }
 
     public String getData() {
