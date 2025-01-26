@@ -66,4 +66,8 @@ public class Session {
     public Collection<Group> getGroups() {
         return groups;
     }
+
+    public void close() {
+        groups.forEach(group -> group.remove(this));
+    }
 }

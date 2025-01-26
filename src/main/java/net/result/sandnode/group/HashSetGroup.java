@@ -18,4 +18,9 @@ public class HashSetGroup implements Group {
     public void add(@NotNull Session session) {
         sessions.add(session);
     }
+
+    @Override
+    public void remove(@NotNull Session session) {
+        sessions.remove(session);
+    }
 }

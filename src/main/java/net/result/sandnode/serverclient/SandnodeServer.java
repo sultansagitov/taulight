@@ -78,6 +78,9 @@ public class SandnodeServer {
 
                     node.hubSessionList.remove(session);
                     node.agentSessionList.remove(session);
+
+                    session.close();
+
                     LOGGER.info("Client disconnected");
 
                 } catch (SandnodeException | InterruptedException e) {
