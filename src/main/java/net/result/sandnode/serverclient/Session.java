@@ -59,8 +59,18 @@ public class Session {
         LOGGER.info("Session {} added to group {}", this, group);
     }
 
+    private void removeFromGroup(Group group) {
+        group.remove(this);
+        groups.remove(group);
+        LOGGER.info("Session {} removed from group {}", this, group);
+    }
+
     public void addToGroups(Collection<Group> groups) {
         groups.forEach(this::addToGroup);
+    }
+
+    public void removeFromGroups(Collection<Group> groups) {
+        groups.forEach(this::removeFromGroup);
     }
 
     public Collection<Group> getGroups() {

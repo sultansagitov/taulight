@@ -30,7 +30,7 @@ public class ClientProtocol {
         io.chainManager.removeChain(symKeyChain);
     }
 
-    public static Collection<String> GROUP(@NotNull IOController io, Collection<String> groups)
+    public static Collection<String> addToGroups(@NotNull IOController io, Collection<String> groups)
             throws InterruptedException, ExpectedMessageException {
         GroupClientChain groupClientChain = new GroupClientChain(io, groups);
         io.chainManager.linkChain(groupClientChain);
@@ -39,7 +39,17 @@ public class ClientProtocol {
         return groupClientChain.groupNames;
     }
 
-    public static Collection<String> GROUP(IOController io) throws ExpectedMessageException, InterruptedException {
-        return GROUP(io, Set.of());
+    public static Collection<String> getGroups(@NotNull IOController io)
+            throws ExpectedMessageException, InterruptedException {
+        return addToGroups(io, Set.of());
+    }
+
+    public static Collection<String> removeFromGroups(@NotNull IOController io, Collection<String> groups)
+            throws InterruptedException, ExpectedMessageException {
+        GroupClientChain groupClientChain = GroupClientChain.remove(io, groups);
+        io.chainManager.linkChain(groupClientChain);
+        groupClientChain.sync();
+        io.chainManager.removeChain(groupClientChain);
+        return groupClientChain.groupNames;
     }
 }

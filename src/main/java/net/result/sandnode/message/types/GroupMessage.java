@@ -22,10 +22,6 @@ public class GroupMessage extends Message {
     @Unmodifiable
     private final Collection<String> groupNames;
 
-    public GroupMessage(@NotNull Collection<String> groupNames) {
-        this(new Headers(), groupNames);
-    }
-
     public GroupMessage(@NotNull Headers headers, @NotNull Collection<String> groupNames) {
         super(headers.setType(MessageTypes.GROUP));
         Set<String> filteredGroupNames = new HashSet<>();
@@ -37,7 +33,7 @@ public class GroupMessage extends Message {
 
             String str = s.trim().toLowerCase();
 
-            if (!str.matches("\\w+")) {
+            if (!str.matches("^#?[a-z0-9_]+$")) {
                 LOGGER.warn("Skipping invalid group name: {}", s);
                 continue;
             }
@@ -45,6 +41,10 @@ public class GroupMessage extends Message {
             filteredGroupNames.add(str);
         }
         this.groupNames = filteredGroupNames;
+    }
+
+    public GroupMessage(@NotNull Collection<String> groupNames) {
+        this(new Headers(), groupNames);
     }
 
     public GroupMessage(@NotNull IMessage message) throws ExpectedMessageException {
@@ -56,9 +56,10 @@ public class GroupMessage extends Message {
                 .map(String::trim)
                 .filter(s -> !s.isEmpty())
                 .map(String::toLowerCase)
-                .filter(str -> str.matches("\\w+"))
-                .map("#%s"::formatted)
+                .filter(str -> str.matches("^#?[a-z0-9_]+$"))
+                .map(str -> str.startsWith("#") ? str : "#" + str)
                 .collect(Collectors.toSet());
+
     }
 
     public Collection<String> getGroupNames() {

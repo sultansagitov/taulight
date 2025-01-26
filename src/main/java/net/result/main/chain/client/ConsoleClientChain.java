@@ -65,15 +65,21 @@ public class ConsoleClientChain extends ClientChain {
                 LOGGER.info("All client chains: {}", chains);
                 LOGGER.info("All named client chains: {}", map);
 
-            } else if (input.equalsIgnoreCase("group")) {
-                var groups = ClientProtocol.GROUP(io);
+            } else if (input.equalsIgnoreCase("groups")) {
+                var groups = ClientProtocol.getGroups(io);
                 LOGGER.info("Your groups: {}", groups);
 
-            } else if (input.startsWith("group ")) {
+            } else if (input.startsWith("addGroup ")) {
                 String substring = input.substring(input.indexOf(" ") + 1);
                 Collection<String> groups = Arrays.stream(substring.split(" ")).collect(Collectors.toSet());
-                Collection<String> groupsAfter = ClientProtocol.GROUP(io, groups);
-                LOGGER.info("Your groups now: {}", groupsAfter);
+                Collection<String> groupsAfterAdding = ClientProtocol.addToGroups(io, groups);
+                LOGGER.info("Your groups now (after adding): {}", groupsAfterAdding);
+
+            } else if (input.startsWith("rmGroup ")) {
+                String substring = input.substring(input.indexOf(" ") + 1);
+                Collection<String> groups = Arrays.stream(substring.split(" ")).collect(Collectors.toSet());
+                Collection<String> groupsAfterRemoving = ClientProtocol.removeFromGroups(io, groups);
+                LOGGER.info("Your groups now (after removing): {}", groupsAfterRemoving);
 
             } else if (input.equalsIgnoreCase("tauChatGet")) {
                 Optional<Chain> tau = io.chainManager.getChain("tau");
