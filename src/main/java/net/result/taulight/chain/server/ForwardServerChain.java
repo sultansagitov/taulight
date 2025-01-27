@@ -44,7 +44,7 @@ public class ForwardServerChain extends ServerChain {
             String chatID = forwardMessage.getChatID();
             if (chatID == null) {
                 LOGGER.error("Forward message contains null chatID");
-                return;
+                continue;
             }
 
             Optional<TauChat> tauChat = chatManager.find(chatID);

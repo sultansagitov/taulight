@@ -43,7 +43,9 @@ public class TaulightServerChain extends ServerChain {
                     send(new TaulightResponseMessage(new TaulightResponseData(GET, set)));
                 }
                 case ADD -> {
-                    chatManager.find(request.getChatID()).ifPresent(chat -> chatManager.addMember(chat, session.member));
+                    chatManager
+                            .find(request.getChatID())
+                            .ifPresent(chat -> chatManager.addMember(chat, session.member));
                     send(new TaulightResponseMessage(new TaulightResponseData(ADD)));
                 }
                 case REMOVE -> {
