@@ -70,14 +70,12 @@ public class ConsoleClientChain extends ClientChain {
                 LOGGER.info("Your groups: {}", groups);
 
             } else if (input.startsWith("addGroup ")) {
-                String substring = input.substring(input.indexOf(" ") + 1);
-                Collection<String> groups = Arrays.stream(substring.split(" ")).collect(Collectors.toSet());
+                Collection<String> groups = Arrays.stream(input.split("\\s+")).skip(1).collect(Collectors.toSet());
                 Collection<String> groupsAfterAdding = ClientProtocol.addToGroups(io, groups);
                 LOGGER.info("Your groups now (after adding): {}", groupsAfterAdding);
 
             } else if (input.startsWith("rmGroup ")) {
-                String substring = input.substring(input.indexOf(" ") + 1);
-                Collection<String> groups = Arrays.stream(substring.split(" ")).collect(Collectors.toSet());
+                Collection<String> groups = Arrays.stream(input.split("\\s+")).skip(1).collect(Collectors.toSet());
                 Collection<String> groupsAfterRemoving = ClientProtocol.removeFromGroups(io, groups);
                 LOGGER.info("Your groups now (after removing): {}", groupsAfterRemoving);
 
@@ -96,7 +94,7 @@ public class ConsoleClientChain extends ClientChain {
                 }
 
             } else if (input.startsWith(": ")) {
-                currentChat = input.split(" ")[1];
+                currentChat = input.split("\\s+")[1];
 
             } else if (currentChat.isEmpty()) {
                 System.out.println("chat not selected");
