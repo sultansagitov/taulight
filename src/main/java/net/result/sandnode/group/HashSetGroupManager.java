@@ -30,6 +30,11 @@ public class HashSetGroupManager implements GroupManager {
     }
 
     @Override
+    public void add(Group group) {
+        groups.add(group);
+    }
+
+    @Override
     public Optional<Group> getGroupOptional(@NotNull String groupID) {
         return groups.stream().filter(group -> group.getID().equals(groupID)).findFirst();
     }

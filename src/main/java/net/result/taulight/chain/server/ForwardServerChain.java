@@ -63,9 +63,7 @@ public class ForwardServerChain extends ServerChain {
                 continue;
             }
 
-            for (Session s : tauHub.getAgents()) {
-                if (!members.contains(s.member)) continue;
-
+            for (Session s : chat.group.getSessions()) {
                 Optional<Chain> fwd = s.io.chainManager.getChain("fwd");
 
                 if (fwd.isEmpty()) {

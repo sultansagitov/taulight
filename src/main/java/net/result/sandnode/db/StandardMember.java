@@ -1,9 +1,15 @@
 package net.result.sandnode.db;
 
+import net.result.sandnode.serverclient.Session;
+
+import java.util.Collection;
+import java.util.HashSet;
+
 public class StandardMember implements Member {
     private final String memberID;
     private final String password;
     private final Database database;
+    private final Collection<Session> sessions = new HashSet<>();
 
     public StandardMember(String memberID, String password, Database database) {
         this.memberID = memberID;
@@ -24,6 +30,11 @@ public class StandardMember implements Member {
     @Override
     public Database getDatabase() {
         return database;
+    }
+
+    @Override
+    public Collection<Session> getSessions() {
+        return sessions;
     }
 
     @Override

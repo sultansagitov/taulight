@@ -29,5 +29,6 @@ public class TauChatManager {
 
     public void addMember(TauChat chat, Member member) {
         chat.getMembers().add(member);
+        member.getSessions().forEach(session -> session.addToGroup(chat.group));
     }
 }

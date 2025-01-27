@@ -1,5 +1,9 @@
 package net.result.sandnode.db;
 
+import net.result.sandnode.serverclient.Session;
+
+import java.util.Collection;
+
 public interface Member {
 
     String getID();
@@ -8,4 +12,5 @@ public interface Member {
 
     Database getDatabase();
 
+    Collection<Session> getSessions();
 }

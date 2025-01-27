@@ -29,7 +29,8 @@ public class RunHubWork implements IWork {
     @Override
     public void run() throws SandnodeException {
         ServerPropertiesConfig serverConfig = new ServerPropertiesConfig();
-        serverConfig.setGroupManager(new HashSetGroupManager());
+        HashSetGroupManager manager = new HashSetGroupManager();
+        serverConfig.setGroupManager(manager);
         serverConfig.setDatabase(new InMemoryDatabase());
         serverConfig.setTokenizer(new JWTTokenizer(new JWTConfig("YourSuperSecretKey")));
 
@@ -52,8 +53,8 @@ public class RunHubWork implements IWork {
         GlobalKeyStorage globalKeyStorage = new GlobalKeyStorage(keyStorage);
 
         TauChatManager chatManager = new TauChatManager();
-        chatManager.addNew(new TauChat("first"));
-        chatManager.addNew(new TauChat("second"));
+        chatManager.addNew(new TauChat("first", manager));
+        chatManager.addNew(new TauChat("second", manager));
         TauHub hub = new TauHub(globalKeyStorage, chatManager);
         SandnodeServer server = new SandnodeServer(hub, serverConfig);
         server.start();

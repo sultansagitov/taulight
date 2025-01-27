@@ -41,6 +41,7 @@ public class LoginServerChain extends ServerChain {
         }
 
         session.member = opt.get();
+        session.member.getSessions().add(session);
 
         sendFin(new LoginResponse(session.member));
     }

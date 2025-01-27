@@ -10,4 +10,5 @@ public interface GroupManager {
 
     Group getGroup(@NotNull String groupID);
 
+    void add(Group group);
 }
