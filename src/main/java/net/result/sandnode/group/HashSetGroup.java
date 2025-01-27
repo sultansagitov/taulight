@@ -8,10 +8,10 @@ import java.util.HashSet;
 
 public class HashSetGroup implements Group {
     private final Collection<Session> sessions = new HashSet<>();
-    private final String name;
+    private final String id;
 
-    public HashSetGroup(@NotNull String name) {
-        this.name = name;
+    public HashSetGroup(@NotNull String id) {
+        this.id = id;
     }
 
     @Override
@@ -21,7 +21,7 @@ public class HashSetGroup implements Group {
 
     @Override
     public String getID() {
-        return name;
+        return id;
     }
 
     @Override
