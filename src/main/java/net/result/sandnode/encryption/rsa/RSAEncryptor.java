@@ -42,7 +42,6 @@ public class RSAEncryptor {
         try {
             cipher.init(Cipher.ENCRYPT_MODE, rsaKeyStorage.publicKey());
             encryptedBytes = cipher.doFinal(data);
-            LOGGER.info("Data successfully encrypted with RSA");
         } catch (InvalidKeyException | IllegalBlockSizeException | BadPaddingException e) {
             LOGGER.error("Invalid RSA key has been used", e);
             throw new EncryptionException(e);

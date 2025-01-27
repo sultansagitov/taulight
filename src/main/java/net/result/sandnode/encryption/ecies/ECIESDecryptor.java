@@ -54,7 +54,6 @@ public class ECIESDecryptor {
         } catch (IllegalBlockSizeException | BadPaddingException e) {
             throw new DecryptionException("An error occurred during encryption", e);
         }
-        LOGGER.info("Data successfully decrypted with ECIES");
         return result;
     }
 }

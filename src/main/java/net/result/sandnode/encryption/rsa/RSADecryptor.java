@@ -54,7 +54,6 @@ public class RSADecryptor {
         byte[] result;
         try {
             result = cipher.doFinal(data);
-            LOGGER.info("Data successfully decrypted with RSA");
         } catch (IllegalBlockSizeException | BadPaddingException e) {
             throw new DecryptionException(e);
         }

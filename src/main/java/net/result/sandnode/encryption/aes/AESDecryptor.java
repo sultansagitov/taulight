@@ -51,7 +51,6 @@ public class AESDecryptor {
             throw new DecryptionException(e);
         }
 
-        LOGGER.info("Data successfully decrypted with AES");
         return decrypted;
     }
 }

@@ -23,7 +23,6 @@ public class AESGenerator {
         keyGenerator.init(256);
 
         SecretKey secretKey = keyGenerator.generateKey();
-        LOGGER.info("AES key successfully generated");
         return new AESKeyStorage(secretKey);
     }
 }

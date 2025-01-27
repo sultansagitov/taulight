@@ -60,7 +60,6 @@ public class AESEncryptor {
         byte[] result = new byte[IV_LENGTH + encrypted.length];
         System.arraycopy(iv, 0, result, 0, IV_LENGTH);
         System.arraycopy(encrypted, 0, result, IV_LENGTH, encrypted.length);
-        LOGGER.info("Data successfully encrypted with AES");
         return result;
     }
 

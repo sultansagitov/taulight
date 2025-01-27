@@ -54,7 +54,6 @@ public class ECIESEncryptor {
             throw new EncryptionException("An error occurred during encryption", e);
         }
 
-        LOGGER.info("Data successfully encrypted with ECIES");
         return result;
     }
 }

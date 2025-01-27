@@ -24,7 +24,6 @@ public class RSAGenerator {
         }
 
         KeyPair keyPair = keyGen.generateKeyPair();
-        LOGGER.info("RSA key pair successfully generated");
 
         return new RSAKeyStorage(keyPair);
     }

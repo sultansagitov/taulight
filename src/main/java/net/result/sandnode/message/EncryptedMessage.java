@@ -4,14 +4,11 @@ import net.result.sandnode.exception.UnexpectedSocketDisconnectException;
 import net.result.sandnode.exception.NoSuchEncryptionException;
 import net.result.sandnode.util.StreamReader;
 import net.result.sandnode.encryption.EncryptionManager;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.InputStream;
 
 public class EncryptedMessage {
-    private static final Logger LOGGER = LogManager.getLogger(EncryptedMessage.class);
     public final int version;
     public final byte encryptionByte;
     public final byte[] headersBytes;
@@ -32,9 +29,7 @@ public class EncryptedMessage {
         byte[] headersBytes = StreamReader.readN(in, headersLength, "headers");
         int bodyLength = StreamReader.readInt(in, "body length");
         byte[] bodyBytes = StreamReader.readN(in, bodyLength, "body");
-        EncryptedMessage encrypted = new EncryptedMessage(version, encryptionByte, headersBytes, bodyBytes);
-        LOGGER.info("Requested by {}", encrypted.toString());
-        return encrypted;
+        return new EncryptedMessage(version, encryptionByte, headersBytes, bodyBytes);
     }
 
     @Override
