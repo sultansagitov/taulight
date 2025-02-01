@@ -10,6 +10,7 @@ import net.result.sandnode.group.HashSetGroupManager;
 import net.result.sandnode.tokens.JWTConfig;
 import net.result.sandnode.tokens.JWTTokenizer;
 import net.result.taulight.TauChatManager;
+import net.result.taulight.HashSetTauChatManager;
 import net.result.taulight.TauHub;
 import net.result.main.config.ServerPropertiesConfig;
 import net.result.sandnode.serverclient.SandnodeServer;
@@ -52,7 +53,7 @@ public class RunHubWork implements IWork {
         AsymmetricKeyStorage keyStorage = mainEncryption.merge(publicKeyStorage, privateKeyStorage);
         GlobalKeyStorage globalKeyStorage = new GlobalKeyStorage(keyStorage);
 
-        TauChatManager chatManager = new TauChatManager();
+        TauChatManager chatManager = new HashSetTauChatManager();
         chatManager.addNew(new TauChat("first", manager));
         chatManager.addNew(new TauChat("second", manager));
         TauHub hub = new TauHub(globalKeyStorage, chatManager);
