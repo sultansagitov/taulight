@@ -9,7 +9,7 @@ import net.result.sandnode.group.GroupManager;
 import net.result.taulight.TauChatManager;
 import net.result.taulight.TauErrors;
 import net.result.taulight.TauHub;
-import net.result.taulight.message.OnlineResponseMessage;
+import net.result.taulight.message.types.OnlineResponseMessage;
 import net.result.taulight.message.types.TaulightRequestMessage;
 import net.result.taulight.message.types.TaulightResponseMessage;
 import net.result.taulight.message.types.TaulightResponseMessage.TaulightResponseData;

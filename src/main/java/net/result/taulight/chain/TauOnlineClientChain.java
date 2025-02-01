@@ -4,8 +4,8 @@ import net.result.sandnode.chain.client.ClientChain;
 import net.result.sandnode.exception.*;
 import net.result.sandnode.message.IMessage;
 import net.result.sandnode.util.IOController;
-import net.result.taulight.message.OnlineRequestMessage;
-import net.result.taulight.message.OnlineResponseMessage;
+import net.result.taulight.message.types.OnlineRequestMessage;
+import net.result.taulight.message.types.OnlineResponseMessage;
 
 import java.util.Collection;
 

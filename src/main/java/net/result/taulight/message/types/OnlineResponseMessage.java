@@ -1,4 +1,4 @@
-package net.result.taulight.message;
+package net.result.taulight.message.types;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import net.result.sandnode.exception.DeserializationException;

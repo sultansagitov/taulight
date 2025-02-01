@@ -1,4 +1,4 @@
-package net.result.taulight.message;
+package net.result.taulight.message.types;
 
 import net.result.sandnode.message.EmptyMessage;
 import net.result.sandnode.message.util.Headers;
