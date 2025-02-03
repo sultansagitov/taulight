@@ -56,7 +56,7 @@ public class Session {
     public void addToGroup(Group group) {
         groups.add(group);
         group.add(this);
-        LOGGER.info("Session {} added to group {}", this, group);
+        LOGGER.info("{} added to group {}", this, group);
     }
 
     private void removeFromGroup(Group group) {

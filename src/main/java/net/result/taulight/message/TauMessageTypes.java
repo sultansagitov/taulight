@@ -6,9 +6,10 @@ import net.result.sandnode.message.util.MessageTypeManager;
 import java.util.Arrays;
 
 public enum TauMessageTypes implements MessageType {
-    ONL(10),
     FWD(12),
-    TAULIGHT(13);
+    TAULIGHT(13),
+    CHANNEL(14),
+    FWD_REQ(15);
 
     private final byte type;
 

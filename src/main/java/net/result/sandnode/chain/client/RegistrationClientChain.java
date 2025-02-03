@@ -7,9 +7,8 @@ import net.result.sandnode.message.types.RegistrationRequest;
 import net.result.sandnode.message.types.RegistrationResponse;
 import net.result.sandnode.error.Errors;
 import net.result.sandnode.error.SandnodeError;
+import net.result.sandnode.message.util.MessageTypes;
 import net.result.sandnode.util.IOController;
-
-import static net.result.sandnode.message.util.MessageTypes.ERR;
 
 public class RegistrationClientChain extends ClientChain {
     public String token;
@@ -30,7 +29,7 @@ public class RegistrationClientChain extends ClientChain {
 
         IMessage response = queue.take();
 
-        if (response.getHeaders().getType() == ERR) {
+        if (response.getHeaders().getType() == MessageTypes.ERR) {
             ErrorMessage errorMessage = new ErrorMessage(response);
             SandnodeError type = errorMessage.error;
             if (type instanceof Errors enumError) {

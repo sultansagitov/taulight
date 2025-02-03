@@ -24,15 +24,18 @@ public class HashSetTauChatManager implements TauChatManager {
     }
 
     @Override
-    public Optional<TauChat> find(String groupID) {
-        return chats.stream()
-                .filter(chat -> chat.getID().equals(groupID))
-                .findFirst();
+    public Optional<TauChat> find(String chatID) {
+        return chats.stream().filter(chat -> chat.getID().equals(chatID)).findFirst();
     }
 
     @Override
     public void addMember(TauChat chat, Member member) {
         chat.getMembers().add(member);
         member.getSessions().forEach(session -> session.addToGroup(chat.group));
+    }
+
+    @Override
+    public Optional<TauChat> get(String id) {
+        return chats.stream().filter(chat -> chat.getID().equals(id)).findFirst();
     }
 }

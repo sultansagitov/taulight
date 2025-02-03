@@ -11,7 +11,9 @@ public interface TauChatManager {
 
     void addNew(TauChat chat);
 
-    Optional<TauChat> find(String groupID);
+    Optional<TauChat> find(String chatID);
 
     void addMember(TauChat chat, Member member);
+
+    Optional<TauChat> get(String id);
 }

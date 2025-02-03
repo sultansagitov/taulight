@@ -6,6 +6,7 @@ import net.result.sandnode.exception.ExpectedMessageException;
 import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.message.types.RequestChainNameMessage;
 import net.result.sandnode.util.IOController;
+import net.result.taulight.message.types.ForwardMessage;
 import net.result.taulight.message.types.TimedForwardMessage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -23,6 +24,7 @@ public class ForwardClientChain extends ClientChain {
 
     @Override
     public void sync() throws InterruptedException, DeserializationException, ExpectedMessageException {
+        send(new ForwardMessage(new ForwardMessage.ForwardData()));
         send(new RequestChainNameMessage("fwd"));
 
         while (io.connected) {

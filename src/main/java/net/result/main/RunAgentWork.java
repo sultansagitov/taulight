@@ -1,6 +1,6 @@
 package net.result.main;
 
-import net.result.main.chain.client.ConsoleClientChain;
+import net.result.main.chain.client.ConsoleForwardRequestClientChain;
 import net.result.main.chain.ConsoleClientChainManager;
 import net.result.main.config.ClientPropertiesConfig;
 import net.result.sandnode.hubagent.AgentProtocol;
@@ -87,7 +87,7 @@ public class RunAgentWork implements IWork {
 
     private static void startConsoleChain(IOController io)
             throws InterruptedException, ExpectedMessageException, DeserializationException {
-        ConsoleClientChain consoleChain = new ConsoleClientChain(io);
+        ConsoleForwardRequestClientChain consoleChain = new ConsoleForwardRequestClientChain(io);
         io.chainManager.linkChain(consoleChain);
         consoleChain.sync();
         io.chainManager.removeChain(consoleChain);

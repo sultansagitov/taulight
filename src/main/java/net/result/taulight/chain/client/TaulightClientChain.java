@@ -7,6 +7,7 @@ import net.result.sandnode.exception.ImpossibleRuntimeException;
 import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.message.types.ErrorMessage;
 import net.result.sandnode.error.SandnodeError;
+import net.result.sandnode.message.util.MessageTypes;
 import net.result.sandnode.util.IOController;
 import net.result.taulight.message.types.TaulightRequestMessage;
 import net.result.taulight.message.DataType;
@@ -18,8 +19,6 @@ import java.util.Collection;
 import java.util.Optional;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
-
-import static net.result.sandnode.message.util.MessageTypes.ERR;
 
 public class TaulightClientChain extends ClientChain {
     private static final Logger LOGGER = LogManager.getLogger(TaulightClientChain.class);
@@ -51,7 +50,7 @@ public class TaulightClientChain extends ClientChain {
             send(new TaulightRequestMessage(DataType.GET));
             RawMessage raw = queue.take();
 
-            if (raw.getHeaders().getType() == ERR) {
+            if (raw.getHeaders().getType() == MessageTypes.ERR) {
                 handleError(raw);
                 return Optional.empty();
             }
@@ -69,7 +68,7 @@ public class TaulightClientChain extends ClientChain {
             send(new TaulightRequestMessage(TaulightRequestMessage.TaulightRequestData.addGroup(group)));
             RawMessage raw = queue.take();
 
-            if (raw.getHeaders().getType() == ERR) {
+            if (raw.getHeaders().getType() == MessageTypes.ERR) {
                 handleError(raw);
             }
         } finally {

@@ -33,4 +33,9 @@ public class HashSetGroup implements Group {
     public void remove(@NotNull Session session) {
         sessions.remove(session);
     }
+
+    @Override
+    public String toString() {
+        return "<%s %s %d>".formatted(getClass().getSimpleName(), id, sessions.size());
+    }
 }

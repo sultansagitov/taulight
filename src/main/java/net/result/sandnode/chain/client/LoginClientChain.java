@@ -7,9 +7,8 @@ import net.result.sandnode.message.types.LoginRequest;
 import net.result.sandnode.message.types.LoginResponse;
 import net.result.sandnode.error.Errors;
 import net.result.sandnode.error.SandnodeError;
+import net.result.sandnode.message.util.MessageTypes;
 import net.result.sandnode.util.IOController;
-
-import static net.result.sandnode.message.util.MessageTypes.ERR;
 
 public class LoginClientChain extends ClientChain {
     private final String token;
@@ -28,7 +27,7 @@ public class LoginClientChain extends ClientChain {
 
         IMessage message = queue.take();
 
-        if (message.getHeaders().getType() == ERR) {
+        if (message.getHeaders().getType() == MessageTypes.ERR) {
             ErrorMessage errorMessage = new ErrorMessage(message);
             SandnodeError error = errorMessage.error;
             if (error instanceof Errors enumError) {

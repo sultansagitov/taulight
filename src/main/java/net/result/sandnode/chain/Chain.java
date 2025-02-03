@@ -24,10 +24,7 @@ public abstract class Chain implements Searchable<Chain, Short> {
         queue = new LinkedBlockingQueue<>();
     }
 
-    public abstract void sync() throws InterruptedException, EncryptionTypeException, NoSuchEncryptionException,
-            CreatingKeyException, ExpectedMessageException, BusyMemberIDException, KeyNotCreatedException,
-            DataNotEncryptedException, MemberNotFoundException, DeserializationException, InvalidTokenException,
-            InvalidMemberIDPassword;
+    public abstract void sync() throws Exception;
 
     public void put(RawMessage message) throws InterruptedException {
         queue.put(message);
@@ -51,8 +48,9 @@ public abstract class Chain implements Searchable<Chain, Short> {
             Thread.currentThread().setName(threadName);
 
             try {
+                LOGGER.info("{} started in new thread", this);
                 sync();
-            } catch (InterruptedException | SandnodeException e) {
+            } catch (Exception e) {
                 LOGGER.error("Error in chain {}", getClass().toString(), e);
                 throw new ImpossibleRuntimeException(e);
             }
@@ -73,14 +71,17 @@ public abstract class Chain implements Searchable<Chain, Short> {
         return true;
     }
 
+    @Override
     public int compareTo(Chain chain) {
         return compareID(chain.getID());
     }
 
+    @Override
     public int compareID(Short id) {
         return ((Comparable<Short>) getID()).compareTo(id);
     }
 
+    @Override
     public String toString() {
         return "<%s cid=%s>".formatted(getClass().getSimpleName(), String.format("%04X", getID()));
     }
