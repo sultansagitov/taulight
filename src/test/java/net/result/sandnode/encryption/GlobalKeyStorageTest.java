@@ -63,7 +63,7 @@ class GlobalKeyStorageTest {
     }
 
     @Test
-    void testGetAsymmetricNonNullThrowsExceptionWhenNotFound() {
+    void testGetForECIESReturnsEmptyOptional() {
         assertTrue(globalKeyStorage.get(ECIES).isEmpty());
     }
 
