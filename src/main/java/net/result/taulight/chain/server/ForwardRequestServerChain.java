@@ -12,7 +12,6 @@ import net.result.taulight.TauHub;
 import net.result.taulight.message.types.ForwardMessage;
 import net.result.taulight.message.types.ForwardRequest;
 import net.result.taulight.message.types.TimedForwardMessage;
-import net.result.taulight.messenger.TauChannel;
 import net.result.taulight.messenger.TauChat;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

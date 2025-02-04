@@ -13,8 +13,6 @@ public class TaulightRequestMessage extends MSGPackMessage<TaulightRequestMessag
 
     public static class TaulightRequestData {
         @JsonProperty
-        public String message;
-        @JsonProperty
         public DataType dataType;
         @JsonProperty
         public String chatID;

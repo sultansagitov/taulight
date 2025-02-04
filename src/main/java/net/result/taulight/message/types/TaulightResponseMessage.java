@@ -22,14 +22,11 @@ public class TaulightResponseMessage extends MSGPackMessage<TaulightResponseMess
         @JsonProperty
         Collection<String> chats;
 
+        @SuppressWarnings("unused")
         public TaulightResponseData() {}
         public TaulightResponseData(DataType messageType, Collection<String> chats) {
             this.messageType = messageType;
             this.chats = chats;
-        }
-
-        public TaulightResponseData(DataType messageType) {
-            this.messageType = messageType;
         }
 
         public static TaulightResponseData get(Collection<TauChat> chats) {
