@@ -34,7 +34,7 @@ public class ForwardRequestServerChain extends ServerChain {
 
         new ForwardRequest(queue.take());
 
-        while (io.connected) {
+        while (true) {
             ForwardMessage forwardMessage = new ForwardMessage(queue.take());
 
             ZonedDateTime ztd = ZonedDateTime.now(ZoneId.of("UTC"));
@@ -43,14 +43,14 @@ public class ForwardRequestServerChain extends ServerChain {
             String chatID = forwardMessage.getChatID();
             if (chatID == null) {
                 LOGGER.error("Forward message contains null chatID");
+                send(Errors.TOO_FEW_ARGS.message());
                 continue;
             }
 
             Optional<TauChat> tauChat = chatManager.find(chatID);
-
             if (tauChat.isEmpty()) {
-                send(TauErrors.CHAT_NOT_FOUND.message());
                 LOGGER.warn("Attempted to add member to a non-existent chat: {}", chatID);
+                send(TauErrors.CHAT_NOT_FOUND.message());
                 continue;
             }
 
@@ -58,10 +58,12 @@ public class ForwardRequestServerChain extends ServerChain {
             var members = chat.getMembers();
 
             if (!members.contains(session.member)) {
+                LOGGER.warn("Unauthorized access attempt by member: {}", session.member);
                 send(Errors.UNAUTHORIZED.message());
                 continue;
             }
 
+            boolean forwarded = false;
             for (Session s : chat.group.getSessions()) {
                 Optional<Chain> fwd = s.io.chainManager.getChain("fwd");
 
@@ -72,6 +74,13 @@ public class ForwardRequestServerChain extends ServerChain {
 
                 fwd.get().send(new TimedForwardMessage(forwardMessage, ztd, session.member));
                 LOGGER.info("Message forwarded to session: {}", s);
+                forwarded = true;
+            }
+
+            if (!forwarded) {
+                LOGGER.warn("Message forwarding failed for chat: {}", chatID);
+                send(TauErrors.MESSAGE_NOT_FORWARDED.message());
+                continue;
             }
 
             send(new HappyMessage());

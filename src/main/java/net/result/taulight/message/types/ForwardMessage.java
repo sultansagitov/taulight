@@ -6,8 +6,7 @@ import net.result.sandnode.exception.ExpectedMessageException;
 import net.result.sandnode.message.IMessage;
 import net.result.sandnode.message.util.Headers;
 import net.result.sandnode.message.MSGPackMessage;
-
-import static net.result.taulight.message.TauMessageTypes.FWD;
+import net.result.taulight.message.TauMessageTypes;
 
 public class ForwardMessage extends MSGPackMessage<ForwardMessage.ForwardData> {
     public static class ForwardData {
@@ -25,11 +24,11 @@ public class ForwardMessage extends MSGPackMessage<ForwardMessage.ForwardData> {
     }
 
     public ForwardMessage(IMessage request) throws DeserializationException, ExpectedMessageException {
-        super(request.expect(FWD), ForwardData.class);
+        super(request.expect(TauMessageTypes.FWD_REQ), ForwardData.class);
     }
 
     public ForwardMessage(Headers headers, ForwardData data) {
-        super(headers.setType(FWD), data);
+        super(headers.setType(TauMessageTypes.FWD_REQ), data);
     }
 
     public ForwardMessage(ForwardData data) {

@@ -77,7 +77,7 @@ public abstract class BSTChainManager implements ChainManager {
         } else {
             try {
                 Chain aNew = createNew(message);
-                if (aNew.isChainStartAllowed()) aNew.async(executorService);
+                if (aNew.isChainStartAllowed()) aNew.async(executorService, this);
                 chain = aNew;
             } catch (BusyChainID e) {
                 throw new RuntimeException(e);

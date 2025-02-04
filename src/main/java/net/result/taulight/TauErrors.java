@@ -7,7 +7,8 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
 public enum TauErrors implements SandnodeError {
-    CHAT_NOT_FOUND(4000, "Chat not found");
+    CHAT_NOT_FOUND(4000, "Chat not found"),
+    MESSAGE_NOT_FORWARDED(4001, "Message not forwarded");
 
     private final int code;
     private final String desc;

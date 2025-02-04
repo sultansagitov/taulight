@@ -38,7 +38,7 @@ public abstract class Chain implements Searchable<Chain, Short> {
         this.id = id;
     }
 
-    public void async(ExecutorService executorService) {
+    public void async(ExecutorService executorService, ChainManager chainManager) {
         executorService.submit(() -> {
             String threadName = "%s/%s/%s".formatted(
                     io.getIpString(),
@@ -48,8 +48,10 @@ public abstract class Chain implements Searchable<Chain, Short> {
             Thread.currentThread().setName(threadName);
 
             try {
-                LOGGER.info("{} started in new thread", this);
+                LOGGER.info("{} started in new thread and will be removed", this);
                 sync();
+                LOGGER.info("Removing {}", this);
+                chainManager.removeChain(this);
             } catch (Exception e) {
                 LOGGER.error("Error in chain {}", getClass().toString(), e);
                 throw new ImpossibleRuntimeException(e);

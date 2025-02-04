@@ -96,7 +96,7 @@ public class RunAgentWork implements IWork {
     private static void startForwardChain(ExecutorService executorService, IOController io) {
         ForwardClientChain fwd = new ForwardClientChain(io);
         io.chainManager.linkChain(fwd);
-        fwd.async(executorService);
+        fwd.async(executorService, io.chainManager);
     }
 
     private static void getPublicKey(SandnodeClient client, TauAgent agent, SandnodeLinkRecord link)

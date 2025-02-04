@@ -7,10 +7,9 @@ import net.result.sandnode.exception.ExpectedMessageException;
 import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.message.MSGPackMessage;
 import net.result.sandnode.db.Member;
+import net.result.taulight.message.TauMessageTypes;
 
 import java.time.ZonedDateTime;
-
-import static net.result.taulight.message.TauMessageTypes.FWD;
 
 public class TimedForwardMessage extends MSGPackMessage<TimedForwardMessage.TimedForwardData> {
     public static class TimedForwardData extends ForwardMessage.ForwardData {
@@ -29,7 +28,7 @@ public class TimedForwardMessage extends MSGPackMessage<TimedForwardMessage.Time
     }
 
     public TimedForwardMessage(ForwardMessage forwardMessage, ZonedDateTime zdt, Member member) {
-        super(forwardMessage.getHeaders(), new TimedForwardData(
+        super(forwardMessage.getHeaders().setType(TauMessageTypes.FWD), new TimedForwardData(
                 forwardMessage.getChatID(),
                 forwardMessage.getData(),
                 zdt,
@@ -38,7 +37,7 @@ public class TimedForwardMessage extends MSGPackMessage<TimedForwardMessage.Time
     }
 
     public TimedForwardMessage(RawMessage message) throws DeserializationException, ExpectedMessageException {
-        super(message.expect(FWD), TimedForwardData.class);
+        super(message.expect(TauMessageTypes.FWD), TimedForwardData.class);
     }
 
     public String getData() {
