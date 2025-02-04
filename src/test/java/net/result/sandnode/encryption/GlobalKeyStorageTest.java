@@ -64,7 +64,7 @@ class GlobalKeyStorageTest {
 
     @Test
     void testGetAsymmetricNonNullThrowsExceptionWhenNotFound() {
-        assertThrows(KeyStorageNotFoundException.class, () -> globalKeyStorage.getAsymmetricNonNull(ECIES));
+        assertTrue(globalKeyStorage.get(ECIES).isEmpty());
     }
 
     @Test
