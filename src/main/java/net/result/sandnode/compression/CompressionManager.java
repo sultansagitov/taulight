@@ -3,6 +3,7 @@ package net.result.sandnode.compression;
 import net.result.sandnode.util.Manager;
 
 import java.util.Arrays;
+import java.util.Optional;
 
 public class CompressionManager extends Manager<Compression> {
     private static final CompressionManager INSTANCE = new CompressionManager();
@@ -18,5 +19,9 @@ public class CompressionManager extends Manager<Compression> {
     @Override
     protected void handleOverflow(Compression compression) {
         list.removeIf(e -> e.name().equals(compression.name()));
+    }
+
+    public Optional<Compression> find(String name) {
+        return list.stream().filter(c -> c.name().equalsIgnoreCase(name)).findFirst();
     }
 }

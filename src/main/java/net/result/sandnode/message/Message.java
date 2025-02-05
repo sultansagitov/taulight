@@ -1,5 +1,8 @@
 package net.result.sandnode.message;
 
+import net.result.sandnode.compression.Compression;
+import net.result.sandnode.compression.CompressionManager;
+import net.result.sandnode.compression.Compressions;
 import net.result.sandnode.exception.*;
 import net.result.sandnode.message.util.Headers;
 import net.result.sandnode.encryption.EncryptionManager;
@@ -12,6 +15,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.Optional;
 
 import static net.result.sandnode.encryption.Encryptions.NONE;
 
@@ -57,7 +61,24 @@ public abstract class Message implements IMessage {
             throw new ImpossibleRuntimeException(e);
         }
 
-        RawMessage request = new RawMessage(headers, decryptedBody);
+        Optional<String> optHeader = headers.getOptionalValue("comp");
+        Compression compression = optHeader
+            .map(
+                s -> CompressionManager.instance()
+                    .find(s)
+                    .orElse(Compressions.NONE)
+            )
+            .orElse(Compressions.NONE);
+
+        byte[] decompressed;
+        try {
+            decompressed = compression.decompress(decryptedBody);
+        } catch (IOException e) {
+            LOGGER.error("Using not decompressed body", e);
+            decompressed = decryptedBody;
+        }
+
+        RawMessage request = new RawMessage(headers, decompressed);
         request.setHeadersEncryption(headersEncryption);
         LOGGER.info("Requested by {}", request);
         return request;
