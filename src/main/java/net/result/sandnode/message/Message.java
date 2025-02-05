@@ -87,10 +87,10 @@ public abstract class Message implements IMessage {
     @Override
     public byte[] toByteArray(@NotNull GlobalKeyStorage globalKeyStorage)
             throws EncryptionException, MessageSerializationException, IllegalMessageLengthException {
-        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        ByteArrayOutputStream result = new ByteArrayOutputStream();
         Encryption encryption = getHeadersEncryption();
-        byteArrayOutputStream.write(1); // Version
-        byteArrayOutputStream.write(encryption.asByte()); // Headers encryption
+        result.write(1); // Version
+        result.write(encryption.asByte()); // Headers encryption
 
         try {
             byte[] headersBytes = getHeaders().toByteArray();
@@ -107,9 +107,9 @@ public abstract class Message implements IMessage {
                 throw new IllegalMessageLengthException(this, "Header length exceeds 65535: %d".formatted(lengthInt));
             }
             short length = (short) lengthInt;
-            byteArrayOutputStream.write((length >> 8) & 0xFF);
-            byteArrayOutputStream.write(length & 0xFF);
-            byteArrayOutputStream.write(encryptedHeaders);
+            result.write((length >> 8) & 0xFF);
+            result.write(length & 0xFF);
+            result.write(encryptedHeaders);
         } catch (IOException e) {
             throw new MessageSerializationException(this, "Failed to serialize message headers", e);
         } catch (HeadersSerializationException | NullPointerException e) {
@@ -124,24 +124,24 @@ public abstract class Message implements IMessage {
             byte[] bodyBytes = getBody();
             Encryption bodyEncryption = getHeaders().getBodyEncryption();
             KeyStorage keyStorage = globalKeyStorage.getNonNull(bodyEncryption);
-            byte[] encryptionBody;
+            byte[] encryptedBody;
             try {
-                encryptionBody = bodyEncryption.encryptBytes(bodyBytes, keyStorage);
+                encryptedBody = bodyEncryption.encryptBytes(bodyBytes, keyStorage);
             } catch (CannotUseEncryption e) {
                 throw new ImpossibleRuntimeException(e);
             }
 
-            int length = encryptionBody.length;
-            byteArrayOutputStream.write((length >> 24) & 0xFF);
-            byteArrayOutputStream.write((length >> 16) & 0xFF);
-            byteArrayOutputStream.write((length >> 8) & 0xFF);
-            byteArrayOutputStream.write(length & 0xFF);
-            byteArrayOutputStream.write(encryptionBody);
+            int length = encryptedBody.length;
+            result.write((length >> 24) & 0xFF);
+            result.write((length >> 16) & 0xFF);
+            result.write((length >> 8) & 0xFF);
+            result.write(length & 0xFF);
+            result.write(encryptedBody);
         } catch (IOException e) {
             throw new MessageSerializationException(this, "Failed to serialize message body", e);
         }
 
-        return byteArrayOutputStream.toByteArray();
+        return result.toByteArray();
     }
 
     @Override
