@@ -5,9 +5,7 @@ import net.result.sandnode.config.ClientConfig;
 import net.result.sandnode.config.ServerConfig;
 import net.result.sandnode.config.ServerConfigRecord;
 import net.result.sandnode.encryption.SymmetricEncryptions;
-import net.result.sandnode.exception.ImpossibleRuntimeException;
-import net.result.sandnode.exception.ServerStartException;
-import net.result.sandnode.exception.SocketAcceptException;
+import net.result.sandnode.exception.*;
 import net.result.sandnode.hubagent.Agent;
 import net.result.sandnode.hubagent.ClientProtocol;
 import net.result.sandnode.hubagent.Hub;
@@ -18,6 +16,7 @@ import net.result.sandnode.encryption.interfaces.KeyStorage;
 import net.result.sandnode.encryption.interfaces.SymmetricEncryption;
 import net.result.sandnode.message.IMessage;
 import net.result.sandnode.message.RawMessage;
+import net.result.sandnode.message.util.Connection;
 import net.result.sandnode.message.util.Headers;
 import net.result.sandnode.message.util.MessageType;
 import net.result.sandnode.message.util.MessageTypeManager;
@@ -35,13 +34,13 @@ import net.result.sandnode.db.InMemoryDatabase;
 import net.result.sandnode.group.HashSetGroupManager;
 import net.result.sandnode.tokens.JWTConfig;
 import net.result.sandnode.tokens.JWTTokenizer;
-import net.result.taulight.TauAgent;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+import java.net.Socket;
 import java.util.Optional;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
@@ -63,6 +62,7 @@ public class ServerTest {
     private static final AsymmetricEncryptions asymmetricEncryption = ECIES;
     private static final SymmetricEncryptions symmetricEncryption = AES;
     private static final short CHAIN_ID = (short) ((0xAB << 8) + 0xCD);
+    private static int port;
 
     private enum Testing implements MessageType {
         TESTING {
@@ -77,21 +77,21 @@ public class ServerTest {
     public void testMessageTransmission() throws Exception {
         EncryptionManager.registerAll();
 
-        int port = PORT_OFFSET + new Random().nextInt(PORT_RANGE);
+        port = PORT_OFFSET + new Random().nextInt(PORT_RANGE);
         MessageTypeManager.instance().add(Testing.TESTING);
         LOGGER.info("Generated random port: {}", port);
 
         // Server setup
         KeyStorage rsaKeyStorage = asymmetricEncryption.generate();
         GlobalKeyStorage serverKeyStorage = new GlobalKeyStorage(rsaKeyStorage);
-        HubThread hubThread = new HubThread(serverKeyStorage, port);
+        HubThread hubThread = new HubThread(serverKeyStorage);
         hubThread.start();
 
         TestServerChain.lock.lock();
         TestServerChain.condition = TestServerChain.lock.newCondition();
 
         // Client setup
-        AgentThread agentThread = new AgentThread(port);
+        AgentThread agentThread = new AgentThread();
         agentThread.start();
 
         try {
@@ -118,6 +118,13 @@ public class ServerTest {
                 .setChainID(CHAIN_ID);
     }
 
+    private static @NotNull IMessage prepareMessage() {
+        Headers headers = prepareHeaders();
+        IMessage sentMessage = new RawMessage(headers);
+        sentMessage.setHeadersEncryption(AES);
+        return sentMessage;
+    }
+
     private static void validateMessage(IMessage sentMessage, IMessage receivedMessage) {
         // Validate headers
         assertEquals(sentMessage.getHeaders().getConnection(), receivedMessage.getHeaders().getConnection());
@@ -132,25 +139,12 @@ public class ServerTest {
     }
 
     public static class HubThread extends Thread {
-
         public final SandnodeServer server;
         public final Hub hub;
-        private final int port;
 
-        public HubThread(GlobalKeyStorage serverKeyStorage, int port) {
+        public HubThread(GlobalKeyStorage serverKeyStorage) {
             setName("HubThread");
-            this.port = port;
-            hub = new Hub(serverKeyStorage) {
-                @Override
-                public @NotNull ServerChainManager createChainManager() {
-                    return new TestingBSTServerChainManager();
-                }
-
-                @Override
-                protected void addAsAgent(Session session) {
-                    super.addAsAgent(session);
-                }
-            };
+            hub = new TestHub(serverKeyStorage);
 
             ServerConfig serverConfig = new ServerConfigRecord(
                     new Endpoint("localhost", port),
@@ -174,58 +168,22 @@ public class ServerTest {
                 throw new ImpossibleRuntimeException(e);
             }
         }
+
     }
 
-    public static class AgentThread extends Thread {
-        private final int port;
-        public SandnodeClient client;
-
-        public AgentThread(int port) {
-            setName("AgentThread");
-            this.port = port;
+    private static class TestHub extends Hub {
+        public TestHub(GlobalKeyStorage serverKeyStorage) {
+            super(serverKeyStorage);
         }
 
         @Override
-        public void run() {
-            try {
-                Agent agent = new TauAgent();
-                Endpoint endpoint = new Endpoint("localhost", port);
-
-                CustomClientConfig clientConfig = new CustomClientConfig();
-                ConsoleClientChainManager chainManager = new ConsoleClientChainManager();
-                client = new SandnodeClient(endpoint, agent, HUB, clientConfig);
-                client.start(chainManager);
-                ClientProtocol.PUB(client.io);
-                ClientProtocol.sendSYM(client);
-
-                IMessage sentMessage = prepareMessage();
-
-                IOController io = client.io;
-
-                TestClientChain testClientChain = new TestClientChain(io, sentMessage);
-                io.chainManager.linkChain(testClientChain);
-                testClientChain.sync();
-                io.chainManager.removeChain(testClientChain);
-            } catch (Exception e) {
-                LOGGER.error("Client encountered an error.", e);
-                throw new RuntimeException(e);
-            }
-        }
-    }
-
-    private static class CustomClientConfig implements ClientConfig {
-        @Override
-        public @NotNull SymmetricEncryption symmetricKeyEncryption() {
-            return symmetricEncryption;
+        public @NotNull ServerChainManager createChainManager() {
+            return new TestingBSTServerChainManager();
         }
 
         @Override
-        public void saveKey(@NotNull Endpoint endpoint, @NotNull AsymmetricKeyStorage keyStorage) {
-        }
-
-        @Override
-        public Optional<AsymmetricKeyStorage> getPublicKey(@NotNull Endpoint endpoint) {
-            return Optional.empty();
+        protected void addAsAgent(Session session) {
+            super.addAsAgent(session);
         }
     }
 
@@ -271,11 +229,66 @@ public class ServerTest {
         }
     }
 
-    private static @NotNull IMessage prepareMessage() {
-        Headers headers = prepareHeaders();
-        IMessage sentMessage = new RawMessage(headers);
-        sentMessage.setHeadersEncryption(AES);
-        return sentMessage;
+    public static class AgentThread extends Thread {
+        public SandnodeClient client;
+
+        public AgentThread() {
+            setName("AgentThread");
+        }
+
+        @Override
+        public void run() {
+            try {
+                Agent agent = new TestAgent();
+                Endpoint endpoint = new Endpoint("localhost", port);
+
+                TestClientConfig clientConfig = new TestClientConfig();
+                ConsoleClientChainManager chainManager = new ConsoleClientChainManager();
+                client = new SandnodeClient(endpoint, agent, HUB, clientConfig);
+                client.start(chainManager);
+                ClientProtocol.PUB(client.io);
+                ClientProtocol.sendSYM(client);
+
+                IMessage sentMessage = prepareMessage();
+
+                IOController io = client.io;
+
+                TestClientChain testClientChain = new TestClientChain(io, sentMessage);
+                io.chainManager.linkChain(testClientChain);
+                testClientChain.sync();
+                io.chainManager.removeChain(testClientChain);
+            } catch (Exception e) {
+                LOGGER.error("Client encountered an error.", e);
+                throw new RuntimeException(e);
+            }
+        }
+    }
+
+    private static class TestAgent extends Agent {
+        public TestAgent() {
+            super(new GlobalKeyStorage());
+        }
+
+        @Override
+        public @NotNull Session createSession(SandnodeServer server, Socket socket, Connection connection) {
+            return null;
+        }
+    }
+
+    private static class TestClientConfig implements ClientConfig {
+        @Override
+        public @NotNull SymmetricEncryption symmetricKeyEncryption() {
+            return symmetricEncryption;
+        }
+
+        @Override
+        public void saveKey(@NotNull Endpoint endpoint, @NotNull AsymmetricKeyStorage keyStorage) {
+        }
+
+        @Override
+        public Optional<AsymmetricKeyStorage> getPublicKey(@NotNull Endpoint endpoint) {
+            return Optional.empty();
+        }
     }
 
     private static class TestClientChain extends ClientChain {

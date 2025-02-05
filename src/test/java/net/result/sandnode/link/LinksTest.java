@@ -1,17 +1,18 @@
 package net.result.sandnode.link;
 
+import net.result.sandnode.chain.server.ServerChainManager;
 import net.result.sandnode.config.ServerConfig;
 import net.result.sandnode.encryption.EncryptionManager;
 import net.result.sandnode.encryption.GlobalKeyStorage;
 import net.result.sandnode.encryption.interfaces.AsymmetricEncryption;
 import net.result.sandnode.encryption.interfaces.AsymmetricKeyStorage;
 import net.result.sandnode.exception.*;
+import net.result.sandnode.hubagent.Hub;
 import net.result.sandnode.serverclient.SandnodeServer;
 import net.result.sandnode.util.Endpoint;
 import net.result.sandnode.db.Database;
 import net.result.sandnode.group.GroupManager;
 import net.result.sandnode.tokens.Tokenizer;
-import net.result.taulight.TauHub;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
 
@@ -78,7 +79,7 @@ public class LinksTest {
 
     private SandnodeServer createTestServer() {
         return new SandnodeServer(
-            new TauHub(new GlobalKeyStorage(RSA.generate()), null),
+            new TestHub(),
             new TestServerConfig()
         );
     }
@@ -115,6 +116,17 @@ public class LinksTest {
 
         @Override
         public Tokenizer tokenizer() {
+            return null;
+        }
+    }
+
+    private static class TestHub extends Hub {
+        public TestHub() {
+            super(new GlobalKeyStorage(RSA.generate()));
+        }
+
+        @Override
+        protected ServerChainManager createChainManager() {
             return null;
         }
     }
