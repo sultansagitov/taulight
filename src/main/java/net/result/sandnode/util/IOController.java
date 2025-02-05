@@ -1,5 +1,7 @@
 package net.result.sandnode.util;
 
+import net.result.sandnode.compression.CompressionManager;
+import net.result.sandnode.compression.Compressions;
 import net.result.sandnode.encryption.GlobalKeyStorage;
 import net.result.sandnode.encryption.interfaces.*;
 import net.result.sandnode.exception.*;
@@ -62,12 +64,13 @@ public class IOController {
     }
 
     private void beforeSending(IMessage message) {
-        message.getHeaders().setConnection(connection);
+        Headers headers = message.getHeaders();
+        headers.setConnection(connection);
         if (message.getHeadersEncryption() == NONE) {
             message.setHeadersEncryption(getCurrentEncryption());
         }
-        if (message.getHeaders().getBodyEncryption() == NONE) {
-            message.getHeaders().setBodyEncryption(getCurrentEncryption());
+        if (headers.getBodyEncryption() == NONE) {
+            headers.setBodyEncryption(getCurrentEncryption());
         }
         Random random = new SecureRandom();
         String s = "0123456789abcdefghijklmnopqrstuvwxyz!@$%&*()_+-={}[]\"'<>?,./ ~";
@@ -75,7 +78,10 @@ public class IOController {
                 .range(0, random.nextInt(16, 32))
                 .mapToObj(i -> "" + s.charAt(random.nextInt(61)))
                 .collect(Collectors.joining());
-        message.getHeaders().setValue("random", sb);
+        headers.setValue("random", sb);
+
+        if (headers.getOptionalValue(CompressionManager.HEADER_NAME).isEmpty())
+            headers.setValue(CompressionManager.HEADER_NAME, Compressions.DEFLATE.name());
     }
 
     public void sendingLoop() throws InterruptedException, IllegalMessageLengthException,

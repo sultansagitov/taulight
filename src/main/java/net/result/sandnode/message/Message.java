@@ -2,7 +2,6 @@ package net.result.sandnode.message;
 
 import net.result.sandnode.compression.Compression;
 import net.result.sandnode.compression.CompressionManager;
-import net.result.sandnode.compression.Compressions;
 import net.result.sandnode.exception.*;
 import net.result.sandnode.message.util.Headers;
 import net.result.sandnode.encryption.EncryptionManager;
@@ -15,7 +14,6 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.util.Optional;
 
 import static net.result.sandnode.encryption.Encryptions.NONE;
 
@@ -61,14 +59,7 @@ public abstract class Message implements IMessage {
             throw new ImpossibleRuntimeException(e);
         }
 
-        Optional<String> optHeader = headers.getOptionalValue("comp");
-        Compression compression = optHeader
-            .map(
-                s -> CompressionManager.instance()
-                    .find(s)
-                    .orElse(Compressions.NONE)
-            )
-            .orElse(Compressions.NONE);
+        Compression compression = CompressionManager.instance().getFromHeaders(headers);
 
         byte[] decompressed;
         try {
@@ -125,8 +116,12 @@ public abstract class Message implements IMessage {
             Encryption bodyEncryption = getHeaders().getBodyEncryption();
             KeyStorage keyStorage = globalKeyStorage.getNonNull(bodyEncryption);
             byte[] encryptedBody;
+
+            Compression compression = CompressionManager.instance().getFromHeaders(headers);
+
+            byte[] compressed = compression.compress(bodyBytes);
             try {
-                encryptedBody = bodyEncryption.encryptBytes(bodyBytes, keyStorage);
+                encryptedBody = bodyEncryption.encryptBytes(compressed, keyStorage);
             } catch (CannotUseEncryption e) {
                 throw new ImpossibleRuntimeException(e);
             }
