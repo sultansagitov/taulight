@@ -6,6 +6,7 @@ import net.result.sandnode.message.RawMessage;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.ExecutorService;
 
 public interface ChainManager {
     void interruptAll();
@@ -29,4 +30,6 @@ public interface ChainManager {
     Optional<Chain> getChain(String chainName);
 
     void setName(Chain chain, String chainName);
+
+    ExecutorService getExecutorService();
 }

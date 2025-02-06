@@ -6,46 +6,43 @@ import net.result.sandnode.exception.ExpectedMessageException;
 import net.result.sandnode.message.MSGPackMessage;
 import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.message.util.Headers;
-import net.result.taulight.message.DataType;
+import net.result.taulight.message.TauMessageTypes;
 import net.result.taulight.messenger.TauChat;
 
 import java.util.Collection;
 import java.util.stream.Collectors;
 
-import static net.result.taulight.message.DataType.GET;
-import static net.result.taulight.message.TauMessageTypes.TAULIGHT;
-
-public class TaulightResponseMessage extends MSGPackMessage<TaulightResponseMessage.TaulightResponseData> {
+public class TaulightResponse extends MSGPackMessage<TaulightResponse.TaulightResponseData> {
     public static class TaulightResponseData {
         @JsonProperty
-        DataType messageType;
+        TaulightRequest.DataType messageType;
         @JsonProperty
         Collection<String> chats;
 
         @SuppressWarnings("unused")
         public TaulightResponseData() {}
-        public TaulightResponseData(DataType messageType, Collection<String> chats) {
+        public TaulightResponseData(TaulightRequest.DataType messageType, Collection<String> chats) {
             this.messageType = messageType;
             this.chats = chats;
         }
 
         public static TaulightResponseData get(Collection<TauChat> chats) {
-            return new TaulightResponseData(GET,
+            return new TaulightResponseData(TaulightRequest.DataType.GET,
                     chats.stream()
                             .map(TauChat::getID)
                             .collect(Collectors.toSet()));
         }
     }
 
-    public TaulightResponseMessage(RawMessage raw) throws DeserializationException, ExpectedMessageException {
-        super(raw.expect(TAULIGHT), TaulightResponseData.class);
+    public TaulightResponse(RawMessage raw) throws DeserializationException, ExpectedMessageException {
+        super(raw.expect(TauMessageTypes.TAULIGHT), TaulightResponseData.class);
     }
 
-    public TaulightResponseMessage(Headers headers, TaulightResponseData data) {
-        super(headers.setType(TAULIGHT), data);
+    public TaulightResponse(Headers headers, TaulightResponseData data) {
+        super(headers.setType(TauMessageTypes.TAULIGHT), data);
     }
 
-    public TaulightResponseMessage(TaulightResponseData data) {
+    public TaulightResponse(TaulightResponseData data) {
         this(new Headers(), data);
     }
 

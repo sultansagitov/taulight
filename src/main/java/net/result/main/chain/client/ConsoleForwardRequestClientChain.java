@@ -14,8 +14,6 @@ import net.result.sandnode.chain.client.ClientChain;
 import net.result.taulight.chain.client.ChannelClientChain;
 import net.result.taulight.chain.client.TaulightClientChain;
 import net.result.taulight.exception.ChatNotFoundException;
-import net.result.taulight.message.types.ForwardMessage;
-import net.result.taulight.message.types.ForwardMessage.ForwardData;
 import net.result.taulight.message.types.ForwardRequest;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -37,8 +35,6 @@ public class ConsoleForwardRequestClientChain extends ClientChain {
     @Override
     public void sync() throws InterruptedException, ExpectedMessageException, DeserializationException {
         Scanner scanner = new Scanner(System.in);
-
-        send(new ForwardRequest());
 
         String currentChat = "";
 
@@ -129,7 +125,7 @@ public class ConsoleForwardRequestClientChain extends ClientChain {
                 System.out.println("chat not selected");
 
             } else {
-                send(new ForwardMessage(new ForwardData(currentChat, input)));
+                send(new ForwardRequest(new ForwardRequest.ForwardData(currentChat, input)));
                 RawMessage raw = queue.take();
                 MessageType type = raw.getHeaders().getType();
                 if (type == MessageTypes.EXIT) break;

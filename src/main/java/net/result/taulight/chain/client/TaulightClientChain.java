@@ -9,9 +9,8 @@ import net.result.sandnode.message.types.ErrorMessage;
 import net.result.sandnode.error.SandnodeError;
 import net.result.sandnode.message.util.MessageTypes;
 import net.result.sandnode.util.IOController;
-import net.result.taulight.message.types.TaulightRequestMessage;
-import net.result.taulight.message.DataType;
-import net.result.taulight.message.types.TaulightResponseMessage;
+import net.result.taulight.message.types.TaulightRequest;
+import net.result.taulight.message.types.TaulightResponse;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -47,7 +46,7 @@ public class TaulightClientChain extends ClientChain {
             throws InterruptedException, DeserializationException, ExpectedMessageException {
         lock.lock();
         try {
-            send(new TaulightRequestMessage(DataType.GET));
+            send(new TaulightRequest(TaulightRequest.DataType.GET));
             RawMessage raw = queue.take();
 
             if (raw.getHeaders().getType() == MessageTypes.ERR) {
@@ -55,7 +54,7 @@ public class TaulightClientChain extends ClientChain {
                 return Optional.empty();
             }
 
-            Collection<String> chats = new TaulightResponseMessage(raw).getChats();
+            Collection<String> chats = new TaulightResponse(raw).getChats();
             return Optional.of(chats);
         } finally {
             lock.unlock();
@@ -65,7 +64,7 @@ public class TaulightClientChain extends ClientChain {
     public void addToGroup(String group) throws InterruptedException, DeserializationException {
         lock.lock();
         try {
-            send(new TaulightRequestMessage(TaulightRequestMessage.TaulightRequestData.addGroup(group)));
+            send(new TaulightRequest(TaulightRequest.TaulightRequestData.addGroup(group)));
             RawMessage raw = queue.take();
 
             if (raw.getHeaders().getType() == MessageTypes.ERR) {

@@ -77,7 +77,7 @@ public abstract class BSTChainManager implements ChainManager {
         } else {
             try {
                 Chain aNew = createNew(message);
-                if (aNew.isChainStartAllowed()) aNew.async(executorService, this);
+                if (aNew.isChainStartAllowed()) aNew.async(this);
                 chain = aNew;
             } catch (BusyChainID e) {
                 throw new RuntimeException(e);
@@ -115,6 +115,11 @@ public abstract class BSTChainManager implements ChainManager {
     @Override
     public void setName(Chain chain, String chainName) {
         chainMap.put(chainName, chain);
+    }
+
+    @Override
+    public ExecutorService getExecutorService() {
+        return executorService;
     }
 
     @Override

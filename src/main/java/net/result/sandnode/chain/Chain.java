@@ -1,5 +1,7 @@
 package net.result.sandnode.chain;
 
+import net.result.sandnode.message.util.Headers;
+import net.result.sandnode.message.util.MessageTypes;
 import net.result.sandnode.util.bst.Searchable;
 import net.result.sandnode.exception.*;
 import net.result.sandnode.message.IMessage;
@@ -9,7 +11,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
 
 public abstract class Chain implements Searchable<Chain, Short> {
@@ -38,8 +39,8 @@ public abstract class Chain implements Searchable<Chain, Short> {
         this.id = id;
     }
 
-    public void async(ExecutorService executorService, ChainManager chainManager) {
-        executorService.submit(() -> {
+    public void async(ChainManager chainManager) {
+        chainManager.getExecutorService().submit(() -> {
             String threadName = "%s/%s/%s".formatted(
                     io.getIpString(),
                     getClass().getSimpleName(),
@@ -60,7 +61,13 @@ public abstract class Chain implements Searchable<Chain, Short> {
     }
 
     public void send(IMessage request) throws InterruptedException {
-        request.getHeaders().setChainID(getID());
+        Headers headers = request.getHeaders();
+        headers.setChainID(getID());
+
+        if (headers.getType() == MessageTypes.CHAIN_NAME) {
+            headers.getOptionalValue("chain-name").ifPresent(s -> io.chainManager.setName(this, s));
+        }
+
         io.sendMessage(request);
     }
 

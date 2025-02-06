@@ -7,9 +7,9 @@ import net.result.sandnode.serverclient.Session;
 import net.result.taulight.TauChatManager;
 import net.result.taulight.TauErrors;
 import net.result.taulight.TauHub;
-import net.result.taulight.message.types.TaulightRequestMessage;
-import net.result.taulight.message.types.TaulightResponseMessage;
-import net.result.taulight.message.types.TaulightResponseMessage.TaulightResponseData;
+import net.result.taulight.message.types.TaulightRequest;
+import net.result.taulight.message.types.TaulightResponse;
+import net.result.taulight.message.types.TaulightResponse.TaulightResponseData;
 import net.result.taulight.messenger.TauChat;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -26,7 +26,7 @@ public class TaulightServerChain extends ServerChain {
     @Override
     public void sync() throws InterruptedException, DeserializationException {
         while (true) {
-            TaulightRequestMessage request = new TaulightRequestMessage(queue.take());
+            TaulightRequest request = new TaulightRequest(queue.take());
 
             LOGGER.info(request.getMessageType().name());
 
@@ -36,7 +36,7 @@ public class TaulightServerChain extends ServerChain {
             switch (request.getMessageType()) {
                 case GET -> {
                     var chats = chatManager.getChats(session.member);
-                    send(new TaulightResponseMessage(TaulightResponseData.get(chats)));
+                    send(new TaulightResponse(TaulightResponseData.get(chats)));
                 }
                 case ADD -> {
                     String chatID = request.getChatID();
@@ -59,8 +59,6 @@ public class TaulightServerChain extends ServerChain {
 
                     send(new HappyMessage());
                     LOGGER.info("Member {} added to chat {}", session.member.getID(), chatID);
-                }
-                case REMOVE -> {
                 }
             }
 

@@ -5,13 +5,13 @@ import net.result.sandnode.chain.server.ServerChain;
 import net.result.sandnode.error.Errors;
 import net.result.sandnode.exception.*;
 import net.result.sandnode.message.types.HappyMessage;
+import net.result.sandnode.message.types.ChainNameRequest;
 import net.result.sandnode.serverclient.Session;
 import net.result.taulight.TauChatManager;
 import net.result.taulight.TauErrors;
 import net.result.taulight.TauHub;
-import net.result.taulight.message.types.ForwardMessage;
 import net.result.taulight.message.types.ForwardRequest;
-import net.result.taulight.message.types.TimedForwardMessage;
+import net.result.taulight.message.types.ForwardResponse;
 import net.result.taulight.messenger.TauChat;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -32,10 +32,10 @@ public class ForwardRequestServerChain extends ServerChain {
         TauHub tauHub = (TauHub) session.server.node;
         TauChatManager chatManager = tauHub.chatManager;
 
-        new ForwardRequest(queue.take());
+        boolean isFirst = true;
 
         while (true) {
-            ForwardMessage forwardMessage = new ForwardMessage(queue.take());
+            ForwardRequest forwardMessage = new ForwardRequest(queue.take());
 
             ZonedDateTime ztd = ZonedDateTime.now(ZoneId.of("UTC"));
             LOGGER.info("Forwarding message: {}", forwardMessage.getData());
@@ -68,11 +68,14 @@ public class ForwardRequestServerChain extends ServerChain {
                 Optional<Chain> fwd = s.io.chainManager.getChain("fwd");
 
                 if (fwd.isEmpty()) {
-                    LOGGER.warn("Failed to find forwarding chain for session: {}", s);
+                    var chain = new ForwardServerChain(session);
+                    s.io.chainManager.linkChain(chain);
+                    chain.send(new ForwardResponse(forwardMessage, ztd, session.member));
+                    chain.send(new ChainNameRequest("fwd"));
                     continue;
                 }
 
-                fwd.get().send(new TimedForwardMessage(forwardMessage, ztd, session.member));
+                fwd.get().send(new ForwardResponse(forwardMessage, ztd, session.member));
                 LOGGER.info("Message forwarded to session: {}", s);
                 forwarded = true;
             }
@@ -84,6 +87,11 @@ public class ForwardRequestServerChain extends ServerChain {
             }
 
             send(new HappyMessage());
+
+            if (isFirst) {
+                send(new ChainNameRequest("fwd"));
+                isFirst = false;
+            }
         }
     }
 }

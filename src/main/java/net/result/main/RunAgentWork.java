@@ -5,30 +5,26 @@ import net.result.main.chain.ConsoleClientChainManager;
 import net.result.main.config.ClientPropertiesConfig;
 import net.result.sandnode.hubagent.AgentProtocol;
 import net.result.sandnode.hubagent.ClientProtocol;
+import net.result.sandnode.message.util.NodeType;
 import net.result.sandnode.serverclient.ClientMember;
 import net.result.sandnode.serverclient.SandnodeClient;
 import net.result.sandnode.encryption.interfaces.*;
 import net.result.sandnode.exception.*;
 import net.result.sandnode.link.Links;
 import net.result.sandnode.link.SandnodeLinkRecord;
-import net.result.sandnode.message.types.RequestChainNameMessage;
+import net.result.sandnode.message.types.ChainNameRequest;
 import net.result.sandnode.util.EncryptionUtil;
 import net.result.sandnode.util.Endpoint;
 import net.result.sandnode.util.IOController;
 import net.result.taulight.TauAgent;
-import net.result.taulight.chain.client.ForwardClientChain;
 import net.result.taulight.chain.client.TaulightClientChain;
-import net.result.taulight.message.types.TaulightRequestMessage;
-import net.result.taulight.message.types.TaulightRequestMessage.TaulightRequestData;
+import net.result.taulight.message.types.TaulightRequest;
+import net.result.taulight.message.types.TaulightRequest.TaulightRequestData;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.util.*;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-
-import static net.result.sandnode.message.util.NodeType.HUB;
-import static net.result.taulight.message.DataType.REMOVE;
+import java.util.Optional;
+import java.util.Scanner;
 
 public class RunAgentWork implements IWork {
     private static final Logger LOGGER = LogManager.getLogger(RunAgentWork.class);
@@ -58,31 +54,25 @@ public class RunAgentWork implements IWork {
         TauAgent agent = new TauAgent();
         ConsoleClientChainManager chainManager = new ConsoleClientChainManager();
 
-        SandnodeClient client = new SandnodeClient(endpoint, agent, HUB, clientConfig);
+        SandnodeClient client = new SandnodeClient(endpoint, agent, NodeType.HUB, clientConfig);
         client.start(chainManager);                 // Starting client
         getPublicKey(client, agent, link);          // get key from fs or sending PUB if key not found
         ClientProtocol.sendSYM(client);             // sending symmetric key
         handleAuthentication(client.io, scanner);   // registration or login
-
-        ExecutorService executorService = Executors.newCachedThreadPool();
-
-        startForwardChain(executorService, client.io);
 
         startTaulightChain(client.io);
 
         startConsoleChain(client.io);
 
         LOGGER.info("Exiting...");
-        executorService.shutdownNow();
         client.close();
     }
 
     private static void startTaulightChain(IOController io) throws InterruptedException {
         TaulightClientChain taulightChain = new TaulightClientChain(io);
         io.chainManager.linkChain(taulightChain);
-        io.chainManager.setName(taulightChain, "tau");
-        taulightChain.send(new TaulightRequestMessage(new TaulightRequestData(REMOVE)));
-        taulightChain.send(new RequestChainNameMessage("tau"));
+        taulightChain.send(new TaulightRequest(new TaulightRequestData(TaulightRequest.DataType.REMOVE)));
+        taulightChain.send(new ChainNameRequest("tau"));
     }
 
     private static void startConsoleChain(IOController io)
@@ -91,12 +81,6 @@ public class RunAgentWork implements IWork {
         io.chainManager.linkChain(consoleChain);
         consoleChain.sync();
         io.chainManager.removeChain(consoleChain);
-    }
-
-    private static void startForwardChain(ExecutorService executorService, IOController io) {
-        ForwardClientChain fwd = new ForwardClientChain(io);
-        io.chainManager.linkChain(fwd);
-        fwd.async(executorService, io.chainManager);
     }
 
     private static void getPublicKey(SandnodeClient client, TauAgent agent, SandnodeLinkRecord link)

@@ -4,8 +4,8 @@ import net.result.sandnode.message.EmptyMessage;
 import net.result.sandnode.message.util.Headers;
 import net.result.sandnode.message.util.MessageTypes;
 
-public class RequestChainNameMessage extends EmptyMessage {
-    public RequestChainNameMessage(String chainName) {
+public class ChainNameRequest extends EmptyMessage {
+    public ChainNameRequest(String chainName) {
         super(new Headers().setType(MessageTypes.CHAIN_NAME).setValue("chain-name", chainName));
     }
 }
