@@ -102,12 +102,14 @@ public class InMemoryTauDatabase extends InMemoryDatabase implements TauDatabase
                 .collect(Collectors.toList());
     }
 
+    @Override
     public void removeChat(String chatId) {
         chats.removeIf(chat -> chat.getID().equals(chatId));
         messages.removeIf(msg -> msg.chatID().equals(chatId));
         chatMembers.remove(chatId);
     }
 
+    @Override
     public long getMessageCount(TauChat chat) {
         if (chat == null) {
             return 0;

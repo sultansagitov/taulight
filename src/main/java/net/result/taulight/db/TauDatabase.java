@@ -22,4 +22,9 @@ public interface TauDatabase extends Database {
     void addMemberToChat(TauChat chat, Member member);
 
     Collection<TauChat> getChats(Member member);
+
+    void removeChat(String chatId);
+
+    long getMessageCount(TauChat chat);
+
 }
