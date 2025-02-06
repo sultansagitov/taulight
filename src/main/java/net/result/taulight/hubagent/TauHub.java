@@ -1,4 +1,4 @@
-package net.result.taulight;
+package net.result.taulight.hubagent;
 
 import net.result.sandnode.chain.server.ServerChainManager;
 import net.result.sandnode.hubagent.Hub;

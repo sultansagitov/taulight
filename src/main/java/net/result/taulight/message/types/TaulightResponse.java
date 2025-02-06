@@ -7,7 +7,7 @@ import net.result.sandnode.message.MSGPackMessage;
 import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.message.util.Headers;
 import net.result.taulight.message.TauMessageTypes;
-import net.result.taulight.messenger.TauChat;
+import net.result.taulight.db.TauChat;
 
 import java.util.Collection;
 import java.util.stream.Collectors;

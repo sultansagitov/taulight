@@ -9,7 +9,7 @@ import net.result.taulight.db.InMemoryTauDatabase;
 import net.result.taulight.group.HashSetTauGroupManager;
 import net.result.sandnode.tokens.JWTConfig;
 import net.result.sandnode.tokens.JWTTokenizer;
-import net.result.taulight.TauHub;
+import net.result.taulight.hubagent.TauHub;
 import net.result.main.config.ServerPropertiesConfig;
 import net.result.sandnode.serverclient.SandnodeServer;
 import net.result.sandnode.encryption.GlobalKeyStorage;

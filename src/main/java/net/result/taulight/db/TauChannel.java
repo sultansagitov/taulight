@@ -1,4 +1,4 @@
-package net.result.taulight.messenger;
+package net.result.taulight.db;
 
 import net.result.sandnode.db.Member;
 

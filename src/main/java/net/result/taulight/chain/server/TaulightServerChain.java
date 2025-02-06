@@ -5,12 +5,12 @@ import net.result.sandnode.exception.*;
 import net.result.sandnode.message.types.HappyMessage;
 import net.result.sandnode.serverclient.Session;
 import net.result.taulight.db.TauDatabase;
-import net.result.taulight.TauErrors;
+import net.result.taulight.error.TauErrors;
 import net.result.taulight.group.TauGroupManager;
 import net.result.taulight.message.types.TaulightRequest;
 import net.result.taulight.message.types.TaulightResponse;
 import net.result.taulight.message.types.TaulightResponse.TaulightResponseData;
-import net.result.taulight.messenger.TauChat;
+import net.result.taulight.db.TauChat;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 

@@ -1,4 +1,4 @@
-package net.result.taulight;
+package net.result.taulight.error;
 
 import net.result.sandnode.message.types.ErrorMessage;
 import net.result.sandnode.error.SandnodeError;

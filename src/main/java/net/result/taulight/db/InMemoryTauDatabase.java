@@ -2,7 +2,6 @@ package net.result.taulight.db;
 
 import net.result.sandnode.db.InMemoryDatabase;
 import net.result.sandnode.db.Member;
-import net.result.taulight.messenger.TauChat;
 
 import java.util.*;
 import java.util.stream.Collectors;

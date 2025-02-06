@@ -1,4 +1,4 @@
-package net.result.taulight.messenger;
+package net.result.taulight.db;
 
 public class TauChat {
     private final String id;

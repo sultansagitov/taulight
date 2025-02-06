@@ -1,7 +1,7 @@
 package net.result.taulight.group;
 
 import net.result.sandnode.group.HashSetGroupManager;
-import net.result.taulight.messenger.TauChat;
+import net.result.taulight.db.TauChat;
 
 import java.util.HashMap;
 import java.util.Map;

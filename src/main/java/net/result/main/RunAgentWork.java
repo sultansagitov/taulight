@@ -16,7 +16,7 @@ import net.result.sandnode.message.types.ChainNameRequest;
 import net.result.sandnode.util.EncryptionUtil;
 import net.result.sandnode.util.Endpoint;
 import net.result.sandnode.util.IOController;
-import net.result.taulight.TauAgent;
+import net.result.taulight.hubagent.TauAgent;
 import net.result.taulight.chain.client.TaulightClientChain;
 import net.result.taulight.message.types.TaulightRequest;
 import net.result.taulight.message.types.TaulightRequest.TaulightRequestData;

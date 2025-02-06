@@ -10,7 +10,7 @@ import net.result.sandnode.message.util.MessageTypes;
 import net.result.sandnode.serverclient.ClientMember;
 import net.result.sandnode.error.Errors;
 import net.result.sandnode.util.IOController;
-import net.result.taulight.TauErrors;
+import net.result.taulight.error.TauErrors;
 import net.result.taulight.exception.ChatNotFoundException;
 import net.result.taulight.message.types.ChannelRequest;
 

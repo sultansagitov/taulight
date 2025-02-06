@@ -9,11 +9,11 @@ import net.result.taulight.group.TauGroupManager;
 import net.result.sandnode.message.types.HappyMessage;
 import net.result.sandnode.serverclient.ClientMember;
 import net.result.sandnode.serverclient.Session;
-import net.result.taulight.TauErrors;
+import net.result.taulight.error.TauErrors;
 import net.result.taulight.group.TauChatGroup;
 import net.result.taulight.message.types.ChannelRequest;
-import net.result.taulight.messenger.TauChannel;
-import net.result.taulight.messenger.TauChat;
+import net.result.taulight.db.TauChannel;
+import net.result.taulight.db.TauChat;
 
 import java.util.Optional;
 import java.util.UUID;
