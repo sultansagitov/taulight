@@ -5,18 +5,15 @@ import net.result.sandnode.encryption.interfaces.AsymmetricKeyStorage;
 import net.result.sandnode.exception.*;
 import net.result.sandnode.link.Links;
 import net.result.sandnode.util.FileUtil;
-import net.result.sandnode.db.InMemoryDatabase;
+import net.result.taulight.db.InMemoryTauDatabase;
 import net.result.sandnode.group.HashSetGroupManager;
 import net.result.sandnode.tokens.JWTConfig;
 import net.result.sandnode.tokens.JWTTokenizer;
-import net.result.taulight.TauChatManager;
-import net.result.taulight.HashSetTauChatManager;
 import net.result.taulight.TauHub;
 import net.result.main.config.ServerPropertiesConfig;
 import net.result.sandnode.serverclient.SandnodeServer;
 import net.result.sandnode.encryption.GlobalKeyStorage;
 import net.result.sandnode.encryption.interfaces.AsymmetricEncryption;
-import net.result.taulight.messenger.TauChat;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -32,7 +29,7 @@ public class RunHubWork implements IWork {
         ServerPropertiesConfig serverConfig = new ServerPropertiesConfig();
         HashSetGroupManager manager = new HashSetGroupManager();
         serverConfig.setGroupManager(manager);
-        serverConfig.setDatabase(new InMemoryDatabase());
+        serverConfig.setDatabase(new InMemoryTauDatabase());
         serverConfig.setTokenizer(new JWTTokenizer(new JWTConfig("YourSuperSecretKey")));
 
         AsymmetricEncryption mainEncryption = serverConfig.mainEncryption();
@@ -53,10 +50,7 @@ public class RunHubWork implements IWork {
         AsymmetricKeyStorage keyStorage = mainEncryption.merge(publicKeyStorage, privateKeyStorage);
         GlobalKeyStorage globalKeyStorage = new GlobalKeyStorage(keyStorage);
 
-        TauChatManager chatManager = new HashSetTauChatManager();
-        chatManager.addNew(new TauChat("first", manager));
-        chatManager.addNew(new TauChat("second", manager));
-        TauHub hub = new TauHub(globalKeyStorage, chatManager);
+        TauHub hub = new TauHub(globalKeyStorage);
         SandnodeServer server = new SandnodeServer(hub, serverConfig);
         server.start();
 

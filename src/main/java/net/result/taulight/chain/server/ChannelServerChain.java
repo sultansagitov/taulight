@@ -1,7 +1,7 @@
 package net.result.taulight.chain.server;
 
 import net.result.sandnode.chain.server.ServerChain;
-import net.result.sandnode.db.Database;
+import net.result.taulight.db.TauDatabase;
 import net.result.sandnode.db.Member;
 import net.result.sandnode.error.Errors;
 import net.result.sandnode.exception.DeserializationException;
@@ -9,9 +9,7 @@ import net.result.sandnode.group.GroupManager;
 import net.result.sandnode.message.types.HappyMessage;
 import net.result.sandnode.serverclient.ClientMember;
 import net.result.sandnode.serverclient.Session;
-import net.result.taulight.TauChatManager;
 import net.result.taulight.TauErrors;
-import net.result.taulight.TauHub;
 import net.result.taulight.group.TauChatGroup;
 import net.result.taulight.message.types.ChannelRequest;
 import net.result.taulight.messenger.TauChannel;
@@ -30,7 +28,7 @@ public class ChannelServerChain extends ServerChain {
         ChannelRequest request = new ChannelRequest(queue.take());
         ChannelRequest.DataType type = request.object.type;
 
-        TauChatManager chatManager = ((TauHub) session.server.node).chatManager;
+        TauDatabase database = (TauDatabase) session.server.serverConfig.database();
 
         if (type == null) {
             sendFin(Errors.TOO_FEW_ARGS.message());
@@ -50,7 +48,8 @@ public class ChannelServerChain extends ServerChain {
                 GroupManager manager = session.server.serverConfig.groupManager();
 
                 TauChannel channel = new TauChannel(title, id, session.member, manager);
-                chatManager.addNew(channel);
+                database.saveChat(channel);
+                database.addMemberToChat(channel, session.member);
 
                 TauChatGroup tauChatGroup = channel.group;
                 session.member.getSessions().forEach(s -> s.addToGroup(tauChatGroup));
@@ -60,8 +59,6 @@ public class ChannelServerChain extends ServerChain {
             case REQUEST -> {
             }
             case ADD -> {
-                Database database = session.server.serverConfig.database();
-
                 String id = request.object.id;
                 ClientMember cMember = request.object.member;
 
@@ -70,7 +67,7 @@ public class ChannelServerChain extends ServerChain {
                     return;
                 }
 
-                Optional<TauChat> optChat = chatManager.get(id);
+                Optional<TauChat> optChat = database.getChat(id);
                 Optional<Member> optMember = database.findMemberByMemberID(cMember.memberID);
 
                 if (optChat.isEmpty()) {
@@ -95,7 +92,7 @@ public class ChannelServerChain extends ServerChain {
                     return;
                 }
 
-                channel.addMember(member);
+                database.addMemberToChat(channel, member);
 
                 send(new HappyMessage());
             }

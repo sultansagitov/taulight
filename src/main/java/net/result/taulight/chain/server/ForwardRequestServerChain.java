@@ -7,9 +7,8 @@ import net.result.sandnode.exception.*;
 import net.result.sandnode.message.types.HappyMessage;
 import net.result.sandnode.message.types.ChainNameRequest;
 import net.result.sandnode.serverclient.Session;
-import net.result.taulight.TauChatManager;
+import net.result.taulight.db.TauDatabase;
 import net.result.taulight.TauErrors;
-import net.result.taulight.TauHub;
 import net.result.taulight.db.ChatMessage;
 import net.result.taulight.db.ChatMessageBuilder;
 import net.result.taulight.message.types.ForwardRequest;
@@ -31,8 +30,7 @@ public class ForwardRequestServerChain extends ServerChain {
 
     @Override
     public void sync() throws InterruptedException, ExpectedMessageException, DeserializationException {
-        TauHub tauHub = (TauHub) session.server.node;
-        TauChatManager chatManager = tauHub.chatManager;
+        TauDatabase database = (TauDatabase) session.server.serverConfig.database();
 
         boolean isFirst = true;
 
@@ -49,7 +47,7 @@ public class ForwardRequestServerChain extends ServerChain {
                 continue;
             }
 
-            Optional<TauChat> tauChat = chatManager.find(chatID);
+            Optional<TauChat> tauChat = database.getChat(chatID);
             if (tauChat.isEmpty()) {
                 LOGGER.warn("Attempted to add member to a non-existent chat: {}", chatID);
                 send(TauErrors.CHAT_NOT_FOUND.message());
@@ -57,7 +55,7 @@ public class ForwardRequestServerChain extends ServerChain {
             }
 
             TauChat chat = tauChat.get();
-            var members = chat.getMembers();
+            var members = database.getMembersFromChat(chat);
 
             if (!members.contains(session.member)) {
                 LOGGER.warn("Unauthorized access attempt by member: {}", session.member);
@@ -71,6 +69,8 @@ public class ForwardRequestServerChain extends ServerChain {
                     .setMemberID(session.member.getID())
                     .setZtd(ztd)
                     .build();
+
+            database.saveMessage(chatMessage);
 
             boolean forwarded = false;
             for (Session s : chat.group.getSessions()) {

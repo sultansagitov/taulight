@@ -7,11 +7,8 @@ import net.result.taulight.chain.TauBSTServerChainManager;
 import org.jetbrains.annotations.NotNull;
 
 public class TauHub extends Hub {
-    public final TauChatManager chatManager;
-
-    public TauHub(GlobalKeyStorage hubKeyStorage, TauChatManager chatManager) {
+    public TauHub(GlobalKeyStorage hubKeyStorage) {
         super(hubKeyStorage);
-        this.chatManager = chatManager;
     }
 
     @Override

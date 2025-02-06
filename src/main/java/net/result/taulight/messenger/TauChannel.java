@@ -11,7 +11,6 @@ public class TauChannel extends TauChat {
         super(id, manager);
         this.title = title;
         this.owner = owner;
-        getMembers().add(owner);
     }
 
     public String getTitle() {
@@ -22,8 +21,4 @@ public class TauChannel extends TauChat {
         return owner;
     }
 
-    public void addMember(Member member) {
-        getMembers().add(member);
-        member.getSessions().forEach(s -> s.addToGroup(group));
-    }
 }

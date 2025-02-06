@@ -4,9 +4,8 @@ import net.result.sandnode.chain.server.ServerChain;
 import net.result.sandnode.exception.*;
 import net.result.sandnode.message.types.HappyMessage;
 import net.result.sandnode.serverclient.Session;
-import net.result.taulight.TauChatManager;
+import net.result.taulight.db.TauDatabase;
 import net.result.taulight.TauErrors;
-import net.result.taulight.TauHub;
 import net.result.taulight.message.types.TaulightRequest;
 import net.result.taulight.message.types.TaulightResponse;
 import net.result.taulight.message.types.TaulightResponse.TaulightResponseData;
@@ -25,22 +24,21 @@ public class TaulightServerChain extends ServerChain {
 
     @Override
     public void sync() throws InterruptedException, DeserializationException {
+        TauDatabase database = (TauDatabase) session.server.serverConfig.database();
+
         while (true) {
             TaulightRequest request = new TaulightRequest(queue.take());
 
             LOGGER.info(request.getMessageType().name());
 
-            TauHub tauHub = (TauHub) session.server.node;
-            TauChatManager chatManager = tauHub.chatManager;
-
             switch (request.getMessageType()) {
                 case GET -> {
-                    var chats = chatManager.getChats(session.member);
+                    var chats = database.getChats(session.member);
                     send(new TaulightResponse(TaulightResponseData.get(chats)));
                 }
                 case ADD -> {
                     String chatID = request.getChatID();
-                    Optional<TauChat> opt = chatManager.find(chatID);
+                    Optional<TauChat> opt = database.getChat(chatID);
                     if (opt.isEmpty()) {
                         send(TauErrors.CHAT_NOT_FOUND.message());
                         LOGGER.warn("Attempted to add member to a non-existent chat: {}", chatID);
@@ -49,13 +47,14 @@ public class TaulightServerChain extends ServerChain {
 
                     TauChat chat = opt.get();
 
-                    if (chat.getMembers().contains(session.member)) {
+                    if (database.getMembersFromChat(chat).contains(session.member)) {
                         send(new HappyMessage());
                         LOGGER.info("Member {} is already part of chat {}", session.member.getID(), chatID);
                         return;
                     }
 
-                    chatManager.addMember(chat, session.member);
+                    database.addMemberToChat(chat, session.member);
+                    session.member.getSessions().forEach(session -> session.addToGroup(chat.group));
 
                     send(new HappyMessage());
                     LOGGER.info("Member {} added to chat {}", session.member.getID(), chatID);
