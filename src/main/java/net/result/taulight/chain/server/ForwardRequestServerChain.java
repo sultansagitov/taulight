@@ -11,6 +11,7 @@ import net.result.taulight.db.TauDatabase;
 import net.result.taulight.TauErrors;
 import net.result.taulight.db.ChatMessage;
 import net.result.taulight.db.ChatMessageBuilder;
+import net.result.taulight.group.TauGroupManager;
 import net.result.taulight.message.types.ForwardRequest;
 import net.result.taulight.message.types.ForwardResponse;
 import net.result.taulight.messenger.TauChat;
@@ -31,8 +32,7 @@ public class ForwardRequestServerChain extends ServerChain {
     @Override
     public void sync() throws InterruptedException, ExpectedMessageException, DeserializationException {
         TauDatabase database = (TauDatabase) session.server.serverConfig.database();
-
-        boolean isFirst = true;
+        TauGroupManager manager = (TauGroupManager) session.server.serverConfig.groupManager();
 
         while (true) {
             ForwardRequest forwardMessage = new ForwardRequest(queue.take());
@@ -73,19 +73,19 @@ public class ForwardRequestServerChain extends ServerChain {
             database.saveMessage(chatMessage);
 
             boolean forwarded = false;
-            for (Session s : chat.group.getSessions()) {
+            for (Session s : manager.getGroup(chat).getSessions()) {
                 Optional<Chain> fwd = s.io.chainManager.getChain("fwd");
+
+                ForwardResponse request = new ForwardResponse(chatMessage);
 
                 if (fwd.isEmpty()) {
                     var chain = new ForwardServerChain(session);
                     s.io.chainManager.linkChain(chain);
-                    chain.send(new ForwardResponse(chatMessage));
-                    forwarded = true;
+                    chain.send(request);
                     chain.send(new ChainNameRequest("fwd"));
-                    continue;
+                } else {
+                    fwd.get().send(request);
                 }
-
-                fwd.get().send(new ForwardResponse(chatMessage));
                 forwarded = true;
             }
 
@@ -96,11 +96,6 @@ public class ForwardRequestServerChain extends ServerChain {
             }
 
             send(new HappyMessage());
-
-            if (isFirst) {
-                send(new ChainNameRequest("fwd"));
-                isFirst = false;
-            }
         }
     }
 }

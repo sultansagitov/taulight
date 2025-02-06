@@ -6,7 +6,7 @@ import net.result.sandnode.exception.*;
 import net.result.sandnode.link.Links;
 import net.result.sandnode.util.FileUtil;
 import net.result.taulight.db.InMemoryTauDatabase;
-import net.result.sandnode.group.HashSetGroupManager;
+import net.result.taulight.group.HashSetTauGroupManager;
 import net.result.sandnode.tokens.JWTConfig;
 import net.result.sandnode.tokens.JWTTokenizer;
 import net.result.taulight.TauHub;
@@ -27,7 +27,7 @@ public class RunHubWork implements IWork {
     @Override
     public void run() throws SandnodeException {
         ServerPropertiesConfig serverConfig = new ServerPropertiesConfig();
-        HashSetGroupManager manager = new HashSetGroupManager();
+        HashSetTauGroupManager manager = new HashSetTauGroupManager();
         serverConfig.setGroupManager(manager);
         serverConfig.setDatabase(new InMemoryTauDatabase());
         serverConfig.setTokenizer(new JWTTokenizer(new JWTConfig("YourSuperSecretKey")));

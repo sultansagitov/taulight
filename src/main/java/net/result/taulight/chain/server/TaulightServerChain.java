@@ -6,6 +6,7 @@ import net.result.sandnode.message.types.HappyMessage;
 import net.result.sandnode.serverclient.Session;
 import net.result.taulight.db.TauDatabase;
 import net.result.taulight.TauErrors;
+import net.result.taulight.group.TauGroupManager;
 import net.result.taulight.message.types.TaulightRequest;
 import net.result.taulight.message.types.TaulightResponse;
 import net.result.taulight.message.types.TaulightResponse.TaulightResponseData;
@@ -25,6 +26,7 @@ public class TaulightServerChain extends ServerChain {
     @Override
     public void sync() throws InterruptedException, DeserializationException {
         TauDatabase database = (TauDatabase) session.server.serverConfig.database();
+        TauGroupManager manager = (TauGroupManager) session.server.serverConfig.groupManager();
 
         while (true) {
             TaulightRequest request = new TaulightRequest(queue.take());
@@ -54,7 +56,7 @@ public class TaulightServerChain extends ServerChain {
                     }
 
                     database.addMemberToChat(chat, session.member);
-                    session.member.getSessions().forEach(session -> session.addToGroup(chat.group));
+                    session.member.getSessions().forEach(session -> session.addToGroup(manager.getGroup(chat)));
 
                     send(new HappyMessage());
                     LOGGER.info("Member {} added to chat {}", session.member.getID(), chatID);

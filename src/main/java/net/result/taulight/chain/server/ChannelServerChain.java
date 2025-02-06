@@ -5,7 +5,7 @@ import net.result.taulight.db.TauDatabase;
 import net.result.sandnode.db.Member;
 import net.result.sandnode.error.Errors;
 import net.result.sandnode.exception.DeserializationException;
-import net.result.sandnode.group.GroupManager;
+import net.result.taulight.group.TauGroupManager;
 import net.result.sandnode.message.types.HappyMessage;
 import net.result.sandnode.serverclient.ClientMember;
 import net.result.sandnode.serverclient.Session;
@@ -45,13 +45,13 @@ public class ChannelServerChain extends ServerChain {
                 }
 
                 String id = UUID.randomUUID().toString();
-                GroupManager manager = session.server.serverConfig.groupManager();
+                TauGroupManager manager = (TauGroupManager) session.server.serverConfig.groupManager();
 
-                TauChannel channel = new TauChannel(title, id, session.member, manager);
+                TauChannel channel = new TauChannel(title, id, session.member);
                 database.saveChat(channel);
                 database.addMemberToChat(channel, session.member);
 
-                TauChatGroup tauChatGroup = channel.group;
+                TauChatGroup tauChatGroup = manager.getGroup(channel);
                 session.member.getSessions().forEach(s -> s.addToGroup(tauChatGroup));
 
                 send(new HappyMessage());
