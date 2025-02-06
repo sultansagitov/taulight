@@ -10,6 +10,8 @@ import net.result.sandnode.serverclient.Session;
 import net.result.taulight.TauChatManager;
 import net.result.taulight.TauErrors;
 import net.result.taulight.TauHub;
+import net.result.taulight.db.ChatMessage;
+import net.result.taulight.db.ChatMessageBuilder;
 import net.result.taulight.message.types.ForwardRequest;
 import net.result.taulight.message.types.ForwardResponse;
 import net.result.taulight.messenger.TauChat;
@@ -63,6 +65,13 @@ public class ForwardRequestServerChain extends ServerChain {
                 continue;
             }
 
+            ChatMessage chatMessage = new ChatMessageBuilder()
+                    .setChatID(forwardMessage.getChatID())
+                    .setContent(forwardMessage.getData())
+                    .setMemberID(session.member.getID())
+                    .setZtd(ztd)
+                    .build();
+
             boolean forwarded = false;
             for (Session s : chat.group.getSessions()) {
                 Optional<Chain> fwd = s.io.chainManager.getChain("fwd");
@@ -70,13 +79,13 @@ public class ForwardRequestServerChain extends ServerChain {
                 if (fwd.isEmpty()) {
                     var chain = new ForwardServerChain(session);
                     s.io.chainManager.linkChain(chain);
-                    chain.send(new ForwardResponse(forwardMessage, ztd, session.member));
+                    chain.send(new ForwardResponse(chatMessage));
+                    forwarded = true;
                     chain.send(new ChainNameRequest("fwd"));
                     continue;
                 }
 
-                fwd.get().send(new ForwardResponse(forwardMessage, ztd, session.member));
-                LOGGER.info("Message forwarded to session: {}", s);
+                fwd.get().send(new ForwardResponse(chatMessage));
                 forwarded = true;
             }
 
