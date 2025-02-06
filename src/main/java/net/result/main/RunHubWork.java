@@ -5,7 +5,7 @@ import net.result.sandnode.encryption.interfaces.AsymmetricKeyStorage;
 import net.result.sandnode.exception.*;
 import net.result.sandnode.link.Links;
 import net.result.sandnode.util.FileUtil;
-import net.result.taulight.db.InMemoryTauDatabase;
+import net.result.taulight.db.MariaDBDatabase;
 import net.result.taulight.group.HashSetTauGroupManager;
 import net.result.sandnode.tokens.JWTConfig;
 import net.result.sandnode.tokens.JWTTokenizer;
@@ -16,6 +16,8 @@ import net.result.sandnode.encryption.GlobalKeyStorage;
 import net.result.sandnode.encryption.interfaces.AsymmetricEncryption;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
+import org.mariadb.jdbc.MariaDbDataSource;
 
 import java.net.URI;
 import java.nio.file.Path;
@@ -29,7 +31,17 @@ public class RunHubWork implements IWork {
         ServerPropertiesConfig serverConfig = new ServerPropertiesConfig();
         HashSetTauGroupManager manager = new HashSetTauGroupManager();
         serverConfig.setGroupManager(manager);
-        serverConfig.setDatabase(new InMemoryTauDatabase());
+
+        MariaDbDataSource dataSource = new MariaDbDataSource();
+        try {
+            dataSource.setUrl("jdbc:mariadb://localhost:3306/taulight");
+            dataSource.setUser("root");
+            dataSource.setPassword("12345678");
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
+        serverConfig.setDatabase(new MariaDBDatabase(dataSource));
         serverConfig.setTokenizer(new JWTTokenizer(new JWTConfig("YourSuperSecretKey")));
 
         AsymmetricEncryption mainEncryption = serverConfig.mainEncryption();
