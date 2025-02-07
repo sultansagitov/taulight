@@ -8,6 +8,10 @@ import java.util.Optional;
 
 public interface TauDatabase extends Database {
 
+    TauChat createDirectChat(Member member1, Member member2);
+
+    Optional<TauDirect> findDirectChat(Member member1, Member member2);
+
     void saveChat(TauChat chat);
 
     Optional<TauChat> getChat(String id);

@@ -112,9 +112,10 @@ public class ConsoleForwardRequestClientChain extends ClientChain {
                     io.chainManager.removeChain(chain);
                     LOGGER.info("Member '{}' added to chat '{}' successfully", member, chatID);
                 } catch (ChatNotFoundException e) {
-                    LOGGER.error("Chat '{}' not found", chatID);
-                } catch (TooFewArgumentsException | AddressedMemberNotFoundException | WrongAddressException | UnauthorizedException e) {
-                    LOGGER.error("Error adding member '{}': {}", member, e.getMessage());
+                    LOGGER.error("Chat '{}' not found", chatID, e);
+                } catch (TooFewArgumentsException | AddressedMemberNotFoundException | WrongAddressException
+                         | UnauthorizedException e) {
+                    LOGGER.error("Error adding member '{}': {}", member, e);
                 } catch (ExpectedMessageException | DeserializationException | InterruptedException e) {
                     LOGGER.error("Unexpected error adding member '{}' to chat '{}'", member, chatID, e);
                 }

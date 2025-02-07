@@ -5,7 +5,7 @@ import net.result.sandnode.encryption.interfaces.AsymmetricKeyStorage;
 import net.result.sandnode.exception.*;
 import net.result.sandnode.link.Links;
 import net.result.sandnode.util.FileUtil;
-import net.result.taulight.db.MariaDBDatabase;
+import net.result.taulight.mariadb.TauMariaDBDatabase;
 import net.result.taulight.group.HashSetTauGroupManager;
 import net.result.sandnode.tokens.JWTConfig;
 import net.result.sandnode.tokens.JWTTokenizer;
@@ -41,7 +41,7 @@ public class RunHubWork implements IWork {
             throw new RuntimeException(e);
         }
 
-        serverConfig.setDatabase(new MariaDBDatabase(dataSource));
+        serverConfig.setDatabase(new TauMariaDBDatabase(dataSource));
         serverConfig.setTokenizer(new JWTTokenizer(new JWTConfig("YourSuperSecretKey")));
 
         AsymmetricEncryption mainEncryption = serverConfig.mainEncryption();
