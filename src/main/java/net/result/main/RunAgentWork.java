@@ -168,6 +168,8 @@ public class RunAgentWork implements IWork {
                         isLoggedIn = true;
                     } catch (InvalidTokenException e) {
                         System.out.println("Invalid token. Please try again.");
+                    } catch (ExpiredTokenException e) {
+                        System.out.println("Expired token. Please try again.");
                     } catch (MemberNotFoundException e) {
                         System.out.println("Member not found. Please try again.");
                     }

@@ -22,11 +22,12 @@ public enum Errors implements SandnodeError {
 
     // Member-related errors
     INVALID_TOKEN(3000, "Invalid token"),
-    MEMBER_NOT_FOUND(3001, "Member not found"),
-    INVALID_MEMBER_ID_OR_PASSWORD(3002, "Invalid Member ID or password"),
-    MEMBER_ID_BUSY(3003, "Member ID is already in use"),
-    UNAUTHORIZED(3004, "Member unauthorized"),
-    ADDRESSED_MEMBER_NOT_FOUND(3005, "Addressed member not found");
+    EXPIRED_TOKEN(3001, "Expired token"),
+    MEMBER_NOT_FOUND(3002, "Member not found"),
+    INVALID_MEMBER_ID_OR_PASSWORD(3003, "Invalid Member ID or password"),
+    MEMBER_ID_BUSY(3004, "Member ID is already in use"),
+    UNAUTHORIZED(3005, "Member unauthorized"),
+    ADDRESSED_MEMBER_NOT_FOUND(3006, "Addressed member not found");
 
     private final int code;
     private final String desc;

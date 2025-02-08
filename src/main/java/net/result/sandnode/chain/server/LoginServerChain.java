@@ -2,6 +2,7 @@ package net.result.sandnode.chain.server;
 
 import net.result.sandnode.exception.DeserializationException;
 import net.result.sandnode.exception.ExpectedMessageException;
+import net.result.sandnode.exception.ExpiredTokenException;
 import net.result.sandnode.exception.InvalidTokenException;
 import net.result.sandnode.message.IMessage;
 import net.result.sandnode.message.types.LoginRequest;
@@ -32,6 +33,9 @@ public class LoginServerChain extends ServerChain {
             opt = session.server.serverConfig.tokenizer().findMember(database, token);
         } catch (InvalidTokenException e) {
             sendFin(Errors.INVALID_TOKEN.message());
+            return;
+        } catch (ExpiredTokenException e) {
+            sendFin(Errors.EXPIRED_TOKEN.message());
             return;
         }
 

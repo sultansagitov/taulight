@@ -20,8 +20,8 @@ public class LoginClientChain extends ClientChain {
     }
 
     @Override
-    public void sync()
-            throws InterruptedException, MemberNotFoundException, DeserializationException, InvalidTokenException {
+    public void sync() throws InterruptedException, MemberNotFoundException, DeserializationException,
+            InvalidTokenException, ExpiredTokenException {
         LoginRequest loginRequest = new LoginRequest(token);
         send(loginRequest);
 
@@ -33,6 +33,7 @@ public class LoginClientChain extends ClientChain {
             if (error instanceof Errors enumError) {
                 switch (enumError) {
                     case INVALID_TOKEN -> throw new InvalidTokenException();
+                    case EXPIRED_TOKEN -> throw new ExpiredTokenException();
                     case MEMBER_NOT_FOUND -> throw new MemberNotFoundException();
                 }
             }

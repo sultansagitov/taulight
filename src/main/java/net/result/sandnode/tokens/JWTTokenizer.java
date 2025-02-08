@@ -2,8 +2,10 @@ package net.result.sandnode.tokens;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.exceptions.JWTVerificationException;
+import com.auth0.jwt.exceptions.TokenExpiredException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.auth0.jwt.interfaces.JWTVerifier;
+import net.result.sandnode.exception.ExpiredTokenException;
 import net.result.sandnode.exception.InvalidTokenException;
 import net.result.sandnode.db.Database;
 import net.result.sandnode.db.Member;
@@ -39,11 +41,14 @@ public class JWTTokenizer implements Tokenizer {
     public Optional<Member> findMember(
             @NotNull Database database,
             @NotNull String token
-    ) throws InvalidTokenException {
+    ) throws InvalidTokenException, ExpiredTokenException {
         try {
             DecodedJWT decodedJWT = VERIFIER.verify(token);
             String memberId = decodedJWT.getSubject();
             return database.findMemberByMemberID(memberId);
+        } catch (TokenExpiredException e) {
+            LOGGER.error("Expired token", e);
+            throw new ExpiredTokenException(e);
         } catch (JWTVerificationException e) {
             LOGGER.error("Invalid token", e);
             throw new InvalidTokenException(e);
