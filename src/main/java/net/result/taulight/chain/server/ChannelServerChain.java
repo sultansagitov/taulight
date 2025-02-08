@@ -47,7 +47,7 @@ public class ChannelServerChain extends ServerChain {
                 String id = UUID.randomUUID().toString();
                 TauGroupManager manager = (TauGroupManager) session.server.serverConfig.groupManager();
 
-                TauChannel channel = new TauChannel(title, id, session.member);
+                TauChannel channel = new TauChannel(id, title, session.member);
                 database.saveChat(channel);
                 database.addMemberToChat(channel, session.member);
 

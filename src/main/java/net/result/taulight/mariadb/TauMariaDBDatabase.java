@@ -184,7 +184,7 @@ public class TauMariaDBDatabase extends SandnodeMariaDBDatabase implements TauDa
                         String title = rs.getString("title");
                         String ownerId = rs.getString("owner_id");
                         Member owner = findMemberByMemberID(ownerId).orElseThrow();
-                        return Optional.of(new TauChannel(title, id, owner));
+                        return Optional.of(new TauChannel(id, title, owner));
                     }
                 }
             }
@@ -326,7 +326,7 @@ public class TauMariaDBDatabase extends SandnodeMariaDBDatabase implements TauDa
                         String title = rs.getString("title");
                         String ownerId = rs.getString("owner_id");
                         Member owner = findMemberByMemberID(ownerId).orElseThrow();
-                        chats.add(new TauChannel(title, chatId, owner));
+                        chats.add(new TauChannel(chatId, title, owner));
                     }
                 }
             }
