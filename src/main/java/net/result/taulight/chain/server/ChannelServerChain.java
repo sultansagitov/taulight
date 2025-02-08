@@ -87,7 +87,7 @@ public class ChannelServerChain extends ServerChain {
                     return;
                 }
 
-                if (channel.getOwner() != session.member) {
+                if (!channel.getOwner().equals(session.member)) {
                     sendFin(Errors.UNAUTHORIZED.message());
                     return;
                 }

@@ -41,4 +41,17 @@ public class StandardMember implements Member {
     public String toString() {
         return "<Member %s>".formatted(getID());
     }
+
+    @Override
+    public int hashCode() {
+        return memberID.hashCode();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) return true;
+        if (obj == null || getClass() != obj.getClass()) return false;
+        StandardMember that = (StandardMember) obj;
+        return memberID.equals(that.memberID);
+    }
 }
