@@ -31,7 +31,8 @@ public enum Compressions implements Compression {
         @Override
         public byte[] decompress(byte[] compressedData) throws IOException {
             ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-            try (InflaterInputStream inflaterInputStream = new InflaterInputStream(new ByteArrayInputStream(compressedData))) {
+            try (InflaterInputStream inflaterInputStream =
+                         new InflaterInputStream(new ByteArrayInputStream(compressedData))) {
                 byte[] buffer = new byte[1024];
                 int bytesRead;
                 while ((bytesRead = inflaterInputStream.read(buffer)) != -1) {

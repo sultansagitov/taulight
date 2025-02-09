@@ -7,7 +7,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class HashSetTauGroupManager extends HashSetGroupManager implements TauGroupManager {
-    Map<String, TauChatGroup> map = new HashMap<>();
+    public final Map<String, TauChatGroup> map = new HashMap<>();
 
     @Override
     public TauChatGroup getGroup(TauChat chat) {

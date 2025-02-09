@@ -26,7 +26,8 @@ public class SandnodeMariaDBDatabase implements Database {
     public synchronized Member registerMember(String memberID, String password) throws BusyMemberIDException {
         try (Connection conn = dataSource.getConnection();
              PreparedStatement checkStmt = conn.prepareStatement("SELECT 1 FROM members WHERE member_id = ?");
-             PreparedStatement insertStmt = conn.prepareStatement("INSERT INTO members (member_id, password) VALUES (?, ?)")) {
+             PreparedStatement insertStmt =
+                     conn.prepareStatement("INSERT INTO members (member_id, password) VALUES (?, ?)")) {
 
             checkStmt.setString(1, memberID);
             try (ResultSet rs = checkStmt.executeQuery()) {

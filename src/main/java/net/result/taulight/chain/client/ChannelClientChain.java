@@ -35,7 +35,9 @@ public class ChannelClientChain extends ClientChain {
         new HappyMessage(raw);
     }
 
-    public void sendAddMemberRequest(String chatID, ClientMember member) throws InterruptedException, DeserializationException, ChatNotFoundException, TooFewArgumentsException, AddressedMemberNotFoundException, WrongAddressException, UnauthorizedException, ExpectedMessageException {
+    public void sendAddMemberRequest(String chatID, ClientMember member)
+            throws InterruptedException, DeserializationException, ChatNotFoundException, TooFewArgumentsException,
+            AddressedMemberNotFoundException, WrongAddressException, UnauthorizedException, ExpectedMessageException {
         send(ChannelRequest.addMember(chatID, member));
         RawMessage raw = queue.take();
         if (raw.getHeaders().getType() == MessageTypes.ERR) {
