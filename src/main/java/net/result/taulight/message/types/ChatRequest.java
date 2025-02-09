@@ -9,7 +9,7 @@ import net.result.sandnode.message.util.Headers;
 import static net.result.taulight.message.TauMessageTypes.CHAT;
 
 public class ChatRequest extends MSGPackMessage<ChatRequest.Data> {
-    public enum DataType {GET, REMOVE}
+    public enum DataType {GET, LEAVE}
 
     protected static class Data {
         @JsonProperty
