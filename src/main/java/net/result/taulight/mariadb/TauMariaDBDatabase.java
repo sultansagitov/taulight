@@ -22,15 +22,14 @@ public class TauMariaDBDatabase extends SandnodeMariaDBDatabase implements TauDa
         // Base chats table
         stmt.execute("""
             CREATE TABLE IF NOT EXISTS chats (
-                chat_id VARCHAR(255) PRIMARY KEY,
-                chat_type ENUM('DIRECT', 'CHANNEL') NOT NULL
+                chat_id VARCHAR(39) PRIMARY KEY
             )
         """);
 
         // Channels table extending chats
         stmt.execute("""
             CREATE TABLE IF NOT EXISTS channels (
-                chat_id VARCHAR(255) PRIMARY KEY,
+                chat_id VARCHAR(39) PRIMARY KEY,
                 title VARCHAR(255) NOT NULL,
                 owner_id VARCHAR(255) NOT NULL,
                 FOREIGN KEY (chat_id) REFERENCES chats(chat_id) ON DELETE CASCADE,
@@ -41,7 +40,7 @@ public class TauMariaDBDatabase extends SandnodeMariaDBDatabase implements TauDa
         // Chat members (many-to-many relationship)
         stmt.execute("""
             CREATE TABLE IF NOT EXISTS chat_members (
-                chat_id VARCHAR(255),
+                chat_id VARCHAR(39),
                 member_id VARCHAR(255),
                 PRIMARY KEY (chat_id, member_id),
                 FOREIGN KEY (chat_id) REFERENCES chats(chat_id) ON DELETE CASCADE,
@@ -53,7 +52,7 @@ public class TauMariaDBDatabase extends SandnodeMariaDBDatabase implements TauDa
         stmt.execute("""
             CREATE TABLE IF NOT EXISTS messages (
                 message_id BIGINT AUTO_INCREMENT PRIMARY KEY,
-                chat_id VARCHAR(255),
+                chat_id VARCHAR(39),
                 content TEXT NOT NULL,
                 timestamp TIMESTAMP NOT NULL,
                 member_id VARCHAR(255),
@@ -65,7 +64,7 @@ public class TauMariaDBDatabase extends SandnodeMariaDBDatabase implements TauDa
         // Direct chats
         stmt.execute("""
             CREATE TABLE IF NOT EXISTS direct_chats (
-                chat_id VARCHAR(255) PRIMARY KEY,
+                chat_id VARCHAR(39) PRIMARY KEY,
                 member1_id VARCHAR(255) NOT NULL,
                 member2_id VARCHAR(255) NOT NULL,
                 FOREIGN KEY (chat_id) REFERENCES chats(chat_id) ON DELETE CASCADE,
@@ -81,10 +80,10 @@ public class TauMariaDBDatabase extends SandnodeMariaDBDatabase implements TauDa
         try (Connection conn = dataSource.getConnection()) {
             conn.setAutoCommit(false);
             try {
-                String chatId = "direct_" + UUID.randomUUID();
+                String chatId = "dm-" + UUID.randomUUID();
 
                 try (PreparedStatement stmt = conn.prepareStatement(
-                        "INSERT INTO chats (chat_id, chat_type) VALUES (?, 'DIRECT')")) {
+                        "INSERT INTO chats (chat_id) VALUES (?)")) {
                     stmt.setString(1, chatId);
                     stmt.executeUpdate();
                 }
@@ -140,7 +139,7 @@ public class TauMariaDBDatabase extends SandnodeMariaDBDatabase implements TauDa
             conn.setAutoCommit(false);
             try {
                 try (PreparedStatement checkStmt = conn.prepareStatement(
-                        "INSERT IGNORE INTO chats (chat_id, chat_type) VALUES (?, 'CHANNEL')")) {
+                        "INSERT IGNORE INTO chats (chat_id) VALUES (?)")) {
                     checkStmt.setString(1, chat.getID());
                     checkStmt.executeUpdate();
                 }
@@ -173,34 +172,34 @@ public class TauMariaDBDatabase extends SandnodeMariaDBDatabase implements TauDa
     @Override
     public Optional<TauChat> getChat(String id) {
         try (Connection conn = dataSource.getConnection()) {
-            try (PreparedStatement channelStmt = conn.prepareStatement(
-                    "SELECT c.chat_id, ch.title, ch.owner_id FROM chats c " +
-                            "LEFT JOIN channels ch ON c.chat_id = ch.chat_id " +
-                            "WHERE c.chat_id = ? AND c.chat_type = 'CHANNEL'")) {
+            if (id.startsWith("cn-")) {
+                try (PreparedStatement channelStmt = conn.prepareStatement(
+                        "SELECT c.chat_id, ch.title, ch.owner_id FROM chats c " +
+                                "LEFT JOIN channels ch ON c.chat_id = ch.chat_id " +
+                                "WHERE c.chat_id = ?")) {
 
-                channelStmt.setString(1, id);
-                try (ResultSet rs = channelStmt.executeQuery()) {
-                    if (rs.next()) {
-                        String title = rs.getString("title");
-                        String ownerId = rs.getString("owner_id");
-                        Member owner = findMemberByMemberID(ownerId).orElseThrow();
-                        return Optional.of(new TauChannel(id, title, owner));
+                    channelStmt.setString(1, id);
+                    try (ResultSet rs = channelStmt.executeQuery()) {
+                        if (rs.next()) {
+                            String title = rs.getString("title");
+                            String ownerId = rs.getString("owner_id");
+                            Member owner = findMemberByMemberID(ownerId).orElseThrow();
+                            return Optional.of(new TauChannel(id, title, owner));
+                        }
                     }
                 }
-            }
+            } else if (id.startsWith("dm-")) {
+                try (PreparedStatement directStmt = conn.prepareStatement(
+                        "SELECT dc.member1_id, dc.member2_id FROM direct_chats dc " +
+                                "WHERE dc.chat_id = ?")) {
 
-            try (PreparedStatement directStmt = conn.prepareStatement(
-                    "SELECT dc.chat_id, dc.member1_id, dc.member2_id " +
-                            "FROM chats c " +
-                            "JOIN direct_chats dc ON c.chat_id = dc.chat_id " +
-                            "WHERE c.chat_id = ? AND c.chat_type = 'DIRECT'")) {
-
-                directStmt.setString(1, id);
-                try (ResultSet rs = directStmt.executeQuery()) {
-                    if (rs.next()) {
-                        Member member1 = findMemberByMemberID(rs.getString("member1_id")).orElseThrow();
-                        Member member2 = findMemberByMemberID(rs.getString("member2_id")).orElseThrow();
-                        return Optional.of(new TauDirect(id, member1, member2));
+                    directStmt.setString(1, id);
+                    try (ResultSet rs = directStmt.executeQuery()) {
+                        if (rs.next()) {
+                            Member member1 = findMemberByMemberID(rs.getString("member1_id")).orElseThrow();
+                            Member member2 = findMemberByMemberID(rs.getString("member2_id")).orElseThrow();
+                            return Optional.of(new TauDirect(id, member1, member2));
+                        }
                     }
                 }
             }
@@ -257,15 +256,17 @@ public class TauMariaDBDatabase extends SandnodeMariaDBDatabase implements TauDa
     @Override
     public Collection<Member> getMembersFromChat(TauChat chat) {
         try (Connection conn = dataSource.getConnection()) {
-            try (PreparedStatement stmt = conn.prepareStatement(
-                    "SELECT member1_id, member2_id FROM direct_chats WHERE chat_id = ?")) {
-                stmt.setString(1, chat.getID());
-                try (ResultSet rs = stmt.executeQuery()) {
-                    if (rs.next()) {
-                        List<Member> members = new ArrayList<>(2);
-                        members.add(findMemberByMemberID(rs.getString("member1_id")).orElseThrow());
-                        members.add(findMemberByMemberID(rs.getString("member2_id")).orElseThrow());
-                        return members;
+            if (chat.getID().startsWith("dm-")) {
+                try (PreparedStatement stmt = conn.prepareStatement(
+                        "SELECT member1_id, member2_id FROM direct_chats WHERE chat_id = ?")) {
+                    stmt.setString(1, chat.getID());
+                    try (ResultSet rs = stmt.executeQuery()) {
+                        if (rs.next()) {
+                            List<Member> members = new ArrayList<>(2);
+                            members.add(findMemberByMemberID(rs.getString("member1_id")).orElseThrow());
+                            members.add(findMemberByMemberID(rs.getString("member2_id")).orElseThrow());
+                            return members;
+                        }
                     }
                 }
             }
@@ -317,7 +318,7 @@ public class TauMariaDBDatabase extends SandnodeMariaDBDatabase implements TauDa
                             "FROM chats c " +
                             "JOIN chat_members cm ON c.chat_id = cm.chat_id " +
                             "LEFT JOIN channels ch ON c.chat_id = ch.chat_id " +
-                            "WHERE cm.member_id = ? AND c.chat_type = 'CHANNEL'")) {
+                            "WHERE cm.member_id = ? AND c.chat_id LIKE 'cn-%'")) {
 
                 stmt.setString(1, member.getID());
                 try (ResultSet rs = stmt.executeQuery()) {
