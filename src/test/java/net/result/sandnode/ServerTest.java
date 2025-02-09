@@ -189,8 +189,8 @@ public class ServerTest {
 
     private static class TestingBSTServerChainManager extends BSTServerChainManager {
         @Override
-        public ServerChain defaultChain(RawMessage ignored) {
-            return new TestServerChain(session);
+        public ServerChain createChain(MessageType type) {
+            return type == Testing.TESTING ? new TestServerChain(session) : super.createChain(type);
         }
     }
 
@@ -269,6 +269,7 @@ public class ServerTest {
             super(new GlobalKeyStorage());
         }
 
+        @SuppressWarnings("DataFlowIssue")
         @Override
         public @NotNull Session createSession(SandnodeServer server, Socket socket, Connection connection) {
             return null;

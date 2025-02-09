@@ -1,12 +1,16 @@
 package net.result.sandnode.chain.client;
 
 import net.result.sandnode.chain.ChainManager;
-import net.result.sandnode.message.RawMessage;
+import net.result.sandnode.message.util.MessageType;
 import net.result.sandnode.util.IOController;
+import org.jetbrains.annotations.Nullable;
 
 public interface ClientChainManager extends ChainManager {
-    @Override
-    ClientChain defaultChain(RawMessage message);
 
     void setIOController(IOController io);
+
+    @Override
+    default @Nullable ClientChain createChain(MessageType type) {
+        return null;
+    }
 }

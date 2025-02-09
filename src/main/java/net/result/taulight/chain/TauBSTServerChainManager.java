@@ -1,9 +1,8 @@
 package net.result.taulight.chain;
 
 import net.result.sandnode.chain.server.ServerChain;
-import net.result.sandnode.exception.ImpossibleRuntimeException;
-import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.chain.server.BSTServerChainManager;
+import net.result.sandnode.message.util.MessageType;
 import net.result.taulight.chain.server.ChannelServerChain;
 import net.result.taulight.chain.server.ForwardRequestServerChain;
 import net.result.taulight.chain.server.TaulightServerChain;
@@ -15,8 +14,8 @@ public class TauBSTServerChainManager extends BSTServerChainManager {
     }
 
     @Override
-    public ServerChain defaultChain(RawMessage message) {
-        if (message.getHeaders().getType() instanceof TauMessageTypes tau) {
+    public ServerChain createChain(MessageType type) {
+        if (type instanceof TauMessageTypes tau) {
             switch (tau) {
                 case TAULIGHT -> {
                     return new TaulightServerChain(session);
@@ -30,6 +29,6 @@ public class TauBSTServerChainManager extends BSTServerChainManager {
             }
         }
 
-        throw new ImpossibleRuntimeException("Unknown type of message");
+        return super.createChain(type);
     }
 }

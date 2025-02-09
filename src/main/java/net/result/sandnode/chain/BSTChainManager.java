@@ -1,5 +1,6 @@
 package net.result.sandnode.chain;
 
+import net.result.sandnode.message.util.MessageType;
 import net.result.sandnode.util.bst.AVLTree;
 import net.result.sandnode.exception.BSTBusyPosition;
 import net.result.sandnode.exception.BusyChainID;
@@ -39,6 +40,24 @@ public abstract class BSTChainManager implements ChainManager {
     }
 
     @Override
+    public Chain createNew(RawMessage message) throws BusyChainID {
+        Headers headers = message.getHeaders();
+        MessageType type = headers.getType();
+        Chain chain = createChain(type);
+
+        assert chain != null : "Cannot handle type \"%s\"".formatted(type);
+
+        chain.setID(headers.getChainID());
+        LOGGER.info("Adding new chain {}", chain);
+        try {
+            bst.add(chain);
+        } catch (BSTBusyPosition e) {
+            throw new BusyChainID(e);
+        }
+        return chain;
+    }
+
+    @Override
     public void linkChain(Chain chain) {
         var list = bst.getOrdered().stream().map(Chain::getID).toList();
 
@@ -48,7 +67,7 @@ public abstract class BSTChainManager implements ChainManager {
             chainID = (short) random.nextInt(Short.MIN_VALUE, Short.MAX_VALUE);
         } while (list.contains(chainID));
         chain.setID(chainID);
-        LOGGER.info("Adding new chain {}", chain);
+        LOGGER.info("Linking new chain {}", chain);
         try {
             bst.add(chain);
         } catch (BSTBusyPosition e) {
