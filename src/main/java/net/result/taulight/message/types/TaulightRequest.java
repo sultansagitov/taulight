@@ -9,7 +9,7 @@ import net.result.sandnode.message.util.Headers;
 import static net.result.taulight.message.TauMessageTypes.TAULIGHT;
 
 public class TaulightRequest extends MSGPackMessage<TaulightRequest.TaulightRequestData> {
-    public enum DataType {ADD, GET, REMOVE}
+    public enum DataType {GET, REMOVE}
 
     public static class TaulightRequestData {
         @JsonProperty
@@ -22,13 +22,6 @@ public class TaulightRequest extends MSGPackMessage<TaulightRequest.TaulightRequ
         public TaulightRequestData(DataType dataType) {
             this.dataType = dataType;
         }
-        public static TaulightRequestData addGroup(String chatID) {
-            TaulightRequestData result = new TaulightRequestData();
-            result.dataType = DataType.ADD;
-            result.chatID = chatID;
-            return result;
-        }
-
     }
 
     public TaulightRequest(Headers headers, TaulightRequestData taulightRequestData) {

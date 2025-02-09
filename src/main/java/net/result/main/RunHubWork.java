@@ -1,5 +1,6 @@
 package net.result.main;
 
+import net.result.sandnode.config.ServerConfig;
 import net.result.sandnode.encryption.interfaces.AsymmetricConvertor;
 import net.result.sandnode.encryption.interfaces.AsymmetricKeyStorage;
 import net.result.sandnode.exception.*;
@@ -17,6 +18,7 @@ import net.result.sandnode.encryption.interfaces.AsymmetricEncryption;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import org.jetbrains.annotations.NotNull;
 import org.mariadb.jdbc.MariaDbDataSource;
 
 import java.net.URI;
@@ -28,21 +30,7 @@ public class RunHubWork implements IWork {
 
     @Override
     public void run() throws SandnodeException {
-        ServerPropertiesConfig serverConfig = new ServerPropertiesConfig();
-        HashSetTauGroupManager manager = new HashSetTauGroupManager();
-        serverConfig.setGroupManager(manager);
-
-        MariaDbDataSource dataSource = new MariaDbDataSource();
-        try {
-            dataSource.setUrl("jdbc:mariadb://localhost:3306/taulight");
-            dataSource.setUser("root");
-            dataSource.setPassword("12345678");
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-
-        serverConfig.setDatabase(new TauMariaDBDatabase(dataSource));
-        serverConfig.setTokenizer(new JWTTokenizer(new JWTConfig("YourSuperSecretKey")));
+        ServerConfig serverConfig = getServerConfig();
 
         AsymmetricEncryption mainEncryption = serverConfig.mainEncryption();
 
@@ -78,4 +66,21 @@ public class RunHubWork implements IWork {
         }
     }
 
+    private static @NotNull ServerPropertiesConfig getServerConfig() throws ConfigurationException, FSException, NoSuchEncryptionException, EncryptionTypeException {
+        ServerPropertiesConfig serverConfig = new ServerPropertiesConfig();
+        serverConfig.setGroupManager(new HashSetTauGroupManager());
+
+        MariaDbDataSource dataSource = new MariaDbDataSource();
+        try {
+            dataSource.setUrl("jdbc:mariadb://localhost:3306/taulight");
+            dataSource.setUser("root");
+            dataSource.setPassword("12345678");
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
+        serverConfig.setDatabase(new TauMariaDBDatabase(dataSource));
+        serverConfig.setTokenizer(new JWTTokenizer(new JWTConfig("YourSuperSecretKey")));
+        return serverConfig;
+    }
 }

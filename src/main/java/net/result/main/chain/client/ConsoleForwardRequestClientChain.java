@@ -80,12 +80,6 @@ public class ConsoleForwardRequestClientChain extends ClientChain {
                     Optional<Collection<String>> opt = taulightClientChain.getChats();
                     opt.ifPresent(LOGGER::info);
                 }
-            } else if (input.startsWith("tauChatAdd ")) {
-                String s = input.split(" ")[1];
-                Optional<Chain> tau = io.chainManager.getChain("tau");
-                if (tau.isPresent()) {
-                    ((TaulightClientChain) tau.get()).addToGroup(s);
-                }
             } else if (input.startsWith("newChannel ")) {
                 String title = input.substring(11);
                 try {
