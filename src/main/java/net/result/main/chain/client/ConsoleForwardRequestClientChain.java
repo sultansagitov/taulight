@@ -4,6 +4,7 @@ import net.result.sandnode.exception.*;
 import net.result.sandnode.hubagent.ClientProtocol;
 import net.result.sandnode.chain.Chain;
 import net.result.sandnode.message.RawMessage;
+import net.result.sandnode.message.types.ChainNameRequest;
 import net.result.sandnode.message.types.ErrorMessage;
 import net.result.sandnode.message.util.MessageType;
 import net.result.sandnode.error.SandnodeError;
@@ -75,11 +76,17 @@ public class ConsoleForwardRequestClientChain extends ClientChain {
 
             } else if (input.equalsIgnoreCase("tauChatGet")) {
                 Optional<Chain> tau = io.chainManager.getChain("tau");
+                Optional<Collection<String>> opt;
                 if (tau.isPresent()) {
                     ChatClientChain chain = (ChatClientChain) tau.get();
-                    Optional<Collection<String>> opt = chain.getChats();
-                    opt.map("Chats: %s"::formatted).ifPresent(System.out::println);
+                    opt = chain.getChats();
+                } else {
+                    ChatClientChain chain = new ChatClientChain(io);
+                    io.chainManager.linkChain(chain);
+                    opt = chain.getChats();
+                    chain.send(new ChainNameRequest("tau"));
                 }
+                opt.map("Chats: %s"::formatted).ifPresent(System.out::println);
             } else if (input.startsWith("newChannel ")) {
                 String title = input.substring(11);
                 try {

@@ -12,13 +12,10 @@ import net.result.sandnode.encryption.interfaces.*;
 import net.result.sandnode.exception.*;
 import net.result.sandnode.link.Links;
 import net.result.sandnode.link.SandnodeLinkRecord;
-import net.result.sandnode.message.types.ChainNameRequest;
 import net.result.sandnode.util.EncryptionUtil;
 import net.result.sandnode.util.Endpoint;
 import net.result.sandnode.util.IOController;
 import net.result.taulight.hubagent.TauAgent;
-import net.result.taulight.chain.client.ChatClientChain;
-import net.result.taulight.message.types.ChatRequest;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -59,19 +56,10 @@ public class RunAgentWork implements IWork {
         ClientProtocol.sendSYM(client);             // sending symmetric key
         handleAuthentication(client.io, scanner);   // registration or login
 
-        startTaulightChain(client.io);
-
         startConsoleChain(client.io);
 
         LOGGER.info("Exiting...");
         client.close();
-    }
-
-    private static void startTaulightChain(IOController io) throws InterruptedException {
-        ChatClientChain chain = new ChatClientChain(io);
-        io.chainManager.linkChain(chain);
-        chain.send(new ChatRequest(ChatRequest.DataType.REMOVE));
-        chain.send(new ChainNameRequest("tau"));
     }
 
     private static void startConsoleChain(IOController io)
