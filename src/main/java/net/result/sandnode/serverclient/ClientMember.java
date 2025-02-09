@@ -11,4 +11,9 @@ public final class ClientMember {
     public ClientMember(String memberID) {
         this.memberID = memberID;
     }
+
+    @Override
+    public String toString() {
+        return "<%s %s>".formatted(getClass().getSimpleName(), memberID);
+    }
 }

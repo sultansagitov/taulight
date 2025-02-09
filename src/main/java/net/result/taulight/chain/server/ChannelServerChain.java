@@ -16,7 +16,6 @@ import net.result.taulight.db.TauChannel;
 import net.result.taulight.db.TauChat;
 
 import java.util.Optional;
-import java.util.UUID;
 
 public class ChannelServerChain extends ServerChain {
     public ChannelServerChain(Session session) {
@@ -44,10 +43,9 @@ public class ChannelServerChain extends ServerChain {
                     return;
                 }
 
-                String id = UUID.randomUUID().toString();
                 TauGroupManager manager = (TauGroupManager) session.server.serverConfig.groupManager();
 
-                TauChannel channel = new TauChannel("cn-%s".formatted(id), title, session.member);
+                TauChannel channel = new TauChannel(title, session.member);
                 database.saveChat(channel);
                 database.addMemberToChat(channel, session.member);
 
