@@ -9,8 +9,8 @@ import net.result.sandnode.message.types.ErrorMessage;
 import net.result.sandnode.error.SandnodeError;
 import net.result.sandnode.message.util.MessageTypes;
 import net.result.sandnode.util.IOController;
-import net.result.taulight.message.types.TaulightRequest;
-import net.result.taulight.message.types.TaulightResponse;
+import net.result.taulight.message.types.ChatRequest;
+import net.result.taulight.message.types.ChatResponse;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -19,11 +19,11 @@ import java.util.Optional;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-public class TaulightClientChain extends ClientChain {
-    private static final Logger LOGGER = LogManager.getLogger(TaulightClientChain.class);
+public class ChatClientChain extends ClientChain {
+    private static final Logger LOGGER = LogManager.getLogger(ChatClientChain.class);
     private final Lock lock = new ReentrantLock();
 
-    public TaulightClientChain(IOController io) {
+    public ChatClientChain(IOController io) {
         super(io);
     }
 
@@ -46,7 +46,7 @@ public class TaulightClientChain extends ClientChain {
             throws InterruptedException, DeserializationException, ExpectedMessageException {
         lock.lock();
         try {
-            send(new TaulightRequest(TaulightRequest.DataType.GET));
+            send(new ChatRequest(ChatRequest.DataType.GET));
             RawMessage raw = queue.take();
 
             if (raw.getHeaders().getType() == MessageTypes.ERR) {
@@ -54,7 +54,7 @@ public class TaulightClientChain extends ClientChain {
                 return Optional.empty();
             }
 
-            Collection<String> chats = new TaulightResponse(raw).getChats();
+            Collection<String> chats = new ChatResponse(raw).getChats();
             return Optional.of(chats);
         } finally {
             lock.unlock();

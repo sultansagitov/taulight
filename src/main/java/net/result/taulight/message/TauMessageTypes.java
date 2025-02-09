@@ -7,7 +7,7 @@ import java.util.Arrays;
 
 public enum TauMessageTypes implements MessageType {
     FWD(12),
-    TAULIGHT(13),
+    CHAT(13),
     CHANNEL(14),
     FWD_REQ(15);
 

@@ -12,7 +12,7 @@ import net.result.sandnode.serverclient.ClientMember;
 import net.result.sandnode.util.IOController;
 import net.result.sandnode.chain.client.ClientChain;
 import net.result.taulight.chain.client.ChannelClientChain;
-import net.result.taulight.chain.client.TaulightClientChain;
+import net.result.taulight.chain.client.ChatClientChain;
 import net.result.taulight.exception.ChatNotFoundException;
 import net.result.taulight.message.types.ForwardRequest;
 import org.apache.logging.log4j.LogManager;
@@ -76,9 +76,9 @@ public class ConsoleForwardRequestClientChain extends ClientChain {
             } else if (input.equalsIgnoreCase("tauChatGet")) {
                 Optional<Chain> tau = io.chainManager.getChain("tau");
                 if (tau.isPresent()) {
-                    TaulightClientChain taulightClientChain = (TaulightClientChain) tau.get();
-                    Optional<Collection<String>> opt = taulightClientChain.getChats();
-                    opt.ifPresent(LOGGER::info);
+                    ChatClientChain chain = (ChatClientChain) tau.get();
+                    Optional<Collection<String>> opt = chain.getChats();
+                    opt.map("Chats: %s"::formatted).ifPresent(System.out::println);
                 }
             } else if (input.startsWith("newChannel ")) {
                 String title = input.substring(11);
