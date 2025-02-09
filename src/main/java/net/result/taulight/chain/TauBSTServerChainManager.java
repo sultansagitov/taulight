@@ -2,7 +2,9 @@ package net.result.taulight.chain;
 
 import net.result.sandnode.chain.server.ServerChain;
 import net.result.sandnode.chain.server.BSTServerChainManager;
+import net.result.sandnode.chain.server.TauLoginServerChain;
 import net.result.sandnode.message.util.MessageType;
+import net.result.sandnode.message.util.MessageTypes;
 import net.result.taulight.chain.server.ChannelServerChain;
 import net.result.taulight.chain.server.ForwardRequestServerChain;
 import net.result.taulight.chain.server.TaulightServerChain;
@@ -15,6 +17,10 @@ public class TauBSTServerChainManager extends BSTServerChainManager {
 
     @Override
     public ServerChain createChain(MessageType type) {
+        if (type == MessageTypes.LOGIN) {
+            return new TauLoginServerChain(session);
+        }
+
         if (type instanceof TauMessageTypes tau) {
             switch (tau) {
                 case TAULIGHT -> {

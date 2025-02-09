@@ -30,7 +30,6 @@ public class RegistrationServerChain extends ServerChain {
 
         try {
             session.member = serverConfig.database().registerMember(memberID, password);
-            session.member.getSessions().add(session);
             String token = serverConfig.tokenizer().tokenizeMember(session.member);
             sendFin(new RegistrationResponse(token));
         } catch (BusyMemberIDException e) {

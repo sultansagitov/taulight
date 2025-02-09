@@ -52,7 +52,9 @@ public class ChannelServerChain extends ServerChain {
                 database.addMemberToChat(channel, session.member);
 
                 TauChatGroup tauChatGroup = manager.getGroup(channel);
-                session.member.getSessions().forEach(s -> s.addToGroup(tauChatGroup));
+                session.server.node.getAgents().stream()
+                        .filter(s -> session.member.equals(s.member))
+                        .forEach(s -> s.addToGroup(tauChatGroup));
 
                 send(new HappyMessage());
             }

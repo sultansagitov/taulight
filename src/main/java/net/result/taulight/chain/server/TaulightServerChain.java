@@ -4,6 +4,7 @@ import net.result.sandnode.chain.server.ServerChain;
 import net.result.sandnode.exception.*;
 import net.result.sandnode.message.types.HappyMessage;
 import net.result.sandnode.serverclient.Session;
+import net.result.taulight.TauAgentProtocol;
 import net.result.taulight.db.TauDatabase;
 import net.result.taulight.error.TauErrors;
 import net.result.taulight.group.TauGroupManager;
@@ -56,7 +57,7 @@ public class TaulightServerChain extends ServerChain {
                     }
 
                     database.addMemberToChat(chat, session.member);
-                    session.member.getSessions().forEach(session -> session.addToGroup(manager.getGroup(chat)));
+                    TauAgentProtocol.addMemberToGroup(session, manager.getGroup(chat));
 
                     send(new HappyMessage());
                     LOGGER.info("Member {} added to chat {}", session.member.getID(), chatID);
