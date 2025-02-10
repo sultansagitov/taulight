@@ -20,12 +20,12 @@ public class ConsoleForwardClientChain extends ForwardClientChain {
     @Override
     public void onMessage(ForwardResponse tfm) {
         ZonedDateTime zonedDateTime = tfm.getZonedDateTime();
-
         ZonedDateTime localZonedDateTime = zonedDateTime.withZoneSameInstant(ZoneId.systemDefault());
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss z");
-        String formattedDateTime = localZonedDateTime.format(formatter);
+        String formatted = localZonedDateTime.format(formatter);
 
-        LOGGER.info("Forwarded message details - member: {} time: {}, chatID: {}, data: {}",
-                tfm.getMember().memberID, formattedDateTime, tfm.getChatID(), tfm.getData());
+        String content = tfm.getData();
+        LOGGER.info("Forwarded message details - {} - {} - {}", tfm.getMessageID(), formatted, content);
+        System.out.printf("%s > %s > %s%n", tfm.getChatID(), tfm.getMember().memberID, content);
     }
 }

@@ -61,4 +61,8 @@ public class ForwardResponse extends MSGPackMessage<ForwardResponse.Data> {
     public ClientMember getMember() {
         return new ClientMember(object.message.memberID());
     }
+
+    public String getMessageID() {
+        return object.message.id();
+    }
 }
