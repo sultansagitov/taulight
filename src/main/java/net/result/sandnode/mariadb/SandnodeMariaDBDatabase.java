@@ -4,6 +4,7 @@ import net.result.sandnode.db.Database;
 import net.result.sandnode.db.Member;
 import net.result.sandnode.db.StandardMember;
 import net.result.sandnode.exception.BusyMemberIDException;
+import net.result.sandnode.exception.DatabaseException;
 
 import javax.sql.DataSource;
 import java.sql.*;
@@ -12,18 +13,19 @@ import java.util.Optional;
 public class SandnodeMariaDBDatabase implements Database {
     protected final DataSource dataSource;
 
-    public SandnodeMariaDBDatabase(DataSource dataSource) {
+    public SandnodeMariaDBDatabase(DataSource dataSource) throws DatabaseException {
         this.dataSource = dataSource;
         try (Connection conn = dataSource.getConnection();
              Statement stmt = conn.createStatement()) {
             initTables(stmt);
         } catch (SQLException e) {
-            throw new RuntimeException("Failed to initialize database tables", e);
+            throw new DatabaseException("Failed to initialize database tables", e);
         }
     }
 
     @Override
-    public synchronized Member registerMember(String memberID, String password) throws BusyMemberIDException {
+    public synchronized Member registerMember(String memberID, String password)
+            throws BusyMemberIDException, DatabaseException {
         try (Connection conn = dataSource.getConnection();
              PreparedStatement checkStmt = conn.prepareStatement("SELECT 1 FROM members WHERE member_id = ?");
              PreparedStatement insertStmt =
@@ -42,12 +44,12 @@ public class SandnodeMariaDBDatabase implements Database {
 
             return new StandardMember(memberID, password, this);
         } catch (SQLException e) {
-            throw new RuntimeException("Failed to register member", e);
+            throw new DatabaseException("Failed to register member", e);
         }
     }
 
     @Override
-    public synchronized Optional<Member> findMemberByMemberID(String memberID) {
+    public synchronized Optional<Member> findMemberByMemberID(String memberID) throws DatabaseException {
         try (Connection conn = dataSource.getConnection();
              PreparedStatement stmt = conn.prepareStatement("SELECT password FROM members WHERE member_id = ?")) {
 
@@ -60,7 +62,7 @@ public class SandnodeMariaDBDatabase implements Database {
             }
             return Optional.empty();
         } catch (SQLException e) {
-            throw new RuntimeException("Failed to find member", e);
+            throw new DatabaseException("Failed to find member", e);
         }
     }
 

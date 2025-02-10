@@ -8,30 +8,30 @@ import net.result.sandnode.message.util.Headers;
 import net.result.sandnode.message.MSGPackMessage;
 import net.result.taulight.message.TauMessageTypes;
 
-public class ForwardRequest extends MSGPackMessage<ForwardRequest.ForwardData> {
-    public static class ForwardData {
+public class ForwardRequest extends MSGPackMessage<ForwardRequest.Data> {
+    public static class Data {
         @JsonProperty
         public String content;
-
         @JsonProperty
         public String chatID;
 
-        public ForwardData() {}
-        public ForwardData(String chatID, String data) {
+        @SuppressWarnings("unused")
+        public Data() {}
+        public Data(String chatID, String data) {
             this.chatID = chatID;
             content = data;
         }
     }
 
     public ForwardRequest(IMessage request) throws DeserializationException, ExpectedMessageException {
-        super(request.expect(TauMessageTypes.FWD_REQ), ForwardData.class);
+        super(request.expect(TauMessageTypes.FWD_REQ), Data.class);
     }
 
-    public ForwardRequest(Headers headers, ForwardData data) {
+    public ForwardRequest(Headers headers, Data data) {
         super(headers.setType(TauMessageTypes.FWD_REQ), data);
     }
 
-    public ForwardRequest(ForwardData data) {
+    public ForwardRequest(Data data) {
         this(new Headers(), data);
     }
 

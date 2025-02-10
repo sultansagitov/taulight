@@ -45,7 +45,7 @@ public class ConsoleForwardRequestClientChain extends ClientChain {
 
             if (input.isEmpty()) continue;
 
-            if (input.equalsIgnoreCase("exit")) {
+            if (input.trim().equalsIgnoreCase("exit")) {
                 try {
                     io.disconnect();
                 } catch (Exception e) {
@@ -53,14 +53,14 @@ public class ConsoleForwardRequestClientChain extends ClientChain {
                 }
                 break;
 
-            } else if (input.equalsIgnoreCase("chains")) {
+            } else if (input.trim().equalsIgnoreCase("chains")) {
                 var chains = io.chainManager.getAllChains();
                 var map = io.chainManager.getChainsMap();
 
                 LOGGER.info("All client chains: {}", chains);
                 LOGGER.info("All named client chains: {}", map);
 
-            } else if (input.equalsIgnoreCase("groups")) {
+            } else if (input.trim().equalsIgnoreCase("groups")) {
                 var groups = ClientProtocol.getGroups(io);
                 LOGGER.info("Your groups: {}", groups);
 
@@ -74,7 +74,7 @@ public class ConsoleForwardRequestClientChain extends ClientChain {
                 Collection<String> groupsAfterRemoving = ClientProtocol.removeFromGroups(io, groups);
                 LOGGER.info("Your groups now (after removing): {}", groupsAfterRemoving);
 
-            } else if (input.equalsIgnoreCase("tauChatGet")) {
+            } else if (input.trim().equalsIgnoreCase("chats")) {
                 Optional<Chain> tau = io.chainManager.getChain("tau");
                 Optional<Collection<String>> opt;
                 if (tau.isPresent()) {
@@ -127,7 +127,7 @@ public class ConsoleForwardRequestClientChain extends ClientChain {
                 System.out.println("chat not selected");
 
             } else {
-                send(new ForwardRequest(new ForwardRequest.ForwardData(currentChat, input)));
+                send(new ForwardRequest(new ForwardRequest.Data(currentChat, input)));
                 RawMessage raw = queue.take();
                 MessageType type = raw.getHeaders().getType();
                 if (type == MessageTypes.EXIT) break;

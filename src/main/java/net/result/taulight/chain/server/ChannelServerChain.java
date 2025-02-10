@@ -1,6 +1,7 @@
 package net.result.taulight.chain.server;
 
 import net.result.sandnode.chain.server.ServerChain;
+import net.result.sandnode.exception.DatabaseException;
 import net.result.taulight.db.TauDatabase;
 import net.result.sandnode.db.Member;
 import net.result.sandnode.error.Errors;
@@ -14,10 +15,14 @@ import net.result.taulight.group.TauChatGroup;
 import net.result.taulight.message.types.ChannelRequest;
 import net.result.taulight.db.TauChannel;
 import net.result.taulight.db.TauChat;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.Optional;
 
 public class ChannelServerChain extends ServerChain {
+    private static final Logger LOGGER = LogManager.getLogger(ChannelServerChain.class);
+
     public ChannelServerChain(Session session) {
         super(session);
     }
@@ -45,8 +50,14 @@ public class ChannelServerChain extends ServerChain {
                 }
 
                 TauChannel channel = new TauChannel(title, session.member);
-                database.saveChat(channel);
-                database.addMemberToChat(channel, session.member);
+                try {
+                    database.saveChat(channel);
+                    database.addMemberToChat(channel, session.member);
+                } catch (DatabaseException e) {
+                    LOGGER.error(e);
+                    sendFin(Errors.SERVER_ERROR.message());
+                    return;
+                }
 
                 TauChatGroup tauChatGroup = manager.getGroup(channel);
                 session.server.node.getAgents().stream()
@@ -66,8 +77,16 @@ public class ChannelServerChain extends ServerChain {
                     return;
                 }
 
-                Optional<TauChat> optChat = database.getChat(id);
-                Optional<Member> optMember = database.findMemberByMemberID(cMember.memberID);
+                Optional<TauChat> optChat;
+                Optional<Member> optMember;
+                try {
+                    optChat = database.getChat(id);
+                    optMember = database.findMemberByMemberID(cMember.memberID);
+                } catch (DatabaseException e) {
+                    LOGGER.error(e);
+                    sendFin(Errors.SERVER_ERROR.message());
+                    return;
+                }
 
                 if (optChat.isEmpty()) {
                     sendFin(TauErrors.CHAT_NOT_FOUND.message());
@@ -91,7 +110,13 @@ public class ChannelServerChain extends ServerChain {
                     return;
                 }
 
-                database.addMemberToChat(channel, member);
+                try {
+                    database.addMemberToChat(channel, member);
+                } catch (DatabaseException e) {
+                    LOGGER.error(e);
+                    sendFin(Errors.SERVER_ERROR.message());
+                    return;
+                }
 
                 TauChatGroup tauChatGroup = manager.getGroup(channel);
                 session.server.node

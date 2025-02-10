@@ -2,6 +2,7 @@ package net.result.sandnode.chain.server;
 
 import net.result.sandnode.config.ServerConfig;
 import net.result.sandnode.exception.BusyMemberIDException;
+import net.result.sandnode.exception.DatabaseException;
 import net.result.sandnode.exception.DeserializationException;
 import net.result.sandnode.exception.ExpectedMessageException;
 import net.result.sandnode.message.IMessage;
@@ -9,8 +10,12 @@ import net.result.sandnode.message.types.RegistrationRequest;
 import net.result.sandnode.message.types.RegistrationResponse;
 import net.result.sandnode.error.Errors;
 import net.result.sandnode.serverclient.Session;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class RegistrationServerChain extends ServerChain {
+    private static final Logger LOGGER = LogManager.getLogger(RegistrationServerChain.class);
+
     public RegistrationServerChain(Session session) {
         super(session);
     }
@@ -34,6 +39,9 @@ public class RegistrationServerChain extends ServerChain {
             sendFin(new RegistrationResponse(token));
         } catch (BusyMemberIDException e) {
             sendFin(Errors.MEMBER_ID_BUSY.message());
+        } catch (DatabaseException e) {
+            LOGGER.error(e);
+            sendFin(Errors.SERVER_ERROR.message());
         }
     }
 }

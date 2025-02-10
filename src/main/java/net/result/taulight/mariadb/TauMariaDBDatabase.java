@@ -2,6 +2,7 @@ package net.result.taulight.mariadb;
 
 import net.result.sandnode.db.Member;
 import net.result.sandnode.db.StandardMember;
+import net.result.sandnode.exception.DatabaseException;
 import net.result.sandnode.mariadb.SandnodeMariaDBDatabase;
 import net.result.taulight.db.*;
 
@@ -11,7 +12,7 @@ import java.time.ZonedDateTime;
 import java.util.*;
 
 public class TauMariaDBDatabase extends SandnodeMariaDBDatabase implements TauDatabase {
-    public TauMariaDBDatabase(DataSource dataSource) {
+    public TauMariaDBDatabase(DataSource dataSource) throws DatabaseException {
         super(dataSource);
     }
 
@@ -51,7 +52,7 @@ public class TauMariaDBDatabase extends SandnodeMariaDBDatabase implements TauDa
         // Messages table
         stmt.execute("""
             CREATE TABLE IF NOT EXISTS messages (
-                message_id BIGINT AUTO_INCREMENT PRIMARY KEY,
+                message_id VARCHAR(36) PRIMARY KEY,
                 chat_id VARCHAR(39),
                 content TEXT NOT NULL,
                 timestamp TIMESTAMP NOT NULL,
@@ -76,7 +77,7 @@ public class TauMariaDBDatabase extends SandnodeMariaDBDatabase implements TauDa
     }
 
     @Override
-    public TauDirect createDirectChat(Member member1, Member member2) {
+    public TauDirect createDirectChat(Member member1, Member member2) throws DatabaseException {
         try (Connection conn = dataSource.getConnection()) {
             conn.setAutoCommit(false);
             try {
@@ -105,12 +106,12 @@ public class TauMariaDBDatabase extends SandnodeMariaDBDatabase implements TauDa
                 conn.setAutoCommit(true);
             }
         } catch (SQLException e) {
-            throw new RuntimeException("Failed to create direct chat", e);
+            throw new DatabaseException("Failed to create direct chat", e);
         }
     }
 
     @Override
-    public Optional<TauDirect> findDirectChat(Member member1, Member member2) {
+    public Optional<TauDirect> findDirectChat(Member member1, Member member2) throws DatabaseException {
         try (Connection conn = dataSource.getConnection();
              PreparedStatement stmt = conn.prepareStatement(
                      "SELECT chat_id FROM direct_chats " +
@@ -129,12 +130,12 @@ public class TauMariaDBDatabase extends SandnodeMariaDBDatabase implements TauDa
             }
             return Optional.empty();
         } catch (SQLException e) {
-            throw new RuntimeException("Failed to find direct chat", e);
+            throw new DatabaseException("Failed to find direct chat", e);
         }
     }
 
     @Override
-    public void saveChat(TauChat chat) {
+    public void saveChat(TauChat chat) throws DatabaseException {
         try (Connection conn = dataSource.getConnection()) {
             conn.setAutoCommit(false);
             try {
@@ -165,12 +166,12 @@ public class TauMariaDBDatabase extends SandnodeMariaDBDatabase implements TauDa
                 conn.setAutoCommit(true);
             }
         } catch (SQLException e) {
-            throw new RuntimeException("Failed to save chat", e);
+            throw new DatabaseException("Failed to save chat", e);
         }
     }
 
     @Override
-    public Optional<TauChat> getChat(String id) {
+    public Optional<TauChat> getChat(String id) throws DatabaseException {
         try (Connection conn = dataSource.getConnection()) {
             if (id.startsWith("cn-")) {
                 try (PreparedStatement channelStmt = conn.prepareStatement(
@@ -205,31 +206,32 @@ public class TauMariaDBDatabase extends SandnodeMariaDBDatabase implements TauDa
             }
             return Optional.empty();
         } catch (SQLException e) {
-            throw new RuntimeException("Failed to get chat", e);
+            throw new DatabaseException("Failed to get chat", e);
         }
     }
 
     @Override
-    public void saveMessage(ChatMessage msg) {
+    public void saveMessage(ChatMessage msg) throws DatabaseException {
         try (Connection conn = dataSource.getConnection();
              PreparedStatement stmt = conn.prepareStatement(
-                     "INSERT INTO messages (chat_id, content, timestamp, member_id) VALUES (?, ?, ?, ?)")) {
+                     "INSERT INTO messages (message_id, chat_id, content, timestamp, member_id) VALUES (?, ?, ?, ?, ?)")) {
 
-            stmt.setString(1, msg.chatID());
-            stmt.setString(2, msg.content());
-            stmt.setTimestamp(3, Timestamp.from(msg.ztd().toInstant()));
-            stmt.setString(4, msg.memberID());
+            stmt.setString(1, msg.id());
+            stmt.setString(2, msg.chatID());
+            stmt.setString(3, msg.content());
+            stmt.setTimestamp(4, Timestamp.from(msg.ztd().toInstant()));
+            stmt.setString(5, msg.memberID());
             stmt.executeUpdate();
         } catch (SQLException e) {
-            throw new RuntimeException("Failed to save message", e);
+            throw new DatabaseException("Failed to save message", e);
         }
     }
 
     @Override
-    public Collection<ChatMessage> loadMessages(TauChat chat, int index, int size) {
+    public Collection<ChatMessage> loadMessages(TauChat chat, int index, int size) throws DatabaseException {
         try (Connection conn = dataSource.getConnection();
              PreparedStatement stmt = conn.prepareStatement(
-                     "SELECT content, timestamp, member_id FROM messages " +
+                     "SELECT message_id, content, timestamp, member_id FROM messages " +
                              "WHERE chat_id = ? ORDER BY timestamp DESC LIMIT ? OFFSET ?")) {
 
             stmt.setString(1, chat.getID());
@@ -240,6 +242,7 @@ public class TauMariaDBDatabase extends SandnodeMariaDBDatabase implements TauDa
             try (ResultSet rs = stmt.executeQuery()) {
                 while (rs.next()) {
                     messages.add(new ChatMessage(
+                            rs.getString("message_id"),
                             chat.getID(),
                             rs.getString("content"),
                             rs.getTimestamp("timestamp").toInstant().atZone(ZonedDateTime.now().getZone()),
@@ -249,12 +252,12 @@ public class TauMariaDBDatabase extends SandnodeMariaDBDatabase implements TauDa
             }
             return messages;
         } catch (SQLException e) {
-            throw new RuntimeException("Failed to load messages", e);
+            throw new DatabaseException("Failed to load messages", e);
         }
     }
 
     @Override
-    public Collection<Member> getMembersFromChat(TauChat chat) {
+    public Collection<Member> getMembersFromChat(TauChat chat) throws DatabaseException {
         try (Connection conn = dataSource.getConnection()) {
             if (chat.getID().startsWith("dm-")) {
                 try (PreparedStatement stmt = conn.prepareStatement(
@@ -290,12 +293,12 @@ public class TauMariaDBDatabase extends SandnodeMariaDBDatabase implements TauDa
                 return members;
             }
         } catch (SQLException e) {
-            throw new RuntimeException("Failed to get chat members", e);
+            throw new DatabaseException("Failed to get chat members", e);
         }
     }
 
     @Override
-    public void addMemberToChat(TauChat chat, Member member) {
+    public void addMemberToChat(TauChat chat, Member member) throws DatabaseException {
         try (Connection conn = dataSource.getConnection();
              PreparedStatement stmt = conn.prepareStatement(
                      "INSERT INTO chat_members (chat_id, member_id) VALUES (?, ?)")) {
@@ -304,12 +307,12 @@ public class TauMariaDBDatabase extends SandnodeMariaDBDatabase implements TauDa
             stmt.setString(2, member.getID());
             stmt.executeUpdate();
         } catch (SQLException e) {
-            throw new RuntimeException("Failed to add member to chat", e);
+            throw new DatabaseException("Failed to add member to chat", e);
         }
     }
 
     @Override
-    public Collection<TauChat> getChats(Member member) {
+    public Collection<TauChat> getChats(Member member) throws DatabaseException {
         try (Connection conn = dataSource.getConnection()) {
             List<TauChat> chats = new ArrayList<>();
 
@@ -354,24 +357,24 @@ public class TauMariaDBDatabase extends SandnodeMariaDBDatabase implements TauDa
 
             return chats;
         } catch (SQLException e) {
-            throw new RuntimeException("Failed to get member chats", e);
+            throw new DatabaseException("Failed to get member chats", e);
         }
     }
 
     @Override
-    public void removeChat(String chatId) {
+    public void removeChat(String chatId) throws DatabaseException {
         try (Connection conn = dataSource.getConnection();
              PreparedStatement stmt = conn.prepareStatement("DELETE FROM chats WHERE chat_id = ?")) {
 
             stmt.setString(1, chatId);
             stmt.executeUpdate();
         } catch (SQLException e) {
-            throw new RuntimeException("Failed to remove chat", e);
+            throw new DatabaseException("Failed to remove chat", e);
         }
     }
 
     @Override
-    public long getMessageCount(TauChat chat) {
+    public long getMessageCount(TauChat chat) throws DatabaseException {
         try (Connection conn = dataSource.getConnection();
              PreparedStatement stmt = conn.prepareStatement(
                      "SELECT COUNT(*) FROM messages WHERE chat_id = ?")) {
@@ -384,7 +387,7 @@ public class TauMariaDBDatabase extends SandnodeMariaDBDatabase implements TauDa
             }
             return 0;
         } catch (SQLException e) {
-            throw new RuntimeException("Failed to get message count", e);
+            throw new DatabaseException("Failed to get message count", e);
         }
     }
 }

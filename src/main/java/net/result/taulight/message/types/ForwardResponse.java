@@ -13,27 +13,28 @@ import net.result.taulight.message.TauMessageTypes;
 import java.time.ZonedDateTime;
 
 public class ForwardResponse extends MSGPackMessage<ForwardResponse.Data> {
-    public static class Data extends ForwardRequest.ForwardData {
+    public static class Data {
         @JsonProperty
         public ZonedDateTime zonedDateTime;
         @JsonProperty
         public ClientMember clientMember;
+        @JsonProperty
+        public ChatMessage message;
 
         @SuppressWarnings("unused")
         public Data() {}
-        public Data(String chatID, String data, ZonedDateTime ztd, ClientMember clientMember) {
-            super(chatID, data);
+        public Data(ZonedDateTime ztd, ClientMember clientMember, ChatMessage message) {
             zonedDateTime = ztd;
             this.clientMember = clientMember;
+            this.message = message;
         }
     }
 
     public ForwardResponse(Headers headers, ChatMessage chatMessage) {
         super(headers.setType(TauMessageTypes.FWD), new Data(
-                chatMessage.chatID(),
-                chatMessage.content(),
                 chatMessage.ztd(),
-                new ClientMember(chatMessage.memberID())
+                new ClientMember(chatMessage.memberID()),
+                chatMessage
         ));
     }
 
@@ -46,18 +47,18 @@ public class ForwardResponse extends MSGPackMessage<ForwardResponse.Data> {
     }
 
     public String getData() {
-        return object.content;
+        return object.message.content();
     }
 
     public String getChatID() {
-        return object.chatID;
+        return object.message.chatID();
     }
 
     public ZonedDateTime getZonedDateTime() {
-        return object.zonedDateTime;
+        return object.message.ztd();
     }
 
     public ClientMember getMember() {
-        return object.clientMember;
+        return new ClientMember(object.message.memberID());
     }
 }

@@ -66,7 +66,8 @@ public class RunHubWork implements IWork {
         }
     }
 
-    private static @NotNull ServerPropertiesConfig getServerConfig() throws ConfigurationException, FSException, NoSuchEncryptionException, EncryptionTypeException {
+    private static @NotNull ServerPropertiesConfig getServerConfig()
+            throws ConfigurationException, FSException, NoSuchEncryptionException, EncryptionTypeException {
         ServerPropertiesConfig serverConfig = new ServerPropertiesConfig();
         serverConfig.setGroupManager(new HashSetTauGroupManager());
 
@@ -79,7 +80,12 @@ public class RunHubWork implements IWork {
             throw new RuntimeException(e);
         }
 
-        serverConfig.setDatabase(new TauMariaDBDatabase(dataSource));
+        try {
+            serverConfig.setDatabase(new TauMariaDBDatabase(dataSource));
+        } catch (DatabaseException e) {
+            LOGGER.error(e);
+            throw new RuntimeException(e);
+        }
         serverConfig.setTokenizer(new JWTTokenizer(new JWTConfig("YourSuperSecretKey")));
         return serverConfig;
     }

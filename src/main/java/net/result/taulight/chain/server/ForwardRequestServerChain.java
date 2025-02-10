@@ -2,6 +2,7 @@ package net.result.taulight.chain.server;
 
 import net.result.sandnode.chain.Chain;
 import net.result.sandnode.chain.server.ServerChain;
+import net.result.sandnode.db.Member;
 import net.result.sandnode.error.Errors;
 import net.result.sandnode.exception.*;
 import net.result.sandnode.message.types.HappyMessage;
@@ -20,6 +21,7 @@ import org.apache.logging.log4j.Logger;
 
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.util.Collection;
 import java.util.Optional;
 
 public class ForwardRequestServerChain extends ServerChain {
@@ -47,7 +49,15 @@ public class ForwardRequestServerChain extends ServerChain {
                 continue;
             }
 
-            Optional<TauChat> tauChat = database.getChat(chatID);
+            Optional<TauChat> tauChat;
+            try {
+                tauChat = database.getChat(chatID);
+            } catch (DatabaseException e) {
+                LOGGER.error("Error retrieving chat from database: {}", e.getMessage(), e);
+                sendFin(Errors.SERVER_ERROR.message());
+                return;
+            }
+
             if (tauChat.isEmpty()) {
                 LOGGER.warn("Attempted to add member to a non-existent chat: {}", chatID);
                 send(TauErrors.CHAT_NOT_FOUND.message());
@@ -55,7 +65,14 @@ public class ForwardRequestServerChain extends ServerChain {
             }
 
             TauChat chat = tauChat.get();
-            var members = database.getMembersFromChat(chat);
+            Collection<Member> members;
+            try {
+                members = database.getMembersFromChat(chat);
+            } catch (DatabaseException e) {
+                LOGGER.error("Error retrieving members from chat: {}", e.getMessage(), e);
+                sendFin(Errors.SERVER_ERROR.message());
+                return;
+            }
 
             if (!members.contains(session.member)) {
                 LOGGER.warn("Unauthorized access attempt by member: {}", session.member);
@@ -70,7 +87,14 @@ public class ForwardRequestServerChain extends ServerChain {
                     .setZtd(ztd)
                     .build();
 
-            database.saveMessage(chatMessage);
+            LOGGER.info("Saving message with id {} content: {}", chatMessage.id(), chatMessage.content());
+            try {
+                database.saveMessage(chatMessage);
+            } catch (DatabaseException e) {
+                LOGGER.error("Error saving message to database: {}", e.getMessage(), e);
+                sendFin(Errors.SERVER_ERROR.message());
+                return;
+            }
 
             boolean forwarded = false;
             for (Session s : manager.getGroup(chat).getSessions()) {

@@ -16,4 +16,9 @@ public final class ClientMember {
     public String toString() {
         return "<%s %s>".formatted(getClass().getSimpleName(), memberID);
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        return this == obj || obj instanceof ClientMember cm && memberID.equals(cm.memberID);
+    }
 }

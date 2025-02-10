@@ -1,6 +1,7 @@
 package net.result.taulight.db;
 
 import java.time.ZonedDateTime;
+import java.util.UUID;
 
 public class ChatMessageBuilder {
     private String content;
@@ -29,6 +30,6 @@ public class ChatMessageBuilder {
     }
 
     public ChatMessage build() {
-        return new ChatMessage(chatID, content, ztd, memberID);
+        return new ChatMessage(UUID.randomUUID().toString(), chatID, content, ztd, memberID);
     }
 }

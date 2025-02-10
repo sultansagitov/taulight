@@ -1,9 +1,6 @@
 package net.result.sandnode.chain.server;
 
-import net.result.sandnode.exception.DeserializationException;
-import net.result.sandnode.exception.ExpectedMessageException;
-import net.result.sandnode.exception.ExpiredTokenException;
-import net.result.sandnode.exception.InvalidTokenException;
+import net.result.sandnode.exception.*;
 import net.result.sandnode.message.IMessage;
 import net.result.sandnode.message.types.LoginRequest;
 import net.result.sandnode.message.types.LoginResponse;
@@ -12,10 +9,14 @@ import net.result.sandnode.error.Errors;
 import net.result.sandnode.serverclient.Session;
 import net.result.sandnode.db.Database;
 import net.result.sandnode.db.Member;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.Optional;
 
 public class LoginServerChain extends ServerChain {
+    private static final Logger LOGGER = LogManager.getLogger(LoginServerChain.class);
+
     public LoginServerChain(Session session) {
         super(session);
     }
@@ -37,6 +38,10 @@ public class LoginServerChain extends ServerChain {
         } catch (ExpiredTokenException e) {
             sendFin(Errors.EXPIRED_TOKEN.message());
             return;
+        } catch (DatabaseException e) {
+            LOGGER.error(e);
+            sendFin(Errors.SERVER_ERROR.message());
+            return;
         }
 
         if (opt.isEmpty()) {
@@ -51,5 +56,5 @@ public class LoginServerChain extends ServerChain {
         sendFin(new LoginResponse(session.member));
     }
 
-    protected void onLogin() {}
+    protected void onLogin() throws InterruptedException {}
 }
