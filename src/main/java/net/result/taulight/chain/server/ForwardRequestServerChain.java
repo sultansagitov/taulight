@@ -79,7 +79,7 @@ public class ForwardRequestServerChain extends ServerChain {
                 ForwardResponse request = new ForwardResponse(chatMessage);
 
                 if (fwd.isEmpty()) {
-                    var chain = new ForwardServerChain(session);
+                    var chain = new ForwardServerChain(s);
                     s.io.chainManager.linkChain(chain);
                     chain.send(request);
                     chain.send(new ChainNameRequest("fwd"));

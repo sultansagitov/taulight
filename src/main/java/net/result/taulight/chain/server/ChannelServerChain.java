@@ -28,6 +28,7 @@ public class ChannelServerChain extends ServerChain {
         ChannelRequest.DataType type = request.object.type;
 
         TauDatabase database = (TauDatabase) session.server.serverConfig.database();
+        TauGroupManager manager = (TauGroupManager) session.server.serverConfig.groupManager();
 
         if (type == null) {
             sendFin(Errors.TOO_FEW_ARGS.message());
@@ -42,8 +43,6 @@ public class ChannelServerChain extends ServerChain {
                     sendFin(Errors.TOO_FEW_ARGS.message());
                     return;
                 }
-
-                TauGroupManager manager = (TauGroupManager) session.server.serverConfig.groupManager();
 
                 TauChannel channel = new TauChannel(title, session.member);
                 database.saveChat(channel);
@@ -93,6 +92,12 @@ public class ChannelServerChain extends ServerChain {
                 }
 
                 database.addMemberToChat(channel, member);
+
+                TauChatGroup tauChatGroup = manager.getGroup(channel);
+                session.server.node
+                        .getAgents().stream()
+                        .filter(s -> member.equals(s.member))
+                        .forEach(s -> s.addToGroup(tauChatGroup));
 
                 send(new HappyMessage());
             }
