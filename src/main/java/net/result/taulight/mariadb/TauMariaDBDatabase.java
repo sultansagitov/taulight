@@ -83,8 +83,7 @@ public class TauMariaDBDatabase extends SandnodeMariaDBDatabase implements TauDa
             try {
                 String chatId = "dm-" + UUID.randomUUID();
 
-                try (PreparedStatement stmt = conn.prepareStatement(
-                        "INSERT INTO chats (chat_id) VALUES (?)")) {
+                try (PreparedStatement stmt = conn.prepareStatement("INSERT INTO chats (chat_id) VALUES (?)")) {
                     stmt.setString(1, chatId);
                     stmt.executeUpdate();
                 }
@@ -115,7 +114,8 @@ public class TauMariaDBDatabase extends SandnodeMariaDBDatabase implements TauDa
         try (Connection conn = dataSource.getConnection();
              PreparedStatement stmt = conn.prepareStatement(
                      "SELECT chat_id FROM direct_chats " +
-                             "WHERE (member1_id = ? AND member2_id = ?) OR (member1_id = ? AND member2_id = ?)")) {
+                             "WHERE (member1_id = ? AND member2_id = ?) " +
+                             "   OR (member1_id = ? AND member2_id = ?)")) {
 
             stmt.setString(1, member1.getID());
             stmt.setString(2, member2.getID());

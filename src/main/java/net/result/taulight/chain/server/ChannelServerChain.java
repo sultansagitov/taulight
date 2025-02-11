@@ -2,6 +2,7 @@ package net.result.taulight.chain.server;
 
 import net.result.sandnode.chain.server.ServerChain;
 import net.result.sandnode.exception.DatabaseException;
+import net.result.taulight.TauAgentProtocol;
 import net.result.taulight.db.TauDatabase;
 import net.result.sandnode.db.Member;
 import net.result.sandnode.error.Errors;
@@ -59,10 +60,7 @@ public class ChannelServerChain extends ServerChain {
                     return;
                 }
 
-                TauChatGroup tauChatGroup = manager.getGroup(channel);
-                session.server.node.getAgents().stream()
-                        .filter(s -> session.member.equals(s.member))
-                        .forEach(s -> s.addToGroup(tauChatGroup));
+                TauAgentProtocol.addMemberToGroup(session, manager.getGroup(channel));
 
                 send(new HappyMessage());
             }
@@ -119,10 +117,7 @@ public class ChannelServerChain extends ServerChain {
                 }
 
                 TauChatGroup tauChatGroup = manager.getGroup(channel);
-                session.server.node
-                        .getAgents().stream()
-                        .filter(s -> member.equals(s.member))
-                        .forEach(s -> s.addToGroup(tauChatGroup));
+                TauAgentProtocol.addMemberToGroup(session, member, tauChatGroup);
 
                 send(new HappyMessage());
             }

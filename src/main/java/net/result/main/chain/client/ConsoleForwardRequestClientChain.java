@@ -14,6 +14,7 @@ import net.result.sandnode.util.IOController;
 import net.result.sandnode.chain.client.ClientChain;
 import net.result.taulight.chain.client.ChannelClientChain;
 import net.result.taulight.chain.client.ChatClientChain;
+import net.result.taulight.chain.client.DirectClientChain;
 import net.result.taulight.exception.ChatNotFoundException;
 import net.result.taulight.message.types.ForwardRequest;
 import org.apache.logging.log4j.LogManager;
@@ -87,6 +88,7 @@ public class ConsoleForwardRequestClientChain extends ClientChain {
                     chain.send(new ChainNameRequest("tau"));
                 }
                 opt.map("Chats: %s"::formatted).ifPresent(System.out::println);
+
             } else if (input.startsWith("newChannel ")) {
                 String title = input.substring(11);
                 try {
@@ -98,6 +100,20 @@ public class ConsoleForwardRequestClientChain extends ClientChain {
                 } catch (ExpectedMessageException | InterruptedException e) {
                     LOGGER.error("Error creating new channel: {}", title, e);
                 }
+
+            } else if (input.startsWith("direct ")) {
+                String memberID = input.split("\\s+")[1];
+
+                DirectClientChain chain = new DirectClientChain(io, memberID);
+                io.chainManager.linkChain(chain);
+                try {
+                    chain.sync();
+                } catch (MemberNotFoundException e) {
+                    LOGGER.error("Member {} not found", memberID);
+                }
+                LOGGER.info("DM with member {} with id {}", memberID, chain.chatID);
+                io.chainManager.removeChain(chain);
+
             } else if (input.startsWith("addMember ")) {
                 String[] parts = input.split("\\s+");
                 if (parts.length < 3) {
@@ -120,6 +136,7 @@ public class ConsoleForwardRequestClientChain extends ClientChain {
                 } catch (ExpectedMessageException | DeserializationException | InterruptedException e) {
                     LOGGER.error("Unexpected error adding member '{}' to chat '{}'", member, chatID, e);
                 }
+
             } else if (input.startsWith(": ")) {
                 currentChat = input.split("\\s+")[1];
 

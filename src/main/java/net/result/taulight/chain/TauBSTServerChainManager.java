@@ -6,6 +6,7 @@ import net.result.sandnode.chain.server.TauLoginServerChain;
 import net.result.sandnode.message.util.MessageType;
 import net.result.sandnode.message.util.MessageTypes;
 import net.result.taulight.chain.server.ChannelServerChain;
+import net.result.taulight.chain.server.DirectServerChain;
 import net.result.taulight.chain.server.ForwardRequestServerChain;
 import net.result.taulight.chain.server.ChatServerChain;
 import net.result.taulight.message.TauMessageTypes;
@@ -28,6 +29,9 @@ public class TauBSTServerChainManager extends BSTServerChainManager {
                 }
                 case CHANNEL -> {
                     return new ChannelServerChain(session);
+                }
+                case DIRECT -> {
+                    return new DirectServerChain(session);
                 }
                 case FWD_REQ -> {
                     return new ForwardRequestServerChain(session);

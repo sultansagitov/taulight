@@ -9,7 +9,7 @@ import java.util.Optional;
 
 public interface TauDatabase extends Database {
 
-    TauChat createDirectChat(Member member1, Member member2) throws DatabaseException;
+    TauDirect createDirectChat(Member member1, Member member2) throws DatabaseException;
 
     Optional<TauDirect> findDirectChat(Member member1, Member member2) throws DatabaseException;
 
