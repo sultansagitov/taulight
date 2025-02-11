@@ -6,11 +6,11 @@ import net.result.sandnode.message.util.MessageTypeManager;
 import java.util.Arrays;
 
 public enum TauMessageTypes implements MessageType {
-    FWD(12),
-    CHAT(13),
-    CHANNEL(14),
-    FWD_REQ(15),
-    DIRECT(16);
+    CHAT(16),
+    DIRECT(17),
+    CHANNEL(18),
+    FWD_REQ(19),
+    FWD(20);
 
     private final byte type;
 

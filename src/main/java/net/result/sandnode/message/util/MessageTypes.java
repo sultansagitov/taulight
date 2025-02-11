@@ -1,17 +1,17 @@
 package net.result.sandnode.message.util;
 
 public enum MessageTypes implements MessageType {
-    ERR(0),
-    WARN(1),
-    PUB(2),
-    SYM(3),
-    EXIT(5),
-    REG(6),
-    LOGIN(7),
-    TOKEN(8),
-    GROUP(9),
-    HAPPY(50),
-    CHAIN_NAME(86);
+    CHAIN_NAME(0),
+    ERR(1),
+    WARN(2),
+    EXIT(3),
+    HAPPY(4),
+    PUB(5),
+    SYM(6),
+    REG(7),
+    LOG_PASSWD(8), //TODO realize it
+    LOGIN(9),
+    GROUP(10);
 
     private final byte type;
 
