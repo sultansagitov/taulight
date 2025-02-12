@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.time.ZonedDateTime;
 import java.util.Objects;
+import java.util.UUID;
 
 public class ChatMessage {
     @JsonProperty
@@ -17,16 +18,7 @@ public class ChatMessage {
     @JsonProperty
     private String memberID;
 
-    @SuppressWarnings("unused")
     public ChatMessage() {}
-
-    public ChatMessage(String id, String chatID, String content, ZonedDateTime ztd, String memberID) {
-        this.id = id;
-        this.chatID = chatID;
-        this.content = content;
-        this.ztd = ztd;
-        this.memberID = memberID;
-    }
 
     public String id() {
         return id;
@@ -46,6 +38,36 @@ public class ChatMessage {
 
     public String memberID() {
         return memberID;
+    }
+
+    public ChatMessage setRandomID() {
+        this.id = UUID.randomUUID().toString();
+        return this;
+    }
+
+    public ChatMessage setID(String id) {
+        this.id = id;
+        return this;
+    }
+
+    public ChatMessage setContent(String content) {
+        this.content = content;
+        return this;
+    }
+
+    public ChatMessage setChatID(String chatID) {
+        this.chatID = chatID;
+        return this;
+    }
+
+    public ChatMessage setZtd(ZonedDateTime ztd) {
+        this.ztd = ztd;
+        return this;
+    }
+
+    public ChatMessage setMemberID(String memberID) {
+        this.memberID = memberID;
+        return this;
     }
 
     @Override

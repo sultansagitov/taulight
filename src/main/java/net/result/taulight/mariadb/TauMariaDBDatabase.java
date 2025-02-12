@@ -241,13 +241,18 @@ public class TauMariaDBDatabase extends SandnodeMariaDBDatabase implements TauDa
             List<ChatMessage> messages = new ArrayList<>();
             try (ResultSet rs = stmt.executeQuery()) {
                 while (rs.next()) {
-                    messages.add(new ChatMessage(
-                            rs.getString("message_id"),
-                            chat.getID(),
-                            rs.getString("content"),
-                            rs.getTimestamp("timestamp").toInstant().atZone(ZonedDateTime.now().getZone()),
-                            rs.getString("member_id")
-                    ));
+                    ZonedDateTime timestamp = rs.getTimestamp("timestamp")
+                            .toInstant()
+                            .atZone(ZonedDateTime.now().getZone());
+
+                    ChatMessage message = new ChatMessage()
+                            .setID(rs.getString("message_id"))
+                            .setChatID(chat.getID())
+                            .setContent(rs.getString("content"))
+                            .setZtd(timestamp)
+                            .setMemberID(rs.getString("member_id"));
+
+                    messages.add(message);
                 }
             }
             return messages;

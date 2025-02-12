@@ -11,7 +11,6 @@ import net.result.sandnode.serverclient.Session;
 import net.result.taulight.db.TauDatabase;
 import net.result.taulight.error.TauErrors;
 import net.result.taulight.db.ChatMessage;
-import net.result.taulight.db.ChatMessageBuilder;
 import net.result.taulight.group.TauGroupManager;
 import net.result.taulight.message.types.ForwardRequest;
 import net.result.taulight.message.types.ForwardResponse;
@@ -80,12 +79,12 @@ public class ForwardRequestServerChain extends ServerChain {
                 continue;
             }
 
-            ChatMessage chatMessage = new ChatMessageBuilder()
+            ChatMessage chatMessage = new ChatMessage()
+                    .setRandomID()
                     .setChatID(forwardMessage.getChatID())
                     .setContent(forwardMessage.getData())
                     .setMemberID(session.member.getID())
-                    .setZtd(ztd)
-                    .build();
+                    .setZtd(ztd);
 
             LOGGER.info("Saving message with id {} content: {}", chatMessage.id(), chatMessage.content());
             try {
