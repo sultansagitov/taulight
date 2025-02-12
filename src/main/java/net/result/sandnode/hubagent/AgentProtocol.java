@@ -1,5 +1,6 @@
 package net.result.sandnode.hubagent;
 
+import net.result.sandnode.chain.client.LogPasswdClientChain;
 import net.result.sandnode.chain.client.LoginClientChain;
 import net.result.sandnode.serverclient.ClientMember;
 import net.result.sandnode.exception.*;
@@ -10,20 +11,29 @@ public class AgentProtocol {
     public static String getTokenFromRegistration(IOController io, String memberID, String password)
             throws ExpectedMessageException, InterruptedException, BusyMemberIDException, DeserializationException,
             InvalidMemberIDPassword {
-        RegistrationClientChain regChain = new RegistrationClientChain(io, memberID, password);
-        io.chainManager.linkChain(regChain);
-        regChain.sync();
-        io.chainManager.removeChain(regChain);
-        return regChain.token;
+        RegistrationClientChain chain = new RegistrationClientChain(io, memberID, password);
+        io.chainManager.linkChain(chain);
+        chain.sync();
+        io.chainManager.removeChain(chain);
+        return chain.token;
     }
 
     public static ClientMember getMemberFromToken(IOController io, String token) throws InterruptedException,
             MemberNotFoundException, DeserializationException, InvalidTokenException, ExpiredTokenException {
-        LoginClientChain loginClientChain = new LoginClientChain(io, token);
-        io.chainManager.linkChain(loginClientChain);
-        loginClientChain.sync();
-        io.chainManager.removeChain(loginClientChain);
+        LoginClientChain chain = new LoginClientChain(io, token);
+        io.chainManager.linkChain(chain);
+        chain.sync();
+        io.chainManager.removeChain(chain);
 
-        return new ClientMember(loginClientChain.memberID);
+        return new ClientMember(chain.memberID);
+    }
+
+    public static String getTokenByMemberIdAndPassword(IOController io, String memberID, String password)
+            throws InterruptedException, DeserializationException, MemberNotFoundException, ExpectedMessageException {
+        LogPasswdClientChain chain = new LogPasswdClientChain(io, memberID, password);
+        io.chainManager.linkChain(chain);
+        chain.sync();
+        io.chainManager.removeChain(chain);
+        return chain.token;
     }
 }

@@ -1,5 +1,6 @@
-package net.result.sandnode.chain.server;
+package net.result.taulight.chain.server;
 
+import net.result.sandnode.chain.Chain;
 import net.result.sandnode.error.Errors;
 import net.result.sandnode.exception.DatabaseException;
 import net.result.sandnode.serverclient.Session;
@@ -13,15 +14,10 @@ import org.apache.logging.log4j.Logger;
 
 import java.util.Collection;
 
-public class TauLoginServerChain extends LoginServerChain {
-    private static final Logger LOGGER = LogManager.getLogger(TauLoginServerChain.class);
+public class LoginUtil {
+    private static final Logger LOGGER = LogManager.getLogger(LoginUtil.class);
 
-    public TauLoginServerChain(Session session) {
-        super(session);
-    }
-
-    @Override
-    protected void onLogin() throws InterruptedException {
+    public static void onLogin(Session session, Chain chain) throws InterruptedException {
         TauDatabase database = (TauDatabase) session.server.serverConfig.database();
         TauGroupManager manager = (TauGroupManager) session.server.serverConfig.groupManager();
 
@@ -30,7 +26,7 @@ public class TauLoginServerChain extends LoginServerChain {
             chats = database.getChats(session.member);
         } catch (DatabaseException e) {
             LOGGER.error(e);
-            sendFin(Errors.SERVER_ERROR.message());
+            chain.sendFin(Errors.SERVER_ERROR.message());
             return;
         }
 

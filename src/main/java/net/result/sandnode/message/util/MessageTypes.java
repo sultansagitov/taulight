@@ -9,7 +9,7 @@ public enum MessageTypes implements MessageType {
     PUB(5),
     SYM(6),
     REG(7),
-    LOG_PASSWD(8), //TODO realize it
+    LOG_PASSWD(8),
     LOGIN(9),
     GROUP(10);
 

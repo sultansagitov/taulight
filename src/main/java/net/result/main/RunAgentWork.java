@@ -113,10 +113,10 @@ public class RunAgentWork implements IWork {
 
         String s;
         do {
-            System.out.print("[r for register, other for login]: ");
+            System.out.print("[r for register, 'l' for login by password, 't' for login by token]: ");
             s = scanner.nextLine();
         }
-        while (s.isEmpty() || (s.charAt(0) != 'r' && s.charAt(0) != 'l'));
+        while (s.isEmpty() || (s.charAt(0) != 'r' && s.charAt(0) != 't' && s.charAt(0) != 'l'));
 
         char choice = s.charAt(0);
 
@@ -131,7 +131,7 @@ public class RunAgentWork implements IWork {
 
                     try {
                         String token = AgentProtocol.getTokenFromRegistration(io, memberID, password);
-                        System.out.printf("Token for \"%s\":\n%s%n", memberID, token);
+                        System.out.printf("Token for \"%s\":%n%s%n", memberID, token);
                         isRegistered = true;
                     } catch (BusyMemberIDException e) {
                         System.out.println("Member ID is busy");
@@ -140,7 +140,7 @@ public class RunAgentWork implements IWork {
                     }
                 }
             }
-            case 'l' -> {
+            case 't' -> {
                 boolean isLoggedIn = false;
 
                 while (!isLoggedIn) {
@@ -157,6 +157,26 @@ public class RunAgentWork implements IWork {
                         System.out.println("Invalid token. Please try again.");
                     } catch (ExpiredTokenException e) {
                         System.out.println("Expired token. Please try again.");
+                    } catch (MemberNotFoundException e) {
+                        System.out.println("Member not found. Please try again.");
+                    }
+                }
+            }
+            case 'l' -> {
+                boolean isLoggedIn = false;
+
+                while (!isLoggedIn) {
+                    System.out.print("MemberID: ");
+                    String memberID = scanner.nextLine();
+                    System.out.print("Password: ");
+                    String password = scanner.nextLine();
+
+                    if (memberID.isEmpty() || password.isEmpty()) continue;
+
+                    try {
+                        String token = AgentProtocol.getTokenByMemberIdAndPassword(io, memberID, password);
+                        System.out.printf("Token for \"%s\": %n%s%n", memberID, token);
+                        isLoggedIn = true;
                     } catch (MemberNotFoundException e) {
                         System.out.println("Member not found. Please try again.");
                     }
