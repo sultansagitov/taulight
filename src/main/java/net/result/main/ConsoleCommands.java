@@ -39,6 +39,7 @@ public class ConsoleCommands {
         commands.put("chats", this::chats);
         commands.put("newChannel", this::newChannel);
         commands.put("addMember", this::addMember);
+        commands.put("leave", this::leave);
         commands.put("direct", this::direct);
     }
 
@@ -69,30 +70,30 @@ public class ConsoleCommands {
         try {
             Collection<String> groups = ClientProtocol.getGroups(io);
             LOGGER.info("Your groups: {}", groups);
-            return false;
         } catch (ExpectedMessageException e) {
-            throw new RuntimeException(e);
+            LOGGER.error(e);
         }
+        return false;
     }
 
     private boolean addGroup(List<String> groups) throws InterruptedException {
         try {
             Collection<String> groupsAfterAdding = ClientProtocol.addToGroups(io, groups);
             LOGGER.info("Your groups now (after adding): {}", groupsAfterAdding);
-            return false;
         } catch (ExpectedMessageException e) {
-            throw new RuntimeException(e);
+            LOGGER.error(e);
         }
+        return false;
     }
 
     private boolean rmGroup(List<String> groups) throws InterruptedException {
         try {
             Collection<String> groupsAfterRemoving = ClientProtocol.removeFromGroups(io, groups);
             LOGGER.info("Your groups now (after removing): {}", groupsAfterRemoving);
-            return false;
         } catch (ExpectedMessageException e) {
-            throw new RuntimeException(e);
+            LOGGER.error(e);
         }
+        return false;
     }
 
     private boolean chats(List<String> args) throws InterruptedException {
@@ -111,10 +112,10 @@ public class ConsoleCommands {
                 chain.send(new ChainNameRequest("tau"));
             }
             opt.map("Chats: %s"::formatted).ifPresent(System.out::println);
-            return false;
         } catch (DeserializationException | ExpectedMessageException e) {
-            throw new RuntimeException(e);
+            LOGGER.error(e);
         }
+        return false;
     }
 
     private boolean newChannel(List<String> args) throws InterruptedException {
@@ -168,7 +169,20 @@ public class ConsoleCommands {
         } catch (MemberNotFoundException e) {
             LOGGER.error("Member {} not found", memberID);
         } catch (ExpectedMessageException | DeserializationException e) {
-            throw new RuntimeException(e);
+            LOGGER.error(e);
+        }
+        return false;
+    }
+
+    private boolean leave(List<String> args) throws InterruptedException {
+        try {
+            ChannelClientChain chain = new ChannelClientChain(io);
+            io.chainManager.linkChain(chain);
+            chain.sendLeaveRequest(args.get(0));
+            io.chainManager.removeChain(chain);
+        } catch (ExpectedMessageException | ChatNotFoundException | DeserializationException |
+                 TooFewArgumentsException | WrongAddressException | UnauthorizedException e) {
+            LOGGER.error(e);
         }
         return false;
     }

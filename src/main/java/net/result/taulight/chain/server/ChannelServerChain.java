@@ -64,13 +64,11 @@ public class ChannelServerChain extends ServerChain {
 
                 send(new HappyMessage());
             }
-            case REQUEST -> {
-            }
             case ADD -> {
-                String id = request.object.id;
+                String chatID = request.object.chatID;
                 ClientMember cMember = request.object.member;
 
-                if (id == null || cMember == null) {
+                if (chatID == null || cMember == null) {
                     sendFin(Errors.TOO_FEW_ARGS.message());
                     return;
                 }
@@ -78,7 +76,7 @@ public class ChannelServerChain extends ServerChain {
                 Optional<TauChat> optChat;
                 Optional<Member> optMember;
                 try {
-                    optChat = database.getChat(id);
+                    optChat = database.getChat(chatID);
                     optMember = database.findMemberByMemberID(cMember.memberID);
                 } catch (DatabaseException e) {
                     LOGGER.error(e);
@@ -118,6 +116,49 @@ public class ChannelServerChain extends ServerChain {
 
                 TauChatGroup tauChatGroup = manager.getGroup(channel);
                 TauAgentProtocol.addMemberToGroup(session, member, tauChatGroup);
+
+                send(new HappyMessage());
+            }
+            case LEAVE -> {
+                String chatID = request.object.chatID;
+
+                if (chatID == null) {
+                    sendFin(Errors.TOO_FEW_ARGS.message());
+                    return;
+                }
+
+                Optional<TauChat> optChat;
+                try {
+                    optChat = database.getChat(chatID);
+                } catch (DatabaseException e) {
+                    sendFin(Errors.SERVER_ERROR.message());
+                    return;
+                }
+
+                if (optChat.isEmpty()) {
+                    sendFin(TauErrors.CHAT_NOT_FOUND.message());
+                    return;
+                }
+
+                TauChat tauChat = optChat.get();
+
+                if (!(tauChat instanceof TauChannel channel)) {
+                    sendFin(Errors.WRONG_ADDRESS.message());
+                    return;
+                }
+
+                if (channel.getOwner().equals(session.member)) {
+                    sendFin(Errors.UNAUTHORIZED.message());
+                    return;
+                }
+
+                try {
+                    database.leaveFromChat(channel, session.member);
+                } catch (DatabaseException e) {
+                    send(Errors.SERVER_ERROR.message());
+                }
+
+                TauAgentProtocol.removeMemberFromGroup(session, manager.getGroup(channel));
 
                 send(new HappyMessage());
             }

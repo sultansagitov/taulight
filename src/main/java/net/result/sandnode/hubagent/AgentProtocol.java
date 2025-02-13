@@ -29,7 +29,8 @@ public class AgentProtocol {
     }
 
     public static String getTokenByMemberIdAndPassword(IOController io, String memberID, String password)
-            throws InterruptedException, DeserializationException, MemberNotFoundException, ExpectedMessageException {
+            throws InterruptedException, DeserializationException, MemberNotFoundException, ExpectedMessageException,
+            UnauthorizedException {
         LogPasswdClientChain chain = new LogPasswdClientChain(io, memberID, password);
         io.chainManager.linkChain(chain);
         chain.sync();

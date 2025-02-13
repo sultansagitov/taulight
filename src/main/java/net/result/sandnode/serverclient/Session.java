@@ -59,7 +59,7 @@ public class Session {
         LOGGER.info("{} added to group {}", this, group);
     }
 
-    private void removeFromGroup(Group group) {
+    public void removeFromGroup(Group group) {
         group.remove(this);
         groups.remove(group);
         LOGGER.info("Session {} removed from group {}", this, group);

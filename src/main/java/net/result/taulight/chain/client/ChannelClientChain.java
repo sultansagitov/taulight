@@ -35,6 +35,30 @@ public class ChannelClientChain extends ClientChain {
         new HappyMessage(raw);
     }
 
+    public void sendLeaveRequest(String chatID) throws InterruptedException, ExpectedMessageException, ChatNotFoundException, DeserializationException, TooFewArgumentsException, WrongAddressException, UnauthorizedException {
+        send(ChannelRequest.leave(chatID));
+        RawMessage raw = queue.take();
+
+        if (raw.getHeaders().getType() == MessageTypes.ERR) {
+            ErrorMessage errorMessage = new ErrorMessage(raw);
+            SandnodeError error = errorMessage.error;
+            if (error instanceof Errors sys) {
+                switch (sys) {
+                    case TOO_FEW_ARGS -> throw new TooFewArgumentsException();
+                    case WRONG_ADDRESS -> throw new WrongAddressException();
+                    case UNAUTHORIZED -> throw new UnauthorizedException();
+                    case SERVER_ERROR -> throw new UnknownSandnodeErrorException();
+                }
+            }
+
+            if (error == TauErrors.CHAT_NOT_FOUND) {
+                throw new ChatNotFoundException(chatID);
+            }
+        }
+
+        new HappyMessage(raw);
+    }
+
     public void sendAddMemberRequest(String chatID, ClientMember member)
             throws InterruptedException, DeserializationException, ChatNotFoundException, TooFewArgumentsException,
             AddressedMemberNotFoundException, WrongAddressException, UnauthorizedException, ExpectedMessageException {

@@ -179,6 +179,8 @@ public class RunAgentWork implements IWork {
                         isLoggedIn = true;
                     } catch (MemberNotFoundException e) {
                         System.out.println("Member not found. Please try again.");
+                    } catch (UnauthorizedException e) {
+                        System.out.println("Incorrect password. Please try again.");
                     }
                 }
             }

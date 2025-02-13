@@ -31,4 +31,5 @@ public interface TauDatabase extends Database {
 
     long getMessageCount(TauChat chat) throws DatabaseException;
 
+    void leaveFromChat(TauChannel channel, Member member) throws DatabaseException;
 }

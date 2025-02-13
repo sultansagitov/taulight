@@ -317,6 +317,31 @@ public class TauMariaDBDatabase extends SandnodeMariaDBDatabase implements TauDa
     }
 
     @Override
+    public void leaveFromChat(TauChannel channel, Member member) throws DatabaseException {
+        try (Connection conn = dataSource.getConnection()) {
+            conn.setAutoCommit(false);
+            try {
+                try (PreparedStatement stmt = conn.prepareStatement(
+                        "DELETE FROM chat_members WHERE chat_id = ? AND member_id = ?")) {
+                    stmt.setString(1, channel.getID());
+                    stmt.setString(2, member.getID());
+                    stmt.executeUpdate();
+                }
+
+                conn.commit();
+            } catch (SQLException e) {
+                conn.rollback();
+                throw new DatabaseException("Failed to leave chat", e);
+            } finally {
+                conn.setAutoCommit(true);
+            }
+        } catch (SQLException e) {
+            throw new DatabaseException("Database error while leaving chat", e);
+        }
+    }
+
+
+    @Override
     public Collection<TauChat> getChats(Member member) throws DatabaseException {
         try (Connection conn = dataSource.getConnection()) {
             List<TauChat> chats = new ArrayList<>();

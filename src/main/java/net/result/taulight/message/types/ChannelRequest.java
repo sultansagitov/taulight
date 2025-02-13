@@ -8,13 +8,13 @@ import net.result.sandnode.serverclient.ClientMember;
 import net.result.taulight.message.TauMessageTypes;
 
 public class ChannelRequest extends MSGPackMessage<ChannelRequest.Data> {
-    public enum DataType {NEW, REQUEST, ADD}
+    public enum DataType {NEW, LEAVE, ADD}
 
     public static class Data {
         public DataType type;
         public String title;
         public ClientMember member;
-        public String id;
+        public String chatID;
 
         public Data() {}
 
@@ -41,13 +41,15 @@ public class ChannelRequest extends MSGPackMessage<ChannelRequest.Data> {
         return new ChannelRequest(new Data(DataType.NEW, title));
     }
 
-    public static ChannelRequest request(String title) {
-        return new ChannelRequest(new Data(DataType.REQUEST, title));
+    public static ChannelRequest leave(String chatID) {
+        Data data = new Data(DataType.LEAVE);
+        data.chatID = chatID;
+        return new ChannelRequest(data);
     }
 
-    public static ChannelRequest addMember(String id, ClientMember member) {
+    public static ChannelRequest addMember(String chatID, ClientMember member) {
         Data data = new Data(DataType.ADD);
-        data.id = id;
+        data.chatID = chatID;
         data.member = member;
         return new ChannelRequest(data);
     }

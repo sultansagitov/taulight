@@ -24,4 +24,11 @@ public class TauAgentProtocol {
                 .filter(s -> members.stream().anyMatch(s.member::equals))
                 .forEach(s -> s.addToGroup(group));
     }
+
+    public static void removeMemberFromGroup(Session session, TauChatGroup group) {
+        session.server.node
+                .getAgents().stream()
+                .filter(s -> session.member.equals(s.member))
+                .forEach(s -> s.removeFromGroup(group));
+    }
 }
