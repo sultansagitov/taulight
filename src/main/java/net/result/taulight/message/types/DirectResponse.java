@@ -9,27 +9,29 @@ import net.result.sandnode.message.util.Headers;
 import net.result.taulight.message.TauMessageTypes;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.UUID;
+
 public class DirectResponse extends MSGPackMessage<DirectResponse.Data> {
     protected static class Data {
         @JsonProperty
         public String memberID;
 
         @JsonProperty
-        public String id;
+        public UUID id;
 
         @SuppressWarnings("unused")
         public Data() {}
-        public Data(String memberID, String id) {
+        public Data(String memberID, UUID id) {
             this.memberID = memberID;
             this.id = id;
         }
     }
 
-    public DirectResponse(@NotNull Headers headers, String memberID, String id) {
+    public DirectResponse(@NotNull Headers headers, String memberID, UUID id) {
         super(headers.setType(TauMessageTypes.DIRECT), new Data(memberID, id));
     }
 
-    public DirectResponse(String memberID, String id) {
+    public DirectResponse(String memberID, UUID id) {
         this(new Headers(), memberID, id);
     }
 
@@ -41,7 +43,7 @@ public class DirectResponse extends MSGPackMessage<DirectResponse.Data> {
         return object.memberID;
     }
 
-    public String getChatID() {
+    public UUID getChatID() {
         return object.id;
     }
 }

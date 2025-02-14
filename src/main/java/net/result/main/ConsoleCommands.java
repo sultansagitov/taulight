@@ -24,8 +24,8 @@ public class ConsoleCommands {
     private static final Logger LOGGER = LogManager.getLogger(ConsoleCommands.class);
 
     private final IOController io;
-    public Map<String, LoopCondition> commands;
-    public String currentChat = "";
+    public final Map<String, LoopCondition> commands;
+    public UUID currentChat = null;
 
     public ConsoleCommands(IOController io) {
         this.io = io;
@@ -43,6 +43,7 @@ public class ConsoleCommands {
         commands.put("direct", this::direct);
     }
 
+    @SuppressWarnings("SameReturnValue")
     private boolean exit(List<String> arg) {
         try {
             io.disconnect();
@@ -52,11 +53,17 @@ public class ConsoleCommands {
         return true;
     }
 
+    @SuppressWarnings("SameReturnValue")
     private boolean setChat(List<String> args) {
-        currentChat = args.get(0);
+        try {
+            currentChat = UUID.fromString(args.get(0));
+        } catch (IllegalArgumentException e) {
+            LOGGER.error(e);
+        }
         return false;
     }
 
+    @SuppressWarnings("SameReturnValue")
     private boolean chains(List<String> args) {
         var chains = io.chainManager.getAllChains();
         var map = io.chainManager.getChainsMap();
@@ -66,6 +73,7 @@ public class ConsoleCommands {
         return false;
     }
 
+    @SuppressWarnings("SameReturnValue")
     private boolean groups(List<String> args) throws InterruptedException {
         try {
             Collection<String> groups = ClientProtocol.getGroups(io);
@@ -76,6 +84,7 @@ public class ConsoleCommands {
         return false;
     }
 
+    @SuppressWarnings("SameReturnValue")
     private boolean addGroup(List<String> groups) throws InterruptedException {
         try {
             Collection<String> groupsAfterAdding = ClientProtocol.addToGroups(io, groups);
@@ -86,6 +95,7 @@ public class ConsoleCommands {
         return false;
     }
 
+    @SuppressWarnings("SameReturnValue")
     private boolean rmGroup(List<String> groups) throws InterruptedException {
         try {
             Collection<String> groupsAfterRemoving = ClientProtocol.removeFromGroups(io, groups);
@@ -96,12 +106,13 @@ public class ConsoleCommands {
         return false;
     }
 
-    private boolean chats(List<String> args) throws InterruptedException {
+    @SuppressWarnings("SameReturnValue")
+    private boolean chats(List<String> ignored) throws InterruptedException {
         try {
             // Find or add "tau" chain
 
             Optional<Chain> tau = io.chainManager.getChain("tau");
-            Optional<Collection<String>> opt;
+            Optional<Collection<UUID>> opt;
             if (tau.isPresent()) {
                 ChatClientChain chain = (ChatClientChain) tau.get();
                 opt = chain.getChats();
@@ -118,6 +129,7 @@ public class ConsoleCommands {
         return false;
     }
 
+    @SuppressWarnings("SameReturnValue")
     private boolean newChannel(List<String> args) throws InterruptedException {
         String title = args.get(0);
         try {
@@ -132,32 +144,35 @@ public class ConsoleCommands {
         return false;
     }
 
+    @SuppressWarnings("SameReturnValue")
     private boolean addMember(List<String> args) throws InterruptedException {
         if (args.size() < 2) {
             LOGGER.error("Usage: addMember <chatID> <member>");
-            return false;
-        }
+        } else {
+            String chatID_str = args.get(0);
+            ClientMember member = new ClientMember(args.get(1));
 
-        String chatID = args.get(0);
-        ClientMember member = new ClientMember(args.get(1));
-
-        try {
-            var chain = new ChannelClientChain(io);
-            io.chainManager.linkChain(chain);
-            chain.sendAddMemberRequest(chatID, member);
-            io.chainManager.removeChain(chain);
-            LOGGER.info("Member '{}' added to chat '{}' successfully", member, chatID);
-        } catch (ChatNotFoundException e) {
-            LOGGER.error("Chat '{}' not found", chatID, e);
-        } catch (TooFewArgumentsException | AddressedMemberNotFoundException | WrongAddressException
-                 | UnauthorizedException e) {
-            LOGGER.error("Error adding member '{}': {}", member, e);
-        } catch (ExpectedMessageException | DeserializationException e) {
-            LOGGER.error("Unexpected error adding member '{}' to chat '{}'", member, chatID, e);
+            try {
+                var chain = new ChannelClientChain(io);
+                io.chainManager.linkChain(chain);
+                UUID chatID = UUID.fromString(chatID_str);
+                chain.sendAddMemberRequest(chatID, member);
+                io.chainManager.removeChain(chain);
+                LOGGER.info("Member '{}' added to chat '{}' successfully", member, chatID_str);
+            } catch (ChatNotFoundException e) {
+                LOGGER.error("Chat '{}' not found", chatID_str, e);
+            } catch (TooFewArgumentsException | AddressedMemberNotFoundException | WrongAddressException
+                     | UnauthorizedException e) {
+                LOGGER.error("Error adding member '{}': {}", member, e);
+            } catch (ExpectedMessageException | DeserializationException | IndexOutOfBoundsException |
+                     IllegalArgumentException e) {
+                LOGGER.error("Unexpected error adding member '{}' to chat '{}'", member, chatID_str, e);
+            }
         }
         return false;
     }
 
+    @SuppressWarnings("SameReturnValue")
     private boolean direct(List<String> args) throws InterruptedException {
         String memberID = args.get(0);
         try {
@@ -174,14 +189,17 @@ public class ConsoleCommands {
         return false;
     }
 
+    @SuppressWarnings("SameReturnValue")
     private boolean leave(List<String> args) throws InterruptedException {
         try {
             ChannelClientChain chain = new ChannelClientChain(io);
             io.chainManager.linkChain(chain);
-            chain.sendLeaveRequest(args.get(0));
+            UUID chatID = UUID.fromString(args.get(0));
+            chain.sendLeaveRequest(chatID);
             io.chainManager.removeChain(chain);
         } catch (ExpectedMessageException | ChatNotFoundException | DeserializationException |
-                 TooFewArgumentsException | WrongAddressException | UnauthorizedException e) {
+                 TooFewArgumentsException | WrongAddressException | UnauthorizedException | IndexOutOfBoundsException |
+                 IllegalArgumentException e) {
             LOGGER.error(e);
         }
         return false;

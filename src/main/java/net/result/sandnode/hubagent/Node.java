@@ -52,5 +52,6 @@ public abstract class Node {
 
     public abstract @NotNull NodeType type();
 
+    @SuppressWarnings("EmptyMethod")
     public void close() {}
 }

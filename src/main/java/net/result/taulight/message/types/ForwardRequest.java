@@ -8,16 +8,18 @@ import net.result.sandnode.message.util.Headers;
 import net.result.sandnode.message.MSGPackMessage;
 import net.result.taulight.message.TauMessageTypes;
 
+import java.util.UUID;
+
 public class ForwardRequest extends MSGPackMessage<ForwardRequest.Data> {
     public static class Data {
         @JsonProperty
-        public String content;
+        public UUID chatID;
         @JsonProperty
-        public String chatID;
+        public String content;
 
         @SuppressWarnings("unused")
         public Data() {}
-        public Data(String chatID, String data) {
+        public Data(UUID chatID, String data) {
             this.chatID = chatID;
             content = data;
         }
@@ -39,7 +41,7 @@ public class ForwardRequest extends MSGPackMessage<ForwardRequest.Data> {
         return object.content;
     }
 
-    public String getChatID() {
+    public UUID getChatID() {
         return object.chatID;
     }
 }

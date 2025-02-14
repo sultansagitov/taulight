@@ -22,6 +22,7 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Collection;
 import java.util.Optional;
+import java.util.UUID;
 
 public class ForwardRequestServerChain extends ServerChain {
     private static final Logger LOGGER = LogManager.getLogger(ForwardRequestServerChain.class);
@@ -41,7 +42,7 @@ public class ForwardRequestServerChain extends ServerChain {
             ZonedDateTime ztd = ZonedDateTime.now(ZoneId.of("UTC"));
             LOGGER.info("Forwarding message: {}", forwardMessage.getData());
 
-            String chatID = forwardMessage.getChatID();
+            UUID chatID = forwardMessage.getChatID();
             if (chatID == null) {
                 LOGGER.error("Forward message contains null chatID");
                 send(Errors.TOO_FEW_ARGS.message());
@@ -81,7 +82,7 @@ public class ForwardRequestServerChain extends ServerChain {
 
             ChatMessage chatMessage = new ChatMessage()
                     .setRandomID()
-                    .setChatID(forwardMessage.getChatID())
+                    .setChatID(chatID)
                     .setContent(forwardMessage.getData())
                     .setMemberID(session.member.getID())
                     .setZtd(ztd);

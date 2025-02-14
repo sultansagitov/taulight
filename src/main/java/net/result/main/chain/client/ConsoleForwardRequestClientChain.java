@@ -23,12 +23,12 @@ public class ConsoleForwardRequestClientChain extends ClientChain {
     }
 
     @Override
-    public void sync() throws InterruptedException, ExpectedMessageException, DeserializationException {
+    public void sync() throws InterruptedException, DeserializationException {
         ConsoleCommands cc = new ConsoleCommands(io);
         Scanner scanner = new Scanner(System.in);
 
         while (true) {
-            System.out.printf(" [%s] ", cc.currentChat);
+            System.out.printf(" [%s] ", Optional.ofNullable(cc.currentChat).map(UUID::toString).orElse(""));
             String input = scanner.nextLine();
 
             if (input.trim().isEmpty()) continue;
@@ -47,7 +47,7 @@ public class ConsoleForwardRequestClientChain extends ClientChain {
 
     private boolean sendForward(ConsoleCommands cc, String input)
             throws InterruptedException, DeserializationException {
-        if (cc.currentChat.isEmpty()) {
+        if (cc.currentChat == null) {
             System.out.println("chat not selected");
         }
 

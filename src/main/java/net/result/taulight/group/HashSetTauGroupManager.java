@@ -2,16 +2,18 @@ package net.result.taulight.group;
 
 import net.result.sandnode.group.HashSetGroupManager;
 import net.result.taulight.db.TauChat;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 public class HashSetTauGroupManager extends HashSetGroupManager implements TauGroupManager {
-    public final Map<String, TauChatGroup> map = new HashMap<>();
+    public final Map<UUID, TauChatGroup> map = new HashMap<>();
 
     @Override
-    public TauChatGroup getGroup(TauChat chat) {
-        String id = chat.getID();
+    public TauChatGroup getGroup(@NotNull TauChat chat) {
+        UUID id = chat.getID();
 
         if (!map.containsKey(id)) {
             TauChatGroup group = new TauChatGroup(id);

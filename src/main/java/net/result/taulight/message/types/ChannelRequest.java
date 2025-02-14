@@ -7,6 +7,8 @@ import net.result.sandnode.message.util.Headers;
 import net.result.sandnode.serverclient.ClientMember;
 import net.result.taulight.message.TauMessageTypes;
 
+import java.util.UUID;
+
 public class ChannelRequest extends MSGPackMessage<ChannelRequest.Data> {
     public enum DataType {NEW, LEAVE, ADD}
 
@@ -14,7 +16,7 @@ public class ChannelRequest extends MSGPackMessage<ChannelRequest.Data> {
         public DataType type;
         public String title;
         public ClientMember member;
-        public String chatID;
+        public UUID chatID;
 
         public Data() {}
 
@@ -22,8 +24,8 @@ public class ChannelRequest extends MSGPackMessage<ChannelRequest.Data> {
             this.type = type;
         }
 
-        private Data(DataType type, String title) {
-            this.type = type;
+        private Data(String title) {
+            this.type = DataType.NEW;
             this.title = title;
         }
     }
@@ -38,16 +40,16 @@ public class ChannelRequest extends MSGPackMessage<ChannelRequest.Data> {
 
 
     public static ChannelRequest newChannel(String title) {
-        return new ChannelRequest(new Data(DataType.NEW, title));
+        return new ChannelRequest(new Data(title));
     }
 
-    public static ChannelRequest leave(String chatID) {
+    public static ChannelRequest leave(UUID chatID) {
         Data data = new Data(DataType.LEAVE);
         data.chatID = chatID;
         return new ChannelRequest(data);
     }
 
-    public static ChannelRequest addMember(String chatID, ClientMember member) {
+    public static ChannelRequest addMember(UUID chatID, ClientMember member) {
         Data data = new Data(DataType.ADD);
         data.chatID = chatID;
         data.member = member;

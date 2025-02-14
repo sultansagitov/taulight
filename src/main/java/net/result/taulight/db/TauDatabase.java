@@ -6,6 +6,7 @@ import net.result.sandnode.exception.DatabaseException;
 
 import java.util.Collection;
 import java.util.Optional;
+import java.util.UUID;
 
 public interface TauDatabase extends Database {
 
@@ -15,7 +16,7 @@ public interface TauDatabase extends Database {
 
     void saveChat(TauChat chat) throws DatabaseException;
 
-    Optional<TauChat> getChat(String id) throws DatabaseException;
+    Optional<TauChat> getChat(UUID id) throws DatabaseException;
 
     void saveMessage(ChatMessage msg) throws DatabaseException;
 
@@ -27,7 +28,7 @@ public interface TauDatabase extends Database {
 
     Collection<TauChat> getChats(Member member) throws DatabaseException;
 
-    void removeChat(String chatId) throws DatabaseException;
+    void removeChat(UUID chatID) throws DatabaseException;
 
     long getMessageCount(TauChat chat) throws DatabaseException;
 

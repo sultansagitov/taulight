@@ -8,14 +8,14 @@ public class TauDirect extends TauChat {
     private final Member member1;
     private final Member member2;
 
-    public TauDirect(String id, Member member1, Member member2) {
+    public TauDirect(UUID id, Member member1, Member member2) {
         super(id);
         this.member1 = member1;
         this.member2 = member2;
     }
 
     public TauDirect(Member member1, Member member2) {
-        this("dm-%s".formatted(UUID.randomUUID().toString()), member1, member2);
+        this(UUID.randomUUID(), member1, member2);
     }
 
     public Member getMember1() {

@@ -14,6 +14,8 @@ import net.result.taulight.error.TauErrors;
 import net.result.taulight.exception.ChatNotFoundException;
 import net.result.taulight.message.types.ChannelRequest;
 
+import java.util.UUID;
+
 public class ChannelClientChain extends ClientChain {
     public ChannelClientChain(IOController io) {
         super(io);
@@ -35,7 +37,7 @@ public class ChannelClientChain extends ClientChain {
         new HappyMessage(raw);
     }
 
-    public void sendLeaveRequest(String chatID) throws InterruptedException, ExpectedMessageException, ChatNotFoundException, DeserializationException, TooFewArgumentsException, WrongAddressException, UnauthorizedException {
+    public void sendLeaveRequest(UUID chatID) throws InterruptedException, ExpectedMessageException, ChatNotFoundException, DeserializationException, TooFewArgumentsException, WrongAddressException, UnauthorizedException {
         send(ChannelRequest.leave(chatID));
         RawMessage raw = queue.take();
 
@@ -59,7 +61,7 @@ public class ChannelClientChain extends ClientChain {
         new HappyMessage(raw);
     }
 
-    public void sendAddMemberRequest(String chatID, ClientMember member)
+    public void sendAddMemberRequest(UUID chatID, ClientMember member)
             throws InterruptedException, DeserializationException, ChatNotFoundException, TooFewArgumentsException,
             AddressedMemberNotFoundException, WrongAddressException, UnauthorizedException, ExpectedMessageException {
         send(ChannelRequest.addMember(chatID, member));

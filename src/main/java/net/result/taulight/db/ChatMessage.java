@@ -8,9 +8,9 @@ import java.util.UUID;
 
 public class ChatMessage {
     @JsonProperty
-    private String id;
+    private UUID id;
     @JsonProperty
-    private String chatID;
+    private UUID chatID;
     @JsonProperty
     private String content;
     @JsonProperty
@@ -20,11 +20,11 @@ public class ChatMessage {
 
     public ChatMessage() {}
 
-    public String id() {
+    public UUID id() {
         return id;
     }
 
-    public String chatID() {
+    public UUID chatID() {
         return chatID;
     }
 
@@ -41,11 +41,11 @@ public class ChatMessage {
     }
 
     public ChatMessage setRandomID() {
-        this.id = UUID.randomUUID().toString();
+        this.id = UUID.randomUUID();
         return this;
     }
 
-    public ChatMessage setID(String id) {
+    public ChatMessage setID(UUID id) {
         this.id = id;
         return this;
     }
@@ -55,7 +55,7 @@ public class ChatMessage {
         return this;
     }
 
-    public ChatMessage setChatID(String chatID) {
+    public ChatMessage setChatID(UUID chatID) {
         this.chatID = chatID;
         return this;
     }

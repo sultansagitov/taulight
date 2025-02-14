@@ -24,15 +24,13 @@ public class ChatServerChain extends ServerChain {
         while (true) {
             ChatRequest request = new ChatRequest(queue.take());
 
-            switch (request.getMessageType()) {
-                case GET -> {
-                    try {
-                        send(ChatResponse.get(database.getChats(session.member)));
-                    } catch (DatabaseException e) {
-                        LOGGER.error(e);
-                        send(Errors.SERVER_ERROR.message());
-                        continue;
-                    }
+            if (request.getMessageType() == ChatRequest.DataType.GET) {
+                try {
+                    send(ChatResponse.get(database.getChats(session.member)));
+                } catch (DatabaseException e) {
+                    LOGGER.error(e);
+                    send(Errors.SERVER_ERROR.message());
+                    continue;
                 }
             }
 

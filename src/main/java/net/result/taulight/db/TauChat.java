@@ -1,13 +1,15 @@
 package net.result.taulight.db;
 
-public abstract class TauChat {
-    private final String id;
+import java.util.UUID;
 
-    public TauChat(String id) {
+public abstract class TauChat {
+    private final UUID id;
+
+    public TauChat(UUID id) {
         this.id = id;
     }
 
-    public String getID() {
+    public UUID getID() {
         return id;
     }
 

@@ -11,6 +11,7 @@ import net.result.taulight.db.ChatMessage;
 import net.result.taulight.message.TauMessageTypes;
 
 import java.time.ZonedDateTime;
+import java.util.UUID;
 
 public class ForwardResponse extends MSGPackMessage<ForwardResponse.Data> {
     public static class Data {
@@ -50,7 +51,7 @@ public class ForwardResponse extends MSGPackMessage<ForwardResponse.Data> {
         return object.message.content();
     }
 
-    public String getChatID() {
+    public UUID getChatID() {
         return object.message.chatID();
     }
 
@@ -62,7 +63,7 @@ public class ForwardResponse extends MSGPackMessage<ForwardResponse.Data> {
         return new ClientMember(object.message.memberID());
     }
 
-    public String getMessageID() {
+    public UUID getMessageID() {
         return object.message.id();
     }
 }

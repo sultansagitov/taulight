@@ -8,6 +8,8 @@ import net.result.taulight.message.types.ForwardRequest;
 import net.result.taulight.message.types.ForwardRequest.Data;
 import org.junit.jupiter.api.Test;
 
+import java.util.UUID;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 class ForwardMessageTest {
@@ -17,7 +19,7 @@ class ForwardMessageTest {
         // Arrange
         String expectedContent = "This is a test message.";
         Headers headers = new Headers();
-        ForwardRequest originalMessage = new ForwardRequest(headers, new Data("chat", expectedContent));
+        ForwardRequest originalMessage = new ForwardRequest(headers, new Data(UUID.randomUUID(), expectedContent));
 
         // Act
         RawMessage serializedData = new RawMessage(originalMessage.getHeaders(), originalMessage.getBody());

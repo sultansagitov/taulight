@@ -16,6 +16,7 @@ import org.apache.logging.log4j.Logger;
 
 import java.util.Collection;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -42,7 +43,7 @@ public class ChatClientChain extends ClientChain {
         LOGGER.error("Error Code: {}, Error Description: {}", error.getCode(), error.getDescription());
     }
 
-    public Optional<Collection<String>> getChats()
+    public Optional<Collection<UUID>> getChats()
             throws InterruptedException, DeserializationException, ExpectedMessageException {
         lock.lock();
         try {
@@ -54,7 +55,7 @@ public class ChatClientChain extends ClientChain {
                 return Optional.empty();
             }
 
-            Collection<String> chats = new ChatResponse(raw).getChats();
+            Collection<UUID> chats = new ChatResponse(raw).getChats();
             return Optional.of(chats);
         } finally {
             lock.unlock();

@@ -89,6 +89,7 @@ public class Headers {
         return chainID;
     }
 
+    @SuppressWarnings("CommentedOutCode")
     public static Headers getFromBytes(byte @NotNull [] data)
             throws NoSuchEncryptionException, NoSuchMessageTypeException {
         if (data.length < 5) {

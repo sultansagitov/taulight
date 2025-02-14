@@ -12,9 +12,11 @@ import net.result.sandnode.message.util.MessageTypes;
 import net.result.sandnode.util.IOController;
 import net.result.taulight.message.types.DirectResponse;
 
+import java.util.UUID;
+
 public class DirectClientChain extends ClientChain {
     private final String memberID;
-    public String chatID;
+    public UUID chatID;
 
     public DirectClientChain(IOController io, String memberID) {
         super(io);

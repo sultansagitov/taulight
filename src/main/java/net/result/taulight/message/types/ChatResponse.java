@@ -11,6 +11,7 @@ import net.result.taulight.db.TauChat;
 import net.result.taulight.message.types.ChatRequest.DataType;
 
 import java.util.Collection;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 public class ChatResponse extends MSGPackMessage<ChatResponse.Data> {
@@ -18,11 +19,11 @@ public class ChatResponse extends MSGPackMessage<ChatResponse.Data> {
         @JsonProperty
         ChatRequest.DataType messageType;
         @JsonProperty
-        Collection<String> chats;
+        Collection<UUID> chats;
 
         @SuppressWarnings("unused")
         public Data() {}
-        public Data(ChatRequest.DataType messageType, Collection<String> chats) {
+        public Data(ChatRequest.DataType messageType, Collection<UUID> chats) {
             this.messageType = messageType;
             this.chats = chats;
         }
@@ -49,7 +50,7 @@ public class ChatResponse extends MSGPackMessage<ChatResponse.Data> {
         ));
     }
 
-    public Collection<String> getChats() {
+    public Collection<UUID> getChats() {
         return object.chats;
     }
 }

@@ -20,6 +20,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.util.Optional;
+import java.util.UUID;
 
 public class ChannelServerChain extends ServerChain {
     private static final Logger LOGGER = LogManager.getLogger(ChannelServerChain.class);
@@ -65,7 +66,7 @@ public class ChannelServerChain extends ServerChain {
                 send(new HappyMessage());
             }
             case ADD -> {
-                String chatID = request.object.chatID;
+                UUID chatID = request.object.chatID;
                 ClientMember cMember = request.object.member;
 
                 if (chatID == null || cMember == null) {
@@ -120,7 +121,7 @@ public class ChannelServerChain extends ServerChain {
                 send(new HappyMessage());
             }
             case LEAVE -> {
-                String chatID = request.object.chatID;
+                UUID chatID = request.object.chatID;
 
                 if (chatID == null) {
                     sendFin(Errors.TOO_FEW_ARGS.message());
