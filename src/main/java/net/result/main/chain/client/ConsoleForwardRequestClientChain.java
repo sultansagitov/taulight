@@ -54,6 +54,7 @@ public class ConsoleForwardRequestClientChain extends ClientChain {
             throws InterruptedException, DeserializationException {
         if (cc.currentChat == null) {
             System.out.println("chat not selected");
+            return false;
         }
 
         ZonedDateTime ztd = ZonedDateTime.now(ZoneId.of("UTC"));
