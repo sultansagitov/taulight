@@ -7,7 +7,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.time.ZoneId;
-import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 
 public class ConsoleForwardClientChain extends ForwardClientChain {
@@ -19,13 +18,12 @@ public class ConsoleForwardClientChain extends ForwardClientChain {
 
     @Override
     public void onMessage(ForwardResponse tfm) {
-        ZonedDateTime zonedDateTime = tfm.getZonedDateTime();
-        ZonedDateTime localZonedDateTime = zonedDateTime.withZoneSameInstant(ZoneId.systemDefault());
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss z");
-        String formatted = localZonedDateTime.format(formatter);
+        var zonedDateTime = tfm.getServerZonedDateTime();
+        var localZonedDateTime = zonedDateTime.withZoneSameInstant(ZoneId.systemDefault());
+        var formatted = localZonedDateTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss z"));
 
-        String content = tfm.getData();
-        LOGGER.info("Forwarded message details - {} - {} - {}", tfm.getMessageID(), formatted, content);
-        System.out.printf("%s > %s > %s%n", tfm.getChatID(), tfm.getMember().memberID, content);
+        String content = tfm.getChatMessage().content();
+        LOGGER.info("Forwarded message details - {} - {} - {}", tfm.getChatMessage().id(), formatted, content);
+        System.out.printf("%s > %s > %s%n", tfm.getChatMessage().chatID(), tfm.getChatMessage().memberID(), content);
     }
 }

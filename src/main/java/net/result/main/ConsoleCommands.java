@@ -18,17 +18,19 @@ import java.util.*;
 public class ConsoleCommands {
     @FunctionalInterface
     public interface LoopCondition {
-        boolean breakLoop(List<String> list) throws InterruptedException;
+        boolean breakLoop(List<String> args) throws InterruptedException;
     }
 
     private static final Logger LOGGER = LogManager.getLogger(ConsoleCommands.class);
 
     private final IOController io;
     public final Map<String, LoopCondition> commands;
+    public final String memberID;
     public UUID currentChat = null;
 
-    public ConsoleCommands(IOController io) {
+    public ConsoleCommands(IOController io, String memberID) {
         this.io = io;
+        this.memberID = memberID;
         commands = new HashMap<>();
         commands.put("exit", this::exit);
         commands.put(":", this::setChat);
@@ -44,7 +46,7 @@ public class ConsoleCommands {
     }
 
     @SuppressWarnings("SameReturnValue")
-    private boolean exit(List<String> arg) {
+    private boolean exit(List<String> ignored) {
         try {
             io.disconnect();
         } catch (Exception e) {
@@ -64,7 +66,7 @@ public class ConsoleCommands {
     }
 
     @SuppressWarnings("SameReturnValue")
-    private boolean chains(List<String> args) {
+    private boolean chains(List<String> ignored) {
         var chains = io.chainManager.getAllChains();
         var map = io.chainManager.getChainsMap();
 
@@ -74,7 +76,7 @@ public class ConsoleCommands {
     }
 
     @SuppressWarnings("SameReturnValue")
-    private boolean groups(List<String> args) throws InterruptedException {
+    private boolean groups(List<String> ignored) throws InterruptedException {
         try {
             Collection<String> groups = ClientProtocol.getGroups(io);
             LOGGER.info("Your groups: {}", groups);

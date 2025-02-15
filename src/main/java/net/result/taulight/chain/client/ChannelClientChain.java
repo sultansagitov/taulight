@@ -37,7 +37,9 @@ public class ChannelClientChain extends ClientChain {
         new HappyMessage(raw);
     }
 
-    public void sendLeaveRequest(UUID chatID) throws InterruptedException, ExpectedMessageException, ChatNotFoundException, DeserializationException, TooFewArgumentsException, WrongAddressException, UnauthorizedException {
+    public void sendLeaveRequest(UUID chatID) throws InterruptedException, ExpectedMessageException,
+            ChatNotFoundException, DeserializationException, TooFewArgumentsException, WrongAddressException,
+            UnauthorizedException {
         send(ChannelRequest.leave(chatID));
         RawMessage raw = queue.take();
 

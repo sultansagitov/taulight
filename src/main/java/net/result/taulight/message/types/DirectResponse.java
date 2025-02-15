@@ -15,7 +15,6 @@ public class DirectResponse extends MSGPackMessage<DirectResponse.Data> {
     protected static class Data {
         @JsonProperty
         public String memberID;
-
         @JsonProperty
         public UUID id;
 

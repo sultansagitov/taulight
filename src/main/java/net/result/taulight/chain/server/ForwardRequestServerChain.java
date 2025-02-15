@@ -40,14 +40,29 @@ public class ForwardRequestServerChain extends ServerChain {
             ForwardRequest forwardMessage = new ForwardRequest(queue.take());
 
             ZonedDateTime ztd = ZonedDateTime.now(ZoneId.of("UTC"));
-            LOGGER.info("Forwarding message: {}", forwardMessage.getData());
+            ChatMessage chatMessage = forwardMessage.getChatMessage();
 
-            UUID chatID = forwardMessage.getChatID();
-            if (chatID == null) {
-                LOGGER.error("Forward message contains null chatID");
+            if (chatMessage == null) {
+                LOGGER.error("Forward message contains null chatMessage");
                 send(Errors.TOO_FEW_ARGS.message());
                 continue;
             }
+
+            UUID chatID = chatMessage.chatID();
+            String content = chatMessage.content();
+
+            if (chatID == null || content == null) {
+                LOGGER.error("Forward message contains null chatID or content");
+                send(Errors.TOO_FEW_ARGS.message());
+                continue;
+            }
+
+            LOGGER.info("Forwarding message: {}", content);
+
+            chatMessage
+                    .setRandomID()
+                    .setMemberID(session.member.getID())
+                    .setSys(false);
 
             Optional<TauChat> tauChat;
             try {
@@ -55,7 +70,7 @@ public class ForwardRequestServerChain extends ServerChain {
             } catch (DatabaseException e) {
                 LOGGER.error("Error retrieving chat from database: {}", e.getMessage(), e);
                 sendFin(Errors.SERVER_ERROR.message());
-                return;
+                continue;
             }
 
             if (tauChat.isEmpty()) {
@@ -71,7 +86,7 @@ public class ForwardRequestServerChain extends ServerChain {
             } catch (DatabaseException e) {
                 LOGGER.error("Error retrieving members from chat: {}", e.getMessage(), e);
                 sendFin(Errors.SERVER_ERROR.message());
-                return;
+                continue;
             }
 
             if (!members.contains(session.member)) {
@@ -80,35 +95,28 @@ public class ForwardRequestServerChain extends ServerChain {
                 continue;
             }
 
-            ChatMessage chatMessage = new ChatMessage()
-                    .setRandomID()
-                    .setChatID(chatID)
-                    .setContent(forwardMessage.getData())
-                    .setMemberID(session.member.getID())
-                    .setZtd(ztd);
-
-            LOGGER.info("Saving message with id {} content: {}", chatMessage.id(), chatMessage.content());
+            LOGGER.info("Saving message with id {} content: {}", chatMessage.id(), content);
             try {
                 database.saveMessage(chatMessage);
             } catch (DatabaseException e) {
                 LOGGER.error("Error saving message to database: {}", e.getMessage(), e);
                 sendFin(Errors.SERVER_ERROR.message());
-                return;
+                continue;
             }
 
             boolean forwarded = false;
             for (Session s : manager.getGroup(chat).getSessions()) {
                 Optional<Chain> fwd = s.io.chainManager.getChain("fwd");
 
-                ForwardResponse request = new ForwardResponse(chatMessage);
+                ForwardResponse request = new ForwardResponse(chatMessage, ztd);
 
-                if (fwd.isEmpty()) {
+                if (fwd.isPresent()) {
+                    fwd.get().send(request);
+                } else {
                     var chain = new ForwardServerChain(s);
                     s.io.chainManager.linkChain(chain);
                     chain.send(request);
                     chain.send(new ChainNameRequest("fwd"));
-                } else {
-                    fwd.get().send(request);
                 }
                 forwarded = true;
             }

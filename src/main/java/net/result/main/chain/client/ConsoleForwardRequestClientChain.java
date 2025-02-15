@@ -9,22 +9,27 @@ import net.result.sandnode.error.SandnodeError;
 import net.result.sandnode.message.util.MessageTypes;
 import net.result.sandnode.util.IOController;
 import net.result.sandnode.chain.client.ClientChain;
+import net.result.taulight.db.ChatMessage;
 import net.result.taulight.message.types.ForwardRequest;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.*;
 
 public class ConsoleForwardRequestClientChain extends ClientChain {
     private static final Logger LOGGER = LogManager.getLogger(ConsoleForwardRequestClientChain.class);
+    private final String memberID;
 
-    public ConsoleForwardRequestClientChain(IOController io) {
+    public ConsoleForwardRequestClientChain(IOController io, String memberID) {
         super(io);
+        this.memberID = memberID;
     }
 
     @Override
     public void sync() throws InterruptedException, DeserializationException {
-        ConsoleCommands cc = new ConsoleCommands(io);
+        ConsoleCommands cc = new ConsoleCommands(io, memberID);
         Scanner scanner = new Scanner(System.in);
 
         while (true) {
@@ -51,7 +56,15 @@ public class ConsoleForwardRequestClientChain extends ClientChain {
             System.out.println("chat not selected");
         }
 
-        send(new ForwardRequest(new ForwardRequest.Data(cc.currentChat, input)));
+        ZonedDateTime ztd = ZonedDateTime.now(ZoneId.of("UTC"));
+
+        ChatMessage message = new ChatMessage()
+                .setChatID(cc.currentChat)
+                .setContent(input)
+                .setMemberID(cc.memberID)
+                .setZtd(ztd);
+
+        send(new ForwardRequest(message));
         RawMessage raw = queue.take();
         MessageType type = raw.getHeaders().getType();
         if (type == MessageTypes.EXIT) return true;

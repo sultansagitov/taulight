@@ -51,19 +51,18 @@ public class RunAgentWork implements IWork {
         ConsoleClientChainManager chainManager = new ConsoleClientChainManager();
 
         SandnodeClient client = new SandnodeClient(endpoint, agent, NodeType.HUB, clientConfig);
-        client.start(chainManager);                 // Starting client
-        getPublicKey(client, agent, link);          // get key from fs or sending PUB if key not found
-        ClientProtocol.sendSYM(client);             // sending symmetric key
-        handleAuthentication(client.io, scanner);   // registration or login
-
-        startConsoleChain(client.io);
+        client.start(chainManager);                                 // Starting client
+        getPublicKey(client, agent, link);                          // get key from fs or sending PUB if key not found
+        ClientProtocol.sendSYM(client);                             // sending symmetric key
+        String memberID = handleAuthentication(client.io, scanner); // registration or login
+        startConsoleChain(client.io, memberID);
 
         LOGGER.info("Exiting...");
         client.close();
     }
 
-    private static void startConsoleChain(IOController io) throws InterruptedException, DeserializationException {
-        ConsoleForwardRequestClientChain consoleChain = new ConsoleForwardRequestClientChain(io);
+    private static void startConsoleChain(IOController io, String memberID) throws InterruptedException, DeserializationException {
+        ConsoleForwardRequestClientChain consoleChain = new ConsoleForwardRequestClientChain(io, memberID);
         io.chainManager.linkChain(consoleChain);
         consoleChain.sync();
         io.chainManager.removeChain(consoleChain);
@@ -107,7 +106,7 @@ public class RunAgentWork implements IWork {
         client.io.setServerKey(serverKey);
     }
 
-    private void handleAuthentication(IOController io, Scanner scanner)
+    private String handleAuthentication(IOController io, Scanner scanner)
             throws InterruptedException, ExpectedMessageException, DeserializationException {
 
         String s;
@@ -119,12 +118,13 @@ public class RunAgentWork implements IWork {
 
         char choice = s.charAt(0);
 
+        String memberID = "";
         switch (choice) {
             case 'r' -> {
                 boolean isRegistered = false;
                 while (!isRegistered) {
                     System.out.print("Member ID: ");
-                    String memberID = scanner.nextLine();
+                    memberID = scanner.nextLine();
                     System.out.print("Password: ");
                     String password = scanner.nextLine();
 
@@ -166,7 +166,7 @@ public class RunAgentWork implements IWork {
 
                 while (!isLoggedIn) {
                     System.out.print("MemberID: ");
-                    String memberID = scanner.nextLine();
+                    memberID = scanner.nextLine();
                     System.out.print("Password: ");
                     String password = scanner.nextLine();
 
@@ -185,5 +185,6 @@ public class RunAgentWork implements IWork {
             }
             default -> throw new RuntimeException(String.valueOf(choice));
         }
+        return memberID;
     }
 }

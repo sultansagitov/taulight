@@ -1,47 +1,27 @@
 package net.result.taulight.message.types;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import net.result.sandnode.exception.DeserializationException;
 import net.result.sandnode.exception.ExpectedMessageException;
 import net.result.sandnode.message.IMessage;
 import net.result.sandnode.message.util.Headers;
 import net.result.sandnode.message.MSGPackMessage;
+import net.result.taulight.db.ChatMessage;
 import net.result.taulight.message.TauMessageTypes;
 
-import java.util.UUID;
+public class ForwardRequest extends MSGPackMessage<ChatMessage> {
+    public ForwardRequest(ChatMessage chatMessage) {
+        this(new Headers(), chatMessage);
+    }
 
-public class ForwardRequest extends MSGPackMessage<ForwardRequest.Data> {
-    public static class Data {
-        @JsonProperty
-        public UUID chatID;
-        @JsonProperty
-        public String content;
-
-        @SuppressWarnings("unused")
-        public Data() {}
-        public Data(UUID chatID, String data) {
-            this.chatID = chatID;
-            content = data;
-        }
+    public ForwardRequest(Headers headers, ChatMessage chatMessage) {
+        super(headers.setType(TauMessageTypes.FWD_REQ), chatMessage);
     }
 
     public ForwardRequest(IMessage request) throws DeserializationException, ExpectedMessageException {
-        super(request.expect(TauMessageTypes.FWD_REQ), Data.class);
+        super(request.expect(TauMessageTypes.FWD_REQ), ChatMessage.class);
     }
 
-    public ForwardRequest(Headers headers, Data data) {
-        super(headers.setType(TauMessageTypes.FWD_REQ), data);
-    }
-
-    public ForwardRequest(Data data) {
-        this(new Headers(), data);
-    }
-
-    public String getData() {
-        return object.content;
-    }
-
-    public UUID getChatID() {
-        return object.chatID;
+    public ChatMessage getChatMessage() {
+        return object;
     }
 }

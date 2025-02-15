@@ -73,6 +73,7 @@ public class TauMariaDBDatabase extends SandnodeMariaDBDatabase implements TauDa
                 content TEXT NOT NULL,
                 timestamp TIMESTAMP NOT NULL,
                 member_id VARCHAR(255),
+                sys BOOLEAN,
                 FOREIGN KEY (chat_id) REFERENCES chats(chat_id) ON DELETE CASCADE,
                 FOREIGN KEY (member_id) REFERENCES members(member_id)
             )
@@ -265,14 +266,15 @@ public class TauMariaDBDatabase extends SandnodeMariaDBDatabase implements TauDa
     public void saveMessage(ChatMessage msg) throws DatabaseException {
         try (Connection conn = dataSource.getConnection();
              PreparedStatement stmt = conn.prepareStatement(
-                     "INSERT INTO messages (message_id, chat_id, content, timestamp, member_id)" +
-                     "VALUES (?, ?, ?, ?, ?)")) {
+                     "INSERT INTO messages (message_id, chat_id, content, timestamp, member_id, sys)" +
+                     "VALUES (?, ?, ?, ?, ?, ?)")) {
 
             stmt.setBytes(1, uuidToBinary(msg.id()));
             stmt.setBytes(2, uuidToBinary(msg.chatID()));
             stmt.setString(3, msg.content());
             stmt.setTimestamp(4, Timestamp.from(msg.ztd().toInstant()));
             stmt.setString(5, msg.memberID());
+            stmt.setBoolean(6, msg.sys());
             stmt.executeUpdate();
         } catch (SQLException | IllegalArgumentException e) {
             throw new DatabaseException("Failed to save message", e);
@@ -307,7 +309,8 @@ public class TauMariaDBDatabase extends SandnodeMariaDBDatabase implements TauDa
                                 .setChatID(chat.getID())
                                 .setContent(rs.getString("content"))
                                 .setZtd(timestamp)
-                                .setMemberID(rs.getString("member_id"));
+                                .setMemberID(rs.getString("member_id"))
+                                .setSys(rs.getBoolean("sys"));
 
                         messages.add(message);
                     }
@@ -494,8 +497,7 @@ public class TauMariaDBDatabase extends SandnodeMariaDBDatabase implements TauDa
         try (Connection conn = dataSource.getConnection()) {
             byte[] chatBin = uuidToBinary(chat.getID());
 
-            try (PreparedStatement stmt = conn.prepareStatement(
-                    "SELECT COUNT(*) FROM messages WHERE chat_id = ?")) {
+            try (PreparedStatement stmt = conn.prepareStatement("SELECT COUNT(*) FROM messages WHERE chat_id = ?")) {
 
                 stmt.setBytes(1, chatBin);
                 try (ResultSet rs = stmt.executeQuery()) {

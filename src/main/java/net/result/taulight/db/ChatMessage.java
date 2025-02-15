@@ -8,15 +8,17 @@ import java.util.UUID;
 
 public class ChatMessage {
     @JsonProperty
-    private UUID id;
+    private UUID id = null;
     @JsonProperty
-    private UUID chatID;
+    private UUID chatID = null;
     @JsonProperty
-    private String content;
+    private String content = null;
     @JsonProperty
-    private ZonedDateTime ztd;
+    private ZonedDateTime ztd = null;
     @JsonProperty
-    private String memberID;
+    private String memberID = null;
+    @JsonProperty
+    private boolean sys = false;
 
     public ChatMessage() {}
 
@@ -38,6 +40,10 @@ public class ChatMessage {
 
     public String memberID() {
         return memberID;
+    }
+
+    public boolean sys() {
+        return sys;
     }
 
     public ChatMessage setRandomID() {
@@ -67,6 +73,11 @@ public class ChatMessage {
 
     public ChatMessage setMemberID(String memberID) {
         this.memberID = memberID;
+        return this;
+    }
+
+    public ChatMessage setSys(boolean sys) {
+        this.sys = sys;
         return this;
     }
 
