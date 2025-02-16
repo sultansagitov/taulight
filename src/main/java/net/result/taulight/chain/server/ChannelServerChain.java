@@ -2,6 +2,7 @@ package net.result.taulight.chain.server;
 
 import net.result.sandnode.chain.server.ServerChain;
 import net.result.sandnode.exception.DatabaseException;
+import net.result.taulight.SysMessages;
 import net.result.taulight.TauAgentProtocol;
 import net.result.taulight.TauHubProtocol;
 import net.result.taulight.db.ChatMessage;
@@ -66,18 +67,12 @@ public class ChannelServerChain extends ServerChain {
 
                 TauAgentProtocol.addMemberToGroup(session, manager.getGroup(channel));
 
-                ChatMessage chatMessage = new ChatMessage()
-                        .setRandomID()
-                        .setSys(true)
-                        .setChat(channel)
-                        .setMember(session.member)
-                        .setContent("channel.new")
-                        .setZtdNow();
+                ChatMessage chatMessage = SysMessages.channelNew.chatMessage(channel, session.member);
 
                 try {
                     TauHubProtocol.send(session.server.serverConfig, channel, chatMessage);
                 } catch (DatabaseException | MessageNotForwardedException e) {
-                    LOGGER.warn("Ignored exception: {}", e.getMessage());
+                    LOGGER.warn("Ignored exception when sending system message of creating channel: {}", e.getMessage());
                 }
 
                 send(new HappyMessage());
@@ -135,6 +130,14 @@ public class ChannelServerChain extends ServerChain {
                 TauChatGroup tauChatGroup = manager.getGroup(channel);
                 TauAgentProtocol.addMemberToGroup(session, member, tauChatGroup);
 
+                ChatMessage chatMessage = SysMessages.channelAdd.chatMessage(channel, session.member);
+
+                try {
+                    TauHubProtocol.send(session.server.serverConfig, channel, chatMessage);
+                } catch (DatabaseException | MessageNotForwardedException e) {
+                    LOGGER.warn("Ignored exception when sending system message of adding member: {}", e.getMessage());
+                }
+
                 send(new HappyMessage());
             }
             case LEAVE -> {
@@ -177,6 +180,14 @@ public class ChannelServerChain extends ServerChain {
                 }
 
                 TauAgentProtocol.removeMemberFromGroup(session, manager.getGroup(channel));
+
+                ChatMessage chatMessage = SysMessages.channelLeave.chatMessage(channel, session.member);
+
+                try {
+                    TauHubProtocol.send(session.server.serverConfig, channel, chatMessage);
+                } catch (DatabaseException | MessageNotForwardedException e) {
+                    LOGGER.warn("Ignored exception when sending system message of leaving member: {}", e.getMessage());
+                }
 
                 send(new HappyMessage());
             }
