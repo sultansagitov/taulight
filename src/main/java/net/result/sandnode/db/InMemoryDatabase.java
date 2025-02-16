@@ -13,7 +13,7 @@ public class InMemoryDatabase implements Database {
             throw new BusyMemberIDException(memberID);
         }
 
-        Member member = new StandardMember(memberID, password, this);
+        Member member = new StandardMember(memberID, password);
         db.add(member);
         return member;
     }

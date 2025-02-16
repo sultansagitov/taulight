@@ -3,10 +3,13 @@ package net.result.taulight.chain.server;
 import net.result.sandnode.chain.server.ServerChain;
 import net.result.sandnode.exception.DatabaseException;
 import net.result.taulight.TauAgentProtocol;
+import net.result.taulight.TauHubProtocol;
+import net.result.taulight.db.ChatMessage;
 import net.result.taulight.db.TauDatabase;
 import net.result.sandnode.db.Member;
 import net.result.sandnode.error.Errors;
 import net.result.sandnode.exception.DeserializationException;
+import net.result.taulight.exception.MessageNotForwardedException;
 import net.result.taulight.group.TauGroupManager;
 import net.result.sandnode.message.types.HappyMessage;
 import net.result.sandnode.serverclient.ClientMember;
@@ -62,6 +65,20 @@ public class ChannelServerChain extends ServerChain {
                 }
 
                 TauAgentProtocol.addMemberToGroup(session, manager.getGroup(channel));
+
+                ChatMessage chatMessage = new ChatMessage()
+                        .setRandomID()
+                        .setSys(true)
+                        .setChat(channel)
+                        .setMember(session.member)
+                        .setContent("channel.new")
+                        .setZtdNow();
+
+                try {
+                    TauHubProtocol.send(session.server.serverConfig, channel, chatMessage);
+                } catch (DatabaseException | MessageNotForwardedException e) {
+                    LOGGER.warn("Ignored exception: {}", e.getMessage());
+                }
 
                 send(new HappyMessage());
             }

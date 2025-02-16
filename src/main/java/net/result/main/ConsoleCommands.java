@@ -59,7 +59,7 @@ public class ConsoleCommands {
     private boolean setChat(List<String> args) {
         try {
             currentChat = UUID.fromString(args.get(0));
-        } catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException | ArrayIndexOutOfBoundsException e) {
             LOGGER.error(e);
         }
         return false;

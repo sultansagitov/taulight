@@ -42,7 +42,7 @@ public class SandnodeMariaDBDatabase implements Database {
             insertStmt.setString(2, password);
             insertStmt.executeUpdate();
 
-            return new StandardMember(memberID, password, this);
+            return new StandardMember(memberID, password);
         } catch (SQLException e) {
             throw new DatabaseException("Failed to register member", e);
         }
@@ -57,7 +57,7 @@ public class SandnodeMariaDBDatabase implements Database {
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
                     String password = rs.getString("password");
-                    return Optional.of(new StandardMember(memberID, password, this));
+                    return Optional.of(new StandardMember(memberID, password));
                 }
             }
             return Optional.empty();

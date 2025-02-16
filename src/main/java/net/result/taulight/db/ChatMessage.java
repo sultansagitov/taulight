@@ -1,7 +1,9 @@
 package net.result.taulight.db;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import net.result.sandnode.db.Member;
 
+import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Objects;
 import java.util.UUID;
@@ -66,14 +68,26 @@ public class ChatMessage {
         return this;
     }
 
+    public ChatMessage setChat(TauChat chat) {
+        return setChatID(chat.getID());
+    }
+
     public ChatMessage setZtd(ZonedDateTime ztd) {
         this.ztd = ztd;
         return this;
     }
 
+    public ChatMessage setZtdNow() {
+        return setZtd(ZonedDateTime.now(ZoneId.of("UTC")));
+    }
+
     public ChatMessage setMemberID(String memberID) {
         this.memberID = memberID;
         return this;
+    }
+
+    public ChatMessage setMember(Member member) {
+        return setMemberID(member.getID());
     }
 
     public ChatMessage setSys(boolean sys) {

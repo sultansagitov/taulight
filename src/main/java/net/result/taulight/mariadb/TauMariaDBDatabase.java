@@ -306,7 +306,7 @@ public class TauMariaDBDatabase extends SandnodeMariaDBDatabase implements TauDa
 
                         ChatMessage message = new ChatMessage()
                                 .setID(messageID)
-                                .setChatID(chat.getID())
+                                .setChat(chat)
                                 .setContent(rs.getString("content"))
                                 .setZtd(timestamp)
                                 .setMemberID(rs.getString("member_id"))
@@ -371,8 +371,7 @@ public class TauMariaDBDatabase extends SandnodeMariaDBDatabase implements TauDa
                 while (rs.next()) {
                     members.add(new StandardMember(
                             rs.getString("member_id"),
-                            rs.getString("password"),
-                            this
+                            rs.getString("password")
                     ));
                 }
             }

@@ -14,8 +14,6 @@ import net.result.taulight.message.types.ForwardRequest;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
 import java.util.*;
 
 public class ConsoleForwardRequestClientChain extends ClientChain {
@@ -57,13 +55,11 @@ public class ConsoleForwardRequestClientChain extends ClientChain {
             return false;
         }
 
-        ZonedDateTime ztd = ZonedDateTime.now(ZoneId.of("UTC"));
-
         ChatMessage message = new ChatMessage()
                 .setChatID(cc.currentChat)
                 .setContent(input)
                 .setMemberID(cc.memberID)
-                .setZtd(ztd);
+                .setZtdNow();
 
         send(new ForwardRequest(message));
         RawMessage raw = queue.take();

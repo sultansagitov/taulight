@@ -55,7 +55,7 @@ public class ForwardRequestServerChain extends ServerChain {
 
             chatMessage
                     .setRandomID()
-                    .setMemberID(session.member.getID())
+                    .setMember(session.member)
                     .setSys(false);
 
             try {
