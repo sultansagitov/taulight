@@ -5,16 +5,15 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
 
+import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-
-import static java.nio.charset.StandardCharsets.US_ASCII;
 
 public enum Hashers implements Hasher {
     SHA256 {
         @Override
         public @NotNull String hash(@NotNull String data) {
-            return hash(data.getBytes(US_ASCII));
+            return hash(data.getBytes(StandardCharsets.US_ASCII));
         }
 
         @Override
@@ -41,7 +40,7 @@ public enum Hashers implements Hasher {
     MD5 {
         @Override
         public @NotNull String hash(@NotNull String data) {
-            return hash(data.getBytes(US_ASCII));
+            return hash(data.getBytes(StandardCharsets.US_ASCII));
         }
 
         @Override

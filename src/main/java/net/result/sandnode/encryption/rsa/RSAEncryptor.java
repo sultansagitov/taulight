@@ -1,5 +1,6 @@
 package net.result.sandnode.encryption.rsa;
 
+import net.result.sandnode.encryption.AsymmetricEncryptions;
 import net.result.sandnode.encryption.interfaces.KeyStorage;
 import net.result.sandnode.exception.CannotUseEncryption;
 import net.result.sandnode.exception.EncryptionException;
@@ -12,18 +13,16 @@ import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
+import java.nio.charset.StandardCharsets;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
-
-import static java.nio.charset.StandardCharsets.US_ASCII;
-import static net.result.sandnode.encryption.AsymmetricEncryptions.RSA;
 
 public class RSAEncryptor {
     private static final Logger LOGGER = LogManager.getLogger(RSAEncryptor.class);
 
     public static byte[] encrypt(@NotNull String data, @NotNull KeyStorage rsaKeyStorage)
             throws EncryptionException, CannotUseEncryption {
-        return encryptBytes(data.getBytes(US_ASCII), rsaKeyStorage);
+        return encryptBytes(data.getBytes(StandardCharsets.US_ASCII), rsaKeyStorage);
     }
 
     public static byte[] encryptBytes(byte @NotNull [] data, @NotNull KeyStorage keyStorage)
@@ -31,7 +30,7 @@ public class RSAEncryptor {
         Cipher cipher;
         byte[] encryptedBytes;
 
-        RSAKeyStorage rsaKeyStorage = (RSAKeyStorage) keyStorage.expect(RSA);
+        RSAKeyStorage rsaKeyStorage = (RSAKeyStorage) keyStorage.expect(AsymmetricEncryptions.RSA);
 
         try {
             cipher = Cipher.getInstance("RSA/ECB/OAEPWithSHA-256AndMGF1Padding");

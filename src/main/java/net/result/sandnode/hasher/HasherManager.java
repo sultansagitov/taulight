@@ -3,9 +3,6 @@ package net.result.sandnode.hasher;
 import net.result.sandnode.exception.NoSuchHasherException;
 import net.result.sandnode.util.Manager;
 
-import static net.result.sandnode.hasher.Hashers.MD5;
-import static net.result.sandnode.hasher.Hashers.SHA256;
-
 public class HasherManager extends Manager<Hasher> {
     private static final HasherManager INSTANCE = new HasherManager();
 
@@ -15,8 +12,8 @@ public class HasherManager extends Manager<Hasher> {
 
     private HasherManager() {
         super();
-        add(SHA256);
-        add(MD5);
+        add(Hashers.SHA256);
+        add(Hashers.MD5);
     }
 
     @Override

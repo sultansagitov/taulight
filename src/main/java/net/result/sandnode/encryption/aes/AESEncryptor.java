@@ -9,18 +9,17 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.crypto.*;
 import javax.crypto.spec.IvParameterSpec;
+import java.nio.charset.StandardCharsets;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 
-import static java.nio.charset.StandardCharsets.US_ASCII;
-
 public class AESEncryptor {
     private static final Logger LOGGER = LogManager.getLogger(AESEncryptor.class);
 
     public static byte[] encrypt(@NotNull String data, @NotNull KeyStorage keyStorage) throws EncryptionException {
-        byte[] bytes = data.trim().getBytes(US_ASCII);
+        byte[] bytes = data.trim().getBytes(StandardCharsets.US_ASCII);
         return encryptBytes(bytes, keyStorage);
     }
 

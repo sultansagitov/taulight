@@ -14,8 +14,6 @@ import org.jetbrains.annotations.NotNull;
 
 import java.net.Socket;
 
-import static net.result.sandnode.message.util.NodeType.HUB;
-
 public abstract class Hub extends Node {
     public Hub(@NotNull GlobalKeyStorage globalKeyStorage) {
         super(globalKeyStorage);
@@ -23,7 +21,7 @@ public abstract class Hub extends Node {
 
     @Override
     public @NotNull NodeType type() {
-        return HUB;
+        return NodeType.HUB;
     }
 
     @Override

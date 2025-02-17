@@ -12,8 +12,7 @@ import org.jetbrains.annotations.NotNull;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URLEncoder;
-
-import static java.nio.charset.StandardCharsets.UTF_8;
+import java.nio.charset.StandardCharsets;
 
 public class Links {
     public static @NotNull URI getServerLink(@NotNull SandnodeServer server)
@@ -23,10 +22,10 @@ public class Links {
         String string;
         try {
             string = "sandnode://%s@%s?encryption=%s&key=%s".formatted(
-                    URLEncoder.encode(server.node.type().name().toLowerCase(), UTF_8),
+                    URLEncoder.encode(server.node.type().name().toLowerCase(), StandardCharsets.UTF_8),
                     NetworkUtil.replaceZeroes(server.serverConfig.endpoint(), 52525),
-                    URLEncoder.encode(encryption.name(), UTF_8),
-                    URLEncoder.encode(keyStorage.encodedPublicKey(), UTF_8)
+                    URLEncoder.encode(encryption.name(), StandardCharsets.UTF_8),
+                    URLEncoder.encode(keyStorage.encodedPublicKey(), StandardCharsets.UTF_8)
             );
         } catch (CannotUseEncryption e) {
             throw new ImpossibleRuntimeException(e);

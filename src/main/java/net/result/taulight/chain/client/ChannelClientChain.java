@@ -35,7 +35,7 @@ public class ChannelClientChain extends ClientChain {
     }
 
     public void sendLeaveRequest(UUID chatID) throws InterruptedException, ExpectedMessageException,
-            DeserializationException, SandnodeErrorException, UnknownSandnodeErrorException {
+            SandnodeErrorException, UnknownSandnodeErrorException {
         send(ChannelRequest.leave(chatID));
         RawMessage raw = queue.take();
 
@@ -48,8 +48,7 @@ public class ChannelClientChain extends ClientChain {
     }
 
     public void sendAddMemberRequest(UUID chatID, ClientMember member) throws InterruptedException,
-            DeserializationException, SandnodeErrorException,
-            ExpectedMessageException, UnknownSandnodeErrorException {
+            SandnodeErrorException, ExpectedMessageException, UnknownSandnodeErrorException {
         send(ChannelRequest.addMember(chatID, member));
         RawMessage raw = queue.take();
         if (raw.headers().type() == MessageTypes.ERR) {

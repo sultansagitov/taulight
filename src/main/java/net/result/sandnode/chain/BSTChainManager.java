@@ -1,6 +1,7 @@
 package net.result.sandnode.chain;
 
 import net.result.sandnode.message.util.MessageType;
+import net.result.sandnode.message.util.MessageTypes;
 import net.result.sandnode.util.bst.AVLTree;
 import net.result.sandnode.exception.BSTBusyPosition;
 import net.result.sandnode.exception.BusyChainID;
@@ -21,8 +22,6 @@ import java.util.Optional;
 import java.util.Random;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-
-import static net.result.sandnode.message.util.MessageTypes.CHAIN_NAME;
 
 public abstract class BSTChainManager implements ChainManager {
     private static final Logger LOGGER = LogManager.getLogger(BSTChainManager.class);
@@ -103,7 +102,7 @@ public abstract class BSTChainManager implements ChainManager {
             }
         }
 
-        if (headers.type() == CHAIN_NAME) {
+        if (headers.type() == MessageTypes.CHAIN_NAME) {
             headers.getOptionalValue("chain-name").ifPresent(s -> setName(chain, s));
             return;
         }

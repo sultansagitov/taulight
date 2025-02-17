@@ -1,5 +1,6 @@
 package net.result.sandnode.encryption.rsa;
 
+import net.result.sandnode.encryption.AsymmetricEncryptions;
 import net.result.sandnode.encryption.interfaces.AsymmetricEncryption;
 import net.result.sandnode.encryption.interfaces.AsymmetricKeyStorage;
 import net.result.sandnode.encryption.interfaces.KeyStorage;
@@ -9,8 +10,6 @@ import org.jetbrains.annotations.NotNull;
 import java.security.KeyPair;
 import java.security.PrivateKey;
 import java.security.PublicKey;
-
-import static net.result.sandnode.encryption.AsymmetricEncryptions.RSA;
 
 public class RSAKeyStorage implements AsymmetricKeyStorage {
 
@@ -57,17 +56,17 @@ public class RSAKeyStorage implements AsymmetricKeyStorage {
 
     @Override
     public @NotNull AsymmetricEncryption encryption() {
-        return RSA;
+        return AsymmetricEncryptions.RSA;
     }
 
     @Override
     public String encodedPublicKey() throws CannotUseEncryption {
-        return RSA.publicKeyConvertor().toEncodedString(this);
+        return AsymmetricEncryptions.RSA.publicKeyConvertor().toEncodedString(this);
     }
 
     @Override
     public String encodedPrivateKey() throws CannotUseEncryption {
-        return RSA.privateKeyConvertor().toEncodedString(this);
+        return AsymmetricEncryptions.RSA.privateKeyConvertor().toEncodedString(this);
     }
 
     @Override

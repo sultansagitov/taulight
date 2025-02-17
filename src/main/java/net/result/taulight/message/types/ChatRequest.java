@@ -5,8 +5,7 @@ import net.result.sandnode.exception.DeserializationException;
 import net.result.sandnode.message.MSGPackMessage;
 import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.message.util.Headers;
-
-import static net.result.taulight.message.TauMessageTypes.CHAT;
+import net.result.taulight.message.TauMessageTypes;
 
 public class ChatRequest extends MSGPackMessage<ChatRequest.Data> {
     public enum DataType {GET, LEAVE}
@@ -25,7 +24,7 @@ public class ChatRequest extends MSGPackMessage<ChatRequest.Data> {
     }
 
     private ChatRequest(Headers headers, Data data) {
-        super(headers.setType(CHAT), data);
+        super(headers.setType(TauMessageTypes.CHAT), data);
     }
 
     private ChatRequest(Data data) {

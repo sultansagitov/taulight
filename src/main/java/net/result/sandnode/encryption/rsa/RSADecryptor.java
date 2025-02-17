@@ -1,5 +1,6 @@
 package net.result.sandnode.encryption.rsa;
 
+import net.result.sandnode.encryption.AsymmetricEncryptions;
 import net.result.sandnode.exception.*;
 import net.result.sandnode.encryption.interfaces.KeyStorage;
 import org.apache.logging.log4j.LogManager;
@@ -14,8 +15,6 @@ import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 
-import static net.result.sandnode.encryption.AsymmetricEncryptions.RSA;
-
 public class RSADecryptor {
     private static final Logger LOGGER = LogManager.getLogger(RSADecryptor.class);
 
@@ -28,7 +27,7 @@ public class RSADecryptor {
             byte @NotNull [] data,
             @NotNull KeyStorage keyStorage
     ) throws DecryptionException, WrongKeyException, CannotUseEncryption, PrivateKeyNotFoundException {
-        RSAKeyStorage rsaKeyStorage = (RSAKeyStorage) keyStorage.expect(RSA);
+        RSAKeyStorage rsaKeyStorage = (RSAKeyStorage) keyStorage.expect(AsymmetricEncryptions.RSA);
         Cipher cipher;
 
         try {

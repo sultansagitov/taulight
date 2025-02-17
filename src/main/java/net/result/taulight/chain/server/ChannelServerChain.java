@@ -72,7 +72,7 @@ public class ChannelServerChain extends ServerChain {
                 try {
                     TauHubProtocol.send(session.server.serverConfig, channel, chatMessage);
                 } catch (DatabaseException | MessageNotForwardedException e) {
-                    LOGGER.warn("Ignored exception when sending system message of creating channel: {}", e.getMessage());
+                    LOGGER.warn("Exception when sending system message of creating channel {}", e.getMessage());
                 }
 
                 send(new HappyMessage());
@@ -135,7 +135,7 @@ public class ChannelServerChain extends ServerChain {
                 try {
                     TauHubProtocol.send(session.server.serverConfig, channel, chatMessage);
                 } catch (DatabaseException | MessageNotForwardedException e) {
-                    LOGGER.warn("Ignored exception when sending system message of adding member: {}", e.getMessage());
+                    LOGGER.warn("Exception when sending system message of adding member: {}", e.getMessage());
                 }
 
                 send(new HappyMessage());
@@ -186,7 +186,7 @@ public class ChannelServerChain extends ServerChain {
                 try {
                     TauHubProtocol.send(session.server.serverConfig, channel, chatMessage);
                 } catch (DatabaseException | MessageNotForwardedException e) {
-                    LOGGER.warn("Ignored exception when sending system message of leaving member: {}", e.getMessage());
+                    LOGGER.warn("Exception when sending system message of leaving member: {}", e.getMessage());
                 }
 
                 send(new HappyMessage());

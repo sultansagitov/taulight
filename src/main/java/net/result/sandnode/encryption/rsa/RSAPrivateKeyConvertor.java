@@ -1,5 +1,6 @@
 package net.result.sandnode.encryption.rsa;
 
+import net.result.sandnode.encryption.AsymmetricEncryptions;
 import net.result.sandnode.exception.CreatingKeyException;
 import net.result.sandnode.encryption.interfaces.AsymmetricConvertor;
 import net.result.sandnode.encryption.interfaces.KeyStorage;
@@ -14,8 +15,6 @@ import java.security.PrivateKey;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.util.Base64;
-
-import static net.result.sandnode.encryption.AsymmetricEncryptions.RSA;
 
 public class RSAPrivateKeyConvertor implements AsymmetricConvertor {
     private static final Logger LOGGER = LogManager.getLogger(RSAPrivateKeyConvertor.class);
@@ -48,7 +47,7 @@ public class RSAPrivateKeyConvertor implements AsymmetricConvertor {
         try {
             privateKey = keyFactory.generatePrivate(keySpec);
         } catch (InvalidKeySpecException e) {
-            throw new CreatingKeyException(RSA, e);
+            throw new CreatingKeyException(AsymmetricEncryptions.RSA, e);
         }
         return new RSAKeyStorage(privateKey);
     }

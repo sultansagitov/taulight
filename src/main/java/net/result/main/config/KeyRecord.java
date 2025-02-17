@@ -6,6 +6,7 @@ import net.result.sandnode.encryption.interfaces.AsymmetricKeyStorage;
 import net.result.sandnode.exception.*;
 import net.result.sandnode.hasher.HasherManager;
 import net.result.sandnode.hasher.Hasher;
+import net.result.sandnode.hasher.Hashers;
 import net.result.sandnode.util.Endpoint;
 import net.result.sandnode.util.FileUtil;
 import org.jetbrains.annotations.NotNull;
@@ -13,12 +14,10 @@ import org.json.JSONObject;
 
 import java.nio.file.Path;
 
-import static net.result.sandnode.hasher.Hashers.SHA256;
-
 public final class KeyRecord {
     public final Path publicKeyPath;
     public final AsymmetricKeyStorage keyStorage;
-    public final Hasher hasher = SHA256;
+    public final Hasher hasher = Hashers.SHA256;
     public final String hash;
     public final Endpoint endpoint;
 

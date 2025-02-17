@@ -27,6 +27,7 @@ public class ForwardRequestServerChain extends ServerChain {
         super(session);
     }
 
+    @SuppressWarnings("InfiniteLoopStatement")
     @Override
     public void sync() throws InterruptedException, ExpectedMessageException, DeserializationException {
         TauDatabase database = (TauDatabase) session.server.serverConfig.database();

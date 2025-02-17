@@ -2,14 +2,11 @@ package net.result.sandnode.message.util;
 
 import org.jetbrains.annotations.NotNull;
 
-import static net.result.sandnode.message.util.NodeType.HUB;
-import static net.result.sandnode.message.util.NodeType.AGENT;
-
 public enum Connection {
-    HUB2HUB(HUB, HUB),
-    HUB2AGENT(HUB, AGENT),
-    AGENT2HUB(AGENT, HUB),
-    AGENT2AGENT(AGENT, AGENT);
+    HUB2HUB(NodeType.HUB, NodeType.HUB),
+    HUB2AGENT(NodeType.HUB, NodeType.AGENT),
+    AGENT2HUB(NodeType.AGENT, NodeType.HUB),
+    AGENT2AGENT(NodeType.AGENT, NodeType.AGENT);
 
     private final NodeType from;
     private final NodeType to;
@@ -20,15 +17,15 @@ public enum Connection {
     }
 
     public static @NotNull Connection fromByte(byte b) {
-        NodeType from = (b & 0b10000000) != 0 ? HUB : AGENT;
-        NodeType to = (b & 0b01000000) != 0 ? HUB : AGENT;
+        NodeType from = (b & 0b10000000) != 0 ? NodeType.HUB : NodeType.AGENT;
+        NodeType to = (b & 0b01000000) != 0 ? NodeType.HUB : NodeType.AGENT;
         return fromType(from, to);
     }
 
     public static @NotNull Connection fromType(@NotNull NodeType from, @NotNull NodeType to) {
         return switch (from) {
-            case AGENT -> (to == AGENT) ? AGENT2AGENT : AGENT2HUB;
-            case HUB -> (to == AGENT) ? HUB2AGENT : HUB2HUB;
+            case AGENT -> (to == NodeType.AGENT) ? AGENT2AGENT : AGENT2HUB;
+            case HUB -> (to == NodeType.AGENT) ? HUB2AGENT : HUB2HUB;
         };
     }
 

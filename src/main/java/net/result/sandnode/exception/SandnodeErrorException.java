@@ -8,10 +8,6 @@ public class SandnodeErrorException extends SandnodeException {
         super();
     }
 
-    public SandnodeErrorException(String message) {
-        super(message);
-    }
-
     public SandnodeErrorException(@NotNull SandnodeError error) {
         super("code: %d - %s".formatted(error.code(), error.description()));
     }

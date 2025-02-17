@@ -10,8 +10,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
-import static net.result.sandnode.encryption.Encryptions.NONE;
-
 public class GlobalKeyStorage {
     private final Map<Encryption, KeyStorage> keyStorageMap = new HashMap<>();
 
@@ -28,24 +26,24 @@ public class GlobalKeyStorage {
 
     public @NotNull KeyStorage getNonNull(@NotNull Encryption encryption) throws KeyStorageNotFoundException {
         if (has(encryption))
-            return encryption == NONE ? NONE.generate() : keyStorageMap.get(encryption);
+            return encryption == Encryptions.NONE ? Encryptions.NONE.generate() : keyStorageMap.get(encryption);
         throw new KeyStorageNotFoundException(encryption);
     }
 
     public GlobalKeyStorage set(@NotNull Encryption encryption, @NotNull KeyStorage keyStorage) {
-        if (keyStorage.encryption() == encryption && encryption != NONE)
+        if (keyStorage.encryption() == encryption && encryption != Encryptions.NONE)
             keyStorageMap.put(encryption, keyStorage);
         return this;
     }
 
     public GlobalKeyStorage set(@NotNull KeyStorage keyStorage) {
-        if (keyStorage.encryption() != NONE)
+        if (keyStorage.encryption() != Encryptions.NONE)
             keyStorageMap.put(keyStorage.encryption(), keyStorage);
         return this;
     }
 
     public boolean has(@NotNull Encryption encryption) {
-        return encryption == NONE || keyStorageMap.containsKey(encryption);
+        return encryption == Encryptions.NONE || keyStorageMap.containsKey(encryption);
     }
 
     public Optional<AsymmetricKeyStorage> asymmetric(@NotNull AsymmetricEncryption encryption)

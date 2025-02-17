@@ -16,10 +16,7 @@ import net.result.sandnode.encryption.interfaces.KeyStorage;
 import net.result.sandnode.encryption.interfaces.SymmetricEncryption;
 import net.result.sandnode.message.IMessage;
 import net.result.sandnode.message.RawMessage;
-import net.result.sandnode.message.util.Connection;
-import net.result.sandnode.message.util.Headers;
-import net.result.sandnode.message.util.MessageType;
-import net.result.sandnode.message.util.MessageTypeManager;
+import net.result.sandnode.message.util.*;
 import net.result.sandnode.serverclient.SandnodeClient;
 import net.result.sandnode.serverclient.SandnodeServer;
 import net.result.sandnode.serverclient.Session;
@@ -48,10 +45,6 @@ import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-import static net.result.sandnode.encryption.AsymmetricEncryptions.ECIES;
-import static net.result.sandnode.message.util.Connection.AGENT2HUB;
-import static net.result.sandnode.message.util.NodeType.HUB;
-import static net.result.sandnode.encryption.SymmetricEncryptions.AES;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class ServerTest {
@@ -59,8 +52,8 @@ public class ServerTest {
     private static final int PORT_OFFSET = 10240;
     private static final int PORT_RANGE = 5000;
 
-    private static final AsymmetricEncryptions asymmetricEncryption = ECIES;
-    private static final SymmetricEncryptions symmetricEncryption = AES;
+    private static final AsymmetricEncryptions asymmetricEncryption = AsymmetricEncryptions.ECIES;
+    private static final SymmetricEncryptions symmetricEncryption = SymmetricEncryptions.AES;
     private static final short CHAIN_ID = (short) ((0xAB << 8) + 0xCD);
     private static int port;
 
@@ -108,7 +101,7 @@ public class ServerTest {
     private static Headers prepareHeaders() {
         return new Headers()
                 .setType(Testing.TESTING)
-                .setConnection(AGENT2HUB)
+                .setConnection(Connection.AGENT2HUB)
                 .setBodyEncryption(ServerTest.symmetricEncryption)
                 .setValue("keyName", "valueData")
                 .setValue("keyName1", "valueData")
@@ -121,7 +114,7 @@ public class ServerTest {
     private static @NotNull IMessage prepareMessage() {
         Headers headers = prepareHeaders();
         IMessage sentMessage = new RawMessage(headers);
-        sentMessage.setHeadersEncryption(AES);
+        sentMessage.setHeadersEncryption(SymmetricEncryptions.AES);
         return sentMessage;
     }
 
@@ -244,7 +237,7 @@ public class ServerTest {
 
                 TestClientConfig clientConfig = new TestClientConfig();
                 ConsoleClientChainManager chainManager = new ConsoleClientChainManager();
-                client = new SandnodeClient(endpoint, agent, HUB, clientConfig);
+                client = new SandnodeClient(endpoint, agent, NodeType.HUB, clientConfig);
                 client.start(chainManager);
                 ClientProtocol.PUB(client.io);
                 ClientProtocol.sendSYM(client);

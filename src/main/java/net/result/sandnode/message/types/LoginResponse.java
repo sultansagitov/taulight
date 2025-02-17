@@ -6,9 +6,8 @@ import net.result.sandnode.message.IMessage;
 import net.result.sandnode.message.MSGPackMessage;
 import net.result.sandnode.message.util.Headers;
 import net.result.sandnode.db.Member;
+import net.result.sandnode.message.util.MessageTypes;
 import org.jetbrains.annotations.NotNull;
-
-import static net.result.sandnode.message.util.MessageTypes.LOGIN;
 
 public class LoginResponse extends MSGPackMessage<LoginResponse.LoginData> {
     public static class LoginData {
@@ -23,7 +22,7 @@ public class LoginResponse extends MSGPackMessage<LoginResponse.LoginData> {
     }
 
     public LoginResponse(@NotNull Headers headers, @NotNull Member member) {
-        super(headers.setType(LOGIN), new LoginData(member.getID()));
+        super(headers.setType(MessageTypes.LOGIN), new LoginData(member.getID()));
     }
 
     public LoginResponse(Member member) {

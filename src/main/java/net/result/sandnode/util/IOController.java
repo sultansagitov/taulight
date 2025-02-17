@@ -2,6 +2,7 @@ package net.result.sandnode.util;
 
 import net.result.sandnode.compression.CompressionManager;
 import net.result.sandnode.compression.Compressions;
+import net.result.sandnode.encryption.Encryptions;
 import net.result.sandnode.encryption.GlobalKeyStorage;
 import net.result.sandnode.encryption.interfaces.*;
 import net.result.sandnode.exception.*;
@@ -31,8 +32,6 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import static net.result.sandnode.encryption.Encryptions.NONE;
-
 public class IOController {
     private static final Logger LOGGER = LogManager.getLogger(IOController.class);
 
@@ -45,8 +44,8 @@ public class IOController {
     private final BlockingQueue<IMessage> sendingQueue = new LinkedBlockingQueue<>();
     public final ChainManager chainManager;
 
-    private Encryption serverEncryption = NONE;
-    private Encryption symKeyEncryption = NONE;
+    private Encryption serverEncryption = Encryptions.NONE;
+    private Encryption symKeyEncryption = Encryptions.NONE;
     public boolean connected = true;
 
     public IOController(
@@ -66,10 +65,10 @@ public class IOController {
     private void beforeSending(IMessage message) {
         Headers headers = message.headers();
         headers.setConnection(connection);
-        if (message.headersEncryption() == NONE) {
+        if (message.headersEncryption() == Encryptions.NONE) {
             message.setHeadersEncryption(currentEncryption());
         }
-        if (headers.bodyEncryption() == NONE) {
+        if (headers.bodyEncryption() == Encryptions.NONE) {
             headers.setBodyEncryption(currentEncryption());
         }
         Random random = new SecureRandom();
@@ -180,11 +179,11 @@ public class IOController {
     }
 
     private @NotNull Encryption currentEncryption() {
-        return symKeyEncryption() != NONE ? symKeyEncryption() : serverEncryption();
+        return symKeyEncryption() != Encryptions.NONE ? symKeyEncryption() : serverEncryption();
     }
 
     public void sendMessage(@NotNull IMessage message) throws InterruptedException {
-        if (message.headersEncryption() == NONE)
+        if (message.headersEncryption() == Encryptions.NONE)
             message.setHeadersEncryption(currentEncryption());
 
         sendingQueue.put(message);

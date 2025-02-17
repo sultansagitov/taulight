@@ -7,6 +7,7 @@ import java.util.*;
 
 public class ServerErrorManager extends Manager<SandnodeError> {
     public interface ThrowHandler {
+        @SuppressWarnings("unused")
         void throwFunc(SandnodeError error) throws SandnodeErrorException;
     }
 

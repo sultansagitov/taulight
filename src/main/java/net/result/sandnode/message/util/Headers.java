@@ -1,5 +1,6 @@
 package net.result.sandnode.message.util;
 
+import net.result.sandnode.encryption.Encryptions;
 import net.result.sandnode.exception.HeadersSerializationException;
 import net.result.sandnode.exception.NoSuchMessageTypeException;
 import net.result.sandnode.exception.NoSuchEncryptionException;
@@ -12,16 +13,13 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.*;
 
-import static net.result.sandnode.encryption.Encryptions.NONE;
-import static net.result.sandnode.message.util.NodeType.HUB;
-
 public class Headers {
     private final Map<String, String> map = new HashMap<>();
     private short chainID;
     private boolean fin = false;
     private Connection connection = Connection.AGENT2HUB;
     private MessageType type = MessageTypes.WARN;
-    private Encryption bodyEncryption = NONE;
+    private Encryption bodyEncryption = Encryptions.NONE;
 
     public Headers setFin(boolean fin) {
         this.fin = fin;
@@ -131,8 +129,8 @@ public class Headers {
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
 
         byte first = (byte) new Random().nextInt(16);
-        if (connection().getFrom() == HUB) first |= (byte) 0b10000000;
-        if (connection().getTo() == HUB) first |= (byte) 0b01000000;
+        if (connection().getFrom() == NodeType.HUB) first |= (byte) 0b10000000;
+        if (connection().getTo() == NodeType.HUB) first |= (byte) 0b01000000;
         if (fin()) first |= (byte) 0b00100000;
         byteArrayOutputStream.write(first);
         byteArrayOutputStream.write(type().asByte());

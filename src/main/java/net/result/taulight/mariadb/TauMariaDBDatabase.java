@@ -451,9 +451,13 @@ public class TauMariaDBDatabase extends SandnodeMariaDBDatabase implements TauDa
             // Get direct chats
             try (PreparedStatement stmt = conn.prepareStatement(
                     "SELECT c.chat_id, " +
-                            "CASE WHEN dc.member1_id = ? THEN dc.member2_id ELSE dc.member1_id END AS other_member_id " +
+                            "CASE WHEN dc.member1_id = ? " +
+                            "THEN dc.member2_id " +
+                            "ELSE dc.member1_id " +
+                            "END AS other_member_id " +
                             "FROM chats c " +
-                            "JOIN direct_chats dc ON c.chat_id = dc.chat_id " +
+                            "JOIN direct_chats dc " +
+                            "ON c.chat_id = dc.chat_id " +
                             "WHERE c.chat_type = 'DIRECT' AND (dc.member1_id = ? OR dc.member2_id = ?)")) {
 
                 stmt.setString(1, member.getID());

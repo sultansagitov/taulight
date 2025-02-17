@@ -11,9 +11,6 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Optional;
 
-import static net.result.sandnode.encryption.AsymmetricEncryptions.ECIES;
-import static net.result.sandnode.encryption.AsymmetricEncryptions.RSA;
-import static net.result.sandnode.encryption.SymmetricEncryptions.AES;
 import static org.junit.jupiter.api.Assertions.*;
 
 class GlobalKeyStorageTest {
@@ -29,71 +26,71 @@ class GlobalKeyStorageTest {
         globalKeyStorage = new GlobalKeyStorage();
         EncryptionManager.registerAll();
 
-        rsaKeyStorage = RSA.generate();
-        eciesKeyStorage = ECIES.generate();
-        aesKeyStorage = AES.generate();
+        rsaKeyStorage = AsymmetricEncryptions.RSA.generate();
+        eciesKeyStorage = AsymmetricEncryptions.ECIES.generate();
+        aesKeyStorage = SymmetricEncryptions.AES.generate();
     }
 
     @Test
     void testSetAndGetNonNull() throws KeyStorageNotFoundException {
-        globalKeyStorage.set(RSA, rsaKeyStorage);
-        KeyStorage retrieved = globalKeyStorage.getNonNull(RSA);
+        globalKeyStorage.set(AsymmetricEncryptions.RSA, rsaKeyStorage);
+        KeyStorage retrieved = globalKeyStorage.getNonNull(AsymmetricEncryptions.RSA);
         assertEquals(rsaKeyStorage, retrieved);
     }
 
     @Test
     void testSetAndGetOptional() {
-        globalKeyStorage.set(ECIES, eciesKeyStorage);
-        Optional<KeyStorage> retrieved = globalKeyStorage.get(ECIES);
+        globalKeyStorage.set(AsymmetricEncryptions.ECIES, eciesKeyStorage);
+        Optional<KeyStorage> retrieved = globalKeyStorage.get(AsymmetricEncryptions.ECIES);
         assertTrue(retrieved.isPresent());
         assertEquals(eciesKeyStorage, retrieved.get());
     }
 
     @Test
     void testHasEncryption() {
-        globalKeyStorage.set(AES, aesKeyStorage);
-        assertTrue(globalKeyStorage.has(AES));
+        globalKeyStorage.set(SymmetricEncryptions.AES, aesKeyStorage);
+        assertTrue(globalKeyStorage.has(SymmetricEncryptions.AES));
     }
 
     @Test
     void testAsymmetricNonNull() throws KeyStorageNotFoundException, EncryptionTypeException {
-        globalKeyStorage.set(RSA, rsaKeyStorage);
-        AsymmetricKeyStorage retrieved = globalKeyStorage.asymmetricNonNull(RSA);
+        globalKeyStorage.set(AsymmetricEncryptions.RSA, rsaKeyStorage);
+        AsymmetricKeyStorage retrieved = globalKeyStorage.asymmetricNonNull(AsymmetricEncryptions.RSA);
         assertNotNull(retrieved);
     }
 
     @Test
     void testGetForECIESReturnsEmptyOptional() {
-        assertTrue(globalKeyStorage.get(ECIES).isEmpty());
+        assertTrue(globalKeyStorage.get(AsymmetricEncryptions.ECIES).isEmpty());
     }
 
     @Test
     void testSymmetricNonNull() throws CannotUseEncryption, EncryptionTypeException {
-        globalKeyStorage.set(AES, aesKeyStorage);
-        SymmetricKeyStorage retrieved = globalKeyStorage.symmetricNonNull(AES);
+        globalKeyStorage.set(SymmetricEncryptions.AES, aesKeyStorage);
+        SymmetricKeyStorage retrieved = globalKeyStorage.symmetricNonNull(SymmetricEncryptions.AES);
         assertNotNull(retrieved);
     }
 
     @Test
     void testCopy() throws Exception {
-        globalKeyStorage.set(RSA, rsaKeyStorage);
+        globalKeyStorage.set(AsymmetricEncryptions.RSA, rsaKeyStorage);
         GlobalKeyStorage copy = globalKeyStorage.copy();
-        KeyStorage copiedKeyStorage = copy.getNonNull(RSA);
+        KeyStorage copiedKeyStorage = copy.getNonNull(AsymmetricEncryptions.RSA);
 
         String originalData = "HelloWorld";
 
-        byte[] originalEncrypted = RSA.encrypt(originalData, rsaKeyStorage);
-        byte[] copyEncrypted = RSA.encrypt(originalData, copiedKeyStorage);
+        byte[] originalEncrypted = AsymmetricEncryptions.RSA.encrypt(originalData, rsaKeyStorage);
+        byte[] copyEncrypted = AsymmetricEncryptions.RSA.encrypt(originalData, copiedKeyStorage);
 
-        String originalDecrypted = RSA.decrypt(originalEncrypted, copiedKeyStorage);
-        String copyDecrypted = RSA.decrypt(copyEncrypted, rsaKeyStorage);
+        String originalDecrypted = AsymmetricEncryptions.RSA.decrypt(originalEncrypted, copiedKeyStorage);
+        String copyDecrypted = AsymmetricEncryptions.RSA.decrypt(copyEncrypted, rsaKeyStorage);
 
         assertEquals(originalDecrypted, copyDecrypted);
     }
 
     @Test
     void testToString() {
-        globalKeyStorage.set(RSA, rsaKeyStorage);
+        globalKeyStorage.set(AsymmetricEncryptions.RSA, rsaKeyStorage);
         String result = globalKeyStorage.toString();
         assertTrue(result.contains("RSA"));
         assertTrue(result.contains("RSAKeyStorage"));

@@ -6,9 +6,8 @@ import net.result.sandnode.exception.ExpectedMessageException;
 import net.result.sandnode.message.IMessage;
 import net.result.sandnode.message.MSGPackMessage;
 import net.result.sandnode.message.util.Headers;
+import net.result.sandnode.message.util.MessageTypes;
 import org.jetbrains.annotations.NotNull;
-
-import static net.result.sandnode.message.util.MessageTypes.REG;
 
 public class RegistrationRequest extends MSGPackMessage<RegistrationRequest.MemberData> {
     public static class MemberData {
@@ -17,6 +16,7 @@ public class RegistrationRequest extends MSGPackMessage<RegistrationRequest.Memb
         @JsonProperty
         public String password;
 
+        @SuppressWarnings("unused")
         public MemberData() {}
         public MemberData(@NotNull String memberID, @NotNull String password) {
             this.memberID = memberID;
@@ -25,7 +25,7 @@ public class RegistrationRequest extends MSGPackMessage<RegistrationRequest.Memb
     }
 
     public RegistrationRequest(@NotNull IMessage message) throws ExpectedMessageException, DeserializationException {
-        super(message.expect(REG), MemberData.class);
+        super(message.expect(MessageTypes.REG), MemberData.class);
     }
 
     public RegistrationRequest(
@@ -33,7 +33,7 @@ public class RegistrationRequest extends MSGPackMessage<RegistrationRequest.Memb
             @NotNull String memberID,
             @NotNull String password
     ) {
-        super(headers.setType(REG), new MemberData(memberID, password));
+        super(headers.setType(MessageTypes.REG), new MemberData(memberID, password));
     }
 
     public RegistrationRequest(@NotNull String memberID, @NotNull String password) {

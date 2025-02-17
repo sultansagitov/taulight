@@ -23,8 +23,8 @@ public class ConsoleForwardRequestClientChain extends ClientChain {
     }
 
     @Override
-    public void sync() throws InterruptedException, DeserializationException, ExpectedMessageException,
-            SandnodeErrorException, UnknownSandnodeErrorException {
+    public void sync() throws InterruptedException, ExpectedMessageException, SandnodeErrorException,
+            UnknownSandnodeErrorException {
         ConsoleCommands cc = new ConsoleCommands(io, memberID);
         Scanner scanner = new Scanner(System.in);
 
@@ -46,8 +46,8 @@ public class ConsoleForwardRequestClientChain extends ClientChain {
         }
     }
 
-    private boolean sendForward(ConsoleCommands cc, String input)
-            throws InterruptedException, ExpectedMessageException, SandnodeErrorException, UnknownSandnodeErrorException {
+    private boolean sendForward(ConsoleCommands cc, String input) throws InterruptedException,
+            ExpectedMessageException, SandnodeErrorException, UnknownSandnodeErrorException {
         if (cc.currentChat == null) {
             System.out.println("chat not selected");
             return false;

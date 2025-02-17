@@ -1,5 +1,6 @@
 package net.result.sandnode.encryption.ecies;
 
+import net.result.sandnode.encryption.AsymmetricEncryptions;
 import net.result.sandnode.encryption.interfaces.KeyStorage;
 import net.result.sandnode.exception.CannotUseEncryption;
 import net.result.sandnode.exception.EncryptionException;
@@ -19,8 +20,6 @@ import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
 import java.security.PublicKey;
 
-import static net.result.sandnode.encryption.AsymmetricEncryptions.ECIES;
-
 public class ECIESEncryptor {
     private static final Logger LOGGER = LogManager.getLogger(ECIESEncryptor.class);
 
@@ -31,7 +30,7 @@ public class ECIESEncryptor {
 
     public static byte[] encryptBytes(byte @NotNull [] data, @NotNull KeyStorage keyStorage)
             throws EncryptionException, CannotUseEncryption {
-        ECIESKeyStorage eciesKeyStorage = (ECIESKeyStorage) keyStorage.expect(ECIES);
+        ECIESKeyStorage eciesKeyStorage = (ECIESKeyStorage) keyStorage.expect(AsymmetricEncryptions.ECIES);
         Cipher cipher;
         try {
             cipher = Cipher.getInstance("ECIES", "BC");

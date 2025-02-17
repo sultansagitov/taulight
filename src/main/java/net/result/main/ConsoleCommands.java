@@ -18,6 +18,7 @@ import java.util.*;
 public class ConsoleCommands {
     @FunctionalInterface
     public interface LoopCondition {
+        @SuppressWarnings("unused")
         boolean breakLoop(List<String> args) throws InterruptedException;
     }
 
@@ -166,8 +167,8 @@ public class ConsoleCommands {
                 LOGGER.error("Chat '{}' not found", chatID_str, e);
             } catch (AddressedMemberNotFoundException e) {
                 LOGGER.error("Member '{}' not found", member.memberID, e);
-            } catch (ExpectedMessageException | DeserializationException | IndexOutOfBoundsException |
-                     IllegalArgumentException | SandnodeErrorException | UnknownSandnodeErrorException e) {
+            } catch (ExpectedMessageException | IndexOutOfBoundsException | IllegalArgumentException |
+                     SandnodeErrorException | UnknownSandnodeErrorException e) {
                 LOGGER.error("Unexpected error adding member '{}' to chat '{}'", member, chatID_str, e);
             }
         }
@@ -200,8 +201,8 @@ public class ConsoleCommands {
             UUID chatID = UUID.fromString(args.get(0));
             chain.sendLeaveRequest(chatID);
             io.chainManager.removeChain(chain);
-        } catch (ExpectedMessageException | DeserializationException | SandnodeErrorException |
-                 IndexOutOfBoundsException | IllegalArgumentException | UnknownSandnodeErrorException e) {
+        } catch (ExpectedMessageException | SandnodeErrorException | IndexOutOfBoundsException |
+                 IllegalArgumentException | UnknownSandnodeErrorException e) {
             LOGGER.error(e);
         }
         return false;

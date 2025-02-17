@@ -2,6 +2,7 @@ package net.result.sandnode.link;
 
 import net.result.sandnode.chain.server.ServerChainManager;
 import net.result.sandnode.config.ServerConfig;
+import net.result.sandnode.encryption.AsymmetricEncryptions;
 import net.result.sandnode.encryption.EncryptionManager;
 import net.result.sandnode.encryption.GlobalKeyStorage;
 import net.result.sandnode.encryption.interfaces.AsymmetricEncryption;
@@ -19,7 +20,6 @@ import org.junit.jupiter.api.Test;
 import java.net.URI;
 import java.nio.file.Path;
 
-import static net.result.sandnode.encryption.AsymmetricEncryptions.RSA;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class LinksTest {
@@ -43,7 +43,7 @@ public class LinksTest {
     public void testParse() throws CreatingKeyException, InvalidSandnodeLinkException, CannotUseEncryption {
         EncryptionManager.registerAll();
 
-        AsymmetricKeyStorage rsaKeyStorage = RSA.generate();
+        AsymmetricKeyStorage rsaKeyStorage = AsymmetricEncryptions.RSA.generate();
 
         String validLink = "sandnode://hub@localhost:52525?encryption=RSA&key=%s"
                 .formatted(rsaKeyStorage.encodedPublicKey());
@@ -101,7 +101,7 @@ public class LinksTest {
 
         @Override
         public @NotNull AsymmetricEncryption mainEncryption() {
-            return RSA;
+            return AsymmetricEncryptions.RSA;
         }
 
         @Override
@@ -122,7 +122,7 @@ public class LinksTest {
 
     private static class TestHub extends Hub {
         public TestHub() {
-            super(new GlobalKeyStorage(RSA.generate()));
+            super(new GlobalKeyStorage(AsymmetricEncryptions.RSA.generate()));
         }
 
         @Override

@@ -2,6 +2,7 @@ package net.result.sandnode.message;
 
 import net.result.sandnode.compression.Compression;
 import net.result.sandnode.compression.CompressionManager;
+import net.result.sandnode.encryption.Encryptions;
 import net.result.sandnode.exception.*;
 import net.result.sandnode.message.util.Headers;
 import net.result.sandnode.encryption.EncryptionManager;
@@ -15,11 +16,9 @@ import org.jetbrains.annotations.NotNull;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
-import static net.result.sandnode.encryption.Encryptions.NONE;
-
 public abstract class Message implements IMessage {
     private static final Logger LOGGER = LogManager.getLogger(Message.class);
-    private Encryption headersEncryption = NONE;
+    private Encryption headersEncryption = Encryptions.NONE;
     private final Headers headers;
 
     public Message(@NotNull Headers headers) {
@@ -94,9 +93,7 @@ public abstract class Message implements IMessage {
             }
 
             int lengthInt = encryptedHeaders.length;
-            if (lengthInt > 65535) {
-                throw new IllegalMessageLengthException(this, "Header length exceeds 65535: %d".formatted(lengthInt));
-            }
+            if (lengthInt > 65535) throw new IllegalMessageLengthException(this, lengthInt);
             short length = (short) lengthInt;
             result.write((length >> 8) & 0xFF);
             result.write(length & 0xFF);
@@ -104,11 +101,7 @@ public abstract class Message implements IMessage {
         } catch (IOException e) {
             throw new MessageSerializationException(this, "Failed to serialize message headers", e);
         } catch (HeadersSerializationException | NullPointerException e) {
-            throw new MessageSerializationException(
-                    this,
-                    "%s: %s".formatted(e.getClass().getSimpleName(), e.getMessage()),
-                    e
-            );
+            throw new MessageSerializationException(this, e);
         }
 
         try {

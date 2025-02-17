@@ -14,11 +14,6 @@ import java.security.Security;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import static net.result.sandnode.encryption.AsymmetricEncryptions.ECIES;
-import static net.result.sandnode.encryption.AsymmetricEncryptions.RSA;
-import static net.result.sandnode.encryption.Encryptions.NONE;
-import static net.result.sandnode.encryption.SymmetricEncryptions.AES;
-
 public class EncryptionManager extends Manager<Encryption> {
     private static final EncryptionManager INSTANCE = new EncryptionManager();
 
@@ -30,10 +25,10 @@ public class EncryptionManager extends Manager<Encryption> {
 
     public static void registerAll() {
         Security.addProvider(new BouncyCastleProvider());
-        instance().add(RSA);
-        instance().add(NONE);
-        instance().add(AES);
-        instance().add(ECIES);
+        instance().add(AsymmetricEncryptions.RSA);
+        instance().add(Encryptions.NONE);
+        instance().add(SymmetricEncryptions.AES);
+        instance().add(AsymmetricEncryptions.ECIES);
     }
 
     @Override
