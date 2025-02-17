@@ -35,7 +35,7 @@ public class Session {
 
                 Thread.currentThread().interrupt();
             }
-        }, "%s/Sending".formatted(io.getIpString())).start();
+        }, "%s/Sending".formatted(io.ipString())).start();
 
         new Thread(() -> {
             try {
@@ -45,12 +45,12 @@ public class Session {
                     LOGGER.error("Error receiving message", e);
                 }
             }
-        }, "%s/Receiving".formatted(io.getIpString())).start();
+        }, "%s/Receiving".formatted(io.ipString())).start();
     }
 
     @Override
     public String toString() {
-        return "<%s %s %s>".formatted(getClass().getSimpleName(), io.getIpString(), member);
+        return "<%s %s %s>".formatted(getClass().getSimpleName(), io.ipString(), member);
     }
 
     public void addToGroup(Group group) {

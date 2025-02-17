@@ -9,8 +9,8 @@ import net.result.sandnode.util.IOController;
 
 public class AgentProtocol {
     public static String getTokenFromRegistration(IOController io, String memberID, String password)
-            throws ExpectedMessageException, InterruptedException, BusyMemberIDException, DeserializationException,
-            InvalidMemberIDPassword {
+            throws ExpectedMessageException, InterruptedException, SandnodeErrorException, DeserializationException,
+            UnknownSandnodeErrorException {
         RegistrationClientChain chain = new RegistrationClientChain(io, memberID, password);
         io.chainManager.linkChain(chain);
         chain.sync();
@@ -18,8 +18,9 @@ public class AgentProtocol {
         return chain.token;
     }
 
-    public static ClientMember getMemberFromToken(IOController io, String token) throws InterruptedException,
-            MemberNotFoundException, DeserializationException, InvalidTokenException, ExpiredTokenException {
+    public static ClientMember getMemberFromToken(IOController io, String token)
+            throws InterruptedException, SandnodeErrorException, DeserializationException, ExpectedMessageException,
+            UnknownSandnodeErrorException {
         LoginClientChain chain = new LoginClientChain(io, token);
         io.chainManager.linkChain(chain);
         chain.sync();
@@ -29,8 +30,8 @@ public class AgentProtocol {
     }
 
     public static String getTokenByMemberIdAndPassword(IOController io, String memberID, String password)
-            throws InterruptedException, DeserializationException, MemberNotFoundException, ExpectedMessageException,
-            UnauthorizedException {
+            throws InterruptedException, DeserializationException, SandnodeErrorException, ExpectedMessageException,
+            UnknownSandnodeErrorException {
         LogPasswdClientChain chain = new LogPasswdClientChain(io, memberID, password);
         io.chainManager.linkChain(chain);
         chain.sync();

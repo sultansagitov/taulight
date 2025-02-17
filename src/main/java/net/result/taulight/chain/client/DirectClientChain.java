@@ -1,11 +1,8 @@
 package net.result.taulight.chain.client;
 
 import net.result.sandnode.chain.client.ClientChain;
-import net.result.sandnode.error.Errors;
-import net.result.sandnode.exception.DeserializationException;
-import net.result.sandnode.exception.ExpectedMessageException;
-import net.result.sandnode.exception.ImpossibleRuntimeException;
-import net.result.sandnode.exception.MemberNotFoundException;
+import net.result.sandnode.error.ServerErrorManager;
+import net.result.sandnode.exception.*;
 import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.message.types.ErrorMessage;
 import net.result.sandnode.message.util.MessageTypes;
@@ -24,20 +21,15 @@ public class DirectClientChain extends ClientChain {
     }
 
     @Override
-    public void sync()
-            throws InterruptedException, ExpectedMessageException, DeserializationException, MemberNotFoundException {
+    public void sync() throws InterruptedException, ExpectedMessageException, DeserializationException,
+            SandnodeErrorException, UnknownSandnodeErrorException {
         send(new DirectRequest(memberID));
 
         RawMessage raw = queue.take();
 
-        if (raw.getHeaders().getType() == MessageTypes.ERR) {
+        if (raw.headers().type() == MessageTypes.ERR) {
             ErrorMessage errorMessage = new ErrorMessage(raw);
-
-            if (errorMessage.error == Errors.MEMBER_NOT_FOUND) {
-                throw new MemberNotFoundException();
-            } else {
-                throw new ImpossibleRuntimeException(errorMessage.error);
-            }
+            ServerErrorManager.instance().throwAll(errorMessage.error);
         }
 
         DirectResponse response = new DirectResponse(raw);

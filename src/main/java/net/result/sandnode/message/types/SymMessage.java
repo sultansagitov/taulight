@@ -20,17 +20,17 @@ public class SymMessage extends Message {
 
     public SymMessage(@NotNull IMessage message) throws ExpectedMessageException, NoSuchEncryptionException,
             EncryptionTypeException, DataNotEncryptedException {
-        super(message.expect(SYM).getHeaders());
+        super(message.expect(SYM).headers());
 
-        if (message.getHeadersEncryption() == NONE) {
+        if (message.headersEncryption() == NONE) {
             throw new DataNotEncryptedException("Headers not encrypted");
         }
-        if (message.getHeaders().getBodyEncryption() == NONE) {
+        if (message.headers().bodyEncryption() == NONE) {
             throw new DataNotEncryptedException("Body not encrypted");
         }
 
         SymmetricEncryption encryption =
-                EncryptionManager.findSymmetric(Byte.parseByte(message.getHeaders().getValue("encryption")));
+                EncryptionManager.findSymmetric(Byte.parseByte(message.headers().getValue("encryption")));
 
         symmetricKeyStorage = encryption.toKeyStorage(message.getBody());
     }

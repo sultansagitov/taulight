@@ -43,7 +43,7 @@ public class DirectServerChain extends ServerChain {
         try {
             anotherMember = database.findMemberByMemberID(request.getMemberID());
             if (anotherMember.isEmpty()) {
-                send(Errors.MEMBER_NOT_FOUND.message());
+                send(Errors.MEMBER_NOT_FOUND.createMessage());
                 return;
             }
 

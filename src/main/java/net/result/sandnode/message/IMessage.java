@@ -9,7 +9,7 @@ import org.jetbrains.annotations.NotNull;
 
 public interface IMessage {
 
-    Headers getHeaders();
+    Headers headers();
 
     byte[] getBody();
 
@@ -18,10 +18,10 @@ public interface IMessage {
 
     void setHeadersEncryption(@NotNull Encryption encryption);
 
-    @NotNull Encryption getHeadersEncryption();
+    @NotNull Encryption headersEncryption();
 
     default @NotNull IMessage expect(MessageType type) throws ExpectedMessageException {
-        if (this.getHeaders().getType() != type)
+        if (this.headers().type() != type)
             throw new ExpectedMessageException(type, this);
         return this;
     }

@@ -1,4 +1,4 @@
 package net.result.sandnode.exception;
 
-public class UnauthorizedException extends SandnodeException {
+public class UnauthorizedException extends SandnodeErrorException {
 }

@@ -20,14 +20,14 @@ public class LoginClientChain extends ClientChain {
     }
 
     @Override
-    public void sync() throws InterruptedException, MemberNotFoundException, DeserializationException,
-            InvalidTokenException, ExpiredTokenException {
+    public void sync() throws InterruptedException, DeserializationException, ExpectedMessageException,
+            SandnodeErrorException, UnknownSandnodeErrorException {
         LoginRequest loginRequest = new LoginRequest(token);
         send(loginRequest);
 
         IMessage message = queue.take();
 
-        if (message.getHeaders().getType() == MessageTypes.ERR) {
+        if (message.headers().type() == MessageTypes.ERR) {
             ErrorMessage errorMessage = new ErrorMessage(message);
             SandnodeError error = errorMessage.error;
             if (error instanceof Errors enumError) {
@@ -35,6 +35,7 @@ public class LoginClientChain extends ClientChain {
                     case INVALID_TOKEN -> throw new InvalidTokenException();
                     case EXPIRED_TOKEN -> throw new ExpiredTokenException();
                     case MEMBER_NOT_FOUND -> throw new MemberNotFoundException();
+                    default -> throw new SandnodeErrorException(enumError);
                 }
             }
         }

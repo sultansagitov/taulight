@@ -29,7 +29,7 @@ public abstract class ForwardClientChain extends ClientChain {
 
             onMessage(new ForwardResponse(request));
 
-            if (request.getHeaders().isFin()) {
+            if (request.headers().fin()) {
                 LOGGER.info("{} ended by FIN flag in received message", toString());
                 break;
             }

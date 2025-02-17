@@ -14,7 +14,7 @@ import java.util.Set;
 public class ClientProtocol {
     public static void PUB(@NotNull IOController io)
             throws EncryptionTypeException, NoSuchEncryptionException, CreatingKeyException, ExpectedMessageException,
-            InterruptedException, DeserializationException {
+            InterruptedException, DeserializationException, SandnodeErrorException, UnknownSandnodeErrorException {
         PublicKeyClientChain pubkeyChain = new PublicKeyClientChain(io);
         io.chainManager.linkChain(pubkeyChain);
         pubkeyChain.sync();

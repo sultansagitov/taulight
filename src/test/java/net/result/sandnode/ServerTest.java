@@ -127,12 +127,12 @@ public class ServerTest {
 
     private static void validateMessage(IMessage sentMessage, IMessage receivedMessage) {
         // Validate headers
-        assertEquals(sentMessage.getHeaders().getConnection(), receivedMessage.getHeaders().getConnection());
-        assertEquals(sentMessage.getHeaders().getType(), receivedMessage.getHeaders().getType());
-        assertEquals(sentMessage.getHeaders().getBodyEncryption(), receivedMessage.getHeaders().getBodyEncryption());
-        assertEquals(sentMessage.getHeaders().getValue("keyName"), receivedMessage.getHeaders().getValue("keyName"));
-        assertEquals(sentMessage.getHeaders().isFin(), receivedMessage.getHeaders().isFin());
-        assertEquals(sentMessage.getHeaders().getChainID(), receivedMessage.getHeaders().getChainID());
+        assertEquals(sentMessage.headers().connection(), receivedMessage.headers().connection());
+        assertEquals(sentMessage.headers().type(), receivedMessage.headers().type());
+        assertEquals(sentMessage.headers().bodyEncryption(), receivedMessage.headers().bodyEncryption());
+        assertEquals(sentMessage.headers().getValue("keyName"), receivedMessage.headers().getValue("keyName"));
+        assertEquals(sentMessage.headers().fin(), receivedMessage.headers().fin());
+        assertEquals(sentMessage.headers().chainID(), receivedMessage.headers().chainID());
 
         // Validate body
         assertArrayEquals(sentMessage.getBody(), receivedMessage.getBody());
@@ -208,7 +208,7 @@ public class ServerTest {
 
             // Client sends message via chain
             IMessage sentMessage = prepareMessage();
-            sentMessage.getHeaders().setChainID(getID());
+            sentMessage.headers().setChainID(getID());
 
             // Validate the message on the server side
             validateMessage(sentMessage, receivedMessage);

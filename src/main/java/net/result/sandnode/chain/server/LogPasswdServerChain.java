@@ -31,17 +31,17 @@ public abstract class LogPasswdServerChain extends ServerChain {
             opt = database.findMemberByMemberID(msg.getMemberID());
         } catch (DatabaseException e) {
             LOGGER.error(e);
-            sendFin(Errors.SERVER_ERROR.message());
+            sendFin(Errors.SERVER_ERROR.createMessage());
             return;
         }
 
         if (opt.isEmpty()) {
-            sendFin(Errors.MEMBER_NOT_FOUND.message());
+            sendFin(Errors.MEMBER_NOT_FOUND.createMessage());
             return;
         }
 
         if (!msg.getPassword().equals(opt.get().getHashedPassword())) {
-            send(Errors.UNAUTHORIZED.message());
+            send(Errors.UNAUTHORIZED.createMessage());
             return;
         }
 

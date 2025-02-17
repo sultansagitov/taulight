@@ -1,12 +1,11 @@
 package net.result.sandnode.chain.client;
 
+import net.result.sandnode.error.ServerErrorManager;
 import net.result.sandnode.exception.*;
 import net.result.sandnode.message.IMessage;
 import net.result.sandnode.message.types.ErrorMessage;
 import net.result.sandnode.message.types.RegistrationRequest;
 import net.result.sandnode.message.types.RegistrationResponse;
-import net.result.sandnode.error.Errors;
-import net.result.sandnode.error.SandnodeError;
 import net.result.sandnode.message.util.MessageTypes;
 import net.result.sandnode.util.IOController;
 
@@ -22,22 +21,17 @@ public class RegistrationClientChain extends ClientChain {
     }
 
     @Override
-    public void sync() throws InterruptedException, ExpectedMessageException, BusyMemberIDException,
-            DeserializationException, InvalidMemberIDPassword {
+    public void sync() throws InterruptedException, ExpectedMessageException, SandnodeErrorException,
+            DeserializationException, UnknownSandnodeErrorException {
         RegistrationRequest request = new RegistrationRequest(memberID, password);
         send(request);
 
         IMessage response = queue.take();
 
-        if (response.getHeaders().getType() == MessageTypes.ERR) {
+        if (response.headers().type() == MessageTypes.ERR) {
             ErrorMessage errorMessage = new ErrorMessage(response);
-            SandnodeError type = errorMessage.error;
-            if (type instanceof Errors enumError) {
-                switch (enumError) {
-                    case INVALID_MEMBER_ID_OR_PASSWORD -> throw new InvalidMemberIDPassword();
-                    case MEMBER_ID_BUSY -> throw new BusyMemberIDException(memberID);
-                }
-            }
+            ServerErrorManager.instance().throwAll(errorMessage.error);
+
         }
 
         token = new RegistrationResponse(response).getToken();

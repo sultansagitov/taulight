@@ -30,11 +30,11 @@ class HeadersTest {
         assertNotNull(byteArray);
         assertTrue(byteArray.length > 0);
 
-        Headers reconstructedHeaders = Headers.getFromBytes(byteArray);
+        Headers reconstructedHeaders = Headers.fromBytes(byteArray);
 
-        assertEquals(headers.getConnection(), reconstructedHeaders.getConnection());
-        assertEquals(headers.getType(), reconstructedHeaders.getType());
-        assertEquals(headers.getBodyEncryption(), reconstructedHeaders.getBodyEncryption());
+        assertEquals(headers.connection(), reconstructedHeaders.connection());
+        assertEquals(headers.type(), reconstructedHeaders.type());
+        assertEquals(headers.bodyEncryption(), reconstructedHeaders.bodyEncryption());
         assertEquals(headers.getValue("key"), reconstructedHeaders.getValue("key"));
     }
 }

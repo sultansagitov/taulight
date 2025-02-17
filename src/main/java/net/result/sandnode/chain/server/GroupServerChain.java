@@ -32,7 +32,7 @@ public class GroupServerChain extends ServerChain {
                 .map(groupManager::getGroup)
                 .collect(Collectors.toSet());
 
-        Optional<String> opt = request.getHeaders().getOptionalValue("mode");
+        Optional<String> opt = request.headers().getOptionalValue("mode");
         boolean add = opt.isEmpty() || !opt.get().equals("remove");
 
         if (add) session.addToGroups(groups);

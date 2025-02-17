@@ -125,7 +125,8 @@ public class ConsoleCommands {
                 chain.send(new ChainNameRequest("tau"));
             }
             opt.map("Chats: %s"::formatted).ifPresent(System.out::println);
-        } catch (DeserializationException | ExpectedMessageException e) {
+        } catch (DeserializationException | ExpectedMessageException | SandnodeErrorException |
+                 UnknownSandnodeErrorException e) {
             LOGGER.error(e);
         }
         return false;
@@ -163,11 +164,10 @@ public class ConsoleCommands {
                 LOGGER.info("Member '{}' added to chat '{}' successfully", member, chatID_str);
             } catch (ChatNotFoundException e) {
                 LOGGER.error("Chat '{}' not found", chatID_str, e);
-            } catch (TooFewArgumentsException | AddressedMemberNotFoundException | WrongAddressException
-                     | UnauthorizedException e) {
-                LOGGER.error("Error adding member '{}': {}", member, e);
+            } catch (AddressedMemberNotFoundException e) {
+                LOGGER.error("Member '{}' not found", member.memberID, e);
             } catch (ExpectedMessageException | DeserializationException | IndexOutOfBoundsException |
-                     IllegalArgumentException e) {
+                     IllegalArgumentException | SandnodeErrorException | UnknownSandnodeErrorException e) {
                 LOGGER.error("Unexpected error adding member '{}' to chat '{}'", member, chatID_str, e);
             }
         }
@@ -185,7 +185,8 @@ public class ConsoleCommands {
             io.chainManager.removeChain(chain);
         } catch (MemberNotFoundException e) {
             LOGGER.error("Member {} not found", memberID);
-        } catch (ExpectedMessageException | DeserializationException e) {
+        } catch (ExpectedMessageException | DeserializationException | SandnodeErrorException |
+                 UnknownSandnodeErrorException e) {
             LOGGER.error(e);
         }
         return false;
@@ -199,9 +200,8 @@ public class ConsoleCommands {
             UUID chatID = UUID.fromString(args.get(0));
             chain.sendLeaveRequest(chatID);
             io.chainManager.removeChain(chain);
-        } catch (ExpectedMessageException | ChatNotFoundException | DeserializationException |
-                 TooFewArgumentsException | WrongAddressException | UnauthorizedException | IndexOutOfBoundsException |
-                 IllegalArgumentException e) {
+        } catch (ExpectedMessageException | DeserializationException | SandnodeErrorException |
+                 IndexOutOfBoundsException | IllegalArgumentException | UnknownSandnodeErrorException e) {
             LOGGER.error(e);
         }
         return false;

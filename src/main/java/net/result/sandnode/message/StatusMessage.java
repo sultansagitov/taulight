@@ -1,30 +1,29 @@
 package net.result.sandnode.message;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import net.result.sandnode.exception.DeserializationException;
 import net.result.sandnode.message.util.Headers;
 import org.jetbrains.annotations.NotNull;
 
-public class StatusMessage extends MSGPackMessage<StatusMessage.CodeData> {
-    public static class CodeData {
-        @JsonProperty
-        public int code;
+import java.nio.ByteBuffer;
 
-        public CodeData() {}
-        public CodeData(int code) {
-            this.code = code;
-        }
-    }
+public abstract class StatusMessage extends Message {
+    private final int code;
 
     public StatusMessage(@NotNull Headers headers, int code) {
-        super(headers, new CodeData(code));
+        super(headers);
+        this.code = code;
     }
 
-    public StatusMessage(IMessage response) throws DeserializationException {
-        super(response, CodeData.class);
+    public StatusMessage(@NotNull IMessage response) {
+        super(response.headers());
+        code = ByteBuffer.wrap(response.getBody()).getInt();
     }
 
-    public int getCode() {
-        return object.code;
+    public int code() {
+        return code;
+    }
+
+    @Override
+    public byte[] getBody() {
+        return ByteBuffer.allocate(4).putInt(code).array();
     }
 }

@@ -48,30 +48,30 @@ public class GlobalKeyStorage {
         return encryption == NONE || keyStorageMap.containsKey(encryption);
     }
 
-    public Optional<AsymmetricKeyStorage> getAsymmetric(@NotNull AsymmetricEncryption encryption)
+    public Optional<AsymmetricKeyStorage> asymmetric(@NotNull AsymmetricEncryption encryption)
             throws EncryptionTypeException {
         Optional<KeyStorage> opt = get(encryption);
         if (opt.isPresent()) return Optional.ofNullable(opt.get().asymmetric());
         return Optional.empty();
     }
 
-    public @NotNull AsymmetricKeyStorage getAsymmetricNonNull(@NotNull AsymmetricEncryption encryption)
+    public @NotNull AsymmetricKeyStorage asymmetricNonNull(@NotNull AsymmetricEncryption encryption)
             throws KeyStorageNotFoundException, EncryptionTypeException {
-        Optional<AsymmetricKeyStorage> opt = getAsymmetric(encryption);
+        Optional<AsymmetricKeyStorage> opt = asymmetric(encryption);
         if (opt.isPresent()) return opt.get();
         throw new KeyStorageNotFoundException(encryption);
     }
 
-    public Optional<SymmetricKeyStorage> getSymmetric(@NotNull SymmetricEncryption encryption)
+    public Optional<SymmetricKeyStorage> symmetric(@NotNull SymmetricEncryption encryption)
             throws EncryptionTypeException {
         Optional<KeyStorage> opt = get(encryption);
         if (opt.isPresent()) return Optional.ofNullable(opt.get().symmetric());
         return Optional.empty();
     }
 
-    public @NotNull SymmetricKeyStorage getSymmetricNonNull(@NotNull SymmetricEncryption encryption)
+    public @NotNull SymmetricKeyStorage symmetricNonNull(@NotNull SymmetricEncryption encryption)
             throws CannotUseEncryption, EncryptionTypeException {
-        Optional<SymmetricKeyStorage> opt = getSymmetric(encryption);
+        Optional<SymmetricKeyStorage> opt = symmetric(encryption);
         if (opt.isPresent()) return opt.get();
         throw new CannotUseEncryption(encryption);
     }

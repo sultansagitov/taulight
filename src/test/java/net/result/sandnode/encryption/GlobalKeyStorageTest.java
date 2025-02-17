@@ -56,9 +56,9 @@ class GlobalKeyStorageTest {
     }
 
     @Test
-    void testGetAsymmetricNonNull() throws KeyStorageNotFoundException, EncryptionTypeException {
+    void testAsymmetricNonNull() throws KeyStorageNotFoundException, EncryptionTypeException {
         globalKeyStorage.set(RSA, rsaKeyStorage);
-        AsymmetricKeyStorage retrieved = globalKeyStorage.getAsymmetricNonNull(RSA);
+        AsymmetricKeyStorage retrieved = globalKeyStorage.asymmetricNonNull(RSA);
         assertNotNull(retrieved);
     }
 
@@ -68,9 +68,9 @@ class GlobalKeyStorageTest {
     }
 
     @Test
-    void testGetSymmetricNonNull() throws CannotUseEncryption, EncryptionTypeException {
+    void testSymmetricNonNull() throws CannotUseEncryption, EncryptionTypeException {
         globalKeyStorage.set(AES, aesKeyStorage);
-        SymmetricKeyStorage retrieved = globalKeyStorage.getSymmetricNonNull(AES);
+        SymmetricKeyStorage retrieved = globalKeyStorage.symmetricNonNull(AES);
         assertNotNull(retrieved);
     }
 

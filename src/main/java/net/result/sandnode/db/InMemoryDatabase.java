@@ -10,7 +10,7 @@ public class InMemoryDatabase implements Database {
     @Override
     public synchronized Member registerMember(String memberID, String password) throws BusyMemberIDException {
         if (db.stream().anyMatch(member -> member.getID().equals(memberID))) {
-            throw new BusyMemberIDException(memberID);
+            throw new BusyMemberIDException();
         }
 
         Member member = new StandardMember(memberID, password);

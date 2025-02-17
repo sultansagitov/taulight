@@ -1,7 +1,6 @@
 package net.result.sandnode.chain.client;
 
-import net.result.sandnode.error.Errors;
-import net.result.sandnode.error.SandnodeError;
+import net.result.sandnode.error.ServerErrorManager;
 import net.result.sandnode.exception.*;
 import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.message.types.*;
@@ -20,23 +19,16 @@ public class LogPasswdClientChain extends ClientChain {
     }
 
     @Override
-    public void sync() throws InterruptedException, DeserializationException, MemberNotFoundException,
-            ExpectedMessageException, UnauthorizedException {
+    public void sync() throws InterruptedException, DeserializationException, SandnodeErrorException,
+            ExpectedMessageException, UnknownSandnodeErrorException {
         LogPasswdRequest loginRequest = new LogPasswdRequest(memberID, password);
         send(loginRequest);
 
         RawMessage message = queue.take();
 
-        if (message.getHeaders().getType() == MessageTypes.ERR) {
+        if (message.headers().type() == MessageTypes.ERR) {
             ErrorMessage errorMessage = new ErrorMessage(message);
-            SandnodeError error = errorMessage.error;
-            if (error instanceof Errors sys) {
-                switch (sys) {
-                    case SERVER_ERROR -> throw new UnknownSandnodeErrorException();
-                    case MEMBER_NOT_FOUND -> throw new MemberNotFoundException();
-                    case UNAUTHORIZED -> throw new UnauthorizedException();
-                }
-            }
+            ServerErrorManager.instance().throwAll(errorMessage.error);
         }
 
         LogPasswdResponse loginResponse = new LogPasswdResponse(message);

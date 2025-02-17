@@ -50,7 +50,7 @@ public class SandnodeServer {
                 throw new SocketAcceptException("Error accepting client socket connection", e);
             }
 
-            String ip = IOController.getIpString(clientSocket);
+            String ip = IOController.ipString(clientSocket);
             LOGGER.info("Client connected {}", ip);
 
             sessionExecutor.submit(() -> {
@@ -60,7 +60,7 @@ public class SandnodeServer {
                     InputStream inputStream = StreamReader.inputStream(clientSocket);
                     EncryptedMessage encrypted = EncryptedMessage.readMessage(inputStream);
                     RawMessage request = Message.decryptMessage(encrypted, node.globalKeyStorage);
-                    Connection conn = request.getHeaders().getConnection();
+                    Connection conn = request.headers().connection();
                     Session session = node.createSession(this, clientSocket, conn.getOpposite());
                     session.io.chainManager.distributeMessage(request);
 

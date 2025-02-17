@@ -7,7 +7,6 @@ import net.result.sandnode.encryption.EncryptionManager;
 import net.result.sandnode.encryption.interfaces.Encryption;
 import net.result.simplesix64.SimpleSix64;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -20,8 +19,8 @@ public class Headers {
     private final Map<String, String> map = new HashMap<>();
     private short chainID;
     private boolean fin = false;
-    private @Nullable Connection connection;
-    private @Nullable MessageType type;
+    private Connection connection = Connection.AGENT2HUB;
+    private MessageType type = MessageTypes.WARN;
     private Encryption bodyEncryption = NONE;
 
     public Headers setFin(boolean fin) {
@@ -29,7 +28,7 @@ public class Headers {
         return this;
     }
 
-    public boolean isFin() {
+    public boolean fin() {
         return fin;
     }
 
@@ -38,7 +37,7 @@ public class Headers {
         return this;
     }
 
-    public int getCount() {
+    public int count() {
         return map.size();
     }
 
@@ -58,7 +57,7 @@ public class Headers {
         return this;
     }
 
-    public @NotNull MessageType getType() throws NullPointerException {
+    public @NotNull MessageType type() throws NullPointerException {
         return Objects.requireNonNull(type);
     }
 
@@ -67,7 +66,7 @@ public class Headers {
         return this;
     }
 
-    public @NotNull Connection getConnection() throws NullPointerException {
+    public @NotNull Connection connection() throws NullPointerException {
         return Objects.requireNonNull(connection);
     }
 
@@ -76,7 +75,7 @@ public class Headers {
         return this;
     }
 
-    public @NotNull Encryption getBodyEncryption() throws NullPointerException {
+    public @NotNull Encryption bodyEncryption() throws NullPointerException {
         return Objects.requireNonNull(bodyEncryption);
     }
 
@@ -85,12 +84,12 @@ public class Headers {
         return this;
     }
 
-    public short getChainID() {
+    public short chainID() {
         return chainID;
     }
 
     @SuppressWarnings("CommentedOutCode")
-    public static Headers getFromBytes(byte @NotNull [] data)
+    public static Headers fromBytes(byte @NotNull [] data)
             throws NoSuchEncryptionException, NoSuchMessageTypeException {
         if (data.length < 5) {
             throw new IllegalArgumentException("Data is too short to extract the required information");
@@ -132,14 +131,14 @@ public class Headers {
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
 
         byte first = (byte) new Random().nextInt(16);
-        if (getConnection().getFrom() == HUB) first |= (byte) 0b10000000;
-        if (getConnection().getTo() == HUB) first |= (byte) 0b01000000;
-        if (isFin()) first |= (byte) 0b00100000;
+        if (connection().getFrom() == HUB) first |= (byte) 0b10000000;
+        if (connection().getTo() == HUB) first |= (byte) 0b01000000;
+        if (fin()) first |= (byte) 0b00100000;
         byteArrayOutputStream.write(first);
-        byteArrayOutputStream.write(getType().asByte());
-        byteArrayOutputStream.write(getBodyEncryption().asByte());
-        byteArrayOutputStream.write((getChainID() >> 8) & 0xFF);
-        byteArrayOutputStream.write(getChainID() & 0xFF);
+        byteArrayOutputStream.write(type().asByte());
+        byteArrayOutputStream.write(bodyEncryption().asByte());
+        byteArrayOutputStream.write((chainID() >> 8) & 0xFF);
+        byteArrayOutputStream.write(chainID() & 0xFF);
 
         StringBuilder result = new StringBuilder();
 
@@ -164,13 +163,13 @@ public class Headers {
     }
 
     public @NotNull Headers copy() {
-        Headers copy = new Headers();
-        copy.map.putAll(this.map);
-        copy.chainID = this.chainID;
-        copy.fin = this.fin;
-        copy.connection = this.connection;
-        copy.type = this.type;
-        copy.bodyEncryption = this.bodyEncryption;
+        Headers copy = new Headers()
+                .setChainID(chainID())
+                .setFin(fin())
+                .setConnection(connection())
+                .setType(type())
+                .setBodyEncryption(bodyEncryption());
+        copy.map.putAll(map);
         return copy;
     }
 }

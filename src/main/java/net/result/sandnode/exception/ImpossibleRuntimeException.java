@@ -12,6 +12,6 @@ public class ImpossibleRuntimeException extends RuntimeException {
     }
 
     public ImpossibleRuntimeException(SandnodeError error) {
-        super("Error from another node: code %s, %s".formatted(error.getCode(), error.getDescription()));
+        super("Error from another node: code %s, %s".formatted(error.code(), error.description()));
     }
 }

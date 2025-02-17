@@ -1,7 +1,4 @@
 package net.result.sandnode.exception;
 
-public class InvalidMemberIDPassword extends SandnodeException {
-    public InvalidMemberIDPassword() {
-        super();
-    }
+public class InvalidMemberIDPassword extends SandnodeErrorException {
 }

@@ -33,19 +33,19 @@ public class LoginServerChain extends ServerChain {
         try {
             opt = session.server.serverConfig.tokenizer().findMember(database, token);
         } catch (InvalidTokenException e) {
-            sendFin(Errors.INVALID_TOKEN.message());
+            sendFin(Errors.INVALID_TOKEN.createMessage());
             return;
         } catch (ExpiredTokenException e) {
-            sendFin(Errors.EXPIRED_TOKEN.message());
+            sendFin(Errors.EXPIRED_TOKEN.createMessage());
             return;
         } catch (DatabaseException e) {
             LOGGER.error(e);
-            sendFin(Errors.SERVER_ERROR.message());
+            sendFin(Errors.SERVER_ERROR.createMessage());
             return;
         }
 
         if (opt.isEmpty()) {
-            sendFin(Errors.MEMBER_NOT_FOUND.message());
+            sendFin(Errors.MEMBER_NOT_FOUND.createMessage());
             return;
         }
 

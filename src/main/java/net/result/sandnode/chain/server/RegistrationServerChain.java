@@ -29,7 +29,7 @@ public class RegistrationServerChain extends ServerChain {
         String password = regMsg.getPassword();
 
         if (memberID.isEmpty() || password.isEmpty()) {
-            sendFin(Errors.INVALID_MEMBER_ID_OR_PASSWORD.message());
+            sendFin(Errors.INVALID_MEMBER_ID_OR_PASSWORD.createMessage());
             return;
         }
 
@@ -38,10 +38,10 @@ public class RegistrationServerChain extends ServerChain {
             String token = serverConfig.tokenizer().tokenizeMember(session.member);
             sendFin(new RegistrationResponse(token));
         } catch (BusyMemberIDException e) {
-            sendFin(Errors.MEMBER_ID_BUSY.message());
+            sendFin(Errors.BUSY_MEMBER_ID.createMessage());
         } catch (DatabaseException e) {
             LOGGER.error(e);
-            sendFin(Errors.SERVER_ERROR.message());
+            sendFin(Errors.SERVER_ERROR.createMessage());
         }
     }
 }

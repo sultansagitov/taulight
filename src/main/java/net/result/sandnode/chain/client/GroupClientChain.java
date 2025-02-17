@@ -27,7 +27,7 @@ public class GroupClientChain extends ClientChain {
     @Override
     public void sync() throws InterruptedException, ExpectedMessageException {
         GroupRequest request = new GroupRequest(groups);
-        request.getHeaders().setValue("mode", add ? "add" : "remove");
+        request.headers().setValue("mode", add ? "add" : "remove");
         send(request);
         groupsID = new GroupResponse(queue.take()).getGroupsID();
     }

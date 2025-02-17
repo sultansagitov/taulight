@@ -41,13 +41,13 @@ public abstract class BSTChainManager implements ChainManager {
 
     @Override
     public Chain createNew(RawMessage message) throws BusyChainID {
-        Headers headers = message.getHeaders();
-        MessageType type = headers.getType();
+        Headers headers = message.headers();
+        MessageType type = headers.type();
         Chain chain = createChain(type);
 
         assert chain != null : "Cannot handle type \"%s\"".formatted(type);
 
-        chain.setID(headers.getChainID());
+        chain.setID(headers.chainID());
         LOGGER.info("Adding new chain {}", chain);
         try {
             bst.add(chain);
@@ -88,8 +88,8 @@ public abstract class BSTChainManager implements ChainManager {
 
     @Override
     public void distributeMessage(RawMessage message) throws InterruptedException {
-        Headers headers = message.getHeaders();
-        Optional<Chain> opt = getByID(headers.getChainID());
+        Headers headers = message.headers();
+        Optional<Chain> opt = getByID(headers.chainID());
         Chain chain;
         if (opt.isPresent()) {
             chain = opt.get();
@@ -103,7 +103,7 @@ public abstract class BSTChainManager implements ChainManager {
             }
         }
 
-        if (headers.getType() == CHAIN_NAME) {
+        if (headers.type() == CHAIN_NAME) {
             headers.getOptionalValue("chain-name").ifPresent(s -> setName(chain, s));
             return;
         }

@@ -42,7 +42,7 @@ public class ChannelServerChain extends ServerChain {
         TauGroupManager manager = (TauGroupManager) session.server.serverConfig.groupManager();
 
         if (type == null) {
-            sendFin(Errors.TOO_FEW_ARGS.message());
+            sendFin(Errors.TOO_FEW_ARGS.createMessage());
             return;
         }
 
@@ -51,7 +51,7 @@ public class ChannelServerChain extends ServerChain {
                 String title = request.object.title;
 
                 if (title == null) {
-                    sendFin(Errors.TOO_FEW_ARGS.message());
+                    sendFin(Errors.TOO_FEW_ARGS.createMessage());
                     return;
                 }
 
@@ -61,7 +61,7 @@ public class ChannelServerChain extends ServerChain {
                     database.addMemberToChat(channel, session.member);
                 } catch (DatabaseException e) {
                     LOGGER.error(e);
-                    sendFin(Errors.SERVER_ERROR.message());
+                    sendFin(Errors.SERVER_ERROR.createMessage());
                     return;
                 }
 
@@ -82,7 +82,7 @@ public class ChannelServerChain extends ServerChain {
                 ClientMember cMember = request.object.member;
 
                 if (chatID == null || cMember == null) {
-                    sendFin(Errors.TOO_FEW_ARGS.message());
+                    sendFin(Errors.TOO_FEW_ARGS.createMessage());
                     return;
                 }
 
@@ -93,29 +93,29 @@ public class ChannelServerChain extends ServerChain {
                     optMember = database.findMemberByMemberID(cMember.memberID);
                 } catch (DatabaseException e) {
                     LOGGER.error(e);
-                    sendFin(Errors.SERVER_ERROR.message());
+                    sendFin(Errors.SERVER_ERROR.createMessage());
                     return;
                 }
 
                 if (optChat.isEmpty()) {
-                    sendFin(TauErrors.CHAT_NOT_FOUND.message());
+                    sendFin(TauErrors.CHAT_NOT_FOUND.createMessage());
                     return;
                 }
 
                 if (optMember.isEmpty()) {
-                    sendFin(Errors.ADDRESSED_MEMBER_NOT_FOUND.message());
+                    sendFin(Errors.ADDRESSED_MEMBER_NOT_FOUND.createMessage());
                     return;
                 }
 
                 Member member = optMember.get();
 
                 if (!(optChat.get() instanceof TauChannel channel)) {
-                    sendFin(Errors.WRONG_ADDRESS.message());
+                    sendFin(Errors.WRONG_ADDRESS.createMessage());
                     return;
                 }
 
                 if (!channel.getOwner().equals(session.member)) {
-                    sendFin(Errors.UNAUTHORIZED.message());
+                    sendFin(Errors.UNAUTHORIZED.createMessage());
                     return;
                 }
 
@@ -123,7 +123,7 @@ public class ChannelServerChain extends ServerChain {
                     database.addMemberToChat(channel, member);
                 } catch (DatabaseException e) {
                     LOGGER.error(e);
-                    sendFin(Errors.SERVER_ERROR.message());
+                    sendFin(Errors.SERVER_ERROR.createMessage());
                     return;
                 }
 
@@ -144,7 +144,7 @@ public class ChannelServerChain extends ServerChain {
                 UUID chatID = request.object.chatID;
 
                 if (chatID == null) {
-                    sendFin(Errors.TOO_FEW_ARGS.message());
+                    sendFin(Errors.TOO_FEW_ARGS.createMessage());
                     return;
                 }
 
@@ -152,31 +152,31 @@ public class ChannelServerChain extends ServerChain {
                 try {
                     optChat = database.getChat(chatID);
                 } catch (DatabaseException e) {
-                    sendFin(Errors.SERVER_ERROR.message());
+                    sendFin(Errors.SERVER_ERROR.createMessage());
                     return;
                 }
 
                 if (optChat.isEmpty()) {
-                    sendFin(TauErrors.CHAT_NOT_FOUND.message());
+                    sendFin(TauErrors.CHAT_NOT_FOUND.createMessage());
                     return;
                 }
 
                 TauChat tauChat = optChat.get();
 
                 if (!(tauChat instanceof TauChannel channel)) {
-                    sendFin(Errors.WRONG_ADDRESS.message());
+                    sendFin(Errors.WRONG_ADDRESS.createMessage());
                     return;
                 }
 
                 if (channel.getOwner().equals(session.member)) {
-                    sendFin(Errors.UNAUTHORIZED.message());
+                    sendFin(Errors.UNAUTHORIZED.createMessage());
                     return;
                 }
 
                 try {
                     database.leaveFromChat(channel, session.member);
                 } catch (DatabaseException e) {
-                    send(Errors.SERVER_ERROR.message());
+                    send(Errors.SERVER_ERROR.createMessage());
                 }
 
                 TauAgentProtocol.removeMemberFromGroup(session, manager.getGroup(channel));

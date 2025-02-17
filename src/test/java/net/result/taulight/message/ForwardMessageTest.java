@@ -18,7 +18,7 @@ class ForwardMessageTest {
         ForwardRequest originalMessage = new ForwardRequest(new ChatMessage().setContent(expectedContent));
 
         // Act
-        RawMessage serializedData = new RawMessage(originalMessage.getHeaders(), originalMessage.getBody());
+        RawMessage serializedData = new RawMessage(originalMessage.headers(), originalMessage.getBody());
         ForwardRequest deserializedMessage = new ForwardRequest(serializedData);
 
         // Assert

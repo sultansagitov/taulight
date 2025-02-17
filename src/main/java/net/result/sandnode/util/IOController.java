@@ -64,13 +64,13 @@ public class IOController {
     }
 
     private void beforeSending(IMessage message) {
-        Headers headers = message.getHeaders();
+        Headers headers = message.headers();
         headers.setConnection(connection);
-        if (message.getHeadersEncryption() == NONE) {
-            message.setHeadersEncryption(getCurrentEncryption());
+        if (message.headersEncryption() == NONE) {
+            message.setHeadersEncryption(currentEncryption());
         }
-        if (headers.getBodyEncryption() == NONE) {
-            headers.setBodyEncryption(getCurrentEncryption());
+        if (headers.bodyEncryption() == NONE) {
+            headers.setBodyEncryption(currentEncryption());
         }
         Random random = new SecureRandom();
         String s = "0123456789abcdefghijklmnopqrstuvwxyz!@$%&*()_+-={}[]\"'<>?,./ ~";
@@ -110,14 +110,14 @@ public class IOController {
 
 
             if (error != null) {
-                errorMessage = error.message();
-                Headers headers = errorMessage.getHeaders();
+                errorMessage = error.createMessage();
+                Headers headers = errorMessage.headers();
                 errorMessage
-                        .setHeadersEncryption(message.getHeadersEncryption());
+                        .setHeadersEncryption(message.headersEncryption());
                 headers
-                        .setBodyEncryption(message.getHeaders().getBodyEncryption())
-                        .setChainID(message.getHeaders().getChainID())
-                        .setConnection(message.getHeaders().getConnection());
+                        .setBodyEncryption(message.headers().bodyEncryption())
+                        .setChainID(message.headers().chainID())
+                        .setConnection(message.headers().connection());
                 byteArray = errorMessage.toByteArray(globalKeyStorage);
                 sent = errorMessage;
             }
@@ -143,19 +143,19 @@ public class IOController {
         }
     }
 
-    public static @NotNull String getIpString(@NotNull Socket socket) {
+    public static @NotNull String ipString(@NotNull Socket socket) {
         return "%s:%d".formatted(socket.getInetAddress().getHostAddress(), socket.getPort());
     }
 
-    public @NotNull String getIpString() {
-        return getIpString(socket);
+    public @NotNull String ipString() {
+        return ipString(socket);
     }
 
-    public @NotNull Encryption getServerEncryption() {
+    public @NotNull Encryption serverEncryption() {
         return serverEncryption;
     }
 
-    public @NotNull Encryption getSymKeyEncryption() {
+    public @NotNull Encryption symKeyEncryption() {
         return symKeyEncryption;
     }
 
@@ -179,13 +179,13 @@ public class IOController {
         globalKeyStorage.set(symmetricKeyStorage);
     }
 
-    private @NotNull Encryption getCurrentEncryption() {
-        return getSymKeyEncryption() != NONE ? getSymKeyEncryption() : getServerEncryption();
+    private @NotNull Encryption currentEncryption() {
+        return symKeyEncryption() != NONE ? symKeyEncryption() : serverEncryption();
     }
 
     public void sendMessage(@NotNull IMessage message) throws InterruptedException {
-        if (message.getHeadersEncryption() == NONE)
-            message.setHeadersEncryption(getCurrentEncryption());
+        if (message.headersEncryption() == NONE)
+            message.setHeadersEncryption(currentEncryption());
 
         sendingQueue.put(message);
     }
@@ -198,7 +198,7 @@ public class IOController {
 
         LOGGER.info("Sending exit message");
         sendMessage(new ExitMessage());
-        LOGGER.info("Disconnecting from {}", getIpString(socket));
+        LOGGER.info("Disconnecting from {}", ipString(socket));
 
         chainManager.interruptAll();
 

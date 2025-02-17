@@ -1,23 +1,20 @@
 package net.result.main.chain.client;
 
 import net.result.main.ConsoleCommands;
+import net.result.sandnode.error.ServerErrorManager;
 import net.result.sandnode.exception.*;
 import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.message.types.ErrorMessage;
 import net.result.sandnode.message.util.MessageType;
-import net.result.sandnode.error.SandnodeError;
 import net.result.sandnode.message.util.MessageTypes;
 import net.result.sandnode.util.IOController;
 import net.result.sandnode.chain.client.ClientChain;
 import net.result.taulight.db.ChatMessage;
 import net.result.taulight.message.types.ForwardRequest;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 import java.util.*;
 
 public class ConsoleForwardRequestClientChain extends ClientChain {
-    private static final Logger LOGGER = LogManager.getLogger(ConsoleForwardRequestClientChain.class);
     private final String memberID;
 
     public ConsoleForwardRequestClientChain(IOController io, String memberID) {
@@ -26,7 +23,8 @@ public class ConsoleForwardRequestClientChain extends ClientChain {
     }
 
     @Override
-    public void sync() throws InterruptedException, DeserializationException {
+    public void sync() throws InterruptedException, DeserializationException, ExpectedMessageException,
+            SandnodeErrorException, UnknownSandnodeErrorException {
         ConsoleCommands cc = new ConsoleCommands(io, memberID);
         Scanner scanner = new Scanner(System.in);
 
@@ -49,7 +47,7 @@ public class ConsoleForwardRequestClientChain extends ClientChain {
     }
 
     private boolean sendForward(ConsoleCommands cc, String input)
-            throws InterruptedException, DeserializationException {
+            throws InterruptedException, ExpectedMessageException, SandnodeErrorException, UnknownSandnodeErrorException {
         if (cc.currentChat == null) {
             System.out.println("chat not selected");
             return false;
@@ -63,12 +61,12 @@ public class ConsoleForwardRequestClientChain extends ClientChain {
 
         send(new ForwardRequest(message));
         RawMessage raw = queue.take();
-        MessageType type = raw.getHeaders().getType();
+        MessageType type = raw.headers().type();
         if (type == MessageTypes.EXIT) return true;
 
         if (type == MessageTypes.ERR) {
-            SandnodeError error = new ErrorMessage(raw).error;
-            LOGGER.error("Error code: {} description: {}", error.getCode(), error.getDescription());
+            ErrorMessage errorMessage = new ErrorMessage(raw);
+            ServerErrorManager.instance().throwAll(errorMessage.error);
         }
         return false;
     }

@@ -61,7 +61,8 @@ public class RunAgentWork implements IWork {
         client.close();
     }
 
-    private static void startConsoleChain(IOController io, String memberID) throws InterruptedException, DeserializationException {
+    private static void startConsoleChain(IOController io, String memberID) throws InterruptedException,
+            DeserializationException, ExpectedMessageException, SandnodeErrorException, UnknownSandnodeErrorException {
         ConsoleForwardRequestClientChain consoleChain = new ConsoleForwardRequestClientChain(io, memberID);
         io.chainManager.linkChain(consoleChain);
         consoleChain.sync();
@@ -71,7 +72,8 @@ public class RunAgentWork implements IWork {
     private static void getPublicKey(SandnodeClient client, TauAgent agent, SandnodeLinkRecord link)
             throws FSException, KeyAlreadySaved, LinkDoesNotMatchException, InterruptedException,
             EncryptionTypeException, NoSuchEncryptionException, CreatingKeyException, ExpectedMessageException,
-            KeyStorageNotFoundException, DeserializationException {
+            KeyStorageNotFoundException, DeserializationException, SandnodeErrorException,
+            UnknownSandnodeErrorException {
 
         Optional<AsymmetricKeyStorage> filePublicKey = client.clientConfig.getPublicKey(link.endpoint());
         AsymmetricKeyStorage linkKeyStorage = link.keyStorage();
@@ -99,8 +101,8 @@ public class RunAgentWork implements IWork {
         }
 
         ClientProtocol.PUB(client.io);
-        AsymmetricEncryption encryption = client.io.getServerEncryption().asymmetric();
-        AsymmetricKeyStorage serverKey = agent.globalKeyStorage.getAsymmetricNonNull(encryption);
+        AsymmetricEncryption encryption = client.io.serverEncryption().asymmetric();
+        AsymmetricKeyStorage serverKey = agent.globalKeyStorage.asymmetricNonNull(encryption);
 
         client.clientConfig.saveKey(link.endpoint(), serverKey);
         client.io.setServerKey(serverKey);
@@ -136,6 +138,8 @@ public class RunAgentWork implements IWork {
                         System.out.println("Member ID is busy");
                     } catch (InvalidMemberIDPassword e) {
                         System.out.println("Invalid Member ID or password");
+                    } catch (SandnodeErrorException | UnknownSandnodeErrorException e) {
+                        System.out.println("Unknown sandnode error exception. Please try again.");
                     }
                 }
             }
@@ -158,6 +162,8 @@ public class RunAgentWork implements IWork {
                         System.out.println("Expired token. Please try again.");
                     } catch (MemberNotFoundException e) {
                         System.out.println("Member not found. Please try again.");
+                    } catch (SandnodeErrorException | UnknownSandnodeErrorException e) {
+                        System.out.println("Unknown sandnode error exception. Please try again.");
                     }
                 }
             }
@@ -180,6 +186,8 @@ public class RunAgentWork implements IWork {
                         System.out.println("Member not found. Please try again.");
                     } catch (UnauthorizedException e) {
                         System.out.println("Incorrect password. Please try again.");
+                    } catch (SandnodeErrorException | UnknownSandnodeErrorException e) {
+                        System.out.println("Unknown sandnode error exception. Please try again.");
                     }
                 }
             }

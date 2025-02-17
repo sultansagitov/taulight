@@ -13,7 +13,7 @@ public class GroupResponse extends Message {
     private final Collection<String> groupsID;
 
     public GroupResponse(RawMessage raw) throws ExpectedMessageException {
-        super(raw.expect(MessageTypes.GROUP).getHeaders());
+        super(raw.expect(MessageTypes.GROUP).headers());
         groupsID = Set.of(new String(raw.getBody()).split(","));
     }
 

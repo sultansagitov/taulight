@@ -1,5 +1,6 @@
 package net.result.sandnode.chain.client;
 
+import net.result.sandnode.error.ServerErrorManager;
 import net.result.sandnode.exception.*;
 import net.result.sandnode.message.IMessage;
 import net.result.sandnode.message.types.ErrorMessage;
@@ -8,32 +9,25 @@ import net.result.sandnode.message.types.PublicKeyResponse;
 import net.result.sandnode.message.util.MessageTypes;
 import net.result.sandnode.util.IOController;
 import net.result.sandnode.chain.Chain;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 public class PublicKeyClientChain extends Chain {
-    private static final Logger LOGGER = LogManager.getLogger(PublicKeyClientChain.class);
-
     public PublicKeyClientChain(IOController io) {
         super(io);
     }
 
     @Override
     public void sync() throws InterruptedException, EncryptionTypeException, NoSuchEncryptionException,
-            CreatingKeyException, ExpectedMessageException, DeserializationException {
+            CreatingKeyException, ExpectedMessageException, DeserializationException, SandnodeErrorException,
+            UnknownSandnodeErrorException {
         IMessage request = new PublicKeyRequest();
         send(request);
 
         IMessage response = queue.take();
 
-        if (response.getHeaders().getType() == MessageTypes.ERR) {
+        if (response.headers().type() == MessageTypes.ERR) {
             ErrorMessage errorMessage = new ErrorMessage(response);
-            request.getHeaders().setChainID(getID());
-            LOGGER.info(
-                    "Handle error {}: {}",
-                    errorMessage.error.getCode(),
-                    errorMessage.error.getDescription()
-            );
+            request.headers().setChainID(getID());
+            ServerErrorManager.instance().throwAll(errorMessage.error);
             return;
         }
 

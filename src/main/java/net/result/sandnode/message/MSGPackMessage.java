@@ -28,7 +28,7 @@ public abstract class MSGPackMessage<T> extends Message {
     }
 
     public MSGPackMessage(@NotNull IMessage message, Class<T> clazz) throws DeserializationException {
-        super(message.getHeaders());
+        super(message.headers());
         try {
             object = objectMapper.readValue(message.getBody(), clazz);
         } catch (IOException e) {

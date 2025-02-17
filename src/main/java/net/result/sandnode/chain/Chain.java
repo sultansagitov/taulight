@@ -42,7 +42,7 @@ public abstract class Chain implements Searchable<Chain, Short> {
     public void async(ChainManager chainManager) {
         chainManager.getExecutorService().submit(() -> {
             String threadName = "%s/%s/%s".formatted(
-                    io.getIpString(),
+                    io.ipString(),
                     getClass().getSimpleName(),
                     String.format("%04X", getID())
             );
@@ -61,10 +61,10 @@ public abstract class Chain implements Searchable<Chain, Short> {
     }
 
     public void send(IMessage request) throws InterruptedException {
-        Headers headers = request.getHeaders();
+        Headers headers = request.headers();
         headers.setChainID(getID());
 
-        if (headers.getType() == MessageTypes.CHAIN_NAME) {
+        if (headers.type() == MessageTypes.CHAIN_NAME) {
             headers.getOptionalValue("chain-name").ifPresent(s -> io.chainManager.setName(this, s));
         }
 
@@ -72,7 +72,7 @@ public abstract class Chain implements Searchable<Chain, Short> {
     }
 
     public void sendFin(IMessage message) throws InterruptedException {
-        message.getHeaders().setFin(true);
+        message.headers().setFin(true);
         send(message);
     }
 

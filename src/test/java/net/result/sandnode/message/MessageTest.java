@@ -41,16 +41,16 @@ class MessageTest {
         IMessage node2Message = Message.decryptMessage(encrypted, globalKeyStorage);
 
         // headers
-        assertEquals(node1Message.getHeaders().getConnection(),
-                node2Message.getHeaders().getConnection());
-        assertEquals(node1Message.getHeaders().getType(),
-                node2Message.getHeaders().getType());
-        assertEquals(node1Message.getHeaders().getBodyEncryption(),
-                node2Message.getHeaders().getBodyEncryption());
-        assertEquals(node1Message.getHeaders().getValue("keyName"),
-                node2Message.getHeaders().getValue("keyName"));
-        assertEquals(node1Message.getHeadersEncryption(),
-                node2Message.getHeadersEncryption());
+        assertEquals(node1Message.headers().connection(),
+                node2Message.headers().connection());
+        assertEquals(node1Message.headers().type(),
+                node2Message.headers().type());
+        assertEquals(node1Message.headers().bodyEncryption(),
+                node2Message.headers().bodyEncryption());
+        assertEquals(node1Message.headers().getValue("keyName"),
+                node2Message.headers().getValue("keyName"));
+        assertEquals(node1Message.headersEncryption(),
+                node2Message.headersEncryption());
 
         // body
         assertArrayEquals(node1Message.getBody(), node2Message.getBody());

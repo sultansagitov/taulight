@@ -3,9 +3,9 @@ package net.result.sandnode.error;
 import net.result.sandnode.message.types.ErrorMessage;
 
 public interface SandnodeError {
-    int getCode();
+    int code();
 
-    String getDescription();
+    String description();
 
-    ErrorMessage message();
+    ErrorMessage createMessage();
 }

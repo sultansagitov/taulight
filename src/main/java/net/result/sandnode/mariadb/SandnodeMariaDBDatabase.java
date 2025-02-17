@@ -33,9 +33,7 @@ public class SandnodeMariaDBDatabase implements Database {
 
             checkStmt.setString(1, memberID);
             try (ResultSet rs = checkStmt.executeQuery()) {
-                if (rs.next()) {
-                    throw new BusyMemberIDException(memberID);
-                }
+                if (rs.next()) throw new BusyMemberIDException();
             }
 
             insertStmt.setString(1, memberID);

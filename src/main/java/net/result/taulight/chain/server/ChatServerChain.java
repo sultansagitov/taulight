@@ -29,12 +29,12 @@ public class ChatServerChain extends ServerChain {
                     send(ChatResponse.get(database.getChats(session.member)));
                 } catch (DatabaseException e) {
                     LOGGER.error(e);
-                    send(Errors.SERVER_ERROR.message());
+                    send(Errors.SERVER_ERROR.createMessage());
                     continue;
                 }
             }
 
-            if (request.getHeaders().isFin()) break;
+            if (request.headers().fin()) break;
         }
     }
 }

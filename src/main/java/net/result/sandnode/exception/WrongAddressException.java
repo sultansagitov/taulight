@@ -1,4 +1,4 @@
 package net.result.sandnode.exception;
 
-public class WrongAddressException extends SandnodeException {
+public class WrongAddressException extends SandnodeErrorException {
 }

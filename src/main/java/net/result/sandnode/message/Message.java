@@ -32,7 +32,7 @@ public abstract class Message implements IMessage {
     }
 
     @Override
-    public @NotNull Encryption getHeadersEncryption() {
+    public @NotNull Encryption headersEncryption() {
         return headersEncryption;
     }
 
@@ -48,9 +48,9 @@ public abstract class Message implements IMessage {
             throw new ImpossibleRuntimeException(e);
         }
 
-        Headers headers = Headers.getFromBytes(decryptedHeaders);
+        Headers headers = Headers.fromBytes(decryptedHeaders);
 
-        Encryption bodyEncryption = headers.getBodyEncryption();
+        Encryption bodyEncryption = headers.bodyEncryption();
         byte[] decryptedBody;
         KeyStorage bodyKeyStorage = globalKeyStorage.getNonNull(bodyEncryption);
         try {
@@ -79,12 +79,12 @@ public abstract class Message implements IMessage {
     public byte[] toByteArray(@NotNull GlobalKeyStorage globalKeyStorage)
             throws EncryptionException, MessageSerializationException, IllegalMessageLengthException {
         ByteArrayOutputStream result = new ByteArrayOutputStream();
-        Encryption encryption = getHeadersEncryption();
+        Encryption encryption = headersEncryption();
         result.write(1); // Version
         result.write(encryption.asByte()); // Headers encryption
 
         try {
-            byte[] headersBytes = getHeaders().toByteArray();
+            byte[] headersBytes = headers().toByteArray();
             KeyStorage keyStorage = globalKeyStorage.getNonNull(encryption);
             byte[] encryptedHeaders;
             try {
@@ -113,7 +113,7 @@ public abstract class Message implements IMessage {
 
         try {
             byte[] bodyBytes = getBody();
-            Encryption bodyEncryption = getHeaders().getBodyEncryption();
+            Encryption bodyEncryption = headers().bodyEncryption();
             KeyStorage keyStorage = globalKeyStorage.getNonNull(bodyEncryption);
             byte[] encryptedBody;
 
@@ -140,7 +140,7 @@ public abstract class Message implements IMessage {
     }
 
     @Override
-    public Headers getHeaders() {
+    public Headers headers() {
         return headers;
     }
 
@@ -149,12 +149,12 @@ public abstract class Message implements IMessage {
         try {
             return "<%s %s(headers %s %s cid=%04X %d) %s(body %d)>".formatted(
                     getClass().getSimpleName(),
-                    getHeadersEncryption(),
-                    getHeaders().getType().name(),
-                    getHeaders().getConnection().name(),
-                    getHeaders().getChainID(),
-                    getHeaders().getCount(),
-                    getHeaders().getBodyEncryption().name(),
+                    headersEncryption(),
+                    headers().type().name(),
+                    headers().connection().name(),
+                    headers().chainID(),
+                    headers().count(),
+                    headers().bodyEncryption().name(),
                     getBody().length
             );
         } catch (NullPointerException e) {

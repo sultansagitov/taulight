@@ -19,7 +19,7 @@ public class Links {
     public static @NotNull URI getServerLink(@NotNull SandnodeServer server)
             throws KeyStorageNotFoundException, EncryptionTypeException {
         AsymmetricEncryption encryption = server.serverConfig.mainEncryption();
-        AsymmetricKeyStorage keyStorage = server.node.globalKeyStorage.getAsymmetricNonNull(encryption);
+        AsymmetricKeyStorage keyStorage = server.node.globalKeyStorage.asymmetricNonNull(encryption);
         String string;
         try {
             string = "sandnode://%s@%s?encryption=%s&key=%s".formatted(

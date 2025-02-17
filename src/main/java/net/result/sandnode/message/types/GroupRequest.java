@@ -48,7 +48,7 @@ public class GroupRequest extends Message {
     }
 
     public GroupRequest(@NotNull IMessage message) throws ExpectedMessageException {
-        super(message.expect(MessageTypes.GROUP).getHeaders());
+        super(message.expect(MessageTypes.GROUP).headers());
 
         String[] groupsID = new String(message.getBody()).split(",");
         this.groupsID = Arrays

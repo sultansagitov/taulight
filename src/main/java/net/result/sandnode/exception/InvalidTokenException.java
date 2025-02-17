@@ -1,6 +1,6 @@
 package net.result.sandnode.exception;
 
-public class InvalidTokenException extends SandnodeSecurityException {
+public class InvalidTokenException extends SandnodeErrorException {
     public InvalidTokenException() {
         super();
     }

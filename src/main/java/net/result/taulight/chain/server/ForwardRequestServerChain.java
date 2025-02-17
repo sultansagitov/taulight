@@ -38,7 +38,7 @@ public class ForwardRequestServerChain extends ServerChain {
 
             if (chatMessage == null) {
                 LOGGER.error("Forward message contains null chatMessage");
-                send(Errors.TOO_FEW_ARGS.message());
+                send(Errors.TOO_FEW_ARGS.createMessage());
                 continue;
             }
 
@@ -47,7 +47,7 @@ public class ForwardRequestServerChain extends ServerChain {
 
             if (chatID == null || content == null) {
                 LOGGER.error("Forward message contains null chatID or content");
-                send(Errors.TOO_FEW_ARGS.message());
+                send(Errors.TOO_FEW_ARGS.createMessage());
                 continue;
             }
 
@@ -63,7 +63,7 @@ public class ForwardRequestServerChain extends ServerChain {
 
                 if (chatOpt.isEmpty()) {
                     LOGGER.error("Chat was not found");
-                    sendFin(TauErrors.CHAT_NOT_FOUND.message());
+                    sendFin(TauErrors.CHAT_NOT_FOUND.createMessage());
                     continue;
                 }
 
@@ -72,18 +72,18 @@ public class ForwardRequestServerChain extends ServerChain {
                 Collection<Member> members = database.getMembersFromChat(chat);
                 if (!members.contains(session.member)) {
                     LOGGER.warn("Unauthorized access attempt by member: {}", session.member);
-                    send(Errors.UNAUTHORIZED.message());
+                    send(Errors.UNAUTHORIZED.createMessage());
                     continue;
                 }
 
                 TauHubProtocol.send(session.server.serverConfig, chat, chatMessage);
             } catch (DatabaseException e) {
                 LOGGER.error("Database error: {}", e.getMessage(), e);
-                sendFin(Errors.SERVER_ERROR.message());
+                sendFin(Errors.SERVER_ERROR.createMessage());
                 continue;
             } catch (MessageNotForwardedException e) {
                 LOGGER.error("Message forwarding failed for chat: {}", chatID, e);
-                send(TauErrors.MESSAGE_NOT_FORWARDED.message());
+                send(TauErrors.MESSAGE_NOT_FORWARDED.createMessage());
                 continue;
             }
 
