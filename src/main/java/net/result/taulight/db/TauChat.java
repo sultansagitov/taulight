@@ -9,7 +9,7 @@ public abstract class TauChat {
         this.id = id;
     }
 
-    public UUID getID() {
+    public UUID id() {
         return id;
     }
 

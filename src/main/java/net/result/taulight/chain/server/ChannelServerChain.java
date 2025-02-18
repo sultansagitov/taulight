@@ -114,7 +114,7 @@ public class ChannelServerChain extends ServerChain {
                     return;
                 }
 
-                if (!channel.getOwner().equals(session.member)) {
+                if (!channel.owner().equals(session.member)) {
                     sendFin(Errors.UNAUTHORIZED.createMessage());
                     return;
                 }
@@ -168,7 +168,7 @@ public class ChannelServerChain extends ServerChain {
                     return;
                 }
 
-                if (channel.getOwner().equals(session.member)) {
+                if (channel.owner().equals(session.member)) {
                     sendFin(Errors.UNAUTHORIZED.createMessage());
                     return;
                 }

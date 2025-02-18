@@ -38,10 +38,6 @@ public class DirectResponse extends MSGPackMessage<DirectResponse.Data> {
         super(message.expect(TauMessageTypes.DIRECT), DirectResponse.Data.class);
     }
 
-    public String getMemberID() {
-        return object.memberID;
-    }
-
     public UUID getChatID() {
         return object.id;
     }

@@ -100,7 +100,7 @@ public class TauMariaDBDatabase extends SandnodeMariaDBDatabase implements TauDa
             try {
                 TauDirect direct = new TauDirect(member1, member2);
 
-                byte[] chatBin = uuidToBinary(direct.getID());
+                byte[] chatBin = uuidToBinary(direct.id());
 
                 try (PreparedStatement stmt = conn.prepareStatement(
                         "INSERT INTO chats (chat_id, chat_type) VALUES (?, 'DIRECT')")) {
@@ -111,8 +111,8 @@ public class TauMariaDBDatabase extends SandnodeMariaDBDatabase implements TauDa
                 try (PreparedStatement stmt = conn.prepareStatement(
                         "INSERT INTO direct_chats (chat_id, member1_id, member2_id) VALUES (?, ?, ?)")) {
                     stmt.setBytes(1, chatBin);
-                    stmt.setString(2, member1.getID());
-                    stmt.setString(3, member2.getID());
+                    stmt.setString(2, member1.id());
+                    stmt.setString(3, member2.id());
                     stmt.executeUpdate();
                 }
 
@@ -137,10 +137,10 @@ public class TauMariaDBDatabase extends SandnodeMariaDBDatabase implements TauDa
                              "WHERE (member1_id = ? AND member2_id = ?) " +
                              "   OR (member1_id = ? AND member2_id = ?)")) {
 
-            stmt.setString(1, member1.getID());
-            stmt.setString(2, member2.getID());
-            stmt.setString(3, member2.getID());
-            stmt.setString(4, member1.getID());
+            stmt.setString(1, member1.id());
+            stmt.setString(2, member2.id());
+            stmt.setString(3, member2.id());
+            stmt.setString(4, member1.id());
 
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
@@ -160,7 +160,7 @@ public class TauMariaDBDatabase extends SandnodeMariaDBDatabase implements TauDa
         try (Connection conn = dataSource.getConnection()) {
             conn.setAutoCommit(false);
             try {
-                byte[] uuidBin = uuidToBinary(chat.getID());
+                byte[] uuidBin = uuidToBinary(chat.id());
 
                 try (PreparedStatement checkStmt = conn.prepareStatement(
                         "INSERT IGNORE INTO chats (chat_id, chat_type) VALUES (?, ?)")) {
@@ -178,10 +178,10 @@ public class TauMariaDBDatabase extends SandnodeMariaDBDatabase implements TauDa
                             "INSERT INTO channels (chat_id, title, owner_id) VALUES (?, ?, ?) " +
                                     "ON DUPLICATE KEY UPDATE title = ?, owner_id = ?")) {
                         stmt.setBytes(1, uuidBin);
-                        stmt.setString(2, channel.getTitle());
-                        stmt.setString(3, channel.getOwner().getID());
-                        stmt.setString(4, channel.getTitle());
-                        stmt.setString(5, channel.getOwner().getID());
+                        stmt.setString(2, channel.title());
+                        stmt.setString(3, channel.owner().id());
+                        stmt.setString(4, channel.title());
+                        stmt.setString(5, channel.owner().id());
                         stmt.executeUpdate();
                     }
                 }
@@ -284,7 +284,7 @@ public class TauMariaDBDatabase extends SandnodeMariaDBDatabase implements TauDa
     @Override
     public Collection<ChatMessage> loadMessages(TauChat chat, int index, int size) throws DatabaseException {
         try (Connection conn = dataSource.getConnection()) {
-            byte[] chatBin = uuidToBinary(chat.getID());
+            byte[] chatBin = uuidToBinary(chat.id());
 
             try (PreparedStatement stmt = conn.prepareStatement(
                     "SELECT message_id, content, timestamp, member_id FROM messages " +
@@ -325,7 +325,7 @@ public class TauMariaDBDatabase extends SandnodeMariaDBDatabase implements TauDa
     @Override
     public Collection<Member> getMembersFromChat(TauChat chat) throws DatabaseException {
         try (Connection conn = dataSource.getConnection()) {
-            byte[] chatID = uuidToBinary(chat.getID());
+            byte[] chatID = uuidToBinary(chat.id());
 
             try (PreparedStatement typeStmt = conn.prepareStatement(
                     "SELECT chat_type FROM chats WHERE chat_id = ?")) {
@@ -382,13 +382,13 @@ public class TauMariaDBDatabase extends SandnodeMariaDBDatabase implements TauDa
     @Override
     public void addMemberToChat(TauChat chat, Member member) throws DatabaseException {
         try (Connection conn = dataSource.getConnection()) {
-            byte[] chatID = uuidToBinary(chat.getID());
+            byte[] chatID = uuidToBinary(chat.id());
 
             try (PreparedStatement stmt = conn.prepareStatement(
                     "INSERT INTO chat_members (chat_id, member_id) VALUES (?, ?)")) {
 
                 stmt.setBytes(1, chatID);
-                stmt.setString(2, member.getID());
+                stmt.setString(2, member.id());
                 stmt.executeUpdate();
             }
         } catch (SQLException | IllegalArgumentException e) {
@@ -399,14 +399,14 @@ public class TauMariaDBDatabase extends SandnodeMariaDBDatabase implements TauDa
     @Override
     public void leaveFromChat(TauChannel channel, Member member) throws DatabaseException {
         try (Connection conn = dataSource.getConnection()) {
-            byte[] chatID = uuidToBinary(channel.getID());
+            byte[] chatID = uuidToBinary(channel.id());
 
             conn.setAutoCommit(false);
             try {
                 try (PreparedStatement stmt = conn.prepareStatement(
                         "DELETE FROM chat_members WHERE chat_id = ? AND member_id = ?")) {
                     stmt.setBytes(1, chatID);
-                    stmt.setString(2, member.getID());
+                    stmt.setString(2, member.id());
                     stmt.executeUpdate();
                 }
 
@@ -435,7 +435,7 @@ public class TauMariaDBDatabase extends SandnodeMariaDBDatabase implements TauDa
                             "JOIN channels ch ON c.chat_id = ch.chat_id " +
                             "WHERE cm.member_id = ? AND c.chat_type = 'CHANNEL'")) {
 
-                stmt.setString(1, member.getID());
+                stmt.setString(1, member.id());
                 try (ResultSet rs = stmt.executeQuery()) {
                     while (rs.next()) {
                         byte[] chatBin = rs.getBytes("chat_id");
@@ -460,9 +460,9 @@ public class TauMariaDBDatabase extends SandnodeMariaDBDatabase implements TauDa
                             "ON c.chat_id = dc.chat_id " +
                             "WHERE c.chat_type = 'DIRECT' AND (dc.member1_id = ? OR dc.member2_id = ?)")) {
 
-                stmt.setString(1, member.getID());
-                stmt.setString(2, member.getID());
-                stmt.setString(3, member.getID());
+                stmt.setString(1, member.id());
+                stmt.setString(2, member.id());
+                stmt.setString(3, member.id());
 
                 try (ResultSet rs = stmt.executeQuery()) {
                     while (rs.next()) {
@@ -498,7 +498,7 @@ public class TauMariaDBDatabase extends SandnodeMariaDBDatabase implements TauDa
     @Override
     public long getMessageCount(TauChat chat) throws DatabaseException {
         try (Connection conn = dataSource.getConnection()) {
-            byte[] chatBin = uuidToBinary(chat.getID());
+            byte[] chatBin = uuidToBinary(chat.id());
 
             try (PreparedStatement stmt = conn.prepareStatement("SELECT COUNT(*) FROM messages WHERE chat_id = ?")) {
 

@@ -22,7 +22,7 @@ public class LoginResponse extends MSGPackMessage<LoginResponse.LoginData> {
     }
 
     public LoginResponse(@NotNull Headers headers, @NotNull Member member) {
-        super(headers.setType(MessageTypes.LOGIN), new LoginData(member.getID()));
+        super(headers.setType(MessageTypes.LOGIN), new LoginData(member.id()));
     }
 
     public LoginResponse(Member member) {

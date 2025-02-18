@@ -13,7 +13,7 @@ public class HashSetTauGroupManager extends HashSetGroupManager implements TauGr
 
     @Override
     public TauChatGroup getGroup(@NotNull TauChat chat) {
-        UUID id = chat.getID();
+        UUID id = chat.id();
 
         if (!map.containsKey(id)) {
             TauChatGroup group = new TauChatGroup(id);

@@ -10,18 +10,18 @@ public class StandardMember implements Member {
     }
 
     @Override
-    public String getID() {
+    public String id() {
         return memberID;
     }
 
     @Override
-    public String getHashedPassword() {
+    public String hashedPassword() {
         return password;
     }
 
     @Override
     public String toString() {
-        return "<Member %s>".formatted(getID());
+        return "<Member %s>".formatted(id());
     }
 
     @Override

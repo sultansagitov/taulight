@@ -18,43 +18,37 @@ public class TauDirect extends TauChat {
         this(UUID.randomUUID(), member1, member2);
     }
 
-    public Member getMember1() {
+    public Member firstMember() {
         return member1;
     }
 
-    public Member getMember2() {
+    public Member secondMember() {
         return member2;
     }
 
-    public Member getOtherMember(Member member) {
-        if (member.equals(member1)) {
-            return member2;
-        } else if (member.equals(member2)) {
-            return member1;
-        }
+    public Member otherMember(Member member) {
+        if (member.equals(member1)) return member2;
+        if (member.equals(member2)) return member1;
         throw new IllegalArgumentException("Member not part of this direct chat");
     }
 
     @Override
     public String toString() {
-        return String.format("<Direct Chat: %s and %s>", 
-            member1.getID(), 
-            member2.getID()
-        );
+        return "<Direct Chat: %s and %s>".formatted(member1.id(), member2.id());
     }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (!(o instanceof TauDirect other)) return false;
-        
-        return this.getID().equals(other.getID()) &&
-               ((member1.equals(other.member1) && member2.equals(other.member2)) ||
-                (member1.equals(other.member2) && member2.equals(other.member1)));
+        if (!this.id().equals(other.id())) return false;
+
+        if (member1.equals(other.member1) && member2.equals(other.member2)) return true;
+        return member1.equals(other.member2) && member2.equals(other.member1);
     }
 
     @Override
     public int hashCode() {
-        return getID().hashCode();
+        return id().hashCode();
     }
 }

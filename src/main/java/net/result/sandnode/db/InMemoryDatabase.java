@@ -9,7 +9,7 @@ public class InMemoryDatabase implements Database {
 
     @Override
     public synchronized Member registerMember(String memberID, String password) throws BusyMemberIDException {
-        if (db.stream().anyMatch(member -> member.getID().equals(memberID))) {
+        if (db.stream().anyMatch(member -> member.id().equals(memberID))) {
             throw new BusyMemberIDException();
         }
 
@@ -20,6 +20,6 @@ public class InMemoryDatabase implements Database {
 
     @Override
     public synchronized Optional<Member> findMemberByMemberID(String memberID) {
-        return db.stream().filter(m -> m.getID().equals(memberID)).findFirst();
+        return db.stream().filter(m -> m.id().equals(memberID)).findFirst();
     }
 }

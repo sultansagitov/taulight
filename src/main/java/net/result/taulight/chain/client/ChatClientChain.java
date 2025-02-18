@@ -37,7 +37,7 @@ public class ChatClientChain extends ClientChain {
             ExpectedMessageException, SandnodeErrorException, UnknownSandnodeErrorException {
         lock.lock();
         try {
-            send(new ChatRequest(ChatRequest.DataType.GET));
+            send(ChatRequest.get());
             RawMessage raw = queue.take();
 
             if (raw.headers().type() == MessageTypes.ERR) {
@@ -48,6 +48,25 @@ public class ChatClientChain extends ClientChain {
 
             Collection<UUID> chats = new ChatResponse(raw).getChats();
             return Optional.of(chats);
+        } finally {
+            lock.unlock();
+        }
+    }
+    public Optional<Collection<ChatResponse.Info>> getInfo(Collection<UUID> chatID) throws InterruptedException, ExpectedMessageException,
+            UnknownSandnodeErrorException, SandnodeErrorException, DeserializationException {
+        lock.lock();
+        try {
+            send(ChatRequest.info(chatID));
+            RawMessage raw = queue.take();
+
+            if (raw.headers().type() == MessageTypes.ERR) {
+                ErrorMessage errorMessage = new ErrorMessage(raw);
+                ServerErrorManager.instance().throwAll(errorMessage.error);
+                return Optional.empty();
+            }
+
+            ChatResponse chatResponse = new ChatResponse(raw);
+            return Optional.of(chatResponse.getInfos());
         } finally {
             lock.unlock();
         }

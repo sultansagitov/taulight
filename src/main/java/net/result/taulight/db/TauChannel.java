@@ -18,11 +18,11 @@ public class TauChannel extends TauChat {
         this(UUID.randomUUID(), title, owner);
     }
 
-    public String getTitle() {
+    public String title() {
         return title;
     }
 
-    public Member getOwner() {
+    public Member owner() {
         return owner;
     }
 

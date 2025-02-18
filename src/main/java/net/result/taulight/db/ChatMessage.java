@@ -69,7 +69,7 @@ public class ChatMessage {
     }
 
     public ChatMessage setChat(TauChat chat) {
-        return setChatID(chat.getID());
+        return setChatID(chat.id());
     }
 
     public ChatMessage setZtd(ZonedDateTime ztd) {
@@ -87,7 +87,7 @@ public class ChatMessage {
     }
 
     public ChatMessage setMember(Member member) {
-        return setMemberID(member.getID());
+        return setMemberID(member.id());
     }
 
     public ChatMessage setSys(boolean sys) {

@@ -68,6 +68,6 @@ public class DirectServerChain extends ServerChain {
         Collection<Member> members = List.of(session.member, anotherMember.get());
         TauAgentProtocol.addMembersToGroup(session, members, manager.getGroup(direct));
 
-        sendFin(new DirectResponse(request.getMemberID(), direct.getID()));
+        sendFin(new DirectResponse(request.getMemberID(), direct.id()));
     }
 }

@@ -7,19 +7,26 @@ import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.message.util.Headers;
 import net.result.taulight.message.TauMessageTypes;
 
+import java.util.Collection;
+import java.util.UUID;
+
 public class ChatRequest extends MSGPackMessage<ChatRequest.Data> {
-    public enum DataType {GET, LEAVE}
+    public enum DataType {GET, INFO}
 
     protected static class Data {
-        @JsonProperty
+        @JsonProperty("type")
         public DataType dataType;
-        @JsonProperty
-        public String chatID;
+        @JsonProperty("chat-id-list")
+        public Collection<UUID> allChatID;
 
         @SuppressWarnings("unused")
         public Data() {}
         public Data(DataType dataType) {
             this.dataType = dataType;
+        }
+        public Data(DataType dataType, Collection<UUID> allChatID) {
+            this(dataType);
+            this.allChatID = allChatID;
         }
     }
 
@@ -31,16 +38,20 @@ public class ChatRequest extends MSGPackMessage<ChatRequest.Data> {
         this(new Headers(), data);
     }
 
-    public ChatRequest(DataType data) {
-        this(new Data(data));
-    }
-
     public ChatRequest(RawMessage raw) throws DeserializationException {
         super(raw, Data.class);
     }
 
-    public String getChatID() {
-        return object.chatID;
+    public static ChatRequest get() {
+        return new ChatRequest(new Data(DataType.GET));
+    }
+
+    public static ChatRequest info(Collection<UUID> chatID) {
+        return new ChatRequest(new Data(DataType.INFO, chatID));
+    }
+
+    public Collection<UUID> getAllChatID() {
+        return object.allChatID;
     }
 
     public DataType getMessageType() {
