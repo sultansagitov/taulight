@@ -10,7 +10,8 @@ import net.result.taulight.chain.client.ChannelClientChain;
 import net.result.taulight.chain.client.ChatClientChain;
 import net.result.taulight.chain.client.DirectClientChain;
 import net.result.taulight.exception.ChatNotFoundException;
-import net.result.taulight.message.types.ChatResponse;
+import net.result.taulight.message.ChatInfo;
+import net.result.taulight.message.ChatInfoProp;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -41,11 +42,11 @@ public class ConsoleCommands {
         commands.put("addGroup", this::addGroup);
         commands.put("rmGroup", this::rmGroup);
         commands.put("chats", this::chats);
+        commands.put("info", this::info);
         commands.put("newChannel", this::newChannel);
         commands.put("addMember", this::addMember);
         commands.put("leave", this::leave);
         commands.put("direct", this::direct);
-        commands.put("info", this::info);
     }
 
     @SuppressWarnings("SameReturnValue")
@@ -115,19 +116,50 @@ public class ConsoleCommands {
     private boolean chats(List<String> ignored) throws InterruptedException {
         try {
             // Find or add "chat" chain
-
-            Optional<Chain> tau = io.chainManager.getChain("chat");
-            Optional<Collection<UUID>> opt;
-            if (tau.isPresent()) {
-                ChatClientChain chain = (ChatClientChain) tau.get();
-                opt = chain.getChats();
+            Optional<Chain> chat = io.chainManager.getChain("chat");
+            Optional<Collection<ChatInfo>> opt;
+            if (chat.isPresent()) {
+                ChatClientChain chain = (ChatClientChain) chat.get();
+                opt = chain.getByMember(ChatInfoProp.all());
             } else {
                 ChatClientChain chain = new ChatClientChain(io);
                 io.chainManager.linkChain(chain);
-                opt = chain.getChats();
+                opt = chain.getByMember(ChatInfoProp.all());
                 chain.send(new ChainNameRequest("chat"));
             }
-            opt.map("Chats: %s"::formatted).ifPresent(System.out::println);
+
+            printInfo(opt);
+
+        } catch (DeserializationException | ExpectedMessageException | SandnodeErrorException |
+                 UnknownSandnodeErrorException e) {
+            LOGGER.error(e);
+        }
+        return false;
+    }
+
+    @SuppressWarnings("SameReturnValue")
+    private boolean info(List<String> ignored) throws InterruptedException {
+        try {
+            if (currentChat == null) {
+                System.out.println("chat not selected");
+                return false;
+            }
+
+            // Find or add "chat" chain
+            Optional<Chain> chat = io.chainManager.getChain("chat");
+            Optional<Collection<ChatInfo>> opt;
+            if (chat.isPresent()) {
+                ChatClientChain chain = (ChatClientChain) chat.get();
+                opt = chain.getByID(List.of(currentChat), ChatInfoProp.all());
+            } else {
+                ChatClientChain chain = new ChatClientChain(io);
+                io.chainManager.linkChain(chain);
+                opt = chain.getByID(List.of(currentChat), ChatInfoProp.all());
+                chain.send(new ChainNameRequest("chat"));
+            }
+
+            printInfo(opt);
+
         } catch (DeserializationException | ExpectedMessageException | SandnodeErrorException |
                  UnknownSandnodeErrorException e) {
             LOGGER.error(e);
@@ -210,41 +242,18 @@ public class ConsoleCommands {
         return false;
     }
 
-    @SuppressWarnings("SameReturnValue")
-    private boolean info(List<String> ignored) throws InterruptedException {
-        try {
-            // Find or add "chat" chain
+    private static void printInfo(Optional<Collection<ChatInfo>> opt) {
+        if (opt.isPresent()) {
+            Collection<ChatInfo> infos = opt.get();
 
-            Optional<Chain> tau = io.chainManager.getChain("chat");
-            Optional<Collection<ChatResponse.Info>> opt;
-            if (tau.isPresent()) {
-                ChatClientChain chain = (ChatClientChain) tau.get();
-                opt = chain.getInfo(List.of(currentChat));
-            } else {
-                ChatClientChain chain = new ChatClientChain(io);
-                io.chainManager.linkChain(chain);
-                opt = chain.getInfo(List.of(currentChat));
-                chain.send(new ChainNameRequest("chat"));
+            for (ChatInfo info : infos) {
+                String s = switch (info.chatType) {
+                    case CHANNEL -> "Channel info: %s, %s".formatted(info.title, info.ownerID);
+                    case DIRECT -> "DM: %s".formatted(info.otherMemberID);
+                    case NOT_FOUND -> "Chat not found";
+                };
+                System.out.printf("%s - %s%n", info.id, s);
             }
-
-            if (opt.isPresent()) {
-                Collection<ChatResponse.Info> infos = opt.get();
-
-                String s;
-                ChatResponse.Info info = infos.stream().findFirst().get();
-                s = switch (info.chatType) {
-                        case CHANNEL -> "Channel info: %s - %s, id: %s".formatted(info.title, info.ownerID, info.id);
-                        case DIRECT -> "DM: %s, id: %s".formatted(info.otherMemberID, info.id);
-                        case CHAT_NOT_FOUND -> "Chat not found id: %s".formatted(info.id);
-                    };
-
-                System.out.println(s);
-            }
-
-        } catch (DeserializationException | ExpectedMessageException | SandnodeErrorException |
-                 UnknownSandnodeErrorException e) {
-            LOGGER.error(e);
         }
-        return false;
     }
 }

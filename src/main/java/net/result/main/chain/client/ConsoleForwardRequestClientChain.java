@@ -10,11 +10,15 @@ import net.result.sandnode.message.util.MessageTypes;
 import net.result.sandnode.util.IOController;
 import net.result.sandnode.chain.client.ClientChain;
 import net.result.taulight.db.ChatMessage;
+import net.result.taulight.exception.ChatNotFoundException;
 import net.result.taulight.message.types.ForwardRequest;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.*;
 
 public class ConsoleForwardRequestClientChain extends ClientChain {
+    private static final Logger LOGGER = LogManager.getLogger(ConsoleForwardRequestClientChain.class);
     private final String memberID;
 
     public ConsoleForwardRequestClientChain(IOController io, String memberID) {
@@ -47,7 +51,7 @@ public class ConsoleForwardRequestClientChain extends ClientChain {
     }
 
     private boolean sendForward(ConsoleCommands cc, String input) throws InterruptedException,
-            ExpectedMessageException, SandnodeErrorException, UnknownSandnodeErrorException {
+            ExpectedMessageException {
         if (cc.currentChat == null) {
             System.out.println("chat not selected");
             return false;
@@ -64,9 +68,15 @@ public class ConsoleForwardRequestClientChain extends ClientChain {
         MessageType type = raw.headers().type();
         if (type == MessageTypes.EXIT) return true;
 
-        if (type == MessageTypes.ERR) {
-            ErrorMessage errorMessage = new ErrorMessage(raw);
-            ServerErrorManager.instance().throwAll(errorMessage.error);
+        try {
+            if (type == MessageTypes.ERR) {
+                ErrorMessage errorMessage = new ErrorMessage(raw);
+                ServerErrorManager.instance().throwAll(errorMessage.error);
+            }
+        } catch (ChatNotFoundException e) {
+            LOGGER.error("Chat {} was not found", cc.currentChat);
+        } catch (UnknownSandnodeErrorException | SandnodeErrorException e) {
+            LOGGER.error(e.getMessage());
         }
         return false;
     }

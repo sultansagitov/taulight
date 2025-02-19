@@ -7,6 +7,8 @@ import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.message.types.ErrorMessage;
 import net.result.sandnode.message.util.MessageTypes;
 import net.result.sandnode.util.IOController;
+import net.result.taulight.message.ChatInfo;
+import net.result.taulight.message.ChatInfoProp;
 import net.result.taulight.message.types.ChatRequest;
 import net.result.taulight.message.types.ChatResponse;
 
@@ -33,11 +35,11 @@ public class ChatClientChain extends ClientChain {
         throw new ImpossibleRuntimeException("This chain should not be started");
     }
 
-    public Optional<Collection<UUID>> getChats() throws InterruptedException, DeserializationException,
-            ExpectedMessageException, SandnodeErrorException, UnknownSandnodeErrorException {
+    public Optional<Collection<ChatInfo>> getByMember(Collection<ChatInfoProp> infoProps) throws InterruptedException,
+            DeserializationException, ExpectedMessageException, SandnodeErrorException, UnknownSandnodeErrorException {
         lock.lock();
         try {
-            send(ChatRequest.get());
+            send(ChatRequest.getByMember(infoProps));
             RawMessage raw = queue.take();
 
             if (raw.headers().type() == MessageTypes.ERR) {
@@ -46,17 +48,17 @@ public class ChatClientChain extends ClientChain {
                 return Optional.empty();
             }
 
-            Collection<UUID> chats = new ChatResponse(raw).getChats();
-            return Optional.of(chats);
+            return Optional.of(new ChatResponse(raw).getInfos());
         } finally {
             lock.unlock();
         }
     }
-    public Optional<Collection<ChatResponse.Info>> getInfo(Collection<UUID> chatID) throws InterruptedException, ExpectedMessageException,
-            UnknownSandnodeErrorException, SandnodeErrorException, DeserializationException {
+    public Optional<Collection<ChatInfo>> getByID(Collection<UUID> chatID, Collection<ChatInfoProp> infoProps)
+            throws InterruptedException, ExpectedMessageException, UnknownSandnodeErrorException,
+            SandnodeErrorException, DeserializationException {
         lock.lock();
         try {
-            send(ChatRequest.info(chatID));
+            send(ChatRequest.getByID(chatID, infoProps));
             RawMessage raw = queue.take();
 
             if (raw.headers().type() == MessageTypes.ERR) {

@@ -5,28 +5,30 @@ import net.result.sandnode.exception.DeserializationException;
 import net.result.sandnode.message.MSGPackMessage;
 import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.message.util.Headers;
+import net.result.taulight.message.ChatInfoProp;
 import net.result.taulight.message.TauMessageTypes;
 
 import java.util.Collection;
 import java.util.UUID;
 
 public class ChatRequest extends MSGPackMessage<ChatRequest.Data> {
-    public enum DataType {GET, INFO}
-
     protected static class Data {
-        @JsonProperty("type")
-        public DataType dataType;
         @JsonProperty("chat-id-list")
         public Collection<UUID> allChatID;
+        @JsonProperty("properties")
+        private Collection<ChatInfoProp> infoProps;
 
         @SuppressWarnings("unused")
-        public Data() {}
-        public Data(DataType dataType) {
-            this.dataType = dataType;
+        public Data() {
         }
-        public Data(DataType dataType, Collection<UUID> allChatID) {
-            this(dataType);
+
+        public Data(Collection<ChatInfoProp> infoProps) {
+            this.infoProps = infoProps;
+        }
+
+        public Data(Collection<UUID> allChatID, Collection<ChatInfoProp> infoProps) {
             this.allChatID = allChatID;
+            this.infoProps = infoProps;
         }
     }
 
@@ -42,19 +44,19 @@ public class ChatRequest extends MSGPackMessage<ChatRequest.Data> {
         super(raw, Data.class);
     }
 
-    public static ChatRequest get() {
-        return new ChatRequest(new Data(DataType.GET));
+    public static ChatRequest getByMember(Collection<ChatInfoProp> infoProps) {
+        return new ChatRequest(new Data(infoProps));
     }
 
-    public static ChatRequest info(Collection<UUID> chatID) {
-        return new ChatRequest(new Data(DataType.INFO, chatID));
+    public static ChatRequest getByID(Collection<UUID> chatID, Collection<ChatInfoProp> infoProps) {
+        return new ChatRequest(new Data(chatID, infoProps));
     }
 
     public Collection<UUID> getAllChatID() {
         return object.allChatID;
     }
 
-    public DataType getMessageType() {
-        return object.dataType;
+    public Collection<ChatInfoProp> getChatInfoProps() {
+        return object.infoProps;
     }
 }
