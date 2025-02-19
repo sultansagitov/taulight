@@ -19,7 +19,7 @@ public class ChatInfo {
     @JsonProperty("channel-owner")
     public String ownerID;
     @JsonProperty("channel-is-my")
-    private boolean channelIsMy;
+    public boolean channelIsMy;
     @JsonProperty("direct-other")
     public String otherMemberID;
 

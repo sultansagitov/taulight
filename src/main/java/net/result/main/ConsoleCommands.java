@@ -248,7 +248,8 @@ public class ConsoleCommands {
 
             for (ChatInfo info : infos) {
                 String s = switch (info.chatType) {
-                    case CHANNEL -> "Channel info: %s, %s".formatted(info.title, info.ownerID);
+                    case CHANNEL -> "Channel info: %s, %s%s".formatted(
+                            info.title, info.ownerID, info.channelIsMy ? " (you)" : "");
                     case DIRECT -> "DM: %s".formatted(info.otherMemberID);
                     case NOT_FOUND -> "Chat not found";
                 };
