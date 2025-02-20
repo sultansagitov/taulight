@@ -62,8 +62,7 @@ public class RunAgentWork implements IWork {
     }
 
     private static void startConsoleChain(IOController io, String memberID)
-            throws InterruptedException, ExpectedMessageException, SandnodeErrorException,
-            UnknownSandnodeErrorException {
+            throws InterruptedException, ExpectedMessageException {
         ConsoleForwardRequestClientChain consoleChain = new ConsoleForwardRequestClientChain(io, memberID);
         io.chainManager.linkChain(consoleChain);
         consoleChain.sync();

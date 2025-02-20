@@ -9,7 +9,7 @@ import net.result.sandnode.util.IOController;
 
 public class AgentProtocol {
     public static String getTokenFromRegistration(IOController io, String memberID, String password)
-            throws ExpectedMessageException, InterruptedException, SandnodeErrorException, DeserializationException,
+            throws ExpectedMessageException, InterruptedException, SandnodeErrorException,
             UnknownSandnodeErrorException {
         RegistrationClientChain chain = new RegistrationClientChain(io, memberID, password);
         io.chainManager.linkChain(chain);
@@ -30,7 +30,7 @@ public class AgentProtocol {
     }
 
     public static String getTokenByMemberIdAndPassword(IOController io, String memberID, String password)
-            throws InterruptedException, DeserializationException, SandnodeErrorException, ExpectedMessageException,
+            throws InterruptedException, SandnodeErrorException, ExpectedMessageException,
             UnknownSandnodeErrorException {
         LogPasswdClientChain chain = new LogPasswdClientChain(io, memberID, password);
         io.chainManager.linkChain(chain);

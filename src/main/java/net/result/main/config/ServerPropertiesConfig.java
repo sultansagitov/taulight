@@ -18,7 +18,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Objects;
 import java.util.Properties;
 
 public class ServerPropertiesConfig implements ServerConfig {
@@ -51,10 +50,16 @@ public class ServerPropertiesConfig implements ServerConfig {
         String defaultHost = "127.0.0.1";
         int defaultPort = 52525;
 
-        this.endpoint = Objects.requireNonNullElseGet(endpoint, () -> new Endpoint(
-                properties.getProperty("server.host", defaultHost),
-                Integer.parseInt(properties.getProperty("server.port", "" + defaultPort))
-        ));
+        if (endpoint != null) {
+            this.endpoint = endpoint;
+        } else {
+            String host = properties.getProperty("server.host", defaultHost);
+            int port = properties.containsKey("server.port")
+                    ? Integer.parseInt(properties.getProperty("server.port"))
+                    : defaultPort;
+            this.endpoint = new Endpoint(host, port);
+        }
+
 
         Path KEYS_DIR = FileUtil.resolveHome(Path.of(properties.getProperty("server.keys.dir_path")));
 

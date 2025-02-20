@@ -22,7 +22,7 @@ public class LoginServerChain extends ServerChain {
     }
 
     @Override
-    public void sync() throws InterruptedException, ExpectedMessageException, DeserializationException {
+    public void sync() throws InterruptedException, ExpectedMessageException {
         IMessage request = queue.take();
         TokenMessage msg = new LoginRequest(request);
         String token = msg.getToken();

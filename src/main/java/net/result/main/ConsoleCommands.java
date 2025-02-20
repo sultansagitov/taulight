@@ -17,6 +17,7 @@ import org.apache.logging.log4j.Logger;
 
 import java.util.*;
 
+@SuppressWarnings("SameReturnValue")
 public class ConsoleCommands {
     @FunctionalInterface
     public interface LoopCondition {
@@ -49,7 +50,6 @@ public class ConsoleCommands {
         commands.put("direct", this::direct);
     }
 
-    @SuppressWarnings("SameReturnValue")
     private boolean exit(List<String> ignored) {
         try {
             io.disconnect();
@@ -59,7 +59,6 @@ public class ConsoleCommands {
         return true;
     }
 
-    @SuppressWarnings("SameReturnValue")
     private boolean setChat(List<String> args) {
         try {
             currentChat = UUID.fromString(args.get(0));
@@ -69,7 +68,6 @@ public class ConsoleCommands {
         return false;
     }
 
-    @SuppressWarnings("SameReturnValue")
     private boolean chains(List<String> ignored) {
         var chains = io.chainManager.getAllChains();
         var map = io.chainManager.getChainsMap();
@@ -79,7 +77,6 @@ public class ConsoleCommands {
         return false;
     }
 
-    @SuppressWarnings("SameReturnValue")
     private boolean groups(List<String> ignored) throws InterruptedException {
         try {
             Collection<String> groups = ClientProtocol.getGroups(io);
@@ -90,7 +87,6 @@ public class ConsoleCommands {
         return false;
     }
 
-    @SuppressWarnings("SameReturnValue")
     private boolean addGroup(List<String> groups) throws InterruptedException {
         try {
             Collection<String> groupsAfterAdding = ClientProtocol.addToGroups(io, groups);
@@ -101,7 +97,6 @@ public class ConsoleCommands {
         return false;
     }
 
-    @SuppressWarnings("SameReturnValue")
     private boolean rmGroup(List<String> groups) throws InterruptedException {
         try {
             Collection<String> groupsAfterRemoving = ClientProtocol.removeFromGroups(io, groups);
@@ -112,7 +107,6 @@ public class ConsoleCommands {
         return false;
     }
 
-    @SuppressWarnings("SameReturnValue")
     private boolean chats(List<String> ignored) throws InterruptedException {
         try {
             // Find or add "chat" chain
@@ -137,7 +131,6 @@ public class ConsoleCommands {
         return false;
     }
 
-    @SuppressWarnings("SameReturnValue")
     private boolean info(List<String> ignored) throws InterruptedException {
         try {
             if (currentChat == null) {
@@ -167,7 +160,6 @@ public class ConsoleCommands {
         return false;
     }
 
-    @SuppressWarnings("SameReturnValue")
     private boolean newChannel(List<String> args) throws InterruptedException {
         String title = args.get(0);
         try {
@@ -182,7 +174,6 @@ public class ConsoleCommands {
         return false;
     }
 
-    @SuppressWarnings("SameReturnValue")
     private boolean addMember(List<String> args) throws InterruptedException {
         if (args.size() < 2) {
             LOGGER.error("Usage: addMember <chatID> <member>");
@@ -209,7 +200,6 @@ public class ConsoleCommands {
         return false;
     }
 
-    @SuppressWarnings("SameReturnValue")
     private boolean direct(List<String> args) throws InterruptedException {
         String memberID = args.get(0);
         try {
@@ -227,7 +217,6 @@ public class ConsoleCommands {
         return false;
     }
 
-    @SuppressWarnings("SameReturnValue")
     private boolean leave(List<String> args) throws InterruptedException {
         try {
             ChannelClientChain chain = new ChannelClientChain(io);

@@ -2,6 +2,7 @@ package net.result.sandnode.message;
 
 import net.result.sandnode.compression.Compression;
 import net.result.sandnode.compression.CompressionManager;
+import net.result.sandnode.compression.Compressions;
 import net.result.sandnode.encryption.Encryptions;
 import net.result.sandnode.exception.*;
 import net.result.sandnode.message.util.Headers;
@@ -15,6 +16,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.Optional;
 
 public abstract class Message implements IMessage {
     private static final Logger LOGGER = LogManager.getLogger(Message.class);
@@ -58,11 +60,11 @@ public abstract class Message implements IMessage {
             throw new ImpossibleRuntimeException(e);
         }
 
-        Compression compression = CompressionManager.instance().getFromHeaders(headers);
+        Optional<Compression> compression = CompressionManager.instance().getFromHeaders(headers);
 
         byte[] decompressed;
         try {
-            decompressed = compression.decompress(decryptedBody);
+            decompressed = compression.orElse(Compressions.NONE).decompress(decryptedBody);
         } catch (IOException e) {
             LOGGER.error("Using not decompressed body", e);
             decompressed = decryptedBody;
@@ -78,55 +80,80 @@ public abstract class Message implements IMessage {
     public byte[] toByteArray(@NotNull GlobalKeyStorage globalKeyStorage)
             throws EncryptionException, MessageSerializationException, IllegalMessageLengthException {
         ByteArrayOutputStream result = new ByteArrayOutputStream();
-        Encryption encryption = headersEncryption();
         result.write(1); // Version
-        result.write(encryption.asByte()); // Headers encryption
+        result.write(headersEncryption().asByte()); // Headers encryption
+
+        byte[] encryptedHeaders;
+        byte[] encryptedBody;
+
+        short headersLength;
+        int bodyLength;
+
+        byte[] bodyBytes = getBody();
+        Encryption bodyEncryption = headers().bodyEncryption();
+        KeyStorage bodyKeyStorage = globalKeyStorage.getNonNull(bodyEncryption);
+
+        Optional<Compression> compression = CompressionManager.instance().getFromHeaders(headers);
+
+        byte[] compressed;
+        try {
+            if (compression.isPresent()) {
+                compressed = compression.get().compress(bodyBytes);
+            } else {
+                LOGGER.warn("{} is not set in headers", CompressionManager.HEADER_NAME);
+                Compressions defaultCompression = Compressions.DEFLATE;
+                compressed = defaultCompression.compress(bodyBytes);
+
+                if (compressed.length <= bodyBytes.length) {
+                    headers.setValue(CompressionManager.HEADER_NAME, defaultCompression.name());
+                } else {
+                    LOGGER.warn("{} made worse", defaultCompression.name());
+                    compressed = bodyBytes;
+                    headers.setValue(CompressionManager.HEADER_NAME, Compressions.NONE.name());
+                }
+            }
+        } catch (IOException e) {
+            compressed = bodyBytes;
+            headers.setValue(CompressionManager.HEADER_NAME, Compressions.NONE.name());
+        }
+
+        try {
+            encryptedBody = bodyEncryption.encryptBytes(compressed, bodyKeyStorage);
+        } catch (CannotUseEncryption e) {
+            throw new ImpossibleRuntimeException(e);
+        }
+
+        bodyLength = encryptedBody.length;
+
 
         try {
             byte[] headersBytes = headers().toByteArray();
-            KeyStorage keyStorage = globalKeyStorage.getNonNull(encryption);
-            byte[] encryptedHeaders;
+            KeyStorage headersKeyStorage = globalKeyStorage.getNonNull(headersEncryption());
             try {
-                encryptedHeaders = encryption.encryptBytes(headersBytes, keyStorage);
+                encryptedHeaders = headersEncryption().encryptBytes(headersBytes, headersKeyStorage);
             } catch (CannotUseEncryption e) {
                 throw new ImpossibleRuntimeException(e);
             }
 
             int lengthInt = encryptedHeaders.length;
             if (lengthInt > 65535) throw new IllegalMessageLengthException(this, lengthInt);
-            short length = (short) lengthInt;
-            result.write((length >> 8) & 0xFF);
-            result.write(length & 0xFF);
-            result.write(encryptedHeaders);
-        } catch (IOException e) {
-            throw new MessageSerializationException(this, "Failed to serialize message headers", e);
+            headersLength = (short) lengthInt;
         } catch (HeadersSerializationException | NullPointerException e) {
             throw new MessageSerializationException(this, e);
         }
 
         try {
-            byte[] bodyBytes = getBody();
-            Encryption bodyEncryption = headers().bodyEncryption();
-            KeyStorage keyStorage = globalKeyStorage.getNonNull(bodyEncryption);
-            byte[] encryptedBody;
+            result.write((headersLength >> 8) & 0xFF);
+            result.write(headersLength & 0xFF);
+            result.write(encryptedHeaders);
 
-            Compression compression = CompressionManager.instance().getFromHeaders(headers);
-
-            byte[] compressed = compression.compress(bodyBytes);
-            try {
-                encryptedBody = bodyEncryption.encryptBytes(compressed, keyStorage);
-            } catch (CannotUseEncryption e) {
-                throw new ImpossibleRuntimeException(e);
-            }
-
-            int length = encryptedBody.length;
-            result.write((length >> 24) & 0xFF);
-            result.write((length >> 16) & 0xFF);
-            result.write((length >> 8) & 0xFF);
-            result.write(length & 0xFF);
+            result.write((bodyLength >> 24) & 0xFF);
+            result.write((bodyLength >> 16) & 0xFF);
+            result.write((bodyLength >> 8) & 0xFF);
+            result.write(bodyLength & 0xFF);
             result.write(encryptedBody);
         } catch (IOException e) {
-            throw new MessageSerializationException(this, "Failed to serialize message body", e);
+            throw new MessageSerializationException(this, "Failed to serialize message", e);
         }
 
         return result.toByteArray();

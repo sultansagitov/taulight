@@ -84,10 +84,8 @@ public class ClientPropertiesConfig implements ClientConfig {
     }
 
     @Override
-    public synchronized void saveKey(
-            @NotNull Endpoint endpoint,
-            @NotNull AsymmetricKeyStorage keyStorage
-    ) throws FSException, KeyAlreadySaved {
+    public synchronized void saveKey(@NotNull Endpoint endpoint, @NotNull AsymmetricKeyStorage keyStorage)
+            throws FSException, KeyAlreadySaved {
         String filename = "%s_%s_public.key".formatted(
                 endpoint.toString().replaceAll("[.:\\\\/*?\"<>|]", "_"),
                 UUID.randomUUID().toString().substring(0, 6)

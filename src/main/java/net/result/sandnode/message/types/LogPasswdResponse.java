@@ -1,6 +1,5 @@
 package net.result.sandnode.message.types;
 
-import net.result.sandnode.exception.DeserializationException;
 import net.result.sandnode.exception.ExpectedMessageException;
 import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.message.util.Headers;
@@ -16,7 +15,7 @@ public class LogPasswdResponse extends TokenMessage {
         this(new Headers(), token);
     }
 
-    public LogPasswdResponse(RawMessage raw) throws DeserializationException, ExpectedMessageException {
+    public LogPasswdResponse(RawMessage raw) throws ExpectedMessageException {
         super(raw.expect(MessageTypes.LOG_PASSWD));
     }
 }

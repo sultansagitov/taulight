@@ -27,13 +27,12 @@ public class CompressionManager extends Manager<Compression> {
         return list.stream().filter(c -> c.name().equalsIgnoreCase(name)).findFirst();
     }
 
-    public Compression getFromHeaders(Headers headers) {
+    public Optional<Compression> getFromHeaders(Headers headers) {
         return headers.getOptionalValue(HEADER_NAME)
                 .map(
                         s -> CompressionManager.instance()
                                 .find(s)
                                 .orElse(Compressions.NONE)
-                )
-                .orElse(Compressions.NONE);
+                );
     }
 }

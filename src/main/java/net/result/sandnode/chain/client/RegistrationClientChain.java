@@ -22,7 +22,7 @@ public class RegistrationClientChain extends ClientChain {
 
     @Override
     public void sync() throws InterruptedException, ExpectedMessageException, SandnodeErrorException,
-            DeserializationException, UnknownSandnodeErrorException {
+            UnknownSandnodeErrorException {
         RegistrationRequest request = new RegistrationRequest(memberID, password);
         send(request);
 

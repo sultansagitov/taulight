@@ -11,10 +11,8 @@ import java.util.Optional;
 public interface ClientConfig {
     @NotNull SymmetricEncryption symmetricKeyEncryption();
 
-    void saveKey(
-            @NotNull Endpoint endpoint,
-            @NotNull AsymmetricKeyStorage keyStorage
-    ) throws FSException, KeyAlreadySaved;
+    void saveKey(@NotNull Endpoint endpoint, @NotNull AsymmetricKeyStorage keyStorage)
+            throws FSException, KeyAlreadySaved;
 
     Optional<AsymmetricKeyStorage> getPublicKey(@NotNull Endpoint endpoint);
 }

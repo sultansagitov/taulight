@@ -145,9 +145,6 @@ public abstract class BSTChainManager implements ChainManager {
         Collection<String> list = new ArrayList<>();
         for (Chain chain : bst.getOrdered())
             list.add(String.format("%04X", chain.getID()));
-        return "<%s chains=%s>".formatted(
-                getClass().getSimpleName(),
-                String.join(",", list)
-        );
+        return "<%s chains=%s>".formatted(getClass().getSimpleName(), String.join(",", list));
     }
 }

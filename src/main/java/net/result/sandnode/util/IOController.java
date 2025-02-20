@@ -1,7 +1,5 @@
 package net.result.sandnode.util;
 
-import net.result.sandnode.compression.CompressionManager;
-import net.result.sandnode.compression.Compressions;
 import net.result.sandnode.encryption.Encryptions;
 import net.result.sandnode.encryption.GlobalKeyStorage;
 import net.result.sandnode.encryption.interfaces.*;
@@ -78,9 +76,6 @@ public class IOController {
                 .mapToObj(i -> "" + s.charAt(random.nextInt(61)))
                 .collect(Collectors.joining());
         headers.setValue("random", sb);
-
-        if (headers.getOptionalValue(CompressionManager.HEADER_NAME).isEmpty())
-            headers.setValue(CompressionManager.HEADER_NAME, Compressions.DEFLATE.name());
     }
 
     public void sendingLoop() throws InterruptedException, IllegalMessageLengthException,
@@ -92,7 +87,6 @@ public class IOController {
             IMessage sent = null;
             byte[] byteArray = null;
             SandnodeError error = null;
-            ErrorMessage errorMessage;
             try {
                 byteArray = message.toByteArray(globalKeyStorage);
                 sent = message;
@@ -109,7 +103,7 @@ public class IOController {
 
 
             if (error != null) {
-                errorMessage = error.createMessage();
+                ErrorMessage errorMessage = error.createMessage();
                 Headers headers = errorMessage.headers();
                 errorMessage
                         .setHeadersEncryption(message.headersEncryption());
