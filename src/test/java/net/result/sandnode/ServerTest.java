@@ -17,6 +17,7 @@ import net.result.sandnode.encryption.interfaces.SymmetricEncryption;
 import net.result.sandnode.message.IMessage;
 import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.message.util.*;
+import net.result.sandnode.security.PasswordHashers;
 import net.result.sandnode.serverclient.SandnodeClient;
 import net.result.sandnode.serverclient.SandnodeServer;
 import net.result.sandnode.serverclient.Session;
@@ -145,7 +146,7 @@ public class ServerTest {
                     null,
                     asymmetricEncryption,
                     new HashSetGroupManager(),
-                    new InMemoryDatabase(),
+                    new InMemoryDatabase(PasswordHashers.BCRYPT),
                     new JWTTokenizer(new JWTConfig("justTesting"))
             );
             server = new SandnodeServer(hub, serverConfig);

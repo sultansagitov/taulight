@@ -235,11 +235,12 @@ public class ConsoleCommands {
     }
 
     private boolean messages(List<String> ignored) throws InterruptedException {
+        if (currentChat == null) {
+            System.out.println("chat not selected");
+            return false;
+        }
+
         try {
-            if (currentChat == null) {
-                System.out.println("chat not selected");
-                return false;
-            }
 
             var chain = new MessageClientChain(io, currentChat, 0, 100);
             io.chainManager.linkChain(chain);

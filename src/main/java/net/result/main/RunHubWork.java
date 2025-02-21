@@ -5,6 +5,7 @@ import net.result.sandnode.encryption.interfaces.AsymmetricConvertor;
 import net.result.sandnode.encryption.interfaces.AsymmetricKeyStorage;
 import net.result.sandnode.exception.*;
 import net.result.sandnode.link.Links;
+import net.result.sandnode.security.PasswordHashers;
 import net.result.sandnode.util.FileUtil;
 import net.result.taulight.mariadb.TauMariaDBDatabase;
 import net.result.taulight.group.HashSetTauGroupManager;
@@ -81,7 +82,7 @@ public class RunHubWork implements IWork {
         }
 
         try {
-            serverConfig.setDatabase(new TauMariaDBDatabase(dataSource));
+            serverConfig.setDatabase(new TauMariaDBDatabase(dataSource, PasswordHashers.BCRYPT));
         } catch (DatabaseException e) {
             LOGGER.error(e);
             throw new RuntimeException(e);

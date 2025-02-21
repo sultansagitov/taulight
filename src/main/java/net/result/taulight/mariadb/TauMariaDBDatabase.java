@@ -4,7 +4,9 @@ import net.result.sandnode.db.Member;
 import net.result.sandnode.db.StandardMember;
 import net.result.sandnode.exception.DatabaseException;
 import net.result.sandnode.mariadb.SandnodeMariaDBDatabase;
+import net.result.sandnode.security.PasswordHasher;
 import net.result.taulight.db.*;
+import org.jetbrains.annotations.NotNull;
 
 import javax.sql.DataSource;
 import java.nio.ByteBuffer;
@@ -13,8 +15,8 @@ import java.time.ZonedDateTime;
 import java.util.*;
 
 public class TauMariaDBDatabase extends SandnodeMariaDBDatabase implements TauDatabase {
-    public TauMariaDBDatabase(DataSource dataSource) throws DatabaseException {
-        super(dataSource);
+    public TauMariaDBDatabase(DataSource dataSource, PasswordHasher hasher) throws DatabaseException {
+        super(dataSource, hasher);
     }
 
     private byte[] uuidToBinary(UUID uuid) {
@@ -32,7 +34,7 @@ public class TauMariaDBDatabase extends SandnodeMariaDBDatabase implements TauDa
     }
 
     @Override
-    public void initTables(Statement stmt) throws SQLException {
+    public void initTables(@NotNull Statement stmt) throws SQLException {
         super.initTables(stmt);
 
         // Base chats table

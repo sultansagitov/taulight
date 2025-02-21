@@ -40,7 +40,8 @@ public abstract class LogPasswdServerChain extends ServerChain {
             return;
         }
 
-        if (!msg.getPassword().equals(opt.get().hashedPassword())) {
+        boolean verified = database.hasher().verify(msg.getPassword(), opt.get().hashedPassword());
+        if (!verified) {
             send(Errors.UNAUTHORIZED.createMessage());
             return;
         }

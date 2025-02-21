@@ -1,0 +1,24 @@
+package net.result.sandnode.security;
+
+import org.mindrot.jbcrypt.BCrypt;
+
+public enum PasswordHashers implements PasswordHasher {
+    BCRYPT(12) {
+        @Override
+        public String hash(String password) {
+            return BCrypt.hashpw(password, BCrypt.gensalt(workload));
+        }
+
+        @Override
+        public boolean verify(String password, String hash) {
+            return BCrypt.checkpw(password, hash);
+        }
+    };
+
+    protected final int workload;
+
+    PasswordHashers(int workload) {
+        this.workload = workload;
+    }
+}
+
