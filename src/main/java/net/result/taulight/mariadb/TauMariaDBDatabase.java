@@ -364,7 +364,7 @@ public class TauMariaDBDatabase extends SandnodeMariaDBDatabase implements TauDa
 
     private List<Member> getChannelMembers(Connection conn, byte[] chatID) throws SQLException {
         try (PreparedStatement stmt = conn.prepareStatement(
-                "SELECT m.member_id, m.password FROM members m " +
+                "SELECT m.member_id, m.password_hash FROM members m " +
                         "JOIN chat_members cm ON m.member_id = cm.member_id " +
                         "WHERE cm.chat_id = ?")) {
             stmt.setBytes(1, chatID);
@@ -373,7 +373,7 @@ public class TauMariaDBDatabase extends SandnodeMariaDBDatabase implements TauDa
                 while (rs.next()) {
                     members.add(new StandardMember(
                             rs.getString("member_id"),
-                            rs.getString("password")
+                            rs.getString("password_hash")
                     ));
                 }
             }
