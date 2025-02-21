@@ -38,6 +38,9 @@ public class TauBSTServerChainManager extends BSTServerChainManager {
                 case FWD_REQ -> {
                     return new ForwardRequestServerChain(session);
                 }
+                case MESSAGE -> {
+                    return new MessageServerChain(session);
+                }
             }
         }
 

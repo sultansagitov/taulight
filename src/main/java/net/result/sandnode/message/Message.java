@@ -100,14 +100,14 @@ public abstract class Message implements IMessage {
             if (compression.isPresent()) {
                 compressed = compression.get().compress(bodyBytes);
             } else {
-                LOGGER.warn("{} is not set in headers", CompressionManager.HEADER_NAME);
+                LOGGER.info("{} is not set in headers", CompressionManager.HEADER_NAME);
                 Compressions defaultCompression = Compressions.DEFLATE;
                 compressed = defaultCompression.compress(bodyBytes);
 
                 if (compressed.length <= bodyBytes.length) {
                     headers.setValue(CompressionManager.HEADER_NAME, defaultCompression.name());
                 } else {
-                    LOGGER.warn("{} made worse", defaultCompression.name());
+                    LOGGER.info("{} made worse", defaultCompression.name());
                     compressed = bodyBytes;
                     headers.setValue(CompressionManager.HEADER_NAME, Compressions.NONE.name());
                 }

@@ -9,6 +9,8 @@ import net.result.sandnode.util.IOController;
 import net.result.taulight.chain.client.ChannelClientChain;
 import net.result.taulight.chain.client.ChatClientChain;
 import net.result.taulight.chain.client.DirectClientChain;
+import net.result.taulight.chain.client.MessageClientChain;
+import net.result.taulight.db.ChatMessage;
 import net.result.taulight.exception.ChatNotFoundException;
 import net.result.taulight.message.ChatInfo;
 import net.result.taulight.message.ChatInfoProp;
@@ -48,6 +50,7 @@ public class ConsoleCommands {
         commands.put("addMember", this::addMember);
         commands.put("leave", this::leave);
         commands.put("direct", this::direct);
+        commands.put("messages", this::messages);
     }
 
     private boolean exit(List<String> ignored) {
@@ -122,7 +125,7 @@ public class ConsoleCommands {
                 chain.send(new ChainNameRequest("chat"));
             }
 
-            printInfo(opt);
+            opt.ifPresent(ConsoleCommands::printInfo);
 
         } catch (DeserializationException | ExpectedMessageException | SandnodeErrorException |
                  UnknownSandnodeErrorException e) {
@@ -151,7 +154,7 @@ public class ConsoleCommands {
                 chain.send(new ChainNameRequest("chat"));
             }
 
-            printInfo(opt);
+            opt.ifPresent(ConsoleCommands::printInfo);
 
         } catch (DeserializationException | ExpectedMessageException | SandnodeErrorException |
                  UnknownSandnodeErrorException e) {
@@ -231,19 +234,37 @@ public class ConsoleCommands {
         return false;
     }
 
-    private static void printInfo(Optional<Collection<ChatInfo>> opt) {
-        if (opt.isPresent()) {
-            Collection<ChatInfo> infos = opt.get();
-
-            for (ChatInfo info : infos) {
-                String s = switch (info.chatType) {
-                    case CHANNEL -> "Channel info: %s, %s%s".formatted(
-                            info.title, info.ownerID, info.channelIsMy ? " (you)" : "");
-                    case DIRECT -> "DM: %s".formatted(info.otherMemberID);
-                    case NOT_FOUND -> "Chat not found";
-                };
-                System.out.printf("%s - %s%n", info.id, s);
+    private boolean messages(List<String> ignored) throws InterruptedException {
+        try {
+            if (currentChat == null) {
+                System.out.println("chat not selected");
+                return false;
             }
+
+            var chain = new MessageClientChain(io, currentChat, 0, 100);
+            io.chainManager.linkChain(chain);
+            chain.sync();
+            io.chainManager.removeChain(chain);
+            Collection<ChatMessage> messages = chain.getMessages();
+            System.out.printf("Messages length: %d%n", messages.size());
+            messages.forEach(System.out::println);
+        } catch (ExpectedMessageException | DeserializationException | UnknownSandnodeErrorException |
+                 SandnodeErrorException e) {
+            LOGGER.error(e);
+        }
+
+        return false;
+    }
+
+    private static void printInfo(Collection<ChatInfo> infos) {
+        for (ChatInfo info : infos) {
+            String s = switch (info.chatType) {
+                case CHANNEL -> "Channel info: %s, %s%s".formatted(
+                        info.title, info.ownerID, info.channelIsMy ? " (you)" : "");
+                case DIRECT -> "DM: %s".formatted(info.otherMemberID);
+                case NOT_FOUND -> "Chat not found";
+            };
+            System.out.printf("%s - %s%n", info.id, s);
         }
     }
 }

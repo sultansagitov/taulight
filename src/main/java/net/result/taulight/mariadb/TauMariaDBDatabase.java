@@ -266,7 +266,7 @@ public class TauMariaDBDatabase extends SandnodeMariaDBDatabase implements TauDa
     public void saveMessage(ChatMessage msg) throws DatabaseException {
         try (Connection conn = dataSource.getConnection();
              PreparedStatement stmt = conn.prepareStatement(
-                     "INSERT INTO messages (message_id, chat_id, content, timestamp, member_id, sys)" +
+                     "INSERT INTO messages (message_id, chat_id, content, timestamp, member_id, sys) " +
                      "VALUES (?, ?, ?, ?, ?, ?)")) {
 
             stmt.setBytes(1, uuidToBinary(msg.id()));
@@ -287,7 +287,7 @@ public class TauMariaDBDatabase extends SandnodeMariaDBDatabase implements TauDa
             byte[] chatBin = uuidToBinary(chat.id());
 
             try (PreparedStatement stmt = conn.prepareStatement(
-                    "SELECT message_id, content, timestamp, member_id FROM messages " +
+                    "SELECT message_id, content, timestamp, member_id, sys FROM messages " +
                             "WHERE chat_id = ? ORDER BY timestamp DESC LIMIT ? OFFSET ?")) {
 
                 stmt.setBytes(1, chatBin);
