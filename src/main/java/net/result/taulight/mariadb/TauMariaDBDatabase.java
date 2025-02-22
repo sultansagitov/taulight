@@ -372,8 +372,8 @@ public class TauMariaDBDatabase extends SandnodeMariaDBDatabase implements TauDa
             try (ResultSet rs = stmt.executeQuery()) {
                 while (rs.next()) {
                     members.add(new StandardMember(
-                            rs.getString("member_id"),
-                            rs.getString("password_hash")
+                        rs.getString("member_id"),
+                        rs.getString("password_hash")
                     ));
                 }
             }
@@ -386,8 +386,8 @@ public class TauMariaDBDatabase extends SandnodeMariaDBDatabase implements TauDa
         try (Connection conn = dataSource.getConnection()) {
             byte[] chatID = uuidToBinary(chat.id());
 
-            try (PreparedStatement stmt = conn.prepareStatement(
-                    "INSERT INTO chat_members (chat_id, member_id) VALUES (?, ?)")) {
+            try (PreparedStatement stmt =
+                         conn.prepareStatement("INSERT INTO chat_members (chat_id, member_id) VALUES (?, ?)")) {
 
                 stmt.setBytes(1, chatID);
                 stmt.setString(2, member.id());
@@ -405,8 +405,8 @@ public class TauMariaDBDatabase extends SandnodeMariaDBDatabase implements TauDa
 
             conn.setAutoCommit(false);
             try {
-                try (PreparedStatement stmt = conn.prepareStatement(
-                        "DELETE FROM chat_members WHERE chat_id = ? AND member_id = ?")) {
+                try (PreparedStatement stmt =
+                             conn.prepareStatement("DELETE FROM chat_members WHERE chat_id = ? AND member_id = ?")) {
                     stmt.setBytes(1, chatID);
                     stmt.setString(2, member.id());
                     stmt.executeUpdate();

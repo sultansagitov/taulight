@@ -18,7 +18,7 @@ public class Headers {
     private short chainID;
     private boolean fin = false;
     private Connection connection = Connection.AGENT2HUB;
-    private MessageType type = MessageTypes.WARN;
+    private MessageType type = MessageTypes.HAPPY;
     private Encryption bodyEncryption = Encryptions.NONE;
 
     public Headers setFin(boolean fin) {
