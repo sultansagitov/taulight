@@ -43,10 +43,10 @@ public class LinksTest {
     public void testParse() throws CreatingKeyException, InvalidSandnodeLinkException, CannotUseEncryption {
         EncryptionManager.registerAll();
 
-        AsymmetricKeyStorage rsaKeyStorage = AsymmetricEncryptions.RSA.generate();
+        AsymmetricKeyStorage eciesKeyStorage = AsymmetricEncryptions.ECIES.generate();
 
-        String validLink = "sandnode://hub@localhost:52525?encryption=RSA&key=%s"
-                .formatted(rsaKeyStorage.encodedPublicKey());
+        String validLink = "sandnode://hub@localhost:52525?encryption=ECIES&key=%s"
+                .formatted(eciesKeyStorage.encodedPublicKey());
 
         SandnodeLinkRecord record = Links.parse(validLink);
 
@@ -58,7 +58,7 @@ public class LinksTest {
 
     @Test
     public void testParseInvalidScheme() {
-        String invalidLink = "http://test@localhost:52525?encryption=RSA&key=testPublicKey";
+        String invalidLink = "http://test@localhost:52525?encryption=ECIES&key=testPublicKey";
 
         assertThrows(InvalidSandnodeLinkException.class, () -> Links.parse(invalidLink));
     }
@@ -72,7 +72,7 @@ public class LinksTest {
 
     @Test
     public void testParseMissingKey() {
-        String invalidLink = "sandnode://test@localhost:52525?encryption=RSA";
+        String invalidLink = "sandnode://test@localhost:52525?encryption=ECIES";
 
         assertThrows(InvalidSandnodeLinkException.class, () -> Links.parse(invalidLink));
     }
@@ -101,7 +101,7 @@ public class LinksTest {
 
         @Override
         public @NotNull AsymmetricEncryption mainEncryption() {
-            return AsymmetricEncryptions.RSA;
+            return AsymmetricEncryptions.ECIES;
         }
 
         @Override
@@ -122,7 +122,7 @@ public class LinksTest {
 
     private static class TestHub extends Hub {
         public TestHub() {
-            super(new GlobalKeyStorage(AsymmetricEncryptions.RSA.generate()));
+            super(new GlobalKeyStorage(AsymmetricEncryptions.ECIES.generate()));
         }
 
         @Override

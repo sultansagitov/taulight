@@ -21,7 +21,7 @@ class HeadersTest {
         Headers headers = new Headers()
                 .setConnection(Connection.HUB2AGENT)
                 .setType(MessageTypes.LOGIN)
-                .setBodyEncryption(AsymmetricEncryptions.RSA)
+                .setBodyEncryption(AsymmetricEncryptions.ECIES)
                 .setValue("key", "value")
                 .setValue("empty", "")
                 .setValue("", "empty");

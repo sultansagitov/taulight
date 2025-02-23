@@ -25,10 +25,9 @@ public class EncryptionManager extends Manager<Encryption> {
 
     public static void registerAll() {
         Security.addProvider(new BouncyCastleProvider());
-        instance().add(AsymmetricEncryptions.RSA);
-        instance().add(Encryptions.NONE);
-        instance().add(SymmetricEncryptions.AES);
-        instance().add(AsymmetricEncryptions.ECIES);
+        for (Encryption v : Encryptions.values()) instance().add(v);
+        for (Encryption v : SymmetricEncryptions.values()) instance().add(v);
+        for (Encryption v : AsymmetricEncryptions.values()) instance().add(v);
     }
 
     @Override

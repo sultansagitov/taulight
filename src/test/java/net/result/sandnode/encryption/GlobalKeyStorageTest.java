@@ -17,7 +17,6 @@ class GlobalKeyStorageTest {
 
     private GlobalKeyStorage globalKeyStorage;
 
-    private KeyStorage rsaKeyStorage;
     private KeyStorage eciesKeyStorage;
     private KeyStorage aesKeyStorage;
 
@@ -26,16 +25,15 @@ class GlobalKeyStorageTest {
         globalKeyStorage = new GlobalKeyStorage();
         EncryptionManager.registerAll();
 
-        rsaKeyStorage = AsymmetricEncryptions.RSA.generate();
         eciesKeyStorage = AsymmetricEncryptions.ECIES.generate();
         aesKeyStorage = SymmetricEncryptions.AES.generate();
     }
 
     @Test
     void testSetAndGetNonNull() throws KeyStorageNotFoundException {
-        globalKeyStorage.set(AsymmetricEncryptions.RSA, rsaKeyStorage);
-        KeyStorage retrieved = globalKeyStorage.getNonNull(AsymmetricEncryptions.RSA);
-        assertEquals(rsaKeyStorage, retrieved);
+        globalKeyStorage.set(AsymmetricEncryptions.ECIES, eciesKeyStorage);
+        KeyStorage retrieved = globalKeyStorage.getNonNull(AsymmetricEncryptions.ECIES);
+        assertEquals(eciesKeyStorage, retrieved);
     }
 
     @Test
@@ -54,8 +52,8 @@ class GlobalKeyStorageTest {
 
     @Test
     void testAsymmetricNonNull() throws KeyStorageNotFoundException, EncryptionTypeException {
-        globalKeyStorage.set(AsymmetricEncryptions.RSA, rsaKeyStorage);
-        AsymmetricKeyStorage retrieved = globalKeyStorage.asymmetricNonNull(AsymmetricEncryptions.RSA);
+        globalKeyStorage.set(AsymmetricEncryptions.ECIES, eciesKeyStorage);
+        AsymmetricKeyStorage retrieved = globalKeyStorage.asymmetricNonNull(AsymmetricEncryptions.ECIES);
         assertNotNull(retrieved);
     }
 
@@ -73,26 +71,26 @@ class GlobalKeyStorageTest {
 
     @Test
     void testCopy() throws Exception {
-        globalKeyStorage.set(AsymmetricEncryptions.RSA, rsaKeyStorage);
+        globalKeyStorage.set(AsymmetricEncryptions.ECIES, eciesKeyStorage);
         GlobalKeyStorage copy = globalKeyStorage.copy();
-        KeyStorage copiedKeyStorage = copy.getNonNull(AsymmetricEncryptions.RSA);
+        KeyStorage copiedKeyStorage = copy.getNonNull(AsymmetricEncryptions.ECIES);
 
         String originalData = "HelloWorld";
 
-        byte[] originalEncrypted = AsymmetricEncryptions.RSA.encrypt(originalData, rsaKeyStorage);
-        byte[] copyEncrypted = AsymmetricEncryptions.RSA.encrypt(originalData, copiedKeyStorage);
+        byte[] originalEncrypted = AsymmetricEncryptions.ECIES.encrypt(originalData, eciesKeyStorage);
+        byte[] copyEncrypted = AsymmetricEncryptions.ECIES.encrypt(originalData, copiedKeyStorage);
 
-        String originalDecrypted = AsymmetricEncryptions.RSA.decrypt(originalEncrypted, copiedKeyStorage);
-        String copyDecrypted = AsymmetricEncryptions.RSA.decrypt(copyEncrypted, rsaKeyStorage);
+        String originalDecrypted = AsymmetricEncryptions.ECIES.decrypt(originalEncrypted, copiedKeyStorage);
+        String copyDecrypted = AsymmetricEncryptions.ECIES.decrypt(copyEncrypted, eciesKeyStorage);
 
         assertEquals(originalDecrypted, copyDecrypted);
     }
 
     @Test
     void testToString() {
-        globalKeyStorage.set(AsymmetricEncryptions.RSA, rsaKeyStorage);
+        globalKeyStorage.set(AsymmetricEncryptions.ECIES, eciesKeyStorage);
         String result = globalKeyStorage.toString();
-        assertTrue(result.contains("RSA"));
-        assertTrue(result.contains("RSAKeyStorage"));
+        assertTrue(result.contains("ECIES"));
+        assertTrue(result.contains("ECIESKeyStorage"));
     }
 }

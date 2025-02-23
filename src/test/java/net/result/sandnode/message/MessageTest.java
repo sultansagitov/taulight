@@ -22,16 +22,16 @@ class MessageTest {
         Headers headers = new Headers()
                 .setType(MessageTypes.LOGIN)
                 .setConnection(Connection.AGENT2HUB)
-                .setBodyEncryption(AsymmetricEncryptions.RSA)
+                .setBodyEncryption(AsymmetricEncryptions.ECIES)
                 .setValue("keyName", "valueData");
 
         byte[] originalBody = "Hello World!".getBytes();
 
         RawMessage node1Message = new RawMessage(headers);
-        node1Message.setHeadersEncryption(AsymmetricEncryptions.RSA);
+        node1Message.setHeadersEncryption(AsymmetricEncryptions.ECIES);
         node1Message.setBody(originalBody);
 
-        KeyStorage keyStorage = AsymmetricEncryptions.RSA.generate();
+        KeyStorage keyStorage = AsymmetricEncryptions.ECIES.generate();
         GlobalKeyStorage globalKeyStorage = new GlobalKeyStorage(keyStorage);
 
         byte[] byteArray = node1Message.toByteArray(globalKeyStorage);
