@@ -4,7 +4,7 @@ import net.result.sandnode.chain.server.ServerChainManager;
 import net.result.sandnode.config.ServerConfig;
 import net.result.sandnode.encryption.AsymmetricEncryptions;
 import net.result.sandnode.encryption.EncryptionManager;
-import net.result.sandnode.encryption.GlobalKeyStorage;
+import net.result.sandnode.encryption.KeyStorageRegistry;
 import net.result.sandnode.encryption.interfaces.AsymmetricEncryption;
 import net.result.sandnode.encryption.interfaces.AsymmetricKeyStorage;
 import net.result.sandnode.exception.*;
@@ -122,7 +122,7 @@ public class LinksTest {
 
     private static class TestHub extends Hub {
         public TestHub() {
-            super(new GlobalKeyStorage(AsymmetricEncryptions.ECIES.generate()));
+            super(new KeyStorageRegistry(AsymmetricEncryptions.ECIES.generate()));
         }
 
         @Override

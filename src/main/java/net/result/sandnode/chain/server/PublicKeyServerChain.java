@@ -19,7 +19,7 @@ public class PublicKeyServerChain extends ServerChain {
         AsymmetricEncryption encryption = session.server.serverConfig.mainEncryption();
         AsymmetricKeyStorage asymmetricKeyStorage;
         try {
-            asymmetricKeyStorage = session.server.node.globalKeyStorage.asymmetricNonNull(encryption);
+            asymmetricKeyStorage = session.server.node.keyStorageRegistry.asymmetricNonNull(encryption);
         } catch (KeyStorageNotFoundException e) {
             send(Errors.SERVER_ERROR.createMessage());
             return;

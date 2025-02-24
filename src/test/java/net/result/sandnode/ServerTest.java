@@ -22,7 +22,7 @@ import net.result.sandnode.serverclient.SandnodeClient;
 import net.result.sandnode.serverclient.SandnodeServer;
 import net.result.sandnode.serverclient.Session;
 import net.result.sandnode.util.Endpoint;
-import net.result.sandnode.encryption.GlobalKeyStorage;
+import net.result.sandnode.encryption.KeyStorageRegistry;
 import net.result.sandnode.util.IOController;
 import net.result.sandnode.chain.client.ClientChain;
 import net.result.sandnode.chain.server.BSTServerChainManager;
@@ -77,7 +77,7 @@ public class ServerTest {
 
         // Server setup
         KeyStorage rsaKeyStorage = asymmetricEncryption.generate();
-        GlobalKeyStorage serverKeyStorage = new GlobalKeyStorage(rsaKeyStorage);
+        KeyStorageRegistry serverKeyStorage = new KeyStorageRegistry(rsaKeyStorage);
         HubThread hubThread = new HubThread(serverKeyStorage);
         hubThread.start();
 
@@ -136,7 +136,7 @@ public class ServerTest {
         public final SandnodeServer server;
         public final Hub hub;
 
-        public HubThread(GlobalKeyStorage serverKeyStorage) {
+        public HubThread(KeyStorageRegistry serverKeyStorage) {
             setName("HubThread");
             hub = new TestHub(serverKeyStorage);
 
@@ -166,7 +166,7 @@ public class ServerTest {
     }
 
     private static class TestHub extends Hub {
-        public TestHub(GlobalKeyStorage serverKeyStorage) {
+        public TestHub(KeyStorageRegistry serverKeyStorage) {
             super(serverKeyStorage);
         }
 
@@ -260,7 +260,7 @@ public class ServerTest {
 
     private static class TestAgent extends Agent {
         public TestAgent() {
-            super(new GlobalKeyStorage());
+            super(new KeyStorageRegistry());
         }
 
         @SuppressWarnings("DataFlowIssue")

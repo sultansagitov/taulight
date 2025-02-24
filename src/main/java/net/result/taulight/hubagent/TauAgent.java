@@ -5,7 +5,7 @@ import net.result.sandnode.hubagent.Agent;
 import net.result.sandnode.message.util.Connection;
 import net.result.sandnode.serverclient.SandnodeServer;
 import net.result.sandnode.serverclient.Session;
-import net.result.sandnode.encryption.GlobalKeyStorage;
+import net.result.sandnode.encryption.KeyStorageRegistry;
 import org.jetbrains.annotations.NotNull;
 
 import java.net.Socket;
@@ -13,7 +13,7 @@ import java.net.Socket;
 public class TauAgent extends Agent {
 
     public TauAgent() {
-        this(new GlobalKeyStorage());
+        this(new KeyStorageRegistry());
     }
 
     //TODO:
@@ -25,8 +25,8 @@ public class TauAgent extends Agent {
         return null;
     }
 
-    public TauAgent(@NotNull GlobalKeyStorage globalKeyStorage) {
-        super(globalKeyStorage);
+    public TauAgent(@NotNull KeyStorageRegistry keyStorageRegistry) {
+        super(keyStorageRegistry);
     }
 
 }

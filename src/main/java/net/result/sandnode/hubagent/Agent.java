@@ -1,12 +1,12 @@
 package net.result.sandnode.hubagent;
 
 import net.result.sandnode.message.util.NodeType;
-import net.result.sandnode.encryption.GlobalKeyStorage;
+import net.result.sandnode.encryption.KeyStorageRegistry;
 import org.jetbrains.annotations.NotNull;
 
 public abstract class Agent extends Node {
-    public Agent(@NotNull GlobalKeyStorage globalKeyStorage) {
-        super(globalKeyStorage);
+    public Agent(@NotNull KeyStorageRegistry keyStorageRegistry) {
+        super(keyStorageRegistry);
     }
 
     @Override

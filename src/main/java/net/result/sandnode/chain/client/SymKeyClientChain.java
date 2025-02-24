@@ -23,7 +23,7 @@ public class SymKeyClientChain extends Chain {
     public void sync() throws InterruptedException, KeyNotCreatedException, ExpectedMessageException {
         SymmetricKeyStorage keyStorage = symmetricEncryption.generate();
 
-        if (!io.globalKeyStorage.has(io.serverEncryption()))
+        if (!io.keyStorageRegistry.has(io.serverEncryption()))
             throw new KeyNotCreatedException(io.serverEncryption());
 
         IMessage symMessage = new SymMessage(new Headers().setBodyEncryption(io.serverEncryption()), keyStorage);

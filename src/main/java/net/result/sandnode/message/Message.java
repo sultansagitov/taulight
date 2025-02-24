@@ -7,7 +7,7 @@ import net.result.sandnode.encryption.Encryptions;
 import net.result.sandnode.exception.*;
 import net.result.sandnode.message.util.Headers;
 import net.result.sandnode.encryption.EncryptionManager;
-import net.result.sandnode.encryption.GlobalKeyStorage;
+import net.result.sandnode.encryption.KeyStorageRegistry;
 import net.result.sandnode.encryption.interfaces.Encryption;
 import net.result.sandnode.encryption.interfaces.KeyStorage;
 import org.apache.logging.log4j.LogManager;
@@ -37,12 +37,12 @@ public abstract class Message implements IMessage {
         return headersEncryption;
     }
 
-    public static @NotNull RawMessage decryptMessage(EncryptedMessage encrypted, GlobalKeyStorage globalKeyStorage)
+    public static @NotNull RawMessage decryptMessage(EncryptedMessage encrypted, KeyStorageRegistry keyStorageRegistry)
             throws DecryptionException, NoSuchMessageTypeException, NoSuchEncryptionException,
             KeyStorageNotFoundException, WrongKeyException, PrivateKeyNotFoundException {
         Encryption headersEncryption = EncryptionManager.find(encrypted.encryptionByte);
         byte[] decryptedHeaders;
-        KeyStorage headersKeyStorage = globalKeyStorage.getNonNull(headersEncryption);
+        KeyStorage headersKeyStorage = keyStorageRegistry.getNonNull(headersEncryption);
         try {
             decryptedHeaders = headersEncryption.decryptBytes(encrypted.headersBytes, headersKeyStorage);
         } catch (CannotUseEncryption e) {
@@ -53,7 +53,7 @@ public abstract class Message implements IMessage {
 
         Encryption bodyEncryption = headers.bodyEncryption();
         byte[] decryptedBody;
-        KeyStorage bodyKeyStorage = globalKeyStorage.getNonNull(bodyEncryption);
+        KeyStorage bodyKeyStorage = keyStorageRegistry.getNonNull(bodyEncryption);
         try {
             decryptedBody = bodyEncryption.decryptBytes(encrypted.bodyBytes, bodyKeyStorage);
         } catch (CannotUseEncryption e) {
@@ -77,7 +77,7 @@ public abstract class Message implements IMessage {
     }
 
     @Override
-    public byte[] toByteArray(@NotNull GlobalKeyStorage globalKeyStorage)
+    public byte[] toByteArray(@NotNull KeyStorageRegistry keyStorageRegistry)
             throws EncryptionException, MessageSerializationException, IllegalMessageLengthException {
         ByteArrayOutputStream result = new ByteArrayOutputStream();
         result.write(1); // Version
@@ -91,7 +91,7 @@ public abstract class Message implements IMessage {
 
         byte[] bodyBytes = getBody();
         Encryption bodyEncryption = headers().bodyEncryption();
-        KeyStorage bodyKeyStorage = globalKeyStorage.getNonNull(bodyEncryption);
+        KeyStorage bodyKeyStorage = keyStorageRegistry.getNonNull(bodyEncryption);
 
         Optional<Compression> compression = CompressionManager.instance().getFromHeaders(headers);
 
@@ -128,7 +128,7 @@ public abstract class Message implements IMessage {
 
         try {
             byte[] headersBytes = headers().toByteArray();
-            KeyStorage headersKeyStorage = globalKeyStorage.getNonNull(headersEncryption());
+            KeyStorage headersKeyStorage = keyStorageRegistry.getNonNull(headersEncryption());
             try {
                 encryptedHeaders = headersEncryption().encryptBytes(headersBytes, headersKeyStorage);
             } catch (CannotUseEncryption e) {

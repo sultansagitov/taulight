@@ -1,7 +1,7 @@
 package net.result.sandnode.util;
 
 import net.result.sandnode.encryption.Encryptions;
-import net.result.sandnode.encryption.GlobalKeyStorage;
+import net.result.sandnode.encryption.KeyStorageRegistry;
 import net.result.sandnode.encryption.interfaces.*;
 import net.result.sandnode.exception.*;
 import net.result.sandnode.message.EncryptedMessage;
@@ -34,7 +34,7 @@ public class IOController {
     private static final Logger LOGGER = LogManager.getLogger(IOController.class);
 
     private final Connection connection;
-    public final GlobalKeyStorage globalKeyStorage;
+    public final KeyStorageRegistry keyStorageRegistry;
 
     private final InputStream in;
     private final OutputStream out;
@@ -49,14 +49,14 @@ public class IOController {
     public IOController(
             Socket socket,
             Connection connection,
-            GlobalKeyStorage globalKeyStorage,
+            KeyStorageRegistry keyStorageRegistry,
             ChainManager chainManager
     ) throws InputStreamException, OutputStreamException {
         this.in = StreamReader.inputStream(socket);
         this.out = StreamReader.outputStream(socket);
         this.socket = socket;
         this.connection = connection;
-        this.globalKeyStorage = globalKeyStorage.copy();
+        this.keyStorageRegistry = keyStorageRegistry.copy();
         this.chainManager = chainManager;
     }
 
@@ -88,7 +88,7 @@ public class IOController {
             byte[] byteArray = null;
             SandnodeError error = null;
             try {
-                byteArray = message.toByteArray(globalKeyStorage);
+                byteArray = message.toByteArray(keyStorageRegistry);
                 sent = message;
             } catch (MessageSerializationException | IllegalMessageLengthException e) {
                 LOGGER.error("Serialization or message length issue", e);
@@ -111,7 +111,7 @@ public class IOController {
                         .setBodyEncryption(message.headers().bodyEncryption())
                         .setChainID(message.headers().chainID())
                         .setConnection(message.headers().connection());
-                byteArray = errorMessage.toByteArray(globalKeyStorage);
+                byteArray = errorMessage.toByteArray(keyStorageRegistry);
                 sent = errorMessage;
             }
 
@@ -131,7 +131,7 @@ public class IOController {
             WrongKeyException, InterruptedException, PrivateKeyNotFoundException {
         while (connected) {
             EncryptedMessage encrypted = EncryptedMessage.readMessage(in);
-            RawMessage message = Message.decryptMessage(encrypted, globalKeyStorage);
+            RawMessage message = Message.decryptMessage(encrypted, keyStorageRegistry);
             chainManager.distributeMessage(message);
         }
     }
@@ -164,12 +164,12 @@ public class IOController {
 
     public void setServerKey(@NotNull AsymmetricKeyStorage publicKey) {
         serverEncryption = publicKey.encryption();
-        globalKeyStorage.set(publicKey);
+        keyStorageRegistry.set(publicKey);
     }
 
     public void setClientKey(@NotNull SymmetricKeyStorage symmetricKeyStorage) {
         symKeyEncryption = symmetricKeyStorage.encryption();
-        globalKeyStorage.set(symmetricKeyStorage);
+        keyStorageRegistry.set(symmetricKeyStorage);
     }
 
     private @NotNull Encryption currentEncryption() {

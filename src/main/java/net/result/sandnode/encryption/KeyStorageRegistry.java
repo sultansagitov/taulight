@@ -10,13 +10,13 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
-public class GlobalKeyStorage {
+public class KeyStorageRegistry {
     private final Map<Encryption, KeyStorage> keyStorageMap = new HashMap<>();
 
-    public GlobalKeyStorage() {
+    public KeyStorageRegistry() {
     }
 
-    public GlobalKeyStorage(@NotNull KeyStorage keyStorage) {
+    public KeyStorageRegistry(@NotNull KeyStorage keyStorage) {
         set(keyStorage);
     }
 
@@ -30,13 +30,13 @@ public class GlobalKeyStorage {
         throw new KeyStorageNotFoundException(encryption);
     }
 
-    public GlobalKeyStorage set(@NotNull Encryption encryption, @NotNull KeyStorage keyStorage) {
+    public KeyStorageRegistry set(@NotNull Encryption encryption, @NotNull KeyStorage keyStorage) {
         if (keyStorage.encryption() == encryption && encryption != Encryptions.NONE)
             keyStorageMap.put(encryption, keyStorage);
         return this;
     }
 
-    public GlobalKeyStorage set(@NotNull KeyStorage keyStorage) {
+    public KeyStorageRegistry set(@NotNull KeyStorage keyStorage) {
         if (keyStorage.encryption() != Encryptions.NONE)
             keyStorageMap.put(keyStorage.encryption(), keyStorage);
         return this;
@@ -74,8 +74,8 @@ public class GlobalKeyStorage {
         throw new CannotUseEncryption(encryption);
     }
 
-    public GlobalKeyStorage copy() {
-        GlobalKeyStorage copy = new GlobalKeyStorage();
+    public KeyStorageRegistry copy() {
+        KeyStorageRegistry copy = new KeyStorageRegistry();
         keyStorageMap.forEach((key, value) -> copy.set(key, value.copy()));
         return copy;
     }

@@ -14,7 +14,7 @@ import net.result.sandnode.tokens.JWTTokenizer;
 import net.result.taulight.hubagent.TauHub;
 import net.result.main.config.ServerPropertiesConfig;
 import net.result.sandnode.serverclient.SandnodeServer;
-import net.result.sandnode.encryption.GlobalKeyStorage;
+import net.result.sandnode.encryption.KeyStorageRegistry;
 import net.result.sandnode.encryption.interfaces.AsymmetricEncryption;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -49,9 +49,9 @@ public class RunHubWork implements IWork {
         AsymmetricKeyStorage privateKeyStorage = privateKeyConvertor.toKeyStorage(string);
 
         AsymmetricKeyStorage keyStorage = mainEncryption.merge(publicKeyStorage, privateKeyStorage);
-        GlobalKeyStorage globalKeyStorage = new GlobalKeyStorage(keyStorage);
+        KeyStorageRegistry keyStorageRegistry = new KeyStorageRegistry(keyStorage);
 
-        TauHub hub = new TauHub(globalKeyStorage);
+        TauHub hub = new TauHub(keyStorageRegistry);
         SandnodeServer server = new SandnodeServer(hub, serverConfig);
         server.start();
 

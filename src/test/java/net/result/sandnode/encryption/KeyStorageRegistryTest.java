@@ -13,16 +13,16 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class GlobalKeyStorageTest {
+class KeyStorageRegistryTest {
 
-    private GlobalKeyStorage globalKeyStorage;
+    private KeyStorageRegistry keyStorageRegistry;
 
     private KeyStorage eciesKeyStorage;
     private KeyStorage aesKeyStorage;
 
     @BeforeEach
     void setUp() {
-        globalKeyStorage = new GlobalKeyStorage();
+        keyStorageRegistry = new KeyStorageRegistry();
         EncryptionManager.registerAll();
 
         eciesKeyStorage = AsymmetricEncryptions.ECIES.generate();
@@ -31,48 +31,48 @@ class GlobalKeyStorageTest {
 
     @Test
     void testSetAndGetNonNull() throws KeyStorageNotFoundException {
-        globalKeyStorage.set(AsymmetricEncryptions.ECIES, eciesKeyStorage);
-        KeyStorage retrieved = globalKeyStorage.getNonNull(AsymmetricEncryptions.ECIES);
+        keyStorageRegistry.set(AsymmetricEncryptions.ECIES, eciesKeyStorage);
+        KeyStorage retrieved = keyStorageRegistry.getNonNull(AsymmetricEncryptions.ECIES);
         assertEquals(eciesKeyStorage, retrieved);
     }
 
     @Test
     void testSetAndGetOptional() {
-        globalKeyStorage.set(AsymmetricEncryptions.ECIES, eciesKeyStorage);
-        Optional<KeyStorage> retrieved = globalKeyStorage.get(AsymmetricEncryptions.ECIES);
+        keyStorageRegistry.set(AsymmetricEncryptions.ECIES, eciesKeyStorage);
+        Optional<KeyStorage> retrieved = keyStorageRegistry.get(AsymmetricEncryptions.ECIES);
         assertTrue(retrieved.isPresent());
         assertEquals(eciesKeyStorage, retrieved.get());
     }
 
     @Test
     void testHasEncryption() {
-        globalKeyStorage.set(SymmetricEncryptions.AES, aesKeyStorage);
-        assertTrue(globalKeyStorage.has(SymmetricEncryptions.AES));
+        keyStorageRegistry.set(SymmetricEncryptions.AES, aesKeyStorage);
+        assertTrue(keyStorageRegistry.has(SymmetricEncryptions.AES));
     }
 
     @Test
     void testAsymmetricNonNull() throws KeyStorageNotFoundException, EncryptionTypeException {
-        globalKeyStorage.set(AsymmetricEncryptions.ECIES, eciesKeyStorage);
-        AsymmetricKeyStorage retrieved = globalKeyStorage.asymmetricNonNull(AsymmetricEncryptions.ECIES);
+        keyStorageRegistry.set(AsymmetricEncryptions.ECIES, eciesKeyStorage);
+        AsymmetricKeyStorage retrieved = keyStorageRegistry.asymmetricNonNull(AsymmetricEncryptions.ECIES);
         assertNotNull(retrieved);
     }
 
     @Test
     void testGetForECIESReturnsEmptyOptional() {
-        assertTrue(globalKeyStorage.get(AsymmetricEncryptions.ECIES).isEmpty());
+        assertTrue(keyStorageRegistry.get(AsymmetricEncryptions.ECIES).isEmpty());
     }
 
     @Test
     void testSymmetricNonNull() throws CannotUseEncryption, EncryptionTypeException {
-        globalKeyStorage.set(SymmetricEncryptions.AES, aesKeyStorage);
-        SymmetricKeyStorage retrieved = globalKeyStorage.symmetricNonNull(SymmetricEncryptions.AES);
+        keyStorageRegistry.set(SymmetricEncryptions.AES, aesKeyStorage);
+        SymmetricKeyStorage retrieved = keyStorageRegistry.symmetricNonNull(SymmetricEncryptions.AES);
         assertNotNull(retrieved);
     }
 
     @Test
     void testCopy() throws Exception {
-        globalKeyStorage.set(AsymmetricEncryptions.ECIES, eciesKeyStorage);
-        GlobalKeyStorage copy = globalKeyStorage.copy();
+        keyStorageRegistry.set(AsymmetricEncryptions.ECIES, eciesKeyStorage);
+        KeyStorageRegistry copy = keyStorageRegistry.copy();
         KeyStorage copiedKeyStorage = copy.getNonNull(AsymmetricEncryptions.ECIES);
 
         String originalData = "HelloWorld";
@@ -88,8 +88,8 @@ class GlobalKeyStorageTest {
 
     @Test
     void testToString() {
-        globalKeyStorage.set(AsymmetricEncryptions.ECIES, eciesKeyStorage);
-        String result = globalKeyStorage.toString();
+        keyStorageRegistry.set(AsymmetricEncryptions.ECIES, eciesKeyStorage);
+        String result = keyStorageRegistry.toString();
         assertTrue(result.contains("ECIES"));
         assertTrue(result.contains("ECIESKeyStorage"));
     }

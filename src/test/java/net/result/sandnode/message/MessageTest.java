@@ -4,7 +4,7 @@ import net.result.sandnode.encryption.AsymmetricEncryptions;
 import net.result.sandnode.encryption.EncryptionManager;
 import net.result.sandnode.message.util.Connection;
 import net.result.sandnode.message.util.Headers;
-import net.result.sandnode.encryption.GlobalKeyStorage;
+import net.result.sandnode.encryption.KeyStorageRegistry;
 import net.result.sandnode.encryption.interfaces.KeyStorage;
 import net.result.sandnode.message.util.MessageTypes;
 import org.junit.jupiter.api.Test;
@@ -32,13 +32,13 @@ class MessageTest {
         node1Message.setBody(originalBody);
 
         KeyStorage keyStorage = AsymmetricEncryptions.ECIES.generate();
-        GlobalKeyStorage globalKeyStorage = new GlobalKeyStorage(keyStorage);
+        KeyStorageRegistry keyStorageRegistry = new KeyStorageRegistry(keyStorage);
 
-        byte[] byteArray = node1Message.toByteArray(globalKeyStorage);
+        byte[] byteArray = node1Message.toByteArray(keyStorageRegistry);
         ByteArrayInputStream in = new ByteArrayInputStream(byteArray);
 
         EncryptedMessage encrypted = EncryptedMessage.readMessage(in);
-        IMessage node2Message = Message.decryptMessage(encrypted, globalKeyStorage);
+        IMessage node2Message = Message.decryptMessage(encrypted, keyStorageRegistry);
 
         // headers
         assertEquals(node1Message.headers().connection(), node2Message.headers().connection());

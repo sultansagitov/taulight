@@ -59,7 +59,7 @@ public class SandnodeServer {
                 try {
                     InputStream inputStream = StreamReader.inputStream(clientSocket);
                     EncryptedMessage encrypted = EncryptedMessage.readMessage(inputStream);
-                    RawMessage request = Message.decryptMessage(encrypted, node.globalKeyStorage);
+                    RawMessage request = Message.decryptMessage(encrypted, node.keyStorageRegistry);
                     Connection conn = request.headers().connection();
                     Session session = node.createSession(this, clientSocket, conn.getOpposite());
                     session.io.chainManager.distributeMessage(request);

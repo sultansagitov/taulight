@@ -45,7 +45,7 @@ public class SandnodeClient {
             socket = new Socket(endpoint.host(), endpoint.port());
             LOGGER.info("Connection established.");
             Connection connection = Connection.fromType(node.type(), nodeType);
-            io = new IOController(socket, connection, node.globalKeyStorage, chainManager);
+            io = new IOController(socket, connection, node.keyStorageRegistry, chainManager);
             chainManager.setIOController(io);
 
             new Thread(() -> {

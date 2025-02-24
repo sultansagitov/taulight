@@ -5,7 +5,7 @@ import net.result.sandnode.message.util.Connection;
 import net.result.sandnode.message.util.NodeType;
 import net.result.sandnode.serverclient.SandnodeServer;
 import net.result.sandnode.serverclient.Session;
-import net.result.sandnode.encryption.GlobalKeyStorage;
+import net.result.sandnode.encryption.KeyStorageRegistry;
 import org.jetbrains.annotations.NotNull;
 
 import java.net.Socket;
@@ -13,12 +13,12 @@ import java.util.Collection;
 import java.util.concurrent.ConcurrentHashMap;
 
 public abstract class Node {
-    public final GlobalKeyStorage globalKeyStorage;
+    public final KeyStorageRegistry keyStorageRegistry;
     private final Collection<Session> agentSessions;
     private final Collection<Session> hubSessions;
 
-    public Node(@NotNull GlobalKeyStorage globalKeyStorage) {
-        this.globalKeyStorage = globalKeyStorage;
+    public Node(@NotNull KeyStorageRegistry keyStorageRegistry) {
+        this.keyStorageRegistry = keyStorageRegistry;
         hubSessions = ConcurrentHashMap.newKeySet();
         agentSessions = ConcurrentHashMap.newKeySet();
     }
