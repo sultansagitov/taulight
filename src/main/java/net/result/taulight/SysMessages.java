@@ -23,8 +23,6 @@ public enum SysMessages {
 
     public ChatMessage chatMessage(TauChat chat, Member member) {
         return new ChatMessage()
-                .setRandomID()
-                .setSys(true)
                 .setChat(chat)
                 .setMember(member)
                 .setContent(toString())

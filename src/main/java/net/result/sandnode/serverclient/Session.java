@@ -40,11 +40,14 @@ public class Session {
         new Thread(() -> {
             try {
                 io.receivingLoop();
+            } catch (UnexpectedSocketDisconnectException ignored) {
             } catch (InterruptedException | SandnodeException e) {
-                if (io.isConnected()) {
-                    LOGGER.error("Error receiving message", e);
-                }
+                LOGGER.error("Error receiving message", e);
             }
+
+            server.node.close();
+            server.serverConfig.groupManager().removeSession(this);
+            server.node.removeSession(this);
         }, "%s/Receiving".formatted(io.ipString())).start();
     }
 
@@ -54,15 +57,19 @@ public class Session {
     }
 
     public void addToGroup(Group group) {
-        groups.add(group);
-        group.add(this);
-        LOGGER.info("{} added to group {}", this, group);
+        if (!groups.contains(group)) {
+            groups.add(group);
+            group.add(this);
+            LOGGER.info("{} added to group {}", this, group);
+        }
     }
 
     public void removeFromGroup(Group group) {
-        group.remove(this);
-        groups.remove(group);
-        LOGGER.info("Session {} removed from group {}", this, group);
+        if (groups.contains(group)) {
+            group.remove(this);
+            groups.remove(group);
+            LOGGER.info("Session {} removed from group {}", this, group);
+        }
     }
 
     public void addToGroups(Collection<Group> groups) {

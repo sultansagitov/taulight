@@ -42,6 +42,11 @@ public abstract class Node {
         hubSessions.remove(session);
     }
 
+    public void removeSession(Session session) {
+        hubSessions.remove(session);
+        agentSessions.remove(session);
+    }
+
     public Collection<Session> getAgents() {
         return agentSessions;
     }

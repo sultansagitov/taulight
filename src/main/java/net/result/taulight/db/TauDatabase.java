@@ -5,6 +5,7 @@ import net.result.sandnode.db.Member;
 import net.result.sandnode.exception.DatabaseException;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -18,9 +19,9 @@ public interface TauDatabase extends Database {
 
     Optional<TauChat> getChat(UUID id) throws DatabaseException;
 
-    void saveMessage(ChatMessage msg) throws DatabaseException;
+    void saveMessage(ServerChatMessage msg) throws DatabaseException;
 
-    Collection<ChatMessage> loadMessages(TauChat chat, int index, int size) throws DatabaseException;
+    List<ServerChatMessage> loadMessages(TauChat chat, int index, int size) throws DatabaseException;
 
     Collection<Member> getMembersFromChat(TauChat chat) throws DatabaseException;
 

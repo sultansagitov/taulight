@@ -7,11 +7,11 @@ import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.message.types.ErrorMessage;
 import net.result.sandnode.message.util.MessageTypes;
 import net.result.sandnode.util.IOController;
-import net.result.taulight.db.ChatMessage;
+import net.result.taulight.db.ServerChatMessage;
 import net.result.taulight.message.types.MessageRequest;
 import net.result.taulight.message.types.MessageResponse;
 
-import java.util.Collection;
+import java.util.List;
 import java.util.UUID;
 
 public class MessageClientChain extends ClientChain {
@@ -19,7 +19,7 @@ public class MessageClientChain extends ClientChain {
     private final int index;
     private final int size;
 
-    private Collection<ChatMessage> messages;
+    private List<ServerChatMessage> messages;
 
     public MessageClientChain(IOController io, UUID chatID, int index, int size) {
         super(io);
@@ -43,7 +43,7 @@ public class MessageClientChain extends ClientChain {
         messages = response.getMessages();
     }
 
-    public Collection<ChatMessage> getMessages() {
+    public List<ServerChatMessage> getMessages() {
         return messages;
     }
 }

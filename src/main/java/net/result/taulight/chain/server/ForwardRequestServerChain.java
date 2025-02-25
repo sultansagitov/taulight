@@ -54,17 +54,14 @@ public class ForwardRequestServerChain extends ServerChain {
 
             LOGGER.info("Forwarding message: {}", content);
 
-            chatMessage
-                    .setRandomID()
-                    .setMember(session.member)
-                    .setSys(false);
+            chatMessage.setMember(session.member);
 
             try {
                 Optional<TauChat> chatOpt = database.getChat(chatID);
 
                 if (chatOpt.isEmpty()) {
                     LOGGER.error("Chat was not found");
-                    sendFin(TauErrors.CHAT_NOT_FOUND.createMessage());
+                    send(TauErrors.CHAT_NOT_FOUND.createMessage());
                     continue;
                 }
 
@@ -73,14 +70,14 @@ public class ForwardRequestServerChain extends ServerChain {
                 Collection<Member> members = database.getMembersFromChat(chat);
                 if (!members.contains(session.member)) {
                     LOGGER.warn("Unauthorized access attempt by member: {}", session.member);
-                    send(Errors.UNAUTHORIZED.createMessage());
+                    send(TauErrors.CHAT_NOT_FOUND.createMessage());
                     continue;
                 }
 
                 TauHubProtocol.send(session.server.serverConfig, chat, chatMessage);
             } catch (DatabaseException e) {
                 LOGGER.error("Database error: {}", e.getMessage(), e);
-                sendFin(Errors.SERVER_ERROR.createMessage());
+                send(Errors.SERVER_ERROR.createMessage());
                 continue;
             } catch (MessageNotForwardedException e) {
                 LOGGER.error("Message forwarding failed for chat: {}", chatID, e);

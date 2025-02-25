@@ -1,5 +1,6 @@
 package net.result.sandnode.group;
 
+import net.result.sandnode.serverclient.Session;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Collection;
@@ -37,5 +38,10 @@ public class HashSetGroupManager implements GroupManager {
     @Override
     public Optional<Group> getGroupOptional(@NotNull String groupID) {
         return groups.stream().filter(group -> group.getID().equals(groupID)).findFirst();
+    }
+
+    @Override
+    public void removeSession(@NotNull Session session) {
+        groups.forEach(session::removeFromGroup);
     }
 }

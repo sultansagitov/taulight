@@ -11,14 +11,12 @@ import net.result.sandnode.util.IOController;
 import net.result.sandnode.chain.client.ClientChain;
 import net.result.taulight.db.ChatMessage;
 import net.result.taulight.exception.ChatNotFoundException;
+import net.result.taulight.exception.MessageNotForwardedException;
 import net.result.taulight.message.types.ForwardRequest;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 import java.util.*;
 
 public class ConsoleForwardRequestClientChain extends ClientChain {
-    private static final Logger LOGGER = LogManager.getLogger(ConsoleForwardRequestClientChain.class);
     private final String memberID;
 
     public ConsoleForwardRequestClientChain(IOController io, String memberID) {
@@ -73,9 +71,11 @@ public class ConsoleForwardRequestClientChain extends ClientChain {
                 ServerErrorManager.instance().throwAll(errorMessage.error);
             }
         } catch (ChatNotFoundException e) {
-            LOGGER.error("Chat {} was not found", cc.currentChat);
+            System.out.printf("Chat %s was not found%n", cc.currentChat);
+        } catch (MessageNotForwardedException e) {
+            System.out.println("Message not forwarded");
         } catch (UnknownSandnodeErrorException | SandnodeErrorException e) {
-            LOGGER.error(e.getMessage());
+            System.out.printf("%s: %s%n", e.getClass().getSimpleName(), e.getMessage());
         }
         return false;
     }
