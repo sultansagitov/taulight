@@ -3,7 +3,6 @@ package net.result.taulight.message;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import net.result.sandnode.db.Member;
 import net.result.taulight.db.TauChannel;
-import net.result.taulight.db.TauChat;
 import net.result.taulight.db.TauDirect;
 
 import java.util.Collection;
@@ -32,13 +31,7 @@ public class ChatInfo {
     private ChatInfo() {
     }
 
-    public static ChatInfo byChat(TauChat chat, Member member, Collection<ChatInfoProp> infoProps) {
-        if (chat instanceof TauChannel channel) return (ChatInfo.channel(channel, member, infoProps));
-        if (chat instanceof TauDirect direct) return (ChatInfo.direct(direct, member, infoProps));
-        return (chatNotFound(chat.id()));
-    }
-
-    private static ChatInfo channel(TauChannel channel, Member member, Collection<ChatInfoProp> infoProps) {
+    public static ChatInfo channel(TauChannel channel, Member member, Collection<ChatInfoProp> infoProps) {
         ChatInfo info = new ChatInfo();
         info.chatType = ChatType.CHANNEL;
         if (infoProps.contains(ChatInfoProp.channelID)) info.id = channel.id();
@@ -48,7 +41,7 @@ public class ChatInfo {
         return info;
     }
 
-    private static ChatInfo direct(TauDirect direct, Member member, Collection<ChatInfoProp> infoProps) {
+    public static ChatInfo direct(TauDirect direct, Member member, Collection<ChatInfoProp> infoProps) {
         ChatInfo info = new ChatInfo();
         info.chatType = ChatType.DIRECT;
         if (infoProps.contains(ChatInfoProp.directID)) info.id = direct.id();

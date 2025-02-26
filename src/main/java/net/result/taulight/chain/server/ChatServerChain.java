@@ -4,8 +4,10 @@ import net.result.sandnode.chain.server.ServerChain;
 import net.result.sandnode.error.Errors;
 import net.result.sandnode.exception.*;
 import net.result.sandnode.serverclient.Session;
+import net.result.taulight.db.TauChannel;
 import net.result.taulight.db.TauChat;
 import net.result.taulight.db.TauDatabase;
+import net.result.taulight.db.TauDirect;
 import net.result.taulight.message.ChatInfo;
 import net.result.taulight.message.ChatInfoProp;
 import net.result.taulight.message.types.ChatRequest;
@@ -36,7 +38,17 @@ public class ChatServerChain extends ServerChain {
 
                 if (allChatID == null || allChatID.isEmpty()) {
                     for (TauChat chat : database.getChats(session.member)) {
-                        infos.add(ChatInfo.byChat(chat, session.member, chatInfoProps));
+                        if (chat instanceof TauChannel channel && true) {
+                            if (chatInfoProps.contains(ChatInfoProp.channelID)) {
+                                infos.add(ChatInfo.channel(channel, session.member, chatInfoProps));
+                            }
+                        } else if (chat instanceof TauDirect direct && true) {
+                            if (chatInfoProps.contains(ChatInfoProp.directID)) {
+                                infos.add(ChatInfo.direct(direct, session.member, chatInfoProps));
+                            }
+                        } else {
+                            infos.add(ChatInfo.chatNotFound(chat.id()));
+                        }
                     }
                 } else {
                     for (UUID chatID : allChatID) {
@@ -53,7 +65,17 @@ public class ChatServerChain extends ServerChain {
                             continue;
                         }
 
-                        infos.add(ChatInfo.byChat(chat, session.member, chatInfoProps));
+                        if (chat instanceof TauChannel channel && true) {
+                            if (chatInfoProps.contains(ChatInfoProp.channelID)) {
+                                infos.add(ChatInfo.channel(channel, session.member, chatInfoProps));
+                            }
+                        } else if (chat instanceof TauDirect direct && true) {
+                            if (chatInfoProps.contains(ChatInfoProp.directID)) {
+                                infos.add(ChatInfo.direct(direct, session.member, chatInfoProps));
+                            }
+                        } else {
+                            infos.add(ChatInfo.chatNotFound(chat.id()));
+                        }
                     }
                 }
 

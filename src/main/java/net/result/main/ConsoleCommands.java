@@ -45,6 +45,8 @@ public class ConsoleCommands {
         commands.put("addGroup", this::addGroup);
         commands.put("rmGroup", this::rmGroup);
         commands.put("chats", this::chats);
+        commands.put("directs", this::directs);
+        commands.put("channels", this::channels);
         commands.put("info", this::info);
         commands.put("newChannel", this::newChannel);
         commands.put("addMember", this::addMember);
@@ -114,7 +116,6 @@ public class ConsoleCommands {
         return false;
     }
 
-
     private boolean chats(List<String> ignored) throws InterruptedException {
         try {
             // Find or add "chat" chain
@@ -127,6 +128,64 @@ public class ConsoleCommands {
                 ChatClientChain chain = new ChatClientChain(io);
                 io.chainManager.linkChain(chain);
                 opt = chain.getByMember(ChatInfoProp.all());
+                chain.send(new ChainNameRequest("chat"));
+            }
+
+            opt.ifPresent(ConsoleCommands::printInfo);
+
+        } catch (DeserializationException e) {
+            System.out.printf("Failed to deserialize data - %s%n", e.getClass().getSimpleName());
+        } catch (ExpectedMessageException e) {
+            System.out.printf("Received an unexpected message - %s%n", e.getClass().getSimpleName());
+        } catch (SandnodeErrorException e) {
+            System.out.printf("Encountered a Sandnode error - %s%n", e.getClass().getSimpleName());
+        } catch (UnknownSandnodeErrorException e) {
+            System.out.printf("Encountered an unknown Sandnode error - %s%n", e.getClass().getSimpleName());
+        }
+        return false;
+    }
+
+    private boolean directs(List<String> ignored) throws InterruptedException {
+        try {
+            // Find or add "chat" chain
+            Optional<Chain> chat = io.chainManager.getChain("chat");
+            Optional<Collection<ChatInfo>> opt;
+            if (chat.isPresent()) {
+                ChatClientChain chain = (ChatClientChain) chat.get();
+                opt = chain.getByMember(ChatInfoProp.directAll());
+            } else {
+                ChatClientChain chain = new ChatClientChain(io);
+                io.chainManager.linkChain(chain);
+                opt = chain.getByMember(ChatInfoProp.directAll());
+                chain.send(new ChainNameRequest("chat"));
+            }
+
+            opt.ifPresent(ConsoleCommands::printInfo);
+
+        } catch (DeserializationException e) {
+            System.out.printf("Failed to deserialize data - %s%n", e.getClass().getSimpleName());
+        } catch (ExpectedMessageException e) {
+            System.out.printf("Received an unexpected message - %s%n", e.getClass().getSimpleName());
+        } catch (SandnodeErrorException e) {
+            System.out.printf("Encountered a Sandnode error - %s%n", e.getClass().getSimpleName());
+        } catch (UnknownSandnodeErrorException e) {
+            System.out.printf("Encountered an unknown Sandnode error - %s%n", e.getClass().getSimpleName());
+        }
+        return false;
+    }
+
+    private boolean channels(List<String> ignored) throws InterruptedException {
+        try {
+            // Find or add "chat" chain
+            Optional<Chain> chat = io.chainManager.getChain("chat");
+            Optional<Collection<ChatInfo>> opt;
+            if (chat.isPresent()) {
+                ChatClientChain chain = (ChatClientChain) chat.get();
+                opt = chain.getByMember(ChatInfoProp.channelAll());
+            } else {
+                ChatClientChain chain = new ChatClientChain(io);
+                io.chainManager.linkChain(chain);
+                opt = chain.getByMember(ChatInfoProp.channelAll());
                 chain.send(new ChainNameRequest("chat"));
             }
 
