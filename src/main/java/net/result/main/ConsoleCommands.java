@@ -4,7 +4,6 @@ import net.result.sandnode.chain.Chain;
 import net.result.sandnode.exception.*;
 import net.result.sandnode.hubagent.ClientProtocol;
 import net.result.sandnode.message.types.ChainNameRequest;
-import net.result.sandnode.serverclient.ClientMember;
 import net.result.sandnode.util.IOController;
 import net.result.taulight.chain.client.ChannelClientChain;
 import net.result.taulight.chain.client.ChatClientChain;
@@ -255,26 +254,31 @@ public class ConsoleCommands {
             return false;
         }
 
-        String chatID_str = args.get(0);
-        ClientMember member = new ClientMember(args.get(1));
+        UUID chatID;
+        String otherMemberID;
+        try {
+            chatID = UUID.fromString(args.get(0));
+            otherMemberID = args.get(1);
+        } catch (IndexOutOfBoundsException e) {
+            System.out.println("Missing required arguments.");
+            return false;
+        } catch (IllegalArgumentException e) {
+            System.out.println("Invalid UUID format.");
+            return false;
+        }
 
         try {
             var chain = new ChannelClientChain(io);
             io.chainManager.linkChain(chain);
-            UUID chatID = UUID.fromString(chatID_str);
-            chain.sendAddMemberRequest(chatID, member);
+            chain.sendAddMemberRequest(chatID, otherMemberID);
             io.chainManager.removeChain(chain);
-            System.out.printf("Member '%s' added to chat '%s' successfully%n", member, chatID_str);
+            System.out.printf("Member '%s' added to chat '%s' successfully%n", otherMemberID, chatID);
         } catch (ChatNotFoundException e) {
-            System.out.printf("Chat '%s' not found - %s%n", chatID_str, e.getClass().getSimpleName());
+            System.out.printf("Chat '%s' not found%n", chatID);
         } catch (AddressedMemberNotFoundException e) {
-            System.out.printf("Member '%s' not found - %s%n", member.memberID, e.getClass().getSimpleName());
-        } catch (ExpectedMessageException | IndexOutOfBoundsException | IllegalArgumentException e) {
-            System.out.printf("Invalid request while adding member '%s' to chat '%s' - %s%n",
-                    member, chatID_str, e.getClass().getSimpleName());
-        } catch (SandnodeErrorException | UnknownSandnodeErrorException e) {
-            System.out.printf("Failed to add member '%s' due to a Sandnode error - %s%n",
-                    member, e.getClass().getSimpleName());
+            System.out.printf("Member '%s' not found%n", otherMemberID);
+        } catch (ExpectedMessageException | SandnodeErrorException | UnknownSandnodeErrorException e) {
+            System.out.printf("Failed to add member '%s' to chat '%s' - %s%n", otherMemberID, chatID, e.getClass());
         }
         return false;
     }

@@ -6,7 +6,6 @@ import net.result.main.config.ClientPropertiesConfig;
 import net.result.sandnode.hubagent.AgentProtocol;
 import net.result.sandnode.hubagent.ClientProtocol;
 import net.result.sandnode.message.util.NodeType;
-import net.result.sandnode.serverclient.ClientMember;
 import net.result.sandnode.serverclient.SandnodeClient;
 import net.result.sandnode.encryption.interfaces.*;
 import net.result.sandnode.exception.*;
@@ -153,8 +152,8 @@ public class RunAgentWork implements IWork {
                     if (token.isEmpty()) continue;
 
                     try {
-                        ClientMember member = AgentProtocol.getMemberFromToken(io, token);
-                        System.out.printf("You log in as %s%n", member.memberID);
+                        memberID = AgentProtocol.getMemberFromToken(io, token);
+                        System.out.printf("You log in as %s%n", memberID);
                         isLoggedIn = true;
                     } catch (InvalidTokenException e) {
                         System.out.println("Invalid token. Please try again.");

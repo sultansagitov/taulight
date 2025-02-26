@@ -7,7 +7,6 @@ import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.message.types.ErrorMessage;
 import net.result.sandnode.message.types.HappyMessage;
 import net.result.sandnode.message.util.MessageTypes;
-import net.result.sandnode.serverclient.ClientMember;
 import net.result.sandnode.util.IOController;
 import net.result.taulight.message.types.ChannelRequest;
 
@@ -47,9 +46,9 @@ public class ChannelClientChain extends ClientChain {
         new HappyMessage(raw);
     }
 
-    public void sendAddMemberRequest(UUID chatID, ClientMember member) throws InterruptedException,
+    public void sendAddMemberRequest(UUID chatID, String otherMemberID) throws InterruptedException,
             SandnodeErrorException, ExpectedMessageException, UnknownSandnodeErrorException {
-        send(ChannelRequest.addMember(chatID, member));
+        send(ChannelRequest.addMember(chatID, otherMemberID));
         RawMessage raw = queue.take();
         if (raw.headers().type() == MessageTypes.ERR) {
             ErrorMessage errorMessage = new ErrorMessage(raw);

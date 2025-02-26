@@ -2,7 +2,6 @@ package net.result.sandnode.hubagent;
 
 import net.result.sandnode.chain.client.LogPasswdClientChain;
 import net.result.sandnode.chain.client.LoginClientChain;
-import net.result.sandnode.serverclient.ClientMember;
 import net.result.sandnode.exception.*;
 import net.result.sandnode.chain.client.RegistrationClientChain;
 import net.result.sandnode.util.IOController;
@@ -18,15 +17,14 @@ public class AgentProtocol {
         return chain.token;
     }
 
-    public static ClientMember getMemberFromToken(IOController io, String token)
-            throws InterruptedException, SandnodeErrorException, DeserializationException, ExpectedMessageException,
-            UnknownSandnodeErrorException {
+    public static String getMemberFromToken(IOController io, String token) throws InterruptedException,
+            SandnodeErrorException, DeserializationException, ExpectedMessageException, UnknownSandnodeErrorException {
         LoginClientChain chain = new LoginClientChain(io, token);
         io.chainManager.linkChain(chain);
         chain.sync();
         io.chainManager.removeChain(chain);
 
-        return new ClientMember(chain.memberID);
+        return chain.memberID;
     }
 
     public static String getTokenByMemberIdAndPassword(IOController io, String memberID, String password)

@@ -13,7 +13,6 @@ import net.result.sandnode.exception.DeserializationException;
 import net.result.taulight.exception.MessageNotForwardedException;
 import net.result.taulight.group.TauGroupManager;
 import net.result.sandnode.message.types.HappyMessage;
-import net.result.sandnode.serverclient.ClientMember;
 import net.result.sandnode.serverclient.Session;
 import net.result.taulight.error.TauErrors;
 import net.result.taulight.group.TauChatGroup;
@@ -78,10 +77,10 @@ public class ChannelServerChain extends ServerChain {
                 send(new HappyMessage());
             }
             case ADD -> {
-                UUID chatID = request.object.chatID;
-                ClientMember cMember = request.object.member;
+                UUID chatID = request.getChatID();
+                String otherMemberID = request.getOtherMemberID();
 
-                if (chatID == null || cMember == null) {
+                if (chatID == null || otherMemberID == null) {
                     sendFin(Errors.TOO_FEW_ARGS.createMessage());
                     return;
                 }
@@ -90,7 +89,7 @@ public class ChannelServerChain extends ServerChain {
                 Optional<Member> optMember;
                 try {
                     optChat = database.getChat(chatID);
-                    optMember = database.findMemberByMemberID(cMember.memberID);
+                    optMember = database.findMemberByMemberID(otherMemberID);
                 } catch (DatabaseException e) {
                     LOGGER.error(e);
                     sendFin(Errors.SERVER_ERROR.createMessage());

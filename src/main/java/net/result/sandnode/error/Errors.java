@@ -72,7 +72,7 @@ public enum Errors implements SandnodeError {
                 case INVALID_MEMBER_ID_OR_PASSWORD -> throw new InvalidMemberIDPassword();
                 case BUSY_MEMBER_ID -> throw new BusyMemberIDException();
                 case UNAUTHORIZED -> throw new UnauthorizedException();
-                case ADDRESSED_MEMBER_NOT_FOUND -> throw new SandnodeErrorException();
+                case ADDRESSED_MEMBER_NOT_FOUND -> throw new AddressedMemberNotFoundException();
             }
         }
     }

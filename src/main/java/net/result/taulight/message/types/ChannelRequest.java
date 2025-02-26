@@ -4,7 +4,6 @@ import net.result.sandnode.exception.DeserializationException;
 import net.result.sandnode.message.MSGPackMessage;
 import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.message.util.Headers;
-import net.result.sandnode.serverclient.ClientMember;
 import net.result.taulight.message.TauMessageTypes;
 
 import java.util.UUID;
@@ -15,9 +14,10 @@ public class ChannelRequest extends MSGPackMessage<ChannelRequest.Data> {
     public static class Data {
         public DataType type;
         public String title;
-        public ClientMember member;
+        public String otherMemberID;
         public UUID chatID;
 
+        @SuppressWarnings("unused")
         public Data() {}
 
         private Data(DataType type) {
@@ -49,10 +49,18 @@ public class ChannelRequest extends MSGPackMessage<ChannelRequest.Data> {
         return new ChannelRequest(data);
     }
 
-    public static ChannelRequest addMember(UUID chatID, ClientMember member) {
+    public static ChannelRequest addMember(UUID chatID, String otherMemberID) {
         Data data = new Data(DataType.ADD);
         data.chatID = chatID;
-        data.member = member;
+        data.otherMemberID = otherMemberID;
         return new ChannelRequest(data);
+    }
+
+    public UUID getChatID() {
+        return object.chatID;
+    }
+
+    public String getOtherMemberID() {
+        return object.otherMemberID;
     }
 }
