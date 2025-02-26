@@ -24,9 +24,8 @@ public class PublicKeyResponse extends Message {
         this.keyStorage = keyStorage;
     }
 
-    public PublicKeyResponse(@NotNull IMessage response)
-            throws NoSuchEncryptionException, CreatingKeyException, EncryptionTypeException,
-            ExpectedMessageException {
+    public PublicKeyResponse(@NotNull IMessage response) throws NoSuchEncryptionException, CreatingKeyException,
+            EncryptionTypeException, ExpectedMessageException {
         super(response.expect(MessageTypes.PUB).headers());
         byte encryptionByte = Byte.parseByte(headers().getValue("encryption"));
         AsymmetricEncryption encryption = EncryptionManager.findAsymmetric(encryptionByte);

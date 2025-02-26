@@ -46,17 +46,13 @@ public class IOController {
     private Encryption symKeyEncryption = Encryptions.NONE;
     public boolean connected = true;
 
-    public IOController(
-            Socket socket,
-            Connection connection,
-            KeyStorageRegistry keyStorageRegistry,
-            ChainManager chainManager
-    ) throws InputStreamException, OutputStreamException {
+    public IOController(Socket socket, Connection conn, KeyStorageRegistry ksr, ChainManager chainManager)
+            throws InputStreamException, OutputStreamException {
         this.in = StreamReader.inputStream(socket);
         this.out = StreamReader.outputStream(socket);
         this.socket = socket;
-        this.connection = connection;
-        this.keyStorageRegistry = keyStorageRegistry.copy();
+        connection = conn;
+        keyStorageRegistry = ksr.copy();
         this.chainManager = chainManager;
     }
 

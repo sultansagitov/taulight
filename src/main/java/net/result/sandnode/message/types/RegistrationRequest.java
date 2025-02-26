@@ -28,11 +28,7 @@ public class RegistrationRequest extends MSGPackMessage<RegistrationRequest.Memb
         super(message.expect(MessageTypes.REG), MemberData.class);
     }
 
-    public RegistrationRequest(
-            @NotNull Headers headers,
-            @NotNull String memberID,
-            @NotNull String password
-    ) {
+    public RegistrationRequest(@NotNull Headers headers, @NotNull String memberID, @NotNull String password) {
         super(headers.setType(MessageTypes.REG), new MemberData(memberID, password));
     }
 

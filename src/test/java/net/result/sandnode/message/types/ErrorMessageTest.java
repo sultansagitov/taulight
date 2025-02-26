@@ -18,10 +18,10 @@ class ErrorMessageTest {
     @Test
     void testConstructor_WithValidSandnodeError() {
         ErrorMessage errorMessage = new ErrorMessage(error);
-        
+
         assertNotNull(errorMessage);
         assertEquals(error, errorMessage.error);
-        assertEquals(1000, errorMessage.code()); 
+        assertEquals(1000, errorMessage.code());
     }
 
     @Test

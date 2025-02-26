@@ -35,9 +35,8 @@ public class ChatClientChain extends ClientChain {
         throw new ImpossibleRuntimeException("This chain should not be started");
     }
 
-    public Optional<Collection<ChatInfo>> getByMember(Collection<ChatInfoProp> infoProps)
-            throws InterruptedException, DeserializationException, ExpectedMessageException, SandnodeErrorException,
-            UnknownSandnodeErrorException {
+    public Optional<Collection<ChatInfo>> getByMember(Collection<ChatInfoProp> infoProps) throws InterruptedException,
+            DeserializationException, ExpectedMessageException, SandnodeErrorException, UnknownSandnodeErrorException {
         lock.lock();
         try {
             send(ChatRequest.getByMember(infoProps));

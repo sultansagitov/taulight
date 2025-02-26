@@ -4,7 +4,6 @@ import net.result.sandnode.chain.server.ServerChain;
 import net.result.sandnode.db.Member;
 import net.result.sandnode.error.Errors;
 import net.result.sandnode.exception.DatabaseException;
-import net.result.sandnode.exception.DeserializationException;
 import net.result.sandnode.exception.ExpectedMessageException;
 import net.result.sandnode.serverclient.Session;
 import net.result.taulight.SysMessages;
@@ -32,7 +31,7 @@ public class DirectServerChain extends ServerChain {
     }
 
     @Override
-    public void sync() throws InterruptedException, ExpectedMessageException, DeserializationException {
+    public void sync() throws InterruptedException, ExpectedMessageException {
         TauDatabase database = (TauDatabase) session.server.serverConfig.database();
         TauGroupManager manager = (TauGroupManager) session.server.serverConfig.groupManager();
 

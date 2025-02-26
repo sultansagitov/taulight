@@ -10,7 +10,6 @@ import net.result.sandnode.util.Endpoint;
 import net.result.sandnode.util.IOController;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.net.Socket;
@@ -26,12 +25,7 @@ public class SandnodeClient {
     public IOController io;
     public Socket socket;
 
-    public SandnodeClient(
-            @NotNull Endpoint endpoint,
-            @NotNull Node node,
-            @NotNull NodeType nodeType,
-            @NotNull ClientConfig clientConfig
-    ) {
+    public SandnodeClient(Endpoint endpoint, Node node, NodeType nodeType, ClientConfig clientConfig) {
         this.endpoint = endpoint;
         this.node = node;
         this.nodeType = nodeType;

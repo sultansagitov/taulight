@@ -39,10 +39,8 @@ public class JWTTokenizer implements Tokenizer {
     }
 
     @Override
-    public Optional<Member> findMember(
-            @NotNull Database database,
-            @NotNull String token
-    ) throws InvalidTokenException, ExpiredTokenException, DatabaseException {
+    public Optional<Member> findMember(@NotNull Database database, @NotNull String token)
+            throws InvalidTokenException, ExpiredTokenException, DatabaseException {
         try {
             DecodedJWT decodedJWT = VERIFIER.verify(token);
             String memberID = decodedJWT.getSubject();

@@ -32,7 +32,7 @@ public class Links {
         }
         return URI.create(string);
     }
-    
+
     public static SandnodeLinkRecord parse(String s) throws InvalidSandnodeLinkException, CreatingKeyException {
         URI uri;
         try {

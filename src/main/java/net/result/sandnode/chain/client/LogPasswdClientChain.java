@@ -19,8 +19,8 @@ public class LogPasswdClientChain extends ClientChain {
     }
 
     @Override
-    public void sync() throws InterruptedException, SandnodeErrorException,
-            ExpectedMessageException, UnknownSandnodeErrorException {
+    public void sync() throws InterruptedException, SandnodeErrorException, ExpectedMessageException,
+            UnknownSandnodeErrorException {
         LogPasswdRequest loginRequest = new LogPasswdRequest(memberID, password);
         send(loginRequest);
 

@@ -30,10 +30,11 @@ public class SandnodeMariaDBDatabase implements Database {
     public synchronized Member registerMember(String memberID, String password)
             throws BusyMemberIDException, DatabaseException {
         try (
-                var conn = dataSource.getConnection();
-                var checkStmt = conn.prepareStatement("SELECT 1 FROM members WHERE member_id = ?");
-                var insertStmt
-                        = conn.prepareStatement("INSERT INTO members (member_id, password_hash) VALUES (?, ?)")
+                Connection conn = dataSource.getConnection();
+                PreparedStatement checkStmt = conn.prepareStatement("SELECT 1 FROM members WHERE member_id = ?");
+                PreparedStatement insertStmt = conn.prepareStatement("""
+                    INSERT INTO members (member_id, password_hash) VALUES (?, ?)
+                """)
         ) {
             checkStmt.setString(1, memberID);
             try (ResultSet rs = checkStmt.executeQuery()) {
@@ -54,8 +55,10 @@ public class SandnodeMariaDBDatabase implements Database {
 
     @Override
     public synchronized Optional<Member> findMemberByMemberID(String memberID) throws DatabaseException {
-        try (Connection conn = dataSource.getConnection();
-             PreparedStatement stmt = conn.prepareStatement("SELECT password_hash FROM members WHERE member_id = ?")) {
+        try (
+                Connection conn = dataSource.getConnection();
+                PreparedStatement stmt = conn.prepareStatement("SELECT password_hash FROM members WHERE member_id = ?")
+        ) {
 
             stmt.setString(1, memberID);
             try (ResultSet rs = stmt.executeQuery()) {

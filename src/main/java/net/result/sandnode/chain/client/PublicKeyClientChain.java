@@ -17,8 +17,7 @@ public class PublicKeyClientChain extends Chain {
 
     @Override
     public void sync() throws InterruptedException, EncryptionTypeException, NoSuchEncryptionException,
-            CreatingKeyException, ExpectedMessageException, SandnodeErrorException,
-            UnknownSandnodeErrorException {
+            CreatingKeyException, ExpectedMessageException, SandnodeErrorException, UnknownSandnodeErrorException {
         IMessage request = new PublicKeyRequest();
         send(request);
 

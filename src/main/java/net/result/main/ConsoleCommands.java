@@ -15,6 +15,7 @@ import net.result.taulight.message.ChatInfo;
 import net.result.taulight.message.ChatInfoProp;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 
@@ -90,7 +91,7 @@ public class ConsoleCommands {
             Collection<String> groups = ClientProtocol.getGroups(io);
             System.out.printf("Your groups: %s%n", groups);
         } catch (ExpectedMessageException e) {
-            System.out.printf("Failed to retrieve groups - %s%n", e.getClass().getSimpleName());
+            System.out.printf("Failed to retrieve groups - %s%n", e.getClass());
         }
         return false;
     }
@@ -100,7 +101,7 @@ public class ConsoleCommands {
             Collection<String> groupsAfterAdding = ClientProtocol.addToGroups(io, groups);
             System.out.printf("Your groups now (after adding): %s%n", groupsAfterAdding);
         } catch (ExpectedMessageException e) {
-            System.out.printf("Failed to add to groups - %s%n", e.getClass().getSimpleName());
+            System.out.printf("Failed to add to groups - %s%n", e.getClass());
         }
         return false;
     }
@@ -110,7 +111,7 @@ public class ConsoleCommands {
             Collection<String> groupsAfterRemoving = ClientProtocol.removeFromGroups(io, groups);
             System.out.printf("Your groups now (after removing): %s%n", groupsAfterRemoving);
         } catch (ExpectedMessageException e) {
-            System.out.printf("Failed to remove from groups - %s%n", e.getClass().getSimpleName());
+            System.out.printf("Failed to remove from groups - %s%n", e.getClass());
         }
         return false;
     }
@@ -133,13 +134,13 @@ public class ConsoleCommands {
             opt.ifPresent(ConsoleCommands::printInfo);
 
         } catch (DeserializationException e) {
-            System.out.printf("Failed to deserialize data - %s%n", e.getClass().getSimpleName());
+            System.out.printf("Failed to deserialize data - %s%n", e.getClass());
         } catch (ExpectedMessageException e) {
-            System.out.printf("Received an unexpected message - %s%n", e.getClass().getSimpleName());
+            System.out.printf("Received an unexpected message - %s%n", e.getClass());
         } catch (SandnodeErrorException e) {
-            System.out.printf("Encountered a Sandnode error - %s%n", e.getClass().getSimpleName());
+            System.out.printf("Encountered a Sandnode error - %s%n", e.getClass());
         } catch (UnknownSandnodeErrorException e) {
-            System.out.printf("Encountered an unknown Sandnode error - %s%n", e.getClass().getSimpleName());
+            System.out.printf("Encountered an unknown Sandnode error - %s%n", e.getClass());
         }
         return false;
     }
@@ -162,13 +163,13 @@ public class ConsoleCommands {
             opt.ifPresent(ConsoleCommands::printInfo);
 
         } catch (DeserializationException e) {
-            System.out.printf("Failed to deserialize data - %s%n", e.getClass().getSimpleName());
+            System.out.printf("Failed to deserialize data - %s%n", e.getClass());
         } catch (ExpectedMessageException e) {
-            System.out.printf("Received an unexpected message - %s%n", e.getClass().getSimpleName());
+            System.out.printf("Received an unexpected message - %s%n", e.getClass());
         } catch (SandnodeErrorException e) {
-            System.out.printf("Encountered a Sandnode error - %s%n", e.getClass().getSimpleName());
+            System.out.printf("Encountered a Sandnode error - %s%n", e.getClass());
         } catch (UnknownSandnodeErrorException e) {
-            System.out.printf("Encountered an unknown Sandnode error - %s%n", e.getClass().getSimpleName());
+            System.out.printf("Encountered an unknown Sandnode error - %s%n", e.getClass());
         }
         return false;
     }
@@ -191,13 +192,13 @@ public class ConsoleCommands {
             opt.ifPresent(ConsoleCommands::printInfo);
 
         } catch (DeserializationException e) {
-            System.out.printf("Failed to deserialize data - %s%n", e.getClass().getSimpleName());
+            System.out.printf("Failed to deserialize data - %s%n", e.getClass());
         } catch (ExpectedMessageException e) {
-            System.out.printf("Received an unexpected message - %s%n", e.getClass().getSimpleName());
+            System.out.printf("Received an unexpected message - %s%n", e.getClass());
         } catch (SandnodeErrorException e) {
-            System.out.printf("Encountered a Sandnode error - %s%n", e.getClass().getSimpleName());
+            System.out.printf("Encountered a Sandnode error - %s%n", e.getClass());
         } catch (UnknownSandnodeErrorException e) {
-            System.out.printf("Encountered an unknown Sandnode error - %s%n", e.getClass().getSimpleName());
+            System.out.printf("Encountered an unknown Sandnode error - %s%n", e.getClass());
         }
         return false;
     }
@@ -224,17 +225,14 @@ public class ConsoleCommands {
 
             opt.ifPresent(ConsoleCommands::printInfo);
 
-        } catch (DeserializationException e) {
-            System.out.printf("Failed to deserialize chat info - %s%n", e.getClass().getSimpleName());
-        } catch (ExpectedMessageException e) {
-            System.out.printf("Unexpected message received while fetching chat info - %s%n", e.getClass().getSimpleName());
-        } catch (SandnodeErrorException | UnknownSandnodeErrorException e) {
-            System.out.printf("Chat info retrieval failed due to a Sandnode error - %s%n", e.getClass().getSimpleName());
+        } catch (DeserializationException | ExpectedMessageException | SandnodeErrorException |
+                 UnknownSandnodeErrorException e) {
+            System.out.printf("Chat info retrieval failed due to a Sandnode error - %s%n", e.getClass());
         }
         return false;
     }
 
-    private boolean newChannel(List<String> args) throws InterruptedException {
+    private boolean newChannel(@NotNull List<String> args) throws InterruptedException {
         String title = args.get(0);
         try {
             var chain = new ChannelClientChain(io);
@@ -243,12 +241,12 @@ public class ConsoleCommands {
             io.chainManager.removeChain(chain);
             System.out.printf("New channel '%s' created successfully%n", title);
         } catch (ExpectedMessageException e) {
-            System.out.printf("Error creating new channel '%s' - %s%n", title, e.getClass().getSimpleName());
+            System.out.printf("Error creating new channel '%s' - %s%n", title, e.getClass());
         }
         return false;
     }
 
-    private boolean addMember(List<String> args) throws InterruptedException {
+    private boolean addMember(@NotNull List<String> args) throws InterruptedException {
         if (args.size() < 2) {
             System.out.println("Usage: addMember <chatID> <member>");
             return false;
@@ -283,7 +281,7 @@ public class ConsoleCommands {
         return false;
     }
 
-    private boolean direct(List<String> args) throws InterruptedException {
+    private boolean direct(@NotNull List<String> args) throws InterruptedException {
         String memberID = args.get(0);
         try {
             DirectClientChain chain = new DirectClientChain(io, memberID);
@@ -292,34 +290,38 @@ public class ConsoleCommands {
             System.out.printf("DM with member %s found or created. Chat ID: %s%n", memberID, chain.chatID);
             io.chainManager.removeChain(chain);
         } catch (MemberNotFoundException e) {
-            System.out.printf("Member %s not found - %s%n", memberID, e.getClass().getSimpleName());
-        } catch (ExpectedMessageException | DeserializationException e) {
-            System.out.printf("Failed to find or create DM with %s due to message or data error - %s%n",
-                    memberID, e.getClass().getSimpleName());
-        } catch (SandnodeErrorException | UnknownSandnodeErrorException e) {
-            System.out.printf("DM operation failed due to a Sandnode error - %s%n", e.getClass().getSimpleName());
+            System.out.printf("Member %s not found - %s%n", memberID, e.getClass());
+        } catch (ExpectedMessageException | DeserializationException | SandnodeErrorException |
+                 UnknownSandnodeErrorException e) {
+            System.out.printf("DM operation failed due to a Sandnode error - %s%n", e.getClass());
         }
         return false;
     }
 
 
-    private boolean leave(List<String> args) throws InterruptedException {
+    private boolean leave(@NotNull List<String> args) throws InterruptedException {
+        UUID chatID;
+
+        try {
+            chatID = UUID.fromString(args.get(0));
+        } catch (IndexOutOfBoundsException e) {
+            System.out.println("Error: No chat ID provided. Usage: leave <chatID>");
+            return false;
+        } catch (IllegalArgumentException e) {
+            System.out.println("Error: Invalid chat ID format.");
+            return false;
+        }
+
         try {
             ChannelClientChain chain = new ChannelClientChain(io);
             io.chainManager.linkChain(chain);
-            UUID chatID = UUID.fromString(args.get(0));
             chain.sendLeaveRequest(chatID);
             io.chainManager.removeChain(chain);
             System.out.printf("Left chat '%s' successfully%n", chatID);
-        } catch (IndexOutOfBoundsException e) {
-            System.out.println("Error: No chat ID provided. Usage: leave <chatID>");
-        } catch (IllegalArgumentException e) {
-            System.out.println("Error: Invalid chat ID format.");
         } catch (ExpectedMessageException e) {
-            System.out.printf("Failed to leave chat '%s' due to an unexpected message - %s%n",
-                    args.get(0), e.getClass().getSimpleName());
+            System.out.printf("Failed to leave chat '%s' due to an unexpected message - %s%n", chatID, e.getClass());
         } catch (SandnodeErrorException | UnknownSandnodeErrorException e) {
-            System.out.printf("Leave request failed due to a Sandnode error - %s%n", e.getClass().getSimpleName());
+            System.out.printf("Leave request failed due to a Sandnode error - %s%n", e.getClass());
         }
         return false;
     }
@@ -340,12 +342,11 @@ public class ConsoleCommands {
             Collections.reverse(messages);
             messages.forEach(System.out::println);
         } catch (ExpectedMessageException e) {
-            System.out.printf("Failed to retrieve messages due to an unexpected message - %s%n",
-                    e.getClass().getSimpleName());
+            System.out.printf("Failed to retrieve messages due to an unexpected message - %s%n", e.getClass());
         } catch (DeserializationException e) {
-            System.out.printf("Failed to deserialize messages - %s%n", e.getClass().getSimpleName());
+            System.out.printf("Failed to deserialize messages - %s%n", e.getClass());
         } catch (SandnodeErrorException | UnknownSandnodeErrorException e) {
-            System.out.printf("Message retrieval failed due to a Sandnode error - %s%n", e.getClass().getSimpleName());
+            System.out.printf("Message retrieval failed due to a Sandnode error - %s%n", e.getClass());
         }
 
         return false;
