@@ -13,7 +13,7 @@ import java.util.UUID;
 
 public class DirectResponse extends MSGPackMessage<DirectResponse.Data> {
     protected static class Data {
-        @JsonProperty
+        @JsonProperty("member-id")
         public String memberID;
         @JsonProperty
         public UUID id;

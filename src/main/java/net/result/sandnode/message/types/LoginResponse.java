@@ -11,7 +11,7 @@ import org.jetbrains.annotations.NotNull;
 
 public class LoginResponse extends MSGPackMessage<LoginResponse.LoginData> {
     public static class LoginData {
-        @JsonProperty
+        @JsonProperty("member-id")
         public String memberID;
 
         @SuppressWarnings("unused")

@@ -11,7 +11,7 @@ import org.jetbrains.annotations.NotNull;
 
 public class LogPasswdRequest extends MSGPackMessage<LogPasswdRequest.Data> {
     protected static class Data {
-        @JsonProperty
+        @JsonProperty("member-id")
         public String memberID;
         @JsonProperty
         public String password;

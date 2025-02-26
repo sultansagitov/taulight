@@ -13,7 +13,7 @@ import java.util.UUID;
 
 public class MessageRequest extends MSGPackMessage<MessageRequest.Data> {
     public static class Data {
-        @JsonProperty
+        @JsonProperty("chat-id")
         public UUID chatID;
         @JsonProperty
         private int index;

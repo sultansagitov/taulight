@@ -11,7 +11,7 @@ import org.jetbrains.annotations.NotNull;
 
 public class RegistrationRequest extends MSGPackMessage<RegistrationRequest.MemberData> {
     public static class MemberData {
-        @JsonProperty
+        @JsonProperty("member-id")
         public String memberID;
         @JsonProperty
         public String password;

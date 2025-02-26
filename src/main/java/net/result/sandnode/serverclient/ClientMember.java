@@ -3,7 +3,7 @@ package net.result.sandnode.serverclient;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 public final class ClientMember {
-    @JsonProperty
+    @JsonProperty("member-id")
     public String memberID;
 
     @SuppressWarnings("unused")

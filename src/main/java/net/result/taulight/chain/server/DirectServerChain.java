@@ -41,7 +41,7 @@ public class DirectServerChain extends ServerChain {
         TauDirect direct;
         Optional<Member> anotherMember;
         try {
-            anotherMember = database.findMemberByMemberID(request.getMemberID());
+            anotherMember = database.findMemberByMemberID(request.memberID());
             if (anotherMember.isEmpty()) {
                 send(Errors.MEMBER_NOT_FOUND.createMessage());
                 return;
@@ -68,6 +68,6 @@ public class DirectServerChain extends ServerChain {
         Collection<Member> members = List.of(session.member, anotherMember.get());
         TauAgentProtocol.addMembersToGroup(session, members, manager.getGroup(direct));
 
-        sendFin(new DirectResponse(request.getMemberID(), direct.id()));
+        sendFin(new DirectResponse(request.memberID(), direct.id()));
     }
 }
