@@ -55,10 +55,10 @@ public class ChannelServerChain extends ServerChain {
                     return;
                 }
 
-                TauChannel channel = new TauChannel(title, session.member);
+                TauChannel channel = new TauChannel(database, title, session.member);
                 try {
                     database.saveChat(channel);
-                    database.addMemberToChat(channel, session.member);
+                    channel.addMember(session.member);
                 } catch (DatabaseException e) {
                     LOGGER.error(e);
                     sendFin(Errors.SERVER_ERROR.createMessage());
@@ -120,7 +120,7 @@ public class ChannelServerChain extends ServerChain {
                 }
 
                 try {
-                    database.addMemberToChat(channel, member);
+                    channel.addMember(member);
                 } catch (DatabaseException e) {
                     LOGGER.error(e);
                     sendFin(Errors.SERVER_ERROR.createMessage());

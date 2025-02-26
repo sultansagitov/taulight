@@ -63,6 +63,6 @@ public class ServerChatMessage {
 
     @Override
     public String toString() {
-        return "<ServerChatMessage id=%s, serverZtd=%s, sys=%s, message=%s>".formatted(id, serverZtd, message, sys);
+        return "<ServerChatMessage id=%s, serverZtd=%s, sys=%s, message=%s>".formatted(id, serverZtd, sys, message);
     }
 }

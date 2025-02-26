@@ -53,14 +53,14 @@ public class MessageServerChain extends ServerChain {
                 return;
             }
 
-            members = database.getMembersFromChat(chat.get());
+            members = chat.get().getMembers();
 
             if (!members.contains(session.member)) {
                 sendFin(TauErrors.CHAT_NOT_FOUND.createMessage());
                 return;
             }
 
-            var messages = database.loadMessages(chat.get(), request.getIndex(), request.getSize());
+            var messages = chat.get().loadMessages(request.getIndex(), request.getSize());
 
             sendFin(new MessageResponse(messages));
 

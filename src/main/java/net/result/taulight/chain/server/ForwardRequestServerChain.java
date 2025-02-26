@@ -67,7 +67,7 @@ public class ForwardRequestServerChain extends ServerChain {
 
                 TauChat chat = chatOpt.get();
 
-                Collection<Member> members = database.getMembersFromChat(chat);
+                Collection<Member> members = chat.getMembers();
                 if (!members.contains(session.member)) {
                     LOGGER.warn("Unauthorized access attempt by member: {}", session.member);
                     send(TauErrors.CHAT_NOT_FOUND.createMessage());

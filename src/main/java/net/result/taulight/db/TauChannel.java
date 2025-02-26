@@ -8,14 +8,14 @@ public class TauChannel extends TauChat {
     private final String title;
     private final Member owner;
 
-    public TauChannel(UUID id, String title, Member owner) {
-        super(id);
+    public TauChannel(UUID id, TauDatabase database, String title, Member owner) {
+        super(id, database);
         this.title = title;
         this.owner = owner;
     }
 
-    public TauChannel(String title, Member owner) {
-        this(UUID.randomUUID(), title, owner);
+    public TauChannel(TauDatabase database, String title, Member owner) {
+        this(UUID.randomUUID(), database, title, owner);
     }
 
     public String title() {

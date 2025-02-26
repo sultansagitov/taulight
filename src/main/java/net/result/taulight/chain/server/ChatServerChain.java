@@ -60,7 +60,7 @@ public class ChatServerChain extends ServerChain {
 
                         TauChat chat = opt.get();
 
-                        if (!database.getMembersFromChat(chat).contains(session.member)) {
+                        if (!chat.getMembers().contains(session.member)) {
                             infos.add(ChatInfo.chatNotFound(chatID));
                             continue;
                         }

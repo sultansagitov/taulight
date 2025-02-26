@@ -101,7 +101,7 @@ public class TauMariaDBDatabase extends SandnodeMariaDBDatabase implements TauDa
         try (Connection conn = dataSource.getConnection()) {
             conn.setAutoCommit(false);
             try {
-                TauDirect direct = new TauDirect(member1, member2);
+                TauDirect direct = new TauDirect(this, member1, member2);
 
                 byte[] chatBin = uuidToBinary(direct.id());
 
@@ -149,7 +149,7 @@ public class TauMariaDBDatabase extends SandnodeMariaDBDatabase implements TauDa
                 if (rs.next()) {
                     byte[] uuidBin = rs.getBytes("chat_id");
                     UUID chatID = binaryToUUID(uuidBin);
-                    return Optional.of(new TauDirect(chatID, m1, m2));
+                    return Optional.of(new TauDirect(chatID, this, m1, m2));
                 }
             }
             return Optional.empty();
@@ -242,7 +242,7 @@ public class TauMariaDBDatabase extends SandnodeMariaDBDatabase implements TauDa
                     String title = rs.getString("title");
                     String ownerMemberID = rs.getString("owner_id");
                     Member owner = findMemberByMemberID(ownerMemberID).orElseThrow();
-                    return Optional.of(new TauChannel(id, title, owner));
+                    return Optional.of(new TauChannel(id, this, title, owner));
                 }
             }
         }
@@ -258,7 +258,7 @@ public class TauMariaDBDatabase extends SandnodeMariaDBDatabase implements TauDa
                 if (rs.next()) {
                     Member member1 = findMemberByMemberID(rs.getString("member1_id")).orElseThrow();
                     Member member2 = findMemberByMemberID(rs.getString("member2_id")).orElseThrow();
-                    return Optional.of(new TauDirect(id, member1, member2));
+                    return Optional.of(new TauDirect(id, this, member1, member2));
                 }
             }
         }
@@ -459,7 +459,7 @@ public class TauMariaDBDatabase extends SandnodeMariaDBDatabase implements TauDa
                         String title = rs.getString("title");
                         String ownerMemberID = rs.getString("owner_id");
                         Member owner = findMemberByMemberID(ownerMemberID).orElseThrow();
-                        chats.add(new TauChannel(chatID, title, owner));
+                        chats.add(new TauChannel(chatID, this, title, owner));
                     }
                 }
             }
@@ -486,7 +486,7 @@ public class TauMariaDBDatabase extends SandnodeMariaDBDatabase implements TauDa
                         UUID chatID = binaryToUUID(chatBin);
                         String otherMemberID = rs.getString("other_member_id");
                         Member otherMember = findMemberByMemberID(otherMemberID).orElseThrow();
-                        chats.add(new TauDirect(chatID, member, otherMember));
+                        chats.add(new TauDirect(chatID, this, member, otherMember));
                     }
                 }
             }

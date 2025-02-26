@@ -13,4 +13,5 @@ public interface Database {
     Optional<Member> findMemberByMemberID(String memberID) throws DatabaseException;
 
     PasswordHasher hasher();
+
 }
