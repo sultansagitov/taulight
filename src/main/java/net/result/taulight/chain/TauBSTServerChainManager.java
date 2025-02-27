@@ -32,8 +32,8 @@ public class TauBSTServerChainManager extends BSTServerChainManager {
                 case CHANNEL -> {
                     return new ChannelServerChain(session);
                 }
-                case DIRECT -> {
-                    return new DirectServerChain(session);
+                case DIALOG -> {
+                    return new DialogServerChain(session);
                 }
                 case FWD_REQ -> {
                     return new ForwardRequestServerChain(session);

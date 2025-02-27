@@ -5,7 +5,7 @@ import net.result.taulight.db.ChatMessage;
 import net.result.taulight.db.TauChat;
 
 public enum SysMessages {
-    directNew("direct.new"),
+    dialogNew("dialog.new"),
     channelNew("channel.new"),
     channelAdd("channel.add"),
     channelLeave("channel.leave");

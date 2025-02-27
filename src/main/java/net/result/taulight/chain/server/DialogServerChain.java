@@ -9,13 +9,13 @@ import net.result.sandnode.serverclient.Session;
 import net.result.taulight.SysMessages;
 import net.result.taulight.TauAgentProtocol;
 import net.result.taulight.TauHubProtocol;
-import net.result.taulight.chain.client.DirectRequest;
+import net.result.taulight.chain.client.DialogRequest;
 import net.result.taulight.db.ChatMessage;
 import net.result.taulight.db.TauDatabase;
-import net.result.taulight.db.TauDirect;
+import net.result.taulight.db.TauDialog;
 import net.result.taulight.exception.MessageNotForwardedException;
 import net.result.taulight.group.TauGroupManager;
-import net.result.taulight.message.types.DirectResponse;
+import net.result.taulight.message.types.Dialogesponse;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -23,10 +23,10 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
-public class DirectServerChain extends ServerChain {
-    private static final Logger LOGGER = LogManager.getLogger(DirectServerChain.class);
+public class DialogServerChain extends ServerChain {
+    private static final Logger LOGGER = LogManager.getLogger(DialogServerChain.class);
 
-    public DirectServerChain(Session session) {
+    public DialogServerChain(Session session) {
         super(session);
     }
 
@@ -35,9 +35,9 @@ public class DirectServerChain extends ServerChain {
         TauDatabase database = (TauDatabase) session.server.serverConfig.database();
         TauGroupManager manager = (TauGroupManager) session.server.serverConfig.groupManager();
 
-        DirectRequest request = new DirectRequest(queue.take());
+        DialogRequest request = new DialogRequest(queue.take());
 
-        TauDirect direct;
+        TauDialog dialog;
         Optional<Member> anotherMember;
         try {
             anotherMember = database.findMemberByMemberID(request.memberID());
@@ -46,16 +46,16 @@ public class DirectServerChain extends ServerChain {
                 return;
             }
 
-            Optional<TauDirect> directOpt = database.findDirectChat(session.member, anotherMember.get());
-            if (directOpt.isPresent()) {
-                direct = directOpt.get();
+            Optional<TauDialog> dialogOpt = database.findDialog(session.member, anotherMember.get());
+            if (dialogOpt.isPresent()) {
+                dialog = dialogOpt.get();
             } else {
-                direct = database.createDirectChat(session.member, anotherMember.get());
+                dialog = database.createDialog(session.member, anotherMember.get());
 
-                ChatMessage chatMessage = SysMessages.directNew.chatMessage(direct, session.member);
+                ChatMessage chatMessage = SysMessages.dialogNew.chatMessage(dialog, session.member);
 
                 try {
-                    TauHubProtocol.send(session.server.serverConfig, direct, chatMessage);
+                    TauHubProtocol.send(session.server.serverConfig, dialog, chatMessage);
                 } catch (DatabaseException | MessageNotForwardedException e) {
                     LOGGER.warn("Ignored exception: {}", e.getMessage());
                 }
@@ -65,8 +65,8 @@ public class DirectServerChain extends ServerChain {
         }
 
         Collection<Member> members = List.of(session.member, anotherMember.get());
-        TauAgentProtocol.addMembersToGroup(session, members, manager.getGroup(direct));
+        TauAgentProtocol.addMembersToGroup(session, members, manager.getGroup(dialog));
 
-        sendFin(new DirectResponse(request.memberID(), direct.id()));
+        sendFin(new Dialogesponse(request.memberID(), dialog.id()));
     }
 }

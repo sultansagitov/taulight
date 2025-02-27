@@ -94,7 +94,7 @@ public class FileUtil {
         }
     }
 
-    public static String readString(Path path) throws FSException {
+    public static @NotNull String readString(Path path) throws FSException {
         try {
             return Files.readString(path);
         } catch (IOException e) {

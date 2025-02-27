@@ -11,9 +11,9 @@ import java.util.UUID;
 
 public interface TauDatabase extends Database {
 
-    TauDirect createDirectChat(Member member1, Member member2) throws DatabaseException;
+    TauDialog createDialog(Member member1, Member member2) throws DatabaseException;
 
-    Optional<TauDirect> findDirectChat(Member member1, Member member2) throws DatabaseException;
+    Optional<TauDialog> findDialog(Member member1, Member member2) throws DatabaseException;
 
     void saveChat(TauChat chat) throws DatabaseException;
 

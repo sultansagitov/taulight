@@ -12,14 +12,14 @@ public enum ChatInfoProp {
     @JsonProperty("channel-owner") channelOwner,
     @JsonProperty("channel-is-my") channelIsMy,
 
-    @JsonProperty("direct-id") directID,
-    @JsonProperty("direct-other") directOther;
+    @JsonProperty("dialog-id") dialogID,
+    @JsonProperty("dialog-other") dialogOther;
 
     private static final Collection<ChatInfoProp> channelAll =
             List.of(channelID, channelTitle, channelOwner, channelIsMy);
-    private static final Collection<ChatInfoProp> id = List.of(channelID, directID);
-    private static final Collection<ChatInfoProp> directAll = List.of(directID, directOther);
+    private static final Collection<ChatInfoProp> dialogAll = List.of(dialogID, dialogOther);
     private static final Collection<ChatInfoProp> all = Arrays.stream(ChatInfoProp.values()).toList();
+    private static final Collection<ChatInfoProp> id = List.of(channelID, dialogID);
 
     public static Collection<ChatInfoProp> id() {
         return id;
@@ -29,8 +29,8 @@ public enum ChatInfoProp {
         return channelAll;
     }
 
-    public static Collection<ChatInfoProp> directAll() {
-        return directAll;
+    public static Collection<ChatInfoProp> dialogAll() {
+        return dialogAll;
     }
 
     public static Collection<ChatInfoProp> all() {

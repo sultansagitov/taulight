@@ -7,7 +7,7 @@ import net.result.sandnode.message.types.ChainNameRequest;
 import net.result.sandnode.util.IOController;
 import net.result.taulight.chain.client.ChannelClientChain;
 import net.result.taulight.chain.client.ChatClientChain;
-import net.result.taulight.chain.client.DirectClientChain;
+import net.result.taulight.chain.client.DialogClientChain;
 import net.result.taulight.chain.client.MessageClientChain;
 import net.result.taulight.db.ServerChatMessage;
 import net.result.taulight.exception.ChatNotFoundException;
@@ -45,13 +45,13 @@ public class ConsoleCommands {
         commands.put("addGroup", this::addGroup);
         commands.put("rmGroup", this::rmGroup);
         commands.put("chats", this::chats);
-        commands.put("directs", this::directs);
+        commands.put("dialogs", this::dialogs);
         commands.put("channels", this::channels);
         commands.put("info", this::info);
         commands.put("newChannel", this::newChannel);
         commands.put("addMember", this::addMember);
         commands.put("leave", this::leave);
-        commands.put("direct", this::direct);
+        commands.put("dialog", this::dialog);
         commands.put("messages", this::messages);
     }
 
@@ -145,18 +145,18 @@ public class ConsoleCommands {
         return false;
     }
 
-    private boolean directs(List<String> ignored) throws InterruptedException {
+    private boolean dialogs(List<String> ignored) throws InterruptedException {
         try {
             // Find or add "chat" chain
             Optional<Chain> chat = io.chainManager.getChain("chat");
             Optional<Collection<ChatInfo>> opt;
             if (chat.isPresent()) {
                 ChatClientChain chain = (ChatClientChain) chat.get();
-                opt = chain.getByMember(ChatInfoProp.directAll());
+                opt = chain.getByMember(ChatInfoProp.dialogAll());
             } else {
                 ChatClientChain chain = new ChatClientChain(io);
                 io.chainManager.linkChain(chain);
-                opt = chain.getByMember(ChatInfoProp.directAll());
+                opt = chain.getByMember(ChatInfoProp.dialogAll());
                 chain.send(new ChainNameRequest("chat"));
             }
 
@@ -281,19 +281,19 @@ public class ConsoleCommands {
         return false;
     }
 
-    private boolean direct(@NotNull List<String> args) throws InterruptedException {
+    private boolean dialog(@NotNull List<String> args) throws InterruptedException {
         String memberID = args.get(0);
         try {
-            DirectClientChain chain = new DirectClientChain(io, memberID);
+            DialogClientChain chain = new DialogClientChain(io, memberID);
             io.chainManager.linkChain(chain);
             chain.sync();
-            System.out.printf("DM with member %s found or created. Chat ID: %s%n", memberID, chain.chatID);
+            System.out.printf("Dialog with member %s found or created. Chat ID: %s%n", memberID, chain.chatID);
             io.chainManager.removeChain(chain);
         } catch (MemberNotFoundException e) {
             System.out.printf("Member %s not found - %s%n", memberID, e.getClass());
         } catch (ExpectedMessageException | DeserializationException | SandnodeErrorException |
                  UnknownSandnodeErrorException e) {
-            System.out.printf("DM operation failed due to a Sandnode error - %s%n", e.getClass());
+            System.out.printf("Dialog operation failed due to a Sandnode error - %s%n", e.getClass());
         }
         return false;
     }
@@ -358,7 +358,7 @@ public class ConsoleCommands {
             String s = switch (info.chatType) {
                 case CHANNEL -> "Channel info: %s, %s%s"
                         .formatted(info.title, info.ownerID, info.channelIsMy ? " (you)" : "");
-                case DIRECT -> "DM: %s".formatted(info.otherMemberID);
+                case DIALOG -> "Dialog: %s".formatted(info.otherMemberID);
                 case NOT_FOUND -> "Chat not found";
             };
             System.out.printf("%s - %s%n", info.id, s);

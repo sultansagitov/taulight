@@ -7,7 +7,7 @@ import net.result.sandnode.serverclient.Session;
 import net.result.taulight.db.TauChannel;
 import net.result.taulight.db.TauChat;
 import net.result.taulight.db.TauDatabase;
-import net.result.taulight.db.TauDirect;
+import net.result.taulight.db.TauDialog;
 import net.result.taulight.message.ChatInfo;
 import net.result.taulight.message.ChatInfoProp;
 import net.result.taulight.message.types.ChatRequest;
@@ -42,9 +42,9 @@ public class ChatServerChain extends ServerChain {
                             if (chatInfoProps.contains(ChatInfoProp.channelID)) {
                                 infos.add(ChatInfo.channel(channel, session.member, chatInfoProps));
                             }
-                        } else if (chat instanceof TauDirect direct && true) {
-                            if (chatInfoProps.contains(ChatInfoProp.directID)) {
-                                infos.add(ChatInfo.direct(direct, session.member, chatInfoProps));
+                        } else if (chat instanceof TauDialog dialog && true) {
+                            if (chatInfoProps.contains(ChatInfoProp.dialogID)) {
+                                infos.add(ChatInfo.dialog(dialog, session.member, chatInfoProps));
                             }
                         } else {
                             infos.add(ChatInfo.chatNotFound(chat.id()));
@@ -69,9 +69,9 @@ public class ChatServerChain extends ServerChain {
                             if (chatInfoProps.contains(ChatInfoProp.channelID)) {
                                 infos.add(ChatInfo.channel(channel, session.member, chatInfoProps));
                             }
-                        } else if (chat instanceof TauDirect direct && true) {
-                            if (chatInfoProps.contains(ChatInfoProp.directID)) {
-                                infos.add(ChatInfo.direct(direct, session.member, chatInfoProps));
+                        } else if (chat instanceof TauDialog dialog && true) {
+                            if (chatInfoProps.contains(ChatInfoProp.dialogID)) {
+                                infos.add(ChatInfo.dialog(dialog, session.member, chatInfoProps));
                             }
                         } else {
                             infos.add(ChatInfo.chatNotFound(chat.id()));

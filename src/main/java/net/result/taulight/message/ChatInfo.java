@@ -3,7 +3,7 @@ package net.result.taulight.message;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import net.result.sandnode.db.Member;
 import net.result.taulight.db.TauChannel;
-import net.result.taulight.db.TauDirect;
+import net.result.taulight.db.TauDialog;
 
 import java.util.Collection;
 import java.util.UUID;
@@ -19,12 +19,12 @@ public class ChatInfo {
     public String ownerID;
     @JsonProperty("channel-is-my")
     public boolean channelIsMy;
-    @JsonProperty("direct-other")
+    @JsonProperty("dialog-other")
     public String otherMemberID;
 
     public enum ChatType {
         @JsonProperty("cn") CHANNEL,
-        @JsonProperty("dm") DIRECT,
+        @JsonProperty("dl") DIALOG,
         @JsonProperty("no") NOT_FOUND
     }
 
@@ -41,11 +41,11 @@ public class ChatInfo {
         return info;
     }
 
-    public static ChatInfo direct(TauDirect direct, Member member, Collection<ChatInfoProp> infoProps) {
+    public static ChatInfo dialog(TauDialog dialog, Member member, Collection<ChatInfoProp> infoProps) {
         ChatInfo info = new ChatInfo();
-        info.chatType = ChatType.DIRECT;
-        if (infoProps.contains(ChatInfoProp.directID)) info.id = direct.id();
-        if (infoProps.contains(ChatInfoProp.directOther)) info.otherMemberID = direct.otherMember(member).id();
+        info.chatType = ChatType.DIALOG;
+        if (infoProps.contains(ChatInfoProp.dialogID)) info.id = dialog.id();
+        if (infoProps.contains(ChatInfoProp.dialogOther)) info.otherMemberID = dialog.otherMember(member).id();
         return info;
     }
 

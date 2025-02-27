@@ -7,20 +7,20 @@ import net.result.sandnode.message.util.Headers;
 import net.result.taulight.message.TauMessageTypes;
 import org.jetbrains.annotations.NotNull;
 
-public class DirectRequest extends Message {
+public class DialogRequest extends Message {
     private final String memberID;
 
-    public DirectRequest(@NotNull Headers headers, @NotNull String memberID) {
-        super(headers.setType(TauMessageTypes.DIRECT));
+    public DialogRequest(@NotNull Headers headers, @NotNull String memberID) {
+        super(headers.setType(TauMessageTypes.DIALOG));
         this.memberID = memberID;
     }
 
-    public DirectRequest(@NotNull String memberID) {
+    public DialogRequest(@NotNull String memberID) {
         this(new Headers(), memberID);
     }
 
-    public DirectRequest(@NotNull RawMessage raw) throws ExpectedMessageException {
-        super(raw.expect(TauMessageTypes.DIRECT).headers());
+    public DialogRequest(@NotNull RawMessage raw) throws ExpectedMessageException {
+        super(raw.expect(TauMessageTypes.DIALOG).headers());
         memberID = new String(raw.getBody());
     }
 

@@ -11,7 +11,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.UUID;
 
-public class DirectResponse extends MSGPackMessage<DirectResponse.Data> {
+public class Dialogesponse extends MSGPackMessage<Dialogesponse.Data> {
     protected static class Data {
         @JsonProperty("member-id")
         public String memberID;
@@ -26,16 +26,16 @@ public class DirectResponse extends MSGPackMessage<DirectResponse.Data> {
         }
     }
 
-    public DirectResponse(@NotNull Headers headers, String memberID, UUID id) {
-        super(headers.setType(TauMessageTypes.DIRECT), new Data(memberID, id));
+    public Dialogesponse(@NotNull Headers headers, String memberID, UUID id) {
+        super(headers.setType(TauMessageTypes.DIALOG), new Data(memberID, id));
     }
 
-    public DirectResponse(String memberID, UUID id) {
+    public Dialogesponse(String memberID, UUID id) {
         this(new Headers(), memberID, id);
     }
 
-    public DirectResponse(@NotNull RawMessage message) throws ExpectedMessageException, DeserializationException {
-        super(message.expect(TauMessageTypes.DIRECT), DirectResponse.Data.class);
+    public Dialogesponse(@NotNull RawMessage message) throws ExpectedMessageException, DeserializationException {
+        super(message.expect(TauMessageTypes.DIALOG), Dialogesponse.Data.class);
     }
 
     public UUID getChatID() {
