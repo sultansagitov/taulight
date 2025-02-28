@@ -1,6 +1,6 @@
 package net.result.sandnode.error;
 
-import net.result.sandnode.exception.*;
+import net.result.sandnode.exception.error.*;
 import net.result.sandnode.message.types.ErrorMessage;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
@@ -62,9 +62,9 @@ public enum Errors implements SandnodeError {
 
                 case INCORRECT_ENCRYPTION -> throw new IncorrectEncryptionException();
                 case UNKNOWN_ENCRYPTION -> throw new UnknownEncryptionException();
-                case ENCRYPT -> throw new EncryptionErrorException();
-                case DECRYPT -> throw new DecryptionErrorException();
-                case KEY_NOT_FOUND -> throw new KeyNotFoundException();
+                case ENCRYPT -> throw new EncryptionException();
+                case DECRYPT -> throw new DecryptionException();
+                case KEY_NOT_FOUND -> throw new KeyStorageNotFoundException();
 
                 case INVALID_TOKEN -> throw new InvalidTokenException();
                 case EXPIRED_TOKEN -> throw new ExpiredTokenException();

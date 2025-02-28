@@ -1,11 +1,11 @@
 package net.result.taulight.error;
 
-import net.result.sandnode.exception.SandnodeErrorException;
+import net.result.sandnode.exception.error.SandnodeErrorException;
 import net.result.sandnode.message.types.ErrorMessage;
 import net.result.sandnode.error.SandnodeError;
 import net.result.sandnode.error.ServerErrorManager;
-import net.result.taulight.exception.ChatNotFoundException;
-import net.result.taulight.exception.MessageNotForwardedException;
+import net.result.taulight.exception.error.ChatNotFoundException;
+import net.result.taulight.exception.error.MessageNotForwardedException;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 

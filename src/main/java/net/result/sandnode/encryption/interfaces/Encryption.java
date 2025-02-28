@@ -1,6 +1,7 @@
 package net.result.sandnode.encryption.interfaces;
 
-import net.result.sandnode.exception.*;
+import net.result.sandnode.exception.crypto.*;
+import net.result.sandnode.exception.error.*;
 
 public interface Encryption {
 
@@ -14,9 +15,9 @@ public interface Encryption {
 
     KeyStorage generate();
 
-    byte[] encrypt(String data, KeyStorage keyStorage) throws EncryptionException, CannotUseEncryption;
+    byte[] encrypt(String data, KeyStorage keyStorage) throws EncryptionException, CryptoException;
 
-    byte[] encryptBytes(byte[] bytes, KeyStorage keyStorage) throws EncryptionException, CannotUseEncryption;
+    byte[] encryptBytes(byte[] bytes, KeyStorage keyStorage) throws EncryptionException, CryptoException;
 
     String decrypt(byte[] encryptedData, KeyStorage keyStorage)
             throws WrongKeyException, CannotUseEncryption, DecryptionException, PrivateKeyNotFoundException;

@@ -4,7 +4,7 @@ import net.result.sandnode.encryption.AsymmetricEncryptions;
 import net.result.sandnode.encryption.EncryptionManager;
 import net.result.sandnode.exception.HeadersSerializationException;
 import net.result.sandnode.exception.NoSuchMessageTypeException;
-import net.result.sandnode.exception.NoSuchEncryptionException;
+import net.result.sandnode.exception.crypto.NoSuchEncryptionException;
 import net.result.sandnode.message.util.Connection;
 import net.result.sandnode.message.util.Headers;
 import net.result.sandnode.message.util.MessageTypes;

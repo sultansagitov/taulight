@@ -1,8 +1,8 @@
 package net.result.sandnode.tokens;
 
 import net.result.sandnode.exception.DatabaseException;
-import net.result.sandnode.exception.ExpiredTokenException;
-import net.result.sandnode.exception.InvalidTokenException;
+import net.result.sandnode.exception.error.ExpiredTokenException;
+import net.result.sandnode.exception.error.InvalidTokenException;
 import net.result.sandnode.db.Database;
 import net.result.sandnode.db.Member;
 

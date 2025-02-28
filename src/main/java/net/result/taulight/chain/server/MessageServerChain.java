@@ -5,6 +5,7 @@ import net.result.sandnode.db.Member;
 import net.result.sandnode.error.Errors;
 import net.result.sandnode.error.ServerErrorManager;
 import net.result.sandnode.exception.*;
+import net.result.sandnode.exception.error.SandnodeErrorException;
 import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.message.types.ErrorMessage;
 import net.result.sandnode.message.util.MessageTypes;

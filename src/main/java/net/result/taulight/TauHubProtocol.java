@@ -11,7 +11,7 @@ import net.result.taulight.db.ChatMessage;
 import net.result.taulight.db.TauChat;
 import net.result.taulight.db.TauDatabase;
 import net.result.taulight.db.ServerChatMessage;
-import net.result.taulight.exception.MessageNotForwardedException;
+import net.result.taulight.exception.error.MessageNotForwardedException;
 import net.result.taulight.group.TauGroupManager;
 import net.result.taulight.message.types.ForwardResponse;
 import org.apache.logging.log4j.LogManager;

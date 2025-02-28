@@ -1,7 +1,7 @@
 package net.result.sandnode.message.types;
 
 import net.result.sandnode.exception.ExpectedMessageException;
-import net.result.sandnode.message.IMessage;
+import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.message.Message;
 import net.result.sandnode.message.util.Headers;
 import net.result.sandnode.message.util.MessageTypes;
@@ -47,7 +47,7 @@ public class GroupRequest extends Message {
         this(new Headers(), groupsID);
     }
 
-    public GroupRequest(@NotNull IMessage message) throws ExpectedMessageException {
+    public GroupRequest(@NotNull RawMessage message) throws ExpectedMessageException {
         super(message.expect(MessageTypes.GROUP).headers());
 
         String[] groupsID = new String(message.getBody()).split(",");

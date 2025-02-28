@@ -2,7 +2,7 @@ package net.result.sandnode.util;
 
 import net.result.sandnode.encryption.interfaces.AsymmetricEncryption;
 import net.result.sandnode.encryption.interfaces.AsymmetricKeyStorage;
-import net.result.sandnode.exception.CannotUseEncryption;
+import net.result.sandnode.exception.crypto.CannotUseEncryption;
 import net.result.sandnode.exception.ImpossibleRuntimeException;
 
 public class EncryptionUtil {

@@ -2,7 +2,7 @@ package net.result.taulight.chain.server;
 
 import net.result.sandnode.chain.server.ServerChain;
 import net.result.sandnode.exception.DatabaseException;
-import net.result.taulight.SysMessages;
+import net.result.taulight.message.SysMessages;
 import net.result.taulight.TauAgentProtocol;
 import net.result.taulight.TauHubProtocol;
 import net.result.taulight.db.ChatMessage;
@@ -10,7 +10,7 @@ import net.result.taulight.db.TauDatabase;
 import net.result.sandnode.db.Member;
 import net.result.sandnode.error.Errors;
 import net.result.sandnode.exception.DeserializationException;
-import net.result.taulight.exception.MessageNotForwardedException;
+import net.result.taulight.exception.error.MessageNotForwardedException;
 import net.result.taulight.group.TauGroupManager;
 import net.result.sandnode.message.types.HappyMessage;
 import net.result.sandnode.serverclient.Session;

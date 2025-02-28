@@ -3,6 +3,7 @@ package net.result.main.chain.client;
 import net.result.main.ConsoleCommands;
 import net.result.sandnode.error.ServerErrorManager;
 import net.result.sandnode.exception.*;
+import net.result.sandnode.exception.error.SandnodeErrorException;
 import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.message.types.ErrorMessage;
 import net.result.sandnode.message.util.MessageType;
@@ -10,8 +11,8 @@ import net.result.sandnode.message.util.MessageTypes;
 import net.result.sandnode.util.IOController;
 import net.result.sandnode.chain.client.ClientChain;
 import net.result.taulight.db.ChatMessage;
-import net.result.taulight.exception.ChatNotFoundException;
-import net.result.taulight.exception.MessageNotForwardedException;
+import net.result.taulight.exception.error.ChatNotFoundException;
+import net.result.taulight.exception.error.MessageNotForwardedException;
 import net.result.taulight.message.types.ForwardRequest;
 
 import java.util.*;

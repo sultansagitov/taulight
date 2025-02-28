@@ -4,6 +4,11 @@ import net.result.sandnode.encryption.Encryptions;
 import net.result.sandnode.encryption.KeyStorageRegistry;
 import net.result.sandnode.encryption.interfaces.*;
 import net.result.sandnode.exception.*;
+import net.result.sandnode.exception.crypto.CryptoException;
+import net.result.sandnode.exception.crypto.NoSuchEncryptionException;
+import net.result.sandnode.exception.crypto.PrivateKeyNotFoundException;
+import net.result.sandnode.exception.crypto.WrongKeyException;
+import net.result.sandnode.exception.error.*;
 import net.result.sandnode.message.EncryptedMessage;
 import net.result.sandnode.message.IMessage;
 import net.result.sandnode.message.Message;
@@ -74,8 +79,8 @@ public class IOController {
         headers.setValue("random", sb);
     }
 
-    public void sendingLoop() throws InterruptedException, IllegalMessageLengthException,
-            MessageSerializationException, EncryptionException, MessageWriteException {
+    public void sendingLoop() throws InterruptedException, IllegalMessageLengthException, MessageSerializationException,
+            EncryptionException, MessageWriteException, KeyStorageNotFoundException, CryptoException {
         while (connected) {
             IMessage message = sendingQueue.take();
             beforeSending(message);

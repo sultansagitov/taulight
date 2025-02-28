@@ -1,6 +1,6 @@
 package net.result.sandnode.encryption.interfaces;
 
-import net.result.sandnode.exception.EncryptionTypeException;
+import net.result.sandnode.exception.crypto.EncryptionTypeException;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 

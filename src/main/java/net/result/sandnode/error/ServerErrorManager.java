@@ -1,6 +1,6 @@
 package net.result.sandnode.error;
 
-import net.result.sandnode.exception.SandnodeErrorException;
+import net.result.sandnode.exception.error.SandnodeErrorException;
 import net.result.sandnode.util.Manager;
 
 import java.util.*;

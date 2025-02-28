@@ -1,6 +1,7 @@
 package net.result.sandnode.message.types;
 
 import net.result.sandnode.exception.ExpectedMessageException;
+import net.result.sandnode.message.RawMessage;
 import org.junit.jupiter.api.Test;
 
 import java.util.Collection;
@@ -17,7 +18,10 @@ class GroupRequestTest {
                 "group with spaces", "group$special", "UPPERCASE", "", "  ", "что_то_на_русском"
         );
 
-        GroupRequest request = new GroupRequest(new GroupRequest(inputGroupNames));
+        GroupRequest r = new GroupRequest(inputGroupNames);
+        RawMessage raw = new RawMessage(r.headers(), r.getBody());
+
+        GroupRequest request = new GroupRequest(raw);
 
         Collection<String> expectedGroupNames = Set.of(
                 "#group1",

@@ -2,8 +2,12 @@ package net.result.sandnode.message.types;
 
 import net.result.sandnode.encryption.Encryptions;
 import net.result.sandnode.exception.*;
-import net.result.sandnode.message.IMessage;
+import net.result.sandnode.exception.crypto.CannotUseEncryption;
+import net.result.sandnode.exception.crypto.CreatingKeyException;
+import net.result.sandnode.exception.crypto.EncryptionTypeException;
+import net.result.sandnode.exception.crypto.NoSuchEncryptionException;
 import net.result.sandnode.message.Message;
+import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.message.util.Headers;
 import net.result.sandnode.encryption.EncryptionManager;
 import net.result.sandnode.encryption.interfaces.AsymmetricEncryption;
@@ -24,7 +28,7 @@ public class PublicKeyResponse extends Message {
         this.keyStorage = keyStorage;
     }
 
-    public PublicKeyResponse(@NotNull IMessage response) throws NoSuchEncryptionException, CreatingKeyException,
+    public PublicKeyResponse(@NotNull RawMessage response) throws NoSuchEncryptionException, CreatingKeyException,
             EncryptionTypeException, ExpectedMessageException {
         super(response.expect(MessageTypes.PUB).headers());
         byte encryptionByte = Byte.parseByte(headers().getValue("encryption"));

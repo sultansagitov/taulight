@@ -2,7 +2,8 @@ package net.result.sandnode.chain.client;
 
 import net.result.sandnode.error.ServerErrorManager;
 import net.result.sandnode.exception.*;
-import net.result.sandnode.message.IMessage;
+import net.result.sandnode.exception.error.SandnodeErrorException;
+import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.message.types.ErrorMessage;
 import net.result.sandnode.message.types.LoginRequest;
 import net.result.sandnode.message.types.LoginResponse;
@@ -24,7 +25,7 @@ public class LoginClientChain extends ClientChain {
         LoginRequest loginRequest = new LoginRequest(token);
         send(loginRequest);
 
-        IMessage message = queue.take();
+        RawMessage message = queue.take();
 
         if (message.headers().type() == MessageTypes.ERR) {
             ErrorMessage errorMessage = new ErrorMessage(message);

@@ -3,7 +3,7 @@ package net.result.sandnode.chain.client;
 import net.result.sandnode.encryption.interfaces.SymmetricEncryption;
 import net.result.sandnode.encryption.interfaces.SymmetricKeyStorage;
 import net.result.sandnode.exception.ExpectedMessageException;
-import net.result.sandnode.exception.KeyNotCreatedException;
+import net.result.sandnode.exception.crypto.KeyNotCreatedException;
 import net.result.sandnode.message.IMessage;
 import net.result.sandnode.message.types.HappyMessage;
 import net.result.sandnode.message.types.SymMessage;

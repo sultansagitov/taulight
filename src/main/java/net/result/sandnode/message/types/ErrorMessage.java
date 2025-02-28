@@ -2,7 +2,7 @@ package net.result.sandnode.message.types;
 
 import net.result.sandnode.exception.ExpectedMessageException;
 import net.result.sandnode.exception.UnknownSandnodeErrorException;
-import net.result.sandnode.message.IMessage;
+import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.message.StatusMessage;
 import net.result.sandnode.message.util.Headers;
 import net.result.sandnode.error.SandnodeError;
@@ -18,7 +18,7 @@ public class ErrorMessage extends StatusMessage {
         this.error = serverError;
     }
 
-    public ErrorMessage(@NotNull IMessage response) throws ExpectedMessageException, UnknownSandnodeErrorException {
+    public ErrorMessage(@NotNull RawMessage response) throws ExpectedMessageException, UnknownSandnodeErrorException {
         super(response.expect(MessageTypes.ERR));
 
         for (SandnodeError error : ServerErrorManager.instance().list) {

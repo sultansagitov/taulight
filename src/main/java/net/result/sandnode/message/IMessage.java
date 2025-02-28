@@ -1,6 +1,9 @@
 package net.result.sandnode.message;
 
 import net.result.sandnode.exception.*;
+import net.result.sandnode.exception.crypto.CryptoException;
+import net.result.sandnode.exception.error.KeyStorageNotFoundException;
+import net.result.sandnode.exception.error.EncryptionException;
 import net.result.sandnode.message.util.Headers;
 import net.result.sandnode.encryption.KeyStorageRegistry;
 import net.result.sandnode.encryption.interfaces.Encryption;
@@ -14,7 +17,7 @@ public interface IMessage {
     byte[] getBody();
 
     byte[] toByteArray(@NotNull KeyStorageRegistry keyStorageRegistry)
-            throws EncryptionException, MessageSerializationException, IllegalMessageLengthException;
+            throws EncryptionException, MessageSerializationException, IllegalMessageLengthException, KeyStorageNotFoundException, CryptoException;
 
     void setHeadersEncryption(@NotNull Encryption encryption);
 

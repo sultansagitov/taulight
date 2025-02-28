@@ -1,6 +1,6 @@
 package net.result.sandnode.exception;
 
-public class LinkDoesNotMatchException extends SandnodeSecurityException {
+public class LinkDoesNotMatchException extends SandnodeException {
     public LinkDoesNotMatchException(String message) {
         super(message);
     }

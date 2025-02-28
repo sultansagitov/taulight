@@ -2,7 +2,9 @@ package net.result.sandnode.chain.client;
 
 import net.result.sandnode.error.ServerErrorManager;
 import net.result.sandnode.exception.*;
-import net.result.sandnode.message.IMessage;
+import net.result.sandnode.exception.crypto.CryptoException;
+import net.result.sandnode.exception.error.SandnodeErrorException;
+import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.message.types.ErrorMessage;
 import net.result.sandnode.message.types.PublicKeyRequest;
 import net.result.sandnode.message.types.PublicKeyResponse;
@@ -16,16 +18,14 @@ public class PublicKeyClientChain extends Chain {
     }
 
     @Override
-    public void sync() throws InterruptedException, EncryptionTypeException, NoSuchEncryptionException,
-            CreatingKeyException, ExpectedMessageException, SandnodeErrorException, UnknownSandnodeErrorException {
-        IMessage request = new PublicKeyRequest();
-        send(request);
+    public void sync() throws InterruptedException, ExpectedMessageException, SandnodeErrorException,
+            UnknownSandnodeErrorException, CryptoException {
+        send(new PublicKeyRequest());
 
-        IMessage response = queue.take();
+        RawMessage response = queue.take();
 
         if (response.headers().type() == MessageTypes.ERR) {
             ErrorMessage errorMessage = new ErrorMessage(response);
-            request.headers().setChainID(getID());
             ServerErrorManager.instance().throwAll(errorMessage.error);
             return;
         }

@@ -2,7 +2,8 @@ package net.result.sandnode.chain.client;
 
 import net.result.sandnode.error.ServerErrorManager;
 import net.result.sandnode.exception.*;
-import net.result.sandnode.message.IMessage;
+import net.result.sandnode.exception.error.SandnodeErrorException;
+import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.message.types.ErrorMessage;
 import net.result.sandnode.message.types.RegistrationRequest;
 import net.result.sandnode.message.types.RegistrationResponse;
@@ -26,7 +27,7 @@ public class RegistrationClientChain extends ClientChain {
         RegistrationRequest request = new RegistrationRequest(memberID, password);
         send(request);
 
-        IMessage response = queue.take();
+        RawMessage response = queue.take();
 
         if (response.headers().type() == MessageTypes.ERR) {
             ErrorMessage errorMessage = new ErrorMessage(response);

@@ -5,7 +5,7 @@ import net.result.sandnode.encryption.interfaces.AsymmetricEncryption;
 import net.result.sandnode.encryption.interfaces.AsymmetricKeyStorage;
 import net.result.sandnode.encryption.interfaces.SymmetricEncryption;
 import net.result.sandnode.encryption.interfaces.SymmetricKeyStorage;
-import net.result.sandnode.exception.CannotUseEncryption;
+import net.result.sandnode.exception.crypto.CannotUseEncryption;
 import net.result.sandnode.exception.ImpossibleRuntimeException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;

@@ -1,8 +1,8 @@
 package net.result.sandnode.encryption;
 
-import net.result.sandnode.exception.EncryptionTypeException;
+import net.result.sandnode.exception.crypto.EncryptionTypeException;
 import net.result.sandnode.exception.ImpossibleRuntimeException;
-import net.result.sandnode.exception.NoSuchEncryptionException;
+import net.result.sandnode.exception.crypto.NoSuchEncryptionException;
 import net.result.sandnode.encryption.interfaces.AsymmetricEncryption;
 import net.result.sandnode.encryption.interfaces.Encryption;
 import net.result.sandnode.encryption.interfaces.SymmetricEncryption;

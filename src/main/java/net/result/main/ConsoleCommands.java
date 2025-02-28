@@ -2,6 +2,9 @@ package net.result.main;
 
 import net.result.sandnode.chain.Chain;
 import net.result.sandnode.exception.*;
+import net.result.sandnode.exception.error.AddressedMemberNotFoundException;
+import net.result.sandnode.exception.error.MemberNotFoundException;
+import net.result.sandnode.exception.error.SandnodeErrorException;
 import net.result.sandnode.hubagent.ClientProtocol;
 import net.result.sandnode.message.types.ChainNameRequest;
 import net.result.sandnode.util.IOController;
@@ -10,7 +13,7 @@ import net.result.taulight.chain.client.ChatClientChain;
 import net.result.taulight.chain.client.DialogClientChain;
 import net.result.taulight.chain.client.MessageClientChain;
 import net.result.taulight.db.ServerChatMessage;
-import net.result.taulight.exception.ChatNotFoundException;
+import net.result.taulight.exception.error.ChatNotFoundException;
 import net.result.taulight.message.ChatInfo;
 import net.result.taulight.message.ChatInfoProp;
 import org.apache.logging.log4j.LogManager;

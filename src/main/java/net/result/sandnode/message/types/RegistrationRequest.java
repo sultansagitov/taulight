@@ -3,8 +3,8 @@ package net.result.sandnode.message.types;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import net.result.sandnode.exception.DeserializationException;
 import net.result.sandnode.exception.ExpectedMessageException;
-import net.result.sandnode.message.IMessage;
 import net.result.sandnode.message.MSGPackMessage;
+import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.message.util.Headers;
 import net.result.sandnode.message.util.MessageTypes;
 import org.jetbrains.annotations.NotNull;
@@ -24,7 +24,7 @@ public class RegistrationRequest extends MSGPackMessage<RegistrationRequest.Memb
         }
     }
 
-    public RegistrationRequest(@NotNull IMessage message) throws ExpectedMessageException, DeserializationException {
+    public RegistrationRequest(@NotNull RawMessage message) throws ExpectedMessageException, DeserializationException {
         super(message.expect(MessageTypes.REG), MemberData.class);
     }
 

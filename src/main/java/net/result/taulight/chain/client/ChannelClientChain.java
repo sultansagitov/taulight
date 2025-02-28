@@ -3,6 +3,7 @@ package net.result.taulight.chain.client;
 import net.result.sandnode.chain.client.ClientChain;
 import net.result.sandnode.error.ServerErrorManager;
 import net.result.sandnode.exception.*;
+import net.result.sandnode.exception.error.SandnodeErrorException;
 import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.message.types.ErrorMessage;
 import net.result.sandnode.message.types.HappyMessage;

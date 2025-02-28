@@ -1,9 +1,11 @@
 package net.result.main.config;
 
+import net.result.main.exception.crypto.KeyHashCheckingException;
 import net.result.sandnode.config.ClientConfig;
 import net.result.sandnode.encryption.EncryptionManager;
 import net.result.sandnode.encryption.interfaces.SymmetricEncryption;
 import net.result.sandnode.exception.*;
+import net.result.sandnode.exception.crypto.*;
 import net.result.sandnode.util.Endpoint;
 import net.result.sandnode.util.FileUtil;
 import net.result.sandnode.encryption.interfaces.AsymmetricKeyStorage;
@@ -65,8 +67,8 @@ public class ClientPropertiesConfig implements ClientConfig {
             try {
                 KeyRecord keyRecord = KeyRecord.fromJSON(jsonObject);
                 records.add(keyRecord);
-            } catch (SandnodeSecurityException | NoSuchEncryptionException | CreatingKeyException | FSException |
-                     NoSuchHasherException | EncryptionTypeException | InvalidEndpointSyntax e) {
+            } catch (NoSuchEncryptionException | CreatingKeyException | FSException | NoSuchHasherException |
+                     EncryptionTypeException | InvalidEndpointSyntax | KeyHashCheckingException e) {
                 LOGGER.error("Error while validating \"{}\"", KEYS_JSON_PATH, e);
             }
         }

@@ -2,6 +2,7 @@ package net.result.sandnode.chain.client;
 
 import net.result.sandnode.error.ServerErrorManager;
 import net.result.sandnode.exception.*;
+import net.result.sandnode.exception.error.SandnodeErrorException;
 import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.message.types.*;
 import net.result.sandnode.message.util.MessageTypes;

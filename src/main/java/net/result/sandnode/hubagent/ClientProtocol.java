@@ -1,5 +1,7 @@
 package net.result.sandnode.hubagent;
 
+import net.result.sandnode.exception.crypto.*;
+import net.result.sandnode.exception.error.SandnodeErrorException;
 import net.result.sandnode.serverclient.SandnodeClient;
 import net.result.sandnode.exception.*;
 import net.result.sandnode.util.IOController;
@@ -12,8 +14,7 @@ import java.util.Collection;
 import java.util.Set;
 
 public class ClientProtocol {
-    public static void PUB(@NotNull IOController io)
-            throws EncryptionTypeException, NoSuchEncryptionException, CreatingKeyException, ExpectedMessageException,
+    public static void PUB(@NotNull IOController io) throws CryptoException, ExpectedMessageException,
             InterruptedException, SandnodeErrorException, UnknownSandnodeErrorException {
         PublicKeyClientChain pubkeyChain = new PublicKeyClientChain(io);
         io.chainManager.linkChain(pubkeyChain);

@@ -1,9 +1,11 @@
 package net.result.main.config;
 
+import net.result.main.exception.crypto.KeyHashCheckingException;
 import net.result.sandnode.encryption.EncryptionManager;
 import net.result.sandnode.encryption.interfaces.AsymmetricConvertor;
 import net.result.sandnode.encryption.interfaces.AsymmetricKeyStorage;
 import net.result.sandnode.exception.*;
+import net.result.sandnode.exception.crypto.*;
 import net.result.sandnode.hasher.HasherManager;
 import net.result.sandnode.hasher.Hasher;
 import net.result.sandnode.hasher.Hashers;
@@ -30,7 +32,7 @@ public final class KeyRecord {
 
     public static @NotNull KeyRecord fromJSON(@NotNull JSONObject json)
             throws NoSuchEncryptionException, CreatingKeyException, FSException, NoSuchHasherException,
-            KeyHashCheckingSecurityException, EncryptionTypeException, InvalidEndpointSyntax {
+            KeyHashCheckingException, EncryptionTypeException, InvalidEndpointSyntax {
         Path path = Path.of(json.getString("path"));
         var encryption = EncryptionManager.find(json.getString("encryption")).asymmetric();
         AsymmetricConvertor convertor = encryption.publicKeyConvertor();
@@ -48,7 +50,7 @@ public final class KeyRecord {
         String hash2 = hasher.hash(encodedString);
 
         if (!hash1.equals(hash2)) {
-            throw new KeyHashCheckingSecurityException(hash1, hash2);
+            throw new KeyHashCheckingException(hash1, hash2);
         }
 
         Endpoint fromString = Endpoint.getFromString(json.getString("endpoint"), 52525);

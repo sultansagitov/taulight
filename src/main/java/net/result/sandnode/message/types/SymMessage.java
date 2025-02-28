@@ -1,10 +1,10 @@
 package net.result.sandnode.message.types;
 
 import net.result.sandnode.encryption.Encryptions;
-import net.result.sandnode.exception.DataNotEncryptedException;
-import net.result.sandnode.exception.EncryptionTypeException;
+import net.result.sandnode.exception.crypto.DataNotEncryptedException;
+import net.result.sandnode.exception.crypto.EncryptionTypeException;
 import net.result.sandnode.exception.ExpectedMessageException;
-import net.result.sandnode.exception.NoSuchEncryptionException;
+import net.result.sandnode.exception.crypto.NoSuchEncryptionException;
 import net.result.sandnode.message.IMessage;
 import net.result.sandnode.message.Message;
 import net.result.sandnode.message.util.Headers;

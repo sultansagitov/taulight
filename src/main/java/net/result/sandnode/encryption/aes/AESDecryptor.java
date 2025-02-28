@@ -1,6 +1,6 @@
 package net.result.sandnode.encryption.aes;
 
-import net.result.sandnode.exception.DecryptionException;
+import net.result.sandnode.exception.error.DecryptionException;
 import net.result.sandnode.exception.ImpossibleRuntimeException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -41,14 +41,14 @@ public class AESDecryptor {
             cipher.init(Cipher.DECRYPT_MODE, aesKey, new IvParameterSpec(iv));
         } catch (InvalidKeyException | InvalidAlgorithmParameterException e) {
             LOGGER.error("Error when initializing cypher", e);
-            throw new DecryptionException(e);
+            throw new DecryptionException("Error when initializing cypher", e);
         }
 
         try {
             decrypted = cipher.doFinal(encryptedData);
         } catch (IllegalBlockSizeException | BadPaddingException e) {
-            LOGGER.error("Encrypting error", e);
-            throw new DecryptionException(e);
+            LOGGER.error("Decrypting error", e);
+            throw new DecryptionException("Decrypting error", e);
         }
 
         return decrypted;

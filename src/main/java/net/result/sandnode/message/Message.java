@@ -5,6 +5,8 @@ import net.result.sandnode.compression.CompressionManager;
 import net.result.sandnode.compression.Compressions;
 import net.result.sandnode.encryption.Encryptions;
 import net.result.sandnode.exception.*;
+import net.result.sandnode.exception.crypto.*;
+import net.result.sandnode.exception.error.*;
 import net.result.sandnode.message.util.Headers;
 import net.result.sandnode.encryption.EncryptionManager;
 import net.result.sandnode.encryption.KeyStorageRegistry;
@@ -77,8 +79,8 @@ public abstract class Message implements IMessage {
     }
 
     @Override
-    public byte[] toByteArray(@NotNull KeyStorageRegistry keyStorageRegistry)
-            throws EncryptionException, MessageSerializationException, IllegalMessageLengthException {
+    public byte[] toByteArray(@NotNull KeyStorageRegistry keyStorageRegistry) throws EncryptionException,
+            MessageSerializationException, IllegalMessageLengthException, KeyStorageNotFoundException, CryptoException {
         ByteArrayOutputStream result = new ByteArrayOutputStream();
         result.write(1); // Version
         result.write(headersEncryption().asByte()); // Headers encryption

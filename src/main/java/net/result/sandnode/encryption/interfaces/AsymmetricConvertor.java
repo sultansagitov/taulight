@@ -1,7 +1,7 @@
 package net.result.sandnode.encryption.interfaces;
 
-import net.result.sandnode.exception.CannotUseEncryption;
-import net.result.sandnode.exception.CreatingKeyException;
+import net.result.sandnode.exception.crypto.CannotUseEncryption;
+import net.result.sandnode.exception.crypto.CreatingKeyException;
 import org.jetbrains.annotations.NotNull;
 
 public interface AsymmetricConvertor {

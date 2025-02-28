@@ -6,16 +6,16 @@ import net.result.sandnode.error.Errors;
 import net.result.sandnode.exception.DatabaseException;
 import net.result.sandnode.exception.ExpectedMessageException;
 import net.result.sandnode.serverclient.Session;
-import net.result.taulight.SysMessages;
+import net.result.taulight.message.SysMessages;
 import net.result.taulight.TauAgentProtocol;
 import net.result.taulight.TauHubProtocol;
 import net.result.taulight.chain.client.DialogRequest;
 import net.result.taulight.db.ChatMessage;
 import net.result.taulight.db.TauDatabase;
 import net.result.taulight.db.TauDialog;
-import net.result.taulight.exception.MessageNotForwardedException;
+import net.result.taulight.exception.error.MessageNotForwardedException;
 import net.result.taulight.group.TauGroupManager;
-import net.result.taulight.message.types.Dialogesponse;
+import net.result.taulight.message.types.DialogResponse;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -67,6 +67,6 @@ public class DialogServerChain extends ServerChain {
         Collection<Member> members = List.of(session.member, anotherMember.get());
         TauAgentProtocol.addMembersToGroup(session, members, manager.getGroup(dialog));
 
-        sendFin(new Dialogesponse(request.memberID(), dialog.id()));
+        sendFin(new DialogResponse(request.memberID(), dialog.id()));
     }
 }

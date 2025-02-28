@@ -3,6 +3,8 @@ package net.result.main;
 import net.result.main.chain.client.ConsoleForwardRequestClientChain;
 import net.result.main.chain.ConsoleClientChainManager;
 import net.result.main.config.ClientPropertiesConfig;
+import net.result.sandnode.exception.crypto.*;
+import net.result.sandnode.exception.error.*;
 import net.result.sandnode.hubagent.AgentProtocol;
 import net.result.sandnode.hubagent.ClientProtocol;
 import net.result.sandnode.message.util.NodeType;
@@ -69,10 +71,8 @@ public class RunAgentWork implements IWork {
     }
 
     private static void getPublicKey(SandnodeClient client, TauAgent agent, SandnodeLinkRecord link)
-            throws FSException, KeyAlreadySaved, LinkDoesNotMatchException, InterruptedException,
-            EncryptionTypeException, NoSuchEncryptionException, CreatingKeyException, ExpectedMessageException,
-            KeyStorageNotFoundException, SandnodeErrorException,
-            UnknownSandnodeErrorException {
+            throws FSException, CryptoException, LinkDoesNotMatchException, InterruptedException,
+            SandnodeErrorException, ExpectedMessageException, UnknownSandnodeErrorException {
 
         Optional<AsymmetricKeyStorage> filePublicKey = client.clientConfig.getPublicKey(link.endpoint());
         AsymmetricKeyStorage linkKeyStorage = link.keyStorage();

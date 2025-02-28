@@ -1,7 +1,7 @@
 package net.result.sandnode.message;
 
 import net.result.sandnode.exception.UnexpectedSocketDisconnectException;
-import net.result.sandnode.exception.NoSuchEncryptionException;
+import net.result.sandnode.exception.crypto.NoSuchEncryptionException;
 import net.result.sandnode.util.StreamReader;
 import net.result.sandnode.encryption.EncryptionManager;
 import org.jetbrains.annotations.NotNull;

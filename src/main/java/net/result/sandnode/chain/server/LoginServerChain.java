@@ -1,7 +1,8 @@
 package net.result.sandnode.chain.server;
 
 import net.result.sandnode.exception.*;
-import net.result.sandnode.message.IMessage;
+import net.result.sandnode.exception.error.ExpiredTokenException;
+import net.result.sandnode.exception.error.InvalidTokenException;
 import net.result.sandnode.message.types.LoginRequest;
 import net.result.sandnode.message.types.LoginResponse;
 import net.result.sandnode.message.types.TokenMessage;
@@ -23,8 +24,7 @@ public class LoginServerChain extends ServerChain {
 
     @Override
     public void sync() throws InterruptedException, ExpectedMessageException {
-        IMessage request = queue.take();
-        TokenMessage msg = new LoginRequest(request);
+        TokenMessage msg = new LoginRequest(queue.take());
         String token = msg.getToken();
 
         Database database = session.server.serverConfig.database();

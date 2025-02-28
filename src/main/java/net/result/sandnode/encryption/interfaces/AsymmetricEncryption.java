@@ -1,6 +1,11 @@
 package net.result.sandnode.encryption.interfaces;
 
-import net.result.sandnode.exception.*;
+import net.result.sandnode.exception.crypto.CannotUseEncryption;
+import net.result.sandnode.exception.crypto.CryptoException;
+import net.result.sandnode.exception.error.DecryptionException;
+import net.result.sandnode.exception.error.EncryptionException;
+import net.result.sandnode.exception.crypto.PrivateKeyNotFoundException;
+import net.result.sandnode.exception.crypto.WrongKeyException;
 
 public interface AsymmetricEncryption extends Encryption {
     AsymmetricConvertor publicKeyConvertor();
@@ -11,7 +16,7 @@ public interface AsymmetricEncryption extends Encryption {
     AsymmetricKeyStorage generate();
 
     @Override
-    byte[] encryptBytes(byte[] bytes, KeyStorage keyStorage) throws EncryptionException, CannotUseEncryption;
+    byte[] encryptBytes(byte[] bytes, KeyStorage keyStorage) throws EncryptionException, CryptoException;
 
     @Override
     byte[] decryptBytes(byte[] encryptedBytes, KeyStorage keyStorage)

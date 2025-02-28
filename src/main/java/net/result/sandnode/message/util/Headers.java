@@ -3,7 +3,7 @@ package net.result.sandnode.message.util;
 import net.result.sandnode.encryption.Encryptions;
 import net.result.sandnode.exception.HeadersSerializationException;
 import net.result.sandnode.exception.NoSuchMessageTypeException;
-import net.result.sandnode.exception.NoSuchEncryptionException;
+import net.result.sandnode.exception.crypto.NoSuchEncryptionException;
 import net.result.sandnode.encryption.EncryptionManager;
 import net.result.sandnode.encryption.interfaces.Encryption;
 import net.result.simplesix64.SimpleSix64;

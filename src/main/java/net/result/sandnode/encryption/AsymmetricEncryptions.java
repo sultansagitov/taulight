@@ -3,11 +3,12 @@ package net.result.sandnode.encryption;
 import net.result.sandnode.encryption.ecies.*;
 import net.result.sandnode.encryption.interfaces.*;
 
-import net.result.sandnode.exception.CannotUseEncryption;
-import net.result.sandnode.exception.DecryptionException;
-import net.result.sandnode.exception.EncryptionException;
-import net.result.sandnode.exception.PrivateKeyNotFoundException;
-import net.result.sandnode.exception.WrongKeyException;
+import net.result.sandnode.exception.error.DecryptionException;
+import net.result.sandnode.exception.error.EncryptionException;
+import net.result.sandnode.exception.crypto.CannotUseEncryption;
+import net.result.sandnode.exception.crypto.PrivateKeyNotFoundException;
+import net.result.sandnode.exception.crypto.WrongKeyException;
+import net.result.sandnode.exception.crypto.CryptoException;
 
 public enum AsymmetricEncryptions implements AsymmetricEncryption {
     ECIES {
@@ -20,12 +21,11 @@ public enum AsymmetricEncryptions implements AsymmetricEncryption {
             return ECIESKeyGenerator.generate();
         }
         @Override
-        public byte[] encrypt(String data, KeyStorage keyStorage) throws EncryptionException, CannotUseEncryption {
+        public byte[] encrypt(String data, KeyStorage keyStorage) throws EncryptionException, CryptoException {
             return ECIESEncryptor.encrypt(data, keyStorage);
         }
         @Override
-        public byte[] encryptBytes(byte[] bytes, KeyStorage keyStorage)
-                throws EncryptionException, CannotUseEncryption {
+        public byte[] encryptBytes(byte[] bytes, KeyStorage keyStorage) throws EncryptionException, CryptoException {
             return ECIESEncryptor.encryptBytes(bytes, keyStorage);
         }
         @Override

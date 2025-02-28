@@ -10,7 +10,7 @@ import net.result.taulight.TauHubProtocol;
 import net.result.taulight.db.TauDatabase;
 import net.result.taulight.error.TauErrors;
 import net.result.taulight.db.ChatMessage;
-import net.result.taulight.exception.MessageNotForwardedException;
+import net.result.taulight.exception.error.MessageNotForwardedException;
 import net.result.taulight.message.types.ForwardRequest;
 import net.result.taulight.db.TauChat;
 import org.apache.logging.log4j.LogManager;

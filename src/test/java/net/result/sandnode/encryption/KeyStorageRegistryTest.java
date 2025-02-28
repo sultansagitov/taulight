@@ -3,9 +3,9 @@ package net.result.sandnode.encryption;
 import net.result.sandnode.encryption.interfaces.AsymmetricKeyStorage;
 import net.result.sandnode.encryption.interfaces.KeyStorage;
 import net.result.sandnode.encryption.interfaces.SymmetricKeyStorage;
-import net.result.sandnode.exception.CannotUseEncryption;
-import net.result.sandnode.exception.EncryptionTypeException;
-import net.result.sandnode.exception.KeyStorageNotFoundException;
+import net.result.sandnode.exception.crypto.CannotUseEncryption;
+import net.result.sandnode.exception.crypto.EncryptionTypeException;
+import net.result.sandnode.exception.error.KeyStorageNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 

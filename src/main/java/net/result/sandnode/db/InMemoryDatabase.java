@@ -1,6 +1,6 @@
 package net.result.sandnode.db;
 
-import net.result.sandnode.exception.BusyMemberIDException;
+import net.result.sandnode.exception.error.BusyMemberIDException;
 import net.result.sandnode.security.PasswordHasher;
 
 import java.util.*;
