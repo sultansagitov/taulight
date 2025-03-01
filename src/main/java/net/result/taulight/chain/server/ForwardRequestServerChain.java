@@ -54,7 +54,9 @@ public class ForwardRequestServerChain extends ServerChain {
 
             LOGGER.info("Forwarding message: {}", content);
 
-            chatMessage.setMember(session.member);
+            chatMessage
+                .setSys(false)
+                .setMember(session.member);
 
             try {
                 Optional<TauChat> chatOpt = database.getChat(chatID);

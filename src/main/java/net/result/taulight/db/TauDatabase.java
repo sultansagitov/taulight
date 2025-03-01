@@ -3,6 +3,7 @@ package net.result.taulight.db;
 import net.result.sandnode.db.Database;
 import net.result.sandnode.db.Member;
 import net.result.sandnode.exception.DatabaseException;
+import net.result.taulight.exception.AlreadyExistingRecordException;
 
 import java.util.Collection;
 import java.util.List;
@@ -15,11 +16,11 @@ public interface TauDatabase extends Database {
 
     Optional<TauDialog> findDialog(Member member1, Member member2) throws DatabaseException;
 
-    void saveChat(TauChat chat) throws DatabaseException;
+    void saveChat(TauChat chat) throws DatabaseException, AlreadyExistingRecordException;
 
     Optional<TauChat> getChat(UUID id) throws DatabaseException;
 
-    void saveMessage(ServerChatMessage msg) throws DatabaseException;
+    void saveMessage(ServerChatMessage msg) throws DatabaseException, AlreadyExistingRecordException;
 
     List<ServerChatMessage> loadMessages(TauChat chat, int index, int size) throws DatabaseException;
 

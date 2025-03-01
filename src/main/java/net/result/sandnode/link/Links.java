@@ -48,7 +48,7 @@ public class Links {
 
         Endpoint endpoint = new Endpoint(uri.getHost(), uri.getPort() == -1 ? 52525 : uri.getPort());
 
-        if (!"sandnode".equals(uri.getScheme())) {
+        if (!uri.getScheme().equals("sandnode")) {
             throw new InvalidSandnodeLinkException("Invalid scheme: " + uri.getScheme());
         }
 
@@ -65,9 +65,9 @@ public class Links {
             for (String param : queryParams) {
                 String[] keyValue = param.split("=");
                 if (keyValue.length == 2) {
-                    if ("encryption".equals(keyValue[0])) {
+                    if (keyValue[0].equals("encryption")) {
                         encryptionType = keyValue[1];
-                    } else if ("key".equals(keyValue[0])) {
+                    } else if (keyValue[0].equals("key")) {
                         encodedKey = keyValue[1];
                     }
                 }

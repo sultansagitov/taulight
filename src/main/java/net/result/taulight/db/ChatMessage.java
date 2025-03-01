@@ -5,7 +5,6 @@ import net.result.sandnode.db.Member;
 
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.util.Objects;
 import java.util.UUID;
 
 public class ChatMessage {
@@ -17,6 +16,8 @@ public class ChatMessage {
     private ZonedDateTime ztd = null;
     @JsonProperty("member-id")
     private String memberID = null;
+    @JsonProperty
+    private boolean sys = false;
 
     public ChatMessage() {}
 
@@ -34,6 +35,10 @@ public class ChatMessage {
 
     public String memberID() {
         return memberID;
+    }
+
+    public boolean sys() {
+        return sys;
     }
 
     public ChatMessage setContent(String content) {
@@ -68,26 +73,15 @@ public class ChatMessage {
         return setMemberID(member.id());
     }
 
-    @Override
-    public boolean equals(Object obj) {
-        if (obj == this) return true;
-        if (obj == null || obj.getClass() != this.getClass()) return false;
-        var that = (ChatMessage) obj;
-        return Objects.equals(this.chatID, that.chatID) &&
-                Objects.equals(this.content, that.content) &&
-                Objects.equals(this.ztd, that.ztd) &&
-                Objects.equals(this.memberID, that.memberID);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(chatID, content, ztd, memberID);
+    public ChatMessage setSys(boolean sys) {
+        this.sys = sys;
+        return this;
     }
 
     @Override
     public String toString() {
-        return "<ChatMessage chatID=%s, content=%s, ztd=%s, memberID=%s>"
-                .formatted(chatID, content, ztd, memberID);
+        return "<ChatMessage content=%s, chatID=%s, ztd=%s, sys=%s, memberID=%s>"
+                .formatted(content, chatID, ztd, sys, memberID);
     }
 
 }

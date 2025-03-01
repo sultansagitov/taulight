@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.UUID;
 
 public abstract class TauChat {
-    private final UUID id;
+    private UUID id;
     private final TauDatabase database;
 
     public TauChat(UUID id, TauDatabase database) {
@@ -18,6 +18,14 @@ public abstract class TauChat {
 
     public UUID id() {
         return id;
+    }
+
+    public void setID(UUID newValue) {
+        id = newValue;
+    }
+
+    public void setRandomID() {
+        setID(UUID.randomUUID());
     }
 
     public Collection<Member> getMembers() throws DatabaseException {

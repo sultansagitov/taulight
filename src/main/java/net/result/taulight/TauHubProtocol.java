@@ -11,6 +11,7 @@ import net.result.taulight.db.ChatMessage;
 import net.result.taulight.db.TauChat;
 import net.result.taulight.db.TauDatabase;
 import net.result.taulight.db.ServerChatMessage;
+import net.result.taulight.exception.AlreadyExistingRecordException;
 import net.result.taulight.exception.error.MessageNotForwardedException;
 import net.result.taulight.group.TauGroupManager;
 import net.result.taulight.message.types.ForwardResponse;
@@ -34,8 +35,14 @@ public class TauHubProtocol {
                 .setChatMessage(chatMessage);
 
         LOGGER.info("Saving message with id {} content: {}", serverMessage.id(), chatMessage.content());
-        database.saveMessage(serverMessage);
-
+        while (true) {
+            try {
+                database.saveMessage(serverMessage);
+                break;
+            } catch (AlreadyExistingRecordException e) {
+                serverMessage.setRandomID();
+            }
+        }
         Collection<Session> sessions = manager.getGroup(chat).getSessions();
         if (sessions.isEmpty()) throw new MessageNotForwardedException();
 

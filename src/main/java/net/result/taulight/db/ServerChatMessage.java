@@ -13,8 +13,6 @@ public class ServerChatMessage {
     private ZonedDateTime serverZtd = null;
     @JsonProperty
     private ChatMessage message;
-    @JsonProperty
-    private boolean sys = false;
 
     public UUID id() {
         return id;
@@ -26,10 +24,6 @@ public class ServerChatMessage {
 
     public ChatMessage message() {
         return message;
-    }
-
-    public boolean sys() {
-        return sys;
     }
 
     public ServerChatMessage setServerZtd(ZonedDateTime serverZtd) {
@@ -51,10 +45,6 @@ public class ServerChatMessage {
         return this;
     }
 
-    public ServerChatMessage setSys(boolean sys) {
-        this.sys = sys;
-        return this;
-    }
 
     public ServerChatMessage setChatMessage(ChatMessage message) {
         this.message = message;
@@ -63,6 +53,6 @@ public class ServerChatMessage {
 
     @Override
     public String toString() {
-        return "<ServerChatMessage id=%s, serverZtd=%s, sys=%s, message=%s>".formatted(id, serverZtd, sys, message);
+        return "<ServerChatMessage id=%s, serverZtd=%s, message=%s>".formatted(id, serverZtd, message);
     }
 }

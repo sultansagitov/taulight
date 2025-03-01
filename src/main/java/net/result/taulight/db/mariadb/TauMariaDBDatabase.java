@@ -6,6 +6,7 @@ import net.result.sandnode.exception.DatabaseException;
 import net.result.sandnode.db.mariadb.SandnodeMariaDBDatabase;
 import net.result.sandnode.security.PasswordHasher;
 import net.result.taulight.db.*;
+import net.result.taulight.exception.AlreadyExistingRecordException;
 import org.jetbrains.annotations.NotNull;
 
 import javax.sql.DataSource;
@@ -105,11 +106,16 @@ public class TauMariaDBDatabase extends SandnodeMariaDBDatabase implements TauDa
 
                 byte[] chatBin = uuidToBinary(dialog.id());
 
-                try (PreparedStatement stmt = conn.prepareStatement("""
-                    INSERT INTO chats (chat_id, chat_type) VALUES (?, 'DIALOG')
-                """)) {
-                    stmt.setBytes(1, chatBin);
-                    stmt.executeUpdate();
+                while (true) {
+                    try (PreparedStatement stmt = conn.prepareStatement("""
+                        INSERT INTO chats (chat_id, chat_type) VALUES (?, 'DIALOG')
+                    """)) {
+                        stmt.setBytes(1, chatBin);
+                        stmt.executeUpdate();
+                        break;
+                    } catch (SQLIntegrityConstraintViolationException e) {
+                        dialog.setRandomID();
+                    }
                 }
 
                 try (PreparedStatement stmt = conn.prepareStatement("""
@@ -161,7 +167,7 @@ public class TauMariaDBDatabase extends SandnodeMariaDBDatabase implements TauDa
     }
 
     @Override
-    public void saveChat(@NotNull TauChat chat) throws DatabaseException {
+    public void saveChat(@NotNull TauChat chat) throws DatabaseException, AlreadyExistingRecordException {
         try (Connection conn = dataSource.getConnection()) {
             conn.setAutoCommit(false);
             try {
@@ -178,19 +184,21 @@ public class TauMariaDBDatabase extends SandnodeMariaDBDatabase implements TauDa
                         checkStmt.setString(2, "DIALOG");
                     }
                     checkStmt.executeUpdate();
+                } catch (SQLIntegrityConstraintViolationException e) {
+                    throw new AlreadyExistingRecordException("Chat", "chat_id", chat.id(), e);
                 }
 
                 if (chat instanceof TauChannel channel) {
                     try (PreparedStatement stmt = conn.prepareStatement("""
                         INSERT INTO channels (chat_id, title, owner_id)
-                        VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE title = ?, owner_id = ?
+                        VALUES (?, ?, ?)
                     """)) {
                         stmt.setBytes(1, uuidBin);
                         stmt.setString(2, channel.title());
                         stmt.setString(3, channel.owner().id());
-                        stmt.setString(4, channel.title());
-                        stmt.setString(5, channel.owner().id());
                         stmt.executeUpdate();
+                    } catch (SQLIntegrityConstraintViolationException e) {
+                        throw new AlreadyExistingRecordException("Channel", "chat_id", chat.id(), e);
                     }
                 }
 
@@ -220,9 +228,9 @@ public class TauMariaDBDatabase extends SandnodeMariaDBDatabase implements TauDa
                     try (ResultSet rs = typeStmt.executeQuery()) {
                         if (rs.next()) {
                             String chatType = rs.getString("chat_type");
-                            if ("CHANNEL".equals(chatType)) {
+                            if (chatType.equals("CHANNEL")) {
                                 return getChannel(conn, id);
-                            } else if ("DIALOG".equals(chatType)) {
+                            } else if (chatType.equals("DIALOG")) {
                                 return getDialog(conn, id);
                             }
                         }
@@ -274,24 +282,40 @@ public class TauMariaDBDatabase extends SandnodeMariaDBDatabase implements TauDa
     }
 
     @Override
-    public void saveMessage(@NotNull ServerChatMessage msg) throws DatabaseException {
-        try (Connection conn = dataSource.getConnection();
-             PreparedStatement stmt = conn.prepareStatement("""
-                INSERT INTO messages (message_id, chat_id, content, timestamp, member_id, sys, server_timestamp)
-                VALUES (?, ?, ?, ?, ?, ?, ?)
+    public void saveMessage(@NotNull ServerChatMessage msg) throws DatabaseException, AlreadyExistingRecordException {
+        ChatMessage chatMessage = msg.message();
+
+        try (Connection connection = dataSource.getConnection();
+             PreparedStatement stmt = connection.prepareStatement("""
+                 INSERT INTO messages
+                 (message_id, server_timestamp, chat_id, content, timestamp, member_id, sys)
+                 VALUES (?, ?, ?, ?, ?, ?, ?)
              """)) {
 
-            ChatMessage chatMessage = msg.message();
-            stmt.setBytes(2, uuidToBinary(chatMessage.chatID()));
-            stmt.setString(3, chatMessage.content());
-            stmt.setTimestamp(4, Timestamp.from(chatMessage.ztd().toInstant()));
-            stmt.setString(5, chatMessage.memberID());
 
             stmt.setBytes(1, uuidToBinary(msg.id()));
-            stmt.setBoolean(6, msg.sys());
-            stmt.setTimestamp(7, Timestamp.from(msg.serverZtd().toInstant()));
+            stmt.setTimestamp(2, Timestamp.from(msg.serverZtd().toInstant()));
+
+            stmt.setBytes(3, uuidToBinary(chatMessage.chatID()));
+            stmt.setString(4, chatMessage.content());
+            stmt.setTimestamp(5, Timestamp.from(chatMessage.ztd().toInstant()));
+            stmt.setString(6, chatMessage.memberID());
+            stmt.setBoolean(7, chatMessage.sys());
+
             stmt.executeUpdate();
+
+        } catch (SQLIntegrityConstraintViolationException e) {
+            String errorMessage = e.getMessage();
+
+            if (errorMessage.contains("message_id")) {
+                throw new AlreadyExistingRecordException("Messages Table", "message_id", msg.id(), e);
+            } else if (errorMessage.contains("member_id")) {
+                throw new AlreadyExistingRecordException("Messages Table", "member_id", chatMessage.memberID(), e);
+            } else {
+                throw new AlreadyExistingRecordException("Messages Table", "chat_id (?)", chatMessage.chatID(), e);
+            }
         }
+
         catch (SQLException | IllegalArgumentException e) {
             throw new DatabaseException("Failed to save message", e);
         }
@@ -318,25 +342,25 @@ public class TauMariaDBDatabase extends SandnodeMariaDBDatabase implements TauDa
                         byte[] messageBin = rs.getBytes("message_id");
                         UUID messageID = binaryToUUID(messageBin);
 
-                        ZonedDateTime timestamp = rs.getTimestamp("timestamp")
-                                .toInstant()
+                        ZonedDateTime timestamp = rs
+                                .getTimestamp("timestamp").toInstant()
                                 .atZone(ZonedDateTime.now().getZone());
 
                         ChatMessage message = new ChatMessage()
                                 .setChat(chat)
                                 .setContent(rs.getString("content"))
                                 .setZtd(timestamp)
-                                .setMemberID(rs.getString("member_id"));
+                                .setMemberID(rs.getString("member_id"))
+                                .setSys(rs.getBoolean("sys"));
 
-                        ZonedDateTime serverTimestamp = rs.getTimestamp("server_timestamp")
-                                .toInstant()
+                        ZonedDateTime serverTimestamp = rs
+                                .getTimestamp("server_timestamp").toInstant()
                                 .atZone(ZonedDateTime.now().getZone());
 
                         ServerChatMessage serverMessage = new ServerChatMessage()
                                 .setChatMessage(message)
                                 .setID(messageID)
-                                .setServerZtd(serverTimestamp)
-                                .setSys(rs.getBoolean("sys"));
+                                .setServerZtd(serverTimestamp);
 
                         messages.add(serverMessage);
                     }
@@ -360,7 +384,7 @@ public class TauMariaDBDatabase extends SandnodeMariaDBDatabase implements TauDa
                 typeStmt.setBytes(1, chatID);
 
                 try (ResultSet typeRs = typeStmt.executeQuery()) {
-                    if (typeRs.next() && "DIALOG".equals(typeRs.getString("chat_type"))) {
+                    if (typeRs.next() && typeRs.getString("chat_type").equals("DIALOG")) {
                         return getDialogMembers(conn, chatID);
                     }
                 }
@@ -391,13 +415,13 @@ public class TauMariaDBDatabase extends SandnodeMariaDBDatabase implements TauDa
         return List.of();
     }
 
-    private @NotNull List<Member> getChannelMembers(Connection conn, byte[] chatID) throws SQLException {
+    private @NotNull Collection<Member> getChannelMembers(Connection conn, byte[] chatID) throws SQLException {
         try (PreparedStatement stmt = conn.prepareStatement("""
             SELECT m.member_id, m.password_hash FROM members m
             JOIN chat_members cm ON m.member_id = cm.member_id WHERE cm.chat_id = ?
         """)) {
             stmt.setBytes(1, chatID);
-            List<Member> members = new ArrayList<>();
+            Collection<Member> members = new ArrayList<>();
             try (ResultSet rs = stmt.executeQuery()) {
                 while (rs.next()) {
                     members.add(new StandardMember(
@@ -416,8 +440,7 @@ public class TauMariaDBDatabase extends SandnodeMariaDBDatabase implements TauDa
             byte[] chatID = uuidToBinary(chat.id());
 
             try (PreparedStatement stmt = conn.prepareStatement("""
-              INSERT INTO chat_members (chat_id, member_id)
-              VALUES (?, ?)
+                INSERT INTO chat_members (chat_id, member_id) VALUES (?, ?)
             """)) {
                 stmt.setBytes(1, chatID);
                 stmt.setString(2, member.id());

@@ -2,6 +2,7 @@ package net.result.taulight.chain.server;
 
 import net.result.sandnode.chain.server.ServerChain;
 import net.result.sandnode.exception.DatabaseException;
+import net.result.taulight.exception.AlreadyExistingRecordException;
 import net.result.taulight.message.SysMessages;
 import net.result.taulight.TauAgentProtocol;
 import net.result.taulight.TauHubProtocol;
@@ -56,7 +57,15 @@ public class ChannelServerChain extends ServerChain {
 
                 TauChannel channel = new TauChannel(database, title, session.member);
                 try {
-                    database.saveChat(channel);
+                    while (true) {
+                        try {
+                            database.saveChat(channel);
+                            break;
+                        } catch (AlreadyExistingRecordException e) {
+                            channel.setRandomID();
+                        }
+                    }
+
                     channel.addMember(session.member);
                 } catch (DatabaseException e) {
                     LOGGER.error(e);
@@ -129,7 +138,7 @@ public class ChannelServerChain extends ServerChain {
                 TauChatGroup tauChatGroup = manager.getGroup(channel);
                 TauAgentProtocol.addMemberToGroup(session, member, tauChatGroup);
 
-                ChatMessage chatMessage = SysMessages.channelAdd.chatMessage(channel, session.member);
+                ChatMessage chatMessage = SysMessages.channelAdd.chatMessage(channel, member);
 
                 try {
                     TauHubProtocol.send(session.server.serverConfig, channel, chatMessage);
