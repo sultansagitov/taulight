@@ -4,15 +4,18 @@ import net.result.sandnode.chain.server.ServerChain;
 import net.result.sandnode.db.Member;
 import net.result.sandnode.error.Errors;
 import net.result.sandnode.exception.*;
-import net.result.sandnode.message.types.HappyMessage;
+import net.result.sandnode.message.util.Headers;
+import net.result.sandnode.message.util.MessageTypes;
 import net.result.sandnode.serverclient.Session;
 import net.result.taulight.TauHubProtocol;
+import net.result.taulight.db.ServerChatMessage;
 import net.result.taulight.db.TauDatabase;
 import net.result.taulight.error.TauErrors;
 import net.result.taulight.db.ChatMessage;
 import net.result.taulight.exception.error.MessageNotForwardedException;
 import net.result.taulight.message.types.ForwardRequest;
 import net.result.taulight.db.TauChat;
+import net.result.taulight.message.types.UUIDMessage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -58,6 +61,8 @@ public class ForwardRequestServerChain extends ServerChain {
                 .setSys(false)
                 .setMember(session.member);
 
+            ServerChatMessage serverMessage;
+
             try {
                 Optional<TauChat> chatOpt = database.getChat(chatID);
 
@@ -76,7 +81,7 @@ public class ForwardRequestServerChain extends ServerChain {
                     continue;
                 }
 
-                TauHubProtocol.send(session.server.serverConfig, chat, chatMessage);
+                serverMessage = TauHubProtocol.send(session.server.serverConfig, chat, chatMessage);
             } catch (DatabaseException e) {
                 LOGGER.error("Database error: {}", e.getMessage(), e);
                 send(Errors.SERVER_ERROR.createMessage());
@@ -87,7 +92,7 @@ public class ForwardRequestServerChain extends ServerChain {
                 continue;
             }
 
-            send(new HappyMessage());
+            send(new UUIDMessage(new Headers().setType(MessageTypes.HAPPY), serverMessage.id()));
         }
     }
 

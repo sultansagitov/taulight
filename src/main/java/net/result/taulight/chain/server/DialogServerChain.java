@@ -6,7 +6,7 @@ import net.result.sandnode.error.Errors;
 import net.result.sandnode.exception.DatabaseException;
 import net.result.sandnode.exception.ExpectedMessageException;
 import net.result.sandnode.serverclient.Session;
-import net.result.taulight.message.SysMessages;
+import net.result.taulight.SysMessages;
 import net.result.taulight.TauAgentProtocol;
 import net.result.taulight.TauHubProtocol;
 import net.result.taulight.chain.client.DialogRequest;

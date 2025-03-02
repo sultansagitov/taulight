@@ -24,7 +24,7 @@ import java.util.Optional;
 public class TauHubProtocol {
     private static final Logger LOGGER = LogManager.getLogger(TauHubProtocol.class);
 
-    public static void send(ServerConfig serverConfig, TauChat chat, ChatMessage chatMessage)
+    public static ServerChatMessage send(ServerConfig serverConfig, TauChat chat, ChatMessage chatMessage)
             throws InterruptedException, DatabaseException, MessageNotForwardedException {
         TauDatabase database = (TauDatabase) serverConfig.database();
         TauGroupManager manager = (TauGroupManager) serverConfig.groupManager();
@@ -62,5 +62,6 @@ public class TauHubProtocol {
             }
         }
 
+        return serverMessage;
     }
 }

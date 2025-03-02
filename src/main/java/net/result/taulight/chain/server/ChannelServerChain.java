@@ -3,7 +3,7 @@ package net.result.taulight.chain.server;
 import net.result.sandnode.chain.server.ServerChain;
 import net.result.sandnode.exception.DatabaseException;
 import net.result.taulight.exception.AlreadyExistingRecordException;
-import net.result.taulight.message.SysMessages;
+import net.result.taulight.SysMessages;
 import net.result.taulight.TauAgentProtocol;
 import net.result.taulight.TauHubProtocol;
 import net.result.taulight.db.ChatMessage;

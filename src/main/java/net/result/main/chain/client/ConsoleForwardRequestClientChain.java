@@ -14,6 +14,7 @@ import net.result.taulight.db.ChatMessage;
 import net.result.taulight.exception.error.ChatNotFoundException;
 import net.result.taulight.exception.error.MessageNotForwardedException;
 import net.result.taulight.message.types.ForwardRequest;
+import net.result.taulight.message.types.UUIDMessage;
 
 import java.util.*;
 
@@ -78,6 +79,15 @@ public class ConsoleForwardRequestClientChain extends ClientChain {
         } catch (UnknownSandnodeErrorException | SandnodeErrorException e) {
             System.out.printf("%s: %s%n", e.getClass().getSimpleName(), e.getMessage());
         }
+        raw.expect(MessageTypes.HAPPY);
+        UUIDMessage uuidMessage;
+        try {
+            uuidMessage = new UUIDMessage(raw);
+            System.out.printf("Sent message uuid: %s %n", uuidMessage.uuid);
+        } catch (DeserializationException e) {
+            System.out.println("Sent message with unknown uuid due deserialization");
+        }
+
         return false;
     }
 }
