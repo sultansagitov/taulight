@@ -357,10 +357,10 @@ public class TauMariaDBDatabase extends SandnodeMariaDBDatabase implements TauDa
                                 .getTimestamp("server_timestamp").toInstant()
                                 .atZone(ZonedDateTime.now().getZone());
 
-                        ServerChatMessage serverMessage = new ServerChatMessage()
-                                .setChatMessage(message)
-                                .setID(messageID)
-                                .setServerZtd(serverTimestamp);
+                        ServerChatMessage serverMessage = new ServerChatMessage();
+                        serverMessage.setID(messageID);
+                        serverMessage.setChatMessage(message);
+                        serverMessage.setServerZtd(serverTimestamp);
 
                         messages.add(serverMessage);
                     }

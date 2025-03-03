@@ -1,5 +1,6 @@
 package net.result.taulight.message.types;
 
+import net.result.sandnode.db.SandnodeObject;
 import net.result.sandnode.exception.DeserializationException;
 import net.result.sandnode.message.Message;
 import net.result.sandnode.message.RawMessage;
@@ -15,6 +16,10 @@ public class UUIDMessage extends Message {
     public UUIDMessage(@NotNull Headers headers, UUID uuid) {
         super(headers);
         this.uuid = uuid;
+    }
+
+    public UUIDMessage(Headers headers, @NotNull SandnodeObject object) {
+        this(headers, object.id());
     }
 
     public UUIDMessage(@NotNull RawMessage raw) throws DeserializationException {

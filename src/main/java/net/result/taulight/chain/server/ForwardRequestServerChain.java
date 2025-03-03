@@ -92,7 +92,7 @@ public class ForwardRequestServerChain extends ServerChain {
                 continue;
             }
 
-            send(new UUIDMessage(new Headers().setType(MessageTypes.HAPPY), serverMessage.id()));
+            send(new UUIDMessage(new Headers().setType(MessageTypes.HAPPY), serverMessage));
         }
     }
 

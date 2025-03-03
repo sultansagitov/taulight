@@ -46,9 +46,4 @@ public class TauDialog extends TauChat {
         if (member1.equals(other.member1) && member2.equals(other.member2)) return true;
         return member1.equals(other.member2) && member2.equals(other.member1);
     }
-
-    @Override
-    public int hashCode() {
-        return id().hashCode();
-    }
 }

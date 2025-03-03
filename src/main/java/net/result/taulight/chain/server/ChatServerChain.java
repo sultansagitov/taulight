@@ -38,11 +38,11 @@ public class ChatServerChain extends ServerChain {
 
                 if (allChatID == null || allChatID.isEmpty()) {
                     for (TauChat chat : database.getChats(session.member)) {
-                        if (chat instanceof TauChannel channel && true) {
+                        if (chat instanceof TauChannel channel) {
                             if (chatInfoProps.contains(ChatInfoProp.channelID)) {
                                 infos.add(ChatInfo.channel(channel, session.member, chatInfoProps));
                             }
-                        } else if (chat instanceof TauDialog dialog && true) {
+                        } else if (chat instanceof TauDialog dialog) {
                             if (chatInfoProps.contains(ChatInfoProp.dialogID)) {
                                 infos.add(ChatInfo.dialog(dialog, session.member, chatInfoProps));
                             }

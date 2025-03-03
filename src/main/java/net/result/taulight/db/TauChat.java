@@ -1,31 +1,19 @@
 package net.result.taulight.db;
 
 import net.result.sandnode.db.Member;
+import net.result.sandnode.db.SandnodeObject;
 import net.result.sandnode.exception.DatabaseException;
 
 import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 
-public abstract class TauChat {
-    private UUID id;
+public abstract class TauChat extends SandnodeObject {
     private final TauDatabase database;
 
     public TauChat(UUID id, TauDatabase database) {
-        this.id = id;
+        setID(id);
         this.database = database;
-    }
-
-    public UUID id() {
-        return id;
-    }
-
-    public void setID(UUID newValue) {
-        id = newValue;
-    }
-
-    public void setRandomID() {
-        setID(UUID.randomUUID());
     }
 
     public Collection<Member> getMembers() throws DatabaseException {
@@ -46,11 +34,11 @@ public abstract class TauChat {
 
     @Override
     public int hashCode() {
-        return id.hashCode();
+        return id().hashCode();
     }
 
     @Override
     public boolean equals(Object obj) {
-        return this == obj || obj instanceof TauChat chat && id.equals(chat.id);
+        return this == obj || obj instanceof TauChat chat && id().equals(chat.id());
     }
 }

@@ -29,10 +29,10 @@ public class TauHubProtocol {
         TauDatabase database = (TauDatabase) serverConfig.database();
         TauGroupManager manager = (TauGroupManager) serverConfig.groupManager();
 
-        ServerChatMessage serverMessage = new ServerChatMessage()
-                .setRandomID()
-                .setServerZtdNow()
-                .setChatMessage(chatMessage);
+        ServerChatMessage serverMessage = new ServerChatMessage();
+        serverMessage.setRandomID();
+        serverMessage.setServerZtdNow();
+        serverMessage.setChatMessage(chatMessage);
 
         LOGGER.info("Saving message with id {} content: {}", serverMessage.id(), chatMessage.content());
         while (true) {
