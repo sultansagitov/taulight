@@ -74,10 +74,13 @@ public class ConsoleForwardRequestClientChain extends ClientChain {
             }
         } catch (ChatNotFoundException e) {
             System.out.printf("Chat %s was not found%n", cc.currentChat);
+            return false;
         } catch (MessageNotForwardedException e) {
             System.out.println("Message not forwarded");
+            return false;
         } catch (UnknownSandnodeErrorException | SandnodeErrorException e) {
             System.out.printf("%s: %s%n", e.getClass().getSimpleName(), e.getMessage());
+            return false;
         }
         raw.expect(MessageTypes.HAPPY);
         UUIDMessage uuidMessage;
