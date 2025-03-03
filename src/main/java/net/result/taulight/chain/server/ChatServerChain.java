@@ -2,12 +2,11 @@ package net.result.taulight.chain.server;
 
 import net.result.sandnode.chain.server.ServerChain;
 import net.result.sandnode.error.Errors;
-import net.result.sandnode.exception.*;
+import net.result.sandnode.exception.DatabaseException;
+import net.result.sandnode.exception.DeserializationException;
 import net.result.sandnode.serverclient.Session;
-import net.result.taulight.db.TauChannel;
 import net.result.taulight.db.TauChat;
 import net.result.taulight.db.TauDatabase;
-import net.result.taulight.db.TauDialog;
 import net.result.taulight.message.ChatInfo;
 import net.result.taulight.message.ChatInfoProp;
 import net.result.taulight.message.types.ChatRequest;
@@ -38,16 +37,8 @@ public class ChatServerChain extends ServerChain {
 
                 if (allChatID == null || allChatID.isEmpty()) {
                     for (TauChat chat : database.getChats(session.member)) {
-                        if (chat instanceof TauChannel channel) {
-                            if (chatInfoProps.contains(ChatInfoProp.channelID)) {
-                                infos.add(ChatInfo.channel(channel, session.member, chatInfoProps));
-                            }
-                        } else if (chat instanceof TauDialog dialog) {
-                            if (chatInfoProps.contains(ChatInfoProp.dialogID)) {
-                                infos.add(ChatInfo.dialog(dialog, session.member, chatInfoProps));
-                            }
-                        } else {
-                            infos.add(ChatInfo.chatNotFound(chat.id()));
+                        if (chat.hasMatchingProps(chatInfoProps)) {
+                            infos.add(chat.getInfo(session.member, chatInfoProps));
                         }
                     }
                 } else {
@@ -65,16 +56,8 @@ public class ChatServerChain extends ServerChain {
                             continue;
                         }
 
-                        if (chat instanceof TauChannel channel && true) {
-                            if (chatInfoProps.contains(ChatInfoProp.channelID)) {
-                                infos.add(ChatInfo.channel(channel, session.member, chatInfoProps));
-                            }
-                        } else if (chat instanceof TauDialog dialog && true) {
-                            if (chatInfoProps.contains(ChatInfoProp.dialogID)) {
-                                infos.add(ChatInfo.dialog(dialog, session.member, chatInfoProps));
-                            }
-                        } else {
-                            infos.add(ChatInfo.chatNotFound(chat.id()));
+                        if (chat.hasMatchingProps(chatInfoProps)) {
+                            infos.add(chat.getInfo(session.member, chatInfoProps));
                         }
                     }
                 }

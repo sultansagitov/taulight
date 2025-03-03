@@ -340,7 +340,10 @@ public class ConsoleCommands {
             io.chainManager.linkChain(chain);
             chain.sync();
             io.chainManager.removeChain(chain);
+            long count = chain.getCount();
             List<ServerChatMessage> messages = chain.getMessages();
+
+            System.out.printf("Total messages length: %d%n", count);
             System.out.printf("Messages length: %d%n", messages.size());
             Collections.reverse(messages);
             messages.forEach(System.out::println);

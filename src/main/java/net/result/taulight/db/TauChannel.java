@@ -1,7 +1,11 @@
 package net.result.taulight.db;
 
 import net.result.sandnode.db.Member;
+import net.result.taulight.message.ChatInfo;
+import net.result.taulight.message.ChatInfoProp;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.UUID;
 
 public class TauChannel extends TauChat {
@@ -26,4 +30,13 @@ public class TauChannel extends TauChat {
         return owner;
     }
 
+    @Override
+    public boolean hasMatchingProps(Collection<ChatInfoProp> chatInfoProps) {
+        return !Collections.disjoint(chatInfoProps, ChatInfoProp.channelAll());
+    }
+
+    @Override
+    public ChatInfo getInfo(Member member, Collection<ChatInfoProp> chatInfoProps) {
+        return ChatInfo.channel(this, member, chatInfoProps);
+    }
 }

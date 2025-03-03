@@ -20,6 +20,7 @@ public class MessageClientChain extends ClientChain {
     private final int index;
     private final int size;
 
+    private long count;
     private List<ServerChatMessage> messages;
 
     public MessageClientChain(IOController io, UUID chatID, int index, int size) {
@@ -41,7 +42,12 @@ public class MessageClientChain extends ClientChain {
         }
 
         MessageResponse response = new MessageResponse(raw);
+        count = response.getCount();
         messages = response.getMessages();
+    }
+
+    public long getCount() {
+        return count;
     }
 
     public List<ServerChatMessage> getMessages() {

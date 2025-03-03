@@ -61,9 +61,10 @@ public class MessageServerChain extends ServerChain {
                 return;
             }
 
+            long count = chat.get().getMessageCount();
             var messages = chat.get().loadMessages(request.getIndex(), request.getSize());
 
-            sendFin(new MessageResponse(messages));
+            sendFin(new MessageResponse(count, messages));
 
         } catch (DatabaseException e) {
             LOGGER.error("DB exception", e);

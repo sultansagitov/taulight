@@ -3,6 +3,8 @@ package net.result.taulight.db;
 import net.result.sandnode.db.Member;
 import net.result.sandnode.db.SandnodeObject;
 import net.result.sandnode.exception.DatabaseException;
+import net.result.taulight.message.ChatInfo;
+import net.result.taulight.message.ChatInfoProp;
 
 import java.util.Collection;
 import java.util.List;
@@ -31,6 +33,10 @@ public abstract class TauChat extends SandnodeObject {
     public long getMessageCount() throws DatabaseException {
         return database.getMessageCount(this);
     }
+
+    abstract public boolean hasMatchingProps(Collection<ChatInfoProp> chatInfoProps);
+
+    abstract public ChatInfo getInfo(Member member, Collection<ChatInfoProp> chatInfoProps);
 
     @Override
     public int hashCode() {

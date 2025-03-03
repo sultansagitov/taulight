@@ -1,7 +1,11 @@
 package net.result.taulight.db;
 
 import net.result.sandnode.db.Member;
+import net.result.taulight.message.ChatInfo;
+import net.result.taulight.message.ChatInfoProp;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.UUID;
 
 public class TauDialog extends TauChat {
@@ -30,6 +34,16 @@ public class TauDialog extends TauChat {
         if (member.equals(member1)) return member2;
         if (member.equals(member2)) return member1;
         throw new IllegalArgumentException("Member not part of this dialog");
+    }
+
+    @Override
+    public boolean hasMatchingProps(Collection<ChatInfoProp> chatInfoProps) {
+        return !Collections.disjoint(chatInfoProps, ChatInfoProp.dialogAll());
+    }
+
+    @Override
+    public ChatInfo getInfo(Member member, Collection<ChatInfoProp> chatInfoProps) {
+        return ChatInfo.dialog(this, member, chatInfoProps);
     }
 
     @Override
