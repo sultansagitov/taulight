@@ -10,7 +10,7 @@ import net.result.sandnode.util.Endpoint;
 import net.result.sandnode.util.FileUtil;
 import net.result.sandnode.db.Database;
 import net.result.sandnode.group.GroupManager;
-import net.result.sandnode.tokens.Tokenizer;
+import net.result.sandnode.security.Tokenizer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;

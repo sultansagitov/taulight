@@ -40,7 +40,7 @@ public class ClientPropertiesConfig implements ClientConfig {
         Properties properties = new Properties();
         try (InputStream input = getClass().getClassLoader().getResourceAsStream(fileName)) {
             properties.load(input);
-        } catch (Exception e) {
+        } catch (IOException e) {
             throw new ConfigurationException("Error when reading \"%s\"".formatted(fileName), e);
         }
 

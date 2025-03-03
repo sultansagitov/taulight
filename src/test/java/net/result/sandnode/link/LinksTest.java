@@ -17,7 +17,7 @@ import net.result.sandnode.serverclient.SandnodeServer;
 import net.result.sandnode.util.Endpoint;
 import net.result.sandnode.db.Database;
 import net.result.sandnode.group.GroupManager;
-import net.result.sandnode.tokens.Tokenizer;
+import net.result.sandnode.security.Tokenizer;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
 

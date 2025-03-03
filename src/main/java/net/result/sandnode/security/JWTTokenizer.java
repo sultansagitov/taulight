@@ -1,10 +1,11 @@
-package net.result.sandnode.tokens;
+package net.result.sandnode.security;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.exceptions.TokenExpiredException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.auth0.jwt.interfaces.JWTVerifier;
+import net.result.sandnode.config.JWTConfig;
 import net.result.sandnode.exception.DatabaseException;
 import net.result.sandnode.exception.error.ExpiredTokenException;
 import net.result.sandnode.exception.error.InvalidTokenException;
@@ -24,7 +25,7 @@ public class JWTTokenizer implements Tokenizer {
 
     public JWTTokenizer(@NotNull JWTConfig jwtConfig) {
         this.jwtConfig = jwtConfig;
-        VERIFIER = JWT.require(jwtConfig.ALGORITHM).build();
+        VERIFIER = JWT.require(jwtConfig.getAlgorithm()).build();
     }
 
     @Override
@@ -35,7 +36,7 @@ public class JWTTokenizer implements Tokenizer {
                 .withClaim("hashedPassword", member.hashedPassword())
                 .withIssuedAt(new Date())
                 .withExpiresAt(new Date(System.currentTimeMillis() + EXPIRATION_TIME_MS))
-                .sign(jwtConfig.ALGORITHM);
+                .sign(jwtConfig.getAlgorithm());
     }
 
     @Override

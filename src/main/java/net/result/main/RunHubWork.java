@@ -1,5 +1,6 @@
 package net.result.main;
 
+import net.result.main.config.JWTPropertiesConfig;
 import net.result.sandnode.config.ServerConfig;
 import net.result.sandnode.encryption.interfaces.AsymmetricConvertor;
 import net.result.sandnode.encryption.interfaces.AsymmetricKeyStorage;
@@ -11,8 +12,7 @@ import net.result.sandnode.security.PasswordHashers;
 import net.result.sandnode.util.FileUtil;
 import net.result.taulight.db.mariadb.TauMariaDBDatabase;
 import net.result.taulight.group.HashSetTauGroupManager;
-import net.result.sandnode.tokens.JWTConfig;
-import net.result.sandnode.tokens.JWTTokenizer;
+import net.result.sandnode.security.JWTTokenizer;
 import net.result.taulight.hubagent.TauHub;
 import net.result.main.config.ServerPropertiesConfig;
 import net.result.sandnode.serverclient.SandnodeServer;
@@ -89,7 +89,7 @@ public class RunHubWork implements IWork {
             LOGGER.error(e);
             throw new RuntimeException(e);
         }
-        serverConfig.setTokenizer(new JWTTokenizer(new JWTConfig("YourSuperSecretKey")));
+        serverConfig.setTokenizer(new JWTTokenizer(new JWTPropertiesConfig()));
         return serverConfig;
     }
 }

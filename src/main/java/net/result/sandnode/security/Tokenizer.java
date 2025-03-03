@@ -1,4 +1,4 @@
-package net.result.sandnode.tokens;
+package net.result.sandnode.security;
 
 import net.result.sandnode.exception.DatabaseException;
 import net.result.sandnode.exception.error.ExpiredTokenException;

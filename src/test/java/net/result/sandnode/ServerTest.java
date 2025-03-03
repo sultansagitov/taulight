@@ -1,6 +1,7 @@
 package net.result.sandnode;
 
 import net.result.main.chain.ConsoleClientChainManager;
+import net.result.main.config.JWTPropertiesConfig;
 import net.result.sandnode.config.ClientConfig;
 import net.result.sandnode.config.ServerConfig;
 import net.result.sandnode.config.ServerConfigRecord;
@@ -30,8 +31,7 @@ import net.result.sandnode.chain.server.ServerChainManager;
 import net.result.sandnode.chain.server.ServerChain;
 import net.result.sandnode.db.InMemoryDatabase;
 import net.result.sandnode.group.HashSetGroupManager;
-import net.result.sandnode.tokens.JWTConfig;
-import net.result.sandnode.tokens.JWTTokenizer;
+import net.result.sandnode.security.JWTTokenizer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
@@ -136,7 +136,7 @@ public class ServerTest {
         public final SandnodeServer server;
         public final Hub hub;
 
-        public HubThread(KeyStorageRegistry serverKeyStorage) {
+        public HubThread(KeyStorageRegistry serverKeyStorage) throws ConfigurationException {
             setName("HubThread");
             hub = new TestHub(serverKeyStorage);
 
@@ -147,7 +147,7 @@ public class ServerTest {
                     asymmetricEncryption,
                     new HashSetGroupManager(),
                     new InMemoryDatabase(PasswordHashers.BCRYPT),
-                    new JWTTokenizer(new JWTConfig("justTesting"))
+                    new JWTTokenizer(new JWTPropertiesConfig())
             );
             server = new SandnodeServer(hub, serverConfig);
         }
