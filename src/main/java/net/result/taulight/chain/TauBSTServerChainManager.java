@@ -1,5 +1,6 @@
 package net.result.taulight.chain;
 
+import net.result.sandnode.chain.server.UnhandledMessageTypeServerChain;
 import net.result.sandnode.chain.server.ServerChain;
 import net.result.sandnode.chain.server.BSTServerChainManager;
 import net.result.taulight.chain.server.*;
@@ -25,23 +26,14 @@ public class TauBSTServerChainManager extends BSTServerChainManager {
             }
         }
         if (type instanceof TauMessageTypes tau) {
-            switch (tau) {
-                case CHAT -> {
-                    return new ChatServerChain(session);
-                }
-                case CHANNEL -> {
-                    return new ChannelServerChain(session);
-                }
-                case DIALOG -> {
-                    return new DialogServerChain(session);
-                }
-                case FWD_REQ -> {
-                    return new ForwardRequestServerChain(session);
-                }
-                case MESSAGE -> {
-                    return new MessageServerChain(session);
-                }
-            }
+            return switch (tau) {
+                case CHAT -> new ChatServerChain(session);
+                case CHANNEL -> new ChannelServerChain(session);
+                case DIALOG -> new DialogServerChain(session);
+                case FWD_REQ -> new ForwardRequestServerChain(session);
+                case MESSAGE -> new MessageServerChain(session);
+                default -> new UnhandledMessageTypeServerChain(session);
+            };
         }
 
         return super.createChain(type);

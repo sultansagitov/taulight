@@ -44,10 +44,6 @@ public abstract class BSTChainManager implements ChainManager {
         MessageType type = headers.type();
         Chain chain = createChain(type);
 
-        if (chain == null) {
-            throw new IllegalStateException("Chain is null before calling setID");
-        }
-
         chain.setID(headers.chainID());
         LOGGER.info("Adding new chain {}", chain);
         try {

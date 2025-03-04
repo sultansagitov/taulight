@@ -56,7 +56,7 @@ public class Headers {
     }
 
     public @NotNull MessageType type() throws NullPointerException {
-        return Objects.requireNonNull(type);
+        return type;
     }
 
     public Headers setConnection(@NotNull Connection connection) {
@@ -65,7 +65,7 @@ public class Headers {
     }
 
     public @NotNull Connection connection() throws NullPointerException {
-        return Objects.requireNonNull(connection);
+        return connection;
     }
 
     public Headers setBodyEncryption(@NotNull Encryption bodyEncryption) {
@@ -74,7 +74,7 @@ public class Headers {
     }
 
     public @NotNull Encryption bodyEncryption() throws NullPointerException {
-        return Objects.requireNonNull(bodyEncryption);
+        return bodyEncryption;
     }
 
     public Headers setChainID(short chainID) {

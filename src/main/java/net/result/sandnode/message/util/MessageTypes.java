@@ -10,7 +10,8 @@ public enum MessageTypes implements MessageType {
     REG(6),
     LOG_PASSWD(7),
     LOGIN(8),
-    GROUP(9);
+    GROUP(9),
+    WHOAMI(10);
 
     private final byte type;
 

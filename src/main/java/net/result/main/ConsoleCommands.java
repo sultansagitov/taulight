@@ -1,10 +1,12 @@
 package net.result.main;
 
 import net.result.sandnode.chain.Chain;
+import net.result.sandnode.chain.client.WhoAmIClientChain;
 import net.result.sandnode.exception.*;
 import net.result.sandnode.exception.error.AddressedMemberNotFoundException;
 import net.result.sandnode.exception.error.MemberNotFoundException;
 import net.result.sandnode.exception.error.SandnodeErrorException;
+import net.result.sandnode.exception.error.UnauthorizedException;
 import net.result.sandnode.hubagent.ClientProtocol;
 import net.result.sandnode.message.types.ChainNameRequest;
 import net.result.sandnode.util.IOController;
@@ -56,6 +58,7 @@ public class ConsoleCommands {
         commands.put("leave", this::leave);
         commands.put("dialog", this::dialog);
         commands.put("messages", this::messages);
+        commands.put("whoami", this::whoami);
     }
 
     private boolean exit(List<String> ignored) {
@@ -359,6 +362,22 @@ public class ConsoleCommands {
         return false;
     }
 
+    private boolean whoami(List<String> ignored) throws InterruptedException {
+        WhoAmIClientChain chain = new WhoAmIClientChain(io);
+        io.chainManager.linkChain(chain);
+        try {
+            chain.sync();
+        } catch (UnauthorizedException e) {
+            System.out.println("You are not authorized");
+            return false;
+        } catch (ExpectedMessageException | UnknownSandnodeErrorException | SandnodeErrorException e) {
+            System.out.printf("Error while getting memberID - %s%n", e.getClass());
+            return false;
+        }
+        io.chainManager.removeChain(chain);
+        System.out.println(chain.getMemberID());
+        return false;
+    }
 
     private static void printInfo(Collection<ChatInfo> infos) {
         for (ChatInfo info : infos) {

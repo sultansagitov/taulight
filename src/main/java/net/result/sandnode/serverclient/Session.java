@@ -8,6 +8,7 @@ import net.result.sandnode.group.Group;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
 import java.util.HashSet;
@@ -17,7 +18,7 @@ public class Session {
     private final Collection<Group> groups = new HashSet<>();
     public final SandnodeServer server;
     public final IOController io;
-    public Member member;
+    public @Nullable Member member;
 
     public Session(@NotNull SandnodeServer server, @NotNull IOController io) {
         this.server = server;

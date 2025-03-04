@@ -3,7 +3,6 @@ package net.result.sandnode.chain;
 import net.result.sandnode.exception.BusyChainID;
 import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.message.util.MessageType;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
 import java.util.Map;
@@ -19,7 +18,7 @@ public interface ChainManager {
 
     Chain createNew(RawMessage message) throws BusyChainID;
 
-    @Nullable Chain createChain(MessageType type);
+    Chain createChain(MessageType type);
 
     void removeChain(Chain chain);
 

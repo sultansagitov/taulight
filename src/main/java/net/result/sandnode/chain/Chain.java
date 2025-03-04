@@ -9,6 +9,7 @@ import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.util.IOController;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -39,13 +40,13 @@ public abstract class Chain implements Searchable<Chain, Short> {
         this.id = id;
     }
 
-    public void async(ChainManager chainManager) {
+    public void async(@NotNull ChainManager chainManager) {
         chainManager.getExecutorService().submit(() -> {
             String threadName = "%s/%s/%04X".formatted(io.ipString(), getClass().getSimpleName(), getID());
             Thread.currentThread().setName(threadName);
 
             try {
-                LOGGER.info("{} started in new thread and will be removed", this);
+                LOGGER.info("{} started in new thread", this);
                 sync();
                 LOGGER.info("Removing {}", this);
                 chainManager.removeChain(this);
@@ -56,7 +57,7 @@ public abstract class Chain implements Searchable<Chain, Short> {
         });
     }
 
-    public void send(IMessage request) throws InterruptedException {
+    public void send(@NotNull IMessage request) throws InterruptedException {
         Headers headers = request.headers();
         headers.setChainID(getID());
 
@@ -67,7 +68,7 @@ public abstract class Chain implements Searchable<Chain, Short> {
         io.sendMessage(request);
     }
 
-    public void sendFin(IMessage message) throws InterruptedException {
+    public void sendFin(@NotNull IMessage message) throws InterruptedException {
         message.headers().setFin(true);
         send(message);
     }
@@ -77,7 +78,7 @@ public abstract class Chain implements Searchable<Chain, Short> {
     }
 
     @Override
-    public int compareTo(Chain chain) {
+    public int compareTo(@NotNull Chain chain) {
         return compareID(chain.getID());
     }
 

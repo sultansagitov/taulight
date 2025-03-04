@@ -1,6 +1,7 @@
 package net.result.main.chain;
 
 import net.result.main.chain.client.ConsoleForwardClientChain;
+import net.result.sandnode.chain.client.UnhandledMessageTypeClientChain;
 import net.result.sandnode.chain.client.ClientChain;
 import net.result.sandnode.chain.client.BSTClientChainManager;
 import net.result.sandnode.message.util.MessageType;
@@ -18,6 +19,6 @@ public class ConsoleClientChainManager extends BSTClientChainManager {
             return new ConsoleForwardClientChain(io);
         }
 
-        return super.createChain(type);
+        return new UnhandledMessageTypeClientChain(io);
     }
 }

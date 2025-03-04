@@ -11,6 +11,7 @@ public enum Errors implements SandnodeError {
     DECODE(1001, "Decode"),
     TOO_FEW_ARGS(1002, "Too few arguments"),
     WRONG_ADDRESS(1003, "Wrong address"),
+    UNHANDLED_MESSAGE_TYPE(1004, "Unknown message type"),
 
     // Encryption-related errors
     INCORRECT_ENCRYPTION(2000, "Incorrect encryption"),
@@ -59,6 +60,7 @@ public enum Errors implements SandnodeError {
                 case DECODE -> throw new DecodingErrorException();
                 case TOO_FEW_ARGS -> throw new TooFewArgumentsException();
                 case WRONG_ADDRESS -> throw new WrongAddressException();
+                case UNHANDLED_MESSAGE_TYPE -> throw new UnhandledMessageTypeException();
 
                 case INCORRECT_ENCRYPTION -> throw new IncorrectEncryptionException();
                 case UNKNOWN_ENCRYPTION -> throw new UnknownEncryptionException();
