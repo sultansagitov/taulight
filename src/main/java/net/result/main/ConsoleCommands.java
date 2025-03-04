@@ -240,10 +240,11 @@ public class ConsoleCommands {
         try {
             var chain = new ChannelClientChain(io);
             io.chainManager.linkChain(chain);
-            chain.sendNewChannelRequest(title);
+            UUID id = chain.sendNewChannelRequest(title);
             io.chainManager.removeChain(chain);
-            System.out.printf("New channel '%s' created successfully%n", title);
-        } catch (ExpectedMessageException e) {
+            System.out.printf("New channel '%s' with with id '%s' created successfully%n", title, id);
+        } catch (ExpectedMessageException | UnknownSandnodeErrorException | SandnodeErrorException |
+                 DeserializationException e) {
             System.out.printf("Error creating new channel '%s' - %s%n", title, e.getClass());
         }
         return false;

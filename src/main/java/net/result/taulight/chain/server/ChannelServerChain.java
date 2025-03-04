@@ -2,6 +2,8 @@ package net.result.taulight.chain.server;
 
 import net.result.sandnode.chain.server.ServerChain;
 import net.result.sandnode.exception.DatabaseException;
+import net.result.sandnode.message.util.Headers;
+import net.result.sandnode.message.util.MessageTypes;
 import net.result.taulight.exception.AlreadyExistingRecordException;
 import net.result.taulight.SysMessages;
 import net.result.taulight.TauAgentProtocol;
@@ -20,6 +22,7 @@ import net.result.taulight.group.TauChatGroup;
 import net.result.taulight.message.types.ChannelRequest;
 import net.result.taulight.db.TauChannel;
 import net.result.taulight.db.TauChat;
+import net.result.taulight.message.types.UUIDMessage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -83,7 +86,7 @@ public class ChannelServerChain extends ServerChain {
                     LOGGER.warn("Exception when sending system message of creating channel {}", e.getMessage());
                 }
 
-                send(new HappyMessage());
+                send(new UUIDMessage(new Headers().setType(MessageTypes.HAPPY), channel));
             }
             case ADD -> {
                 UUID chatID = request.getChatID();

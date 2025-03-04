@@ -10,6 +10,7 @@ import net.result.sandnode.message.types.HappyMessage;
 import net.result.sandnode.message.util.MessageTypes;
 import net.result.sandnode.util.IOController;
 import net.result.taulight.message.types.ChannelRequest;
+import net.result.taulight.message.types.UUIDMessage;
 
 import java.util.UUID;
 
@@ -28,10 +29,17 @@ public class ChannelClientChain extends ClientChain {
         throw new ImpossibleRuntimeException("This chain should not be started");
     }
 
-    public void sendNewChannelRequest(String title) throws InterruptedException, ExpectedMessageException {
+    public UUID sendNewChannelRequest(String title) throws InterruptedException, ExpectedMessageException,
+            UnknownSandnodeErrorException, SandnodeErrorException, DeserializationException {
         send(ChannelRequest.newChannel(title));
         RawMessage raw = queue.take();
-        new HappyMessage(raw);
+
+        if (raw.headers().type() == MessageTypes.ERR) {
+            ErrorMessage errorMessage = new ErrorMessage(raw);
+            ServerErrorManager.instance().throwAll(errorMessage.error);
+        }
+
+        return new UUIDMessage(raw).uuid;
     }
 
     public void sendLeaveRequest(UUID chatID) throws InterruptedException, ExpectedMessageException,
