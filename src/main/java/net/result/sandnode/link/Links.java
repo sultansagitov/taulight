@@ -9,6 +9,7 @@ import net.result.sandnode.exception.crypto.CreatingKeyException;
 import net.result.sandnode.exception.crypto.EncryptionTypeException;
 import net.result.sandnode.exception.error.KeyStorageNotFoundException;
 import net.result.sandnode.exception.crypto.NoSuchEncryptionException;
+import net.result.sandnode.message.util.NodeType;
 import net.result.sandnode.serverclient.SandnodeServer;
 import net.result.sandnode.util.Endpoint;
 import net.result.sandnode.util.NetworkUtil;
@@ -53,8 +54,14 @@ public class Links {
         }
 
         String nodeType = uri.getUserInfo();
-        if (nodeType == null) {
-            throw new InvalidSandnodeLinkException("User info cannot be null");
+        NodeType type;
+
+        if (nodeType == null) throw new InvalidSandnodeLinkException("Node type cannot be null");
+
+        try {
+            type = Enum.valueOf(NodeType.class, nodeType.toUpperCase());
+        } catch (IllegalArgumentException e) {
+            throw new InvalidSandnodeLinkException("Incorrect node type (hub or agent) - nodeType");
         }
 
         String encryptionType = null;
@@ -90,6 +97,6 @@ public class Links {
 
         AsymmetricKeyStorage keyStorage = encryption.publicKeyConvertor().toKeyStorage(encodedKey);
 
-        return new SandnodeLinkRecord(endpoint, keyStorage);
+        return new SandnodeLinkRecord(type, endpoint, keyStorage);
     }
 }

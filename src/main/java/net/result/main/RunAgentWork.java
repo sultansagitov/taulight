@@ -7,14 +7,12 @@ import net.result.sandnode.exception.crypto.*;
 import net.result.sandnode.exception.error.*;
 import net.result.sandnode.hubagent.AgentProtocol;
 import net.result.sandnode.hubagent.ClientProtocol;
-import net.result.sandnode.message.util.NodeType;
 import net.result.sandnode.serverclient.SandnodeClient;
 import net.result.sandnode.encryption.interfaces.*;
 import net.result.sandnode.exception.*;
 import net.result.sandnode.link.Links;
 import net.result.sandnode.link.SandnodeLinkRecord;
 import net.result.sandnode.util.EncryptionUtil;
-import net.result.sandnode.util.Endpoint;
 import net.result.sandnode.util.IOController;
 import net.result.taulight.hubagent.TauAgent;
 import org.apache.logging.log4j.LogManager;
@@ -36,22 +34,17 @@ public class RunAgentWork implements IWork {
             try {
                 System.out.print("Enter link: ");
                 link = Links.parse(scanner.nextLine());
-
-                clientConfig = new ClientPropertiesConfig();
-
                 break;
             } catch (InvalidSandnodeLinkException | CreatingKeyException e) {
                 System.out.println("Invalid link");
-            } catch (SandnodeException e) {
-                System.out.printf("%s: %s%n", e.getClass().getName(), e.getMessage());
             }
         }
 
-        Endpoint endpoint = link.endpoint();
+        clientConfig = new ClientPropertiesConfig();
         TauAgent agent = new TauAgent();
         ConsoleClientChainManager chainManager = new ConsoleClientChainManager();
 
-        SandnodeClient client = new SandnodeClient(endpoint, agent, NodeType.HUB, clientConfig);
+        SandnodeClient client = SandnodeClient.fromLink(link, agent, clientConfig);
         client.start(chainManager);                                 // Starting client
         getPublicKey(client, agent, link);                          // get key from fs or sending PUB if key not found
         ClientProtocol.sendSYM(client);                             // sending symmetric key

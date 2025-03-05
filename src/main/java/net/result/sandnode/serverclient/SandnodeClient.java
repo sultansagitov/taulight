@@ -4,16 +4,40 @@ import net.result.sandnode.hubagent.Node;
 import net.result.sandnode.chain.client.ClientChainManager;
 import net.result.sandnode.config.ClientConfig;
 import net.result.sandnode.exception.*;
+import net.result.sandnode.link.SandnodeLinkRecord;
 import net.result.sandnode.message.util.Connection;
 import net.result.sandnode.message.util.NodeType;
 import net.result.sandnode.util.Endpoint;
 import net.result.sandnode.util.IOController;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.net.Socket;
 
+/**
+ * Represents a client that connects to a Sandnode server.
+ * <p>
+ * This client establishes a connection to a specified endpoint,
+ * manages communication with the server, and handles sending
+ * and receiving messages using an {@link IOController}.
+ * </p>
+ *
+ * <p>
+ * Example usage:
+ * </p>
+ * <pre>{@code
+ * SandnodeLinkRecord link = ...;
+ * TauAgent agent = new TauAgent();
+ * ClientConfig clientConfig = new ClientPropertiesConfig();
+ * SandnodeClient client = SandnodeClient.fromLink(link, agent, clientConfig);
+ *
+ * ConsoleClientChainManager chainManager = new ConsoleClientChainManager();
+ * client.start(chainManager);
+ * }</pre>
+ */
 public class SandnodeClient {
     private static final Logger LOGGER = LogManager.getLogger(SandnodeClient.class);
 
@@ -25,11 +49,23 @@ public class SandnodeClient {
     public IOController io;
     public Socket socket;
 
+    /**
+     * Constructs a new {@code SandnodeClient}.
+     * <p>
+     * It is recommended to use {@link #fromLink(SandnodeLinkRecord, Node, ClientConfig)}
+     * to create an instance instead of calling this constructor directly.
+     * </p>
+     */
     public SandnodeClient(Endpoint endpoint, Node node, NodeType nodeType, ClientConfig clientConfig) {
         this.endpoint = endpoint;
         this.node = node;
         this.nodeType = nodeType;
         this.clientConfig = clientConfig;
+    }
+
+    @Contract("_, _, _ -> new")
+    public static @NotNull SandnodeClient fromLink(SandnodeLinkRecord link, Node node, ClientConfig clientConfig) {
+        return new SandnodeClient(link.endpoint(), node, link.nodeType(), clientConfig);
     }
 
     public void start(ClientChainManager chainManager)
