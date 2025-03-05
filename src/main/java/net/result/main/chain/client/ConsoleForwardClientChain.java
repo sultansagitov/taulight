@@ -10,7 +10,6 @@ import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
 
 import java.time.ZoneId;
-import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 
 public class ConsoleForwardClientChain extends ForwardClientChain {
@@ -24,8 +23,7 @@ public class ConsoleForwardClientChain extends ForwardClientChain {
     public void onMessage(@NotNull ForwardResponse response) {
         ServerChatMessage serverMessage = response.getServerMessage();
 
-        ZonedDateTime zonedDateTime = serverMessage.serverZtd();
-        String formatted = zonedDateTime
+        String formatted = serverMessage.getCreationDate()
                 .withZoneSameInstant(ZoneId.systemDefault())
                 .format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss z"));
 

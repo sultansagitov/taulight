@@ -131,7 +131,7 @@ public class RunAgentWork implements IWork {
                     } catch (InvalidMemberIDPassword e) {
                         System.out.println("Invalid Member ID or password");
                     } catch (SandnodeErrorException | UnknownSandnodeErrorException e) {
-                        System.out.println("Unknown sandnode error exception. Please try again.");
+                        System.out.printf("Unknown sandnode error exception. Please try again. %s%n", e.getClass().getSimpleName());
                     }
                 }
             }
@@ -155,7 +155,7 @@ public class RunAgentWork implements IWork {
                     } catch (MemberNotFoundException e) {
                         System.out.println("Member not found. Please try again.");
                     } catch (SandnodeErrorException | UnknownSandnodeErrorException e) {
-                        System.out.println("Unknown sandnode error exception. Please try again.");
+                        System.out.printf("Unknown sandnode error exception. Please try again. %s%n", e.getClass().getSimpleName());
                     }
                 }
             }
@@ -179,7 +179,7 @@ public class RunAgentWork implements IWork {
                     } catch (UnauthorizedException e) {
                         System.out.println("Incorrect password. Please try again.");
                     } catch (SandnodeErrorException | UnknownSandnodeErrorException e) {
-                        System.out.println("Unknown sandnode error exception. Please try again.");
+                        System.out.printf("Unknown sandnode error exception. Please try again. %s%n", e.getClass().getSimpleName());
                     }
                 }
             }

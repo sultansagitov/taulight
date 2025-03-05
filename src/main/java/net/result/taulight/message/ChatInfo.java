@@ -5,6 +5,7 @@ import net.result.sandnode.db.Member;
 import net.result.taulight.db.TauChannel;
 import net.result.taulight.db.TauDialog;
 
+import java.time.ZonedDateTime;
 import java.util.Collection;
 import java.util.UUID;
 
@@ -21,6 +22,8 @@ public class ChatInfo {
     public boolean channelIsMy;
     @JsonProperty("dialog-other")
     public String otherMemberID;
+    @JsonProperty("creation-at")
+    public ZonedDateTime creationDate;
 
     public enum ChatType {
         @JsonProperty("cn") CHANNEL,
@@ -35,6 +38,7 @@ public class ChatInfo {
         ChatInfo info = new ChatInfo();
         info.chatType = ChatType.CHANNEL;
         if (infoProps.contains(ChatInfoProp.channelID)) info.id = channel.id();
+        if (infoProps.contains(ChatInfoProp.channelCreatedAt)) info.creationDate = channel.getCreationDate();
         if (infoProps.contains(ChatInfoProp.channelTitle)) info.title = channel.title();
         if (infoProps.contains(ChatInfoProp.channelOwner)) info.ownerID = channel.owner().id();
         if (infoProps.contains(ChatInfoProp.channelIsMy)) info.channelIsMy = channel.owner().equals(member);
@@ -45,6 +49,7 @@ public class ChatInfo {
         ChatInfo info = new ChatInfo();
         info.chatType = ChatType.DIALOG;
         if (infoProps.contains(ChatInfoProp.dialogID)) info.id = dialog.id();
+        if (infoProps.contains(ChatInfoProp.dialogCreatedAt)) info.creationDate = dialog.getCreationDate();
         if (infoProps.contains(ChatInfoProp.dialogOther)) info.otherMemberID = dialog.otherMember(member).id();
         return info;
     }

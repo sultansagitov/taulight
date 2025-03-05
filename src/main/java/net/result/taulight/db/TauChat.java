@@ -6,6 +6,7 @@ import net.result.sandnode.exception.DatabaseException;
 import net.result.taulight.message.ChatInfo;
 import net.result.taulight.message.ChatInfoProp;
 
+import java.time.ZonedDateTime;
 import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
@@ -13,8 +14,15 @@ import java.util.UUID;
 public abstract class TauChat extends SandnodeObject {
     private final TauDatabase database;
 
-    public TauChat(UUID id, TauDatabase database) {
+    public TauChat(UUID id, ZonedDateTime creationDate, TauDatabase database) {
         setID(id);
+        setCreationDate(creationDate);
+        this.database = database;
+    }
+
+    public TauChat(TauDatabase database) {
+        setRandomID();
+        setCreationDateNow();
         this.database = database;
     }
 

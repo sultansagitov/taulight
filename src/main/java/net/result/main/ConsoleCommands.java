@@ -382,12 +382,12 @@ public class ConsoleCommands {
     private static void printInfo(Collection<ChatInfo> infos) {
         for (ChatInfo info : infos) {
             String s = switch (info.chatType) {
-                case CHANNEL -> "Channel info: %s, %s%s"
+                case CHANNEL -> "Channel: %s, %s%s"
                         .formatted(info.title, info.ownerID, info.channelIsMy ? " (you)" : "");
                 case DIALOG -> "Dialog: %s".formatted(info.otherMemberID);
                 case NOT_FOUND -> "Chat not found";
             };
-            System.out.printf("%s - %s%n", info.id, s);
+            System.out.printf("%s from %s - %s%n", info.id, info.creationDate, s);
         }
     }
 }

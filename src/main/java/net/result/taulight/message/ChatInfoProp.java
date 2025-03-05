@@ -8,16 +8,18 @@ import java.util.List;
 
 public enum ChatInfoProp {
     @JsonProperty("channel-id") channelID,
+    @JsonProperty("channel-created-at") channelCreatedAt,
     @JsonProperty("channel-title") channelTitle,
     @JsonProperty("channel-owner") channelOwner,
     @JsonProperty("channel-is-my") channelIsMy,
 
     @JsonProperty("dialog-id") dialogID,
+    @JsonProperty("dialog-created-at") dialogCreatedAt,
     @JsonProperty("dialog-other") dialogOther;
 
     private static final Collection<ChatInfoProp> channelAll =
-            List.of(channelID, channelTitle, channelOwner, channelIsMy);
-    private static final Collection<ChatInfoProp> dialogAll = List.of(dialogID, dialogOther);
+            List.of(channelID, channelCreatedAt, channelTitle, channelOwner, channelIsMy);
+    private static final Collection<ChatInfoProp> dialogAll = List.of(dialogID, dialogCreatedAt, dialogOther);
     private static final Collection<ChatInfoProp> all = Arrays.stream(ChatInfoProp.values()).toList();
     private static final Collection<ChatInfoProp> id = List.of(channelID, dialogID);
 

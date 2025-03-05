@@ -61,11 +61,11 @@ public class ChannelServerChain extends ServerChain {
                 TauChannel channel = new TauChannel(database, title, session.member);
                 try {
                     while (true) {
+                        channel.setRandomID();
                         try {
                             database.saveChat(channel);
                             break;
-                        } catch (AlreadyExistingRecordException e) {
-                            channel.setRandomID();
+                        } catch (AlreadyExistingRecordException ignored) {
                         }
                     }
 

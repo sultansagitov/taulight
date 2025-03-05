@@ -4,6 +4,7 @@ import net.result.sandnode.db.Member;
 import net.result.taulight.message.ChatInfo;
 import net.result.taulight.message.ChatInfoProp;
 
+import java.time.ZonedDateTime;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.UUID;
@@ -12,14 +13,16 @@ public class TauDialog extends TauChat {
     private final Member member1;
     private final Member member2;
 
-    public TauDialog(UUID id, TauDatabase database, Member member1, Member member2) {
-        super(id, database);
+    public TauDialog(UUID id, ZonedDateTime creationDate, TauDatabase database, Member member1, Member member2) {
+        super(id, creationDate, database);
         this.member1 = member1;
         this.member2 = member2;
     }
 
     public TauDialog(TauDatabase database, Member member1, Member member2) {
-        this(UUID.randomUUID(), database, member1, member2);
+        super(database);
+        this.member1 = member1;
+        this.member2 = member2;
     }
 
     public Member firstMember() {

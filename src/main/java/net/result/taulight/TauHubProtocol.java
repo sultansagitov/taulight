@@ -30,17 +30,16 @@ public class TauHubProtocol {
         TauGroupManager manager = (TauGroupManager) serverConfig.groupManager();
 
         ServerChatMessage serverMessage = new ServerChatMessage();
-        serverMessage.setRandomID();
-        serverMessage.setServerZtdNow();
+        serverMessage.setCreationDateNow();
         serverMessage.setChatMessage(chatMessage);
 
         LOGGER.info("Saving message with id {} content: {}", serverMessage.id(), chatMessage.content());
         while (true) {
+            serverMessage.setRandomID();
             try {
                 database.saveMessage(serverMessage);
                 break;
-            } catch (AlreadyExistingRecordException e) {
-                serverMessage.setRandomID();
+            } catch (AlreadyExistingRecordException ignored) {
             }
         }
         Collection<Session> sessions = manager.getGroup(chat).getSessions();

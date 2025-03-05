@@ -25,7 +25,7 @@ public class LoginUtil {
         try {
             chats = database.getChats(session.member);
         } catch (DatabaseException e) {
-            LOGGER.error(e);
+            LOGGER.error("Failed to get member chats", e);
             chain.sendFin(Errors.SERVER_ERROR.createMessage());
             return;
         }
