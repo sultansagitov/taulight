@@ -29,6 +29,11 @@ public class ChatServerChain extends ServerChain {
         while (true) {
             ChatRequest request = new ChatRequest(queue.take());
 
+            if (session.member == null) {
+                send(Errors.UNAUTHORIZED.createMessage());
+                continue;
+            }
+
             Collection<UUID> allChatID = request.getAllChatID();
             Collection<ChatInfoProp> chatInfoProps = request.getChatInfoProps();
 
