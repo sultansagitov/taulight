@@ -1,5 +1,6 @@
 package net.result.taulight.chain.server;
 
+import net.result.sandnode.chain.ReceiverChain;
 import net.result.sandnode.chain.server.ServerChain;
 import net.result.sandnode.db.Member;
 import net.result.sandnode.error.Errors;
@@ -10,6 +11,7 @@ import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.message.types.ErrorMessage;
 import net.result.sandnode.message.util.MessageTypes;
 import net.result.sandnode.serverclient.Session;
+import net.result.taulight.db.ServerChatMessage;
 import net.result.taulight.db.TauChat;
 import net.result.taulight.db.TauDatabase;
 import net.result.taulight.error.TauErrors;
@@ -19,9 +21,10 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 
-public class MessageServerChain extends ServerChain {
+public class MessageServerChain extends ServerChain implements ReceiverChain {
     private static final Logger LOGGER = LogManager.getLogger(MessageServerChain.class);
 
     public MessageServerChain(Session session) {
@@ -30,7 +33,7 @@ public class MessageServerChain extends ServerChain {
 
     @Override
     public void sync() throws InterruptedException, DeserializationException, ExpectedMessageException,
-            SandnodeErrorException, UnknownSandnodeErrorException {
+            SandnodeErrorException, UnknownSandnodeErrorException, UnprocessedMessagesException {
 
         TauDatabase database = (TauDatabase) session.server.serverConfig.database();
 
@@ -62,7 +65,7 @@ public class MessageServerChain extends ServerChain {
             }
 
             long count = chat.get().getMessageCount();
-            var messages = chat.get().loadMessages(request.getIndex(), request.getSize());
+            List<ServerChatMessage> messages = chat.get().loadMessages(request.getIndex(), request.getSize());
 
             sendFin(new MessageResponse(count, messages));
 

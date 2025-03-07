@@ -7,6 +7,7 @@ import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.List;
 
 public class NetworkUtil {
@@ -26,11 +27,11 @@ public class NetworkUtil {
 
     public static String getLocalIP() throws SocketException {
         List<InetAddress> list = new ArrayList<>();
-        var networkInterfaces = NetworkInterface.getNetworkInterfaces();
+        Enumeration<NetworkInterface> networkInterfaces = NetworkInterface.getNetworkInterfaces();
         while (networkInterfaces.hasMoreElements()) {
             NetworkInterface netInterface = networkInterfaces.nextElement();
             if (netInterface.isUp()) {
-                var inetAddresses = netInterface.getInetAddresses();
+                Enumeration<InetAddress> inetAddresses = netInterface.getInetAddresses();
                 while (inetAddresses.hasMoreElements()) {
                     InetAddress inetAddress = inetAddresses.nextElement();
                     if (!inetAddress.isLoopbackAddress()) {

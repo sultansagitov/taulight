@@ -1,8 +1,9 @@
 package net.result.taulight.chain.server;
 
-import net.result.sandnode.chain.Chain;
+import net.result.sandnode.chain.IChain;
 import net.result.sandnode.error.Errors;
 import net.result.sandnode.exception.DatabaseException;
+import net.result.sandnode.exception.UnprocessedMessagesException;
 import net.result.sandnode.serverclient.Session;
 import net.result.taulight.TauAgentProtocol;
 import net.result.taulight.db.TauChat;
@@ -11,13 +12,15 @@ import net.result.taulight.group.TauChatGroup;
 import net.result.taulight.group.TauGroupManager;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Collection;
 
 public class LoginUtil {
     private static final Logger LOGGER = LogManager.getLogger(LoginUtil.class);
 
-    public static void onLogin(Session session, Chain chain) throws InterruptedException {
+    public static void onLogin(@NotNull Session session, @NotNull IChain chain)
+            throws InterruptedException, UnprocessedMessagesException {
         TauDatabase database = (TauDatabase) session.server.serverConfig.database();
         TauGroupManager manager = (TauGroupManager) session.server.serverConfig.groupManager();
 

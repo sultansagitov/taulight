@@ -26,18 +26,9 @@ public class ChatClientChain extends ClientChain {
         super(io);
     }
 
-    @Override
-    public boolean isChainStartAllowed() {
-        return false;
-    }
-
-    @Override
-    public void sync() {
-        throw new ImpossibleRuntimeException("This chain should not be started");
-    }
-
-    public Optional<Collection<ChatInfo>> getByMember(Collection<ChatInfoProp> infoProps) throws InterruptedException,
-            DeserializationException, ExpectedMessageException, SandnodeErrorException, UnknownSandnodeErrorException {
+    public synchronized Optional<Collection<ChatInfo>> getByMember(Collection<ChatInfoProp> infoProps)
+            throws InterruptedException, DeserializationException, ExpectedMessageException, SandnodeErrorException,
+            UnknownSandnodeErrorException, UnprocessedMessagesException {
         lock.lock();
         try {
             send(ChatRequest.getByMember(infoProps));
@@ -54,9 +45,10 @@ public class ChatClientChain extends ClientChain {
             lock.unlock();
         }
     }
-    public Optional<Collection<ChatInfo>> getByID(Collection<UUID> chatID, Collection<ChatInfoProp> infoProps)
+
+    public synchronized Collection<ChatInfo> getByID(Collection<UUID> chatID, Collection<ChatInfoProp> infoProps)
             throws InterruptedException, ExpectedMessageException, UnknownSandnodeErrorException,
-            SandnodeErrorException, DeserializationException {
+            SandnodeErrorException, DeserializationException, UnprocessedMessagesException {
         lock.lock();
         try {
             send(ChatRequest.getByID(chatID, infoProps));
@@ -65,11 +57,10 @@ public class ChatClientChain extends ClientChain {
             if (raw.headers().type() == MessageTypes.ERR) {
                 ErrorMessage errorMessage = new ErrorMessage(raw);
                 ServerErrorManager.instance().throwAll(errorMessage.error);
-                return Optional.empty();
             }
 
             ChatResponse chatResponse = new ChatResponse(raw);
-            return Optional.of(chatResponse.getInfos());
+            return chatResponse.getInfos();
         } finally {
             lock.unlock();
         }

@@ -1,6 +1,6 @@
 package net.result.main;
 
-import net.result.sandnode.chain.Chain;
+import net.result.sandnode.chain.IChain;
 import net.result.sandnode.chain.client.WhoAmIClientChain;
 import net.result.sandnode.exception.*;
 import net.result.sandnode.exception.error.AddressedMemberNotFoundException;
@@ -29,7 +29,7 @@ public class ConsoleCommands {
     @FunctionalInterface
     public interface LoopCondition {
         @SuppressWarnings("unused")
-        boolean breakLoop(List<String> args) throws InterruptedException;
+        boolean breakLoop(List<String> args) throws InterruptedException, UnprocessedMessagesException;
     }
 
     private static final Logger LOGGER = LogManager.getLogger(ConsoleCommands.class);
@@ -83,8 +83,8 @@ public class ConsoleCommands {
     }
 
     private boolean chains(List<String> ignored) {
-        var chains = io.chainManager.getAllChains();
-        var map = io.chainManager.getChainsMap();
+        Collection<IChain> chains = io.chainManager.getAllChains();
+        Map<String, IChain> map = io.chainManager.getChainsMap();
 
         System.out.printf("All client chains: %s%n", chains);
         System.out.printf("All named client chains: %s%n", map);
@@ -92,7 +92,7 @@ public class ConsoleCommands {
         return false;
     }
 
-    private boolean groups(List<String> ignored) throws InterruptedException {
+    private boolean groups(List<String> ignored) throws InterruptedException, UnprocessedMessagesException {
         try {
             Collection<String> groups = ClientProtocol.getGroups(io);
             System.out.printf("Your groups: %s%n", groups);
@@ -102,7 +102,7 @@ public class ConsoleCommands {
         return false;
     }
 
-    private boolean addGroup(List<String> groups) throws InterruptedException {
+    private boolean addGroup(List<String> groups) throws InterruptedException, UnprocessedMessagesException {
         try {
             Collection<String> groupsAfterAdding = ClientProtocol.addToGroups(io, groups);
             System.out.printf("Your groups now (after adding): %s%n", groupsAfterAdding);
@@ -112,7 +112,7 @@ public class ConsoleCommands {
         return false;
     }
 
-    private boolean rmGroup(List<String> groups) throws InterruptedException {
+    private boolean rmGroup(List<String> groups) throws InterruptedException, UnprocessedMessagesException {
         try {
             Collection<String> groupsAfterRemoving = ClientProtocol.removeFromGroups(io, groups);
             System.out.printf("Your groups now (after removing): %s%n", groupsAfterRemoving);
@@ -122,10 +122,10 @@ public class ConsoleCommands {
         return false;
     }
 
-    private boolean chats(List<String> ignored) throws InterruptedException {
+    private boolean chats(List<String> ignored) throws InterruptedException, UnprocessedMessagesException {
         try {
             // Find or add "chat" chain
-            Optional<Chain> chat = io.chainManager.getChain("chat");
+            Optional<IChain> chat = io.chainManager.getChain("chat");
             Optional<Collection<ChatInfo>> opt;
             if (chat.isPresent()) {
                 ChatClientChain chain = (ChatClientChain) chat.get();
@@ -151,10 +151,10 @@ public class ConsoleCommands {
         return false;
     }
 
-    private boolean dialogs(List<String> ignored) throws InterruptedException {
+    private boolean dialogs(List<String> ignored) throws InterruptedException, UnprocessedMessagesException {
         try {
             // Find or add "chat" chain
-            Optional<Chain> chat = io.chainManager.getChain("chat");
+            Optional<IChain> chat = io.chainManager.getChain("chat");
             Optional<Collection<ChatInfo>> opt;
             if (chat.isPresent()) {
                 ChatClientChain chain = (ChatClientChain) chat.get();
@@ -180,10 +180,10 @@ public class ConsoleCommands {
         return false;
     }
 
-    private boolean channels(List<String> ignored) throws InterruptedException {
+    private boolean channels(List<String> ignored) throws InterruptedException, UnprocessedMessagesException {
         try {
             // Find or add "chat" chain
-            Optional<Chain> chat = io.chainManager.getChain("chat");
+            Optional<IChain> chat = io.chainManager.getChain("chat");
             Optional<Collection<ChatInfo>> opt;
             if (chat.isPresent()) {
                 ChatClientChain chain = (ChatClientChain) chat.get();
@@ -217,22 +217,22 @@ public class ConsoleCommands {
             }
 
             // Find or add "chat" chain
-            Optional<Chain> chat = io.chainManager.getChain("chat");
-            Optional<Collection<ChatInfo>> opt;
+            Optional<IChain> chat = io.chainManager.getChain("chat");
+            Collection<ChatInfo> infos;
             if (chat.isPresent()) {
                 ChatClientChain chain = (ChatClientChain) chat.get();
-                opt = chain.getByID(List.of(currentChat), ChatInfoProp.all());
+                infos = chain.getByID(List.of(currentChat), ChatInfoProp.all());
             } else {
                 ChatClientChain chain = new ChatClientChain(io);
                 io.chainManager.linkChain(chain);
-                opt = chain.getByID(List.of(currentChat), ChatInfoProp.all());
+                infos = chain.getByID(List.of(currentChat), ChatInfoProp.all());
                 chain.send(new ChainNameRequest("chat"));
             }
 
-            opt.ifPresent(ConsoleCommands::printInfo);
+            printInfo(infos);
 
         } catch (DeserializationException | ExpectedMessageException | SandnodeErrorException |
-                 UnknownSandnodeErrorException e) {
+                 UnknownSandnodeErrorException | UnprocessedMessagesException e) {
             System.out.printf("Chat info retrieval failed due to a Sandnode error - %s%n", e.getClass());
         }
         return false;
@@ -247,13 +247,13 @@ public class ConsoleCommands {
             io.chainManager.removeChain(chain);
             System.out.printf("New channel '%s' with with id '%s' created successfully%n", title, id);
         } catch (ExpectedMessageException | UnknownSandnodeErrorException | SandnodeErrorException |
-                 DeserializationException e) {
+                 DeserializationException | UnprocessedMessagesException e) {
             System.out.printf("Error creating new channel '%s' - %s%n", title, e.getClass());
         }
         return false;
     }
 
-    private boolean addMember(@NotNull List<String> args) throws InterruptedException {
+    private boolean addMember(@NotNull List<String> args) throws InterruptedException, UnprocessedMessagesException {
         if (args.size() < 2) {
             System.out.println("Usage: addMember <chatID> <member>");
             return false;
@@ -288,13 +288,13 @@ public class ConsoleCommands {
         return false;
     }
 
-    private boolean dialog(@NotNull List<String> args) throws InterruptedException {
+    private boolean dialog(@NotNull List<String> args) throws InterruptedException, UnprocessedMessagesException {
         String memberID = args.get(0);
         try {
-            DialogClientChain chain = new DialogClientChain(io, memberID);
+            DialogClientChain chain = new DialogClientChain(io);
             io.chainManager.linkChain(chain);
-            chain.sync();
-            System.out.printf("Dialog with member %s found or created. Chat ID: %s%n", memberID, chain.chatID);
+            UUID chatID = chain.getDialogID(memberID);
+            System.out.printf("Dialog with member %s found or created. Chat ID: %s%n", memberID, chatID);
             io.chainManager.removeChain(chain);
         } catch (MemberNotFoundException e) {
             System.out.printf("Member %s not found - %s%n", memberID, e.getClass());
@@ -306,7 +306,7 @@ public class ConsoleCommands {
     }
 
 
-    private boolean leave(@NotNull List<String> args) throws InterruptedException {
+    private boolean leave(@NotNull List<String> args) throws InterruptedException, UnprocessedMessagesException {
         UUID chatID;
 
         try {
@@ -333,16 +333,16 @@ public class ConsoleCommands {
         return false;
     }
 
-    private boolean messages(List<String> ignored) throws InterruptedException {
+    private boolean messages(List<String> ignored) throws InterruptedException, UnprocessedMessagesException {
         if (currentChat == null) {
             System.out.println("Chat not selected");
             return false;
         }
 
         try {
-            var chain = new MessageClientChain(io, currentChat, 0, 100);
+            var chain = new MessageClientChain(io);
             io.chainManager.linkChain(chain);
-            chain.sync();
+            chain.getMessages(currentChat, 0, 100);
             io.chainManager.removeChain(chain);
             long count = chain.getCount();
             List<ServerChatMessage> messages = chain.getMessages();
@@ -362,11 +362,12 @@ public class ConsoleCommands {
         return false;
     }
 
-    private boolean whoami(List<String> ignored) throws InterruptedException {
+    private boolean whoami(List<String> ignored) throws InterruptedException, UnprocessedMessagesException {
         WhoAmIClientChain chain = new WhoAmIClientChain(io);
         io.chainManager.linkChain(chain);
+        String userID;
         try {
-            chain.sync();
+            userID = chain.getUserID();
         } catch (UnauthorizedException e) {
             System.out.println("You are not authorized");
             return false;
@@ -375,7 +376,7 @@ public class ConsoleCommands {
             return false;
         }
         io.chainManager.removeChain(chain);
-        System.out.println(chain.getMemberID());
+        System.out.println(userID);
         return false;
     }
 

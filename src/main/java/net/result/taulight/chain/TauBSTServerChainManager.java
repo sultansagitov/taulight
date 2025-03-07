@@ -1,7 +1,7 @@
 package net.result.taulight.chain;
 
+import net.result.sandnode.chain.ReceiverChain;
 import net.result.sandnode.chain.server.UnhandledMessageTypeServerChain;
-import net.result.sandnode.chain.server.ServerChain;
 import net.result.sandnode.chain.server.BSTServerChainManager;
 import net.result.taulight.chain.server.*;
 import net.result.sandnode.message.util.MessageType;
@@ -14,7 +14,7 @@ public class TauBSTServerChainManager extends BSTServerChainManager {
     }
 
     @Override
-    public ServerChain createChain(MessageType type) {
+    public ReceiverChain createChain(MessageType type) {
         if (type instanceof MessageTypes sys) {
             switch (sys) {
                 case LOGIN -> {

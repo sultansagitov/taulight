@@ -9,19 +9,12 @@ import net.result.sandnode.message.util.MessageTypes;
 import net.result.sandnode.util.IOController;
 
 public class LogPasswdClientChain extends ClientChain {
-    private final String memberID;
-    private final String password;
-    public String token;
-
-    public LogPasswdClientChain(IOController io, String memberID, String password) {
+    public LogPasswdClientChain(IOController io) {
         super(io);
-        this.memberID = memberID;
-        this.password = password;
     }
 
-    @Override
-    public void sync() throws InterruptedException, SandnodeErrorException, ExpectedMessageException,
-            UnknownSandnodeErrorException {
+    public String getToken(String memberID, String password) throws InterruptedException, SandnodeErrorException,
+            ExpectedMessageException, UnknownSandnodeErrorException, UnprocessedMessagesException {
         LogPasswdRequest loginRequest = new LogPasswdRequest(memberID, password);
         send(loginRequest);
 
@@ -34,6 +27,6 @@ public class LogPasswdClientChain extends ClientChain {
 
         LogPasswdResponse loginResponse = new LogPasswdResponse(message);
 
-        token = loginResponse.getToken();
+        return loginResponse.getToken();
     }
 }

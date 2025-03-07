@@ -21,7 +21,7 @@ public class TauAgentProtocol {
     public static void addMembersToGroup(Session session, Collection<Member> members, TauChatGroup group) {
         session.server.node
                 .getAgents().stream()
-                .filter(s -> members.stream().anyMatch(s.member::equals))
+                .filter(s -> members.stream().anyMatch(member -> member.equals(s.member)))
                 .forEach(s -> s.addToGroup(group));
     }
 

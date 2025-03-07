@@ -16,8 +16,8 @@ public interface IMessage {
 
     byte[] getBody();
 
-    byte[] toByteArray(@NotNull KeyStorageRegistry keyStorageRegistry)
-            throws EncryptionException, MessageSerializationException, IllegalMessageLengthException, KeyStorageNotFoundException, CryptoException;
+    byte[] toByteArray(@NotNull KeyStorageRegistry keyStorageRegistry) throws EncryptionException,
+            MessageSerializationException, IllegalMessageLengthException, KeyStorageNotFoundException, CryptoException;
 
     void setHeadersEncryption(@NotNull Encryption encryption);
 

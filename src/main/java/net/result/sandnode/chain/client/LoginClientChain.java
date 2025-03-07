@@ -11,17 +11,13 @@ import net.result.sandnode.message.util.MessageTypes;
 import net.result.sandnode.util.IOController;
 
 public class LoginClientChain extends ClientChain {
-    private final String token;
-    public String memberID;
-
-    public LoginClientChain(IOController io, String token) {
+    public LoginClientChain(IOController io) {
         super(io);
-        this.token = token;
     }
 
-    @Override
-    public void sync() throws InterruptedException, DeserializationException, ExpectedMessageException,
-            SandnodeErrorException, UnknownSandnodeErrorException {
+    public String getMemberID(String token)
+            throws InterruptedException, DeserializationException, ExpectedMessageException, SandnodeErrorException,
+            UnknownSandnodeErrorException, UnprocessedMessagesException {
         LoginRequest loginRequest = new LoginRequest(token);
         send(loginRequest);
 
@@ -34,6 +30,6 @@ public class LoginClientChain extends ClientChain {
 
         LoginResponse loginResponse = new LoginResponse(message);
 
-        memberID = loginResponse.getMemberID();
+        return loginResponse.getMemberID();
     }
 }

@@ -19,15 +19,12 @@ import net.result.taulight.message.types.UUIDMessage;
 import java.util.*;
 
 public class ConsoleForwardRequestClientChain extends ClientChain {
-    private final String memberID;
-
-    public ConsoleForwardRequestClientChain(IOController io, String memberID) {
+    public ConsoleForwardRequestClientChain(IOController io) {
         super(io);
-        this.memberID = memberID;
     }
 
-    @Override
-    public void sync() throws InterruptedException, ExpectedMessageException {
+    public void sync(String memberID)
+            throws InterruptedException, ExpectedMessageException, UnprocessedMessagesException {
         ConsoleCommands cc = new ConsoleCommands(io, memberID);
         Scanner scanner = new Scanner(System.in);
 
@@ -50,7 +47,7 @@ public class ConsoleForwardRequestClientChain extends ClientChain {
     }
 
     private boolean sendForward(ConsoleCommands cc, String input)
-            throws InterruptedException, ExpectedMessageException {
+            throws InterruptedException, ExpectedMessageException, UnprocessedMessagesException {
         if (cc.currentChat == null) {
             System.out.println("chat not selected");
             return false;

@@ -11,19 +11,13 @@ import net.result.sandnode.message.util.MessageTypes;
 import net.result.sandnode.util.IOController;
 
 public class RegistrationClientChain extends ClientChain {
-    public String token;
-    private final String memberID;
-    private final String password;
-
-    public RegistrationClientChain(IOController io, String memberID, String password) {
+    public RegistrationClientChain(IOController io) {
         super(io);
-        this.memberID = memberID;
-        this.password = password;
     }
 
-    @Override
-    public void sync() throws InterruptedException, ExpectedMessageException, SandnodeErrorException,
-            UnknownSandnodeErrorException {
+    public synchronized String getTokenFromRegistration(String memberID, String password)
+            throws InterruptedException, ExpectedMessageException, SandnodeErrorException,
+            UnknownSandnodeErrorException, UnprocessedMessagesException {
         RegistrationRequest request = new RegistrationRequest(memberID, password);
         send(request);
 
@@ -35,6 +29,6 @@ public class RegistrationClientChain extends ClientChain {
 
         }
 
-        token = new RegistrationResponse(response).getToken();
+        return new RegistrationResponse(response).getToken();
     }
 }

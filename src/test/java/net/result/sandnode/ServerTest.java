@@ -2,6 +2,7 @@ package net.result.sandnode;
 
 import net.result.main.chain.ConsoleClientChainManager;
 import net.result.main.config.JWTPropertiesConfig;
+import net.result.sandnode.chain.ReceiverChain;
 import net.result.sandnode.config.ClientConfig;
 import net.result.sandnode.config.ServerConfig;
 import net.result.sandnode.config.ServerConfigRecord;
@@ -183,12 +184,12 @@ public class ServerTest {
 
     private static class TestingBSTServerChainManager extends BSTServerChainManager {
         @Override
-        public ServerChain createChain(MessageType type) {
+        public ReceiverChain createChain(MessageType type) {
             return type == Testing.TESTING ? new TestServerChain(session) : super.createChain(type);
         }
     }
 
-    private static class TestServerChain extends ServerChain {
+    private static class TestServerChain extends ServerChain implements ReceiverChain {
         public static final Lock lock = new ReentrantLock();
         public static Condition condition;
 
@@ -286,7 +287,7 @@ public class ServerTest {
         }
     }
 
-    private static class TestClientChain extends ClientChain {
+    private static class TestClientChain extends ClientChain implements ReceiverChain {
         private final IMessage message;
 
         public TestClientChain(IOController io, IMessage message) {
@@ -295,7 +296,7 @@ public class ServerTest {
         }
 
         @Override
-        public void sync() throws InterruptedException {
+        public void sync() throws InterruptedException, UnprocessedMessagesException {
             sendFin(message);
         }
     }

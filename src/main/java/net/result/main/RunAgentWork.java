@@ -56,16 +56,17 @@ public class RunAgentWork implements IWork {
     }
 
     private static void startConsoleChain(IOController io, String memberID)
-            throws InterruptedException, ExpectedMessageException {
-        ConsoleForwardRequestClientChain consoleChain = new ConsoleForwardRequestClientChain(io, memberID);
+            throws InterruptedException, ExpectedMessageException, UnprocessedMessagesException {
+        ConsoleForwardRequestClientChain consoleChain = new ConsoleForwardRequestClientChain(io);
         io.chainManager.linkChain(consoleChain);
-        consoleChain.sync();
+        consoleChain.sync(memberID);
         io.chainManager.removeChain(consoleChain);
     }
 
     private static void getPublicKey(SandnodeClient client, TauAgent agent, SandnodeLinkRecord link)
             throws FSException, CryptoException, LinkDoesNotMatchException, InterruptedException,
-            SandnodeErrorException, ExpectedMessageException, UnknownSandnodeErrorException {
+            SandnodeErrorException, ExpectedMessageException, UnknownSandnodeErrorException,
+            UnprocessedMessagesException {
 
         Optional<AsymmetricKeyStorage> filePublicKey = client.clientConfig.getPublicKey(link.endpoint());
         AsymmetricKeyStorage linkKeyStorage = link.keyStorage();
@@ -100,8 +101,8 @@ public class RunAgentWork implements IWork {
         client.io.setServerKey(serverKey);
     }
 
-    private String handleAuthentication(IOController io, Scanner scanner)
-            throws InterruptedException, ExpectedMessageException, DeserializationException {
+    private String handleAuthentication(IOController io, Scanner scanner) throws InterruptedException,
+            ExpectedMessageException, DeserializationException, UnprocessedMessagesException {
 
         String s;
         do {
@@ -131,7 +132,7 @@ public class RunAgentWork implements IWork {
                     } catch (InvalidMemberIDPassword e) {
                         System.out.println("Invalid Member ID or password");
                     } catch (SandnodeErrorException | UnknownSandnodeErrorException e) {
-                        System.out.printf("Unknown sandnode error exception. Please try again. %s%n", e.getClass().getSimpleName());
+                        System.out.printf("Unknown sandnode error exception. Please try again. %s%n", e.getClass());
                     }
                 }
             }
@@ -155,7 +156,7 @@ public class RunAgentWork implements IWork {
                     } catch (MemberNotFoundException e) {
                         System.out.println("Member not found. Please try again.");
                     } catch (SandnodeErrorException | UnknownSandnodeErrorException e) {
-                        System.out.printf("Unknown sandnode error exception. Please try again. %s%n", e.getClass().getSimpleName());
+                        System.out.printf("Unknown sandnode error exception. Please try again. %s%n", e.getClass());
                     }
                 }
             }
@@ -179,7 +180,7 @@ public class RunAgentWork implements IWork {
                     } catch (UnauthorizedException e) {
                         System.out.println("Incorrect password. Please try again.");
                     } catch (SandnodeErrorException | UnknownSandnodeErrorException e) {
-                        System.out.printf("Unknown sandnode error exception. Please try again. %s%n", e.getClass().getSimpleName());
+                        System.out.printf("Unknown sandnode error exception. Please try again. %s%n", e.getClass());
                     }
                 }
             }

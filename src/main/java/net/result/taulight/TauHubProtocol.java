@@ -1,9 +1,10 @@
 package net.result.taulight;
 
-import net.result.sandnode.chain.Chain;
 import net.result.sandnode.chain.ChainManager;
+import net.result.sandnode.chain.IChain;
 import net.result.sandnode.config.ServerConfig;
 import net.result.sandnode.exception.DatabaseException;
+import net.result.sandnode.exception.UnprocessedMessagesException;
 import net.result.sandnode.message.types.ChainNameRequest;
 import net.result.sandnode.serverclient.Session;
 import net.result.taulight.chain.server.ForwardServerChain;
@@ -25,7 +26,7 @@ public class TauHubProtocol {
     private static final Logger LOGGER = LogManager.getLogger(TauHubProtocol.class);
 
     public static ServerChatMessage send(ServerConfig serverConfig, TauChat chat, ChatMessage chatMessage)
-            throws InterruptedException, DatabaseException, MessageNotForwardedException {
+            throws InterruptedException, DatabaseException, MessageNotForwardedException, UnprocessedMessagesException {
         TauDatabase database = (TauDatabase) serverConfig.database();
         TauGroupManager manager = (TauGroupManager) serverConfig.groupManager();
 
@@ -49,7 +50,7 @@ public class TauHubProtocol {
             ForwardResponse request = new ForwardResponse(serverMessage);
 
             ChainManager chainManager = session.io.chainManager;
-            Optional<Chain> fwd = chainManager.getChain("fwd");
+            Optional<IChain> fwd = chainManager.getChain("fwd");
 
             if (fwd.isPresent()) {
                 fwd.get().send(request);

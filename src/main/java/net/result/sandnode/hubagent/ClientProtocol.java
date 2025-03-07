@@ -15,42 +15,42 @@ import java.util.Set;
 
 public class ClientProtocol {
     public static void PUB(@NotNull IOController io) throws CryptoException, ExpectedMessageException,
-            InterruptedException, SandnodeErrorException, UnknownSandnodeErrorException {
+            InterruptedException, SandnodeErrorException, UnknownSandnodeErrorException, UnprocessedMessagesException {
         PublicKeyClientChain pubkeyChain = new PublicKeyClientChain(io);
         io.chainManager.linkChain(pubkeyChain);
-        pubkeyChain.sync();
+        pubkeyChain.getPublicKey();
         io.chainManager.removeChain(pubkeyChain);
     }
 
-    public static void sendSYM(@NotNull SandnodeClient client)
-            throws InterruptedException, ExpectedMessageException, KeyNotCreatedException {
+    public static void sendSYM(@NotNull SandnodeClient client) throws InterruptedException, ExpectedMessageException,
+            KeyNotCreatedException, UnprocessedMessagesException {
         IOController io = client.io;
         SymKeyClientChain symKeyChain = new SymKeyClientChain(io, client.clientConfig.symmetricKeyEncryption());
         io.chainManager.linkChain(symKeyChain);
-        symKeyChain.sync();
+        symKeyChain.sendSymKey();
         io.chainManager.removeChain(symKeyChain);
     }
 
     public static Collection<String> addToGroups(@NotNull IOController io, Collection<String> groups)
-            throws InterruptedException, ExpectedMessageException {
-        GroupClientChain groupClientChain = new GroupClientChain(io, groups);
+            throws InterruptedException, ExpectedMessageException, UnprocessedMessagesException {
+        GroupClientChain groupClientChain = new GroupClientChain(io);
         io.chainManager.linkChain(groupClientChain);
-        groupClientChain.sync();
+        Collection<String> groupsID = groupClientChain.add(groups);
         io.chainManager.removeChain(groupClientChain);
-        return groupClientChain.groupsID;
+        return groupsID;
     }
 
     public static Collection<String> getGroups(@NotNull IOController io)
-            throws ExpectedMessageException, InterruptedException {
+            throws ExpectedMessageException, InterruptedException, UnprocessedMessagesException {
         return addToGroups(io, Set.of());
     }
 
     public static Collection<String> removeFromGroups(@NotNull IOController io, Collection<String> groups)
-            throws InterruptedException, ExpectedMessageException {
-        GroupClientChain groupClientChain = GroupClientChain.remove(io, groups);
+            throws InterruptedException, ExpectedMessageException, UnprocessedMessagesException {
+        GroupClientChain groupClientChain = new GroupClientChain(io);
         io.chainManager.linkChain(groupClientChain);
-        groupClientChain.sync();
+        Collection<String> groupsID = groupClientChain.remove(groups);
         io.chainManager.removeChain(groupClientChain);
-        return groupClientChain.groupsID;
+        return groupsID;
     }
 }

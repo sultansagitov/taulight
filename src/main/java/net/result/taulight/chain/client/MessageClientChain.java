@@ -16,23 +16,16 @@ import java.util.List;
 import java.util.UUID;
 
 public class MessageClientChain extends ClientChain {
-    private final UUID chatID;
-    private final int index;
-    private final int size;
-
     private long count;
     private List<ServerChatMessage> messages;
 
-    public MessageClientChain(IOController io, UUID chatID, int index, int size) {
+    public MessageClientChain(IOController io) {
         super(io);
-        this.chatID = chatID;
-        this.index = index;
-        this.size = size;
     }
 
-    @Override
-    public void sync() throws InterruptedException, DeserializationException, ExpectedMessageException,
-            SandnodeErrorException, UnknownSandnodeErrorException {
+    public synchronized void getMessages(UUID chatID, int index, int size)
+            throws InterruptedException, DeserializationException, ExpectedMessageException, SandnodeErrorException,
+            UnknownSandnodeErrorException, UnprocessedMessagesException {
         send(new MessageRequest(chatID, index, size));
         RawMessage raw = queue.take();
 

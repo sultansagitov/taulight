@@ -1,5 +1,6 @@
 package net.result.sandnode.chain.server;
 
+import net.result.sandnode.chain.ReceiverChain;
 import net.result.sandnode.exception.*;
 import net.result.sandnode.exception.error.ExpiredTokenException;
 import net.result.sandnode.exception.error.InvalidTokenException;
@@ -15,7 +16,7 @@ import org.apache.logging.log4j.Logger;
 
 import java.util.Optional;
 
-public class LoginServerChain extends ServerChain {
+public class LoginServerChain extends ServerChain implements ReceiverChain {
     private static final Logger LOGGER = LogManager.getLogger(LoginServerChain.class);
 
     public LoginServerChain(Session session) {
@@ -23,7 +24,7 @@ public class LoginServerChain extends ServerChain {
     }
 
     @Override
-    public void sync() throws InterruptedException, ExpectedMessageException {
+    public void sync() throws InterruptedException, SandnodeException {
         TokenMessage msg = new LoginRequest(queue.take());
         String token = msg.getToken();
 
@@ -56,5 +57,5 @@ public class LoginServerChain extends ServerChain {
         sendFin(new LoginResponse(session.member));
     }
 
-    protected void onLogin() throws InterruptedException {}
+    protected void onLogin() throws InterruptedException, SandnodeException {}
 }

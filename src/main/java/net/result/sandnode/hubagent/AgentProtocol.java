@@ -10,31 +10,32 @@ import net.result.sandnode.util.IOController;
 public class AgentProtocol {
     public static String getTokenFromRegistration(IOController io, String memberID, String password)
             throws ExpectedMessageException, InterruptedException, SandnodeErrorException,
-            UnknownSandnodeErrorException {
-        RegistrationClientChain chain = new RegistrationClientChain(io, memberID, password);
+            UnknownSandnodeErrorException, UnprocessedMessagesException {
+        RegistrationClientChain chain = new RegistrationClientChain(io);
         io.chainManager.linkChain(chain);
-        chain.sync();
+        String token = chain.getTokenFromRegistration(memberID, password);
         io.chainManager.removeChain(chain);
-        return chain.token;
+        return token;
     }
 
-    public static String getMemberFromToken(IOController io, String token) throws InterruptedException,
-            SandnodeErrorException, DeserializationException, ExpectedMessageException, UnknownSandnodeErrorException {
-        LoginClientChain chain = new LoginClientChain(io, token);
+    public static String getMemberFromToken(IOController io, String token)
+            throws InterruptedException, SandnodeErrorException, DeserializationException, ExpectedMessageException,
+            UnknownSandnodeErrorException, UnprocessedMessagesException {
+        LoginClientChain chain = new LoginClientChain(io);
         io.chainManager.linkChain(chain);
-        chain.sync();
+        String memberID = chain.getMemberID(token);
         io.chainManager.removeChain(chain);
 
-        return chain.memberID;
+        return memberID;
     }
 
     public static String getTokenByMemberIdAndPassword(IOController io, String memberID, String password)
             throws InterruptedException, SandnodeErrorException, ExpectedMessageException,
-            UnknownSandnodeErrorException {
-        LogPasswdClientChain chain = new LogPasswdClientChain(io, memberID, password);
+            UnknownSandnodeErrorException, UnprocessedMessagesException {
+        LogPasswdClientChain chain = new LogPasswdClientChain(io);
         io.chainManager.linkChain(chain);
-        chain.sync();
+        String token = chain.getToken(memberID, password);
         io.chainManager.removeChain(chain);
-        return chain.token;
+        return token;
     }
 }

@@ -12,25 +12,25 @@ import java.util.concurrent.ExecutorService;
 public interface ChainManager {
     void interruptAll();
 
-    Optional<Chain> getByID(short id);
+    Optional<IChain> getByID(short id);
 
-    void linkChain(Chain chain);
+    void linkChain(IChain chain);
 
-    Chain createNew(RawMessage message) throws BusyChainID;
+    ReceiverChain createNew(RawMessage message) throws BusyChainID;
 
-    Chain createChain(MessageType type);
+    ReceiverChain createChain(MessageType type);
 
-    void removeChain(Chain chain);
+    void removeChain(IChain chain);
 
     void distributeMessage(RawMessage message) throws InterruptedException;
 
-    Collection<Chain> getAllChains();
+    Collection<IChain> getAllChains();
 
-    Map<String, Chain> getChainsMap();
+    Map<String, IChain> getChainsMap();
 
-    Optional<Chain> getChain(String chainName);
+    Optional<IChain> getChain(String chainName);
 
-    void setName(Chain chain, String chainName);
+    void setName(IChain chain, String chainName);
 
     ExecutorService getExecutorService();
 }

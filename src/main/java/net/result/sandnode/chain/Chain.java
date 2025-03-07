@@ -2,21 +2,16 @@ package net.result.sandnode.chain;
 
 import net.result.sandnode.message.util.Headers;
 import net.result.sandnode.message.util.MessageTypes;
-import net.result.sandnode.util.bst.Searchable;
 import net.result.sandnode.exception.*;
 import net.result.sandnode.message.IMessage;
 import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.util.IOController;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
-public abstract class Chain implements Searchable<Chain, Short> {
-    private static final Logger LOGGER = LogManager.getLogger(Chain.class);
-
+public abstract class Chain implements IChain {
     public final BlockingQueue<RawMessage> queue;
     protected final IOController io;
     private short id;
@@ -26,38 +21,32 @@ public abstract class Chain implements Searchable<Chain, Short> {
         queue = new LinkedBlockingQueue<>();
     }
 
-    public abstract void sync() throws Exception;
+    @Override
+    public IOController io() {
+        return io;
+    }
 
+    @Override
     public void put(RawMessage message) throws InterruptedException {
         queue.put(message);
     }
 
+    @Override
     public short getID() {
         return id;
     }
 
+    @Override
     public void setID(short id) {
         this.id = id;
     }
 
-    public void async(@NotNull ChainManager chainManager) {
-        chainManager.getExecutorService().submit(() -> {
-            String threadName = "%s/%s/%04X".formatted(io.ipString(), getClass().getSimpleName(), getID());
-            Thread.currentThread().setName(threadName);
+    @Override
+    public void send(@NotNull IMessage request) throws UnprocessedMessagesException, InterruptedException {
+        if (!queue.isEmpty()) {
+            throw new UnprocessedMessagesException(queue.peek());
+        }
 
-            try {
-                LOGGER.info("{} started in new thread", this);
-                sync();
-                LOGGER.info("Removing {}", this);
-                chainManager.removeChain(this);
-            } catch (Exception e) {
-                LOGGER.error("Error in chain {}", getClass().toString(), e);
-                throw new ImpossibleRuntimeException(e);
-            }
-        });
-    }
-
-    public void send(@NotNull IMessage request) throws InterruptedException {
         Headers headers = request.headers();
         headers.setChainID(getID());
 
@@ -68,17 +57,14 @@ public abstract class Chain implements Searchable<Chain, Short> {
         io.sendMessage(request);
     }
 
-    public void sendFin(@NotNull IMessage message) throws InterruptedException {
+    @Override
+    public void sendFin(@NotNull IMessage message) throws UnprocessedMessagesException, InterruptedException {
         message.headers().setFin(true);
         send(message);
     }
 
-    public boolean isChainStartAllowed() {
-        return true;
-    }
-
     @Override
-    public int compareTo(@NotNull Chain chain) {
+    public int compareTo(@NotNull IChain chain) {
         return compareID(chain.getID());
     }
 

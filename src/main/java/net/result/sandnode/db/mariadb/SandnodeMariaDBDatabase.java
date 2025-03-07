@@ -19,7 +19,7 @@ public class SandnodeMariaDBDatabase implements Database {
     public SandnodeMariaDBDatabase(DataSource dataSource, PasswordHasher hasher) throws DatabaseException {
         this.dataSource = dataSource;
         this.hasher = hasher;
-        try (var conn = dataSource.getConnection(); var stmt = conn.createStatement()) {
+        try (Connection conn = dataSource.getConnection(); Statement stmt = conn.createStatement()) {
             initTables(stmt);
         } catch (SQLException e) {
             throw new DatabaseException("Failed to initialize database tables", e);

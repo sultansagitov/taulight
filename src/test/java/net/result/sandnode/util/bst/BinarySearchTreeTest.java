@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -89,7 +90,7 @@ class BinarySearchTreeTest {
         tree.add(item3);
         tree.add(item4);
 
-        var orderedNodes = tree.getOrdered();
+        Collection<TestSearchable> orderedNodes = tree.getOrdered();
 
         assertEquals(4, orderedNodes.size(), "There should be 4 elements in the ordered list.");
         assertIterableEquals(List.of(item4, item2, item1, item3), orderedNodes,

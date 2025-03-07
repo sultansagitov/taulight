@@ -1,6 +1,8 @@
 package net.result.sandnode.chain.server;
 
+import net.result.sandnode.chain.ReceiverChain;
 import net.result.sandnode.exception.ExpectedMessageException;
+import net.result.sandnode.exception.UnprocessedMessagesException;
 import net.result.sandnode.group.Group;
 import net.result.sandnode.message.types.GroupRequest;
 import net.result.sandnode.message.types.GroupResponse;
@@ -13,7 +15,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public class GroupServerChain extends ServerChain {
+public class GroupServerChain extends ServerChain implements ReceiverChain {
     private static final Logger LOGGER = LogManager.getLogger(GroupServerChain.class);
 
     public GroupServerChain(Session session) {
@@ -21,7 +23,7 @@ public class GroupServerChain extends ServerChain {
     }
 
     @Override
-    public void sync() throws InterruptedException, ExpectedMessageException {
+    public void sync() throws InterruptedException, ExpectedMessageException, UnprocessedMessagesException {
         GroupManager groupManager = session.server.serverConfig.groupManager();
         GroupRequest request = new GroupRequest(queue.take());
 

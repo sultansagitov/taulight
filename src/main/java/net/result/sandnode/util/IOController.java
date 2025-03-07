@@ -79,7 +79,8 @@ public class IOController {
         headers.setValue("random", sb);
     }
 
-    public void sendingLoop() throws InterruptedException, IllegalMessageLengthException, MessageSerializationException,
+    public void sendingLoop()
+            throws InterruptedException, IllegalMessageLengthException, MessageSerializationException,
             EncryptionException, MessageWriteException, KeyStorageNotFoundException, CryptoException {
         while (connected) {
             IMessage message = sendingQueue.take();

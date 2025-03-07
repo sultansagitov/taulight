@@ -1,5 +1,6 @@
 package net.result.taulight.chain.client;
 
+import net.result.sandnode.chain.ReceiverChain;
 import net.result.sandnode.chain.client.ClientChain;
 import net.result.sandnode.exception.DeserializationException;
 import net.result.sandnode.exception.ExpectedMessageException;
@@ -9,7 +10,7 @@ import net.result.taulight.message.types.ForwardResponse;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-public abstract class ForwardClientChain extends ClientChain {
+public abstract class ForwardClientChain extends ClientChain implements ReceiverChain {
     private static final Logger LOGGER = LogManager.getLogger(ForwardClientChain.class);
 
     public ForwardClientChain(IOController io) {

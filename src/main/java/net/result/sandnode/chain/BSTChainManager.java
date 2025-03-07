@@ -13,20 +13,14 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.security.SecureRandom;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Random;
+import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public abstract class BSTChainManager implements ChainManager {
     private static final Logger LOGGER = LogManager.getLogger(BSTChainManager.class);
-    protected final BinarySearchTree<Chain, Short> bst = new AVLTree<>();
-    protected final Map<String, Chain> chainMap;
+    protected final BinarySearchTree<IChain, Short> bst = new AVLTree<>();
+    protected final Map<String, IChain> chainMap;
     private final ExecutorService executorService = Executors.newCachedThreadPool();
 
     protected BSTChainManager() {
@@ -34,15 +28,15 @@ public abstract class BSTChainManager implements ChainManager {
     }
 
     @Override
-    public Optional<Chain> getByID(short id) {
+    public Optional<IChain> getByID(short id) {
         return bst.find(id);
     }
 
     @Override
-    public Chain createNew(RawMessage message) throws BusyChainID {
+    public ReceiverChain createNew(RawMessage message) throws BusyChainID {
         Headers headers = message.headers();
         MessageType type = headers.type();
-        Chain chain = createChain(type);
+        ReceiverChain chain = createChain(type);
 
         chain.setID(headers.chainID());
         LOGGER.info("Adding new chain {}", chain);
@@ -55,8 +49,8 @@ public abstract class BSTChainManager implements ChainManager {
     }
 
     @Override
-    public void linkChain(Chain chain) {
-        var list = bst.getOrdered().stream().map(Chain::getID).toList();
+    public void linkChain(IChain chain) {
+        List<Short> list = bst.getOrdered().stream().map(IChain::getID).toList();
 
         Random random = new SecureRandom();
         short chainID;
@@ -73,27 +67,22 @@ public abstract class BSTChainManager implements ChainManager {
     }
 
     @Override
-    public void removeChain(Chain chain) {
-        for (Map.Entry<String, Chain> entry : chainMap.entrySet()) {
-            if (entry.getValue() == chain) {
-                chainMap.remove(entry.getKey());
-            }
-        }
-
+    public void removeChain(IChain chain) {
+        chainMap.entrySet().removeIf(entry -> entry.getValue() == chain);
         bst.remove(chain);
     }
 
     @Override
     public void distributeMessage(RawMessage message) throws InterruptedException {
         Headers headers = message.headers();
-        Optional<Chain> opt = getByID(headers.chainID());
-        Chain chain;
+        Optional<IChain> opt = getByID(headers.chainID());
+        IChain chain;
         if (opt.isPresent()) {
             chain = opt.get();
         } else {
             try {
-                Chain aNew = createNew(message);
-                if (aNew.isChainStartAllowed()) aNew.async(this);
+                ReceiverChain aNew = createNew(message);
+                aNew.async(this);
                 chain = aNew;
             } catch (BusyChainID e) {
                 throw new RuntimeException(e);
@@ -109,17 +98,17 @@ public abstract class BSTChainManager implements ChainManager {
     }
 
     @Override
-    public Collection<Chain> getAllChains() {
+    public Collection<IChain> getAllChains() {
         return new HashSet<>(bst.getOrdered());
     }
 
     @Override
-    public Map<String, Chain> getChainsMap() {
+    public Map<String, IChain> getChainsMap() {
         return chainMap;
     }
 
     @Override
-    public Optional<Chain> getChain(String chainName) {
+    public Optional<IChain> getChain(String chainName) {
         return Optional.ofNullable(chainMap.get(chainName));
     }
 
@@ -129,7 +118,7 @@ public abstract class BSTChainManager implements ChainManager {
     }
 
     @Override
-    public void setName(Chain chain, String chainName) {
+    public void setName(IChain chain, String chainName) {
         chainMap.put(chainName, chain);
     }
 
@@ -141,7 +130,7 @@ public abstract class BSTChainManager implements ChainManager {
     @Override
     public String toString() {
         Collection<String> list = new ArrayList<>();
-        for (Chain chain : bst.getOrdered())
+        for (IChain chain : bst.getOrdered())
             list.add(String.format("%04X", chain.getID()));
         return "<%s chains=%s>".formatted(getClass().getSimpleName(), String.join(",", list));
     }

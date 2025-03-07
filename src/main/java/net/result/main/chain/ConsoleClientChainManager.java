@@ -1,8 +1,8 @@
 package net.result.main.chain;
 
 import net.result.main.chain.client.ConsoleForwardClientChain;
+import net.result.sandnode.chain.ReceiverChain;
 import net.result.sandnode.chain.client.UnhandledMessageTypeClientChain;
-import net.result.sandnode.chain.client.ClientChain;
 import net.result.sandnode.chain.client.BSTClientChainManager;
 import net.result.sandnode.message.util.MessageType;
 import net.result.taulight.message.TauMessageTypes;
@@ -14,10 +14,11 @@ public class ConsoleClientChainManager extends BSTClientChainManager {
     }
 
     @Override
-    public @Nullable ClientChain createChain(MessageType type) {
+    public @Nullable ReceiverChain createChain(MessageType type) {
         if (type == TauMessageTypes.FWD) {
             return new ConsoleForwardClientChain(io);
         }
+
 
         return new UnhandledMessageTypeClientChain(io);
     }

@@ -1,5 +1,6 @@
 package net.result.taulight.chain.server;
 
+import net.result.sandnode.chain.ReceiverChain;
 import net.result.sandnode.chain.server.ServerChain;
 import net.result.sandnode.db.Member;
 import net.result.sandnode.error.Errors;
@@ -23,7 +24,7 @@ import java.util.Collection;
 import java.util.Optional;
 import java.util.UUID;
 
-public class ForwardRequestServerChain extends ServerChain {
+public class ForwardRequestServerChain extends ServerChain implements ReceiverChain {
     private static final Logger LOGGER = LogManager.getLogger(ForwardRequestServerChain.class);
 
     public ForwardRequestServerChain(Session session) {
@@ -32,11 +33,17 @@ public class ForwardRequestServerChain extends ServerChain {
 
     @SuppressWarnings("InfiniteLoopStatement")
     @Override
-    public void sync() throws InterruptedException, ExpectedMessageException, DeserializationException {
+    public void sync() throws InterruptedException, ExpectedMessageException, DeserializationException,
+            UnprocessedMessagesException {
         TauDatabase database = (TauDatabase) session.server.serverConfig.database();
 
         while (true) {
             ForwardRequest forwardMessage = new ForwardRequest(queue.take());
+
+            if (session.member == null) {
+                send(Errors.UNAUTHORIZED.createMessage());
+                continue;
+            }
 
             ChatMessage chatMessage = forwardMessage.getChatMessage();
 

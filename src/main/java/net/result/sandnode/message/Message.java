@@ -79,8 +79,9 @@ public abstract class Message implements IMessage {
     }
 
     @Override
-    public byte[] toByteArray(@NotNull KeyStorageRegistry keyStorageRegistry) throws EncryptionException,
-            MessageSerializationException, IllegalMessageLengthException, KeyStorageNotFoundException, CryptoException {
+    public byte[] toByteArray(@NotNull KeyStorageRegistry keyStorageRegistry)
+            throws EncryptionException, MessageSerializationException, IllegalMessageLengthException,
+            KeyStorageNotFoundException, CryptoException {
         ByteArrayOutputStream result = new ByteArrayOutputStream();
         result.write(1); // Version
         result.write(headersEncryption().asByte()); // Headers encryption

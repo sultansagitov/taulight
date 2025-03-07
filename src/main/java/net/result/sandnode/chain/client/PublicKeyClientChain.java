@@ -10,16 +10,14 @@ import net.result.sandnode.message.types.PublicKeyRequest;
 import net.result.sandnode.message.types.PublicKeyResponse;
 import net.result.sandnode.message.util.MessageTypes;
 import net.result.sandnode.util.IOController;
-import net.result.sandnode.chain.Chain;
 
-public class PublicKeyClientChain extends Chain {
+public class PublicKeyClientChain extends ClientChain {
     public PublicKeyClientChain(IOController io) {
         super(io);
     }
 
-    @Override
-    public void sync() throws InterruptedException, ExpectedMessageException, SandnodeErrorException,
-            UnknownSandnodeErrorException, CryptoException {
+    public void getPublicKey() throws InterruptedException, ExpectedMessageException, SandnodeErrorException,
+            UnknownSandnodeErrorException, CryptoException, UnprocessedMessagesException {
         send(new PublicKeyRequest());
 
         RawMessage response = queue.take();

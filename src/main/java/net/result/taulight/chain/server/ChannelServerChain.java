@@ -1,7 +1,9 @@
 package net.result.taulight.chain.server;
 
+import net.result.sandnode.chain.ReceiverChain;
 import net.result.sandnode.chain.server.ServerChain;
 import net.result.sandnode.exception.DatabaseException;
+import net.result.sandnode.exception.UnprocessedMessagesException;
 import net.result.sandnode.message.util.Headers;
 import net.result.sandnode.message.util.MessageTypes;
 import net.result.taulight.exception.AlreadyExistingRecordException;
@@ -29,7 +31,7 @@ import org.apache.logging.log4j.Logger;
 import java.util.Optional;
 import java.util.UUID;
 
-public class ChannelServerChain extends ServerChain {
+public class ChannelServerChain extends ServerChain implements ReceiverChain {
     private static final Logger LOGGER = LogManager.getLogger(ChannelServerChain.class);
 
     public ChannelServerChain(Session session) {
@@ -37,7 +39,7 @@ public class ChannelServerChain extends ServerChain {
     }
 
     @Override
-    public void sync() throws InterruptedException, DeserializationException {
+    public void sync() throws InterruptedException, DeserializationException, UnprocessedMessagesException {
         ChannelRequest request = new ChannelRequest(queue.take());
         ChannelRequest.DataType type = request.object.type;
 

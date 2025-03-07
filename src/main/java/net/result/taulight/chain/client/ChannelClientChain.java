@@ -19,18 +19,9 @@ public class ChannelClientChain extends ClientChain {
         super(io);
     }
 
-    @Override
-    public boolean isChainStartAllowed() {
-        return false;
-    }
-
-    @Override
-    public void sync() {
-        throw new ImpossibleRuntimeException("This chain should not be started");
-    }
-
-    public UUID sendNewChannelRequest(String title) throws InterruptedException, ExpectedMessageException,
-            UnknownSandnodeErrorException, SandnodeErrorException, DeserializationException {
+    public synchronized UUID sendNewChannelRequest(String title) throws InterruptedException, ExpectedMessageException,
+            UnknownSandnodeErrorException, SandnodeErrorException, DeserializationException,
+            UnprocessedMessagesException {
         send(ChannelRequest.newChannel(title));
         RawMessage raw = queue.take();
 
@@ -42,8 +33,8 @@ public class ChannelClientChain extends ClientChain {
         return new UUIDMessage(raw).uuid;
     }
 
-    public void sendLeaveRequest(UUID chatID) throws InterruptedException, ExpectedMessageException,
-            SandnodeErrorException, UnknownSandnodeErrorException {
+    public synchronized void sendLeaveRequest(UUID chatID) throws InterruptedException, ExpectedMessageException,
+            SandnodeErrorException, UnknownSandnodeErrorException, UnprocessedMessagesException {
         send(ChannelRequest.leave(chatID));
         RawMessage raw = queue.take();
 
@@ -55,8 +46,9 @@ public class ChannelClientChain extends ClientChain {
         new HappyMessage(raw);
     }
 
-    public void sendAddMemberRequest(UUID chatID, String otherMemberID) throws InterruptedException,
-            SandnodeErrorException, ExpectedMessageException, UnknownSandnodeErrorException {
+    public synchronized void sendAddMemberRequest(UUID chatID, String otherMemberID)
+            throws InterruptedException, SandnodeErrorException, ExpectedMessageException,
+            UnknownSandnodeErrorException, UnprocessedMessagesException {
         send(ChannelRequest.addMember(chatID, otherMemberID));
         RawMessage raw = queue.take();
         if (raw.headers().type() == MessageTypes.ERR) {

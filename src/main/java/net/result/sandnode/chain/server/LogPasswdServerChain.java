@@ -1,5 +1,6 @@
 package net.result.sandnode.chain.server;
 
+import net.result.sandnode.chain.ReceiverChain;
 import net.result.sandnode.db.Database;
 import net.result.sandnode.db.Member;
 import net.result.sandnode.error.Errors;
@@ -12,7 +13,7 @@ import org.apache.logging.log4j.Logger;
 
 import java.util.Optional;
 
-public abstract class LogPasswdServerChain extends ServerChain {
+public abstract class LogPasswdServerChain extends ServerChain implements ReceiverChain {
     private static final Logger LOGGER = LogManager.getLogger(LogPasswdServerChain.class);
 
     public LogPasswdServerChain(Session session) {
@@ -20,7 +21,7 @@ public abstract class LogPasswdServerChain extends ServerChain {
     }
 
     @Override
-    public void sync() throws InterruptedException, ExpectedMessageException, DeserializationException {
+    public void sync() throws InterruptedException, SandnodeException {
         RawMessage request = queue.take();
         LogPasswdRequest msg = new LogPasswdRequest(request);
 
@@ -54,5 +55,5 @@ public abstract class LogPasswdServerChain extends ServerChain {
         sendFin(new LogPasswdResponse(token));
     }
 
-    protected abstract void onLogin() throws InterruptedException;
+    protected abstract void onLogin() throws InterruptedException, SandnodeException;
 }
