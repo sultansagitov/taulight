@@ -325,6 +325,8 @@ public class ConsoleCommands {
             chain.sendLeaveRequest(chatID);
             io.chainManager.removeChain(chain);
             System.out.printf("Left chat '%s' successfully%n", chatID);
+        } catch (UnauthorizedException e) {
+            System.out.printf("You not log in or you are owner - %s%n", e.getClass());
         } catch (ExpectedMessageException e) {
             System.out.printf("Failed to leave chat '%s' due to an unexpected message - %s%n", chatID, e.getClass());
         } catch (SandnodeErrorException | UnknownSandnodeErrorException e) {
