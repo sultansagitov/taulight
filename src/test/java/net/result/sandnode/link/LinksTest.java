@@ -22,7 +22,6 @@ import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
 
 import java.net.URI;
-import java.nio.file.Path;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -94,16 +93,6 @@ public class LinksTest {
         }
 
         @Override
-        public Path publicKeyPath() {
-            return null;
-        }
-
-        @Override
-        public Path privateKeyPath() {
-            return null;
-        }
-
-        @Override
         public @NotNull AsymmetricEncryption mainEncryption() {
             return AsymmetricEncryptions.ECIES;
         }
@@ -120,6 +109,14 @@ public class LinksTest {
 
         @Override
         public Tokenizer tokenizer() {
+            return null;
+        }
+
+        @Override
+        public void saveKey(AsymmetricKeyStorage keyStorage) {}
+
+        @Override
+        public KeyStorageRegistry readKey(AsymmetricEncryption mainEncryption) {
             return null;
         }
     }

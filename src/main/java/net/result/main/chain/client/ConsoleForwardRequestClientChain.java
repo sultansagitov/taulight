@@ -23,8 +23,7 @@ public class ConsoleForwardRequestClientChain extends ClientChain {
         super(io);
     }
 
-    public void sync(String memberID)
-            throws InterruptedException, ExpectedMessageException, UnprocessedMessagesException {
+    public void sync(String memberID) throws InterruptedException {
         ConsoleCommands cc = new ConsoleCommands(io, memberID);
         Scanner scanner = new Scanner(System.in);
 
@@ -37,12 +36,19 @@ public class ConsoleForwardRequestClientChain extends ClientChain {
             String[] com_arg = input.split("\\s+");
             String command = com_arg[0];
 
-            if (cc.commands.containsKey(command)) {
-                List<String> args = Arrays.stream(com_arg).skip(1).toList();
-                if (cc.commands.get(command).breakLoop(args)) break;
-            } else {
-                if (sendForward(cc, input)) break;
+            try {
+                if (cc.commands.containsKey(command)) {
+                    List<String> args = Arrays.stream(com_arg).skip(1).toList();
+                    if (cc.commands.get(command).breakLoop(args)) break;
+                } else {
+                    if (sendForward(cc, input)) break;
+                }
+            } catch (UnprocessedMessagesException e) {
+                System.out.println("Unprocessed message: Sent before handling received: " + e.raw);
+            } catch (ExpectedMessageException e) {
+                System.out.printf("Unexpected message type. Expected: %s, Message: %s%n", e.expectedType, e.message);
             }
+
         }
     }
 

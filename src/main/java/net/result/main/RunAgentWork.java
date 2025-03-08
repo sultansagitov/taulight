@@ -55,8 +55,7 @@ public class RunAgentWork implements IWork {
         client.close();
     }
 
-    private static void startConsoleChain(IOController io, String memberID)
-            throws InterruptedException, ExpectedMessageException, UnprocessedMessagesException {
+    private static void startConsoleChain(IOController io, String memberID) throws InterruptedException {
         ConsoleForwardRequestClientChain consoleChain = new ConsoleForwardRequestClientChain(io);
         io.chainManager.linkChain(consoleChain);
         consoleChain.sync(memberID);

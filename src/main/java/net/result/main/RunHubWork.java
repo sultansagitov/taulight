@@ -2,14 +2,11 @@ package net.result.main;
 
 import net.result.main.config.JWTPropertiesConfig;
 import net.result.sandnode.config.ServerConfig;
-import net.result.sandnode.encryption.interfaces.AsymmetricConvertor;
-import net.result.sandnode.encryption.interfaces.AsymmetricKeyStorage;
 import net.result.sandnode.exception.*;
 import net.result.sandnode.exception.crypto.EncryptionTypeException;
 import net.result.sandnode.exception.crypto.NoSuchEncryptionException;
 import net.result.sandnode.link.Links;
 import net.result.sandnode.security.PasswordHashers;
-import net.result.sandnode.util.FileUtil;
 import net.result.taulight.db.mariadb.TauMariaDBDatabase;
 import net.result.taulight.group.HashSetTauGroupManager;
 import net.result.sandnode.security.JWTTokenizer;
@@ -25,7 +22,6 @@ import org.jetbrains.annotations.NotNull;
 import org.mariadb.jdbc.MariaDbDataSource;
 
 import java.net.URI;
-import java.nio.file.Path;
 
 public class RunHubWork implements IWork {
 
@@ -37,21 +33,7 @@ public class RunHubWork implements IWork {
 
         AsymmetricEncryption mainEncryption = serverConfig.mainEncryption();
 
-        Path publicKeyPath = serverConfig.publicKeyPath();
-        Path privateKeyPath = serverConfig.privateKeyPath();
-
-        LOGGER.info("Reading public key in \"{}\"", publicKeyPath);
-        AsymmetricConvertor publicKeyConvertor = mainEncryption.publicKeyConvertor();
-        String publicKeyString = FileUtil.readString(publicKeyPath);
-        AsymmetricKeyStorage publicKeyStorage = publicKeyConvertor.toKeyStorage(publicKeyString);
-
-        LOGGER.info("Reading private key in \"{}\"", privateKeyPath);
-        AsymmetricConvertor privateKeyConvertor = mainEncryption.privateKeyConvertor();
-        String string = FileUtil.readString(privateKeyPath);
-        AsymmetricKeyStorage privateKeyStorage = privateKeyConvertor.toKeyStorage(string);
-
-        AsymmetricKeyStorage keyStorage = mainEncryption.merge(publicKeyStorage, privateKeyStorage);
-        KeyStorageRegistry keyStorageRegistry = new KeyStorageRegistry(keyStorage);
+        KeyStorageRegistry keyStorageRegistry = serverConfig.readKey(mainEncryption);
 
         TauHub hub = new TauHub(keyStorageRegistry);
         SandnodeServer server = new SandnodeServer(hub, serverConfig);

@@ -2,10 +2,12 @@ package net.result.main.config;
 
 import net.result.sandnode.config.ServerConfig;
 import net.result.sandnode.encryption.EncryptionManager;
+import net.result.sandnode.encryption.KeyStorageRegistry;
+import net.result.sandnode.encryption.interfaces.AsymmetricConvertor;
 import net.result.sandnode.encryption.interfaces.AsymmetricEncryption;
+import net.result.sandnode.encryption.interfaces.AsymmetricKeyStorage;
 import net.result.sandnode.exception.*;
-import net.result.sandnode.exception.crypto.EncryptionTypeException;
-import net.result.sandnode.exception.crypto.NoSuchEncryptionException;
+import net.result.sandnode.exception.crypto.*;
 import net.result.sandnode.util.Endpoint;
 import net.result.sandnode.util.FileUtil;
 import net.result.sandnode.db.Database;
@@ -16,6 +18,7 @@ import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
@@ -84,16 +87,6 @@ public class ServerPropertiesConfig implements ServerConfig {
     }
 
     @Override
-    public Path publicKeyPath() {
-        return PUBLIC_KEY_PATH;
-    }
-
-    @Override
-    public Path privateKeyPath() {
-        return PRIVATE_KEY_PATH;
-    }
-
-    @Override
     public @NotNull AsymmetricEncryption mainEncryption() {
         return MAIN_ENCRYPTION;
     }
@@ -123,5 +116,59 @@ public class ServerPropertiesConfig implements ServerConfig {
     @Override
     public Tokenizer tokenizer() {
         return tokenizer;
+    }
+
+    @Override
+    public void saveKey(AsymmetricKeyStorage keyStorage) throws SavingKeyException {
+        boolean isPublicFileDeleted = FileUtil.deleteFile(PUBLIC_KEY_PATH);
+        boolean isPrivateFileDeleted = FileUtil.deleteFile(PRIVATE_KEY_PATH);
+
+        String publicString;
+        String privateString;
+        try {
+            publicString = keyStorage.encodedPublicKey();
+            privateString = keyStorage.encodedPrivateKey();
+        } catch (CannotUseEncryption e) {
+            throw new ImpossibleRuntimeException(e);
+        }
+
+        if (!isPublicFileDeleted || !isPrivateFileDeleted) {
+            try (
+                    FileWriter publicKeyWriter = new FileWriter(PUBLIC_KEY_PATH.toString());
+                    FileWriter privateKeyWriter = new FileWriter(PRIVATE_KEY_PATH.toString())
+            ) {
+                LOGGER.info("Writing public and private keys to files.");
+                publicKeyWriter.write(publicString);
+                privateKeyWriter.write(privateString);
+
+                LOGGER.info("Setting key file permissions.");
+                FileUtil.makeOwnerOnlyRead(PUBLIC_KEY_PATH);
+                FileUtil.makeOwnerOnlyRead(PRIVATE_KEY_PATH);
+            } catch (IOException | FSException e) {
+                throw new SavingKeyException("Error writing keys to files", e);
+            }
+        }
+    }
+
+    @Override
+    public KeyStorageRegistry readKey(AsymmetricEncryption mainEncryption)
+            throws CreatingKeyException, ReadingKeyException {
+        AsymmetricKeyStorage publicKeyStorage;
+        AsymmetricKeyStorage privateKeyStorage;
+        try {
+            LOGGER.info("Reading public key in \"{}\"", PUBLIC_KEY_PATH);
+            AsymmetricConvertor publicKeyConvertor = mainEncryption.publicKeyConvertor();
+            String publicKeyString = FileUtil.readString(PUBLIC_KEY_PATH);
+            publicKeyStorage = publicKeyConvertor.toKeyStorage(publicKeyString);
+
+            LOGGER.info("Reading private key in \"{}\"", PRIVATE_KEY_PATH);
+            AsymmetricConvertor privateKeyConvertor = mainEncryption.privateKeyConvertor();
+            String string = FileUtil.readString(PRIVATE_KEY_PATH);
+            privateKeyStorage = privateKeyConvertor.toKeyStorage(string);
+        } catch (FSException e) {
+            throw new ReadingKeyException("Error reading keys from files", e);
+        }
+        AsymmetricKeyStorage keyStorage = mainEncryption.merge(publicKeyStorage, privateKeyStorage);
+        return new KeyStorageRegistry(keyStorage);
     }
 }

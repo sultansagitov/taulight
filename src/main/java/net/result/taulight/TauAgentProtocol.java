@@ -26,9 +26,20 @@ public class TauAgentProtocol {
     }
 
     public static void removeMemberFromGroup(Session session, TauChatGroup group) {
+        removeMemberFromGroup(session, session.member, group);
+    }
+
+    public static void removeMemberFromGroup(Session session, Member member, TauChatGroup group) {
         session.server.node
                 .getAgents().stream()
-                .filter(s -> session.member.equals(s.member))
+                .filter(s -> member.equals(s.member))
+                .forEach(s -> s.removeFromGroup(group));
+    }
+
+    public static void removeMembersFromGroup(Session session, Collection<Member> members, TauChatGroup group) {
+        session.server.node
+                .getAgents().stream()
+                .filter(s -> members.stream().anyMatch(member -> member.equals(s.member)))
                 .forEach(s -> s.removeFromGroup(group));
     }
 }
