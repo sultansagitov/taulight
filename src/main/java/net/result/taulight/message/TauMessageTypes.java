@@ -11,7 +11,8 @@ public enum TauMessageTypes implements MessageType {
     CHANNEL(18),
     FWD_REQ(19),
     FWD(20),
-    MESSAGE(21);
+    MESSAGE(21),
+    MEMBERS(22);
 
     private final byte type;
 

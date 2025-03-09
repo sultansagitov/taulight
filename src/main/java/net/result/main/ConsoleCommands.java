@@ -10,10 +10,7 @@ import net.result.sandnode.exception.error.UnauthorizedException;
 import net.result.sandnode.hubagent.ClientProtocol;
 import net.result.sandnode.message.types.ChainNameRequest;
 import net.result.sandnode.util.IOController;
-import net.result.taulight.chain.client.ChannelClientChain;
-import net.result.taulight.chain.client.ChatClientChain;
-import net.result.taulight.chain.client.DialogClientChain;
-import net.result.taulight.chain.client.MessageClientChain;
+import net.result.taulight.chain.client.*;
 import net.result.taulight.db.ServerChatMessage;
 import net.result.taulight.exception.error.ChatNotFoundException;
 import net.result.taulight.message.ChatInfo;
@@ -59,6 +56,7 @@ public class ConsoleCommands {
         commands.put("dialog", this::dialog);
         commands.put("messages", this::messages);
         commands.put("whoami", this::whoami);
+        commands.put("members", this::members);
     }
 
     private boolean exit(List<String> ignored) {
@@ -305,7 +303,6 @@ public class ConsoleCommands {
         return false;
     }
 
-
     private boolean leave(@NotNull List<String> args) throws InterruptedException, UnprocessedMessagesException {
         UUID chatID;
 
@@ -379,6 +376,20 @@ public class ConsoleCommands {
         }
         io.chainManager.removeChain(chain);
         System.out.println(userID);
+        return false;
+    }
+
+    private boolean members(List<String> ignored) throws UnprocessedMessagesException, InterruptedException {
+        MembersClientChain chain = new MembersClientChain(io);
+
+        io.chainManager.linkChain(chain);
+        try {
+            chain.getMembers(currentChat).forEach(System.out::println);
+        } catch (ExpectedMessageException | DeserializationException | SandnodeErrorException |
+                 UnknownSandnodeErrorException e) {
+            System.out.printf("Error while getting members - %s%n", e.getClass());
+        }
+        io.chainManager.removeChain(chain);
         return false;
     }
 
