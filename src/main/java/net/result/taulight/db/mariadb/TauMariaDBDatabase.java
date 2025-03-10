@@ -1,5 +1,6 @@
 package net.result.taulight.db.mariadb;
 
+import net.result.sandnode.config.MariaDBConfig;
 import net.result.sandnode.db.Member;
 import net.result.sandnode.db.StandardMember;
 import net.result.sandnode.exception.DatabaseException;
@@ -10,14 +11,13 @@ import net.result.taulight.db.*;
 import net.result.taulight.exception.AlreadyExistingRecordException;
 import org.jetbrains.annotations.NotNull;
 
-import javax.sql.DataSource;
 import java.sql.*;
 import java.time.ZonedDateTime;
 import java.util.*;
 
 public class TauMariaDBDatabase extends SandnodeMariaDBDatabase implements TauDatabase {
-    public TauMariaDBDatabase(DataSource dataSource, PasswordHasher hasher) throws DatabaseException {
-        super(dataSource, hasher);
+    public TauMariaDBDatabase(MariaDBConfig mariaDBConfig, PasswordHasher hasher) throws DatabaseException {
+        super(mariaDBConfig, hasher);
     }
 
     @Override

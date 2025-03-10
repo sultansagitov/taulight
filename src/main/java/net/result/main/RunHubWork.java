@@ -1,6 +1,8 @@
 package net.result.main;
 
 import net.result.main.config.JWTPropertiesConfig;
+import net.result.main.config.MariaDBPropertiesConfig;
+import net.result.sandnode.config.MariaDBConfig;
 import net.result.sandnode.config.ServerConfig;
 import net.result.sandnode.exception.*;
 import net.result.sandnode.exception.crypto.EncryptionTypeException;
@@ -65,8 +67,10 @@ public class RunHubWork implements IWork {
             throw new RuntimeException(e);
         }
 
+        MariaDBConfig mariaDBConfig = new MariaDBPropertiesConfig();
+
         try {
-            serverConfig.setDatabase(new TauMariaDBDatabase(dataSource, PasswordHashers.BCRYPT));
+            serverConfig.setDatabase(new TauMariaDBDatabase(mariaDBConfig, PasswordHashers.BCRYPT));
         } catch (DatabaseException e) {
             LOGGER.error(e);
             throw new RuntimeException(e);

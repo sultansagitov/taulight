@@ -1,5 +1,6 @@
 package net.result.sandnode.db.mariadb;
 
+import net.result.sandnode.config.MariaDBConfig;
 import net.result.sandnode.db.Database;
 import net.result.sandnode.db.Member;
 import net.result.sandnode.db.StandardMember;
@@ -7,6 +8,7 @@ import net.result.sandnode.exception.error.BusyMemberIDException;
 import net.result.sandnode.exception.DatabaseException;
 import net.result.sandnode.security.PasswordHasher;
 import org.jetbrains.annotations.NotNull;
+import org.mariadb.jdbc.MariaDbDataSource;
 
 import javax.sql.DataSource;
 import java.sql.*;
@@ -16,7 +18,16 @@ public class SandnodeMariaDBDatabase implements Database {
     protected final DataSource dataSource;
     private final PasswordHasher hasher;
 
-    public SandnodeMariaDBDatabase(DataSource dataSource, PasswordHasher hasher) throws DatabaseException {
+    public SandnodeMariaDBDatabase(MariaDBConfig mariaDBConfig, PasswordHasher hasher) throws DatabaseException {
+        MariaDbDataSource dataSource = new MariaDbDataSource();
+        try {
+            dataSource.setUrl(mariaDBConfig.getURL());
+            dataSource.setUser(mariaDBConfig.getUser());
+            dataSource.setPassword(mariaDBConfig.getPassword());
+        } catch (SQLException e) {
+            throw new DatabaseException("Failed to connect %s".formatted(mariaDBConfig.getURL()), e);
+        }
+
         this.dataSource = dataSource;
         this.hasher = hasher;
         try (Connection conn = dataSource.getConnection(); Statement stmt = conn.createStatement()) {
