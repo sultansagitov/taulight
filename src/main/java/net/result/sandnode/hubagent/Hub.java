@@ -1,5 +1,6 @@
 package net.result.sandnode.hubagent;
 
+import net.result.sandnode.config.HubConfig;
 import net.result.sandnode.exception.InputStreamException;
 import net.result.sandnode.exception.OutputStreamException;
 import net.result.sandnode.exception.WrongNodeUsedException;
@@ -15,8 +16,11 @@ import org.jetbrains.annotations.NotNull;
 import java.net.Socket;
 
 public abstract class Hub extends Node {
-    public Hub(@NotNull KeyStorageRegistry keyStorageRegistry) {
-        super(keyStorageRegistry);
+    public final HubConfig config;
+
+    public Hub(KeyStorageRegistry hubKeyStorage, HubConfig config) {
+        super(hubKeyStorage);
+        this.config = config;
     }
 
     @Override

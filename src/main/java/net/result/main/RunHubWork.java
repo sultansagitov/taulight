@@ -1,7 +1,9 @@
 package net.result.main;
 
+import net.result.main.config.HubPropertiesConfig;
 import net.result.main.config.JWTPropertiesConfig;
 import net.result.main.config.MariaDBPropertiesConfig;
+import net.result.sandnode.config.HubConfig;
 import net.result.sandnode.config.MariaDBConfig;
 import net.result.sandnode.config.ServerConfig;
 import net.result.sandnode.exception.*;
@@ -37,7 +39,9 @@ public class RunHubWork implements IWork {
 
         KeyStorageRegistry keyStorageRegistry = serverConfig.readKey(mainEncryption);
 
-        TauHub hub = new TauHub(keyStorageRegistry);
+        HubConfig hubConfig = new HubPropertiesConfig();
+
+        TauHub hub = new TauHub(keyStorageRegistry, hubConfig);
         SandnodeServer server = new SandnodeServer(hub, serverConfig);
         server.start();
 

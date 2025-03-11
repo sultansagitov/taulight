@@ -1,6 +1,7 @@
 package net.result.main;
 
 import net.result.sandnode.chain.IChain;
+import net.result.sandnode.chain.client.NameClientChain;
 import net.result.sandnode.chain.client.WhoAmIClientChain;
 import net.result.sandnode.exception.*;
 import net.result.sandnode.exception.error.AddressedMemberNotFoundException;
@@ -57,6 +58,7 @@ public class ConsoleCommands {
         commands.put("messages", this::messages);
         commands.put("whoami", this::whoami);
         commands.put("members", this::members);
+        commands.put("name", this::name);
     }
 
     private boolean exit(List<String> ignored) {
@@ -390,6 +392,19 @@ public class ConsoleCommands {
             System.out.printf("Error while getting members - %s%n", e.getClass());
         }
         io.chainManager.removeChain(chain);
+        return false;
+    }
+
+    private boolean name(List<String> ignored) throws UnprocessedMessagesException, InterruptedException {
+        try {
+            NameClientChain chain = new NameClientChain(io);
+            io.chainManager.linkChain(chain);
+            System.out.printf("Hub name: %s%n", chain.getName());
+            io.chainManager.removeChain(chain);
+        } catch (ExpectedMessageException e) {
+            System.out.printf("Error while getting members - %s%n", e.getClass());
+        }
+
         return false;
     }
 
