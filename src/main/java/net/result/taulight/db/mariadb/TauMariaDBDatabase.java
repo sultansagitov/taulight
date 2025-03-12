@@ -375,61 +375,25 @@ public class TauMariaDBDatabase extends SandnodeMariaDBDatabase implements TauDa
     }
 
     @Override
-    public Collection<Member> getMembersFromChat(@NotNull TauChat chat) throws DatabaseException {
-        try (Connection conn = dataSource.getConnection()) {
-            byte[] chatID = UUIDUtil.uuidToBinary(chat.id());
-
-            try (PreparedStatement typeStmt = conn.prepareStatement("SELECT chat_type FROM chats WHERE chat_id = ?")) {
-                typeStmt.setBytes(1, chatID);
-
-                try (ResultSet typeRs = typeStmt.executeQuery()) {
-                    if (typeRs.next() && typeRs.getString("chat_type").equals("DIALOG")) {
-                        return getDialogMembers(conn, chatID);
-                    }
-                }
-            }
-
-            return getChannelMembers(conn, chatID);
-        } catch (SQLException | IllegalArgumentException e) {
-            throw new DatabaseException("Failed to get chat members", e);
-        }
-    }
-
-    private @NotNull List<Member> getDialogMembers(Connection conn, byte[] chatID)
-            throws SQLException, DatabaseException {
-        try (PreparedStatement stmt = conn.prepareStatement("""
-                SELECT member1_id, member2_id FROM dialogs
-                WHERE chat_id = ?
-            """)) {
-            stmt.setBytes(1, chatID);
-            try (ResultSet rs = stmt.executeQuery()) {
-                if (rs.next()) {
-                    List<Member> members = new ArrayList<>(2);
-                    members.add(findMemberByMemberID(rs.getString("member1_id")).orElseThrow());
-                    members.add(findMemberByMemberID(rs.getString("member2_id")).orElseThrow());
-                    return members;
-                }
-            }
-        }
-        return List.of();
-    }
-
-    private @NotNull Collection<Member> getChannelMembers(Connection conn, byte[] chatID) throws SQLException {
-        try (PreparedStatement stmt = conn.prepareStatement("""
-            SELECT m.member_id, m.password_hash FROM members m
-            JOIN chat_members cm ON m.member_id = cm.member_id WHERE cm.chat_id = ?
-        """)) {
+    public Collection<Member> getMembersFromChannel(TauChannel channel) throws DatabaseException {
+        byte[] chatID = UUIDUtil.uuidToBinary(channel.id());
+        try (
+                Connection conn = dataSource.getConnection();
+                PreparedStatement stmt = conn.prepareStatement("""
+                    SELECT m.member_id, m.password_hash FROM members m
+                    JOIN chat_members cm ON m.member_id = cm.member_id WHERE cm.chat_id = ?
+                """)
+        ) {
             stmt.setBytes(1, chatID);
             Collection<Member> members = new ArrayList<>();
             try (ResultSet rs = stmt.executeQuery()) {
                 while (rs.next()) {
-                    members.add(new StandardMember(
-                        rs.getString("member_id"),
-                        rs.getString("password_hash")
-                    ));
+                    members.add(new StandardMember(rs.getString("member_id"), rs.getString("password_hash")));
                 }
             }
             return members;
+        } catch (SQLException | IllegalArgumentException e) {
+            throw new DatabaseException("Failed to get chat members", e);
         }
     }
 
@@ -451,9 +415,9 @@ public class TauMariaDBDatabase extends SandnodeMariaDBDatabase implements TauDa
     }
 
     @Override
-    public void leaveFromChat(@NotNull TauChannel channel, @NotNull Member member) throws DatabaseException {
+    public void leaveFromChat(TauChat chat, @NotNull Member member) throws DatabaseException {
         try (Connection conn = dataSource.getConnection()) {
-            byte[] chatID = UUIDUtil.uuidToBinary(channel.id());
+            byte[] chatID = UUIDUtil.uuidToBinary(chat.id());
 
             conn.setAutoCommit(false);
             try {

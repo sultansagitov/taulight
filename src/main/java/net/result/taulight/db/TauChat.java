@@ -26,20 +26,18 @@ public abstract class TauChat extends SandnodeObject {
         this.database = database;
     }
 
-    public Collection<Member> getMembers() throws DatabaseException {
-        return database.getMembersFromChat(this);
+    public TauDatabase database() {
+        return database;
     }
 
-    public void addMember(Member member) throws DatabaseException {
-        database.addMemberToChat(this, member);
-    }
+    public abstract Collection<Member> getMembers() throws DatabaseException;
 
     public List<ServerChatMessage> loadMessages(int index, int size) throws DatabaseException {
-        return database.loadMessages(this, index, size);
+        return database().loadMessages(this, index, size);
     }
 
     public long getMessageCount() throws DatabaseException {
-        return database.getMessageCount(this);
+        return database().getMessageCount(this);
     }
 
     abstract public boolean hasMatchingProps(Collection<ChatInfoProp> chatInfoProps);

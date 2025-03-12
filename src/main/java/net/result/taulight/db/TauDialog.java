@@ -7,6 +7,7 @@ import net.result.taulight.message.ChatInfoProp;
 import java.time.ZonedDateTime;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 import java.util.UUID;
 
 public class TauDialog extends TauChat {
@@ -23,6 +24,11 @@ public class TauDialog extends TauChat {
         super(database);
         this.member1 = member1;
         this.member2 = member2;
+    }
+
+    @Override
+    public Collection<Member> getMembers() {
+        return List.of(firstMember(), secondMember());
     }
 
     public Member firstMember() {

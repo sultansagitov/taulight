@@ -1,6 +1,7 @@
 package net.result.taulight.db;
 
 import net.result.sandnode.db.Member;
+import net.result.sandnode.exception.DatabaseException;
 import net.result.taulight.message.ChatInfo;
 import net.result.taulight.message.ChatInfoProp;
 
@@ -23,6 +24,15 @@ public class TauChannel extends TauChat {
         super(database);
         this.title = title;
         this.owner = owner;
+    }
+
+    @Override
+    public Collection<Member> getMembers() throws DatabaseException {
+        return database().getMembersFromChannel(this);
+    }
+
+    public void addMember(Member member) throws DatabaseException {
+        database().addMemberToChat(this, member);
     }
 
     public String title() {

@@ -24,7 +24,7 @@ public interface TauDatabase extends Database {
 
     List<ServerChatMessage> loadMessages(TauChat chat, int index, int size) throws DatabaseException;
 
-    Collection<Member> getMembersFromChat(TauChat chat) throws DatabaseException;
+    Collection<Member> getMembersFromChannel(TauChannel channel) throws DatabaseException;
 
     void addMemberToChat(TauChat chat, Member member) throws DatabaseException;
 
@@ -34,5 +34,5 @@ public interface TauDatabase extends Database {
 
     long getMessageCount(TauChat chat) throws DatabaseException;
 
-    void leaveFromChat(TauChannel channel, Member member) throws DatabaseException;
+    void leaveFromChat(TauChat chat, Member member) throws DatabaseException;
 }
