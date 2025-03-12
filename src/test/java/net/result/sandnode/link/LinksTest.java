@@ -123,7 +123,7 @@ public class LinksTest {
 
     private static class TestHub extends Hub {
         public TestHub() {
-            super(new KeyStorageRegistry(AsymmetricEncryptions.ECIES.generate()));
+            super(new KeyStorageRegistry(AsymmetricEncryptions.ECIES.generate()), () -> "Test Hub");
         }
 
         @Override

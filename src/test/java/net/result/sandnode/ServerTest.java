@@ -168,7 +168,7 @@ public class ServerTest {
 
     private static class TestHub extends Hub {
         public TestHub(KeyStorageRegistry serverKeyStorage) {
-            super(serverKeyStorage);
+            super(serverKeyStorage, () -> "Test Hub");
         }
 
         @Override

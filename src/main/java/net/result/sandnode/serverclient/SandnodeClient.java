@@ -96,6 +96,7 @@ public class SandnodeClient {
                     if (io.isConnected()) {
                         LOGGER.error("Error receiving message", e);
                     }
+                    close();
                     Thread.currentThread().interrupt();
                 }
             }, "Client/%s/Receiving".formatted(IOController.ipString(socket))).start();
