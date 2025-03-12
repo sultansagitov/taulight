@@ -1,8 +1,10 @@
 package net.result.sandnode;
 
-import net.result.main.chain.ConsoleClientChainManager;
-import net.result.main.config.JWTPropertiesConfig;
+import com.auth0.jwt.algorithms.Algorithm;
 import net.result.sandnode.chain.ReceiverChain;
+import net.result.sandnode.chain.client.BSTClientChainManager;
+import net.result.sandnode.chain.client.ClientChainManager;
+import net.result.sandnode.chain.client.UnhandledMessageTypeClientChain;
 import net.result.sandnode.config.ClientConfig;
 import net.result.sandnode.config.ServerConfig;
 import net.result.sandnode.config.ServerConfigRecord;
@@ -137,7 +139,7 @@ public class ServerTest {
         public final SandnodeServer server;
         public final Hub hub;
 
-        public HubThread(KeyStorageRegistry serverKeyStorage) throws ConfigurationException {
+        public HubThread(KeyStorageRegistry serverKeyStorage) {
             setName("HubThread");
             hub = new TestHub(serverKeyStorage);
 
@@ -148,7 +150,7 @@ public class ServerTest {
                     asymmetricEncryption,
                     new HashSetGroupManager(),
                     new InMemoryDatabase(PasswordHashers.BCRYPT),
-                    new JWTTokenizer(new JWTPropertiesConfig())
+                    new JWTTokenizer(() -> Algorithm.HMAC256("test"))
             );
             server = new SandnodeServer(hub, serverConfig);
         }
@@ -238,7 +240,12 @@ public class ServerTest {
                 Endpoint endpoint = new Endpoint("localhost", port);
 
                 TestClientConfig clientConfig = new TestClientConfig();
-                ConsoleClientChainManager chainManager = new ConsoleClientChainManager();
+                ClientChainManager chainManager = new BSTClientChainManager() {
+                    @Override
+                    public ReceiverChain createChain(MessageType type) {
+                        return new UnhandledMessageTypeClientChain(io);
+                    }
+                };
                 client = new SandnodeClient(endpoint, agent, NodeType.HUB, clientConfig);
                 client.start(chainManager);
                 ClientProtocol.PUB(client.io);
