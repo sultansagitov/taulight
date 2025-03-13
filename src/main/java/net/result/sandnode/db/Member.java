@@ -1,9 +1,9 @@
 package net.result.sandnode.db;
 
-public interface Member {
+public abstract class Member extends SandnodeObject {
 
-    String id();
+    public abstract String nickname();
 
-    String hashedPassword();
+    public abstract String hashedPassword();
 
 }

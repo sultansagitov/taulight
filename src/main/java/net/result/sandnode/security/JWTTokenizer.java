@@ -32,7 +32,7 @@ public class JWTTokenizer implements Tokenizer {
     public String tokenizeMember(@NotNull Member member) {
         long EXPIRATION_TIME_MS = 3600 * 1000;
         return JWT.create()
-                .withSubject(member.id())
+                .withSubject(member.nickname())
                 .withClaim("hashedPassword", member.hashedPassword())
                 .withIssuedAt(new Date())
                 .withExpiresAt(new Date(System.currentTimeMillis() + EXPIRATION_TIME_MS))
@@ -45,7 +45,7 @@ public class JWTTokenizer implements Tokenizer {
         try {
             DecodedJWT decodedJWT = VERIFIER.verify(token);
             String memberID = decodedJWT.getSubject();
-            return database.findMemberByMemberID(memberID);
+            return database.findMemberByNickname(memberID);
         } catch (TokenExpiredException e) {
             LOGGER.error("Expired token", e);
             throw new ExpiredTokenException(e);

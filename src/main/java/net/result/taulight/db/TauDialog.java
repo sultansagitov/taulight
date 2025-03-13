@@ -57,7 +57,7 @@ public class TauDialog extends TauChat {
 
     @Override
     public String toString() {
-        return "<Dialog: %s and %s>".formatted(member1.id(), member2.id());
+        return "<Dialog: %s and %s>".formatted(member1.nickname(), member2.nickname());
     }
 
     @Override

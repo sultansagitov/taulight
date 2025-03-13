@@ -18,7 +18,7 @@ public class WhoAmIResponse extends Message {
 
     public WhoAmIResponse(@NotNull Member member) {
         super(new Headers().setType(MessageTypes.WHOAMI));
-        id = member.id();
+        id = member.nickname();
     }
 
     public String getID() {

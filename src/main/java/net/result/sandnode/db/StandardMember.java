@@ -1,17 +1,29 @@
 package net.result.sandnode.db;
 
-public class StandardMember implements Member {
-    private final String memberID;
+import java.time.ZonedDateTime;
+import java.util.UUID;
+
+public class StandardMember extends Member {
+    private final String nickname;
     private final String password;
 
-    public StandardMember(String memberID, String password) {
-        this.memberID = memberID;
+    public StandardMember(String nickname, String password) {
+        setRandomID();
+        setCreationDateNow();
+        this.nickname = nickname;
         this.password = password;
     }
 
+    public StandardMember(UUID id, ZonedDateTime createdAt, String nickname, String passwordHash) {
+        setID(id);
+        setCreationDate(createdAt);
+        this.nickname = nickname;
+        this.password = passwordHash;
+    }
+
     @Override
-    public String id() {
-        return memberID;
+    public String nickname() {
+        return nickname;
     }
 
     @Override
@@ -21,12 +33,12 @@ public class StandardMember implements Member {
 
     @Override
     public String toString() {
-        return "<Member %s>".formatted(id());
+        return "<Member %s>".formatted(nickname());
     }
 
     @Override
     public int hashCode() {
-        return memberID.hashCode();
+        return nickname.hashCode();
     }
 
     @Override
@@ -34,6 +46,6 @@ public class StandardMember implements Member {
         if (this == obj) return true;
         if (obj == null || getClass() != obj.getClass()) return false;
         StandardMember that = (StandardMember) obj;
-        return memberID.equals(that.memberID);
+        return nickname.equals(that.nickname);
     }
 }

@@ -39,6 +39,7 @@ public class RegistrationRequest extends MSGPackMessage<RegistrationRequest.Memb
     public String getMemberID() {
         return object.memberID;
     }
+
     public String getPassword() {
         return object.password;
     }

@@ -40,7 +40,7 @@ public class ChatInfo {
         if (infoProps.contains(ChatInfoProp.channelID)) info.id = channel.id();
         if (infoProps.contains(ChatInfoProp.channelCreatedAt)) info.creationDate = channel.getCreationDate();
         if (infoProps.contains(ChatInfoProp.channelTitle)) info.title = channel.title();
-        if (infoProps.contains(ChatInfoProp.channelOwner)) info.ownerID = channel.owner().id();
+        if (infoProps.contains(ChatInfoProp.channelOwner)) info.ownerID = channel.owner().nickname();
         if (infoProps.contains(ChatInfoProp.channelIsMy)) info.channelIsMy = channel.owner().equals(member);
         return info;
     }
@@ -50,7 +50,7 @@ public class ChatInfo {
         info.chatType = ChatType.DIALOG;
         if (infoProps.contains(ChatInfoProp.dialogID)) info.id = dialog.id();
         if (infoProps.contains(ChatInfoProp.dialogCreatedAt)) info.creationDate = dialog.getCreationDate();
-        if (infoProps.contains(ChatInfoProp.dialogOther)) info.otherMemberID = dialog.otherMember(member).id();
+        if (infoProps.contains(ChatInfoProp.dialogOther)) info.otherMemberID = dialog.otherMember(member).nickname();
         return info;
     }
 

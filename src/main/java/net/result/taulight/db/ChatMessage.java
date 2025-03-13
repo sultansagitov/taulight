@@ -70,7 +70,7 @@ public class ChatMessage {
     }
 
     public ChatMessage setMember(Member member) {
-        return setMemberID(member.id());
+        return setMemberID(member.nickname());
     }
 
     public ChatMessage setSys(boolean sys) {

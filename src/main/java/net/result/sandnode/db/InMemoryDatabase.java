@@ -14,19 +14,19 @@ public class InMemoryDatabase implements Database {
     }
 
     @Override
-    public synchronized Member registerMember(String memberID, String password) throws BusyMemberIDException {
-        if (db.stream().anyMatch(member -> member.id().equals(memberID))) {
+    public synchronized Member registerMember(String nickname, String password) throws BusyMemberIDException {
+        if (db.stream().anyMatch(member -> member.nickname().equals(nickname))) {
             throw new BusyMemberIDException();
         }
 
-        Member member = new StandardMember(memberID, password);
+        Member member = new StandardMember(nickname, password);
         db.add(member);
         return member;
     }
 
     @Override
-    public synchronized Optional<Member> findMemberByMemberID(String memberID) {
-        return db.stream().filter(m -> m.id().equals(memberID)).findFirst();
+    public synchronized Optional<Member> findMemberByNickname(String nickname) {
+        return db.stream().filter(m -> m.nickname().equals(nickname)).findFirst();
     }
 
     @Override

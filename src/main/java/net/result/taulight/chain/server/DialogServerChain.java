@@ -49,7 +49,7 @@ public class DialogServerChain extends ServerChain implements ReceiverChain {
         TauDialog dialog;
         Optional<Member> anotherMember;
         try {
-            anotherMember = database.findMemberByMemberID(request.memberID());
+            anotherMember = database.findMemberByNickname(request.memberID());
             if (anotherMember.isEmpty()) {
                 send(Errors.MEMBER_NOT_FOUND.createMessage());
                 return;

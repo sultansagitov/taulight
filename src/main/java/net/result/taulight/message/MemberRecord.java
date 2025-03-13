@@ -10,7 +10,7 @@ public class MemberRecord {
     @SuppressWarnings("unused")
     public MemberRecord() {}
     public MemberRecord(Member m) {
-        id = m.id();
+        id = m.nickname();
     }
 
     @Override

@@ -7,12 +7,15 @@ import net.result.sandnode.db.StandardMember;
 import net.result.sandnode.exception.error.BusyMemberIDException;
 import net.result.sandnode.exception.DatabaseException;
 import net.result.sandnode.security.PasswordHasher;
+import net.result.sandnode.util.UUIDUtil;
 import org.jetbrains.annotations.NotNull;
 import org.mariadb.jdbc.MariaDbDataSource;
 
 import javax.sql.DataSource;
 import java.sql.*;
+import java.time.ZonedDateTime;
 import java.util.Optional;
+import java.util.UUID;
 
 public class SandnodeMariaDBDatabase implements Database {
     protected final DataSource dataSource;
@@ -38,44 +41,61 @@ public class SandnodeMariaDBDatabase implements Database {
     }
 
     @Override
-    public synchronized Member registerMember(String memberID, String password)
+    public synchronized Member registerMember(String nickname, String password)
             throws BusyMemberIDException, DatabaseException {
         try (
                 Connection conn = dataSource.getConnection();
-                PreparedStatement checkStmt = conn.prepareStatement("SELECT 1 FROM members WHERE member_id = ?");
+                PreparedStatement checkStmt = conn.prepareStatement("SELECT 1 FROM members WHERE nickname = ?");
                 PreparedStatement insertStmt = conn.prepareStatement("""
-                    INSERT INTO members (member_id, password_hash) VALUES (?, ?)
+                    INSERT INTO members (member_id, created_at, nickname, password_hash) VALUES (?, ?, ?, ?)
                 """)
         ) {
-            checkStmt.setString(1, memberID);
+            checkStmt.setString(1, nickname);
             try (ResultSet rs = checkStmt.executeQuery()) {
                 if (rs.next()) throw new BusyMemberIDException();
             }
 
             String passwordHash = hasher.hash(password);
 
-            insertStmt.setString(1, memberID);
-            insertStmt.setString(2, passwordHash);
+            StandardMember member = new StandardMember(nickname, password);
+
+            byte[] chatBin = UUIDUtil.uuidToBinary(member.id());
+
+            insertStmt.setBytes(1, chatBin);
+            insertStmt.setTimestamp(2, Timestamp.from(member.getCreationDate().toInstant()));
+
+            insertStmt.setString(3, nickname);
+            insertStmt.setString(4, passwordHash);
             insertStmt.executeUpdate();
 
-            return new StandardMember(memberID, password);
+            return member;
         } catch (SQLException e) {
             throw new DatabaseException("Failed to register member", e);
         }
     }
 
     @Override
-    public synchronized Optional<Member> findMemberByMemberID(String memberID) throws DatabaseException {
+    public synchronized Optional<Member> findMemberByNickname(String nickname) throws DatabaseException {
         try (
                 Connection conn = dataSource.getConnection();
-                PreparedStatement stmt = conn.prepareStatement("SELECT password_hash FROM members WHERE member_id = ?")
+                PreparedStatement stmt = conn.prepareStatement("""
+                    SELECT member_id, created_at, password_hash FROM members WHERE nickname = ?
+                """)
         ) {
 
-            stmt.setString(1, memberID);
+            stmt.setString(1, nickname);
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
+                    byte[] uuidBin = rs.getBytes("member_id");
+
+                    ZonedDateTime createdAt = rs
+                            .getTimestamp("created_at").toInstant()
+                            .atZone(ZonedDateTime.now().getZone());
+
+                    UUID id = UUIDUtil.binaryToUUID(uuidBin);
+
                     String passwordHash = rs.getString("password_hash");
-                    return Optional.of(new StandardMember(memberID, passwordHash));
+                    return Optional.of(new StandardMember(id, createdAt, nickname, passwordHash));
                 }
             }
             return Optional.empty();
@@ -87,8 +107,11 @@ public class SandnodeMariaDBDatabase implements Database {
     protected void initTables(@NotNull Statement stmt) throws SQLException {
         stmt.execute("""
             CREATE TABLE IF NOT EXISTS members (
-                member_id VARCHAR(255) PRIMARY KEY,
-                password_hash VARCHAR(255) NOT NULL
+                member_id BINARY(16) UNIQUE,
+                created_at TIMESTAMP NOT NULL,
+                nickname VARCHAR(255) UNIQUE,
+                password_hash VARCHAR(255) NOT NULL,
+                PRIMARY KEY (member_id, nickname)
             )
         """);
     }

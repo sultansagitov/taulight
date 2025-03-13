@@ -103,7 +103,7 @@ public class ChannelServerChain extends ServerChain implements ReceiverChain {
                 Optional<Member> optMember;
                 try {
                     optChat = database.getChat(chatID);
-                    optMember = database.findMemberByMemberID(otherMemberID);
+                    optMember = database.findMemberByNickname(otherMemberID);
                 } catch (DatabaseException e) {
                     LOGGER.error(e);
                     sendFin(Errors.SERVER_ERROR.createMessage());

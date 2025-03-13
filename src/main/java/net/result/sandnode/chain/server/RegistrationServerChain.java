@@ -43,7 +43,7 @@ public class RegistrationServerChain extends ServerChain implements ReceiverChai
         } catch (BusyMemberIDException e) {
             sendFin(Errors.BUSY_MEMBER_ID.createMessage());
         } catch (DatabaseException e) {
-            LOGGER.error(e);
+            LOGGER.error("Registering exception", e);
             sendFin(Errors.SERVER_ERROR.createMessage());
         }
     }

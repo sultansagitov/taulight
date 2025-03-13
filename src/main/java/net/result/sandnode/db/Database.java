@@ -8,9 +8,9 @@ import java.util.Optional;
 
 public interface Database {
 
-    Member registerMember(String memberID, String password) throws BusyMemberIDException, DatabaseException;
+    Member registerMember(String nickname, String password) throws BusyMemberIDException, DatabaseException;
 
-    Optional<Member> findMemberByMemberID(String memberID) throws DatabaseException;
+    Optional<Member> findMemberByNickname(String nickname) throws DatabaseException;
 
     PasswordHasher hasher();
 
