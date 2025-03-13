@@ -14,8 +14,8 @@ public class ChatMessage {
     private String content = null;
     @JsonProperty
     private ZonedDateTime ztd = null;
-    @JsonProperty("member-id")
-    private String memberID = null;
+    @JsonProperty
+    private String nickname = null;
     @JsonProperty
     private boolean sys = false;
 
@@ -33,8 +33,8 @@ public class ChatMessage {
         return ztd;
     }
 
-    public String memberID() {
-        return memberID;
+    public String nickname() {
+        return nickname;
     }
 
     public boolean sys() {
@@ -64,13 +64,13 @@ public class ChatMessage {
         return setZtd(ZonedDateTime.now(ZoneId.of("UTC")));
     }
 
-    public ChatMessage setMemberID(String memberID) {
-        this.memberID = memberID;
+    public ChatMessage setNickname(String nickname) {
+        this.nickname = nickname;
         return this;
     }
 
     public ChatMessage setMember(Member member) {
-        return setMemberID(member.nickname());
+        return setNickname(member.nickname());
     }
 
     public ChatMessage setSys(boolean sys) {
@@ -80,8 +80,8 @@ public class ChatMessage {
 
     @Override
     public String toString() {
-        return "<ChatMessage content=%s, chatID=%s, ztd=%s, sys=%s, memberID=%s>"
-                .formatted(content, chatID, ztd, sys, memberID);
+        return "<ChatMessage content=%s, chatID=%s, ztd=%s, sys=%s, nickname=%s>"
+                .formatted(content, chatID, ztd, sys, nickname);
     }
 
 }

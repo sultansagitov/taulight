@@ -2,7 +2,6 @@ package net.result.taulight.db.mariadb;
 
 import net.result.sandnode.config.MariaDBConfig;
 import net.result.sandnode.db.Member;
-import net.result.sandnode.db.StandardMember;
 import net.result.sandnode.exception.DatabaseException;
 import net.result.sandnode.db.mariadb.SandnodeMariaDBDatabase;
 import net.result.sandnode.security.PasswordHasher;
@@ -254,9 +253,9 @@ public class TauMariaDBDatabase extends SandnodeMariaDBDatabase implements TauDa
             try (ResultSet rs = channelStmt.executeQuery()) {
                 if (rs.next()) {
                     String title = rs.getString("title");
-                    String ownerMemberID = rs.getString("owner_id");
+                    String ownerNickname = rs.getString("owner_id");
 
-                    Member owner = findMemberByNickname(ownerMemberID).orElseThrow();
+                    Member owner = findMemberByNickname(ownerNickname).orElseThrow();
                     return Optional.of(new TauChannel(id, createdAt, this, title, owner));
                 }
             }
@@ -301,7 +300,7 @@ public class TauMariaDBDatabase extends SandnodeMariaDBDatabase implements TauDa
             stmt.setBytes(3, UUIDUtil.uuidToBinary(chatMessage.chatID()));
             stmt.setString(4, chatMessage.content());
             stmt.setTimestamp(5, Timestamp.from(chatMessage.ztd().toInstant()));
-            stmt.setString(6, chatMessage.memberID());
+            stmt.setString(6, chatMessage.nickname());
             stmt.setBoolean(7, chatMessage.sys());
 
             stmt.executeUpdate();
@@ -312,7 +311,7 @@ public class TauMariaDBDatabase extends SandnodeMariaDBDatabase implements TauDa
             if (errorMessage.contains("message_id")) {
                 throw new AlreadyExistingRecordException("Messages Table", "message_id", msg.id(), e);
             } else if (errorMessage.contains("nickname")) {
-                throw new AlreadyExistingRecordException("Messages Table", "nickname", chatMessage.memberID(), e);
+                throw new AlreadyExistingRecordException("Messages Table", "nickname", chatMessage.nickname(), e);
             } else {
                 throw new AlreadyExistingRecordException("Messages Table", "chat_id (?)", chatMessage.chatID(), e);
             }
@@ -352,7 +351,7 @@ public class TauMariaDBDatabase extends SandnodeMariaDBDatabase implements TauDa
                                 .setChat(chat)
                                 .setContent(rs.getString("content"))
                                 .setZtd(timestamp)
-                                .setMemberID(rs.getString("nickname"))
+                                .setNickname(rs.getString("nickname"))
                                 .setSys(rs.getBoolean("sys"));
 
                         ZonedDateTime createdAt = rs
@@ -401,7 +400,7 @@ public class TauMariaDBDatabase extends SandnodeMariaDBDatabase implements TauDa
                     String nickname = rs.getString("nickname");
                     String passwordHash = rs.getString("password_hash");
 
-                    members.add(new StandardMember(id, createdAt, nickname, passwordHash));
+                    members.add(new Member(id, createdAt, nickname, passwordHash));
                 }
             }
             return members;
@@ -473,12 +472,12 @@ public class TauMariaDBDatabase extends SandnodeMariaDBDatabase implements TauDa
                     while (rs.next()) {
                         byte[] chatBin = rs.getBytes("chat_id");
                         String title = rs.getString("title");
-                        String ownerMemberID = rs.getString("owner_id");
+                        String otherNickname = rs.getString("owner_id");
                         ZonedDateTime createdAt = rs
                                 .getTimestamp("created_at").toInstant()
                                 .atZone(ZonedDateTime.now().getZone());
                         UUID chatID = UUIDUtil.binaryToUUID(chatBin);
-                        Member owner = findMemberByNickname(ownerMemberID).orElseThrow();
+                        Member owner = findMemberByNickname(otherNickname).orElseThrow();
                         chats.add(new TauChannel(chatID, createdAt, this, title, owner));
                     }
                 }
@@ -503,12 +502,12 @@ public class TauMariaDBDatabase extends SandnodeMariaDBDatabase implements TauDa
                 try (ResultSet rs = stmt.executeQuery()) {
                     while (rs.next()) {
                         byte[] chatBin = rs.getBytes("chat_id");
-                        String otherMemberID = rs.getString("other_nickname");
+                        String otherNickname = rs.getString("other_nickname");
                         ZonedDateTime createdAt = rs
                                 .getTimestamp("created_at").toInstant()
                                 .atZone(ZonedDateTime.now().getZone());
                         UUID chatID = UUIDUtil.binaryToUUID(chatBin);
-                        Member otherMember = findMemberByNickname(otherMemberID).orElseThrow();
+                        Member otherMember = findMemberByNickname(otherNickname).orElseThrow();
                         chats.add(new TauDialog(chatID, createdAt, this, member, otherMember));
                     }
                 }

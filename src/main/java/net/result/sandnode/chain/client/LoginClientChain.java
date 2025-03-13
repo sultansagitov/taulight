@@ -15,7 +15,7 @@ public class LoginClientChain extends ClientChain {
         super(io);
     }
 
-    public String getMemberID(String token)
+    public String getNickname(String token)
             throws InterruptedException, DeserializationException, ExpectedMessageException, SandnodeErrorException,
             UnknownSandnodeErrorException, UnprocessedMessagesException {
         LoginRequest loginRequest = new LoginRequest(token);
@@ -30,6 +30,6 @@ public class LoginClientChain extends ClientChain {
 
         LoginResponse loginResponse = new LoginResponse(message);
 
-        return loginResponse.getMemberID();
+        return loginResponse.getNickname();
     }
 }

@@ -46,10 +46,10 @@ public class ChannelClientChain extends ClientChain {
         new HappyMessage(raw);
     }
 
-    public synchronized void sendAddMemberRequest(UUID chatID, String otherMemberID)
+    public synchronized void sendAddMemberRequest(UUID chatID, String otherNickname)
             throws InterruptedException, SandnodeErrorException, ExpectedMessageException,
             UnknownSandnodeErrorException, UnprocessedMessagesException {
-        send(ChannelRequest.addMember(chatID, otherMemberID));
+        send(ChannelRequest.addMember(chatID, otherNickname));
         RawMessage raw = queue.take();
         if (raw.headers().type() == MessageTypes.ERR) {
             ErrorMessage errorMessage = new ErrorMessage(raw);

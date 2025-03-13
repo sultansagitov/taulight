@@ -29,7 +29,7 @@ public abstract class LogPasswdServerChain extends ServerChain implements Receiv
         Optional<Member> opt;
 
         try {
-            opt = database.findMemberByNickname(msg.getMemberID());
+            opt = database.findMemberByNickname(msg.getNickname());
         } catch (DatabaseException e) {
             LOGGER.error(e);
             sendFin(Errors.SERVER_ERROR.createMessage());

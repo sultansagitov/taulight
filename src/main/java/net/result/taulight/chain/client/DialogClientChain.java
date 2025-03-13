@@ -17,10 +17,10 @@ public class DialogClientChain extends ClientChain {
         super(io);
     }
 
-    public synchronized UUID getDialogID(String memberID)
+    public synchronized UUID getDialogID(String nickname)
             throws InterruptedException, ExpectedMessageException, DeserializationException, SandnodeErrorException,
             UnknownSandnodeErrorException, UnprocessedMessagesException {
-        send(new DialogRequest(memberID));
+        send(new DialogRequest(nickname));
 
         RawMessage raw = queue.take();
 

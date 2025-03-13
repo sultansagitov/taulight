@@ -14,7 +14,7 @@ public class ChannelRequest extends MSGPackMessage<ChannelRequest.Data> {
     public static class Data {
         public DataType type;
         public String title;
-        public String otherMemberID;
+        public String otherNickname;
         public UUID chatID;
 
         @SuppressWarnings("unused")
@@ -49,10 +49,10 @@ public class ChannelRequest extends MSGPackMessage<ChannelRequest.Data> {
         return new ChannelRequest(data);
     }
 
-    public static ChannelRequest addMember(UUID chatID, String otherMemberID) {
+    public static ChannelRequest addMember(UUID chatID, String otherNickname) {
         Data data = new Data(DataType.ADD);
         data.chatID = chatID;
-        data.otherMemberID = otherMemberID;
+        data.otherNickname = otherNickname;
         return new ChannelRequest(data);
     }
 
@@ -60,7 +60,7 @@ public class ChannelRequest extends MSGPackMessage<ChannelRequest.Data> {
         return object.chatID;
     }
 
-    public String getOtherMemberID() {
-        return object.otherMemberID;
+    public String getOtherNickname() {
+        return object.otherNickname;
     }
 }

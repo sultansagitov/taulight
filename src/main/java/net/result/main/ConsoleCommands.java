@@ -34,12 +34,12 @@ public class ConsoleCommands {
 
     private final IOController io;
     public final Map<String, LoopCondition> commands;
-    public final String memberID;
+    public final String nickname;
     public UUID currentChat = null;
 
-    public ConsoleCommands(IOController io, String memberID) {
+    public ConsoleCommands(IOController io, String nickname) {
         this.io = io;
-        this.memberID = memberID;
+        this.nickname = nickname;
         commands = new HashMap<>();
         commands.put("exit", this::exit);
         commands.put(":", this::setChat);
@@ -260,10 +260,10 @@ public class ConsoleCommands {
         }
 
         UUID chatID;
-        String otherMemberID;
+        String otherNickname;
         try {
             chatID = UUID.fromString(args.get(0));
-            otherMemberID = args.get(1);
+            otherNickname = args.get(1);
         } catch (IndexOutOfBoundsException e) {
             System.out.println("Missing required arguments.");
             return false;
@@ -275,29 +275,29 @@ public class ConsoleCommands {
         try {
             var chain = new ChannelClientChain(io);
             io.chainManager.linkChain(chain);
-            chain.sendAddMemberRequest(chatID, otherMemberID);
+            chain.sendAddMemberRequest(chatID, otherNickname);
             io.chainManager.removeChain(chain);
-            System.out.printf("Member '%s' added to chat '%s' successfully%n", otherMemberID, chatID);
+            System.out.printf("Member '%s' added to chat '%s' successfully%n", otherNickname, chatID);
         } catch (ChatNotFoundException e) {
             System.out.printf("Chat '%s' not found%n", chatID);
         } catch (AddressedMemberNotFoundException e) {
-            System.out.printf("Member '%s' not found%n", otherMemberID);
+            System.out.printf("Member '%s' not found%n", otherNickname);
         } catch (ExpectedMessageException | SandnodeErrorException | UnknownSandnodeErrorException e) {
-            System.out.printf("Failed to add member '%s' to chat '%s' - %s%n", otherMemberID, chatID, e.getClass());
+            System.out.printf("Failed to add member '%s' to chat '%s' - %s%n", otherNickname, chatID, e.getClass());
         }
         return false;
     }
 
     private boolean dialog(@NotNull List<String> args) throws InterruptedException, UnprocessedMessagesException {
-        String memberID = args.get(0);
+        String nickname = args.get(0);
         try {
             DialogClientChain chain = new DialogClientChain(io);
             io.chainManager.linkChain(chain);
-            UUID chatID = chain.getDialogID(memberID);
-            System.out.printf("Dialog with member %s found or created. Chat ID: %s%n", memberID, chatID);
+            UUID chatID = chain.getDialogID(nickname);
+            System.out.printf("Dialog with member %s found or created. Chat ID: %s%n", nickname, chatID);
             io.chainManager.removeChain(chain);
         } catch (MemberNotFoundException e) {
-            System.out.printf("Member %s not found - %s%n", memberID, e.getClass());
+            System.out.printf("Member %s not found - %s%n", nickname, e.getClass());
         } catch (ExpectedMessageException | DeserializationException | SandnodeErrorException |
                  UnknownSandnodeErrorException e) {
             System.out.printf("Dialog operation failed due to a Sandnode error - %s%n", e.getClass());
@@ -373,7 +373,7 @@ public class ConsoleCommands {
             System.out.println("You are not authorized");
             return false;
         } catch (ExpectedMessageException | UnknownSandnodeErrorException | SandnodeErrorException e) {
-            System.out.printf("Error while getting memberID - %s%n", e.getClass());
+            System.out.printf("Error while getting nickname - %s%n", e.getClass());
             return false;
         }
         io.chainManager.removeChain(chain);
@@ -413,7 +413,7 @@ public class ConsoleCommands {
             String s = switch (info.chatType) {
                 case CHANNEL -> "Channel: %s, %s%s"
                         .formatted(info.title, info.ownerID, info.channelIsMy ? " (you)" : "");
-                case DIALOG -> "Dialog: %s".formatted(info.otherMemberID);
+                case DIALOG -> "Dialog: %s".formatted(info.otherNickname);
                 case NOT_FOUND -> "Chat not found";
             };
             System.out.printf("%s from %s - %s%n", info.id, info.creationDate, s);

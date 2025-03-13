@@ -30,6 +30,6 @@ public class ConsoleForwardClientChain extends ForwardClientChain {
         ChatMessage message = serverMessage.message();
         String content = message.content();
         LOGGER.info("Forwarded message details - {} - {} - {}", serverMessage.id(), formatted, content);
-        System.out.printf("%s > %s > %s%n", message.chatID(), message.memberID(), content);
+        System.out.printf("%s > %s > %s%n", message.chatID(), message.nickname(), content);
     }
 }

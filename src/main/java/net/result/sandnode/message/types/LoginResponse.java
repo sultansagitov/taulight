@@ -11,13 +11,13 @@ import org.jetbrains.annotations.NotNull;
 
 public class LoginResponse extends MSGPackMessage<LoginResponse.LoginData> {
     public static class LoginData {
-        @JsonProperty("member-id")
-        public String memberID;
+        @JsonProperty
+        public String nickname;
 
         @SuppressWarnings("unused")
         public LoginData() {}
-        public LoginData(String memberID) {
-            this.memberID = memberID;
+        public LoginData(String nickname) {
+            this.nickname = nickname;
         }
     }
 
@@ -33,7 +33,7 @@ public class LoginResponse extends MSGPackMessage<LoginResponse.LoginData> {
         super(message, LoginData.class);
     }
 
-    public String getMemberID() {
-        return object.memberID;
+    public String getNickname() {
+        return object.nickname;
     }
 }

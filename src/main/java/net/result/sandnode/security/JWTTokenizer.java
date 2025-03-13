@@ -44,8 +44,8 @@ public class JWTTokenizer implements Tokenizer {
             throws InvalidTokenException, ExpiredTokenException, DatabaseException {
         try {
             DecodedJWT decodedJWT = VERIFIER.verify(token);
-            String memberID = decodedJWT.getSubject();
-            return database.findMemberByNickname(memberID);
+            String nickname = decodedJWT.getSubject();
+            return database.findMemberByNickname(nickname);
         } catch (TokenExpiredException e) {
             LOGGER.error("Expired token", e);
             throw new ExpiredTokenException(e);

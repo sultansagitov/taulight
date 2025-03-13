@@ -1,6 +1,6 @@
 package net.result.sandnode.db;
 
-import net.result.sandnode.exception.error.BusyMemberIDException;
+import net.result.sandnode.exception.error.BusyNicknameException;
 import net.result.sandnode.security.PasswordHasher;
 
 import java.util.*;
@@ -14,12 +14,12 @@ public class InMemoryDatabase implements Database {
     }
 
     @Override
-    public synchronized Member registerMember(String nickname, String password) throws BusyMemberIDException {
+    public synchronized Member registerMember(String nickname, String password) throws BusyNicknameException {
         if (db.stream().anyMatch(member -> member.nickname().equals(nickname))) {
-            throw new BusyMemberIDException();
+            throw new BusyNicknameException();
         }
 
-        Member member = new StandardMember(nickname, password);
+        Member member = new Member(nickname, password);
         db.add(member);
         return member;
     }

@@ -48,17 +48,17 @@ public class RunAgentWork implements IWork {
         client.start(chainManager);                                 // Starting client
         getPublicKey(client, agent, link);                          // get key from fs or sending PUB if key not found
         ClientProtocol.sendSYM(client);                             // sending symmetric key
-        String memberID = handleAuthentication(client.io, scanner); // registration or login
-        startConsoleChain(client.io, memberID);
+        String nickname = handleAuthentication(client.io, scanner); // registration or login
+        startConsoleChain(client.io, nickname);
 
         LOGGER.info("Exiting...");
         client.close();
     }
 
-    private static void startConsoleChain(IOController io, String memberID) throws InterruptedException {
+    private static void startConsoleChain(IOController io, String nickname) throws InterruptedException {
         ConsoleForwardRequestClientChain consoleChain = new ConsoleForwardRequestClientChain(io);
         io.chainManager.linkChain(consoleChain);
-        consoleChain.sync(memberID);
+        consoleChain.sync(nickname);
         io.chainManager.removeChain(consoleChain);
     }
 
@@ -112,24 +112,24 @@ public class RunAgentWork implements IWork {
 
         char choice = s.charAt(0);
 
-        String memberID = "";
+        String nickname = "";
         switch (choice) {
             case 'r' -> {
                 boolean isRegistered = false;
                 while (!isRegistered) {
-                    System.out.print("Member ID: ");
-                    memberID = scanner.nextLine();
+                    System.out.print("Nickname: ");
+                    nickname = scanner.nextLine();
                     System.out.print("Password: ");
                     String password = scanner.nextLine();
 
                     try {
-                        String token = AgentProtocol.getTokenFromRegistration(io, memberID, password);
-                        System.out.printf("Token for \"%s\":%n%s%n", memberID, token);
+                        String token = AgentProtocol.getTokenFromRegistration(io, nickname, password);
+                        System.out.printf("Token for \"%s\":%n%s%n", nickname, token);
                         isRegistered = true;
-                    } catch (BusyMemberIDException e) {
-                        System.out.println("Member ID is busy");
-                    } catch (InvalidMemberIDPassword e) {
-                        System.out.println("Invalid Member ID or password");
+                    } catch (BusyNicknameException e) {
+                        System.out.println("Nickname is busy");
+                    } catch (InvalidNicknamePassword e) {
+                        System.out.println("Invalid nickname or password");
                     } catch (SandnodeErrorException | UnknownSandnodeErrorException e) {
                         System.out.printf("Unknown sandnode error exception. Please try again. %s%n", e.getClass());
                     }
@@ -145,8 +145,8 @@ public class RunAgentWork implements IWork {
                     if (token.isEmpty()) continue;
 
                     try {
-                        memberID = AgentProtocol.getMemberFromToken(io, token);
-                        System.out.printf("You log in as %s%n", memberID);
+                        nickname = AgentProtocol.getMemberFromToken(io, token);
+                        System.out.printf("You log in as %s%n", nickname);
                         isLoggedIn = true;
                     } catch (InvalidTokenException e) {
                         System.out.println("Invalid token. Please try again.");
@@ -163,16 +163,16 @@ public class RunAgentWork implements IWork {
                 boolean isLoggedIn = false;
 
                 while (!isLoggedIn) {
-                    System.out.print("MemberID: ");
-                    memberID = scanner.nextLine();
+                    System.out.print("Nickname: ");
+                    nickname = scanner.nextLine();
                     System.out.print("Password: ");
                     String password = scanner.nextLine();
 
-                    if (memberID.isEmpty() || password.isEmpty()) continue;
+                    if (nickname.isEmpty() || password.isEmpty()) continue;
 
                     try {
-                        String token = AgentProtocol.getTokenByMemberIdAndPassword(io, memberID, password);
-                        System.out.printf("Token for \"%s\": %n%s%n", memberID, token);
+                        String token = AgentProtocol.getTokenByNicknameAndPassword(io, nickname, password);
+                        System.out.printf("Token for \"%s\": %n%s%n", nickname, token);
                         isLoggedIn = true;
                     } catch (MemberNotFoundException e) {
                         System.out.println("Member not found. Please try again.");
@@ -185,6 +185,6 @@ public class RunAgentWork implements IWork {
             }
             default -> throw new RuntimeException(String.valueOf(choice));
         }
-        return memberID;
+        return nickname;
     }
 }

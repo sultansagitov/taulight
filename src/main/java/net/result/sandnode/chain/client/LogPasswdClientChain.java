@@ -13,9 +13,9 @@ public class LogPasswdClientChain extends ClientChain {
         super(io);
     }
 
-    public String getToken(String memberID, String password) throws InterruptedException, SandnodeErrorException,
+    public String getToken(String nickname, String password) throws InterruptedException, SandnodeErrorException,
             ExpectedMessageException, UnknownSandnodeErrorException, UnprocessedMessagesException {
-        LogPasswdRequest loginRequest = new LogPasswdRequest(memberID, password);
+        LogPasswdRequest loginRequest = new LogPasswdRequest(nickname, password);
         send(loginRequest);
 
         RawMessage message = queue.take();

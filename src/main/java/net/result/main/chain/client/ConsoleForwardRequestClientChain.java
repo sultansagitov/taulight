@@ -23,8 +23,8 @@ public class ConsoleForwardRequestClientChain extends ClientChain {
         super(io);
     }
 
-    public void sync(String memberID) throws InterruptedException {
-        ConsoleCommands cc = new ConsoleCommands(io, memberID);
+    public void sync(String nickname) throws InterruptedException {
+        ConsoleCommands cc = new ConsoleCommands(io, nickname);
         Scanner scanner = new Scanner(System.in);
 
         while (true) {
@@ -62,7 +62,7 @@ public class ConsoleForwardRequestClientChain extends ClientChain {
         ChatMessage message = new ChatMessage()
                 .setChatID(cc.currentChat)
                 .setContent(input)
-                .setMemberID(cc.memberID)
+                .setNickname(cc.nickname)
                 .setZtdNow();
 
         send(new ForwardRequest(message));

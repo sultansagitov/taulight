@@ -44,13 +44,4 @@ public abstract class TauChat extends SandnodeObject {
 
     abstract public ChatInfo getInfo(Member member, Collection<ChatInfoProp> chatInfoProps);
 
-    @Override
-    public int hashCode() {
-        return id().hashCode();
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        return this == obj || obj instanceof TauChat chat && id().equals(chat.id());
-    }
 }

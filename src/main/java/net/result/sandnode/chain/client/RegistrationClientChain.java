@@ -15,10 +15,10 @@ public class RegistrationClientChain extends ClientChain {
         super(io);
     }
 
-    public synchronized String getTokenFromRegistration(String memberID, String password)
+    public synchronized String getTokenFromRegistration(String nickname, String password)
             throws InterruptedException, ExpectedMessageException, SandnodeErrorException,
             UnknownSandnodeErrorException, UnprocessedMessagesException {
-        RegistrationRequest request = new RegistrationRequest(memberID, password);
+        RegistrationRequest request = new RegistrationRequest(nickname, password);
         send(request);
 
         RawMessage response = queue.take();
@@ -26,7 +26,6 @@ public class RegistrationClientChain extends ClientChain {
         if (response.headers().type() == MessageTypes.ERR) {
             ErrorMessage errorMessage = new ErrorMessage(response);
             ServerErrorManager.instance().throwAll(errorMessage.error);
-
         }
 
         return new RegistrationResponse(response).getToken();

@@ -3,7 +3,7 @@ package net.result.sandnode.chain.server;
 import net.result.sandnode.chain.ReceiverChain;
 import net.result.sandnode.config.ServerConfig;
 import net.result.sandnode.exception.UnprocessedMessagesException;
-import net.result.sandnode.exception.error.BusyMemberIDException;
+import net.result.sandnode.exception.error.BusyNicknameException;
 import net.result.sandnode.exception.DatabaseException;
 import net.result.sandnode.exception.DeserializationException;
 import net.result.sandnode.exception.ExpectedMessageException;
@@ -28,20 +28,20 @@ public class RegistrationServerChain extends ServerChain implements ReceiverChai
         RawMessage request = queue.take();
         RegistrationRequest regMsg = new RegistrationRequest(request);
         ServerConfig serverConfig = session.server.serverConfig;
-        String memberID = regMsg.getMemberID();
+        String nickname = regMsg.getNickname();
         String password = regMsg.getPassword();
 
-        if (memberID.isEmpty() || password.isEmpty()) {
-            sendFin(Errors.INVALID_MEMBER_ID_OR_PASSWORD.createMessage());
+        if (nickname.isEmpty() || password.isEmpty()) {
+            sendFin(Errors.INVALID_NICKNAME_OR_PASSWORD.createMessage());
             return;
         }
 
         try {
-            session.member = serverConfig.database().registerMember(memberID, password);
+            session.member = serverConfig.database().registerMember(nickname, password);
             String token = serverConfig.tokenizer().tokenizeMember(session.member);
             sendFin(new RegistrationResponse(token));
-        } catch (BusyMemberIDException e) {
-            sendFin(Errors.BUSY_MEMBER_ID.createMessage());
+        } catch (BusyNicknameException e) {
+            sendFin(Errors.BUSY_NICKNAME.createMessage());
         } catch (DatabaseException e) {
             LOGGER.error("Registering exception", e);
             sendFin(Errors.SERVER_ERROR.createMessage());

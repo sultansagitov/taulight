@@ -21,7 +21,7 @@ public class ChatInfo {
     @JsonProperty("channel-is-my")
     public boolean channelIsMy;
     @JsonProperty("dialog-other")
-    public String otherMemberID;
+    public String otherNickname;
     @JsonProperty("creation-at")
     public ZonedDateTime creationDate;
 
@@ -50,7 +50,7 @@ public class ChatInfo {
         info.chatType = ChatType.DIALOG;
         if (infoProps.contains(ChatInfoProp.dialogID)) info.id = dialog.id();
         if (infoProps.contains(ChatInfoProp.dialogCreatedAt)) info.creationDate = dialog.getCreationDate();
-        if (infoProps.contains(ChatInfoProp.dialogOther)) info.otherMemberID = dialog.otherMember(member).nickname();
+        if (infoProps.contains(ChatInfoProp.dialogOther)) info.otherNickname = dialog.otherMember(member).nickname();
         return info;
     }
 

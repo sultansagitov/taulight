@@ -35,4 +35,10 @@ public abstract class SandnodeObject {
     public void setCreationDateNow() {
         setCreationDate(ZonedDateTime.now());
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        return this == obj || obj instanceof SandnodeObject sn && id().equals(sn.id());
+    }
+
 }

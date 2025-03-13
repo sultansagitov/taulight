@@ -11,34 +11,34 @@ import org.jetbrains.annotations.NotNull;
 
 public class LogPasswdRequest extends MSGPackMessage<LogPasswdRequest.Data> {
     protected static class Data {
-        @JsonProperty("member-id")
-        public String memberID;
+        @JsonProperty
+        public String nickname;
         @JsonProperty
         public String password;
 
         @SuppressWarnings("unused")
         public Data() {}
 
-        public Data(String memberID, String password) {
-            this.memberID = memberID;
+        public Data(String nickname, String password) {
+            this.nickname = nickname;
             this.password = password;
         }
     }
 
-    public LogPasswdRequest(@NotNull Headers headers, String memberID, String password) {
-        super(headers.setType(MessageTypes.LOG_PASSWD), new Data(memberID, password));
+    public LogPasswdRequest(@NotNull Headers headers, String nickname, String password) {
+        super(headers.setType(MessageTypes.LOG_PASSWD), new Data(nickname, password));
     }
 
-    public LogPasswdRequest(String memberID, String password) {
-        this(new Headers(), memberID, password);
+    public LogPasswdRequest(String nickname, String password) {
+        this(new Headers(), nickname, password);
     }
 
     public LogPasswdRequest(RawMessage raw) throws DeserializationException, ExpectedMessageException {
         super(raw.expect(MessageTypes.LOG_PASSWD), Data.class);
     }
 
-    public String getMemberID() {
-        return object.memberID;
+    public String getNickname() {
+        return object.nickname;
     }
 
     public String getPassword() {

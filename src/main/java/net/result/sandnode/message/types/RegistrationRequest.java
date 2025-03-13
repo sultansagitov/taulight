@@ -11,15 +11,15 @@ import org.jetbrains.annotations.NotNull;
 
 public class RegistrationRequest extends MSGPackMessage<RegistrationRequest.MemberData> {
     public static class MemberData {
-        @JsonProperty("member-id")
-        public String memberID;
+        @JsonProperty
+        public String nickname;
         @JsonProperty
         public String password;
 
         @SuppressWarnings("unused")
         public MemberData() {}
-        public MemberData(@NotNull String memberID, @NotNull String password) {
-            this.memberID = memberID;
+        public MemberData(@NotNull String nickname, @NotNull String password) {
+            this.nickname = nickname;
             this.password = password;
         }
     }
@@ -28,16 +28,16 @@ public class RegistrationRequest extends MSGPackMessage<RegistrationRequest.Memb
         super(message.expect(MessageTypes.REG), MemberData.class);
     }
 
-    public RegistrationRequest(@NotNull Headers headers, @NotNull String memberID, @NotNull String password) {
-        super(headers.setType(MessageTypes.REG), new MemberData(memberID, password));
+    public RegistrationRequest(@NotNull Headers headers, @NotNull String nickname, @NotNull String password) {
+        super(headers.setType(MessageTypes.REG), new MemberData(nickname, password));
     }
 
-    public RegistrationRequest(@NotNull String memberID, @NotNull String password) {
-        this(new Headers(), memberID, password);
+    public RegistrationRequest(@NotNull String nickname, @NotNull String password) {
+        this(new Headers(), nickname, password);
     }
 
-    public String getMemberID() {
-        return object.memberID;
+    public String getNickname() {
+        return object.nickname;
     }
 
     public String getPassword() {

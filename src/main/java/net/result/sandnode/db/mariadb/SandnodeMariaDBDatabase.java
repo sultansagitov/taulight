@@ -3,8 +3,7 @@ package net.result.sandnode.db.mariadb;
 import net.result.sandnode.config.MariaDBConfig;
 import net.result.sandnode.db.Database;
 import net.result.sandnode.db.Member;
-import net.result.sandnode.db.StandardMember;
-import net.result.sandnode.exception.error.BusyMemberIDException;
+import net.result.sandnode.exception.error.BusyNicknameException;
 import net.result.sandnode.exception.DatabaseException;
 import net.result.sandnode.security.PasswordHasher;
 import net.result.sandnode.util.UUIDUtil;
@@ -42,22 +41,23 @@ public class SandnodeMariaDBDatabase implements Database {
 
     @Override
     public synchronized Member registerMember(String nickname, String password)
-            throws BusyMemberIDException, DatabaseException {
+            throws BusyNicknameException, DatabaseException {
         try (
                 Connection conn = dataSource.getConnection();
                 PreparedStatement checkStmt = conn.prepareStatement("SELECT 1 FROM members WHERE nickname = ?");
                 PreparedStatement insertStmt = conn.prepareStatement("""
-                    INSERT INTO members (member_id, created_at, nickname, password_hash) VALUES (?, ?, ?, ?)
+                    INSERT INTO members (member_id, created_at, nickname, password_hash)
+                    VALUES (?, ?, ?, ?)
                 """)
         ) {
             checkStmt.setString(1, nickname);
             try (ResultSet rs = checkStmt.executeQuery()) {
-                if (rs.next()) throw new BusyMemberIDException();
+                if (rs.next()) throw new BusyNicknameException();
             }
 
             String passwordHash = hasher.hash(password);
 
-            StandardMember member = new StandardMember(nickname, password);
+            Member member = new Member(nickname, password);
 
             byte[] chatBin = UUIDUtil.uuidToBinary(member.id());
 
@@ -95,7 +95,7 @@ public class SandnodeMariaDBDatabase implements Database {
                     UUID id = UUIDUtil.binaryToUUID(uuidBin);
 
                     String passwordHash = rs.getString("password_hash");
-                    return Optional.of(new StandardMember(id, createdAt, nickname, passwordHash));
+                    return Optional.of(new Member(id, createdAt, nickname, passwordHash));
                 }
             }
             return Optional.empty();

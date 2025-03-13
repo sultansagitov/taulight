@@ -24,8 +24,8 @@ public enum Errors implements SandnodeError {
     INVALID_TOKEN(3000, "Invalid token"),
     EXPIRED_TOKEN(3001, "Expired token"),
     MEMBER_NOT_FOUND(3002, "Member not found"),
-    INVALID_MEMBER_ID_OR_PASSWORD(3003, "Invalid Member ID or password"),
-    BUSY_MEMBER_ID(3004, "Member ID is already in use"),
+    INVALID_NICKNAME_OR_PASSWORD(3003, "Invalid nickname or password"),
+    BUSY_NICKNAME(3004, "Nickname is already in use"),
     UNAUTHORIZED(3005, "Member unauthorized"),
     ADDRESSED_MEMBER_NOT_FOUND(3006, "Addressed member not found");
 
@@ -71,8 +71,8 @@ public enum Errors implements SandnodeError {
                 case INVALID_TOKEN -> throw new InvalidTokenException();
                 case EXPIRED_TOKEN -> throw new ExpiredTokenException();
                 case MEMBER_NOT_FOUND -> throw new MemberNotFoundException();
-                case INVALID_MEMBER_ID_OR_PASSWORD -> throw new InvalidMemberIDPassword();
-                case BUSY_MEMBER_ID -> throw new BusyMemberIDException();
+                case INVALID_NICKNAME_OR_PASSWORD -> throw new InvalidNicknamePassword();
+                case BUSY_NICKNAME -> throw new BusyNicknameException();
                 case UNAUTHORIZED -> throw new UnauthorizedException();
                 case ADDRESSED_MEMBER_NOT_FOUND -> throw new AddressedMemberNotFoundException();
             }

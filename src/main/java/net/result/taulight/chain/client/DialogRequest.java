@@ -8,28 +8,28 @@ import net.result.taulight.message.TauMessageTypes;
 import org.jetbrains.annotations.NotNull;
 
 public class DialogRequest extends Message {
-    private final String memberID;
+    private final String nickname;
 
-    public DialogRequest(@NotNull Headers headers, @NotNull String memberID) {
+    public DialogRequest(@NotNull Headers headers, @NotNull String nickname) {
         super(headers.setType(TauMessageTypes.DIALOG));
-        this.memberID = memberID;
+        this.nickname = nickname;
     }
 
-    public DialogRequest(@NotNull String memberID) {
-        this(new Headers(), memberID);
+    public DialogRequest(@NotNull String nickname) {
+        this(new Headers(), nickname);
     }
 
     public DialogRequest(@NotNull RawMessage raw) throws ExpectedMessageException {
         super(raw.expect(TauMessageTypes.DIALOG).headers());
-        memberID = new String(raw.getBody());
+        nickname = new String(raw.getBody());
     }
 
     @Override
     public byte[] getBody() {
-        return memberID.getBytes();
+        return nickname.getBytes();
     }
 
-    public String memberID() {
-        return memberID;
+    public String nickname() {
+        return nickname;
     }
 }

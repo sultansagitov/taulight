@@ -92,9 +92,9 @@ public class ChannelServerChain extends ServerChain implements ReceiverChain {
             }
             case ADD -> {
                 UUID chatID = request.getChatID();
-                String otherMemberID = request.getOtherMemberID();
+                String otherNickname = request.getOtherNickname();
 
-                if (chatID == null || otherMemberID == null) {
+                if (chatID == null || otherNickname == null) {
                     sendFin(Errors.TOO_FEW_ARGS.createMessage());
                     return;
                 }
@@ -103,7 +103,7 @@ public class ChannelServerChain extends ServerChain implements ReceiverChain {
                 Optional<Member> optMember;
                 try {
                     optChat = database.getChat(chatID);
-                    optMember = database.findMemberByNickname(otherMemberID);
+                    optMember = database.findMemberByNickname(otherNickname);
                 } catch (DatabaseException e) {
                     LOGGER.error(e);
                     sendFin(Errors.SERVER_ERROR.createMessage());
