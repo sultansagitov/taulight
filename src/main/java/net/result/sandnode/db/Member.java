@@ -8,15 +8,13 @@ public class Member extends SandnodeObject {
     private final String password;
 
     public Member(String nickname, String password) {
-        setRandomID();
-        setCreationDateNow();
+        super();
         this.nickname = nickname;
         this.password = password;
     }
 
     public Member(UUID id, ZonedDateTime createdAt, String nickname, String passwordHash) {
-        setID(id);
-        setCreationDate(createdAt);
+        super(id, createdAt);
         this.nickname = nickname;
         this.password = passwordHash;
     }

@@ -14,15 +14,13 @@ import java.util.UUID;
 public abstract class TauChat extends SandnodeObject {
     private final TauDatabase database;
 
-    public TauChat(UUID id, ZonedDateTime creationDate, TauDatabase database) {
-        setID(id);
-        setCreationDate(creationDate);
+    public TauChat(TauDatabase database) {
+        super();
         this.database = database;
     }
 
-    public TauChat(TauDatabase database) {
-        setRandomID();
-        setCreationDateNow();
+    public TauChat(UUID id, ZonedDateTime creationDate, TauDatabase database) {
+        super(id, creationDate);
         this.database = database;
     }
 

@@ -12,6 +12,16 @@ public abstract class SandnodeObject {
     @JsonProperty("creation-date")
     private ZonedDateTime creationDate;
 
+    public SandnodeObject() {
+        setRandomID();
+        setCreationDateNow();
+    }
+
+    public SandnodeObject(UUID id, ZonedDateTime createdAt) {
+        setID(id);
+        setCreationDate(createdAt);
+    }
+
     public UUID id() {
         return id;
     }
