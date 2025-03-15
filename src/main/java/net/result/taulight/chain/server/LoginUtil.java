@@ -4,6 +4,7 @@ import net.result.sandnode.chain.IChain;
 import net.result.sandnode.error.Errors;
 import net.result.sandnode.exception.DatabaseException;
 import net.result.sandnode.exception.UnprocessedMessagesException;
+import net.result.sandnode.exception.error.UnauthorizedException;
 import net.result.sandnode.serverclient.Session;
 import net.result.taulight.TauAgentProtocol;
 import net.result.taulight.db.TauChat;
@@ -20,8 +21,12 @@ public class LoginUtil {
     private static final Logger LOGGER = LogManager.getLogger(LoginUtil.class);
 
     public static void onLogin(@NotNull Session session, @NotNull IChain chain)
-            throws InterruptedException, UnprocessedMessagesException {
-        TauDatabase database = (TauDatabase) session.server.serverConfig.database();
+            throws InterruptedException, UnprocessedMessagesException, UnauthorizedException {
+        if (session.member == null) {
+            throw new UnauthorizedException();
+        }
+
+        TauDatabase database = (TauDatabase) session.member.database();
         TauGroupManager manager = (TauGroupManager) session.server.serverConfig.groupManager();
 
         Collection<TauChat> chats;

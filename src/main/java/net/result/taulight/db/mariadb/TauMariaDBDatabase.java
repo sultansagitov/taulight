@@ -358,7 +358,7 @@ public class TauMariaDBDatabase extends SandnodeMariaDBDatabase implements TauDa
                                 .getTimestamp("created_at").toInstant()
                                 .atZone(ZonedDateTime.now().getZone());
 
-                        ServerChatMessage serverMessage = new ServerChatMessage();
+                        ServerChatMessage serverMessage = new ServerChatMessage(chat.database());
                         serverMessage.setID(messageID);
                         serverMessage.setChatMessage(message);
                         serverMessage.setCreationDate(createdAt);
@@ -400,7 +400,7 @@ public class TauMariaDBDatabase extends SandnodeMariaDBDatabase implements TauDa
                     String nickname = rs.getString("nickname");
                     String passwordHash = rs.getString("password_hash");
 
-                    members.add(new Member(id, createdAt, nickname, passwordHash));
+                    members.add(new Member(this, id, createdAt, nickname, passwordHash));
                 }
             }
             return members;

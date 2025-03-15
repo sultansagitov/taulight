@@ -5,6 +5,7 @@ import net.result.sandnode.chain.server.ServerChain;
 import net.result.sandnode.db.Member;
 import net.result.sandnode.error.Errors;
 import net.result.sandnode.exception.*;
+import net.result.sandnode.exception.error.UnauthorizedException;
 import net.result.sandnode.message.util.Headers;
 import net.result.sandnode.message.util.MessageTypes;
 import net.result.sandnode.serverclient.Session;
@@ -33,8 +34,7 @@ public class ForwardRequestServerChain extends ServerChain implements ReceiverCh
 
     @SuppressWarnings("InfiniteLoopStatement")
     @Override
-    public void sync() throws InterruptedException, ExpectedMessageException, DeserializationException,
-            UnprocessedMessagesException {
+    public void sync() throws InterruptedException, SandnodeException {
         TauDatabase database = (TauDatabase) session.server.serverConfig.database();
 
         while (true) {
@@ -88,7 +88,11 @@ public class ForwardRequestServerChain extends ServerChain implements ReceiverCh
                     continue;
                 }
 
-                serverMessage = TauHubProtocol.send(session.server.serverConfig, chat, chatMessage);
+                try {
+                    serverMessage = TauHubProtocol.send(session, chat, chatMessage);
+                } catch (UnauthorizedException e) {
+                    throw new ImpossibleRuntimeException(e);
+                }
             } catch (DatabaseException e) {
                 LOGGER.error("Database error: {}", e.getMessage(), e);
                 send(Errors.SERVER_ERROR.createMessage());

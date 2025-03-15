@@ -2,15 +2,14 @@ package net.result.taulight;
 
 import net.result.sandnode.chain.ChainManager;
 import net.result.sandnode.chain.IChain;
-import net.result.sandnode.config.ServerConfig;
 import net.result.sandnode.exception.DatabaseException;
 import net.result.sandnode.exception.UnprocessedMessagesException;
+import net.result.sandnode.exception.error.UnauthorizedException;
 import net.result.sandnode.message.types.ChainNameRequest;
 import net.result.sandnode.serverclient.Session;
 import net.result.taulight.chain.server.ForwardServerChain;
 import net.result.taulight.db.ChatMessage;
 import net.result.taulight.db.TauChat;
-import net.result.taulight.db.TauDatabase;
 import net.result.taulight.db.ServerChatMessage;
 import net.result.taulight.exception.AlreadyExistingRecordException;
 import net.result.taulight.exception.error.MessageNotForwardedException;
@@ -25,12 +24,15 @@ import java.util.Optional;
 public class TauHubProtocol {
     private static final Logger LOGGER = LogManager.getLogger(TauHubProtocol.class);
 
-    public static ServerChatMessage send(ServerConfig serverConfig, TauChat chat, ChatMessage chatMessage)
-            throws InterruptedException, DatabaseException, MessageNotForwardedException, UnprocessedMessagesException {
-        TauDatabase database = (TauDatabase) serverConfig.database();
-        TauGroupManager manager = (TauGroupManager) serverConfig.groupManager();
+    public static ServerChatMessage send(Session session, TauChat chat, ChatMessage chatMessage)
+            throws InterruptedException, DatabaseException, MessageNotForwardedException, UnprocessedMessagesException, UnauthorizedException {
+        if (session.member == null) {
+            throw new UnauthorizedException();
+        }
 
-        ServerChatMessage serverMessage = new ServerChatMessage();
+        TauGroupManager manager = (TauGroupManager) session.server.serverConfig.groupManager();
+
+        ServerChatMessage serverMessage = new ServerChatMessage(chat.database());
         serverMessage.setCreationDateNow();
         serverMessage.setChatMessage(chatMessage);
 
@@ -38,7 +40,7 @@ public class TauHubProtocol {
         while (true) {
             serverMessage.setRandomID();
             try {
-                database.saveMessage(serverMessage);
+                serverMessage.save();
                 break;
             } catch (AlreadyExistingRecordException ignored) {
             }
@@ -46,16 +48,16 @@ public class TauHubProtocol {
         Collection<Session> sessions = manager.getGroup(chat).getSessions();
         if (sessions.isEmpty()) throw new MessageNotForwardedException();
 
-        for (Session session : sessions) {
+        for (Session s : sessions) {
             ForwardResponse request = new ForwardResponse(serverMessage);
 
-            ChainManager chainManager = session.io.chainManager;
+            ChainManager chainManager = s.io.chainManager;
             Optional<IChain> fwd = chainManager.getChain("fwd");
 
             if (fwd.isPresent()) {
                 fwd.get().send(request);
             } else {
-                var chain = new ForwardServerChain(session);
+                var chain = new ForwardServerChain(s);
                 chainManager.linkChain(chain);
                 chain.send(request);
                 chain.send(new ChainNameRequest("fwd"));

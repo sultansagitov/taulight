@@ -19,7 +19,7 @@ public class InMemoryDatabase implements Database {
             throw new BusyNicknameException();
         }
 
-        Member member = new Member(nickname, password);
+        Member member = new Member(this, nickname, password);
         db.add(member);
         return member;
     }

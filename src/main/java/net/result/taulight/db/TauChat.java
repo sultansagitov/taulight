@@ -1,8 +1,8 @@
 package net.result.taulight.db;
 
 import net.result.sandnode.db.Member;
-import net.result.sandnode.db.SandnodeObject;
 import net.result.sandnode.exception.DatabaseException;
+import net.result.taulight.exception.AlreadyExistingRecordException;
 import net.result.taulight.message.ChatInfo;
 import net.result.taulight.message.ChatInfoProp;
 
@@ -11,21 +11,17 @@ import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 
-public abstract class TauChat extends SandnodeObject {
-    private final TauDatabase database;
-
+public abstract class TauChat extends TaulightObject {
     public TauChat(TauDatabase database) {
-        super();
-        this.database = database;
+        super(database);
     }
 
     public TauChat(UUID id, ZonedDateTime creationDate, TauDatabase database) {
-        super(id, creationDate);
-        this.database = database;
+        super(id, creationDate, database);
     }
 
-    public TauDatabase database() {
-        return database;
+    public void save() throws AlreadyExistingRecordException, DatabaseException {
+        database().saveChat(this);
     }
 
     public abstract Collection<Member> getMembers() throws DatabaseException;

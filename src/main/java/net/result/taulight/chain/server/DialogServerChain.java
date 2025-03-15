@@ -6,7 +6,9 @@ import net.result.sandnode.db.Member;
 import net.result.sandnode.error.Errors;
 import net.result.sandnode.exception.DatabaseException;
 import net.result.sandnode.exception.ExpectedMessageException;
+import net.result.sandnode.exception.ImpossibleRuntimeException;
 import net.result.sandnode.exception.UnprocessedMessagesException;
+import net.result.sandnode.exception.error.UnauthorizedException;
 import net.result.sandnode.message.util.Headers;
 import net.result.sandnode.message.util.MessageTypes;
 import net.result.sandnode.serverclient.Session;
@@ -64,7 +66,9 @@ public class DialogServerChain extends ServerChain implements ReceiverChain {
                 ChatMessage chatMessage = SysMessages.dialogNew.chatMessage(dialog, session.member);
 
                 try {
-                    TauHubProtocol.send(session.server.serverConfig, dialog, chatMessage);
+                    TauHubProtocol.send(session, dialog, chatMessage);
+                } catch (UnauthorizedException e) {
+                    throw new ImpossibleRuntimeException(e);
                 } catch (DatabaseException | MessageNotForwardedException e) {
                     LOGGER.warn("Ignored exception: {}", e.getMessage());
                 }

@@ -1,11 +1,20 @@
 package net.result.taulight.db;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import net.result.sandnode.db.SandnodeObject;
+import net.result.sandnode.exception.DatabaseException;
+import net.result.taulight.exception.AlreadyExistingRecordException;
 
-public class ServerChatMessage extends SandnodeObject {
+public class ServerChatMessage extends TaulightObject {
     @JsonProperty
     private ChatMessage message;
+
+    public ServerChatMessage() {
+        super();
+    }
+
+    public ServerChatMessage(TauDatabase database) {
+        super(database);
+    }
 
     public ChatMessage message() {
         return message;
@@ -13,6 +22,10 @@ public class ServerChatMessage extends SandnodeObject {
 
     public void setChatMessage(ChatMessage message) {
         this.message = message;
+    }
+
+    public void save() throws AlreadyExistingRecordException, DatabaseException {
+        database().saveMessage(this);
     }
 
     @Override

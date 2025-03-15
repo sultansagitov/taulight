@@ -57,7 +57,7 @@ public class SandnodeMariaDBDatabase implements Database {
 
             String passwordHash = hasher.hash(password);
 
-            Member member = new Member(nickname, password);
+            Member member = new Member(this, nickname, password);
 
             byte[] chatBin = UUIDUtil.uuidToBinary(member.id());
 
@@ -95,7 +95,7 @@ public class SandnodeMariaDBDatabase implements Database {
                     UUID id = UUIDUtil.binaryToUUID(uuidBin);
 
                     String passwordHash = rs.getString("password_hash");
-                    return Optional.of(new Member(id, createdAt, nickname, passwordHash));
+                    return Optional.of(new Member(this, id, createdAt, nickname, passwordHash));
                 }
             }
             return Optional.empty();

@@ -7,14 +7,14 @@ public class Member extends SandnodeObject {
     private final String nickname;
     private final String password;
 
-    public Member(String nickname, String password) {
-        super();
+    public Member(Database database, String nickname, String password) {
+        super(database);
         this.nickname = nickname;
         this.password = password;
     }
 
-    public Member(UUID id, ZonedDateTime createdAt, String nickname, String passwordHash) {
-        super(id, createdAt);
+    public Member(Database database, UUID id, ZonedDateTime createdAt, String nickname, String passwordHash) {
+        super(database, id, createdAt);
         this.nickname = nickname;
         this.password = passwordHash;
     }

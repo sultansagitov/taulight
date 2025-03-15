@@ -4,6 +4,7 @@ import net.result.sandnode.chain.ReceiverChain;
 import net.result.sandnode.exception.*;
 import net.result.sandnode.exception.error.ExpiredTokenException;
 import net.result.sandnode.exception.error.InvalidTokenException;
+import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.message.types.LoginRequest;
 import net.result.sandnode.message.types.LoginResponse;
 import net.result.sandnode.message.types.TokenMessage;
@@ -25,7 +26,14 @@ public class LoginServerChain extends ServerChain implements ReceiverChain {
 
     @Override
     public void sync() throws InterruptedException, SandnodeException {
-        TokenMessage msg = new LoginRequest(queue.take());
+        RawMessage raw = queue.take();
+
+        if (session.member == null) {
+            sendFin(Errors.UNAUTHORIZED.createMessage());
+            return;
+        }
+
+        TokenMessage msg = new LoginRequest(raw);
         String token = msg.getToken();
 
         Database database = session.server.serverConfig.database();
