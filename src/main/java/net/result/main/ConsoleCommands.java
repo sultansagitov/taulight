@@ -26,7 +26,6 @@ import java.util.*;
 public class ConsoleCommands {
     @FunctionalInterface
     public interface LoopCondition {
-        @SuppressWarnings("unused")
         boolean breakLoop(List<String> args) throws InterruptedException, UnprocessedMessagesException;
     }
 
@@ -209,9 +208,10 @@ public class ConsoleCommands {
         return false;
     }
 
-    private boolean info(List<String> ignored) throws InterruptedException {
+    private boolean info(@NotNull List<String> args) throws InterruptedException {
         try {
-            if (currentChat == null) {
+            UUID chatID = args.stream().findFirst().map(UUID::fromString).orElse(currentChat);
+            if (chatID == null) {
                 System.out.println("Chat not selected");
                 return false;
             }
@@ -221,11 +221,11 @@ public class ConsoleCommands {
             Collection<ChatInfo> infos;
             if (chat.isPresent()) {
                 ChatClientChain chain = (ChatClientChain) chat.get();
-                infos = chain.getByID(List.of(currentChat), ChatInfoProp.all());
+                infos = chain.getByID(List.of(chatID), ChatInfoProp.all());
             } else {
                 ChatClientChain chain = new ChatClientChain(io);
                 io.chainManager.linkChain(chain);
-                infos = chain.getByID(List.of(currentChat), ChatInfoProp.all());
+                infos = chain.getByID(List.of(chatID), ChatInfoProp.all());
                 chain.send(new ChainNameRequest("chat"));
             }
 
@@ -239,6 +239,11 @@ public class ConsoleCommands {
     }
 
     private boolean newChannel(@NotNull List<String> args) throws InterruptedException {
+        if (args.isEmpty()) {
+            System.out.println("Usage: newChannel <title>");
+            return false;
+        }
+
         String title = args.get(0);
         try {
             var chain = new ChannelClientChain(io);
@@ -254,21 +259,29 @@ public class ConsoleCommands {
     }
 
     private boolean addMember(@NotNull List<String> args) throws InterruptedException, UnprocessedMessagesException {
-        if (args.size() < 2) {
-            System.out.println("Usage: addMember <chatID> <member>");
-            return false;
+        UUID chatID = null;
+        String otherNickname = null;
+
+        int size = args.size();
+
+        if (size == 1) {
+            chatID = currentChat;
+            otherNickname = args.get(0);
+        } else if (size == 2) {
+            try {
+                chatID = UUID.fromString(args.get(0));
+                otherNickname = args.get(1);
+            } catch (IndexOutOfBoundsException e) {
+                System.out.println("Missing required arguments.");
+                return false;
+            } catch (IllegalArgumentException e) {
+                System.out.println("Invalid UUID format.");
+                return false;
+            }
         }
 
-        UUID chatID;
-        String otherNickname;
-        try {
-            chatID = UUID.fromString(args.get(0));
-            otherNickname = args.get(1);
-        } catch (IndexOutOfBoundsException e) {
-            System.out.println("Missing required arguments.");
-            return false;
-        } catch (IllegalArgumentException e) {
-            System.out.println("Invalid UUID format.");
+        if (chatID == null) {
+            System.out.println("Chat not selected");
             return false;
         }
 
@@ -289,6 +302,11 @@ public class ConsoleCommands {
     }
 
     private boolean dialog(@NotNull List<String> args) throws InterruptedException, UnprocessedMessagesException {
+        if (args.isEmpty()) {
+            System.out.println("Usage: dialog <nickname>");
+            return false;
+        }
+
         String nickname = args.get(0);
         try {
             DialogClientChain chain = new DialogClientChain(io);
@@ -306,15 +324,10 @@ public class ConsoleCommands {
     }
 
     private boolean leave(@NotNull List<String> args) throws InterruptedException, UnprocessedMessagesException {
-        UUID chatID;
+        UUID chatID = args.stream().findFirst().map(UUID::fromString).orElse(currentChat);
 
-        try {
-            chatID = UUID.fromString(args.get(0));
-        } catch (IndexOutOfBoundsException e) {
-            System.out.println("Error: No chat ID provided. Usage: leave <chatID>");
-            return false;
-        } catch (IllegalArgumentException e) {
-            System.out.println("Error: Invalid chat ID format.");
+        if (chatID == null) {
+            System.out.println("Chat not selected");
             return false;
         }
 
@@ -334,16 +347,18 @@ public class ConsoleCommands {
         return false;
     }
 
-    private boolean messages(List<String> ignored) throws InterruptedException, UnprocessedMessagesException {
-        if (currentChat == null) {
-            System.out.println("Chat not selected");
+    private boolean messages(@NotNull List<String> args) throws InterruptedException, UnprocessedMessagesException {
+        UUID chatID = args.stream().findFirst().map(UUID::fromString).orElse(currentChat);
+
+        if (chatID == null) {
+            System.out.println("Chat not select");
             return false;
         }
 
         try {
             var chain = new MessageClientChain(io);
             io.chainManager.linkChain(chain);
-            chain.getMessages(currentChat, 0, 100);
+            chain.getMessages(chatID, 0, 100);
             io.chainManager.removeChain(chain);
             long count = chain.getCount();
             List<ServerChatMessage> messages = chain.getMessages();
@@ -381,12 +396,19 @@ public class ConsoleCommands {
         return false;
     }
 
-    private boolean members(List<String> ignored) throws UnprocessedMessagesException, InterruptedException {
+    private boolean members(@NotNull List<String> args) throws UnprocessedMessagesException, InterruptedException {
+        UUID chatID = args.stream().findFirst().map(UUID::fromString).orElse(currentChat);
+
+        if (chatID == null) {
+            System.out.println("Chat not selected");
+            return false;
+        }
+
         MembersClientChain chain = new MembersClientChain(io);
 
         io.chainManager.linkChain(chain);
         try {
-            chain.getMembers(currentChat).forEach(System.out::println);
+            chain.getMembers(chatID).forEach(System.out::println);
         } catch (ExpectedMessageException | DeserializationException | SandnodeErrorException |
                  UnknownSandnodeErrorException e) {
             System.out.printf("Error while getting members - %s%n", e.getClass());
