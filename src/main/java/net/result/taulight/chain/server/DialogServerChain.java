@@ -53,7 +53,7 @@ public class DialogServerChain extends ServerChain implements ReceiverChain {
         try {
             anotherMember = database.findMemberByNickname(request.nickname());
             if (anotherMember.isEmpty()) {
-                send(Errors.MEMBER_NOT_FOUND.createMessage());
+                send(Errors.ADDRESSED_MEMBER_NOT_FOUND.createMessage());
                 return;
             }
 

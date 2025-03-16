@@ -5,13 +5,14 @@ import net.result.sandnode.chain.client.NameClientChain;
 import net.result.sandnode.chain.client.WhoAmIClientChain;
 import net.result.sandnode.exception.*;
 import net.result.sandnode.exception.error.AddressedMemberNotFoundException;
-import net.result.sandnode.exception.error.MemberNotFoundException;
+import net.result.sandnode.exception.error.NotFoundException;
 import net.result.sandnode.exception.error.SandnodeErrorException;
 import net.result.sandnode.exception.error.UnauthorizedException;
 import net.result.sandnode.hubagent.ClientProtocol;
 import net.result.sandnode.message.types.ChainNameRequest;
 import net.result.sandnode.util.IOController;
 import net.result.taulight.chain.client.*;
+import net.result.taulight.code.InviteTauCode;
 import net.result.taulight.db.ServerChatMessage;
 import net.result.taulight.exception.error.ChatNotFoundException;
 import net.result.taulight.message.ChatInfo;
@@ -52,6 +53,7 @@ public class ConsoleCommands {
         commands.put("info", this::info);
         commands.put("newChannel", this::newChannel);
         commands.put("addMember", this::addMember);
+        commands.put("checkCode", this::checkCode);
         commands.put("leave", this::leave);
         commands.put("dialog", this::dialog);
         commands.put("messages", this::messages);
@@ -288,15 +290,44 @@ public class ConsoleCommands {
         try {
             var chain = new ChannelClientChain(io);
             io.chainManager.linkChain(chain);
-            chain.sendAddMemberRequest(chatID, otherNickname);
+            String code = chain.addMemberLink(chatID, otherNickname);
             io.chainManager.removeChain(chain);
-            System.out.printf("Member '%s' added to chat '%s' successfully%n", otherNickname, chatID);
+            System.out.printf("Link for adding %s to %s%n", otherNickname, chatID);
+            System.out.printf("%n%s%n%n", code);
+        } catch (InvalidSandnodeLinkException e) {
+            System.out.printf("Incorrect link for adding %s to %s%n", otherNickname, chatID);
         } catch (ChatNotFoundException e) {
             System.out.printf("Chat '%s' not found%n", chatID);
         } catch (AddressedMemberNotFoundException e) {
             System.out.printf("Member '%s' not found%n", otherNickname);
         } catch (ExpectedMessageException | SandnodeErrorException | UnknownSandnodeErrorException e) {
             System.out.printf("Failed to add member '%s' to chat '%s' - %s%n", otherNickname, chatID, e.getClass());
+        }
+        return false;
+    }
+
+    private boolean checkCode(@NotNull List<String> args) throws InterruptedException, UnprocessedMessagesException {
+        if (args.isEmpty()) {
+            System.out.println("Usage: useCode <code>");
+        }
+
+        String code = args.get(0);
+
+        try {
+            var chain = new CodeClientChain(io);
+            io.chainManager.linkChain(chain);
+            InviteTauCode c = chain.checkCode(code);
+            io.chainManager.removeChain(chain);
+            System.out.println("Invite");
+            System.out.printf("Title - %s, expire: %s%n", c.title(), c.expiresData());
+
+        } catch (NotFoundException e) {
+            System.out.println("Code not found");
+
+        } catch (ExpectedMessageException | SandnodeErrorException | UnknownSandnodeErrorException |
+                 DeserializationException e) {
+
+            System.out.printf("Failed to check code - %s%n", e.getClass());
         }
         return false;
     }
@@ -314,7 +345,7 @@ public class ConsoleCommands {
             UUID chatID = chain.getDialogID(nickname);
             System.out.printf("Dialog with member %s found or created. Chat ID: %s%n", nickname, chatID);
             io.chainManager.removeChain(chain);
-        } catch (MemberNotFoundException e) {
+        } catch (AddressedMemberNotFoundException e) {
             System.out.printf("Member %s not found - %s%n", nickname, e.getClass());
         } catch (ExpectedMessageException | DeserializationException | SandnodeErrorException |
                  UnknownSandnodeErrorException e) {

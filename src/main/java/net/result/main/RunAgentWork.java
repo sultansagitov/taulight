@@ -152,8 +152,6 @@ public class RunAgentWork implements IWork {
                         System.out.println("Invalid token. Please try again.");
                     } catch (ExpiredTokenException e) {
                         System.out.println("Expired token. Please try again.");
-                    } catch (MemberNotFoundException e) {
-                        System.out.println("Member not found. Please try again.");
                     } catch (SandnodeErrorException | UnknownSandnodeErrorException e) {
                         System.out.printf("Unknown sandnode error exception. Please try again. %s%n", e.getClass());
                     }
@@ -174,10 +172,8 @@ public class RunAgentWork implements IWork {
                         String token = AgentProtocol.getTokenByNicknameAndPassword(io, nickname, password);
                         System.out.printf("Token for \"%s\": %n%s%n", nickname, token);
                         isLoggedIn = true;
-                    } catch (MemberNotFoundException e) {
-                        System.out.println("Member not found. Please try again.");
                     } catch (UnauthorizedException e) {
-                        System.out.println("Incorrect password. Please try again.");
+                        System.out.println("Incorrect nickname or password. Please try again.");
                     } catch (SandnodeErrorException | UnknownSandnodeErrorException e) {
                         System.out.printf("Unknown sandnode error exception. Please try again. %s%n", e.getClass());
                     }

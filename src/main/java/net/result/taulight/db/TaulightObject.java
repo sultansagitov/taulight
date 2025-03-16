@@ -14,7 +14,7 @@ public class TaulightObject extends SandnodeObject {
         super(database);
     }
 
-    public TaulightObject(UUID id, ZonedDateTime createdAt, TauDatabase database) {
+    public TaulightObject(TauDatabase database, UUID id, ZonedDateTime createdAt) {
         super(database, id, createdAt);
     }
 

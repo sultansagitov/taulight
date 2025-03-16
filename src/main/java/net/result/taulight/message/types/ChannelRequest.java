@@ -1,66 +1,96 @@
 package net.result.taulight.message.types;
 
 import net.result.sandnode.exception.DeserializationException;
-import net.result.sandnode.message.MSGPackMessage;
+import net.result.sandnode.exception.ExpectedMessageException;
+import net.result.sandnode.exception.error.TooFewArgumentsException;
+import net.result.sandnode.message.EmptyMessage;
 import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.message.util.Headers;
 import net.result.taulight.message.TauMessageTypes;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.UUID;
 
-public class ChannelRequest extends MSGPackMessage<ChannelRequest.Data> {
-    public enum DataType {NEW, LEAVE, ADD}
+public class ChannelRequest extends EmptyMessage {
+    public enum DataType {NEW, ADD, LEAVE}
 
-    public static class Data {
-        public DataType type;
-        public String title;
-        public String otherNickname;
-        public UUID chatID;
+    public DataType type;
+    public String title;
+    public UUID chatID;
+    public String otherNickname;
 
-        @SuppressWarnings("unused")
-        public Data() {}
+    private ChannelRequest(@NotNull Headers headers) {
+        super(headers.setType(TauMessageTypes.CHANNEL));
+    }
 
-        private Data(DataType type) {
-            this.type = type;
+    public ChannelRequest(@NotNull RawMessage raw)
+            throws ExpectedMessageException, TooFewArgumentsException, DeserializationException {
+        super(raw.expect(TauMessageTypes.CHANNEL).headers());
+        String type = headers().getOptionalValue("type").orElseThrow(TooFewArgumentsException::new);
+        try {
+            switch (type) {
+                case "new" -> {
+                    this.type = DataType.NEW;
+                    this.title = headers()
+                            .getOptionalValue("type")
+                            .orElseThrow(TooFewArgumentsException::new);
+                }
+                case "add" -> {
+                    this.type = DataType.ADD;
+                    this.chatID = headers()
+                            .getOptionalValue("chat-id")
+                            .map(UUID::fromString)
+                            .orElseThrow(TooFewArgumentsException::new);
+
+                    this.otherNickname = headers()
+                            .getOptionalValue("other-nickname")
+                            .orElseThrow(TooFewArgumentsException::new);
+
+                }
+                case "leave" -> {
+                    this.type = DataType.LEAVE;
+                    this.chatID = headers()
+                            .getOptionalValue("chat-id")
+                            .map(UUID::fromString)
+                            .orElseThrow(TooFewArgumentsException::new);
+                }
+                default -> throw new DeserializationException("Incorrect type field - \"%s\"".formatted(type));
+            }
+        } catch (IllegalArgumentException e) {
+            throw new DeserializationException(e);
         }
-
-        private Data(String title) {
-            this.type = DataType.NEW;
-            this.title = title;
-        }
-    }
-
-    private ChannelRequest(Data object) {
-        super(new Headers().setType(TauMessageTypes.CHANNEL), object);
-    }
-
-    public ChannelRequest(RawMessage raw) throws DeserializationException {
-        super(raw, Data.class);
     }
 
 
-    public static ChannelRequest newChannel(String title) {
-        return new ChannelRequest(new Data(title));
+    public static @NotNull ChannelRequest newChannel(String title) {
+        Headers headers = new Headers()
+                .setValue("type", "new")
+                .setValue("title", title);
+        ChannelRequest request = new ChannelRequest(headers);
+        request.title = title;
+
+        return request;
     }
 
-    public static ChannelRequest leave(UUID chatID) {
-        Data data = new Data(DataType.LEAVE);
-        data.chatID = chatID;
-        return new ChannelRequest(data);
+    public static @NotNull ChannelRequest addMember(UUID chatID, String otherNickname) {
+        Headers headers = new Headers()
+                .setValue("type", "add")
+                .setValue("chat-id", chatID.toString())
+                .setValue("other-nickname", otherNickname);
+        ChannelRequest request = new ChannelRequest(headers);
+        request.chatID = chatID;
+        request.otherNickname = otherNickname;
+
+        return request;
     }
 
-    public static ChannelRequest addMember(UUID chatID, String otherNickname) {
-        Data data = new Data(DataType.ADD);
-        data.chatID = chatID;
-        data.otherNickname = otherNickname;
-        return new ChannelRequest(data);
-    }
+    public static @NotNull ChannelRequest leave(UUID chatID) {
+        Headers headers = new Headers()
+                .setValue("type", "leave")
+                .setValue("chat-id", chatID.toString());
+        ChannelRequest request = new ChannelRequest(headers);
+        request.chatID = chatID;
 
-    public UUID getChatID() {
-        return object.chatID;
-    }
-
-    public String getOtherNickname() {
-        return object.otherNickname;
+        return request;
     }
 }

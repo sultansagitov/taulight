@@ -35,4 +35,18 @@ public interface TauDatabase extends Database {
     long getMessageCount(TauChat chat) throws DatabaseException;
 
     void leaveFromChat(TauChat chat, Member member) throws DatabaseException;
+
+    void createInviteToken(InviteToken inviteToken) throws DatabaseException, AlreadyExistingRecordException;
+
+    Optional<InviteToken> getInviteToken(String rejectCode) throws DatabaseException;
+
+    boolean deleteInviteToken(String rejectCode) throws DatabaseException;
+
+    List<InviteToken> getActiveInviteToken(TauChannel channel) throws DatabaseException;
+
+    void cleanupExpiredTokens() throws DatabaseException;
+
+    List<InviteToken> getInviteLinksByNickname(String nickname) throws DatabaseException;
+
+    int countActiveInvitesByNickname(String nickname) throws DatabaseException;
 }

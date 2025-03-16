@@ -17,7 +17,7 @@ public abstract class TauChat extends TaulightObject {
     }
 
     public TauChat(UUID id, ZonedDateTime creationDate, TauDatabase database) {
-        super(id, creationDate, database);
+        super(database, id, creationDate);
     }
 
     public void save() throws AlreadyExistingRecordException, DatabaseException {

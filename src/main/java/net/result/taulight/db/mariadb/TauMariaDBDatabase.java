@@ -82,6 +82,20 @@ public class TauMariaDBDatabase extends SandnodeMariaDBDatabase implements TauDa
             )
         """);
 
+        // Invite tokens
+        stmt.execute("""
+            CREATE TABLE IF NOT EXISTS invite_tokens (
+                token_id BINARY(16) PRIMARY KEY,
+                expires_at TIMESTAMP NOT NULL,
+                nickname VARCHAR(255) NOT NULL,
+                chat_id BINARY(16) NOT NULL,
+                reject_code VARCHAR(255) NOT NULL UNIQUE,
+                created_at TIMESTAMP NOT NULL,
+                FOREIGN KEY (chat_id) REFERENCES chats(chat_id) ON DELETE CASCADE,
+                FOREIGN KEY (nickname) REFERENCES members(nickname)
+            )
+        """);
+
     }
 
     @Override
@@ -323,8 +337,7 @@ public class TauMariaDBDatabase extends SandnodeMariaDBDatabase implements TauDa
     }
 
     @Override
-    public List<ServerChatMessage> loadMessages(@NotNull TauChat chat, int index, int size)
-            throws DatabaseException {
+    public List<ServerChatMessage> loadMessages(@NotNull TauChat chat, int index, int size) throws DatabaseException {
         try (Connection conn = dataSource.getConnection()) {
             byte[] chatBin = UUIDUtil.uuidToBinary(chat.id());
 
@@ -547,6 +560,228 @@ public class TauMariaDBDatabase extends SandnodeMariaDBDatabase implements TauDa
             return 0;
         } catch (SQLException | IllegalArgumentException e) {
             throw new DatabaseException("Failed to get message count", e);
+        }
+    }
+
+    @Override
+    public void createInviteToken(InviteToken inviteToken) throws DatabaseException, AlreadyExistingRecordException {
+        try (Connection conn = dataSource.getConnection()) {
+            conn.setAutoCommit(false);
+            try {
+                byte[] tokenId = UUIDUtil.uuidToBinary(inviteToken.id());
+                byte[] chatId = UUIDUtil.uuidToBinary(inviteToken.getChatID());
+
+                try (PreparedStatement stmt = conn.prepareStatement("""
+                    INSERT INTO invite_tokens
+                    (token_id, expires_at, nickname, chat_id, reject_code, created_at)
+                    VALUES (?, ?, ?, ?, ?, ?)
+                """)) {
+                    stmt.setBytes(1, tokenId);
+                    stmt.setTimestamp(2, Timestamp.from(inviteToken.getExpiresData().toInstant()));
+                    stmt.setString(3, inviteToken.getNickname());
+                    stmt.setBytes(4, chatId);
+                    stmt.setString(5, inviteToken.getRejectCode());
+                    stmt.setTimestamp(6, Timestamp.from(inviteToken.getCreationDate().toInstant()));
+
+                    stmt.executeUpdate();
+                } catch (SQLIntegrityConstraintViolationException e) {
+                    String errorMessage = e.getMessage();
+
+                    if (errorMessage.contains("token_id")) {
+                        throw new AlreadyExistingRecordException("Invite Tokens", "token_id", inviteToken.id(), e);
+                    } else if (errorMessage.contains("reject_code")) {
+                        throw new AlreadyExistingRecordException(
+                                "Invite Tokens", "reject_code", inviteToken.getRejectCode(), e);
+                    } else if (errorMessage.contains("nickname")) {
+                        throw new AlreadyExistingRecordException(
+                                "Invite Tokens", "nickname", inviteToken.getNickname(), e);
+                    } else if (errorMessage.contains("chat_id")) {
+                        throw new AlreadyExistingRecordException(
+                                "Invite Tokens", "chat_id", inviteToken.getChatID(), e);
+                    } else {
+                        throw new AlreadyExistingRecordException("Invite Tokens", e);
+                    }
+                }
+
+                conn.commit();
+            } catch (SQLException e) {
+                conn.rollback();
+                throw e;
+            } finally {
+                conn.setAutoCommit(true);
+            }
+        } catch (SQLException | IllegalArgumentException e) {
+            throw new DatabaseException("Failed to create invite link", e);
+        }
+    }
+
+    @Override
+    public Optional<InviteToken> getInviteToken(String rejectCode) throws DatabaseException {
+        try (Connection conn = dataSource.getConnection();
+             PreparedStatement stmt = conn.prepareStatement("""
+             SELECT token_id, expires_at, nickname, chat_id, created_at
+             FROM invite_tokens
+             WHERE reject_code = ?
+         """)) {
+
+            stmt.setString(1, rejectCode);
+
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    byte[] tokenIdBin = rs.getBytes("token_id");
+                    UUID tokenId = UUIDUtil.binaryToUUID(tokenIdBin);
+
+                    ZonedDateTime expiresAt = rs
+                            .getTimestamp("expires_at").toInstant()
+                            .atZone(ZonedDateTime.now().getZone());
+
+                    String nickname = rs.getString("nickname");
+
+                    byte[] chatIdBin = rs.getBytes("chat_id");
+                    UUID chatId = UUIDUtil.binaryToUUID(chatIdBin);
+
+                    ZonedDateTime createdAt = rs
+                            .getTimestamp("created_at").toInstant()
+                            .atZone(ZonedDateTime.now().getZone());
+
+                    return Optional.of(new InviteToken(
+                            this, tokenId, createdAt, expiresAt, nickname, chatId, rejectCode
+                    ));
+                }
+                return Optional.empty();
+            }
+        } catch (SQLException | IllegalArgumentException e) {
+            throw new DatabaseException("Failed to retrieve invite link", e);
+        }
+    }
+
+    @Override
+    public boolean deleteInviteToken(String rejectCode) throws DatabaseException {
+        try (
+                Connection conn = dataSource.getConnection();
+                PreparedStatement stmt = conn.prepareStatement("DELETE FROM invite_tokens WHERE reject_code = ?")
+        ) {
+            stmt.setString(1, rejectCode);
+            int affected = stmt.executeUpdate();
+            return affected > 0;
+        } catch (SQLException e) {
+            throw new DatabaseException("Failed to delete invite link", e);
+        }
+    }
+
+    @Override
+    public List<InviteToken> getActiveInviteToken(TauChannel channel) throws DatabaseException {
+        UUID chatID = channel.id();
+
+        try (Connection conn = dataSource.getConnection()) {
+            byte[] chatIDBin = UUIDUtil.uuidToBinary(chatID);
+
+            try (PreparedStatement stmt = conn.prepareStatement("""
+                SELECT token_id, expires_at, nickname, reject_code, created_at
+                FROM invite_tokens
+                WHERE chat_id = ? AND expires_at > NOW()
+                ORDER BY expires_at DESC
+            """)) {
+                stmt.setBytes(1, chatIDBin);
+
+                List<InviteToken> tokens = new ArrayList<>();
+                try (ResultSet rs = stmt.executeQuery()) {
+                    while (rs.next()) {
+                        byte[] tokenIdBin = rs.getBytes("token_id");
+                        UUID tokenId = UUIDUtil.binaryToUUID(tokenIdBin);
+
+                        ZonedDateTime expiresAt = rs
+                                .getTimestamp("expires_at").toInstant()
+                                .atZone(ZonedDateTime.now().getZone());
+
+                        String nickname = rs.getString("nickname");
+                        String rejectCode = rs.getString("reject_code");
+
+                        ZonedDateTime createdAt = rs
+                                .getTimestamp("created_at").toInstant()
+                                .atZone(ZonedDateTime.now().getZone());
+
+                        tokens.add(new InviteToken(this, tokenId, createdAt, expiresAt, nickname, chatID, rejectCode));
+                    }
+                }
+                return tokens;
+            }
+        } catch (SQLException | IllegalArgumentException e) {
+            throw new DatabaseException("Failed to retrieve active invite links", e);
+        }
+    }
+
+    @Override
+    public void cleanupExpiredTokens() throws DatabaseException {
+        try (
+                Connection conn = dataSource.getConnection();
+                PreparedStatement stmt = conn.prepareStatement("DELETE FROM invite_tokens WHERE expires_at < NOW()")
+        ) {
+            stmt.executeUpdate();
+        } catch (SQLException e) {
+            throw new DatabaseException("Failed to cleanup expired invites", e);
+        }
+    }
+
+    @Override
+    public List<InviteToken> getInviteLinksByNickname(String nickname) throws DatabaseException {
+        try (Connection conn = dataSource.getConnection()) {
+            try (PreparedStatement stmt = conn.prepareStatement("""
+                SELECT token_id, expires_at, chat_id, reject_code, created_at
+                FROM invite_tokens
+                WHERE nickname = ? AND expires_at > NOW()
+            """)) {
+                stmt.setString(1, nickname);
+
+                List<InviteToken> tokens = new ArrayList<>();
+                try (ResultSet rs = stmt.executeQuery()) {
+                    while (rs.next()) {
+                        byte[] tokenIdBin = rs.getBytes("token_id");
+                        UUID tokenId = UUIDUtil.binaryToUUID(tokenIdBin);
+
+                        ZonedDateTime expiresAt = rs
+                                .getTimestamp("expires_at").toInstant()
+                                .atZone(ZonedDateTime.now().getZone());
+
+                        byte[] chatIdBin = rs.getBytes("chat_id");
+                        UUID chatId = UUIDUtil.binaryToUUID(chatIdBin);
+
+                        String rejectCode = rs.getString("reject_code");
+
+                        ZonedDateTime createdAt = rs
+                                .getTimestamp("created_at").toInstant()
+                                .atZone(ZonedDateTime.now().getZone());
+
+                        tokens.add(new InviteToken(
+                                this, tokenId, createdAt, expiresAt, nickname, chatId, rejectCode
+                        ));
+                    }
+                }
+                return tokens;
+            }
+        } catch (SQLException | IllegalArgumentException e) {
+            throw new DatabaseException("Failed to retrieve invite links by nickname", e);
+        }
+    }
+
+    @Override
+    public int countActiveInvitesByNickname(String nickname) throws DatabaseException {
+        try (Connection conn = dataSource.getConnection();
+             PreparedStatement stmt = conn.prepareStatement("""
+             SELECT COUNT(*) FROM invite_tokens
+             WHERE nickname = ? AND expires_at > NOW()
+         """)) {
+
+            stmt.setString(1, nickname);
+
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1);
+                }
+                return 0;
+            }
+        } catch (SQLException e) {
+            throw new DatabaseException("Failed to count active invites by nickname", e);
         }
     }
 }

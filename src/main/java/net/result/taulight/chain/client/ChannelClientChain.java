@@ -5,6 +5,7 @@ import net.result.sandnode.error.ServerErrorManager;
 import net.result.sandnode.exception.*;
 import net.result.sandnode.exception.error.SandnodeErrorException;
 import net.result.sandnode.message.RawMessage;
+import net.result.sandnode.message.TextMessage;
 import net.result.sandnode.message.types.ErrorMessage;
 import net.result.sandnode.message.types.HappyMessage;
 import net.result.sandnode.message.util.MessageTypes;
@@ -19,9 +20,9 @@ public class ChannelClientChain extends ClientChain {
         super(io);
     }
 
-    public synchronized UUID sendNewChannelRequest(String title) throws InterruptedException, ExpectedMessageException,
-            UnknownSandnodeErrorException, SandnodeErrorException, DeserializationException,
-            UnprocessedMessagesException {
+    public synchronized UUID sendNewChannelRequest(String title)
+            throws InterruptedException, ExpectedMessageException, UnknownSandnodeErrorException,
+            SandnodeErrorException, DeserializationException, UnprocessedMessagesException {
         send(ChannelRequest.newChannel(title));
         RawMessage raw = queue.take();
 
@@ -46,9 +47,9 @@ public class ChannelClientChain extends ClientChain {
         new HappyMessage(raw);
     }
 
-    public synchronized void sendAddMemberRequest(UUID chatID, String otherNickname)
+    public synchronized String addMemberLink(UUID chatID, String otherNickname)
             throws InterruptedException, SandnodeErrorException, ExpectedMessageException,
-            UnknownSandnodeErrorException, UnprocessedMessagesException {
+            UnknownSandnodeErrorException, UnprocessedMessagesException, InvalidSandnodeLinkException {
         send(ChannelRequest.addMember(chatID, otherNickname));
         RawMessage raw = queue.take();
         if (raw.headers().type() == MessageTypes.ERR) {
@@ -56,6 +57,6 @@ public class ChannelClientChain extends ClientChain {
             ServerErrorManager.instance().throwAll(errorMessage.error);
         }
 
-        new HappyMessage(raw);
+        return new TextMessage(raw).content();
     }
 }

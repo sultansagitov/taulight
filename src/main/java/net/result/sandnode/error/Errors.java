@@ -12,6 +12,7 @@ public enum Errors implements SandnodeError {
     TOO_FEW_ARGS(1002, "Too few arguments"),
     WRONG_ADDRESS(1003, "Wrong address"),
     UNHANDLED_MESSAGE_TYPE(1004, "Unknown message type"),
+    NOT_FOUND(1005, "Not found"),
 
     // Encryption-related errors
     INCORRECT_ENCRYPTION(2000, "Incorrect encryption"),
@@ -20,14 +21,13 @@ public enum Errors implements SandnodeError {
     DECRYPT(2003, "Decryption"),
     KEY_NOT_FOUND(2004, "Key not found"),
 
-    // Member-related errors
+    // Member-related errors,
     INVALID_TOKEN(3000, "Invalid token"),
     EXPIRED_TOKEN(3001, "Expired token"),
-    MEMBER_NOT_FOUND(3002, "Member not found"),
-    INVALID_NICKNAME_OR_PASSWORD(3003, "Invalid nickname or password"),
-    BUSY_NICKNAME(3004, "Nickname is already in use"),
-    UNAUTHORIZED(3005, "Member unauthorized"),
-    ADDRESSED_MEMBER_NOT_FOUND(3006, "Addressed member not found");
+    INVALID_NICKNAME_OR_PASSWORD(3002, "Invalid nickname or password"),
+    BUSY_NICKNAME(3003, "Nickname is already in use"),
+    UNAUTHORIZED(3004, "Member unauthorized"),
+    ADDRESSED_MEMBER_NOT_FOUND(3005, "Addressed member not found");
 
     private final int code;
     private final String desc;
@@ -61,6 +61,7 @@ public enum Errors implements SandnodeError {
                 case TOO_FEW_ARGS -> throw new TooFewArgumentsException();
                 case WRONG_ADDRESS -> throw new WrongAddressException();
                 case UNHANDLED_MESSAGE_TYPE -> throw new UnhandledMessageTypeException();
+                case NOT_FOUND -> throw new NotFoundException();
 
                 case INCORRECT_ENCRYPTION -> throw new IncorrectEncryptionException();
                 case UNKNOWN_ENCRYPTION -> throw new UnknownEncryptionException();
@@ -70,7 +71,6 @@ public enum Errors implements SandnodeError {
 
                 case INVALID_TOKEN -> throw new InvalidTokenException();
                 case EXPIRED_TOKEN -> throw new ExpiredTokenException();
-                case MEMBER_NOT_FOUND -> throw new MemberNotFoundException();
                 case INVALID_NICKNAME_OR_PASSWORD -> throw new InvalidNicknamePassword();
                 case BUSY_NICKNAME -> throw new BusyNicknameException();
                 case UNAUTHORIZED -> throw new UnauthorizedException();

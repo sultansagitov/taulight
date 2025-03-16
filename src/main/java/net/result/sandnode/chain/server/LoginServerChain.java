@@ -54,7 +54,7 @@ public class LoginServerChain extends ServerChain implements ReceiverChain {
         }
 
         if (opt.isEmpty()) {
-            sendFin(Errors.MEMBER_NOT_FOUND.createMessage());
+            sendFin(Errors.UNAUTHORIZED.createMessage());
             return;
         }
 

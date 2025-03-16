@@ -2,35 +2,32 @@ package net.result.taulight.chain.server;
 
 import net.result.sandnode.chain.ReceiverChain;
 import net.result.sandnode.chain.server.ServerChain;
-import net.result.sandnode.exception.DatabaseException;
-import net.result.sandnode.exception.ImpossibleRuntimeException;
-import net.result.sandnode.exception.UnprocessedMessagesException;
+import net.result.sandnode.exception.*;
+import net.result.sandnode.exception.error.TooFewArgumentsException;
 import net.result.sandnode.exception.error.UnauthorizedException;
+import net.result.sandnode.message.TextMessage;
 import net.result.sandnode.message.util.Headers;
 import net.result.sandnode.message.util.MessageTypes;
+import net.result.taulight.db.*;
 import net.result.taulight.exception.AlreadyExistingRecordException;
 import net.result.taulight.SysMessages;
 import net.result.taulight.TauAgentProtocol;
 import net.result.taulight.TauHubProtocol;
-import net.result.taulight.db.ChatMessage;
-import net.result.taulight.db.TauDatabase;
 import net.result.sandnode.db.Member;
 import net.result.sandnode.error.Errors;
-import net.result.sandnode.exception.DeserializationException;
 import net.result.taulight.exception.error.MessageNotForwardedException;
 import net.result.taulight.group.TauGroupManager;
 import net.result.sandnode.message.types.HappyMessage;
 import net.result.sandnode.serverclient.Session;
 import net.result.taulight.error.TauErrors;
-import net.result.taulight.group.TauChatGroup;
+import net.result.taulight.message.TauMessageTypes;
 import net.result.taulight.message.types.ChannelRequest;
-import net.result.taulight.db.TauChannel;
-import net.result.taulight.db.TauChat;
 import net.result.taulight.message.types.UUIDMessage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
 
+import java.time.ZonedDateTime;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -42,16 +39,16 @@ public class ChannelServerChain extends ServerChain implements ReceiverChain {
     }
 
     @Override
-    public void sync() throws InterruptedException, DeserializationException, UnprocessedMessagesException {
+    public void sync() throws InterruptedException, DeserializationException, UnprocessedMessagesException,
+            TooFewArgumentsException, ExpectedMessageException {
         ChannelRequest request = new ChannelRequest(queue.take());
-        ChannelRequest.DataType type = request.object.type;
 
-        if (type == null) {
+        if (request.type == null) {
             sendFin(Errors.TOO_FEW_ARGS.createMessage());
             return;
         }
 
-        switch (type) {
+        switch (request.type) {
             case NEW -> NEW(request);
             case ADD -> ADD(request);
             case LEAVE -> LEAVE(request);
@@ -62,7 +59,7 @@ public class ChannelServerChain extends ServerChain implements ReceiverChain {
         TauDatabase database = (TauDatabase) session.server.serverConfig.database();
         TauGroupManager manager = (TauGroupManager) session.server.serverConfig.groupManager();
 
-        String title = request.object.title;
+        String title = request.title;
 
         if (title == null) {
             sendFin(Errors.TOO_FEW_ARGS.createMessage());
@@ -103,16 +100,15 @@ public class ChannelServerChain extends ServerChain implements ReceiverChain {
     }
 
     private void ADD(@NotNull ChannelRequest request) throws UnprocessedMessagesException, InterruptedException {
-        TauDatabase database = (TauDatabase) session.server.serverConfig.database();
-        TauGroupManager manager = (TauGroupManager) session.server.serverConfig.groupManager();
-
-        UUID chatID = request.getChatID();
-        String otherNickname = request.getOtherNickname();
-
-        if (chatID == null || otherNickname == null) {
-            sendFin(Errors.TOO_FEW_ARGS.createMessage());
+        if (session.member == null) {
+            sendFin(Errors.UNAUTHORIZED.createMessage());
             return;
         }
+
+        TauDatabase database = (TauDatabase) session.member.database();
+
+        UUID chatID = request.chatID;
+        String otherNickname = request.otherNickname;
 
         Optional<TauChat> optChat;
         Optional<Member> optMember;
@@ -142,45 +138,31 @@ public class ChannelServerChain extends ServerChain implements ReceiverChain {
             return;
         }
 
+        //TODO add settings for inviting by another members
         if (!channel.owner().equals(session.member)) {
             sendFin(Errors.UNAUTHORIZED.createMessage());
             return;
         }
 
+        ZonedDateTime expiresDate = ZonedDateTime.now().plusDays(1);
+        InviteToken token = new InviteToken(database, expiresDate, member.nickname(), channel.id());
+
         try {
-            channel.addMember(member);
+            token.save();
         } catch (DatabaseException e) {
-            LOGGER.error(e);
+            LOGGER.error("Error while saving invite token", e);
             sendFin(Errors.SERVER_ERROR.createMessage());
             return;
         }
 
-        TauChatGroup tauChatGroup = manager.getGroup(channel);
-        TauAgentProtocol.addMemberToGroup(session, member, tauChatGroup);
-
-        ChatMessage chatMessage = SysMessages.channelAdd.chatMessage(channel, member);
-
-        try {
-            TauHubProtocol.send(session, channel, chatMessage);
-        } catch (UnauthorizedException e) {
-            throw new ImpossibleRuntimeException(e);
-        } catch (DatabaseException | MessageNotForwardedException e) {
-            LOGGER.warn("Exception when sending system message of adding member: {}", e.getMessage());
-        }
-
-        send(new HappyMessage());
+        sendFin(new TextMessage(new Headers().setType(TauMessageTypes.CHANNEL), token.getRejectCode()));
     }
 
     private void LEAVE(@NotNull ChannelRequest request) throws UnprocessedMessagesException, InterruptedException {
         TauDatabase database = (TauDatabase) session.server.serverConfig.database();
         TauGroupManager manager = (TauGroupManager) session.server.serverConfig.groupManager();
 
-        UUID chatID = request.object.chatID;
-
-        if (chatID == null) {
-            sendFin(Errors.TOO_FEW_ARGS.createMessage());
-            return;
-        }
+        UUID chatID = request.chatID;
 
         Optional<TauChat> optChat;
         try {
