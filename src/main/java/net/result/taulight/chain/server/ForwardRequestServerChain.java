@@ -14,7 +14,7 @@ import net.result.taulight.db.ServerChatMessage;
 import net.result.taulight.db.TauDatabase;
 import net.result.taulight.error.TauErrors;
 import net.result.taulight.db.ChatMessage;
-import net.result.taulight.exception.error.MessageNotForwardedException;
+import net.result.sandnode.exception.error.NoEffectException;
 import net.result.taulight.message.types.ForwardRequest;
 import net.result.taulight.db.TauChat;
 import net.result.taulight.message.types.UUIDMessage;
@@ -97,9 +97,9 @@ public class ForwardRequestServerChain extends ServerChain implements ReceiverCh
                 LOGGER.error("Database error: {}", e.getMessage(), e);
                 send(Errors.SERVER_ERROR.createMessage());
                 continue;
-            } catch (MessageNotForwardedException e) {
+            } catch (NoEffectException e) {
                 LOGGER.error("Message forwarding failed for chat: {}", chatID, e);
-                send(TauErrors.MESSAGE_NOT_FORWARDED.createMessage());
+                send(Errors.NO_EFFECT.createMessage());
                 continue;
             }
 

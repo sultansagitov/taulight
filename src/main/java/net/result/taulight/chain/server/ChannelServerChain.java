@@ -15,7 +15,7 @@ import net.result.taulight.TauAgentProtocol;
 import net.result.taulight.TauHubProtocol;
 import net.result.sandnode.db.Member;
 import net.result.sandnode.error.Errors;
-import net.result.taulight.exception.error.MessageNotForwardedException;
+import net.result.sandnode.exception.error.NoEffectException;
 import net.result.taulight.group.TauGroupManager;
 import net.result.sandnode.message.types.HappyMessage;
 import net.result.sandnode.serverclient.Session;
@@ -92,7 +92,7 @@ public class ChannelServerChain extends ServerChain implements ReceiverChain {
             TauHubProtocol.send(session, channel, chatMessage);
         } catch (UnauthorizedException e) {
             throw new ImpossibleRuntimeException(e);
-        } catch (DatabaseException | MessageNotForwardedException e) {
+        } catch (DatabaseException | NoEffectException e) {
             LOGGER.warn("Exception when sending system message of creating channel {}", e.getMessage());
         }
 
@@ -145,7 +145,7 @@ public class ChannelServerChain extends ServerChain implements ReceiverChain {
         }
 
         ZonedDateTime expiresDate = ZonedDateTime.now().plusDays(1);
-        InviteToken token = new InviteToken(database, expiresDate, member.nickname(), channel.id());
+        InviteToken token = new InviteToken(database, channel, member, session.member, expiresDate);
 
         try {
             token.save();
@@ -203,7 +203,7 @@ public class ChannelServerChain extends ServerChain implements ReceiverChain {
             TauHubProtocol.send(session, channel, chatMessage);
         } catch (UnauthorizedException e) {
             throw new ImpossibleRuntimeException(e);
-        } catch (DatabaseException | MessageNotForwardedException e) {
+        } catch (DatabaseException | NoEffectException e) {
             LOGGER.warn("Exception when sending system message of leaving member: {}", e.getMessage());
         }
 

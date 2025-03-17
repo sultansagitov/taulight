@@ -12,7 +12,7 @@ import net.result.taulight.db.ChatMessage;
 import net.result.taulight.db.TauChat;
 import net.result.taulight.db.ServerChatMessage;
 import net.result.taulight.exception.AlreadyExistingRecordException;
-import net.result.taulight.exception.error.MessageNotForwardedException;
+import net.result.sandnode.exception.error.NoEffectException;
 import net.result.taulight.group.TauGroupManager;
 import net.result.taulight.message.types.ForwardResponse;
 import org.apache.logging.log4j.LogManager;
@@ -25,7 +25,8 @@ public class TauHubProtocol {
     private static final Logger LOGGER = LogManager.getLogger(TauHubProtocol.class);
 
     public static ServerChatMessage send(Session session, TauChat chat, ChatMessage chatMessage)
-            throws InterruptedException, DatabaseException, MessageNotForwardedException, UnprocessedMessagesException, UnauthorizedException {
+            throws InterruptedException, DatabaseException, NoEffectException, UnprocessedMessagesException,
+            UnauthorizedException {
         if (session.member == null) {
             throw new UnauthorizedException();
         }
@@ -46,7 +47,7 @@ public class TauHubProtocol {
             }
         }
         Collection<Session> sessions = manager.getGroup(chat).getSessions();
-        if (sessions.isEmpty()) throw new MessageNotForwardedException();
+        if (sessions.isEmpty()) throw new NoEffectException();
 
         for (Session s : sessions) {
             ForwardResponse request = new ForwardResponse(serverMessage);

@@ -91,8 +91,11 @@ public class TauMariaDBDatabase extends SandnodeMariaDBDatabase implements TauDa
                 chat_id BINARY(16) NOT NULL,
                 reject_code VARCHAR(255) NOT NULL UNIQUE,
                 created_at TIMESTAMP NOT NULL,
+                sender_nickname VARCHAR(255) NOT NULL,
+                activated_at TIMESTAMP NULL,
                 FOREIGN KEY (chat_id) REFERENCES chats(chat_id) ON DELETE CASCADE,
-                FOREIGN KEY (nickname) REFERENCES members(nickname)
+                FOREIGN KEY (nickname) REFERENCES members(nickname),
+                FOREIGN KEY (sender_nickname) REFERENCES members(nickname)
             )
         """);
 
@@ -573,8 +576,8 @@ public class TauMariaDBDatabase extends SandnodeMariaDBDatabase implements TauDa
 
                 try (PreparedStatement stmt = conn.prepareStatement("""
                     INSERT INTO invite_tokens
-                    (token_id, expires_at, nickname, chat_id, reject_code, created_at)
-                    VALUES (?, ?, ?, ?, ?, ?)
+                    (token_id, expires_at, nickname, chat_id, reject_code, created_at, sender_nickname, activated_at)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, NULL)
                 """)) {
                     stmt.setBytes(1, tokenId);
                     stmt.setTimestamp(2, Timestamp.from(inviteToken.getExpiresData().toInstant()));
@@ -582,6 +585,7 @@ public class TauMariaDBDatabase extends SandnodeMariaDBDatabase implements TauDa
                     stmt.setBytes(4, chatId);
                     stmt.setString(5, inviteToken.getRejectCode());
                     stmt.setTimestamp(6, Timestamp.from(inviteToken.getCreationDate().toInstant()));
+                    stmt.setString(7, inviteToken.getSenderNickname());
 
                     stmt.executeUpdate();
                 } catch (SQLIntegrityConstraintViolationException e) {
@@ -598,6 +602,9 @@ public class TauMariaDBDatabase extends SandnodeMariaDBDatabase implements TauDa
                     } else if (errorMessage.contains("chat_id")) {
                         throw new AlreadyExistingRecordException(
                                 "Invite Tokens", "chat_id", inviteToken.getChatID(), e);
+                    } else if (errorMessage.contains("sender_nickname")) {
+                        throw new AlreadyExistingRecordException(
+                                "Invite Tokens", "sender_nickname", inviteToken.getSenderNickname(), e);
                     } else {
                         throw new AlreadyExistingRecordException("Invite Tokens", e);
                     }
@@ -617,12 +624,14 @@ public class TauMariaDBDatabase extends SandnodeMariaDBDatabase implements TauDa
 
     @Override
     public Optional<InviteToken> getInviteToken(String rejectCode) throws DatabaseException {
-        try (Connection conn = dataSource.getConnection();
-             PreparedStatement stmt = conn.prepareStatement("""
-             SELECT token_id, expires_at, nickname, chat_id, created_at
-             FROM invite_tokens
-             WHERE reject_code = ?
-         """)) {
+        try (
+                Connection conn = dataSource.getConnection();
+                PreparedStatement stmt = conn.prepareStatement("""
+                    SELECT token_id, expires_at, nickname, chat_id, created_at, sender_nickname, activated_at
+                    FROM invite_tokens
+                    WHERE reject_code = ?
+                """)
+        ) {
 
             stmt.setString(1, rejectCode);
 
@@ -644,14 +653,38 @@ public class TauMariaDBDatabase extends SandnodeMariaDBDatabase implements TauDa
                             .getTimestamp("created_at").toInstant()
                             .atZone(ZonedDateTime.now().getZone());
 
+                    String senderId = rs.getString("sender_nickname");
+
+                    Timestamp activatedTimestamp = rs.getTimestamp("activated_at");
+                    ZonedDateTime activatedAt = activatedTimestamp != null ?
+                            activatedTimestamp.toInstant().atZone(ZonedDateTime.now().getZone()) : null;
+
                     return Optional.of(new InviteToken(
-                            this, tokenId, createdAt, expiresAt, nickname, chatId, rejectCode
+                            this, tokenId, createdAt, rejectCode, chatId, nickname, senderId, expiresAt, activatedAt
                     ));
                 }
                 return Optional.empty();
             }
         } catch (SQLException | IllegalArgumentException e) {
             throw new DatabaseException("Failed to retrieve invite link", e);
+        }
+    }
+
+    @Override
+    public boolean activateInviteToken(InviteToken token) throws DatabaseException {
+        try (Connection conn = dataSource.getConnection();
+             PreparedStatement stmt = conn.prepareStatement("""
+                 UPDATE invite_tokens
+                 SET activated_at = NOW()
+                 WHERE reject_code = ? AND activated_at IS NULL
+             """)) {
+
+            stmt.setString(1, token.getRejectCode());
+            int updated = stmt.executeUpdate();
+
+            return updated > 0;
+        } catch (SQLException e) {
+            throw new DatabaseException("Failed to activate invite link", e);
         }
     }
 
@@ -670,6 +703,68 @@ public class TauMariaDBDatabase extends SandnodeMariaDBDatabase implements TauDa
     }
 
     @Override
+    public List<InviteToken> getInviteTokensBySender(
+            String senderNickname,
+            boolean includeExpired,
+            boolean includeActivated
+    ) throws DatabaseException {
+        try (Connection conn = dataSource.getConnection()) {
+            StringBuilder queryBuilder = new StringBuilder("""
+                SELECT token_id, expires_at, nickname, chat_id, reject_code, created_at, activated_at
+                FROM invite_tokens
+                WHERE sender_nickname = ?
+            """);
+
+            if (!includeExpired) {
+                queryBuilder.append(" AND expires_at > NOW()");
+            }
+
+            if (!includeActivated) {
+                queryBuilder.append(" AND activated_at IS NULL");
+            }
+
+            try (PreparedStatement stmt = conn.prepareStatement(queryBuilder.toString())) {
+                stmt.setString(1, senderNickname);
+
+                List<InviteToken> tokens = new ArrayList<>();
+                try (ResultSet rs = stmt.executeQuery()) {
+                    while (rs.next()) {
+                        byte[] tokenIdBin = rs.getBytes("token_id");
+                        UUID tokenId = UUIDUtil.binaryToUUID(tokenIdBin);
+
+                        ZonedDateTime expiresAt = rs
+                                .getTimestamp("expires_at").toInstant()
+                                .atZone(ZonedDateTime.now().getZone());
+
+                        String nickname = rs.getString("nickname");
+
+                        byte[] chatIdBin = rs.getBytes("chat_id");
+                        UUID chatId = UUIDUtil.binaryToUUID(chatIdBin);
+
+                        String rejectCode = rs.getString("reject_code");
+
+                        ZonedDateTime createdAt = rs
+                                .getTimestamp("created_at").toInstant()
+                                .atZone(ZonedDateTime.now().getZone());
+
+                        Timestamp activatedTimestamp = rs.getTimestamp("activated_at");
+                        ZonedDateTime activatedAt = activatedTimestamp != null ?
+                                activatedTimestamp.toInstant().atZone(ZonedDateTime.now().getZone()) : null;
+
+                        InviteToken token = new InviteToken(this, tokenId, createdAt, rejectCode, chatId, nickname, senderNickname, expiresAt,
+                                activatedAt);
+                        tokens.add(token);
+                    }
+                }
+                return tokens;
+            }
+        } catch (SQLException | IllegalArgumentException e) {
+            throw new DatabaseException("Failed to retrieve invite links by sender", e);
+        }
+    }
+
+
+    @Override
     public List<InviteToken> getActiveInviteToken(TauChannel channel) throws DatabaseException {
         UUID chatID = channel.id();
 
@@ -677,7 +772,7 @@ public class TauMariaDBDatabase extends SandnodeMariaDBDatabase implements TauDa
             byte[] chatIDBin = UUIDUtil.uuidToBinary(chatID);
 
             try (PreparedStatement stmt = conn.prepareStatement("""
-                SELECT token_id, expires_at, nickname, reject_code, created_at
+                SELECT token_id, expires_at, nickname, sender_nickname, reject_code, created_at, activated_at
                 FROM invite_tokens
                 WHERE chat_id = ? AND expires_at > NOW()
                 ORDER BY expires_at DESC
@@ -695,13 +790,20 @@ public class TauMariaDBDatabase extends SandnodeMariaDBDatabase implements TauDa
                                 .atZone(ZonedDateTime.now().getZone());
 
                         String nickname = rs.getString("nickname");
+                        String senderNickname = rs.getString("sender_nickname");
                         String rejectCode = rs.getString("reject_code");
 
                         ZonedDateTime createdAt = rs
                                 .getTimestamp("created_at").toInstant()
                                 .atZone(ZonedDateTime.now().getZone());
 
-                        tokens.add(new InviteToken(this, tokenId, createdAt, expiresAt, nickname, chatID, rejectCode));
+                        ZonedDateTime activatedAt = rs
+                                .getTimestamp("activated_at").toInstant()
+                                .atZone(ZonedDateTime.now().getZone());
+
+                        InviteToken token = new InviteToken(this, tokenId, createdAt, rejectCode, chatID, nickname, senderNickname, expiresAt,
+                                activatedAt);
+                        tokens.add(token);
                     }
                 }
                 return tokens;
@@ -727,7 +829,7 @@ public class TauMariaDBDatabase extends SandnodeMariaDBDatabase implements TauDa
     public List<InviteToken> getInviteLinksByNickname(String nickname) throws DatabaseException {
         try (Connection conn = dataSource.getConnection()) {
             try (PreparedStatement stmt = conn.prepareStatement("""
-                SELECT token_id, expires_at, chat_id, reject_code, created_at
+                SELECT token_id, expires_at, chat_id, sender_nickname, reject_code, created_at, activated_at
                 FROM invite_tokens
                 WHERE nickname = ? AND expires_at > NOW()
             """)) {
@@ -746,15 +848,20 @@ public class TauMariaDBDatabase extends SandnodeMariaDBDatabase implements TauDa
                         byte[] chatIdBin = rs.getBytes("chat_id");
                         UUID chatId = UUIDUtil.binaryToUUID(chatIdBin);
 
+                        String senderNickname = rs.getString("sender_nickname");
                         String rejectCode = rs.getString("reject_code");
 
                         ZonedDateTime createdAt = rs
                                 .getTimestamp("created_at").toInstant()
                                 .atZone(ZonedDateTime.now().getZone());
 
-                        tokens.add(new InviteToken(
-                                this, tokenId, createdAt, expiresAt, nickname, chatId, rejectCode
-                        ));
+                        ZonedDateTime activatedAt = rs
+                                .getTimestamp("activated_at").toInstant()
+                                .atZone(ZonedDateTime.now().getZone());
+
+                        InviteToken token = new InviteToken(this, tokenId, createdAt, rejectCode, chatId, nickname, senderNickname, expiresAt,
+                                activatedAt);
+                        tokens.add(token);
                     }
                 }
                 return tokens;

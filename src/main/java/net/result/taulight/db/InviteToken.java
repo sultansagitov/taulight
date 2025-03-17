@@ -1,8 +1,10 @@
 package net.result.taulight.db;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import net.result.sandnode.db.Member;
 import net.result.sandnode.exception.DatabaseException;
 import net.result.taulight.exception.AlreadyExistingRecordException;
+import org.jetbrains.annotations.Nullable;
 
 import java.security.SecureRandom;
 import java.time.ZonedDateTime;
@@ -19,27 +21,36 @@ public class InviteToken extends TaulightObject {
     private UUID chatID;
     @JsonProperty("reject-code")
     private String rejectCode;
+    @JsonProperty("sender-nickname")
+    private String senderNickname;
+    @JsonProperty("activated-at")
+    private @Nullable ZonedDateTime activatedAt;
 
     @SuppressWarnings("unused")
     public InviteToken() {
         super();
     }
 
-    public InviteToken(TauDatabase database, ZonedDateTime expiresDate, String nickname, UUID chatID) {
+    public InviteToken(TauDatabase database, TauChat chat, Member member, Member sender, ZonedDateTime expiresDate) {
         super(database);
-        this.expiresDate = expiresDate;
-        this.nickname = nickname;
-        this.chatID = chatID;
         setRandomRejectCode();
+        this.chatID = chat.id();
+        this.nickname = member.nickname();
+        this.senderNickname = sender.nickname();
+        this.expiresDate = expiresDate;
+        this.activatedAt = null;
     }
 
     public InviteToken(TauDatabase database, UUID id, ZonedDateTime createdAt,
-                       ZonedDateTime expiresDate, String nickname, UUID chatID, String rejectCode) {
+                       String rejectCode, UUID chatID, String nickname, String senderNickname,
+                       ZonedDateTime expiresDate, @Nullable ZonedDateTime activatedAt) {
         super(database, id, createdAt);
         this.expiresDate = expiresDate;
         this.nickname = nickname;
         this.chatID = chatID;
         this.rejectCode = rejectCode;
+        this.senderNickname = senderNickname;
+        this.activatedAt = activatedAt;
     }
 
     public void setRandomRejectCode() {
@@ -52,13 +63,16 @@ public class InviteToken extends TaulightObject {
     public void save() throws DatabaseException {
         while (true) {
             try {
-                setRandomID();
-                setRandomRejectCode();
                 database().createInviteToken(this);
                 return;
             } catch (AlreadyExistingRecordException ignored) {
+                setRandomRejectCode();
             }
         }
+    }
+
+    public boolean activate() throws DatabaseException {
+        return database().activateInviteToken(this);
     }
 
     public ZonedDateTime getExpiresData() {
@@ -75,5 +89,13 @@ public class InviteToken extends TaulightObject {
 
     public String getRejectCode() {
         return rejectCode;
+    }
+
+    public String getSenderNickname() {
+        return senderNickname;
+    }
+
+    public ZonedDateTime getActivationDate() {
+        return activatedAt;
     }
 }

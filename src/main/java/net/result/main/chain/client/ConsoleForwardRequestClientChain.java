@@ -12,7 +12,7 @@ import net.result.sandnode.util.IOController;
 import net.result.sandnode.chain.client.ClientChain;
 import net.result.taulight.db.ChatMessage;
 import net.result.taulight.exception.error.ChatNotFoundException;
-import net.result.taulight.exception.error.MessageNotForwardedException;
+import net.result.sandnode.exception.error.NoEffectException;
 import net.result.taulight.message.types.ForwardRequest;
 import net.result.taulight.message.types.UUIDMessage;
 
@@ -78,7 +78,7 @@ public class ConsoleForwardRequestClientChain extends ClientChain {
         } catch (ChatNotFoundException e) {
             System.out.printf("Chat %s was not found%n", cc.currentChat);
             return false;
-        } catch (MessageNotForwardedException e) {
+        } catch (NoEffectException e) {
             System.out.println("Message not forwarded");
             return false;
         } catch (UnknownSandnodeErrorException | SandnodeErrorException e) {

@@ -7,12 +7,13 @@ import net.result.sandnode.error.Errors;
 import net.result.sandnode.exception.DatabaseException;
 import net.result.sandnode.exception.ExpectedMessageException;
 import net.result.sandnode.exception.UnprocessedMessagesException;
+import net.result.sandnode.exception.error.UnauthorizedException;
 import net.result.sandnode.message.types.HappyMessage;
 import net.result.sandnode.serverclient.Session;
-import net.result.taulight.db.InviteToken;
-import net.result.taulight.db.TauChannel;
-import net.result.taulight.db.TauChat;
-import net.result.taulight.db.TauDatabase;
+import net.result.taulight.SysMessages;
+import net.result.taulight.TauHubProtocol;
+import net.result.taulight.db.*;
+import net.result.sandnode.exception.error.NoEffectException;
 import net.result.taulight.message.types.UseCodeRequest;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -87,13 +88,29 @@ public class UseCodeServerChain extends ServerChain  implements ReceiverChain {
         }
 
         if (!(chat.get() instanceof TauChannel channel)) {
-            LOGGER.error("Chat is channel");
+            LOGGER.error("Chat is not channel");
             sendFin(Errors.SERVER_ERROR.createMessage());
             return;
         }
 
         try {
-            channel.addMember(member.get());
+            if (inviteToken.get().activate()) {
+                channel.addMember(member.get());
+
+                ChatMessage chatMessage = SysMessages.channelAdd.chatMessage(channel, member.get());
+
+                try {
+                    TauHubProtocol.send(session, channel, chatMessage);
+                } catch (NoEffectException e) {
+                    LOGGER.warn("Exception when sending system message of creating channel {}", e.getMessage());
+                } catch (UnauthorizedException e) {
+                    sendFin(Errors.UNAUTHORIZED.createMessage());
+                    return;
+                }
+            } else {
+                sendFin(Errors.NO_EFFECT.createMessage());
+                return;
+            }
         } catch (DatabaseException e) {
             LOGGER.error(e);
             sendFin(Errors.SERVER_ERROR.createMessage());

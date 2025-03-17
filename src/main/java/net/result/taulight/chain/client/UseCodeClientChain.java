@@ -18,7 +18,8 @@ public class UseCodeClientChain extends ClientChain {
         super(io);
     }
 
-    public void use(String code) throws InterruptedException, UnprocessedMessagesException, ExpectedMessageException, UnknownSandnodeErrorException, SandnodeErrorException {
+    public void use(String code) throws InterruptedException, UnprocessedMessagesException, ExpectedMessageException,
+            UnknownSandnodeErrorException, SandnodeErrorException {
         UseCodeRequest request = new UseCodeRequest(code);
         send(request);
 

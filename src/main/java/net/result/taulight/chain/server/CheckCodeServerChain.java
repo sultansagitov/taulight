@@ -60,7 +60,8 @@ public class CheckCodeServerChain extends ServerChain implements ReceiverChain {
             return;
         }
 
-        CheckCodeResponse response = new CheckCodeResponse(new InviteTauCode(channel.title(), it.getExpiresData()));
+        InviteTauCode code = new InviteTauCode(it, channel.title(), it.getNickname(), it.getSenderNickname());
+        CheckCodeResponse response = new CheckCodeResponse(code);
         sendFin(response);
     }
 }

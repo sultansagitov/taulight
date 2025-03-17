@@ -18,8 +18,8 @@ public class WhoAmIClientChain extends ClientChain {
         super(io);
     }
 
-    public synchronized String getUserID() throws InterruptedException, ExpectedMessageException, UnknownSandnodeErrorException,
-            SandnodeErrorException, UnprocessedMessagesException {
+    public synchronized String getUserID() throws InterruptedException, ExpectedMessageException,
+            UnknownSandnodeErrorException, SandnodeErrorException, UnprocessedMessagesException {
         send(new WhoAmIRequest());
         RawMessage raw = queue.take();
 

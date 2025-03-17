@@ -13,6 +13,7 @@ public enum Errors implements SandnodeError {
     WRONG_ADDRESS(1003, "Wrong address"),
     UNHANDLED_MESSAGE_TYPE(1004, "Unknown message type"),
     NOT_FOUND(1005, "Not found"),
+    NO_EFFECT(1006, "No effect"),
 
     // Encryption-related errors
     INCORRECT_ENCRYPTION(2000, "Incorrect encryption"),
@@ -62,6 +63,7 @@ public enum Errors implements SandnodeError {
                 case WRONG_ADDRESS -> throw new WrongAddressException();
                 case UNHANDLED_MESSAGE_TYPE -> throw new UnhandledMessageTypeException();
                 case NOT_FOUND -> throw new NotFoundException();
+                case NO_EFFECT -> throw new NoEffectException();
 
                 case INCORRECT_ENCRYPTION -> throw new IncorrectEncryptionException();
                 case UNKNOWN_ENCRYPTION -> throw new UnknownEncryptionException();

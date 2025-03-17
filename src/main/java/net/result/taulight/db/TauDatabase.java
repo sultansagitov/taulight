@@ -40,7 +40,15 @@ public interface TauDatabase extends Database {
 
     Optional<InviteToken> getInviteToken(String rejectCode) throws DatabaseException;
 
+    boolean activateInviteToken(InviteToken token) throws DatabaseException;
+
     boolean deleteInviteToken(String rejectCode) throws DatabaseException;
+
+    List<InviteToken> getInviteTokensBySender(
+            String senderNickname,
+            boolean includeExpired,
+            boolean includeActivated
+    ) throws DatabaseException;
 
     List<InviteToken> getActiveInviteToken(TauChannel channel) throws DatabaseException;
 

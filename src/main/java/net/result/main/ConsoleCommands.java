@@ -16,6 +16,7 @@ import net.result.taulight.code.InviteTauCode;
 import net.result.taulight.code.TauCode;
 import net.result.taulight.db.ServerChatMessage;
 import net.result.taulight.exception.error.ChatNotFoundException;
+import net.result.sandnode.exception.error.NoEffectException;
 import net.result.taulight.message.ChatInfo;
 import net.result.taulight.message.ChatInfoProp;
 import org.apache.logging.log4j.LogManager;
@@ -351,6 +352,9 @@ public class ConsoleCommands {
 
         } catch (NotFoundException e) {
             System.out.println("Code not found");
+
+        } catch (NoEffectException e) {
+            System.out.println("Code already activated");
 
         } catch (ExpectedMessageException | SandnodeErrorException | UnknownSandnodeErrorException e) {
 

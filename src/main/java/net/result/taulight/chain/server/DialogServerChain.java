@@ -19,7 +19,7 @@ import net.result.taulight.chain.client.DialogRequest;
 import net.result.taulight.db.ChatMessage;
 import net.result.taulight.db.TauDatabase;
 import net.result.taulight.db.TauDialog;
-import net.result.taulight.exception.error.MessageNotForwardedException;
+import net.result.sandnode.exception.error.NoEffectException;
 import net.result.taulight.group.TauGroupManager;
 import net.result.taulight.message.types.UUIDMessage;
 import org.apache.logging.log4j.LogManager;
@@ -69,7 +69,7 @@ public class DialogServerChain extends ServerChain implements ReceiverChain {
                     TauHubProtocol.send(session, dialog, chatMessage);
                 } catch (UnauthorizedException e) {
                     throw new ImpossibleRuntimeException(e);
-                } catch (DatabaseException | MessageNotForwardedException e) {
+                } catch (DatabaseException | NoEffectException e) {
                     LOGGER.warn("Ignored exception: {}", e.getMessage());
                 }
             }
