@@ -1,5 +1,6 @@
 package net.result.taulight.message.types;
 
+import net.result.sandnode.exception.ExpectedMessageException;
 import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.message.TextMessage;
 import net.result.sandnode.message.util.Headers;
@@ -15,8 +16,8 @@ public class CheckCodeRequest extends TextMessage {
         super(headers.setType(TauMessageTypes.CHECK_CODE), code);
     }
 
-    public CheckCodeRequest(RawMessage raw) {
-        super(raw);
+    public CheckCodeRequest(@NotNull RawMessage raw) throws ExpectedMessageException {
+        super(raw.expect(TauMessageTypes.CHECK_CODE));
     }
 
 }

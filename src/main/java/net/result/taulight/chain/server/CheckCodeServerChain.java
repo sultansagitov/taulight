@@ -4,8 +4,7 @@ import net.result.sandnode.chain.ReceiverChain;
 import net.result.sandnode.chain.server.ServerChain;
 import net.result.sandnode.error.Errors;
 import net.result.sandnode.exception.DatabaseException;
-import net.result.sandnode.exception.DeserializationException;
-import net.result.sandnode.exception.UnprocessedMessagesException;
+import net.result.sandnode.exception.SandnodeException;
 import net.result.sandnode.serverclient.Session;
 import net.result.taulight.code.InviteTauCode;
 import net.result.taulight.db.InviteToken;
@@ -23,7 +22,7 @@ public class CheckCodeServerChain extends ServerChain implements ReceiverChain {
     }
 
     @Override
-    public void sync() throws InterruptedException, DeserializationException, UnprocessedMessagesException {
+    public void sync() throws InterruptedException, SandnodeException {
         CheckCodeRequest request = new CheckCodeRequest(queue.take());
 
         if (session.member == null) {
