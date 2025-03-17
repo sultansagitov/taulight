@@ -7,6 +7,7 @@ import net.result.sandnode.exception.DatabaseException;
 import net.result.sandnode.exception.DeserializationException;
 import net.result.sandnode.exception.UnprocessedMessagesException;
 import net.result.sandnode.serverclient.Session;
+import net.result.taulight.code.InviteTauCode;
 import net.result.taulight.db.InviteToken;
 import net.result.taulight.db.TauChannel;
 import net.result.taulight.db.TauChat;
@@ -26,12 +27,12 @@ public class CodeServerChain extends ServerChain implements ReceiverChain {
         TauCodeRequest request = new TauCodeRequest(queue.take());
         String mode = request.headers()
                 .getOptionalValue("mode")
-                .orElseThrow(() -> new DeserializationException(""));//TODO write message
+                .orElseThrow(() -> new DeserializationException("Missing 'mode' header in request."));
 
-        switch (mode) {
+        switch (mode.toLowerCase()) {
             case "use" -> use(request);
             case "check" -> check(request);
-            default -> throw new DeserializationException(""); // Todo
+            default -> throw new DeserializationException("Invalid mode: %s".formatted(mode));
         }
     }
 
@@ -71,8 +72,7 @@ public class CodeServerChain extends ServerChain implements ReceiverChain {
             return;
         }
 
-        TauCodeResponse.Data data = new TauCodeResponse.Data(it, channel);
-        TauCodeResponse response = new TauCodeResponse(data);
+        TauCodeResponse response = new TauCodeResponse(new InviteTauCode(channel.title(), it.getExpiresData()));
         sendFin(response);
     }
 

@@ -12,18 +12,16 @@ import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.message.types.ErrorMessage;
 import net.result.sandnode.message.util.MessageTypes;
 import net.result.sandnode.util.IOController;
-import net.result.taulight.code.InviteTauCode;
+import net.result.taulight.code.TauCode;
 import net.result.taulight.message.types.TauCodeRequest;
 import net.result.taulight.message.types.TauCodeResponse;
-
-import java.time.ZonedDateTime;
 
 public class CodeClientChain extends ClientChain {
     public CodeClientChain(IOController io) {
         super(io);
     }
 
-    public InviteTauCode checkCode(String code) throws UnprocessedMessagesException, InterruptedException,
+    public TauCode checkCode(String code) throws UnprocessedMessagesException, InterruptedException,
             ExpectedMessageException, UnknownSandnodeErrorException, SandnodeErrorException, DeserializationException {
         send(TauCodeRequest.check(code));
         RawMessage raw = queue.take();
@@ -34,10 +32,6 @@ public class CodeClientChain extends ClientChain {
         }
 
         TauCodeResponse response = new TauCodeResponse(raw);
-        // TODO rewrite it
-        String title = response.object.title;
-        ZonedDateTime expiresData = response.object.expiresData;
-
-        return new InviteTauCode(title, expiresData);
+        return response.object;
     }
 }

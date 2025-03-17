@@ -13,6 +13,7 @@ import net.result.sandnode.message.types.ChainNameRequest;
 import net.result.sandnode.util.IOController;
 import net.result.taulight.chain.client.*;
 import net.result.taulight.code.InviteTauCode;
+import net.result.taulight.code.TauCode;
 import net.result.taulight.db.ServerChatMessage;
 import net.result.taulight.exception.error.ChatNotFoundException;
 import net.result.taulight.message.ChatInfo;
@@ -294,8 +295,6 @@ public class ConsoleCommands {
             io.chainManager.removeChain(chain);
             System.out.printf("Link for adding %s to %s%n", otherNickname, chatID);
             System.out.printf("%n%s%n%n", code);
-        } catch (InvalidSandnodeLinkException e) {
-            System.out.printf("Incorrect link for adding %s to %s%n", otherNickname, chatID);
         } catch (ChatNotFoundException e) {
             System.out.printf("Chat '%s' not found%n", chatID);
         } catch (AddressedMemberNotFoundException e) {
@@ -316,10 +315,12 @@ public class ConsoleCommands {
         try {
             var chain = new CodeClientChain(io);
             io.chainManager.linkChain(chain);
-            InviteTauCode c = chain.checkCode(code);
+            TauCode c = chain.checkCode(code);
             io.chainManager.removeChain(chain);
-            System.out.println("Invite");
-            System.out.printf("Title - %s, expire: %s%n", c.title(), c.expiresData());
+            if (c instanceof InviteTauCode invite) {
+                System.out.println("Invite");
+                System.out.printf("Title - %s, expire: %s%n", invite.title, invite.expiresData);
+            }
 
         } catch (NotFoundException e) {
             System.out.println("Code not found");

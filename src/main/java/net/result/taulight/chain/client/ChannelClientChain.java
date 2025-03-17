@@ -49,7 +49,7 @@ public class ChannelClientChain extends ClientChain {
 
     public synchronized String addMemberLink(UUID chatID, String otherNickname)
             throws InterruptedException, SandnodeErrorException, ExpectedMessageException,
-            UnknownSandnodeErrorException, UnprocessedMessagesException, InvalidSandnodeLinkException {
+            UnknownSandnodeErrorException, UnprocessedMessagesException {
         send(ChannelRequest.addMember(chatID, otherNickname));
         RawMessage raw = queue.take();
         if (raw.headers().type() == MessageTypes.ERR) {
