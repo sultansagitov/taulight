@@ -31,10 +31,11 @@ public class TauBSTServerChainManager extends BSTServerChainManager {
                 case CHANNEL -> new ChannelServerChain(session);
                 case DIALOG -> new DialogServerChain(session);
                 case FWD_REQ -> new ForwardRequestServerChain(session);
+                case FWD -> new UnhandledMessageTypeServerChain(session);
                 case MESSAGE -> new MessageServerChain(session);
                 case MEMBERS -> new MembersServerChain(session);
                 case CHECK_CODE -> new CheckCodeServerChain(session);
-                default -> new UnhandledMessageTypeServerChain(session);
+                case USE_CODE -> new UseCodeServerChain(session);
             };
         }
 

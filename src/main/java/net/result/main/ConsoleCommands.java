@@ -55,6 +55,7 @@ public class ConsoleCommands {
         commands.put("newChannel", this::newChannel);
         commands.put("addMember", this::addMember);
         commands.put("checkCode", this::checkCode);
+        commands.put("useCode", this::useCode);
         commands.put("leave", this::leave);
         commands.put("dialog", this::dialog);
         commands.put("messages", this::messages);
@@ -307,7 +308,8 @@ public class ConsoleCommands {
 
     private boolean checkCode(@NotNull List<String> args) throws InterruptedException, UnprocessedMessagesException {
         if (args.isEmpty()) {
-            System.out.println("Usage: useCode <code>");
+            System.out.println("Usage: checkCode <code>");
+            return false;
         }
 
         String code = args.get(0);
@@ -327,6 +329,30 @@ public class ConsoleCommands {
 
         } catch (ExpectedMessageException | SandnodeErrorException | UnknownSandnodeErrorException |
                  DeserializationException e) {
+
+            System.out.printf("Failed to check code - %s%n", e.getClass());
+        }
+        return false;
+    }
+
+    private boolean useCode(List<String> args) throws UnprocessedMessagesException, InterruptedException {
+        if (args.isEmpty()) {
+            System.out.println("Usage: useCode <code>");
+            return false;
+        }
+
+        String code = args.get(0);
+
+        try {
+            var chain = new UseCodeClientChain(io);
+            io.chainManager.linkChain(chain);
+            chain.use(code);
+            io.chainManager.removeChain(chain);
+
+        } catch (NotFoundException e) {
+            System.out.println("Code not found");
+
+        } catch (ExpectedMessageException | SandnodeErrorException | UnknownSandnodeErrorException e) {
 
             System.out.printf("Failed to check code - %s%n", e.getClass());
         }
