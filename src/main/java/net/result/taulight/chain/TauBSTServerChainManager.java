@@ -33,7 +33,7 @@ public class TauBSTServerChainManager extends BSTServerChainManager {
                 case FWD_REQ -> new ForwardRequestServerChain(session);
                 case MESSAGE -> new MessageServerChain(session);
                 case MEMBERS -> new MembersServerChain(session);
-                case CODE -> new CodeServerChain(session);
+                case CHECK_CODE -> new CheckCodeServerChain(session);
                 default -> new UnhandledMessageTypeServerChain(session);
             };
         }

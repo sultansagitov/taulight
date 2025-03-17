@@ -13,17 +13,17 @@ import net.result.sandnode.message.types.ErrorMessage;
 import net.result.sandnode.message.util.MessageTypes;
 import net.result.sandnode.util.IOController;
 import net.result.taulight.code.TauCode;
-import net.result.taulight.message.types.TauCodeRequest;
-import net.result.taulight.message.types.TauCodeResponse;
+import net.result.taulight.message.types.CheckCodeRequest;
+import net.result.taulight.message.types.CheckCodeResponse;
 
-public class CodeClientChain extends ClientChain {
-    public CodeClientChain(IOController io) {
+public class CheckCodeClientChain extends ClientChain {
+    public CheckCodeClientChain(IOController io) {
         super(io);
     }
 
-    public TauCode checkCode(String code) throws UnprocessedMessagesException, InterruptedException,
+    public TauCode check(String code) throws UnprocessedMessagesException, InterruptedException,
             ExpectedMessageException, UnknownSandnodeErrorException, SandnodeErrorException, DeserializationException {
-        send(TauCodeRequest.check(code));
+        send(new CheckCodeRequest(code));
         RawMessage raw = queue.take();
 
         if (raw.headers().type() == MessageTypes.ERR) {
@@ -31,7 +31,6 @@ public class CodeClientChain extends ClientChain {
             ServerErrorManager.instance().throwAll(error);
         }
 
-        TauCodeResponse response = new TauCodeResponse(raw);
-        return response.object;
+        return new CheckCodeResponse(raw).getCode();
     }
 }

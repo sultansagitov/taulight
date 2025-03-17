@@ -12,31 +12,20 @@ import net.result.taulight.db.InviteToken;
 import net.result.taulight.db.TauChannel;
 import net.result.taulight.db.TauChat;
 import net.result.taulight.db.TauDatabase;
-import net.result.taulight.message.types.TauCodeRequest;
-import net.result.taulight.message.types.TauCodeResponse;
+import net.result.taulight.message.types.CheckCodeRequest;
+import net.result.taulight.message.types.CheckCodeResponse;
 
 import java.util.Optional;
 
-public class CodeServerChain extends ServerChain implements ReceiverChain {
-    public CodeServerChain(Session session) {
+public class CheckCodeServerChain extends ServerChain implements ReceiverChain {
+    public CheckCodeServerChain(Session session) {
         super(session);
     }
 
     @Override
     public void sync() throws InterruptedException, DeserializationException, UnprocessedMessagesException {
-        TauCodeRequest request = new TauCodeRequest(queue.take());
-        String mode = request.headers()
-                .getOptionalValue("mode")
-                .orElseThrow(() -> new DeserializationException("Missing 'mode' header in request."));
+        CheckCodeRequest request = new CheckCodeRequest(queue.take());
 
-        switch (mode.toLowerCase()) {
-            case "use" -> use(request);
-            case "check" -> check(request);
-            default -> throw new DeserializationException("Invalid mode: %s".formatted(mode));
-        }
-    }
-
-    private void check(TauCodeRequest request) throws UnprocessedMessagesException, InterruptedException {
         if (session.member == null) {
             sendFin(Errors.UNAUTHORIZED.createMessage());
             return;
@@ -72,11 +61,7 @@ public class CodeServerChain extends ServerChain implements ReceiverChain {
             return;
         }
 
-        TauCodeResponse response = new TauCodeResponse(new InviteTauCode(channel.title(), it.getExpiresData()));
+        CheckCodeResponse response = new CheckCodeResponse(new InviteTauCode(channel.title(), it.getExpiresData()));
         sendFin(response);
-    }
-
-    private void use(TauCodeRequest request) {
-        // TODO realize it
     }
 }

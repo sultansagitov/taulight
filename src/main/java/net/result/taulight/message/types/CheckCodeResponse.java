@@ -9,16 +9,20 @@ import net.result.taulight.code.TauCode;
 import net.result.taulight.message.TauMessageTypes;
 import org.jetbrains.annotations.NotNull;
 
-public class TauCodeResponse extends MSGPackMessage<TauCode> {
-    public TauCodeResponse(TauCode data) {
+public class CheckCodeResponse extends MSGPackMessage<TauCode> {
+    public CheckCodeResponse(TauCode data) {
         this(new Headers(), data);
     }
 
-    public TauCodeResponse(@NotNull Headers headers, TauCode data) {
-        super(headers.setType(TauMessageTypes.CODE), data);
+    public CheckCodeResponse(@NotNull Headers headers, TauCode data) {
+        super(headers.setType(TauMessageTypes.CHECK_CODE), data);
     }
 
-    public TauCodeResponse(@NotNull RawMessage raw) throws DeserializationException, ExpectedMessageException {
-        super(raw.expect(TauMessageTypes.CODE), TauCode.class);
+    public CheckCodeResponse(@NotNull RawMessage raw) throws DeserializationException, ExpectedMessageException {
+        super(raw.expect(TauMessageTypes.CHECK_CODE), TauCode.class);
+    }
+
+    public TauCode getCode() {
+        return object;
     }
 }

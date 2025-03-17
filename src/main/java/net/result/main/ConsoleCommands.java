@@ -313,9 +313,9 @@ public class ConsoleCommands {
         String code = args.get(0);
 
         try {
-            var chain = new CodeClientChain(io);
+            var chain = new CheckCodeClientChain(io);
             io.chainManager.linkChain(chain);
-            TauCode c = chain.checkCode(code);
+            TauCode c = chain.check(code);
             io.chainManager.removeChain(chain);
             if (c instanceof InviteTauCode invite) {
                 System.out.println("Invite");
