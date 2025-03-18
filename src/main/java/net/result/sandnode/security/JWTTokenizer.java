@@ -30,10 +30,9 @@ public class JWTTokenizer implements Tokenizer {
 
     @Override
     public String tokenizeMember(@NotNull Member member) {
-        long EXPIRATION_TIME_MS = 3600 * 1000;
+        long EXPIRATION_TIME_MS = 3600 * 1000 * 24;
         return JWT.create()
                 .withSubject(member.nickname())
-                .withClaim("hashedPassword", member.hashedPassword())
                 .withIssuedAt(new Date())
                 .withExpiresAt(new Date(System.currentTimeMillis() + EXPIRATION_TIME_MS))
                 .sign(jwtConfig.getAlgorithm());

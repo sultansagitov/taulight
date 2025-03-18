@@ -25,11 +25,6 @@ public class LoginServerChain extends ServerChain implements ReceiverChain {
     public void sync() throws InterruptedException, SandnodeException {
         RawMessage raw = queue.take();
 
-        if (session.member == null) {
-            sendFin(Errors.UNAUTHORIZED.createMessage());
-            return;
-        }
-
         TokenMessage msg = new LoginRequest(raw);
         String token = msg.getToken();
 
