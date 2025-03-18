@@ -6,6 +6,7 @@ import net.result.sandnode.encryption.interfaces.AsymmetricKeyStorage;
 import net.result.sandnode.exception.UnprocessedMessagesException;
 import net.result.sandnode.exception.crypto.EncryptionTypeException;
 import net.result.sandnode.exception.error.KeyStorageNotFoundException;
+import net.result.sandnode.exception.error.ServerSandnodeErrorException;
 import net.result.sandnode.message.types.PublicKeyResponse;
 import net.result.sandnode.message.util.Headers;
 import net.result.sandnode.error.Errors;
@@ -17,15 +18,14 @@ public class PublicKeyServerChain extends ServerChain implements ReceiverChain {
     }
 
     @Override
-    public void sync() throws InterruptedException, UnprocessedMessagesException {
+    public void sync() throws InterruptedException, UnprocessedMessagesException, ServerSandnodeErrorException {
         queue.take();
         AsymmetricEncryption encryption = session.server.serverConfig.mainEncryption();
         AsymmetricKeyStorage asymmetricKeyStorage;
         try {
             asymmetricKeyStorage = session.server.node.keyStorageRegistry.asymmetricNonNull(encryption);
         } catch (KeyStorageNotFoundException e) {
-            send(Errors.SERVER_ERROR.createMessage());
-            return;
+            throw new ServerSandnodeErrorException(e);
         } catch (EncryptionTypeException e) {
             send(Errors.INCORRECT_ENCRYPTION.createMessage());
             return;

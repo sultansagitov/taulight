@@ -5,18 +5,15 @@ import net.result.sandnode.db.Database;
 import net.result.sandnode.exception.SandnodeException;
 import net.result.sandnode.exception.error.BusyNicknameException;
 import net.result.sandnode.exception.DatabaseException;
+import net.result.sandnode.exception.error.ServerSandnodeErrorException;
 import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.message.types.RegistrationRequest;
 import net.result.sandnode.message.types.RegistrationResponse;
 import net.result.sandnode.error.Errors;
 import net.result.sandnode.security.Tokenizer;
 import net.result.sandnode.serverclient.Session;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 public class RegistrationServerChain extends ServerChain implements ReceiverChain {
-    private static final Logger LOGGER = LogManager.getLogger(RegistrationServerChain.class);
-
     public RegistrationServerChain(Session session) {
         super(session);
     }
@@ -44,8 +41,7 @@ public class RegistrationServerChain extends ServerChain implements ReceiverChai
         } catch (BusyNicknameException e) {
             sendFin(Errors.BUSY_NICKNAME.createMessage());
         } catch (DatabaseException e) {
-            LOGGER.error("Registering exception", e);
-            sendFin(Errors.SERVER_ERROR.createMessage());
+            throw new ServerSandnodeErrorException(e);
         }
     }
 }

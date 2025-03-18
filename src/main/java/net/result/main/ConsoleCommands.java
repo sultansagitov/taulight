@@ -27,6 +27,7 @@ import java.util.*;
 
 @SuppressWarnings("SameReturnValue")
 public class ConsoleCommands {
+    @SuppressWarnings("unused")
     @FunctionalInterface
     public interface LoopCondition {
         boolean breakLoop(List<String> args) throws InterruptedException, UnprocessedMessagesException;

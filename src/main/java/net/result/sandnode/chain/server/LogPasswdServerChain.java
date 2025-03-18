@@ -5,6 +5,7 @@ import net.result.sandnode.db.Database;
 import net.result.sandnode.db.Member;
 import net.result.sandnode.error.Errors;
 import net.result.sandnode.exception.*;
+import net.result.sandnode.exception.error.ServerSandnodeErrorException;
 import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.message.types.*;
 import net.result.sandnode.serverclient.Session;
@@ -32,8 +33,7 @@ public abstract class LogPasswdServerChain extends ServerChain implements Receiv
             opt = database.findMemberByNickname(msg.getNickname());
         } catch (DatabaseException e) {
             LOGGER.error(e);
-            sendFin(Errors.SERVER_ERROR.createMessage());
-            return;
+            throw new ServerSandnodeErrorException();
         }
 
         if (opt.isEmpty()) {

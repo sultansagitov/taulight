@@ -1,5 +1,6 @@
 package net.result.sandnode.chain;
 
+import net.result.sandnode.message.types.ErrorMessage;
 import net.result.sandnode.message.util.Headers;
 import net.result.sandnode.message.util.MessageTypes;
 import net.result.sandnode.exception.*;
@@ -61,6 +62,24 @@ public abstract class Chain implements IChain {
     public void sendFin(@NotNull IMessage message) throws UnprocessedMessagesException, InterruptedException {
         message.headers().setFin(true);
         send(message);
+    }
+
+    @Override
+    public void sendIgnoreQueue(@NotNull ErrorMessage request) throws InterruptedException {
+        Headers headers = request.headers();
+        headers.setChainID(getID());
+
+        if (headers.type() == MessageTypes.CHAIN_NAME) {
+            headers.getOptionalValue("chain-name").ifPresent(s -> io.chainManager.setName(this, s));
+        }
+
+        io.sendMessage(request);
+    }
+
+    @Override
+    public void sendFinIgnoreQueue(@NotNull ErrorMessage message) throws InterruptedException {
+        message.headers().setFin(true);
+        sendIgnoreQueue(message);
     }
 
     @Override

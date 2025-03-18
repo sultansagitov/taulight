@@ -5,9 +5,8 @@ import net.result.sandnode.chain.server.ServerChain;
 import net.result.sandnode.db.Member;
 import net.result.sandnode.error.Errors;
 import net.result.sandnode.exception.DatabaseException;
-import net.result.sandnode.exception.ExpectedMessageException;
 import net.result.sandnode.exception.ImpossibleRuntimeException;
-import net.result.sandnode.exception.UnprocessedMessagesException;
+import net.result.sandnode.exception.error.ServerSandnodeErrorException;
 import net.result.sandnode.exception.error.UnauthorizedException;
 import net.result.sandnode.message.util.Headers;
 import net.result.sandnode.message.util.MessageTypes;
@@ -37,7 +36,7 @@ public class DialogServerChain extends ServerChain implements ReceiverChain {
     }
 
     @Override
-    public void sync() throws InterruptedException, ExpectedMessageException, UnprocessedMessagesException {
+    public void sync() throws Exception {
         TauDatabase database = (TauDatabase) session.server.serverConfig.database();
         TauGroupManager manager = (TauGroupManager) session.server.serverConfig.groupManager();
 
@@ -74,7 +73,7 @@ public class DialogServerChain extends ServerChain implements ReceiverChain {
                 }
             }
         } catch (DatabaseException e) {
-            throw new RuntimeException(e);
+            throw new ServerSandnodeErrorException(e);
         }
 
         Collection<Member> members = List.of(session.member, anotherMember.get());

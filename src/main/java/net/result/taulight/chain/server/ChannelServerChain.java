@@ -3,7 +3,7 @@ package net.result.taulight.chain.server;
 import net.result.sandnode.chain.ReceiverChain;
 import net.result.sandnode.chain.server.ServerChain;
 import net.result.sandnode.exception.*;
-import net.result.sandnode.exception.error.TooFewArgumentsException;
+import net.result.sandnode.exception.error.ServerSandnodeErrorException;
 import net.result.sandnode.exception.error.UnauthorizedException;
 import net.result.sandnode.message.TextMessage;
 import net.result.sandnode.message.util.Headers;
@@ -39,8 +39,7 @@ public class ChannelServerChain extends ServerChain implements ReceiverChain {
     }
 
     @Override
-    public void sync() throws InterruptedException, DeserializationException, UnprocessedMessagesException,
-            TooFewArgumentsException, ExpectedMessageException {
+    public void sync() throws Exception {
         ChannelRequest request = new ChannelRequest(queue.take());
 
         if (request.type == null) {
@@ -55,7 +54,7 @@ public class ChannelServerChain extends ServerChain implements ReceiverChain {
         }
     }
 
-    private void NEW(@NotNull ChannelRequest request) throws UnprocessedMessagesException, InterruptedException {
+    private void NEW(@NotNull ChannelRequest request) throws UnprocessedMessagesException, InterruptedException, ServerSandnodeErrorException {
         TauDatabase database = (TauDatabase) session.server.serverConfig.database();
         TauGroupManager manager = (TauGroupManager) session.server.serverConfig.groupManager();
 
@@ -79,9 +78,7 @@ public class ChannelServerChain extends ServerChain implements ReceiverChain {
 
             channel.addMember(session.member);
         } catch (DatabaseException e) {
-            LOGGER.error(e);
-            sendFin(Errors.SERVER_ERROR.createMessage());
-            return;
+            throw new ServerSandnodeErrorException(e);
         }
 
         TauAgentProtocol.addMemberToGroup(session, manager.getGroup(channel));
@@ -99,7 +96,7 @@ public class ChannelServerChain extends ServerChain implements ReceiverChain {
         send(new UUIDMessage(new Headers().setType(MessageTypes.HAPPY), channel));
     }
 
-    private void ADD(@NotNull ChannelRequest request) throws UnprocessedMessagesException, InterruptedException {
+    private void ADD(@NotNull ChannelRequest request) throws Exception {
         if (session.member == null) {
             sendFin(Errors.UNAUTHORIZED.createMessage());
             return;
@@ -116,9 +113,7 @@ public class ChannelServerChain extends ServerChain implements ReceiverChain {
             optChat = database.getChat(chatID);
             optMember = database.findMemberByNickname(otherNickname);
         } catch (DatabaseException e) {
-            LOGGER.error(e);
-            sendFin(Errors.SERVER_ERROR.createMessage());
-            return;
+            throw new ServerSandnodeErrorException(e);
         }
 
         if (optChat.isEmpty()) {
@@ -150,15 +145,13 @@ public class ChannelServerChain extends ServerChain implements ReceiverChain {
         try {
             token.save();
         } catch (DatabaseException e) {
-            LOGGER.error("Error while saving invite token", e);
-            sendFin(Errors.SERVER_ERROR.createMessage());
-            return;
+            throw new ServerSandnodeErrorException(e);
         }
 
         sendFin(new TextMessage(new Headers().setType(TauMessageTypes.CHANNEL), token.getCode()));
     }
 
-    private void LEAVE(@NotNull ChannelRequest request) throws UnprocessedMessagesException, InterruptedException {
+    private void LEAVE(@NotNull ChannelRequest request) throws Exception {
         TauDatabase database = (TauDatabase) session.server.serverConfig.database();
         TauGroupManager manager = (TauGroupManager) session.server.serverConfig.groupManager();
 
@@ -168,8 +161,7 @@ public class ChannelServerChain extends ServerChain implements ReceiverChain {
         try {
             optChat = database.getChat(chatID);
         } catch (DatabaseException e) {
-            sendFin(Errors.SERVER_ERROR.createMessage());
-            return;
+            throw new ServerSandnodeErrorException(e);
         }
 
         if (optChat.isEmpty()) {
@@ -192,7 +184,7 @@ public class ChannelServerChain extends ServerChain implements ReceiverChain {
         try {
             database.leaveFromChat(channel, session.member);
         } catch (DatabaseException e) {
-            send(Errors.SERVER_ERROR.createMessage());
+            throw new ServerSandnodeErrorException(e);
         }
 
         TauAgentProtocol.removeMemberFromGroup(session, manager.getGroup(channel));

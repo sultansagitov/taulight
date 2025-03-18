@@ -5,6 +5,7 @@ import net.result.sandnode.chain.server.ServerChain;
 import net.result.sandnode.error.Errors;
 import net.result.sandnode.exception.DatabaseException;
 import net.result.sandnode.exception.SandnodeException;
+import net.result.sandnode.exception.error.ServerSandnodeErrorException;
 import net.result.sandnode.serverclient.Session;
 import net.result.taulight.code.InviteTauCode;
 import net.result.taulight.db.InviteCodeObject;
@@ -36,8 +37,7 @@ public class CheckCodeServerChain extends ServerChain implements ReceiverChain {
         try {
             optInviteCode = database.getInviteToken(request.content());
         } catch (DatabaseException e) {
-            sendFin(Errors.SERVER_ERROR.createMessage());
-            return;
+            throw new ServerSandnodeErrorException(e);
         }
 
         if (optInviteCode.isEmpty()) {
@@ -51,8 +51,7 @@ public class CheckCodeServerChain extends ServerChain implements ReceiverChain {
         try {
             chat = database.getChat(inviteCode.getChatID());
         } catch (DatabaseException e) {
-            sendFin(Errors.SERVER_ERROR.createMessage());
-            return;
+            throw new ServerSandnodeErrorException(e);
         }
 
         if (chat.isEmpty() || !(chat.get() instanceof TauChannel channel)) {
