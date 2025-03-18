@@ -145,7 +145,7 @@ public class ChannelServerChain extends ServerChain implements ReceiverChain {
         }
 
         ZonedDateTime expiresDate = ZonedDateTime.now().plusDays(1);
-        InviteToken token = new InviteToken(database, channel, member, session.member, expiresDate);
+        InviteCodeObject token = new InviteCodeObject(database, channel, member, session.member, expiresDate);
 
         try {
             token.save();
@@ -155,7 +155,7 @@ public class ChannelServerChain extends ServerChain implements ReceiverChain {
             return;
         }
 
-        sendFin(new TextMessage(new Headers().setType(TauMessageTypes.CHANNEL), token.getRejectCode()));
+        sendFin(new TextMessage(new Headers().setType(TauMessageTypes.CHANNEL), token.getCode()));
     }
 
     private void LEAVE(@NotNull ChannelRequest request) throws UnprocessedMessagesException, InterruptedException {

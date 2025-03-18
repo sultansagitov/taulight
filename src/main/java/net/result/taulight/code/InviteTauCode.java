@@ -1,6 +1,6 @@
 package net.result.taulight.code;
 
-import net.result.taulight.db.InviteToken;
+import net.result.taulight.db.InviteCodeObject;
 import org.jetbrains.annotations.Nullable;
 
 import java.time.ZonedDateTime;
@@ -17,12 +17,12 @@ public class InviteTauCode implements TauCode {
     public InviteTauCode() {
     }
 
-    public InviteTauCode(InviteToken inviteToken, String title, String nickname, String senderNickname) {
+    public InviteTauCode(InviteCodeObject inviteCode, String title, String nickname, String senderNickname) {
         this.title = title;
         this.nickname = nickname;
         this.senderNickname = senderNickname;
-        creationDate = inviteToken.getCreationDate();
-        activationDate = inviteToken.getActivationDate();
-        expiresData = inviteToken.getExpiresData();
+        creationDate = inviteCode.getCreationDate();
+        activationDate = inviteCode.getActivationDate();
+        expiresData = inviteCode.getExpiresData();
     }
 }

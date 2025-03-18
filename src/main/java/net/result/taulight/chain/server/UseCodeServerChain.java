@@ -40,7 +40,7 @@ public class UseCodeServerChain extends ServerChain  implements ReceiverChain {
 
         TauDatabase database = (TauDatabase) session.member.database();
 
-        Optional<InviteToken> inviteToken;
+        Optional<InviteCodeObject> inviteToken;
         try {
             inviteToken = database.getInviteToken(code);
         } catch (DatabaseException e) {

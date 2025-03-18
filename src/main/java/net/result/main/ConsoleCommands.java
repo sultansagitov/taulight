@@ -293,7 +293,7 @@ public class ConsoleCommands {
         try {
             var chain = new ChannelClientChain(io);
             io.chainManager.linkChain(chain);
-            String code = chain.addMemberLink(chatID, otherNickname);
+            String code = chain.getInviteCode(chatID, otherNickname);
             io.chainManager.removeChain(chain);
             System.out.printf("Link for adding %s to %s%n", otherNickname, chatID);
             System.out.printf("%n%s%n%n", code);

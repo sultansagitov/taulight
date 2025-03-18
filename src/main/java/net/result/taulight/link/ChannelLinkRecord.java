@@ -2,7 +2,7 @@ package net.result.taulight.link;
 
 import net.result.sandnode.exception.InvalidSandnodeLinkException;
 import net.result.sandnode.util.Endpoint;
-import net.result.taulight.db.InviteToken;
+import net.result.taulight.db.InviteCodeObject;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
@@ -10,8 +10,8 @@ import java.net.URI;
 import java.net.URISyntaxException;
 
 public record ChannelLinkRecord(Endpoint endpoint, String code) {
-    public ChannelLinkRecord(@NotNull Endpoint endpoint, @NotNull InviteToken token) {
-        this(endpoint, token.getRejectCode());
+    public ChannelLinkRecord(@NotNull Endpoint endpoint, @NotNull InviteCodeObject token) {
+        this(endpoint, token.getCode());
     }
 
     @Contract("_ -> new")

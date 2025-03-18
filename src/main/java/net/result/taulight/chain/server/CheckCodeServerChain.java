@@ -7,7 +7,7 @@ import net.result.sandnode.exception.DatabaseException;
 import net.result.sandnode.exception.SandnodeException;
 import net.result.sandnode.serverclient.Session;
 import net.result.taulight.code.InviteTauCode;
-import net.result.taulight.db.InviteToken;
+import net.result.taulight.db.InviteCodeObject;
 import net.result.taulight.db.TauChannel;
 import net.result.taulight.db.TauChat;
 import net.result.taulight.db.TauDatabase;
@@ -32,24 +32,24 @@ public class CheckCodeServerChain extends ServerChain implements ReceiverChain {
 
         TauDatabase database = (TauDatabase) session.member.database();
 
-        Optional<InviteToken> inviteToken;
+        Optional<InviteCodeObject> optInviteCode;
         try {
-            inviteToken = database.getInviteToken(request.content());
+            optInviteCode = database.getInviteToken(request.content());
         } catch (DatabaseException e) {
             sendFin(Errors.SERVER_ERROR.createMessage());
             return;
         }
 
-        if (inviteToken.isEmpty()) {
+        if (optInviteCode.isEmpty()) {
             sendFin(Errors.NOT_FOUND.createMessage());
             return;
         }
 
-        InviteToken it = inviteToken.get();
+        InviteCodeObject inviteCode = optInviteCode.get();
 
         Optional<TauChat> chat;
         try {
-            chat = database.getChat(it.getChatID());
+            chat = database.getChat(inviteCode.getChatID());
         } catch (DatabaseException e) {
             sendFin(Errors.SERVER_ERROR.createMessage());
             return;
@@ -60,7 +60,7 @@ public class CheckCodeServerChain extends ServerChain implements ReceiverChain {
             return;
         }
 
-        InviteTauCode code = new InviteTauCode(it, channel.title(), it.getNickname(), it.getSenderNickname());
+        InviteTauCode code = new InviteTauCode(inviteCode, channel.title(), inviteCode.getNickname(), inviteCode.getSenderNickname());
         CheckCodeResponse response = new CheckCodeResponse(code);
         sendFin(response);
     }

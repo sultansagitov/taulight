@@ -39,7 +39,7 @@ public class ChannelClientChain extends ClientChain {
         new HappyMessage(raw);
     }
 
-    public synchronized String addMemberLink(UUID chatID, String otherNickname) throws InterruptedException,
+    public synchronized String getInviteCode(UUID chatID, String otherNickname) throws InterruptedException,
             SandnodeErrorException, UnknownSandnodeErrorException, UnprocessedMessagesException {
         send(ChannelRequest.addMember(chatID, otherNickname));
         RawMessage raw = queue.take();
