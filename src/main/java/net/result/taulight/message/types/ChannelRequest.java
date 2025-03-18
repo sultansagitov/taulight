@@ -32,7 +32,7 @@ public class ChannelRequest extends EmptyMessage {
                 case "new" -> {
                     this.type = DataType.NEW;
                     this.title = headers()
-                            .getOptionalValue("type")
+                            .getOptionalValue("title")
                             .orElseThrow(TooFewArgumentsException::new);
                 }
                 case "add" -> {
