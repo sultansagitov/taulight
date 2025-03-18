@@ -19,7 +19,7 @@ public class AgentProtocol {
     }
 
     public static String getMemberFromToken(IOController io, String token)
-            throws InterruptedException, SandnodeErrorException, DeserializationException, ExpectedMessageException,
+            throws InterruptedException, SandnodeErrorException, DeserializationException,
             UnknownSandnodeErrorException, UnprocessedMessagesException {
         LoginClientChain chain = new LoginClientChain(io);
         io.chainManager.linkChain(chain);

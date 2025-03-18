@@ -8,9 +8,8 @@ import net.result.sandnode.exception.UnknownSandnodeErrorException;
 import net.result.sandnode.exception.UnprocessedMessagesException;
 import net.result.sandnode.exception.error.SandnodeErrorException;
 import net.result.sandnode.message.RawMessage;
-import net.result.sandnode.message.types.ErrorMessage;
+
 import net.result.sandnode.message.util.Headers;
-import net.result.sandnode.message.util.MessageTypes;
 import net.result.sandnode.util.IOController;
 import net.result.taulight.message.MemberRecord;
 import net.result.taulight.message.TauMessageTypes;
@@ -32,10 +31,7 @@ public class MembersClientChain extends ClientChain {
 
         RawMessage raw = queue.take();
 
-        if (raw.headers().type() == MessageTypes.ERR) {
-            ErrorMessage errorMessage = new ErrorMessage(raw);
-            ServerErrorManager.instance().throwAll(errorMessage.error);
-        }
+        ServerErrorManager.instance().handleError(raw);
 
         return new MembersResponse(raw).getMembers();
     }

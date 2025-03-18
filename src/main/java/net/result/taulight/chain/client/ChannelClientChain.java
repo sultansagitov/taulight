@@ -6,9 +6,7 @@ import net.result.sandnode.exception.*;
 import net.result.sandnode.exception.error.SandnodeErrorException;
 import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.message.TextMessage;
-import net.result.sandnode.message.types.ErrorMessage;
 import net.result.sandnode.message.types.HappyMessage;
-import net.result.sandnode.message.util.MessageTypes;
 import net.result.sandnode.util.IOController;
 import net.result.taulight.message.types.ChannelRequest;
 import net.result.taulight.message.types.UUIDMessage;
@@ -21,15 +19,12 @@ public class ChannelClientChain extends ClientChain {
     }
 
     public synchronized UUID sendNewChannelRequest(String title)
-            throws InterruptedException, ExpectedMessageException, UnknownSandnodeErrorException,
-            SandnodeErrorException, DeserializationException, UnprocessedMessagesException {
+            throws InterruptedException, UnknownSandnodeErrorException, SandnodeErrorException,
+            DeserializationException, UnprocessedMessagesException {
         send(ChannelRequest.newChannel(title));
         RawMessage raw = queue.take();
 
-        if (raw.headers().type() == MessageTypes.ERR) {
-            ErrorMessage errorMessage = new ErrorMessage(raw);
-            ServerErrorManager.instance().throwAll(errorMessage.error);
-        }
+        ServerErrorManager.instance().handleError(raw);
 
         return new UUIDMessage(raw).uuid;
     }
@@ -39,23 +34,16 @@ public class ChannelClientChain extends ClientChain {
         send(ChannelRequest.leave(chatID));
         RawMessage raw = queue.take();
 
-        if (raw.headers().type() == MessageTypes.ERR) {
-            ErrorMessage errorMessage = new ErrorMessage(raw);
-            ServerErrorManager.instance().throwAll(errorMessage.error);
-        }
+        ServerErrorManager.instance().handleError(raw);
 
         new HappyMessage(raw);
     }
 
-    public synchronized String addMemberLink(UUID chatID, String otherNickname)
-            throws InterruptedException, SandnodeErrorException, ExpectedMessageException,
-            UnknownSandnodeErrorException, UnprocessedMessagesException {
+    public synchronized String addMemberLink(UUID chatID, String otherNickname) throws InterruptedException,
+            SandnodeErrorException, UnknownSandnodeErrorException, UnprocessedMessagesException {
         send(ChannelRequest.addMember(chatID, otherNickname));
         RawMessage raw = queue.take();
-        if (raw.headers().type() == MessageTypes.ERR) {
-            ErrorMessage errorMessage = new ErrorMessage(raw);
-            ServerErrorManager.instance().throwAll(errorMessage.error);
-        }
+        ServerErrorManager.instance().handleError(raw);
 
         return new TextMessage(raw).content();
     }

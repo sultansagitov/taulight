@@ -256,8 +256,8 @@ public class ConsoleCommands {
             UUID id = chain.sendNewChannelRequest(title);
             io.chainManager.removeChain(chain);
             System.out.printf("New channel '%s' with with id '%s' created successfully%n", title, id);
-        } catch (ExpectedMessageException | UnknownSandnodeErrorException | SandnodeErrorException |
-                 DeserializationException | UnprocessedMessagesException e) {
+        } catch (UnknownSandnodeErrorException | SandnodeErrorException | DeserializationException |
+                 UnprocessedMessagesException e) {
             System.out.printf("Error creating new channel '%s' - %s%n", title, e.getClass());
         }
         return false;
@@ -301,7 +301,7 @@ public class ConsoleCommands {
             System.out.printf("Chat '%s' not found%n", chatID);
         } catch (AddressedMemberNotFoundException e) {
             System.out.printf("Member '%s' not found%n", otherNickname);
-        } catch (ExpectedMessageException | SandnodeErrorException | UnknownSandnodeErrorException e) {
+        } catch (SandnodeErrorException | UnknownSandnodeErrorException e) {
             System.out.printf("Failed to add member '%s' to chat '%s' - %s%n", otherNickname, chatID, e.getClass());
         }
         return false;
@@ -378,8 +378,7 @@ public class ConsoleCommands {
             io.chainManager.removeChain(chain);
         } catch (AddressedMemberNotFoundException e) {
             System.out.printf("Member %s not found - %s%n", nickname, e.getClass());
-        } catch (ExpectedMessageException | DeserializationException | SandnodeErrorException |
-                 UnknownSandnodeErrorException e) {
+        } catch (DeserializationException | SandnodeErrorException | UnknownSandnodeErrorException e) {
             System.out.printf("Dialog operation failed due to a Sandnode error - %s%n", e.getClass());
         }
         return false;

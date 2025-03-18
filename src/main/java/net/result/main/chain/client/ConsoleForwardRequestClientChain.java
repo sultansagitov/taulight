@@ -5,7 +5,6 @@ import net.result.sandnode.error.ServerErrorManager;
 import net.result.sandnode.exception.*;
 import net.result.sandnode.exception.error.SandnodeErrorException;
 import net.result.sandnode.message.RawMessage;
-import net.result.sandnode.message.types.ErrorMessage;
 import net.result.sandnode.message.util.MessageType;
 import net.result.sandnode.message.util.MessageTypes;
 import net.result.sandnode.util.IOController;
@@ -71,10 +70,7 @@ public class ConsoleForwardRequestClientChain extends ClientChain {
         if (type == MessageTypes.EXIT) return true;
 
         try {
-            if (type == MessageTypes.ERR) {
-                ErrorMessage errorMessage = new ErrorMessage(raw);
-                ServerErrorManager.instance().throwAll(errorMessage.error);
-            }
+            ServerErrorManager.instance().handleError(raw);
         } catch (ChatNotFoundException e) {
             System.out.printf("Chat %s was not found%n", cc.currentChat);
             return false;

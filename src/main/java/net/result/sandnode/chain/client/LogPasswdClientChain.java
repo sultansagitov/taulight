@@ -5,7 +5,6 @@ import net.result.sandnode.exception.*;
 import net.result.sandnode.exception.error.SandnodeErrorException;
 import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.message.types.*;
-import net.result.sandnode.message.util.MessageTypes;
 import net.result.sandnode.util.IOController;
 
 public class LogPasswdClientChain extends ClientChain {
@@ -19,11 +18,7 @@ public class LogPasswdClientChain extends ClientChain {
         send(loginRequest);
 
         RawMessage message = queue.take();
-
-        if (message.headers().type() == MessageTypes.ERR) {
-            ErrorMessage errorMessage = new ErrorMessage(message);
-            ServerErrorManager.instance().throwAll(errorMessage.error);
-        }
+        ServerErrorManager.instance().handleError(message);
 
         LogPasswdResponse loginResponse = new LogPasswdResponse(message);
 

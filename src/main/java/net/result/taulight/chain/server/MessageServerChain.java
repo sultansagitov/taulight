@@ -8,8 +8,6 @@ import net.result.sandnode.error.ServerErrorManager;
 import net.result.sandnode.exception.*;
 import net.result.sandnode.exception.error.SandnodeErrorException;
 import net.result.sandnode.message.RawMessage;
-import net.result.sandnode.message.types.ErrorMessage;
-import net.result.sandnode.message.util.MessageTypes;
 import net.result.sandnode.serverclient.Session;
 import net.result.taulight.db.ServerChatMessage;
 import net.result.taulight.db.TauChat;
@@ -39,10 +37,7 @@ public class MessageServerChain extends ServerChain implements ReceiverChain {
 
         RawMessage raw = queue.take();
 
-        if (raw.headers().type() == MessageTypes.ERR) {
-            ErrorMessage errorMessage = new ErrorMessage(raw);
-            ServerErrorManager.instance().throwAll(errorMessage.error);
-        }
+        ServerErrorManager.instance().handleError(raw);
 
         MessageRequest request = new MessageRequest(raw);
 

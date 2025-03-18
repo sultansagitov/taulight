@@ -5,8 +5,6 @@ import net.result.sandnode.error.ServerErrorManager;
 import net.result.sandnode.exception.*;
 import net.result.sandnode.exception.error.SandnodeErrorException;
 import net.result.sandnode.message.RawMessage;
-import net.result.sandnode.message.types.ErrorMessage;
-import net.result.sandnode.message.util.MessageTypes;
 import net.result.sandnode.util.IOController;
 import net.result.taulight.message.ChatInfo;
 import net.result.taulight.message.ChatInfoProp;
@@ -34,11 +32,7 @@ public class ChatClientChain extends ClientChain {
             send(ChatRequest.getByMember(infoProps));
             RawMessage raw = queue.take();
 
-            if (raw.headers().type() == MessageTypes.ERR) {
-                ErrorMessage errorMessage = new ErrorMessage(raw);
-                ServerErrorManager.instance().throwAll(errorMessage.error);
-                return Optional.empty();
-            }
+            ServerErrorManager.instance().handleError(raw);
 
             return Optional.of(new ChatResponse(raw).getInfos());
         } finally {
@@ -54,10 +48,7 @@ public class ChatClientChain extends ClientChain {
             send(ChatRequest.getByID(chatID, infoProps));
             RawMessage raw = queue.take();
 
-            if (raw.headers().type() == MessageTypes.ERR) {
-                ErrorMessage errorMessage = new ErrorMessage(raw);
-                ServerErrorManager.instance().throwAll(errorMessage.error);
-            }
+            ServerErrorManager.instance().handleError(raw);
 
             ChatResponse chatResponse = new ChatResponse(raw);
             return chatResponse.getInfos();

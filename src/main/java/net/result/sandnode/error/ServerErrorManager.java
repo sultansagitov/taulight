@@ -1,6 +1,12 @@
 package net.result.sandnode.error;
 
+import net.result.sandnode.exception.ExpectedMessageException;
+import net.result.sandnode.exception.ImpossibleRuntimeException;
+import net.result.sandnode.exception.UnknownSandnodeErrorException;
 import net.result.sandnode.exception.error.SandnodeErrorException;
+import net.result.sandnode.message.RawMessage;
+import net.result.sandnode.message.types.ErrorMessage;
+import net.result.sandnode.message.util.MessageTypes;
 import net.result.sandnode.util.Manager;
 
 import java.util.*;
@@ -35,5 +41,16 @@ public class ServerErrorManager extends Manager<SandnodeError> {
 
     public void throwAll(SandnodeError error) throws SandnodeErrorException {
         for (ThrowHandler f : throwHandlers) f.throwFunc(error);
+    }
+
+    public void handleError(RawMessage response) throws UnknownSandnodeErrorException, SandnodeErrorException {
+        if (response.headers().type() == MessageTypes.ERR) {
+            try {
+                ErrorMessage errorMessage = new ErrorMessage(response);
+                ServerErrorManager.instance().throwAll(errorMessage.error);
+            } catch (ExpectedMessageException e) {
+                throw new ImpossibleRuntimeException(e);
+            }
+        }
     }
 }

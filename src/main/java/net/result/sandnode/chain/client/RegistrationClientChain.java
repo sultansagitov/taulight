@@ -4,10 +4,8 @@ import net.result.sandnode.error.ServerErrorManager;
 import net.result.sandnode.exception.*;
 import net.result.sandnode.exception.error.SandnodeErrorException;
 import net.result.sandnode.message.RawMessage;
-import net.result.sandnode.message.types.ErrorMessage;
 import net.result.sandnode.message.types.RegistrationRequest;
 import net.result.sandnode.message.types.RegistrationResponse;
-import net.result.sandnode.message.util.MessageTypes;
 import net.result.sandnode.util.IOController;
 
 public class RegistrationClientChain extends ClientChain {
@@ -22,11 +20,7 @@ public class RegistrationClientChain extends ClientChain {
         send(request);
 
         RawMessage response = queue.take();
-
-        if (response.headers().type() == MessageTypes.ERR) {
-            ErrorMessage errorMessage = new ErrorMessage(response);
-            ServerErrorManager.instance().throwAll(errorMessage.error);
-        }
+        ServerErrorManager.instance().handleError(response);
 
         return new RegistrationResponse(response).getToken();
     }
