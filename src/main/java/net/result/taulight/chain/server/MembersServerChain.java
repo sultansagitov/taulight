@@ -10,7 +10,6 @@ import net.result.sandnode.exception.UnprocessedMessagesException;
 import net.result.sandnode.serverclient.Session;
 import net.result.taulight.db.TauChat;
 import net.result.taulight.db.TauDatabase;
-import net.result.taulight.error.TauErrors;
 import net.result.taulight.message.types.MembersResponse;
 import net.result.taulight.message.types.UUIDMessage;
 import org.apache.logging.log4j.LogManager;
@@ -41,7 +40,7 @@ public class MembersServerChain extends ServerChain implements ReceiverChain {
                 Optional<TauChat> optChat = database.getChat(request.uuid);
 
                 if (optChat.isEmpty()) {
-                    send(TauErrors.CHAT_NOT_FOUND.createMessage());
+                    send(Errors.NOT_FOUND.createMessage());
                     continue;
                 }
 
@@ -49,7 +48,7 @@ public class MembersServerChain extends ServerChain implements ReceiverChain {
                 Collection<Member> members = chat.getMembers();
 
                 if (!members.contains(session.member)) {
-                    send(TauErrors.CHAT_NOT_FOUND.createMessage());
+                    send(Errors.NOT_FOUND.createMessage());
                     continue;
                 }
 

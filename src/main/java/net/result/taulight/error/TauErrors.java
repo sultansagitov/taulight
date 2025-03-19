@@ -4,14 +4,13 @@ import net.result.sandnode.exception.error.SandnodeErrorException;
 import net.result.sandnode.message.types.ErrorMessage;
 import net.result.sandnode.error.SandnodeError;
 import net.result.sandnode.error.ServerErrorManager;
-import net.result.taulight.exception.error.ChatNotFoundException;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
 
 public enum TauErrors implements SandnodeError {
-    CHAT_NOT_FOUND(4000, "Chat not found");
+    ;
 
     private final int code;
     private final String desc;
@@ -43,12 +42,6 @@ public enum TauErrors implements SandnodeError {
         instance.addThrowHandler(TauErrors::throwHandler);
     }
 
-    @SuppressWarnings("SwitchStatementWithTooFewBranches")
-    private static void throwHandler(SandnodeError error) throws SandnodeErrorException {
-        if (error instanceof TauErrors tau) {
-            switch (tau) {
-                case CHAT_NOT_FOUND -> throw new ChatNotFoundException();
-            }
-        }
+    private static void throwHandler(SandnodeError error) {
     }
 }

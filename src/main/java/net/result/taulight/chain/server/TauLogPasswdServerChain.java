@@ -3,7 +3,6 @@ package net.result.taulight.chain.server;
 import net.result.sandnode.chain.ReceiverChain;
 import net.result.sandnode.chain.server.LogPasswdServerChain;
 import net.result.sandnode.exception.UnprocessedMessagesException;
-import net.result.sandnode.exception.error.UnauthorizedException;
 import net.result.sandnode.serverclient.Session;
 
 public class TauLogPasswdServerChain extends LogPasswdServerChain implements ReceiverChain {
@@ -12,7 +11,7 @@ public class TauLogPasswdServerChain extends LogPasswdServerChain implements Rec
     }
 
     @Override
-    protected void onLogin() throws InterruptedException, UnprocessedMessagesException, UnauthorizedException {
+    protected void onLogin() throws InterruptedException, UnprocessedMessagesException {
         LoginUtil.onLogin(session, this);
     }
 }
