@@ -15,7 +15,6 @@ import net.result.taulight.chain.client.*;
 import net.result.taulight.code.InviteTauCode;
 import net.result.taulight.code.TauCode;
 import net.result.taulight.db.ServerChatMessage;
-import net.result.taulight.exception.error.ChatNotFoundException;
 import net.result.sandnode.exception.error.NoEffectException;
 import net.result.taulight.message.ChatInfo;
 import net.result.taulight.message.ChatInfoProp;
@@ -298,7 +297,7 @@ public class ConsoleCommands {
             io.chainManager.removeChain(chain);
             System.out.printf("Link for adding %s to %s%n", otherNickname, chatID);
             System.out.printf("%n%s%n%n", code);
-        } catch (ChatNotFoundException e) {
+        } catch (NotFoundException e) {
             System.out.printf("Chat '%s' not found%n", chatID);
         } catch (AddressedMemberNotFoundException e) {
             System.out.printf("Member '%s' not found%n", otherNickname);

@@ -3,6 +3,7 @@ package net.result.main.chain.client;
 import net.result.main.ConsoleCommands;
 import net.result.sandnode.error.ServerErrorManager;
 import net.result.sandnode.exception.*;
+import net.result.sandnode.exception.error.NotFoundException;
 import net.result.sandnode.exception.error.SandnodeErrorException;
 import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.message.util.MessageType;
@@ -10,7 +11,6 @@ import net.result.sandnode.message.util.MessageTypes;
 import net.result.sandnode.util.IOController;
 import net.result.sandnode.chain.client.ClientChain;
 import net.result.taulight.db.ChatMessage;
-import net.result.taulight.exception.error.ChatNotFoundException;
 import net.result.sandnode.exception.error.NoEffectException;
 import net.result.taulight.message.types.ForwardRequest;
 import net.result.taulight.message.types.UUIDMessage;
@@ -71,7 +71,7 @@ public class ConsoleForwardRequestClientChain extends ClientChain {
 
         try {
             ServerErrorManager.instance().handleError(raw);
-        } catch (ChatNotFoundException e) {
+        } catch (NotFoundException e) {
             System.out.printf("Chat %s was not found%n", cc.currentChat);
             return false;
         } catch (NoEffectException e) {

@@ -3,6 +3,7 @@ package net.result.taulight.chain.server;
 import net.result.sandnode.chain.ReceiverChain;
 import net.result.sandnode.chain.server.ServerChain;
 import net.result.sandnode.db.Member;
+import net.result.sandnode.error.Errors;
 import net.result.sandnode.error.ServerErrorManager;
 import net.result.sandnode.exception.*;
 import net.result.sandnode.exception.error.SandnodeErrorException;
@@ -12,7 +13,6 @@ import net.result.sandnode.serverclient.Session;
 import net.result.taulight.db.ServerChatMessage;
 import net.result.taulight.db.TauChat;
 import net.result.taulight.db.TauDatabase;
-import net.result.taulight.error.TauErrors;
 import net.result.taulight.message.types.MessageRequest;
 import net.result.taulight.message.types.MessageResponse;
 
@@ -44,14 +44,14 @@ public class MessageServerChain extends ServerChain implements ReceiverChain {
             chat = database.getChat(request.getChatID());
 
             if (chat.isEmpty()) {
-                sendFin(TauErrors.CHAT_NOT_FOUND.createMessage());
+                sendFin(Errors.NOT_FOUND.createMessage());
                 return;
             }
 
             members = chat.get().getMembers();
 
             if (!members.contains(session.member)) {
-                sendFin(TauErrors.CHAT_NOT_FOUND.createMessage());
+                sendFin(Errors.NOT_FOUND.createMessage());
                 return;
             }
 

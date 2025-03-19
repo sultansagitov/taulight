@@ -12,7 +12,6 @@ import net.result.sandnode.serverclient.Session;
 import net.result.taulight.TauHubProtocol;
 import net.result.taulight.db.ServerChatMessage;
 import net.result.taulight.db.TauDatabase;
-import net.result.taulight.error.TauErrors;
 import net.result.taulight.db.ChatMessage;
 import net.result.sandnode.exception.error.NoEffectException;
 import net.result.taulight.message.types.ForwardRequest;
@@ -75,7 +74,7 @@ public class ForwardRequestServerChain extends ServerChain implements ReceiverCh
 
                 if (chatOpt.isEmpty()) {
                     LOGGER.error("Chat was not found");
-                    send(TauErrors.CHAT_NOT_FOUND.createMessage());
+                    send(Errors.NOT_FOUND.createMessage());
                     continue;
                 }
 
@@ -84,7 +83,7 @@ public class ForwardRequestServerChain extends ServerChain implements ReceiverCh
                 Collection<Member> members = chat.getMembers();
                 if (!members.contains(session.member)) {
                     LOGGER.warn("Unauthorized access attempt by member: {}", session.member);
-                    send(TauErrors.CHAT_NOT_FOUND.createMessage());
+                    send(Errors.NOT_FOUND.createMessage());
                     continue;
                 }
 

@@ -19,7 +19,6 @@ import net.result.sandnode.exception.error.NoEffectException;
 import net.result.taulight.group.TauGroupManager;
 import net.result.sandnode.message.types.HappyMessage;
 import net.result.sandnode.serverclient.Session;
-import net.result.taulight.error.TauErrors;
 import net.result.taulight.message.TauMessageTypes;
 import net.result.taulight.message.types.ChannelRequest;
 import net.result.taulight.message.types.UUIDMessage;
@@ -117,7 +116,7 @@ public class ChannelServerChain extends ServerChain implements ReceiverChain {
         }
 
         if (optChat.isEmpty()) {
-            sendFin(TauErrors.CHAT_NOT_FOUND.createMessage());
+            sendFin(Errors.NOT_FOUND.createMessage());
             return;
         }
 
@@ -165,7 +164,7 @@ public class ChannelServerChain extends ServerChain implements ReceiverChain {
         }
 
         if (optChat.isEmpty()) {
-            sendFin(TauErrors.CHAT_NOT_FOUND.createMessage());
+            sendFin(Errors.NOT_FOUND.createMessage());
             return;
         }
 

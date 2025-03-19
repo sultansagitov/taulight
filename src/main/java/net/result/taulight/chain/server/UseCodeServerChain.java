@@ -15,7 +15,6 @@ import net.result.taulight.SysMessages;
 import net.result.taulight.TauHubProtocol;
 import net.result.taulight.db.*;
 import net.result.sandnode.exception.error.NoEffectException;
-import net.result.taulight.error.TauErrors;
 import net.result.taulight.message.types.UseCodeRequest;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -77,8 +76,7 @@ public class UseCodeServerChain extends ServerChain  implements ReceiverChain {
         }
 
         if (chat.isEmpty()) {
-            sendFin(TauErrors.CHAT_NOT_FOUND.createMessage());
-            return;
+            throw new ServerSandnodeErrorException("Channel not found");
         }
 
         if (!(chat.get() instanceof TauChannel channel)) {
