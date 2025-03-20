@@ -1,5 +1,6 @@
 package net.result.taulight.code;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
@@ -7,5 +8,13 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 @JsonSubTypes({
         @JsonSubTypes.Type(value = InviteTauCode.class, name = "invite")
 })
-public interface TauCode {
+public abstract class TauCode {
+    @JsonProperty
+    public String code;
+
+    public TauCode() {}
+
+    protected TauCode(String code) {
+        this.code = code;
+    }
 }

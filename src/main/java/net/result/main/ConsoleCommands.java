@@ -22,6 +22,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
 
+import java.time.ZonedDateTime;
 import java.util.*;
 
 @SuppressWarnings("SameReturnValue")
@@ -321,8 +322,18 @@ public class ConsoleCommands {
             TauCode c = chain.check(code);
             io.chainManager.removeChain(chain);
             if (c instanceof InviteTauCode invite) {
-                System.out.println("Invite");
-                System.out.printf("Title - %s, expire: %s%n", invite.title, invite.expiresData);
+                System.out.println("Invite Details:");
+                System.out.println(invite.code);
+                System.out.printf("Channel: %s%n", invite.title);
+                System.out.printf("Nickname: %s%n", invite.nickname);
+                System.out.printf("Sender Nickname: %s%n", invite.senderNickname);
+                System.out.printf("Creation Date: %s%n", invite.creationDate);
+                System.out.printf("Activation Date: %s%n",
+                        invite.activationDate != null ? invite.activationDate : "Not Activated");
+                boolean isExpired = invite.expiresDate != null && invite.expiresDate.isBefore(ZonedDateTime.now());
+                System.out.printf("Expiration Date: %s %s%n", invite.expiresDate, isExpired ? "(Expired)" : "");
+
+
             }
 
         } catch (NotFoundException e) {
