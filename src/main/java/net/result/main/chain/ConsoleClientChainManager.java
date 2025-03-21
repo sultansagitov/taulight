@@ -1,9 +1,9 @@
 package net.result.main.chain;
 
-import net.result.main.chain.client.ConsoleForwardClientChain;
+import net.result.main.chain.receiver.ConsoleForwardClientChain;
 import net.result.sandnode.chain.ReceiverChain;
-import net.result.sandnode.chain.client.UnhandledMessageTypeClientChain;
-import net.result.sandnode.chain.client.BSTClientChainManager;
+import net.result.sandnode.chain.receiver.UnhandledMessageTypeClientChain;
+import net.result.sandnode.chain.sender.BSTClientChainManager;
 import net.result.sandnode.message.util.MessageType;
 import net.result.taulight.message.TauMessageTypes;
 import org.jetbrains.annotations.Nullable;

@@ -1,7 +1,7 @@
 package net.result.sandnode.serverclient;
 
 import net.result.sandnode.hubagent.Node;
-import net.result.sandnode.chain.client.ClientChainManager;
+import net.result.sandnode.chain.sender.ClientChainManager;
 import net.result.sandnode.config.ClientConfig;
 import net.result.sandnode.exception.*;
 import net.result.sandnode.link.SandnodeLinkRecord;

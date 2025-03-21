@@ -5,9 +5,9 @@ import net.result.sandnode.exception.error.SandnodeErrorException;
 import net.result.sandnode.serverclient.SandnodeClient;
 import net.result.sandnode.exception.*;
 import net.result.sandnode.util.IOController;
-import net.result.sandnode.chain.client.GroupClientChain;
-import net.result.sandnode.chain.client.PublicKeyClientChain;
-import net.result.sandnode.chain.client.SymKeyClientChain;
+import net.result.sandnode.chain.sender.GroupClientChain;
+import net.result.sandnode.chain.sender.PublicKeyClientChain;
+import net.result.sandnode.chain.sender.SymKeyClientChain;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Collection;

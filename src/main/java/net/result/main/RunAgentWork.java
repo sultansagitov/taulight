@@ -1,6 +1,6 @@
 package net.result.main;
 
-import net.result.main.chain.client.ConsoleForwardRequestClientChain;
+import net.result.main.chain.sender.ConsoleForwardRequestClientChain;
 import net.result.main.chain.ConsoleClientChainManager;
 import net.result.main.config.ClientPropertiesConfig;
 import net.result.sandnode.exception.crypto.*;

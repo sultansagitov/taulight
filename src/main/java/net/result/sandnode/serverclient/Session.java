@@ -2,7 +2,7 @@ package net.result.sandnode.serverclient;
 
 import net.result.sandnode.exception.*;
 import net.result.sandnode.util.IOController;
-import net.result.sandnode.chain.server.ServerChainManager;
+import net.result.sandnode.chain.receiver.ServerChainManager;
 import net.result.sandnode.db.Member;
 import net.result.sandnode.group.Group;
 import org.apache.logging.log4j.LogManager;

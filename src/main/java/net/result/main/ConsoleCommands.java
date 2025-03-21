@@ -1,8 +1,8 @@
 package net.result.main;
 
 import net.result.sandnode.chain.IChain;
-import net.result.sandnode.chain.client.NameClientChain;
-import net.result.sandnode.chain.client.WhoAmIClientChain;
+import net.result.sandnode.chain.sender.NameClientChain;
+import net.result.sandnode.chain.sender.WhoAmIClientChain;
 import net.result.sandnode.exception.*;
 import net.result.sandnode.exception.error.AddressedMemberNotFoundException;
 import net.result.sandnode.exception.error.NotFoundException;
@@ -11,7 +11,7 @@ import net.result.sandnode.exception.error.UnauthorizedException;
 import net.result.sandnode.hubagent.ClientProtocol;
 import net.result.sandnode.message.types.ChainNameRequest;
 import net.result.sandnode.util.IOController;
-import net.result.taulight.chain.client.*;
+import net.result.taulight.chain.sender.*;
 import net.result.taulight.code.InviteTauCode;
 import net.result.taulight.code.TauCode;
 import net.result.taulight.db.ServerChatMessage;

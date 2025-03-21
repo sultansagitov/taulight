@@ -1,9 +1,9 @@
 package net.result.sandnode.hubagent;
 
-import net.result.sandnode.chain.client.LogPasswdClientChain;
-import net.result.sandnode.chain.client.LoginClientChain;
+import net.result.sandnode.chain.sender.LogPasswdClientChain;
+import net.result.sandnode.chain.sender.LoginClientChain;
 import net.result.sandnode.exception.*;
-import net.result.sandnode.chain.client.RegistrationClientChain;
+import net.result.sandnode.chain.sender.RegistrationClientChain;
 import net.result.sandnode.exception.error.SandnodeErrorException;
 import net.result.sandnode.util.IOController;
 

@@ -7,7 +7,7 @@ import net.result.sandnode.exception.UnprocessedMessagesException;
 import net.result.sandnode.exception.error.UnauthorizedException;
 import net.result.sandnode.message.types.ChainNameRequest;
 import net.result.sandnode.serverclient.Session;
-import net.result.taulight.chain.server.ForwardServerChain;
+import net.result.taulight.chain.sender.ForwardServerChain;
 import net.result.taulight.db.ChatMessage;
 import net.result.taulight.db.TauChat;
 import net.result.taulight.db.ServerChatMessage;
