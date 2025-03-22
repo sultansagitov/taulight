@@ -120,6 +120,18 @@ public class ChannelServerChain extends ServerChain implements ReceiverChain {
             return;
         }
 
+        TauChat chat = optChat.get();
+
+        if (!(chat instanceof TauChannel channel)) {
+            sendFin(Errors.WRONG_ADDRESS.createMessage());
+            return;
+        }
+
+        if (!chat.getMembers().contains(session.member)) {
+            sendFin(Errors.NOT_FOUND.createMessage());
+            return;
+        }
+
         if (optMember.isEmpty()) {
             sendFin(Errors.ADDRESSED_MEMBER_NOT_FOUND.createMessage());
             return;
@@ -127,14 +139,14 @@ public class ChannelServerChain extends ServerChain implements ReceiverChain {
 
         Member member = optMember.get();
 
-        if (!(optChat.get() instanceof TauChannel channel)) {
-            sendFin(Errors.WRONG_ADDRESS.createMessage());
-            return;
-        }
-
         //TODO add settings for inviting by another members
         if (!channel.owner().equals(session.member)) {
             sendFin(Errors.UNAUTHORIZED.createMessage());
+            return;
+        }
+
+        if (channel.getMembers().contains(member)) {
+            sendFin(Errors.NO_EFFECT.createMessage());
             return;
         }
 

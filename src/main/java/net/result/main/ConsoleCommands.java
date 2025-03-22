@@ -300,6 +300,8 @@ public class ConsoleCommands {
             System.out.printf("%n%s%n%n", code);
         } catch (NotFoundException e) {
             System.out.printf("Chat '%s' not found%n", chatID);
+        } catch (NoEffectException e) {
+            System.out.printf("'%s' already in%n", otherNickname);
         } catch (AddressedMemberNotFoundException e) {
             System.out.printf("Member '%s' not found%n", otherNickname);
         } catch (SandnodeErrorException | UnknownSandnodeErrorException e) {
