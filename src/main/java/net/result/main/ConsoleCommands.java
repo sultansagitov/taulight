@@ -1,23 +1,31 @@
 package net.result.main;
 
+import net.result.main.chain.sender.ConsoleForwardRequestClientChain;
 import net.result.sandnode.chain.IChain;
 import net.result.sandnode.chain.sender.NameClientChain;
 import net.result.sandnode.chain.sender.WhoAmIClientChain;
+import net.result.sandnode.error.ServerErrorManager;
 import net.result.sandnode.exception.*;
 import net.result.sandnode.exception.error.AddressedMemberNotFoundException;
 import net.result.sandnode.exception.error.NotFoundException;
 import net.result.sandnode.exception.error.SandnodeErrorException;
 import net.result.sandnode.exception.error.UnauthorizedException;
 import net.result.sandnode.hubagent.ClientProtocol;
+import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.message.types.ChainNameRequest;
+import net.result.sandnode.message.util.MessageType;
+import net.result.sandnode.message.util.MessageTypes;
 import net.result.sandnode.util.IOController;
 import net.result.taulight.chain.sender.*;
 import net.result.taulight.code.InviteTauCode;
 import net.result.taulight.code.TauCode;
+import net.result.taulight.db.ChatMessage;
 import net.result.taulight.db.ServerChatMessage;
 import net.result.sandnode.exception.error.NoEffectException;
 import net.result.taulight.message.ChatInfo;
 import net.result.taulight.message.ChatInfoProp;
+import net.result.taulight.message.types.ForwardRequest;
+import net.result.taulight.message.types.UUIDMessage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
@@ -35,12 +43,14 @@ public class ConsoleCommands {
 
     private static final Logger LOGGER = LogManager.getLogger(ConsoleCommands.class);
 
+    private final ConsoleForwardRequestClientChain chain;
     private final IOController io;
     public final Map<String, LoopCondition> commands;
     public final String nickname;
     public UUID currentChat = null;
 
-    public ConsoleCommands(IOController io, String nickname) {
+    public ConsoleCommands(ConsoleForwardRequestClientChain chain, IOController io, String nickname) {
+        this.chain = chain;
         this.io = io;
         this.nickname = nickname;
         commands = new HashMap<>();
@@ -64,6 +74,7 @@ public class ConsoleCommands {
         commands.put("whoami", this::whoami);
         commands.put("members", this::members);
         commands.put("name", this::name);
+        commands.put("reply", this::reply);
     }
 
     private boolean exit(List<String> ignored) {
@@ -503,6 +514,86 @@ public class ConsoleCommands {
 
         return false;
     }
+
+    private boolean reply(List<String> args) throws UnprocessedMessagesException, InterruptedException {
+        if (currentChat == null) {
+            System.out.println("chat not selected");
+            return false;
+        }
+
+        if (args.isEmpty()) {
+            return false;
+        }
+
+        String firstArg = args.get(0);
+        int replyCount;
+        try {
+            replyCount = Integer.parseInt(firstArg);
+        } catch (NumberFormatException e) {
+            System.out.printf("%s is not a number%n", firstArg);
+            return false;
+        }
+
+        List<UUID> replies = new ArrayList<>();
+
+        for (int i = 1; i <= replyCount && i < args.size(); i++) {
+            try {
+                replies.add(UUID.fromString(args.get(i)));
+            } catch (IllegalArgumentException e) {
+                System.out.printf("Invalid UUID: %s%n", args.get(i));
+                return false;
+            }
+        }
+
+        String input = String.join(" ", args.subList(replyCount + 1, args.size()));
+
+        if (input.isEmpty()) {
+            System.out.println("Message content is empty");
+            return false;
+        }
+
+        ChatMessage message = new ChatMessage()
+                .setChatID(currentChat)
+                .setContent(input)
+                .setReplies(replies)
+                .setNickname(nickname)
+                .setZtdNow();
+
+        chain.send(new ForwardRequest(message));
+        RawMessage raw = chain.queue.take();
+        MessageType type = raw.headers().type();
+        if (type == MessageTypes.EXIT) return true;
+
+        try {
+            ServerErrorManager.instance().handleError(raw);
+        } catch (NotFoundException e) {
+            System.out.printf("Chat %s was not found%n", currentChat);
+            return false;
+        } catch (NoEffectException e) {
+            System.out.println("Message not forwarded");
+            return false;
+        } catch (UnknownSandnodeErrorException | SandnodeErrorException e) {
+            System.out.printf("%s: %s%n", e.getClass().getSimpleName(), e.getMessage());
+            return false;
+        }
+
+        try {
+            raw.expect(MessageTypes.HAPPY);
+        } catch (ExpectedMessageException e) {
+            System.out.printf("%s: %s%n", e.getClass().getSimpleName(), e.getMessage());
+            return false;
+        }
+
+        try {
+            UUIDMessage uuidMessage = new UUIDMessage(raw);
+            System.out.printf("Sent message UUID: %s%n", uuidMessage.uuid);
+        } catch (DeserializationException e) {
+            System.out.println("Sent message with unknown UUID due to deserialization");
+        }
+
+        return false;
+    }
+
 
     private static void printInfo(Collection<ChatInfo> infos) {
         for (ChatInfo info : infos) {

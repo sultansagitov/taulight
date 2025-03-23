@@ -23,7 +23,7 @@ public class ConsoleForwardRequestClientChain extends ClientChain {
     }
 
     public void sync(String nickname) throws InterruptedException {
-        ConsoleCommands cc = new ConsoleCommands(io, nickname);
+        ConsoleCommands cc = new ConsoleCommands(this, io, nickname);
         Scanner scanner = new Scanner(System.in);
 
         while (true) {

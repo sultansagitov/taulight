@@ -5,6 +5,8 @@ import net.result.sandnode.db.Member;
 
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 public class ChatMessage {
@@ -18,6 +20,8 @@ public class ChatMessage {
     private String nickname = null;
     @JsonProperty
     private boolean sys = false;
+    @JsonProperty
+    private List<UUID> replies = null;
 
     public ChatMessage() {}
 
@@ -39,6 +43,10 @@ public class ChatMessage {
 
     public boolean sys() {
         return sys;
+    }
+
+    public List<UUID> replies() {
+        return replies;
     }
 
     public ChatMessage setContent(String content) {
@@ -78,10 +86,22 @@ public class ChatMessage {
         return this;
     }
 
-    @Override
-    public String toString() {
-        return "<ChatMessage content=%s, chatID=%s, ztd=%s, sys=%s, nickname=%s>"
-                .formatted(content, chatID, ztd, sys, nickname);
+    public ChatMessage setReplies(List<UUID> replies) {
+        this.replies = replies;
+        return this;
     }
 
+    public void addReply(UUID messageID) {
+        if (replies == null) {
+            replies = new ArrayList<>();
+        }
+
+        replies.add(messageID);
+    }
+
+    @Override
+    public String toString() {
+        return "<ChatMessage content=%s chatID=%s ztd=%s sys=%s nickname=%s replies=%s>"
+                .formatted(content, chatID, ztd, sys, nickname, replies);
+    }
 }

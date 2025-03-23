@@ -69,6 +69,17 @@ public class TauMariaDBDatabase extends SandnodeMariaDBDatabase implements TauDa
             )
         """);
 
+        // Message replies table
+        stmt.execute("""
+            CREATE TABLE IF NOT EXISTS message_replies (
+                message_id BINARY(16),
+                reply_to_id BINARY(16),
+                PRIMARY KEY (message_id, reply_to_id),
+                FOREIGN KEY (message_id) REFERENCES messages(message_id) ON DELETE CASCADE,
+                FOREIGN KEY (reply_to_id) REFERENCES messages(message_id) ON DELETE CASCADE
+            )
+        """);
+
         // Dialogs
         stmt.execute("""
             CREATE TABLE IF NOT EXISTS dialogs (
@@ -303,38 +314,63 @@ public class TauMariaDBDatabase extends SandnodeMariaDBDatabase implements TauDa
     public void saveMessage(@NotNull ServerChatMessage msg) throws DatabaseException, AlreadyExistingRecordException {
         ChatMessage chatMessage = msg.message();
 
-        try (Connection connection = dataSource.getConnection();
-             PreparedStatement stmt = connection.prepareStatement("""
+        try (Connection connection = dataSource.getConnection()) {
+            connection.setAutoCommit(false);
+            try {
+                // Existing message saving code
+                try (PreparedStatement stmt = connection.prepareStatement("""
                  INSERT INTO messages
                  (message_id, created_at, chat_id, content, timestamp, nickname, sys)
                  VALUES (?, ?, ?, ?, ?, ?, ?)
              """)) {
+                    stmt.setBytes(1, UUIDUtil.uuidToBinary(msg.id()));
+                    stmt.setTimestamp(2, Timestamp.from(msg.getCreationDate().toInstant()));
+                    stmt.setBytes(3, UUIDUtil.uuidToBinary(chatMessage.chatID()));
+                    stmt.setString(4, chatMessage.content());
+                    stmt.setTimestamp(5, Timestamp.from(chatMessage.ztd().toInstant()));
+                    stmt.setString(6, chatMessage.nickname());
+                    stmt.setBoolean(7, chatMessage.sys());
+                    stmt.executeUpdate();
+                }
 
+                // Save replies if any exist
+                List<UUID> replies = chatMessage.replies();
+                if (replies != null && !replies.isEmpty()) {
+                    try (PreparedStatement replyStmt = connection.prepareStatement("""
+                    INSERT INTO message_replies (message_id, reply_to_id) VALUES (?, ?)
+                """)) {
+                        byte[] messageIdBin = UUIDUtil.uuidToBinary(msg.id());
+                        replyStmt.setBytes(1, messageIdBin);
 
-            stmt.setBytes(1, UUIDUtil.uuidToBinary(msg.id()));
-            stmt.setTimestamp(2, Timestamp.from(msg.getCreationDate().toInstant()));
+                        for (UUID replyToId : replies) {
+                            replyStmt.setBytes(2, UUIDUtil.uuidToBinary(replyToId));
+                            replyStmt.addBatch();
+                        }
+                        replyStmt.executeBatch();
+                    }
+                }
 
-            stmt.setBytes(3, UUIDUtil.uuidToBinary(chatMessage.chatID()));
-            stmt.setString(4, chatMessage.content());
-            stmt.setTimestamp(5, Timestamp.from(chatMessage.ztd().toInstant()));
-            stmt.setString(6, chatMessage.nickname());
-            stmt.setBoolean(7, chatMessage.sys());
+                connection.commit();
+            } catch (SQLIntegrityConstraintViolationException e) {
+                connection.rollback();
+                String errorMessage = e.getMessage();
 
-            stmt.executeUpdate();
-
-        } catch (SQLIntegrityConstraintViolationException e) {
-            String errorMessage = e.getMessage();
-
-            if (errorMessage.contains("message_id")) {
-                throw new AlreadyExistingRecordException("Messages Table", "message_id", msg.id(), e);
-            } else if (errorMessage.contains("nickname")) {
-                throw new AlreadyExistingRecordException("Messages Table", "nickname", chatMessage.nickname(), e);
-            } else {
-                throw new AlreadyExistingRecordException("Messages Table", "chat_id (?)", chatMessage.chatID(), e);
+                if (errorMessage.contains("message_id")) {
+                    throw new AlreadyExistingRecordException("Messages Table", "message_id", msg.id(), e);
+                } else if (errorMessage.contains("nickname")) {
+                    throw new AlreadyExistingRecordException("Messages Table", "nickname", chatMessage.nickname(), e);
+                } else if (errorMessage.contains("reply_to_id")) {
+                    throw new AlreadyExistingRecordException("Message Replies Table", "reply_to_id", "one of the reply IDs", e);
+                } else {
+                    throw new AlreadyExistingRecordException("Messages Table", "chat_id (?)", chatMessage.chatID(), e);
+                }
+            } catch (SQLException e) {
+                connection.rollback();
+                throw new DatabaseException("Failed to save message", e);
+            } finally {
+                connection.setAutoCommit(true);
             }
-        }
-
-        catch (SQLException | IllegalArgumentException e) {
+        } catch (SQLException | IllegalArgumentException e) {
             throw new DatabaseException("Failed to save message", e);
         }
     }
@@ -344,16 +380,16 @@ public class TauMariaDBDatabase extends SandnodeMariaDBDatabase implements TauDa
         try (Connection conn = dataSource.getConnection()) {
             byte[] chatBin = UUIDUtil.uuidToBinary(chat.id());
 
+            List<ServerChatMessage> messages = new ArrayList<>();
             try (PreparedStatement stmt = conn.prepareStatement("""
-                SELECT * FROM messages WHERE chat_id = ?
-                ORDER BY timestamp DESC LIMIT ? OFFSET ?
-             """)) {
-
+                 SELECT * FROM messages WHERE chat_id = ?
+                 ORDER BY timestamp DESC LIMIT ? OFFSET ?
+            """)) {
                 stmt.setBytes(1, chatBin);
                 stmt.setInt(2, size);
                 stmt.setInt(3, index);
 
-                List<ServerChatMessage> messages = new ArrayList<>();
+                Map<UUID, ServerChatMessage> messageMap = new HashMap<>();
                 try (ResultSet rs = stmt.executeQuery()) {
                     while (rs.next()) {
                         byte[] messageBin = rs.getBytes("message_id");
@@ -380,8 +416,43 @@ public class TauMariaDBDatabase extends SandnodeMariaDBDatabase implements TauDa
                         serverMessage.setCreationDate(createdAt);
 
                         messages.add(serverMessage);
+                        messageMap.put(messageID, serverMessage);
                     }
                 }
+
+                if (!messages.isEmpty()) {
+                    StringBuilder messageIdList = new StringBuilder();
+                    for (int i = 0; i < messages.size(); i++) {
+                        if (i > 0) messageIdList.append(",");
+                        messageIdList.append("?");
+                    }
+
+                    try (PreparedStatement replyStmt = conn.prepareStatement("""
+                        SELECT message_id, reply_to_id FROM message_replies
+                        WHERE message_id IN (%s)
+                    """.formatted(messageIdList))) {
+
+                        for (int i = 0; i < messages.size(); i++) {
+                            replyStmt.setBytes(i + 1, UUIDUtil.uuidToBinary(messages.get(i).id()));
+                        }
+
+                        try (ResultSet rs = replyStmt.executeQuery()) {
+                            while (rs.next()) {
+                                byte[] msgIdBin = rs.getBytes("message_id");
+                                byte[] replyToIdBin = rs.getBytes("reply_to_id");
+
+                                UUID msgId = UUIDUtil.binaryToUUID(msgIdBin);
+                                UUID replyToId = UUIDUtil.binaryToUUID(replyToIdBin);
+
+                                ServerChatMessage serverMsg = messageMap.get(msgId);
+                                if (serverMsg != null) {
+                                    serverMsg.message().addReply(replyToId);
+                                }
+                            }
+                        }
+                    }
+                }
+
                 return messages;
             }
         } catch (SQLException | IllegalArgumentException e) {
@@ -390,7 +461,7 @@ public class TauMariaDBDatabase extends SandnodeMariaDBDatabase implements TauDa
     }
 
     @Override
-    public Collection<Member> getMembersFromChannel(TauChannel channel) throws DatabaseException {
+    public Collection<Member> getMembersFromChannel(@NotNull TauChannel channel) throws DatabaseException {
         byte[] chatID = UUIDUtil.uuidToBinary(channel.id());
         try (
                 Connection conn = dataSource.getConnection();
@@ -443,7 +514,7 @@ public class TauMariaDBDatabase extends SandnodeMariaDBDatabase implements TauDa
     }
 
     @Override
-    public void leaveFromChat(TauChat chat, @NotNull Member member) throws DatabaseException {
+    public void leaveFromChat(@NotNull TauChat chat, @NotNull Member member) throws DatabaseException {
         try (Connection conn = dataSource.getConnection()) {
             byte[] chatID = UUIDUtil.uuidToBinary(chat.id());
 
@@ -567,7 +638,8 @@ public class TauMariaDBDatabase extends SandnodeMariaDBDatabase implements TauDa
     }
 
     @Override
-    public void createInviteToken(InviteCodeObject inviteCode) throws DatabaseException, AlreadyExistingRecordException {
+    public void createInviteToken(@NotNull InviteCodeObject inviteCode)
+            throws DatabaseException, AlreadyExistingRecordException {
         try (Connection conn = dataSource.getConnection()) {
             conn.setAutoCommit(false);
             try {
@@ -671,7 +743,7 @@ public class TauMariaDBDatabase extends SandnodeMariaDBDatabase implements TauDa
     }
 
     @Override
-    public boolean activateInviteToken(InviteCodeObject token) throws DatabaseException {
+    public boolean activateInviteToken(@NotNull InviteCodeObject token) throws DatabaseException {
         try (Connection conn = dataSource.getConnection();
              PreparedStatement stmt = conn.prepareStatement("""
                  UPDATE invite_codes
@@ -765,7 +837,7 @@ public class TauMariaDBDatabase extends SandnodeMariaDBDatabase implements TauDa
 
 
     @Override
-    public List<InviteCodeObject> getActiveInviteCode(TauChannel channel) throws DatabaseException {
+    public List<InviteCodeObject> getActiveInviteCode(@NotNull TauChannel channel) throws DatabaseException {
         UUID chatID = channel.id();
 
         try (Connection conn = dataSource.getConnection()) {
