@@ -8,9 +8,13 @@ import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.message.TextMessage;
 import net.result.sandnode.message.types.HappyMessage;
 import net.result.sandnode.util.IOController;
+import net.result.taulight.code.TauCode;
+import net.result.taulight.message.CodeListMessage;
+import net.result.taulight.message.TauMessageTypes;
 import net.result.taulight.message.types.ChannelRequest;
 import net.result.taulight.message.types.UUIDMessage;
 
+import java.util.Collection;
 import java.util.UUID;
 
 public class ChannelClientChain extends ClientChain {
@@ -46,5 +50,16 @@ public class ChannelClientChain extends ClientChain {
         ServerErrorManager.instance().handleError(raw);
 
         return new TextMessage(raw).content();
+    }
+
+    public synchronized Collection<TauCode> getCodes(UUID chatID)
+            throws InterruptedException, UnknownSandnodeErrorException, SandnodeErrorException,
+            UnprocessedMessagesException, DeserializationException, ExpectedMessageException {
+        send(ChannelRequest.codes(chatID));
+        RawMessage raw = queue.take();
+        ServerErrorManager.instance().handleError(raw);
+
+        raw.expect(TauMessageTypes.CHANNEL);
+        return new CodeListMessage(raw).codes();
     }
 }

@@ -9,6 +9,7 @@ import net.result.sandnode.util.UUIDUtil;
 import net.result.taulight.db.*;
 import net.result.taulight.exception.AlreadyExistingRecordException;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.sql.*;
 import java.time.ZonedDateTime;
@@ -360,7 +361,8 @@ public class TauMariaDBDatabase extends SandnodeMariaDBDatabase implements TauDa
                 } else if (errorMessage.contains("nickname")) {
                     throw new AlreadyExistingRecordException("Messages Table", "nickname", chatMessage.nickname(), e);
                 } else if (errorMessage.contains("reply_to_id")) {
-                    throw new AlreadyExistingRecordException("Message Replies Table", "reply_to_id", "one of the reply IDs", e);
+                    throw new AlreadyExistingRecordException(
+                            "Message Replies Table", "reply_to_id", "one of the reply IDs", e);
                 } else {
                     throw new AlreadyExistingRecordException("Messages Table", "chat_id (?)", chatMessage.chatID(), e);
                 }
@@ -869,12 +871,14 @@ public class TauMariaDBDatabase extends SandnodeMariaDBDatabase implements TauDa
                                 .getTimestamp("created_at").toInstant()
                                 .atZone(ZonedDateTime.now().getZone());
 
-                        ZonedDateTime activatedAt = rs
-                                .getTimestamp("activated_at").toInstant()
-                                .atZone(ZonedDateTime.now().getZone());
+                        @Nullable Timestamp activatedTimestamp = rs.getTimestamp("activated_at");
+                        ZonedDateTime activatedAt = null;
+                        if (activatedTimestamp != null) {
+                            activatedAt = activatedTimestamp.toInstant().atZone(ZonedDateTime.now().getZone());
+                        }
 
-                        InviteCodeObject token = new InviteCodeObject(this, tokenId, createdAt, code, chatID, nickname, senderNickname, expiresAt,
-                                activatedAt);
+                        InviteCodeObject token = new InviteCodeObject(this, tokenId, createdAt,
+                                code, chatID, nickname, senderNickname, expiresAt, activatedAt);
                         tokens.add(token);
                     }
                 }
@@ -915,12 +919,14 @@ public class TauMariaDBDatabase extends SandnodeMariaDBDatabase implements TauDa
                                 .getTimestamp("created_at").toInstant()
                                 .atZone(ZonedDateTime.now().getZone());
 
-                        ZonedDateTime activatedAt = rs
-                                .getTimestamp("activated_at").toInstant()
-                                .atZone(ZonedDateTime.now().getZone());
+                        Timestamp activatedTimestamp = rs.getTimestamp("activated_at");
+                        ZonedDateTime activatedAt = null;
+                        if (activatedTimestamp != null) {
+                            activatedAt = activatedTimestamp.toInstant().atZone(ZonedDateTime.now().getZone());
+                        }
 
-                        InviteCodeObject token = new InviteCodeObject(this, tokenId, createdAt, code, chatId, nickname, senderNickname, expiresAt,
-                                activatedAt);
+                        var token = new InviteCodeObject(this, tokenId, createdAt,
+                                code, chatId, nickname, senderNickname, expiresAt, activatedAt);
                         tokens.add(token);
                     }
                 }

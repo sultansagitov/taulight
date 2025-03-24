@@ -75,6 +75,8 @@ public class ConsoleCommands {
         commands.put("members", this::members);
         commands.put("name", this::name);
         commands.put("reply", this::reply);
+        commands.put("chatInvites", this::chatInvites);
+        //commands.put("myInvites", this::myInvites);
     }
 
     private boolean exit(List<String> ignored) {
@@ -594,6 +596,78 @@ public class ConsoleCommands {
         return false;
     }
 
+    private boolean chatInvites(@NotNull List<String> args) throws InterruptedException, UnprocessedMessagesException {
+        UUID chatID = args.stream().findFirst().map(UUID::fromString).orElse(currentChat);
+
+        if (chatID == null) {
+            System.out.println("Chat not selected");
+            return false;
+        }
+
+        try {
+            var chain = new ChannelClientChain(io);
+            io.chainManager.linkChain(chain);
+            Collection<TauCode> invites = chain.getCodes(chatID);
+            io.chainManager.removeChain(chain);
+
+            if (invites.isEmpty()) {
+                System.out.printf("No active invites found for chat %s%n", chatID);
+            } else {
+                System.out.printf("Active invites for chat %s:%n", chatID);
+                for (var k : invites) {
+                    InviteTauCode invite = (InviteTauCode) k;
+                    System.out.println("----------------------------");
+                    System.out.printf("Code: %s%n", invite.code);
+                    System.out.printf("Nickname: %s%n", invite.nickname);
+                    System.out.printf("Sender: %s%n", invite.senderNickname);
+                    System.out.printf("Created: %s%n", invite.creationDate);
+                    System.out.printf("Expires: %s%n", invite.expiresDate != null ? invite.expiresDate : "Never");
+                    System.out.printf("Status: %s%n",
+                            invite.activationDate != null ? "Used on " + invite.activationDate : "Active");
+                }
+            }
+        } catch (NotFoundException e) {
+            System.out.printf("Chat '%s' not found%n", chatID);
+        } catch (UnauthorizedException e) {
+            System.out.println("You are not authorized to view invites for this chat");
+        } catch (DeserializationException | ExpectedMessageException | SandnodeErrorException |
+                 UnknownSandnodeErrorException e) {
+            System.out.printf("Failed to retrieve chat invites - %s%n", e.getClass());
+        }
+
+        return false;
+    }
+
+//    private boolean myInvites(List<String> args) throws InterruptedException, UnprocessedMessagesException {
+//        try {
+//            io.chainManager.linkChain(chain);
+//            List<InviteTauCode> invites = chain.getMyInvites();
+//            io.chainManager.removeChain(chain);
+//
+//            if (invites.isEmpty()) {
+//                System.out.println("You have no active invites");
+//            } else {
+//                System.out.println("Your active invites:");
+//                for (InviteTauCode invite : invites) {
+//                    System.out.println("----------------------------");
+//                    System.out.printf("Code: %s%n", invite.code);
+//                    System.out.printf("Chat: %s%n", invite.title);
+//                    System.out.printf("For user: %s%n", invite.nickname);
+//                    System.out.printf("Created: %s%n", invite.creationDate);
+//                    System.out.printf("Expires: %s%n", invite.expiresDate);
+//                    System.out.printf("Status: %s%n",
+//                            invite.activationDate != null ? "Used on " + invite.activationDate : "Active");
+//                }
+//            }
+//        } catch (UnauthorizedException e) {
+//            System.out.println("You are not authorized to view your invites");
+//        } catch (DeserializationException | ExpectedMessageException | SandnodeErrorException |
+//                 UnknownSandnodeErrorException e) {
+//            System.out.printf("Failed to retrieve your invites - %s%n", e.getClass());
+//        }
+//
+//        return false;
+//    }
 
     private static void printInfo(Collection<ChatInfo> infos) {
         for (ChatInfo info : infos) {

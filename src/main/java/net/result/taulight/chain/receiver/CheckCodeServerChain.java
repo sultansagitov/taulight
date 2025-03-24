@@ -45,11 +45,11 @@ public class CheckCodeServerChain extends ServerChain implements ReceiverChain {
             return;
         }
 
-        InviteCodeObject inviteCode = optInviteCode.get();
+        InviteCodeObject invite = optInviteCode.get();
 
         Optional<TauChat> chat;
         try {
-            chat = database.getChat(inviteCode.getChatID());
+            chat = database.getChat(invite.getChatID());
         } catch (DatabaseException e) {
             throw new ServerSandnodeErrorException(e);
         }
@@ -59,7 +59,7 @@ public class CheckCodeServerChain extends ServerChain implements ReceiverChain {
             return;
         }
 
-        InviteTauCode code = new InviteTauCode(inviteCode, channel.title(), inviteCode.getNickname(), inviteCode.getSenderNickname());
+        var code = new InviteTauCode(invite, channel.title(), invite.getNickname(), invite.getSenderNickname());
         CheckCodeResponse response = new CheckCodeResponse(code);
         sendFin(response);
     }

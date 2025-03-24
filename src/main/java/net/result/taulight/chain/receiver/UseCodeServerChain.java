@@ -31,7 +31,8 @@ public class UseCodeServerChain extends ServerChain  implements ReceiverChain {
 
     // TODO check for session.member is member from code
     @Override
-    public void sync() throws InterruptedException, ExpectedMessageException, UnprocessedMessagesException, ServerSandnodeErrorException {
+    public void sync() throws InterruptedException, ExpectedMessageException, UnprocessedMessagesException,
+            ServerSandnodeErrorException {
         var request = new UseCodeRequest(queue.take());
         String code = request.content();
 
