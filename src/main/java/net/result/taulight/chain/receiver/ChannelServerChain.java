@@ -248,7 +248,7 @@ public class ChannelServerChain extends ServerChain implements ReceiverChain {
 
         Collection<InviteCodeObject> codes;
         try {
-            codes = database.getActiveInviteCode(channel);
+            codes = database.getActiveInviteCodes(channel);
         } catch (DatabaseException e) {
             throw new ServerSandnodeErrorException("Error while searching codes from chat");
         }

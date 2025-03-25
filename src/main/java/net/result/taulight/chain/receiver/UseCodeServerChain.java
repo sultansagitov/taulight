@@ -45,7 +45,7 @@ public class UseCodeServerChain extends ServerChain  implements ReceiverChain {
 
         Optional<InviteCodeObject> inviteToken;
         try {
-            inviteToken = database.getInviteToken(code);
+            inviteToken = database.getInviteCode(code);
         } catch (DatabaseException e) {
             throw new ServerSandnodeErrorException(e);
         }

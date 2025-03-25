@@ -640,13 +640,13 @@ public class TauMariaDBDatabase extends SandnodeMariaDBDatabase implements TauDa
     }
 
     @Override
-    public void createInviteToken(@NotNull InviteCodeObject inviteCode)
+    public void createInviteCode(@NotNull InviteCodeObject code)
             throws DatabaseException, AlreadyExistingRecordException {
         try (Connection conn = dataSource.getConnection()) {
             conn.setAutoCommit(false);
             try {
-                byte[] tokenId = UUIDUtil.uuidToBinary(inviteCode.id());
-                byte[] chatId = UUIDUtil.uuidToBinary(inviteCode.getChatID());
+                byte[] tokenId = UUIDUtil.uuidToBinary(code.id());
+                byte[] chatId = UUIDUtil.uuidToBinary(code.getChatID());
 
                 try (PreparedStatement stmt = conn.prepareStatement("""
                     INSERT INTO invite_codes
@@ -654,31 +654,31 @@ public class TauMariaDBDatabase extends SandnodeMariaDBDatabase implements TauDa
                     VALUES (?, ?, ?, ?, ?, ?, ?, NULL)
                 """)) {
                     stmt.setBytes(1, tokenId);
-                    stmt.setTimestamp(2, Timestamp.from(inviteCode.getExpiresData().toInstant()));
-                    stmt.setString(3, inviteCode.getNickname());
+                    stmt.setTimestamp(2, Timestamp.from(code.getExpiresData().toInstant()));
+                    stmt.setString(3, code.getNickname());
                     stmt.setBytes(4, chatId);
-                    stmt.setString(5, inviteCode.getCode());
-                    stmt.setTimestamp(6, Timestamp.from(inviteCode.getCreationDate().toInstant()));
-                    stmt.setString(7, inviteCode.getSenderNickname());
+                    stmt.setString(5, code.getCode());
+                    stmt.setTimestamp(6, Timestamp.from(code.getCreationDate().toInstant()));
+                    stmt.setString(7, code.getSenderNickname());
 
                     stmt.executeUpdate();
                 } catch (SQLIntegrityConstraintViolationException e) {
                     String errorMessage = e.getMessage();
 
                     if (errorMessage.contains("token_id")) {
-                        throw new AlreadyExistingRecordException("Invite Tokens", "token_id", inviteCode.id(), e);
+                        throw new AlreadyExistingRecordException("Invite Tokens", "token_id", code.id(), e);
                     } else if (errorMessage.contains("code")) {
                         throw new AlreadyExistingRecordException(
-                                "Invite Tokens", "code", inviteCode.getCode(), e);
+                                "Invite Tokens", "code", code.getCode(), e);
                     } else if (errorMessage.contains("nickname")) {
                         throw new AlreadyExistingRecordException(
-                                "Invite Tokens", "nickname", inviteCode.getNickname(), e);
+                                "Invite Tokens", "nickname", code.getNickname(), e);
                     } else if (errorMessage.contains("chat_id")) {
                         throw new AlreadyExistingRecordException(
-                                "Invite Tokens", "chat_id", inviteCode.getChatID(), e);
+                                "Invite Tokens", "chat_id", code.getChatID(), e);
                     } else if (errorMessage.contains("sender_nickname")) {
                         throw new AlreadyExistingRecordException(
-                                "Invite Tokens", "sender_nickname", inviteCode.getSenderNickname(), e);
+                                "Invite Tokens", "sender_nickname", code.getSenderNickname(), e);
                     } else {
                         throw new AlreadyExistingRecordException("Invite Tokens", e);
                     }
@@ -697,7 +697,7 @@ public class TauMariaDBDatabase extends SandnodeMariaDBDatabase implements TauDa
     }
 
     @Override
-    public Optional<InviteCodeObject> getInviteToken(String code) throws DatabaseException {
+    public Optional<InviteCodeObject> getInviteCode(String code) throws DatabaseException {
         try (
                 Connection conn = dataSource.getConnection();
                 PreparedStatement stmt = conn.prepareStatement("""
@@ -745,7 +745,7 @@ public class TauMariaDBDatabase extends SandnodeMariaDBDatabase implements TauDa
     }
 
     @Override
-    public boolean activateInviteToken(@NotNull InviteCodeObject token) throws DatabaseException {
+    public boolean activateInviteCode(@NotNull InviteCodeObject code) throws DatabaseException {
         try (Connection conn = dataSource.getConnection();
              PreparedStatement stmt = conn.prepareStatement("""
                  UPDATE invite_codes
@@ -753,7 +753,7 @@ public class TauMariaDBDatabase extends SandnodeMariaDBDatabase implements TauDa
                  WHERE code = ? AND activated_at IS NULL
              """)) {
 
-            stmt.setString(1, token.getCode());
+            stmt.setString(1, code.getCode());
             int updated = stmt.executeUpdate();
 
             return updated > 0;
@@ -763,7 +763,7 @@ public class TauMariaDBDatabase extends SandnodeMariaDBDatabase implements TauDa
     }
 
     @Override
-    public boolean deleteInviteToken(String code) throws DatabaseException {
+    public boolean deleteInviteCode(String code) throws DatabaseException {
         try (
                 Connection conn = dataSource.getConnection();
                 PreparedStatement stmt = conn.prepareStatement("DELETE FROM invite_codes WHERE code = ?")
@@ -777,7 +777,7 @@ public class TauMariaDBDatabase extends SandnodeMariaDBDatabase implements TauDa
     }
 
     @Override
-    public List<InviteCodeObject> getInviteTokensBySender(
+    public List<InviteCodeObject> getInviteCodesBySender(
             String senderNickname,
             boolean includeExpired,
             boolean includeActivated
@@ -839,7 +839,7 @@ public class TauMariaDBDatabase extends SandnodeMariaDBDatabase implements TauDa
 
 
     @Override
-    public List<InviteCodeObject> getActiveInviteCode(@NotNull TauChannel channel) throws DatabaseException {
+    public List<InviteCodeObject> getActiveInviteCodes(@NotNull TauChannel channel) throws DatabaseException {
         UUID chatID = channel.id();
 
         try (Connection conn = dataSource.getConnection()) {

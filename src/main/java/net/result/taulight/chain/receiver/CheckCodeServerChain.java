@@ -35,7 +35,7 @@ public class CheckCodeServerChain extends ServerChain implements ReceiverChain {
 
         Optional<InviteCodeObject> optInviteCode;
         try {
-            optInviteCode = database.getInviteToken(request.content());
+            optInviteCode = database.getInviteCode(request.content());
         } catch (DatabaseException e) {
             throw new ServerSandnodeErrorException(e);
         }

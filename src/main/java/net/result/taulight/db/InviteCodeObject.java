@@ -64,7 +64,7 @@ public class InviteCodeObject extends TaulightObject {
     public void save() throws DatabaseException {
         while (true) {
             try {
-                database().createInviteToken(this);
+                database().createInviteCode(this);
                 return;
             } catch (AlreadyExistingRecordException ignored) {
                 setRandomCode();
@@ -73,7 +73,7 @@ public class InviteCodeObject extends TaulightObject {
     }
 
     public boolean activate() throws DatabaseException {
-        return database().activateInviteToken(this);
+        return database().activateInviteCode(this);
     }
 
     public ZonedDateTime getExpiresData() {
