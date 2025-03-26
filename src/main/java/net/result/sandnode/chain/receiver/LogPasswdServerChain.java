@@ -3,51 +3,33 @@ package net.result.sandnode.chain.receiver;
 import net.result.sandnode.chain.ReceiverChain;
 import net.result.sandnode.db.Database;
 import net.result.sandnode.db.Member;
-import net.result.sandnode.error.Errors;
-import net.result.sandnode.exception.*;
-import net.result.sandnode.exception.error.ServerSandnodeErrorException;
+import net.result.sandnode.exception.error.UnauthorizedException;
 import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.message.types.*;
 import net.result.sandnode.serverclient.Session;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
-import java.util.Optional;
 
 public abstract class LogPasswdServerChain extends ServerChain implements ReceiverChain {
-    private static final Logger LOGGER = LogManager.getLogger(LogPasswdServerChain.class);
-
     public LogPasswdServerChain(Session session) {
         super(session);
     }
 
     @Override
-    public void sync() throws InterruptedException, SandnodeException {
+    public void sync() throws Exception {
         RawMessage request = queue.take();
         LogPasswdRequest msg = new LogPasswdRequest(request);
 
         Database database = session.server.serverConfig.database();
-        Optional<Member> opt;
 
-        try {
-            opt = database.findMemberByNickname(msg.getNickname());
-        } catch (DatabaseException e) {
-            LOGGER.error(e);
-            throw new ServerSandnodeErrorException();
-        }
+        Member member = database
+                .findMemberByNickname(msg.getNickname())
+                .orElseThrow(UnauthorizedException::new);
 
-        if (opt.isEmpty()) {
-            sendFin(Errors.UNAUTHORIZED.createMessage());
-            return;
-        }
-
-        boolean verified = database.hasher().verify(msg.getPassword(), opt.get().hashedPassword());
+        boolean verified = database.hasher().verify(msg.getPassword(), member.hashedPassword());
         if (!verified) {
-            send(Errors.UNAUTHORIZED.createMessage());
-            return;
+            throw new UnauthorizedException();
         }
 
-        session.member = opt.get();
+        session.member = member;
 
         onLogin();
 
@@ -55,5 +37,5 @@ public abstract class LogPasswdServerChain extends ServerChain implements Receiv
         sendFin(new LogPasswdResponse(token));
     }
 
-    protected abstract void onLogin() throws InterruptedException, SandnodeException;
+    protected abstract void onLogin() throws Exception;
 }

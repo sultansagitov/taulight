@@ -1,8 +1,9 @@
 package net.result.sandnode.exception.error;
 
+import net.result.sandnode.error.SandnodeError;
 import net.result.sandnode.exception.SandnodeException;
 
-public class SandnodeErrorException extends SandnodeException {
+public abstract class SandnodeErrorException extends SandnodeException {
     public SandnodeErrorException() {
         super();
     }
@@ -18,4 +19,6 @@ public class SandnodeErrorException extends SandnodeException {
     public SandnodeErrorException(String message) {
         super(message);
     }
+
+    public abstract SandnodeError getSandnodeError();
 }

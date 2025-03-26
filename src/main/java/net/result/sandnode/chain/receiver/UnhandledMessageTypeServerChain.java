@@ -1,11 +1,8 @@
 package net.result.sandnode.chain.receiver;
 
 import net.result.sandnode.chain.ReceiverChain;
-import net.result.sandnode.error.Errors;
 import net.result.sandnode.error.ServerErrorManager;
-import net.result.sandnode.exception.ExpectedMessageException;
-import net.result.sandnode.exception.UnknownSandnodeErrorException;
-import net.result.sandnode.exception.UnprocessedMessagesException;
+import net.result.sandnode.error.UnhandledMessageTypeException;
 import net.result.sandnode.exception.error.SandnodeErrorException;
 import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.message.types.ErrorMessage;
@@ -22,15 +19,18 @@ public class UnhandledMessageTypeServerChain extends ServerChain implements Rece
     }
 
     @Override
-    public void sync() throws InterruptedException, UnprocessedMessagesException, ExpectedMessageException,
-            UnknownSandnodeErrorException, SandnodeErrorException {
+    public void sync() throws Exception {
         RawMessage raw = queue.take();
+
         LOGGER.error(raw);
         if (raw.headers().type() != MessageTypes.ERR) {
-            sendFin(Errors.UNHANDLED_MESSAGE_TYPE.createMessage());
-            return;
+            throw new UnhandledMessageTypeException();
         }
         ErrorMessage errorMessage = new ErrorMessage(raw);
-        ServerErrorManager.instance().throwAll(errorMessage.error);
+        try {
+            ServerErrorManager.instance().throwAll(errorMessage.error);
+        } catch (SandnodeErrorException e) {
+            LOGGER.error("Unhandled error from client", e);
+        }
     }
 }

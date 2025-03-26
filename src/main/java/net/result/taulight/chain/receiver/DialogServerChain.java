@@ -3,10 +3,9 @@ package net.result.taulight.chain.receiver;
 import net.result.sandnode.chain.ReceiverChain;
 import net.result.sandnode.chain.receiver.ServerChain;
 import net.result.sandnode.db.Member;
-import net.result.sandnode.error.Errors;
 import net.result.sandnode.exception.DatabaseException;
 import net.result.sandnode.exception.ImpossibleRuntimeException;
-import net.result.sandnode.exception.error.ServerSandnodeErrorException;
+import net.result.sandnode.exception.error.AddressedMemberNotFoundException;
 import net.result.sandnode.exception.error.UnauthorizedException;
 import net.result.sandnode.message.util.Headers;
 import net.result.sandnode.message.util.MessageTypes;
@@ -43,40 +42,32 @@ public class DialogServerChain extends ServerChain implements ReceiverChain {
         DialogRequest request = new DialogRequest(queue.take());
 
         if (session.member == null) {
-            sendFin(Errors.UNAUTHORIZED.createMessage());
-            return;
+            throw new UnauthorizedException();
         }
 
         TauDialog dialog;
-        Optional<Member> anotherMember;
-        try {
-            anotherMember = database.findMemberByNickname(request.nickname());
-            if (anotherMember.isEmpty()) {
-                send(Errors.ADDRESSED_MEMBER_NOT_FOUND.createMessage());
-                return;
+        Member anotherMember = database
+                .findMemberByNickname(request.nickname())
+                .orElseThrow(AddressedMemberNotFoundException::new);
+
+        Optional<TauDialog> dialogOpt = database.findDialog(session.member, anotherMember);
+        if (dialogOpt.isPresent()) {
+            dialog = dialogOpt.get();
+        } else {
+            dialog = database.createDialog(session.member, anotherMember);
+
+            ChatMessage chatMessage = SysMessages.dialogNew.chatMessage(dialog, session.member);
+
+            try {
+                TauHubProtocol.send(session, dialog, chatMessage);
+            } catch (UnauthorizedException e) {
+                throw new ImpossibleRuntimeException(e);
+            } catch (DatabaseException | NoEffectException e) {
+                LOGGER.warn("Ignored exception: {}", e.getMessage());
             }
-
-            Optional<TauDialog> dialogOpt = database.findDialog(session.member, anotherMember.get());
-            if (dialogOpt.isPresent()) {
-                dialog = dialogOpt.get();
-            } else {
-                dialog = database.createDialog(session.member, anotherMember.get());
-
-                ChatMessage chatMessage = SysMessages.dialogNew.chatMessage(dialog, session.member);
-
-                try {
-                    TauHubProtocol.send(session, dialog, chatMessage);
-                } catch (UnauthorizedException e) {
-                    throw new ImpossibleRuntimeException(e);
-                } catch (DatabaseException | NoEffectException e) {
-                    LOGGER.warn("Ignored exception: {}", e.getMessage());
-                }
-            }
-        } catch (DatabaseException e) {
-            throw new ServerSandnodeErrorException(e);
         }
 
-        Collection<Member> members = List.of(session.member, anotherMember.get());
+        Collection<Member> members = List.of(session.member, anotherMember);
         TauAgentProtocol.addMembersToGroup(session, members, manager.getGroup(dialog));
 
         sendFin(new UUIDMessage(new Headers().setType(MessageTypes.HAPPY), dialog));

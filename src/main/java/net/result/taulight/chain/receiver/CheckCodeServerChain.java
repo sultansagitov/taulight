@@ -2,10 +2,9 @@ package net.result.taulight.chain.receiver;
 
 import net.result.sandnode.chain.ReceiverChain;
 import net.result.sandnode.chain.receiver.ServerChain;
-import net.result.sandnode.error.Errors;
-import net.result.sandnode.exception.DatabaseException;
 import net.result.sandnode.exception.SandnodeException;
-import net.result.sandnode.exception.error.ServerSandnodeErrorException;
+import net.result.sandnode.exception.error.NotFoundException;
+import net.result.sandnode.exception.error.UnauthorizedException;
 import net.result.sandnode.serverclient.Session;
 import net.result.taulight.code.InviteTauCode;
 import net.result.taulight.db.InviteCodeObject;
@@ -15,7 +14,7 @@ import net.result.taulight.db.TauDatabase;
 import net.result.taulight.message.types.CheckCodeRequest;
 import net.result.taulight.message.types.CheckCodeResponse;
 
-import java.util.Optional;
+import java.util.UUID;
 
 public class CheckCodeServerChain extends ServerChain implements ReceiverChain {
     public CheckCodeServerChain(Session session) {
@@ -27,36 +26,21 @@ public class CheckCodeServerChain extends ServerChain implements ReceiverChain {
         CheckCodeRequest request = new CheckCodeRequest(queue.take());
 
         if (session.member == null) {
-            sendFin(Errors.UNAUTHORIZED.createMessage());
-            return;
+            throw new UnauthorizedException();
         }
 
         TauDatabase database = (TauDatabase) session.member.database();
 
-        Optional<InviteCodeObject> optInviteCode;
-        try {
-            optInviteCode = database.getInviteCode(request.content());
-        } catch (DatabaseException e) {
-            throw new ServerSandnodeErrorException(e);
-        }
+        InviteCodeObject invite = database
+                .getInviteCode(request.content())
+                .orElseThrow(NotFoundException::new);
 
-        if (optInviteCode.isEmpty()) {
-            sendFin(Errors.NOT_FOUND.createMessage());
-            return;
-        }
+        UUID chatID = invite.getChatID();
 
-        InviteCodeObject invite = optInviteCode.get();
+        TauChat chat = database.getChat(chatID).orElseThrow(NotFoundException::new);
 
-        Optional<TauChat> chat;
-        try {
-            chat = database.getChat(invite.getChatID());
-        } catch (DatabaseException e) {
-            throw new ServerSandnodeErrorException(e);
-        }
-
-        if (chat.isEmpty() || !(chat.get() instanceof TauChannel channel)) {
-            sendFin(Errors.NOT_FOUND.createMessage());
-            return;
+        if (!(chat instanceof TauChannel channel)) {
+            throw new NotFoundException();
         }
 
         var code = new InviteTauCode(invite, channel.title(), invite.getNickname(), invite.getSenderNickname());

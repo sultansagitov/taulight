@@ -3,13 +3,10 @@ package net.result.sandnode.chain.receiver;
 import net.result.sandnode.chain.ReceiverChain;
 import net.result.sandnode.db.Database;
 import net.result.sandnode.exception.SandnodeException;
-import net.result.sandnode.exception.error.BusyNicknameException;
-import net.result.sandnode.exception.DatabaseException;
-import net.result.sandnode.exception.error.ServerSandnodeErrorException;
+import net.result.sandnode.exception.error.InvalidNicknamePassword;
 import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.message.types.RegistrationRequest;
 import net.result.sandnode.message.types.RegistrationResponse;
-import net.result.sandnode.error.Errors;
 import net.result.sandnode.security.Tokenizer;
 import net.result.sandnode.serverclient.Session;
 
@@ -30,18 +27,11 @@ public class RegistrationServerChain extends ServerChain implements ReceiverChai
         String password = regMsg.getPassword();
 
         if (nickname.isEmpty() || password.isEmpty()) {
-            sendFin(Errors.INVALID_NICKNAME_OR_PASSWORD.createMessage());
-            return;
+            throw new InvalidNicknamePassword();
         }
 
-        try {
-            session.member = database.registerMember(nickname, password);
-            String token = tokenizer.tokenizeMember(session.member);
-            sendFin(new RegistrationResponse(token));
-        } catch (BusyNicknameException e) {
-            sendFin(Errors.BUSY_NICKNAME.createMessage());
-        } catch (DatabaseException e) {
-            throw new ServerSandnodeErrorException(e);
-        }
+        session.member = database.registerMember(nickname, password);
+        String token = tokenizer.tokenizeMember(session.member);
+        sendFin(new RegistrationResponse(token));
     }
 }

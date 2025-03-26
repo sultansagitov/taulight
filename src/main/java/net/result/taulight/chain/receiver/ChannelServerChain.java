@@ -3,8 +3,7 @@ package net.result.taulight.chain.receiver;
 import net.result.sandnode.chain.ReceiverChain;
 import net.result.sandnode.chain.receiver.ServerChain;
 import net.result.sandnode.exception.*;
-import net.result.sandnode.exception.error.ServerSandnodeErrorException;
-import net.result.sandnode.exception.error.UnauthorizedException;
+import net.result.sandnode.exception.error.*;
 import net.result.sandnode.message.TextMessage;
 import net.result.sandnode.message.util.Headers;
 import net.result.sandnode.message.util.MessageTypes;
@@ -16,8 +15,6 @@ import net.result.taulight.SysMessages;
 import net.result.taulight.TauAgentProtocol;
 import net.result.taulight.TauHubProtocol;
 import net.result.sandnode.db.Member;
-import net.result.sandnode.error.Errors;
-import net.result.sandnode.exception.error.NoEffectException;
 import net.result.taulight.group.TauGroupManager;
 import net.result.sandnode.message.types.HappyMessage;
 import net.result.sandnode.serverclient.Session;
@@ -45,8 +42,7 @@ public class ChannelServerChain extends ServerChain implements ReceiverChain {
         ChannelRequest request = new ChannelRequest(queue.take());
 
         if (request.type == null) {
-            sendFin(Errors.TOO_FEW_ARGS.createMessage());
-            return;
+            throw new TooFewArgumentsException();
         }
 
         switch (request.type) {
@@ -57,33 +53,26 @@ public class ChannelServerChain extends ServerChain implements ReceiverChain {
         }
     }
 
-    private void NEW(@NotNull ChannelRequest request)
-            throws UnprocessedMessagesException, InterruptedException, ServerSandnodeErrorException {
+    private void NEW(@NotNull ChannelRequest request) throws Exception {
         TauDatabase database = (TauDatabase) session.server.serverConfig.database();
         TauGroupManager manager = (TauGroupManager) session.server.serverConfig.groupManager();
 
         String title = request.title;
 
         if (title == null) {
-            sendFin(Errors.TOO_FEW_ARGS.createMessage());
-            return;
+            throw new TooFewArgumentsException();
         }
 
         TauChannel channel = new TauChannel(database, title, session.member);
-        try {
-            while (true) {
-                channel.setRandomID();
-                try {
-                    channel.save();
-                    break;
-                } catch (AlreadyExistingRecordException ignored) {
-                }
+        while (true) {
+            channel.setRandomID();
+            try {
+                channel.save();
+                break;
+            } catch (AlreadyExistingRecordException ignored) {
             }
-
-            channel.addMember(session.member);
-        } catch (DatabaseException e) {
-            throw new ServerSandnodeErrorException(e);
         }
+        channel.addMember(session.member);
 
         TauAgentProtocol.addMemberToGroup(session, manager.getGroup(channel));
 
@@ -102,8 +91,7 @@ public class ChannelServerChain extends ServerChain implements ReceiverChain {
 
     private void ADD(@NotNull ChannelRequest request) throws Exception {
         if (session.member == null) {
-            sendFin(Errors.UNAUTHORIZED.createMessage());
-            return;
+            throw new UnauthorizedException();
         }
 
         TauDatabase database = (TauDatabase) session.member.database();
@@ -111,58 +99,33 @@ public class ChannelServerChain extends ServerChain implements ReceiverChain {
         UUID chatID = request.chatID;
         String otherNickname = request.otherNickname;
 
-        Optional<TauChat> optChat;
-        Optional<Member> optMember;
-        try {
-            optChat = database.getChat(chatID);
-            optMember = database.findMemberByNickname(otherNickname);
-        } catch (DatabaseException e) {
-            throw new ServerSandnodeErrorException(e);
-        }
-
-        if (optChat.isEmpty()) {
-            sendFin(Errors.NOT_FOUND.createMessage());
-            return;
-        }
-
-        TauChat chat = optChat.get();
+        TauChat chat = database.getChat(chatID).orElseThrow(NotFoundException::new);
 
         if (!(chat instanceof TauChannel channel)) {
-            sendFin(Errors.WRONG_ADDRESS.createMessage());
-            return;
+            throw new WrongAddressException();
         }
 
         if (!chat.getMembers().contains(session.member)) {
-            sendFin(Errors.NOT_FOUND.createMessage());
-            return;
+            throw new NotFoundException();
         }
 
-        if (optMember.isEmpty()) {
-            sendFin(Errors.ADDRESSED_MEMBER_NOT_FOUND.createMessage());
-            return;
-        }
-
-        Member member = optMember.get();
+        Member member = database
+                .findMemberByNickname(otherNickname)
+                .orElseThrow(AddressedMemberNotFoundException::new);
 
         //TODO add settings for inviting by another members
         if (!channel.owner().equals(session.member)) {
-            sendFin(Errors.UNAUTHORIZED.createMessage());
-            return;
+            throw new UnauthorizedException();
         }
 
         if (channel.getMembers().contains(member)) {
-            sendFin(Errors.NO_EFFECT.createMessage());
-            return;
+            throw new NoEffectException();
         }
 
         ZonedDateTime expiresDate = ZonedDateTime.now().plusDays(1);
         InviteCodeObject token = new InviteCodeObject(database, channel, member, session.member, expiresDate);
 
-        try {
-            token.save();
-        } catch (DatabaseException e) {
-            throw new ServerSandnodeErrorException(e);
-        }
+        token.save();
 
         sendFin(new TextMessage(new Headers().setType(TauMessageTypes.CHANNEL), token.getCode()));
     }
@@ -173,35 +136,17 @@ public class ChannelServerChain extends ServerChain implements ReceiverChain {
 
         UUID chatID = request.chatID;
 
-        Optional<TauChat> optChat;
-        try {
-            optChat = database.getChat(chatID);
-        } catch (DatabaseException e) {
-            throw new ServerSandnodeErrorException(e);
-        }
-
-        if (optChat.isEmpty()) {
-            sendFin(Errors.NOT_FOUND.createMessage());
-            return;
-        }
-
-        TauChat tauChat = optChat.get();
+        TauChat tauChat = database.getChat(chatID).orElseThrow(NotFoundException::new);
 
         if (!(tauChat instanceof TauChannel channel)) {
-            sendFin(Errors.WRONG_ADDRESS.createMessage());
-            return;
+            throw new WrongAddressException();
         }
 
         if (channel.owner().equals(session.member)) {
-            sendFin(Errors.UNAUTHORIZED.createMessage());
-            return;
+            throw new UnauthorizedException();
         }
 
-        try {
-            database.leaveFromChat(channel, session.member);
-        } catch (DatabaseException e) {
-            throw new ServerSandnodeErrorException(e);
-        }
+        database.leaveFromChat(channel, session.member);
 
         TauAgentProtocol.removeMemberFromGroup(session, manager.getGroup(channel));
 
@@ -218,40 +163,22 @@ public class ChannelServerChain extends ServerChain implements ReceiverChain {
         send(new HappyMessage());
     }
 
-    private void CODES(ChannelRequest request) throws UnprocessedMessagesException, InterruptedException,
-            ServerSandnodeErrorException {
+    private void CODES(ChannelRequest request) throws Exception {
         if (session.member == null) {
-            sendFin(Errors.UNAUTHORIZED.createMessage());
-            return;
+            throw new UnauthorizedException();
         }
 
         TauDatabase database = (TauDatabase) session.member.database();
 
         UUID chatID = request.chatID;
 
-        Optional<TauChat> opt;
-        try {
-            opt = database.getChat(chatID);
-        } catch (DatabaseException e) {
-            throw new ServerSandnodeErrorException("Error while searching chat");
+        TauChat chat = database.getChat(chatID).orElseThrow(NotFoundException::new);
+
+        if (!(chat instanceof TauChannel channel)) {
+            throw new WrongAddressException();
         }
 
-        if (opt.isEmpty()) {
-            sendFin(Errors.NOT_FOUND.createMessage());
-            return;
-        }
-
-        if (!(opt.get() instanceof TauChannel channel)) {
-            sendFin(Errors.WRONG_ADDRESS.createMessage());
-            return;
-        }
-
-        Collection<InviteCodeObject> codes;
-        try {
-            codes = database.getActiveInviteCodes(channel);
-        } catch (DatabaseException e) {
-            throw new ServerSandnodeErrorException("Error while searching codes from chat");
-        }
+        Collection<InviteCodeObject> codes = database.getActiveInviteCodes(channel);
 
         Collection<TauCode> collected = codes.stream()
                 .map(c -> new InviteTauCode(c, channel.title(), c.getNickname(), c.getSenderNickname()))

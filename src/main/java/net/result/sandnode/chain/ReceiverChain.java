@@ -1,7 +1,8 @@
 package net.result.sandnode.chain;
 
-import net.result.sandnode.error.Errors;
+import net.result.sandnode.exception.DatabaseException;
 import net.result.sandnode.exception.ImpossibleRuntimeException;
+import net.result.sandnode.exception.error.SandnodeErrorException;
 import net.result.sandnode.exception.error.ServerSandnodeErrorException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -19,13 +20,17 @@ public interface ReceiverChain extends IChain {
 
             try {
                 try {
-                    LOGGER.info("{} started in new thread", this);
-                    sync();
-                    LOGGER.info("Removing {}", this);
-                    chainManager.removeChain(this);
-                } catch (ServerSandnodeErrorException e) {
+                    try {
+                        LOGGER.info("{} started in new thread", this);
+                        sync();
+                        LOGGER.info("Removing {}", this);
+                        chainManager.removeChain(this);
+                    } catch (DatabaseException e) {
+                        throw new ServerSandnodeErrorException(e);
+                    }
+                } catch (SandnodeErrorException e) {
                     LOGGER.error("Error in {}", this, e);
-                    sendFinIgnoreQueue(Errors.SERVER_ERROR.createMessage());
+                    sendFinIgnoreQueue(e.getSandnodeError().createMessage());
                 }
             } catch (Exception e) {
                 LOGGER.error("Error in chain {}", getClass().toString(), e);

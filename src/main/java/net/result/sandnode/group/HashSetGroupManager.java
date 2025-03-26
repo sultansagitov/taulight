@@ -20,14 +20,11 @@ public class HashSetGroupManager implements GroupManager {
 
     @Override
     public Group getGroup(@NotNull String groupID) {
-        Group group;
-
-        Optional<Group> opt = getGroupOptional(groupID);
-        if (opt.isPresent()) return opt.get();
-
-        group = getClientGroup(groupID.substring(1));
-        groups.add(group);
-        return group;
+        return getGroupOptional(groupID).orElseGet(() -> {
+            Group group = getClientGroup(groupID.substring(1));
+            groups.add(group);
+            return group;
+        });
     }
 
     @Override

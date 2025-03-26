@@ -3,10 +3,7 @@ package net.result.taulight.chain.receiver;
 import net.result.sandnode.chain.ReceiverChain;
 import net.result.sandnode.chain.receiver.ServerChain;
 import net.result.sandnode.db.Member;
-import net.result.sandnode.error.Errors;
-import net.result.sandnode.exception.DatabaseException;
-import net.result.sandnode.exception.ExpectedMessageException;
-import net.result.sandnode.exception.UnprocessedMessagesException;
+import net.result.sandnode.exception.error.NotFoundException;
 import net.result.sandnode.exception.error.ServerSandnodeErrorException;
 import net.result.sandnode.exception.error.UnauthorizedException;
 import net.result.sandnode.message.types.HappyMessage;
@@ -19,7 +16,6 @@ import net.result.taulight.message.types.UseCodeRequest;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.util.Optional;
 import java.util.UUID;
 
 public class UseCodeServerChain extends ServerChain  implements ReceiverChain {
@@ -31,79 +27,45 @@ public class UseCodeServerChain extends ServerChain  implements ReceiverChain {
 
     // TODO check for session.member is member from code
     @Override
-    public void sync() throws InterruptedException, ExpectedMessageException, UnprocessedMessagesException,
-            ServerSandnodeErrorException {
+    public void sync() throws Exception {
         var request = new UseCodeRequest(queue.take());
         String code = request.content();
 
         if (session.member == null) {
-            sendFin(Errors.UNAUTHORIZED.createMessage());
-            return;
+            throw new UnauthorizedException();
         }
 
         TauDatabase database = (TauDatabase) session.member.database();
 
-        Optional<InviteCodeObject> inviteToken;
-        try {
-            inviteToken = database.getInviteCode(code);
-        } catch (DatabaseException e) {
-            throw new ServerSandnodeErrorException(e);
-        }
+        InviteCodeObject invite = database.getInviteCode(code).orElseThrow(NotFoundException::new);
 
-        if (inviteToken.isEmpty()) {
-            sendFin(Errors.NOT_FOUND.createMessage());
-            return;
-        }
+        String nickname = invite.getNickname();
+        UUID chatID = invite.getChatID();
 
-        String nickname = inviteToken.get().getNickname();
+        Member member = database
+                .findMemberByNickname(nickname)
+                .orElseThrow(() -> new ServerSandnodeErrorException("Member not found"));
 
-        Optional<Member> member;
-        try {
-            member = database.findMemberByNickname(nickname);
-        } catch (DatabaseException e) {
-            throw new ServerSandnodeErrorException(e);
-        }
+        TauChat chat = database
+                .getChat(chatID)
+                .orElseThrow(() -> new ServerSandnodeErrorException("Channel not found"));
 
-        if (member.isEmpty()) {
-            throw new ServerSandnodeErrorException("Member not found");
-        }
-
-        UUID chatID = inviteToken.get().getChatID();
-        Optional<TauChat> chat;
-        try {
-            chat = database.getChat(chatID);
-        } catch (DatabaseException e) {
-            throw new ServerSandnodeErrorException(e);
-        }
-
-        if (chat.isEmpty()) {
-            throw new ServerSandnodeErrorException("Channel not found");
-        }
-
-        if (!(chat.get() instanceof TauChannel channel)) {
+        if (!(chat instanceof TauChannel channel)) {
             throw new ServerSandnodeErrorException("Chat is not channel");
         }
 
+        if (!invite.activate()) {
+            throw new NoEffectException("Invite already activated");
+        }
+
+        channel.addMember(member);
+
+        ChatMessage chatMessage = SysMessages.channelAdd.chatMessage(channel, member);
+
         try {
-            if (inviteToken.get().activate()) {
-                channel.addMember(member.get());
-
-                ChatMessage chatMessage = SysMessages.channelAdd.chatMessage(channel, member.get());
-
-                try {
-                    TauHubProtocol.send(session, channel, chatMessage);
-                } catch (NoEffectException e) {
-                    LOGGER.warn("Exception when sending system message of creating channel {}", e.getMessage());
-                } catch (UnauthorizedException e) {
-                    sendFin(Errors.UNAUTHORIZED.createMessage());
-                    return;
-                }
-            } else {
-                sendFin(Errors.NO_EFFECT.createMessage());
-                return;
-            }
-        } catch (DatabaseException e) {
-            throw new ServerSandnodeErrorException(e);
+            TauHubProtocol.send(session, channel, chatMessage);
+        } catch (NoEffectException e) {
+            LOGGER.warn("Exception when sending system message of creating channel {}", e.getMessage());
         }
 
         sendFin(new HappyMessage());

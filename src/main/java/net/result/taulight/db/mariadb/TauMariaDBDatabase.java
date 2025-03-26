@@ -338,8 +338,8 @@ public class TauMariaDBDatabase extends SandnodeMariaDBDatabase implements TauDa
                 List<UUID> replies = chatMessage.replies();
                 if (replies != null && !replies.isEmpty()) {
                     try (PreparedStatement replyStmt = connection.prepareStatement("""
-                    INSERT INTO message_replies (message_id, reply_to_id) VALUES (?, ?)
-                """)) {
+                        INSERT INTO message_replies (message_id, reply_to_id) VALUES (?, ?)
+                    """)) {
                         byte[] messageIdBin = UUIDUtil.uuidToBinary(msg.id());
                         replyStmt.setBytes(1, messageIdBin);
 
