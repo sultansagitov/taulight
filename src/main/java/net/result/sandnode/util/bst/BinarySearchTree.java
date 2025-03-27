@@ -8,9 +8,9 @@ import java.util.Collection;
 import java.util.Optional;
 
 public class BinarySearchTree<S extends Searchable<S, ID>, ID> {
-    public BSTNode<S, ID> root = null;
+    protected BSTNode<S, ID> root = null;
 
-    public void add(S searchable) throws BSTBusyPosition {
+    public synchronized void add(S searchable) throws BSTBusyPosition {
         if (root == null) {
             root = new BSTNode<>(searchable);
             return;
@@ -38,7 +38,7 @@ public class BinarySearchTree<S extends Searchable<S, ID>, ID> {
         }
     }
 
-    public Optional<S> find(ID id) {
+    public synchronized Optional<S> find(ID id) {
         BSTNode<S, ID> current = root;
 
         while (current != null) {
@@ -50,7 +50,7 @@ public class BinarySearchTree<S extends Searchable<S, ID>, ID> {
         return Optional.empty();
     }
 
-    public Collection<S> getOrdered() {
+    public synchronized Collection<S> getOrdered() {
         Collection<S> result = new ArrayList<>();
         if (root == null) return result;
 
@@ -70,7 +70,7 @@ public class BinarySearchTree<S extends Searchable<S, ID>, ID> {
         return result;
     }
 
-    public boolean remove(S searchable) {
+    public synchronized boolean remove(S searchable) {
         if (root == null) return false;
 
         BSTNode<S, ID> current = root;

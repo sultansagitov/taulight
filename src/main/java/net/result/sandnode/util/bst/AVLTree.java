@@ -7,7 +7,7 @@ import java.util.ArrayDeque;
 public class AVLTree<S extends Searchable<S, ID>, ID> extends BinarySearchTree<S, ID> {
 
     @Override
-    public void add(S searchable) throws BSTBusyPosition {
+    public synchronized void add(S searchable) throws BSTBusyPosition {
         BSTNode<S, ID> newNode = new BSTNode<>(searchable);
 
         if (root == null) {

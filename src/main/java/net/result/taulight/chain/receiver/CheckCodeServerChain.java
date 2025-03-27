@@ -43,6 +43,14 @@ public class CheckCodeServerChain extends ServerChain implements ReceiverChain {
             throw new NotFoundException();
         }
 
+
+        if (!invite.getNickname().equals(session.member.nickname())) {
+            //TODO add channel roles and use it
+            if (!invite.getSenderNickname().equals(session.member.nickname())) {
+                throw new NotFoundException();
+            }
+        }
+
         var code = new InviteTauCode(invite, channel.title(), invite.getNickname(), invite.getSenderNickname());
         CheckCodeResponse response = new CheckCodeResponse(code);
         sendFin(response);

@@ -25,7 +25,6 @@ public class UseCodeServerChain extends ServerChain  implements ReceiverChain {
         super(session);
     }
 
-    // TODO check for session.member is member from code
     @Override
     public void sync() throws Exception {
         var request = new UseCodeRequest(queue.take());
@@ -52,6 +51,15 @@ public class UseCodeServerChain extends ServerChain  implements ReceiverChain {
 
         if (!(chat instanceof TauChannel channel)) {
             throw new ServerSandnodeErrorException("Chat is not channel");
+        }
+
+        if (!invite.getNickname().equals(session.member.nickname())) {
+            //TODO add channel roles and use it
+            if (invite.getSenderNickname().equals(session.member.nickname())) {
+                throw new UnauthorizedException();
+            } else {
+                throw new NotFoundException();
+            }
         }
 
         if (!invite.activate()) {

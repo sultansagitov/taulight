@@ -384,7 +384,7 @@ public class ConsoleCommands {
 
         } catch (ExpectedMessageException | SandnodeErrorException | UnknownSandnodeErrorException e) {
 
-            System.out.printf("Failed to check code - %s%n", e.getClass());
+            System.out.printf("Failed to use code - %s%n", e.getClass());
         }
         return false;
     }

@@ -122,8 +122,10 @@ public class ChannelServerChain extends ServerChain implements ReceiverChain {
             throw new NoEffectException();
         }
 
-        if (channel.getActiveInviteCodes().stream().anyMatch(c -> c.getNickname().equals(member.nickname()))) {
-            throw new NoEffectException();
+        for (var code : channel.getActiveInviteCodes()) {
+            if (code.getNickname().equals(member.nickname()) && code.getActivationDate() == null) {
+                throw new NoEffectException();
+            }
         }
 
         ZonedDateTime expiresDate = ZonedDateTime.now().plusDays(1);
@@ -152,8 +154,6 @@ public class ChannelServerChain extends ServerChain implements ReceiverChain {
 
         database.leaveFromChat(channel, session.member);
 
-        TauAgentProtocol.removeMemberFromGroup(session, manager.getGroup(channel));
-
         ChatMessage chatMessage = SysMessages.channelLeave.chatMessage(channel, session.member);
 
         try {
@@ -163,6 +163,8 @@ public class ChannelServerChain extends ServerChain implements ReceiverChain {
         } catch (DatabaseException | NoEffectException e) {
             LOGGER.warn("Exception when sending system message of leaving member: {}", e.getMessage());
         }
+
+        TauAgentProtocol.removeMemberFromGroup(session, manager.getGroup(channel));
 
         send(new HappyMessage());
     }
