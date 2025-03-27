@@ -52,4 +52,8 @@ public class TauChannel extends TauChat {
     public ChatInfo getInfo(Member member, Collection<ChatInfoProp> chatInfoProps) {
         return ChatInfo.channel(this, member, chatInfoProps);
     }
+
+    public Collection<InviteCodeObject> getActiveInviteCodes() throws DatabaseException {
+        return database().getActiveInviteCodes(this);
+    }
 }

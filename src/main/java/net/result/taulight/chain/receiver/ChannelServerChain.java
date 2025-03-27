@@ -122,6 +122,10 @@ public class ChannelServerChain extends ServerChain implements ReceiverChain {
             throw new NoEffectException();
         }
 
+        if (channel.getActiveInviteCodes().stream().anyMatch(c -> c.getNickname().equals(member.nickname()))) {
+            throw new NoEffectException();
+        }
+
         ZonedDateTime expiresDate = ZonedDateTime.now().plusDays(1);
         InviteCodeObject token = new InviteCodeObject(database, channel, member, session.member, expiresDate);
 
@@ -178,7 +182,7 @@ public class ChannelServerChain extends ServerChain implements ReceiverChain {
             throw new WrongAddressException();
         }
 
-        Collection<InviteCodeObject> codes = database.getActiveInviteCodes(channel);
+        Collection<InviteCodeObject> codes = channel.getActiveInviteCodes();
 
         Collection<TauCode> collected = codes.stream()
                 .map(c -> new InviteTauCode(c, channel.title(), c.getNickname(), c.getSenderNickname()))

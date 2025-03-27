@@ -314,7 +314,7 @@ public class ConsoleCommands {
         } catch (NotFoundException e) {
             System.out.printf("Chat '%s' not found%n", chatID);
         } catch (NoEffectException e) {
-            System.out.printf("'%s' already in%n", otherNickname);
+            System.out.printf("'%s' already in or have invite%n", otherNickname);
         } catch (AddressedMemberNotFoundException e) {
             System.out.printf("Member '%s' not found%n", otherNickname);
         } catch (SandnodeErrorException | UnknownSandnodeErrorException e) {
