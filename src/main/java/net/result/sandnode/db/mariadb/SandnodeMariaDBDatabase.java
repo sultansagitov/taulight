@@ -55,7 +55,7 @@ public class SandnodeMariaDBDatabase implements Database {
                 if (rs.next()) throw new BusyNicknameException();
             }
 
-            String passwordHash = hasher.hash(password);
+            String passwordHash = hasher.hash(password, 12);
 
             Member member = new Member(this, nickname, password);
 

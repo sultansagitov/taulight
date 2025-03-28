@@ -10,7 +10,7 @@ class PasswordHashersTest {
         String password = "SecurePass123";
         PasswordHasher hasher = PasswordHashers.BCRYPT;
 
-        String hashedPassword = hasher.hash(password);
+        String hashedPassword = hasher.hash(password, 12);
         assertNotNull(hashedPassword);
         assertNotEquals(password, hashedPassword);
 
