@@ -8,6 +8,7 @@ import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.message.TextMessage;
 import net.result.sandnode.message.types.HappyMessage;
 import net.result.sandnode.util.IOController;
+import net.result.taulight.code.InviteTauCode;
 import net.result.taulight.code.TauCode;
 import net.result.taulight.message.CodeListMessage;
 import net.result.taulight.message.TauMessageTypes;
@@ -15,7 +16,9 @@ import net.result.taulight.message.types.ChannelRequest;
 import net.result.taulight.message.types.UUIDMessage;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 public class ChannelClientChain extends ClientChain {
     public ChannelClientChain(IOController io) {
@@ -61,5 +64,18 @@ public class ChannelClientChain extends ClientChain {
 
         raw.expect(TauMessageTypes.CHANNEL);
         return new CodeListMessage(raw).codes();
+    }
+
+    public synchronized List<InviteTauCode> getMyInvites() throws InterruptedException,
+            UnknownSandnodeErrorException, SandnodeErrorException, DeserializationException,
+            UnprocessedMessagesException, ExpectedMessageException {
+        send(ChannelRequest.myInvites());
+        RawMessage raw = queue.take();
+        ServerErrorManager.instance().handleError(raw);
+
+        raw.expect(TauMessageTypes.CHANNEL);
+        return new CodeListMessage(raw).codes().stream()
+                .map(code -> (InviteTauCode) code)
+                .collect(Collectors.toList());
     }
 }

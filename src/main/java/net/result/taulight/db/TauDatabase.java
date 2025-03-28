@@ -52,7 +52,7 @@ public interface TauDatabase extends Database {
 
     List<InviteCodeObject> getActiveInviteCodes(TauChannel channel) throws DatabaseException;
 
-    List<InviteCodeObject> getInviteCodesByNickname(String nickname) throws DatabaseException;
+    List<InviteCodeObject> getInviteCodesByNickname(Member member) throws DatabaseException;
 
     int countActiveInvitesByNickname(String nickname) throws DatabaseException;
 }

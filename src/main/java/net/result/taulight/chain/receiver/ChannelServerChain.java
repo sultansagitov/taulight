@@ -50,6 +50,7 @@ public class ChannelServerChain extends ServerChain implements ReceiverChain {
             case ADD -> ADD(request);
             case LEAVE -> LEAVE(request);
             case CODES -> CODES(request);
+            case MY_INVITES -> MY_INVITES(request);
         }
     }
 
@@ -190,5 +191,38 @@ public class ChannelServerChain extends ServerChain implements ReceiverChain {
                 .map(c -> new InviteTauCode(c, channel.title(), c.getNickname(), c.getSenderNickname()))
                 .collect(Collectors.toSet());
         sendFin(new CodeListMessage(new Headers().setType(TauMessageTypes.CHANNEL), collected));
+    }
+
+    private void MY_INVITES(@NotNull ChannelRequest request) throws Exception {
+        if (session.member == null) {
+            throw new UnauthorizedException();
+        }
+
+        TauDatabase database = (TauDatabase) session.member.database();
+
+        Collection<InviteCodeObject> myInvites = database.getInviteCodesByNickname(session.member);
+
+        Collection<TauCode> collected = new HashSet<>();
+        for (InviteCodeObject c : myInvites) {
+            UUID chatID = c.getChatID();
+            TauChat chat = database.getChat(chatID).orElseThrow(NotFoundException::new);
+
+            if (!(chat instanceof TauChannel channel)) {
+                throw new WrongAddressException();
+            }
+
+            InviteTauCode inviteTauCode = new InviteTauCode(
+                    c,
+                    channel.title(),
+                    c.getNickname(),
+                    c.getSenderNickname()
+            );
+            collected.add(inviteTauCode);
+        }
+
+        sendFin(new CodeListMessage(
+                new Headers().setType(TauMessageTypes.CHANNEL),
+                collected
+        ));
     }
 }

@@ -890,14 +890,14 @@ public class TauMariaDBDatabase extends SandnodeMariaDBDatabase implements TauDa
     }
 
     @Override
-    public List<InviteCodeObject> getInviteCodesByNickname(String nickname) throws DatabaseException {
+    public List<InviteCodeObject> getInviteCodesByNickname(Member member) throws DatabaseException {
         try (Connection conn = dataSource.getConnection()) {
             try (PreparedStatement stmt = conn.prepareStatement("""
                 SELECT token_id, expires_at, chat_id, sender_nickname, code, created_at, activated_at
                 FROM invite_codes
-                WHERE nickname = ? AND expires_at > NOW()
+                WHERE nickname = ?
             """)) {
-                stmt.setString(1, nickname);
+                stmt.setString(1, member.nickname());
 
                 List<InviteCodeObject> tokens = new ArrayList<>();
                 try (ResultSet rs = stmt.executeQuery()) {
@@ -926,7 +926,7 @@ public class TauMariaDBDatabase extends SandnodeMariaDBDatabase implements TauDa
                         }
 
                         var token = new InviteCodeObject(this, tokenId, createdAt,
-                                code, chatId, nickname, senderNickname, expiresAt, activatedAt);
+                                code, chatId, member.nickname(), senderNickname, expiresAt, activatedAt);
                         tokens.add(token);
                     }
                 }

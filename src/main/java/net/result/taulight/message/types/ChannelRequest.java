@@ -12,7 +12,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.UUID;
 
 public class ChannelRequest extends EmptyMessage {
-    public enum DataType {NEW, ADD, LEAVE, CODES}
+    public enum DataType {NEW, ADD, LEAVE, CODES, MY_INVITES}
 
     public DataType type;
     public String title;
@@ -61,6 +61,7 @@ public class ChannelRequest extends EmptyMessage {
                             .map(UUID::fromString)
                             .orElseThrow(TooFewArgumentsException::new);
                 }
+                case "my-invites" -> this.type = DataType.MY_INVITES;
                 default -> throw new DeserializationException("Incorrect type field - \"%s\"".formatted(type));
             }
         } catch (IllegalArgumentException e) {
@@ -108,6 +109,13 @@ public class ChannelRequest extends EmptyMessage {
         ChannelRequest request = new ChannelRequest(headers);
         request.chatID = chatID;
 
+        return request;
+    }
+
+    public static @NotNull ChannelRequest myInvites() {
+        Headers headers = new Headers().setValue("type", "my-invites");
+        ChannelRequest request = new ChannelRequest(headers);
+        request.type = DataType.MY_INVITES;
         return request;
     }
 }
