@@ -11,6 +11,6 @@ public class TauLoginServerChain extends LoginServerChain {
 
     @Override
     protected void onLogin() throws Exception {
-        LoginUtil.onLogin(session, this);
+        LoginUtil.onLogin(session);
     }
 }

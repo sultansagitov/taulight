@@ -9,6 +9,7 @@ import net.result.sandnode.message.util.Headers;
 import net.result.taulight.message.TauMessageTypes;
 import org.jetbrains.annotations.NotNull;
 
+import java.time.Duration;
 import java.util.UUID;
 
 public class ChannelRequest extends EmptyMessage {
@@ -18,6 +19,7 @@ public class ChannelRequest extends EmptyMessage {
     public String title;
     public UUID chatID;
     public String otherNickname;
+    public Duration expirationTime;
 
     private ChannelRequest(@NotNull Headers headers) {
         super(headers.setType(TauMessageTypes.CHANNEL));
@@ -45,6 +47,10 @@ public class ChannelRequest extends EmptyMessage {
                     this.otherNickname = headers()
                             .getOptionalValue("other-nickname")
                             .orElseThrow(TooFewArgumentsException::new);
+
+                    String s = headers().getOptionalValue("expires-in").orElseThrow(TooFewArgumentsException::new);
+                    long seconds = Long.parseUnsignedLong(s);
+                    this.expirationTime = Duration.ofSeconds(seconds);
 
                 }
                 case "leave" -> {
@@ -80,11 +86,12 @@ public class ChannelRequest extends EmptyMessage {
         return request;
     }
 
-    public static @NotNull ChannelRequest addMember(UUID chatID, String otherNickname) {
+    public static @NotNull ChannelRequest addMember(UUID chatID, String otherNickname, Duration expirationTime) {
         Headers headers = new Headers()
                 .setValue("type", "add")
                 .setValue("chat-id", chatID.toString())
-                .setValue("other-nickname", otherNickname);
+                .setValue("other-nickname", otherNickname)
+                .setValue("expires-in", String.valueOf(expirationTime.toSeconds()));
         ChannelRequest request = new ChannelRequest(headers);
         request.chatID = chatID;
         request.otherNickname = otherNickname;

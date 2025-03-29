@@ -1,6 +1,5 @@
 package net.result.taulight.util;
 
-import net.result.sandnode.chain.IChain;
 import net.result.sandnode.exception.DatabaseException;
 import net.result.sandnode.serverclient.Session;
 import net.result.taulight.TauAgentProtocol;
@@ -13,7 +12,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Collection;
 
 public class LoginUtil {
-    public static void onLogin(@NotNull Session session, @NotNull IChain chain) throws DatabaseException {
+    public static void onLogin(@NotNull Session session) throws DatabaseException {
         TauDatabase database = (TauDatabase) session.server.serverConfig.database();
         TauGroupManager manager = (TauGroupManager) session.server.serverConfig.groupManager();
 

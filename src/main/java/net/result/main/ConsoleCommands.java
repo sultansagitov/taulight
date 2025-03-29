@@ -30,6 +30,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
 
+import java.time.Duration;
 import java.time.ZonedDateTime;
 import java.util.*;
 
@@ -278,24 +279,16 @@ public class ConsoleCommands {
     }
 
     private boolean addMember(@NotNull List<String> args) throws InterruptedException, UnprocessedMessagesException {
-        UUID chatID = null;
+        UUID chatID = currentChat;
         String otherNickname = null;
+        Duration expirationTime = Duration.ofHours(24);
 
-        int size = args.size();
-
-        if (size == 1) {
-            chatID = currentChat;
-            otherNickname = args.get(0);
-        } else if (size == 2) {
-            try {
-                chatID = UUID.fromString(args.get(0));
-                otherNickname = args.get(1);
-            } catch (IndexOutOfBoundsException e) {
-                System.out.println("Missing required arguments.");
-                return false;
-            } catch (IllegalArgumentException e) {
-                System.out.println("Invalid UUID format.");
-                return false;
+        for (String s : args) {
+            String[] split = s.split("=");
+            switch (split[0].charAt(0)) {
+                case 'c' -> chatID = UUID.fromString(split[1]);
+                case 'n' -> otherNickname = split[1];
+                case 'e' -> expirationTime = Duration.ofSeconds(Long.parseUnsignedLong(split[1]));
             }
         }
 
@@ -307,7 +300,7 @@ public class ConsoleCommands {
         try {
             var chain = new ChannelClientChain(io);
             io.chainManager.linkChain(chain);
-            String code = chain.getInviteCode(chatID, otherNickname);
+            String code = chain.createInviteCode(chatID, otherNickname, expirationTime);
             io.chainManager.removeChain(chain);
             System.out.printf("Link for adding %s to %s%n", otherNickname, chatID);
             System.out.printf("%n%s%n%n", code);

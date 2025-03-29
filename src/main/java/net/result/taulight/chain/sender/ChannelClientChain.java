@@ -15,6 +15,7 @@ import net.result.taulight.message.TauMessageTypes;
 import net.result.taulight.message.types.ChannelRequest;
 import net.result.taulight.message.types.UUIDMessage;
 
+import java.time.Duration;
 import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
@@ -46,9 +47,10 @@ public class ChannelClientChain extends ClientChain {
         new HappyMessage(raw);
     }
 
-    public synchronized String getInviteCode(UUID chatID, String otherNickname) throws InterruptedException,
-            SandnodeErrorException, UnknownSandnodeErrorException, UnprocessedMessagesException {
-        send(ChannelRequest.addMember(chatID, otherNickname));
+    public synchronized String createInviteCode(UUID chatID, String otherNickname, Duration expirationTime)
+            throws InterruptedException, SandnodeErrorException, UnknownSandnodeErrorException,
+            UnprocessedMessagesException {
+        send(ChannelRequest.addMember(chatID, otherNickname, expirationTime));
         RawMessage raw = queue.take();
         ServerErrorManager.instance().handleError(raw);
 

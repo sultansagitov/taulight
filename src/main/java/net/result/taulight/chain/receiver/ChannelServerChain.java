@@ -129,7 +129,7 @@ public class ChannelServerChain extends ServerChain implements ReceiverChain {
             }
         }
 
-        ZonedDateTime expiresDate = ZonedDateTime.now().plusDays(1);
+        ZonedDateTime expiresDate = ZonedDateTime.now().plus(request.expirationTime);
         InviteCodeObject token = new InviteCodeObject(database, channel, member, session.member, expiresDate);
 
         token.save();
