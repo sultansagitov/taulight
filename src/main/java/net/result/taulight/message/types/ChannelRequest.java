@@ -13,7 +13,7 @@ import java.time.Duration;
 import java.util.UUID;
 
 public class ChannelRequest extends EmptyMessage {
-    public enum DataType {NEW, ADD, LEAVE, CODES, MY_INVITES}
+    public enum DataType {NEW, ADD, LEAVE, CH_CODES, MY_CODES}
 
     public DataType type;
     public String title;
@@ -60,14 +60,14 @@ public class ChannelRequest extends EmptyMessage {
                             .map(UUID::fromString)
                             .orElseThrow(TooFewArgumentsException::new);
                 }
-                case "codes" -> {
-                    this.type = DataType.CODES;
+                case "ch-codes" -> {
+                    this.type = DataType.CH_CODES;
                     this.chatID = headers()
                             .getOptionalValue("chat-id")
                             .map(UUID::fromString)
                             .orElseThrow(TooFewArgumentsException::new);
                 }
-                case "my-invites" -> this.type = DataType.MY_INVITES;
+                case "my-codes" -> this.type = DataType.MY_CODES;
                 default -> throw new DeserializationException("Incorrect type field - \"%s\"".formatted(type));
             }
         } catch (IllegalArgumentException e) {
@@ -99,9 +99,9 @@ public class ChannelRequest extends EmptyMessage {
         return request;
     }
 
-    public static @NotNull ChannelRequest codes(UUID chatID) {
+    public static @NotNull ChannelRequest channelCodes(UUID chatID) {
         Headers headers = new Headers()
-                .setValue("type", "codes")
+                .setValue("type", "ch-codes")
                 .setValue("chat-id", chatID.toString());
         ChannelRequest request = new ChannelRequest(headers);
         request.chatID = chatID;
@@ -119,10 +119,10 @@ public class ChannelRequest extends EmptyMessage {
         return request;
     }
 
-    public static @NotNull ChannelRequest myInvites() {
-        Headers headers = new Headers().setValue("type", "my-invites");
+    public static @NotNull ChannelRequest myCodes() {
+        Headers headers = new Headers().setValue("type", "my-codes");
         ChannelRequest request = new ChannelRequest(headers);
-        request.type = DataType.MY_INVITES;
+        request.type = DataType.MY_CODES;
         return request;
     }
 }

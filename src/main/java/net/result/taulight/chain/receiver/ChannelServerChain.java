@@ -49,8 +49,8 @@ public class ChannelServerChain extends ServerChain implements ReceiverChain {
             case NEW -> NEW(request);
             case ADD -> ADD(request);
             case LEAVE -> LEAVE(request);
-            case CODES -> CODES(request);
-            case MY_INVITES -> MY_INVITES(request);
+            case CH_CODES -> channelCodes(request);
+            case MY_CODES -> myCodes();
         }
     }
 
@@ -170,7 +170,7 @@ public class ChannelServerChain extends ServerChain implements ReceiverChain {
         send(new HappyMessage());
     }
 
-    private void CODES(ChannelRequest request) throws Exception {
+    private void channelCodes(ChannelRequest request) throws Exception {
         if (session.member == null) {
             throw new UnauthorizedException();
         }
@@ -193,7 +193,7 @@ public class ChannelServerChain extends ServerChain implements ReceiverChain {
         sendFin(new CodeListMessage(new Headers().setType(TauMessageTypes.CHANNEL), collected));
     }
 
-    private void MY_INVITES(@NotNull ChannelRequest request) throws Exception {
+    private void myCodes() throws Exception {
         if (session.member == null) {
             throw new UnauthorizedException();
         }

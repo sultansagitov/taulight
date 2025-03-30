@@ -23,6 +23,7 @@ public enum ChatInfoProp {
     private static final Collection<ChatInfoProp> all = Arrays.stream(ChatInfoProp.values()).toList();
     private static final Collection<ChatInfoProp> id = List.of(channelID, dialogID);
 
+    @SuppressWarnings("unused")
     public static Collection<ChatInfoProp> id() {
         return id;
     }

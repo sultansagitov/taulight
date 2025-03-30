@@ -57,10 +57,10 @@ public class ChannelClientChain extends ClientChain {
         return new TextMessage(raw).content();
     }
 
-    public synchronized Collection<TauCode> getCodes(UUID chatID)
+    public synchronized Collection<TauCode> getChannelCodes(UUID chatID)
             throws InterruptedException, UnknownSandnodeErrorException, SandnodeErrorException,
             UnprocessedMessagesException, DeserializationException, ExpectedMessageException {
-        send(ChannelRequest.codes(chatID));
+        send(ChannelRequest.channelCodes(chatID));
         RawMessage raw = queue.take();
         ServerErrorManager.instance().handleError(raw);
 
@@ -68,10 +68,10 @@ public class ChannelClientChain extends ClientChain {
         return new CodeListMessage(raw).codes();
     }
 
-    public synchronized List<InviteTauCode> getMyInvites() throws InterruptedException,
+    public synchronized List<InviteTauCode> getMyCodes() throws InterruptedException,
             UnknownSandnodeErrorException, SandnodeErrorException, DeserializationException,
             UnprocessedMessagesException, ExpectedMessageException {
-        send(ChannelRequest.myInvites());
+        send(ChannelRequest.myCodes());
         RawMessage raw = queue.take();
         ServerErrorManager.instance().handleError(raw);
 

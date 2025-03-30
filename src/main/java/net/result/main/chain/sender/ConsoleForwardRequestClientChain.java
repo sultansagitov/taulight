@@ -1,6 +1,8 @@
 package net.result.main.chain.sender;
 
-import net.result.main.ConsoleCommands;
+import net.result.main.ConsoleSandnodeCommands;
+import net.result.main.ConsoleContext;
+import net.result.main.ConsoleTaulightCommands;
 import net.result.sandnode.error.ServerErrorManager;
 import net.result.sandnode.exception.*;
 import net.result.sandnode.exception.error.NotFoundException;
@@ -14,20 +16,27 @@ import net.result.taulight.db.ChatMessage;
 import net.result.sandnode.exception.error.NoEffectException;
 import net.result.taulight.message.types.ForwardRequest;
 import net.result.taulight.message.types.UUIDMessage;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.*;
 
 public class ConsoleForwardRequestClientChain extends ClientChain {
+    private static final Logger LOGGER = LogManager.getLogger(ConsoleForwardRequestClientChain.class);
+
     public ConsoleForwardRequestClientChain(IOController io) {
         super(io);
     }
 
-    public void sync(String nickname) throws InterruptedException {
-        ConsoleCommands cc = new ConsoleCommands(this, io, nickname);
+    public void sync(String nickname) {
         Scanner scanner = new Scanner(System.in);
+        Map<String, ConsoleSandnodeCommands.LoopCondition> commands = new HashMap<>();
+        ConsoleSandnodeCommands.register(commands);
+        ConsoleTaulightCommands.register(commands);
+        ConsoleContext context = new ConsoleContext(this, io, nickname);
 
         while (true) {
-            System.out.printf(" [%s] ", Optional.ofNullable(cc.currentChat).map(UUID::toString).orElse(""));
+            System.out.printf(" [%s] ", Optional.ofNullable(context.currentChat).map(UUID::toString).orElse(""));
             String input = scanner.nextLine();
 
             if (input.trim().isEmpty()) continue;
@@ -36,32 +45,34 @@ public class ConsoleForwardRequestClientChain extends ClientChain {
             String command = com_arg[0];
 
             try {
-                if (cc.commands.containsKey(command)) {
+                if (commands.containsKey(command)) {
                     List<String> args = Arrays.stream(com_arg).skip(1).toList();
-                    if (cc.commands.get(command).breakLoop(args)) break;
+                    if (commands.get(command).breakLoop(args, context)) break;
                 } else {
-                    if (sendForward(cc, input)) break;
+                    if (sendForward(input, context)) break;
                 }
             } catch (UnprocessedMessagesException e) {
                 System.out.println("Unprocessed message: Sent before handling received: " + e.raw);
             } catch (ExpectedMessageException e) {
                 System.out.printf("Unexpected message type. Expected: %s, Message: %s%n", e.expectedType, e.message);
+            } catch (Exception e) {
+                LOGGER.error("Unhandled exception", e);
             }
 
         }
     }
 
-    private boolean sendForward(ConsoleCommands cc, String input)
+    private boolean sendForward(String input, ConsoleContext context)
             throws InterruptedException, ExpectedMessageException, UnprocessedMessagesException {
-        if (cc.currentChat == null) {
+        if (context.currentChat == null) {
             System.out.println("chat not selected");
             return false;
         }
 
         ChatMessage message = new ChatMessage()
-                .setChatID(cc.currentChat)
+                .setChatID(context.currentChat)
                 .setContent(input)
-                .setNickname(cc.nickname)
+                .setNickname(context.nickname)
                 .setZtdNow();
 
         send(new ForwardRequest(message));
@@ -72,7 +83,7 @@ public class ConsoleForwardRequestClientChain extends ClientChain {
         try {
             ServerErrorManager.instance().handleError(raw);
         } catch (NotFoundException e) {
-            System.out.printf("Chat %s was not found%n", cc.currentChat);
+            System.out.printf("Chat %s was not found%n", context.currentChat);
             return false;
         } catch (NoEffectException e) {
             System.out.println("Message not forwarded");
