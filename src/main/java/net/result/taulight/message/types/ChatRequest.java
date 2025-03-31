@@ -7,6 +7,8 @@ import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.message.util.Headers;
 import net.result.taulight.message.ChatInfoProp;
 import net.result.taulight.message.TauMessageTypes;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
 import java.util.UUID;
@@ -14,7 +16,7 @@ import java.util.UUID;
 public class ChatRequest extends MSGPackMessage<ChatRequest.Data> {
     protected static class Data {
         @JsonProperty("chat-id-list")
-        public Collection<UUID> allChatID;
+        public @Nullable Collection<UUID> allChatID = null;
         @JsonProperty("properties")
         private Collection<ChatInfoProp> infoProps;
 
@@ -26,7 +28,7 @@ public class ChatRequest extends MSGPackMessage<ChatRequest.Data> {
             this.infoProps = infoProps;
         }
 
-        public Data(Collection<UUID> allChatID, Collection<ChatInfoProp> infoProps) {
+        public Data(@NotNull Collection<UUID> allChatID, Collection<ChatInfoProp> infoProps) {
             this.allChatID = allChatID;
             this.infoProps = infoProps;
         }

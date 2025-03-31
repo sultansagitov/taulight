@@ -1,6 +1,7 @@
 package net.result.sandnode.message;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import net.result.sandnode.exception.DeserializationException;
 import net.result.sandnode.message.util.Headers;
 import org.jetbrains.annotations.NotNull;
@@ -31,6 +32,15 @@ public abstract class MSGPackMessage<T> extends Message {
         super(message.headers());
         try {
             object = objectMapper.readValue(message.getBody(), clazz);
+        } catch (IOException e) {
+            throw new DeserializationException(e);
+        }
+    }
+
+    public MSGPackMessage(@NotNull IMessage message, TypeReference<T> typeReference) throws DeserializationException {
+        super(message.headers());
+        try {
+            object = objectMapper.readValue(message.getBody(), typeReference);
         } catch (IOException e) {
             throw new DeserializationException(e);
         }

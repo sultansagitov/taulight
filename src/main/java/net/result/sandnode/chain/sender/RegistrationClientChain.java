@@ -22,6 +22,6 @@ public class RegistrationClientChain extends ClientChain {
         RawMessage response = queue.take();
         ServerErrorManager.instance().handleError(response);
 
-        return new RegistrationResponse(response).getToken();
+        return new RegistrationResponse(response).content();
     }
 }

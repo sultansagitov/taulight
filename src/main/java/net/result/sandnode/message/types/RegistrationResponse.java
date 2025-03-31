@@ -2,11 +2,12 @@ package net.result.sandnode.message.types;
 
 import net.result.sandnode.exception.ExpectedMessageException;
 import net.result.sandnode.message.RawMessage;
+import net.result.sandnode.message.TextMessage;
 import net.result.sandnode.message.util.Headers;
 import net.result.sandnode.message.util.MessageTypes;
 import org.jetbrains.annotations.NotNull;
 
-public class RegistrationResponse extends TokenMessage {
+public class RegistrationResponse extends TextMessage {
     public RegistrationResponse(@NotNull RawMessage message) throws ExpectedMessageException {
         super(message.expect(MessageTypes.REG));
     }

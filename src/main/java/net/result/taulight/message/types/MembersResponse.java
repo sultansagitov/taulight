@@ -1,6 +1,6 @@
 package net.result.taulight.message.types;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.core.type.TypeReference;
 import net.result.sandnode.db.Member;
 import net.result.sandnode.exception.DeserializationException;
 import net.result.sandnode.exception.ExpectedMessageException;
@@ -14,20 +14,11 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Collection;
 import java.util.stream.Collectors;
 
-public class MembersResponse extends MSGPackMessage<MembersResponse.Data> {
-    protected static class Data {
-        @JsonProperty
-        private Collection<MemberRecord> members;
-
-        @SuppressWarnings("unused")
-        public Data() {}
-        public Data(@NotNull Collection<Member> members) {
-            this.members = members.stream().map(MemberRecord::new).collect(Collectors.toSet());
-        }
-    }
-
-    public MembersResponse(@NotNull Headers headers, Collection<Member> members) {
-        super(headers.setType(TauMessageTypes.MEMBERS), new Data(members));
+public class MembersResponse extends MSGPackMessage<Collection<MemberRecord>> {
+    public MembersResponse(@NotNull Headers headers, @NotNull Collection<Member> members) {
+        super(headers.setType(TauMessageTypes.MEMBERS), members.stream()
+                .map(MemberRecord::new)
+                .collect(Collectors.toSet()));
     }
 
     public MembersResponse(Collection<Member> members) {
@@ -35,10 +26,10 @@ public class MembersResponse extends MSGPackMessage<MembersResponse.Data> {
     }
 
     public MembersResponse(@NotNull RawMessage message) throws DeserializationException, ExpectedMessageException {
-        super(message.expect(TauMessageTypes.MEMBERS), Data.class);
+        super(message.expect(TauMessageTypes.MEMBERS), new TypeReference<>() {});
     }
 
     public Collection<MemberRecord> getMembers() {
-        return object.members;
+        return object;
     }
 }

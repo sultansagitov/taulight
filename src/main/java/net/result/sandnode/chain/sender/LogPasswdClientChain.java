@@ -22,6 +22,6 @@ public class LogPasswdClientChain extends ClientChain {
 
         LogPasswdResponse loginResponse = new LogPasswdResponse(message);
 
-        return loginResponse.getToken();
+        return loginResponse.content();
     }
 }

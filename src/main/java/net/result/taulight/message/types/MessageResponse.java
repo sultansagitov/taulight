@@ -37,7 +37,7 @@ public class MessageResponse extends MSGPackMessage<MessageResponse.Data> {
     }
 
     public MessageResponse(@NotNull RawMessage raw) throws ExpectedMessageException, DeserializationException {
-        super(raw.expect(TauMessageTypes.MESSAGE), MessageResponse.Data.class);
+        super(raw.expect(TauMessageTypes.MESSAGE), Data.class);
     }
 
     public long getCount() {

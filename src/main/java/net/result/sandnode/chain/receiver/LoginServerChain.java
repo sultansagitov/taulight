@@ -5,7 +5,6 @@ import net.result.sandnode.exception.error.UnauthorizedException;
 import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.message.types.LoginRequest;
 import net.result.sandnode.message.types.LoginResponse;
-import net.result.sandnode.message.types.TokenMessage;
 import net.result.sandnode.security.Tokenizer;
 import net.result.sandnode.serverclient.Session;
 import net.result.sandnode.db.Database;
@@ -19,8 +18,8 @@ public class LoginServerChain extends ServerChain implements ReceiverChain {
     public void sync() throws Exception {
         RawMessage raw = queue.take();
 
-        TokenMessage msg = new LoginRequest(raw);
-        String token = msg.getToken();
+        var msg = new LoginRequest(raw);
+        String token = msg.content();
 
         Database database = session.server.serverConfig.database();
         Tokenizer tokenizer = session.server.serverConfig.tokenizer();

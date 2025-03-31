@@ -1,6 +1,6 @@
 package net.result.taulight.message.types;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.core.type.TypeReference;
 import net.result.sandnode.exception.DeserializationException;
 import net.result.sandnode.exception.ExpectedMessageException;
 import net.result.sandnode.message.MSGPackMessage;
@@ -11,28 +11,16 @@ import net.result.taulight.message.TauMessageTypes;
 
 import java.util.Collection;
 
-public class ChatResponse extends MSGPackMessage<ChatResponse.Data> {
-    protected static class Data {
-        @JsonProperty
-        Collection<ChatInfo> infos;
-
-        @SuppressWarnings("unused")
-        public Data() {}
-
-        public Data(Collection<ChatInfo> infos) {
-            this.infos = infos;
-        }
-    }
-
+public class ChatResponse extends MSGPackMessage<Collection<ChatInfo>> {
     public ChatResponse(Collection<ChatInfo> infos) {
-        super(new Headers().setType(TauMessageTypes.CHAT), new Data(infos));
+        super(new Headers().setType(TauMessageTypes.CHAT), infos);
     }
 
     public ChatResponse(RawMessage raw) throws DeserializationException, ExpectedMessageException {
-        super(raw.expect(TauMessageTypes.CHAT), Data.class);
+        super(raw.expect(TauMessageTypes.CHAT), new TypeReference<>() {});
     }
 
     public Collection<ChatInfo> getInfos() {
-        return object.infos;
+        return object;
     }
 }
