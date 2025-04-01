@@ -6,6 +6,8 @@ import net.result.sandnode.db.Member;
 import net.result.sandnode.error.Errors;
 import net.result.sandnode.exception.*;
 import net.result.sandnode.exception.error.UnauthorizedException;
+import net.result.sandnode.message.RawMessage;
+import net.result.sandnode.message.types.ErrorMessage;
 import net.result.sandnode.message.util.Headers;
 import net.result.sandnode.message.util.MessageTypes;
 import net.result.sandnode.serverclient.Session;
@@ -37,7 +39,14 @@ public class ForwardRequestServerChain extends ServerChain implements ReceiverCh
         TauDatabase database = (TauDatabase) session.server.serverConfig.database();
 
         while (true) {
-            ForwardRequest forwardMessage = new ForwardRequest(queue.take());
+            RawMessage raw = queue.take();
+
+            if (raw.headers().type() == MessageTypes.ERR) {
+                LOGGER.error("Error {}", new ErrorMessage(raw).error);
+                continue;
+            }
+
+            ForwardRequest forwardMessage = new ForwardRequest(raw);
 
             if (session.member == null) {
                 send(Errors.UNAUTHORIZED.createMessage());
