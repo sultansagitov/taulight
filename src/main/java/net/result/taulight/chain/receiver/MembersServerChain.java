@@ -10,13 +10,18 @@ import net.result.sandnode.exception.UnprocessedMessagesException;
 import net.result.sandnode.serverclient.Session;
 import net.result.taulight.db.TauChat;
 import net.result.taulight.db.TauDatabase;
+import net.result.taulight.group.TauChatGroup;
+import net.result.taulight.group.TauGroupManager;
+import net.result.taulight.message.MemberRecord;
 import net.result.taulight.message.types.MembersResponse;
 import net.result.taulight.message.types.UUIDMessage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.util.Collection;
+import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 public class MembersServerChain extends ServerChain implements ReceiverChain {
     private static final Logger LOGGER = LogManager.getLogger(MembersServerChain.class);
@@ -28,6 +33,8 @@ public class MembersServerChain extends ServerChain implements ReceiverChain {
     @Override
     public void sync() throws InterruptedException, DeserializationException, UnprocessedMessagesException {
         TauDatabase database = (TauDatabase) session.server.serverConfig.database();
+        TauGroupManager groupManager = (TauGroupManager) session.server.serverConfig.groupManager();
+
         while (true) {
             UUIDMessage request = new UUIDMessage(queue.take());
 
@@ -45,6 +52,7 @@ public class MembersServerChain extends ServerChain implements ReceiverChain {
                 }
 
                 TauChat chat = optChat.get();
+                TauChatGroup group = groupManager.getGroup(chat);
                 Collection<Member> members = chat.getMembers();
 
                 if (!members.contains(session.member)) {
@@ -52,7 +60,20 @@ public class MembersServerChain extends ServerChain implements ReceiverChain {
                     continue;
                 }
 
-                send(new MembersResponse(members));
+                Map<String, MemberRecord> map = members.stream()
+                        .collect(Collectors.toMap(Member::nickname, MemberRecord::new));
+
+                for (Session session : group.getSessions()) {
+                    if (session.member != null) {
+                        map.computeIfPresent(session.member.nickname(), (nickname, record) -> {
+                            record.status = MemberRecord.Status.ONLINE;
+                            return record;
+                        });
+                    }
+                }
+
+                send(new MembersResponse(map.values()));
+
             } catch (DatabaseException e) {
                 LOGGER.error(e);
                 send(Errors.SERVER_ERROR.createMessage());
