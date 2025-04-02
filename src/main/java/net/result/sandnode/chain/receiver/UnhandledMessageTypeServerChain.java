@@ -2,7 +2,7 @@ package net.result.sandnode.chain.receiver;
 
 import net.result.sandnode.chain.ReceiverChain;
 import net.result.sandnode.error.ServerErrorManager;
-import net.result.sandnode.error.UnhandledMessageTypeException;
+import net.result.sandnode.exception.error.UnhandledMessageTypeException;
 import net.result.sandnode.exception.error.SandnodeErrorException;
 import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.message.types.ErrorMessage;

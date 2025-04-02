@@ -13,7 +13,7 @@ import java.time.Duration;
 import java.util.UUID;
 
 public class ChannelRequest extends EmptyMessage {
-    public enum DataType {NEW, ADD, LEAVE, CH_CODES, MY_CODES}
+    public enum DataType {CREATE, INVITE, LEAVE, CH_CODES, MY_CODES}
 
     public DataType type;
     public String title;
@@ -32,13 +32,13 @@ public class ChannelRequest extends EmptyMessage {
         try {
             switch (type) {
                 case "new" -> {
-                    this.type = DataType.NEW;
+                    this.type = DataType.CREATE;
                     this.title = headers()
                             .getOptionalValue("title")
                             .orElseThrow(TooFewArgumentsException::new);
                 }
                 case "add" -> {
-                    this.type = DataType.ADD;
+                    this.type = DataType.INVITE;
                     this.chatID = headers()
                             .getOptionalValue("chat-id")
                             .map(UUID::fromString)

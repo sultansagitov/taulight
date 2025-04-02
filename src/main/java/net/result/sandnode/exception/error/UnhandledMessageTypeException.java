@@ -1,6 +1,7 @@
-package net.result.sandnode.error;
+package net.result.sandnode.exception.error;
 
-import net.result.sandnode.exception.error.SandnodeErrorException;
+import net.result.sandnode.error.Errors;
+import net.result.sandnode.error.SandnodeError;
 
 public class UnhandledMessageTypeException extends SandnodeErrorException {
     @Override

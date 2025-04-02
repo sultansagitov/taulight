@@ -4,10 +4,6 @@ import net.result.sandnode.encryption.Encryptions;
 import net.result.sandnode.encryption.KeyStorageRegistry;
 import net.result.sandnode.encryption.interfaces.*;
 import net.result.sandnode.exception.*;
-import net.result.sandnode.exception.crypto.CryptoException;
-import net.result.sandnode.exception.crypto.NoSuchEncryptionException;
-import net.result.sandnode.exception.crypto.PrivateKeyNotFoundException;
-import net.result.sandnode.exception.crypto.WrongKeyException;
 import net.result.sandnode.exception.error.*;
 import net.result.sandnode.message.EncryptedMessage;
 import net.result.sandnode.message.IMessage;
@@ -28,12 +24,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
-import java.security.SecureRandom;
-import java.util.Random;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 public class IOController {
     private static final Logger LOGGER = LogManager.getLogger(IOController.class);
@@ -70,18 +62,10 @@ public class IOController {
         if (headers.bodyEncryption() == Encryptions.NONE) {
             headers.setBodyEncryption(currentEncryption());
         }
-        Random random = new SecureRandom();
-        String s = "0123456789abcdefghijklmnopqrstuvwxyz!@$%&*()_+-={}[]\"'<>?,./ ~";
-        String sb = IntStream
-                .range(0, random.nextInt(16, 32))
-                .mapToObj(i -> "" + s.charAt(random.nextInt(61)))
-                .collect(Collectors.joining());
-        headers.setValue("random", sb);
+        headers.setValue("random", RandomUtil.getRandomString());
     }
 
-    public void sendingLoop()
-            throws InterruptedException, IllegalMessageLengthException, MessageSerializationException,
-            EncryptionException, MessageWriteException, KeyStorageNotFoundException, CryptoException {
+    public void sendingLoop() throws InterruptedException, SandnodeException {
         while (connected) {
             IMessage message = sendingQueue.take();
             beforeSending(message);
@@ -102,7 +86,6 @@ public class IOController {
                 LOGGER.error("Encryption or key issue", e);
                 error = Errors.ENCRYPT;
             }
-
 
             if (error != null) {
                 ErrorMessage errorMessage = error.createMessage();
@@ -128,9 +111,7 @@ public class IOController {
         }
     }
 
-    public void receivingLoop() throws UnexpectedSocketDisconnectException, DecryptionException,
-            NoSuchMessageTypeException, NoSuchEncryptionException, KeyStorageNotFoundException,
-            WrongKeyException, InterruptedException, PrivateKeyNotFoundException {
+    public void receivingLoop() throws InterruptedException, SandnodeException {
         while (connected) {
             EncryptedMessage encrypted = EncryptedMessage.readMessage(in);
             RawMessage message = Message.decryptMessage(encrypted, keyStorageRegistry);
@@ -155,13 +136,7 @@ public class IOController {
     }
 
     public synchronized boolean isConnected() {
-        if (!socket.isConnected()) {
-            return false;
-        }
-
-        synchronized (this) {
-            return connected;
-        }
+        return socket.isConnected() && connected;
     }
 
     public void setServerKey(@NotNull AsymmetricKeyStorage publicKey) {
@@ -181,16 +156,11 @@ public class IOController {
     public void sendMessage(@NotNull IMessage message) throws InterruptedException {
         if (message.headersEncryption() == Encryptions.NONE)
             message.setHeadersEncryption(currentEncryption());
-
         sendingQueue.put(message);
     }
 
     public synchronized void disconnect() throws SocketClosingException, InterruptedException {
-
-        synchronized (this) {
-            connected = false;
-        }
-
+        connected = false;
         LOGGER.info("Sending exit message");
         sendMessage(new ExitMessage());
         LOGGER.info("Disconnecting from {}", ipString(socket));
