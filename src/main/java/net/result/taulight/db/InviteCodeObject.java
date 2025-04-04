@@ -99,4 +99,12 @@ public class InviteCodeObject extends TaulightObject {
     public ZonedDateTime getActivationDate() {
         return activatedAt;
     }
+
+    public void setActivationDate(ZonedDateTime activatedAt) {
+        this.activatedAt = activatedAt;
+    }
+
+    public void setActivationDateNow() {
+        this.activatedAt = ZonedDateTime.now();
+    }
 }

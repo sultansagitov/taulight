@@ -12,7 +12,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.sql.*;
-import java.time.ZonedDateTime;
+import java.time.*;
 import java.util.*;
 
 public class TauMariaDBDatabase extends SandnodeMariaDBDatabase implements TauDatabase {
@@ -746,17 +746,24 @@ public class TauMariaDBDatabase extends SandnodeMariaDBDatabase implements TauDa
 
     @Override
     public boolean activateInviteCode(@NotNull InviteCodeObject code) throws DatabaseException {
+        ZonedDateTime activationTime = ZonedDateTime.now(ZoneOffset.UTC); // Ensure UTC consistency
+
         try (Connection conn = dataSource.getConnection();
              PreparedStatement stmt = conn.prepareStatement("""
                  UPDATE invite_codes
-                 SET activated_at = NOW()
+                 SET activated_at = ?
                  WHERE code = ? AND activated_at IS NULL
              """)) {
 
-            stmt.setString(1, code.getCode());
-            int updated = stmt.executeUpdate();
+            stmt.setTimestamp(1, Timestamp.from(activationTime.toInstant())); // Set precise activation time
+            stmt.setString(2, code.getCode());
 
-            return updated > 0;
+            int updated = stmt.executeUpdate();
+            if (updated > 0) {
+                code.setActivationDate(activationTime); // Update the object's field
+                return true;
+            }
+            return false;
         } catch (SQLException e) {
             throw new DatabaseException("Failed to activate invite link", e);
         }

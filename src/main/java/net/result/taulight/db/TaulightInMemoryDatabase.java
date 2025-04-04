@@ -212,9 +212,9 @@ public class TaulightInMemoryDatabase extends InMemoryDatabase implements TauDat
     }
 
     @Override
-    public List<InviteCodeObject> getInviteCodesByNickname(String nickname) throws DatabaseException {
+    public List<InviteCodeObject> getInviteCodesByNickname(Member member) throws DatabaseException {
         return inviteCodes.values().stream()
-                .filter(code -> code.getNickname().equals(nickname))
+                .filter(code -> code.getNickname().equals(member.nickname()))
                 .collect(Collectors.toList());
     }
 

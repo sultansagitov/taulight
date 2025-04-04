@@ -11,7 +11,7 @@ import net.result.sandnode.exception.crypto.EncryptionTypeException;
 import net.result.sandnode.exception.crypto.NoSuchEncryptionException;
 import net.result.sandnode.link.Links;
 import net.result.sandnode.security.PasswordHashers;
-import net.result.taulight.db.mariadb.TauMariaDBDatabase;
+import net.result.taulight.db.TaulightInMemoryDatabase;
 import net.result.taulight.group.HashSetTauGroupManager;
 import net.result.sandnode.security.JWTTokenizer;
 import net.result.taulight.hubagent.TauHub;
@@ -71,11 +71,9 @@ public class RunHubWork implements IWork {
             throw new RuntimeException(e);
         }
 
-        MariaDBConfig mariaDBConfig = new MariaDBPropertiesConfig();
-
         try {
-            serverConfig.setDatabase(new TauMariaDBDatabase(mariaDBConfig, PasswordHashers.BCRYPT));
-        } catch (DatabaseException e) {
+            serverConfig.setDatabase(new TaulightInMemoryDatabase(PasswordHashers.BCRYPT));
+        } catch (Exception e) {
             LOGGER.error(e);
             throw new RuntimeException(e);
         }
