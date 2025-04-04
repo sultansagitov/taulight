@@ -32,7 +32,6 @@ public class ForwardResponse extends MSGPackMessage<ServerChatMessage> {
     }
 
     public boolean isYourSession() {
-        System.out.println(headers().getOptionalValue(YOUR_SESSION_KEY));
         return headers().getOptionalValue(YOUR_SESSION_KEY)
                       .map(Boolean::parseBoolean)
                       .orElse(false);

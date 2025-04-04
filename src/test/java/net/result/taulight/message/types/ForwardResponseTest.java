@@ -25,7 +25,6 @@ class ForwardResponseTest {
         ForwardResponse newResponse = new ForwardResponse(rawMessage);
 
         assertEquals(TauMessageTypes.FWD, newResponse.headers().type());
-        System.out.println(newResponse);
         assertEquals("true", newResponse.headers().getValue(YOUR_SESSION_KEY));
         assertEquals(response.getServerMessage(), newResponse.getServerMessage());
         assertTrue(newResponse.isYourSession());
