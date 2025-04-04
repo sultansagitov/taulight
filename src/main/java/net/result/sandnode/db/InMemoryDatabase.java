@@ -19,7 +19,8 @@ public class InMemoryDatabase implements Database {
             throw new BusyNicknameException();
         }
 
-        Member member = new Member(this, nickname, password);
+        String hashedPassword = hasher().hash(password, 12);
+        Member member = new Member(this, nickname, hashedPassword);
         db.add(member);
         return member;
     }

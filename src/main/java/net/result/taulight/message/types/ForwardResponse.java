@@ -10,12 +10,17 @@ import net.result.taulight.message.TauMessageTypes;
 
 public class ForwardResponse extends MSGPackMessage<ServerChatMessage> {
 
-    public ForwardResponse(Headers headers, ServerChatMessage message) {
+    private static final String YOUR_SESSION_KEY = "your-session";
+
+    public ForwardResponse(Headers headers, ServerChatMessage message, boolean yourSession) {
         super(headers.setType(TauMessageTypes.FWD), message);
+        if (yourSession) {
+            headers().setValue(YOUR_SESSION_KEY, "true");
+        }
     }
 
-    public ForwardResponse(ServerChatMessage message) {
-        this(new Headers(), message);
+    public ForwardResponse(ServerChatMessage message, boolean yourSession) {
+        this(new Headers(), message, yourSession);
     }
 
     public ForwardResponse(RawMessage message) throws DeserializationException, ExpectedMessageException {
@@ -24,5 +29,12 @@ public class ForwardResponse extends MSGPackMessage<ServerChatMessage> {
 
     public ServerChatMessage getServerMessage() {
         return object;
+    }
+
+    public boolean isYourSession() {
+        System.out.println(headers().getOptionalValue(YOUR_SESSION_KEY));
+        return headers().getOptionalValue(YOUR_SESSION_KEY)
+                      .map(Boolean::parseBoolean)
+                      .orElse(false);
     }
 }

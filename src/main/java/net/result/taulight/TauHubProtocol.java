@@ -50,8 +50,7 @@ public class TauHubProtocol {
         if (sessions.isEmpty()) throw new NoEffectException();
 
         for (Session s : sessions) {
-            serverMessage.setYourSession(s == session);
-            ForwardResponse request = new ForwardResponse(serverMessage);
+            ForwardResponse request = new ForwardResponse(serverMessage, s == session);
 
             ChainManager chainManager = s.io.chainManager;
             Optional<IChain> fwd = chainManager.getChain("fwd");
@@ -65,8 +64,6 @@ public class TauHubProtocol {
                 chain.send(new ChainNameRequest("fwd"));
             }
         }
-
-        serverMessage.setYourSession(false);
 
         return serverMessage;
     }

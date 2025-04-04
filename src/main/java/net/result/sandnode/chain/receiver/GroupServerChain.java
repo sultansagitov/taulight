@@ -27,8 +27,6 @@ public class GroupServerChain extends ServerChain implements ReceiverChain {
         GroupManager groupManager = session.server.serverConfig.groupManager();
         GroupRequest request = new GroupRequest(queue.take());
 
-        LOGGER.debug(new String(request.getBody()));
-
         Set<Group> groups = request
                 .getGroupsID().stream()
                 .map(groupManager::getGroup)
