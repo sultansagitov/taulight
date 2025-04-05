@@ -1,7 +1,8 @@
-package net.result.taulight.db;
+package net.result.taulight.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import net.result.sandnode.db.Member;
+import net.result.taulight.db.TauChat;
 
 import java.time.ZoneId;
 import java.time.ZonedDateTime;

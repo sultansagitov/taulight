@@ -1,7 +1,7 @@
 package net.result.taulight;
 
 import net.result.sandnode.db.Member;
-import net.result.taulight.db.ChatMessage;
+import net.result.taulight.dto.ChatMessage;
 import net.result.taulight.db.TauChat;
 
 public enum SysMessages {

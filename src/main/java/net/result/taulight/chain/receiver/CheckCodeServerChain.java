@@ -6,7 +6,7 @@ import net.result.sandnode.exception.SandnodeException;
 import net.result.sandnode.exception.error.NotFoundException;
 import net.result.sandnode.exception.error.UnauthorizedException;
 import net.result.sandnode.serverclient.Session;
-import net.result.taulight.code.InviteTauCode;
+import net.result.taulight.dto.InviteTauCode;
 import net.result.taulight.db.InviteCodeObject;
 import net.result.taulight.db.TauChannel;
 import net.result.taulight.db.TauChat;

@@ -6,8 +6,8 @@ import net.result.sandnode.exception.*;
 import net.result.sandnode.exception.error.SandnodeErrorException;
 import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.util.IOController;
-import net.result.taulight.message.ChatInfo;
-import net.result.taulight.message.ChatInfoProp;
+import net.result.taulight.dto.ChatInfo;
+import net.result.taulight.dto.ChatInfoProp;
 import net.result.taulight.message.types.ChatRequest;
 import net.result.taulight.message.types.ChatResponse;
 

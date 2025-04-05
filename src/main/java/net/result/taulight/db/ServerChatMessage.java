@@ -3,6 +3,7 @@ package net.result.taulight.db;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import net.result.sandnode.exception.DatabaseException;
 import net.result.taulight.exception.AlreadyExistingRecordException;
+import net.result.taulight.dto.ChatMessage;
 
 public class ServerChatMessage extends TaulightObject {
     @JsonProperty

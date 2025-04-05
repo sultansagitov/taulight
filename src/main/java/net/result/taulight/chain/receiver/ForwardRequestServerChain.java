@@ -14,7 +14,7 @@ import net.result.sandnode.serverclient.Session;
 import net.result.taulight.TauHubProtocol;
 import net.result.taulight.db.ServerChatMessage;
 import net.result.taulight.db.TauDatabase;
-import net.result.taulight.db.ChatMessage;
+import net.result.taulight.dto.ChatMessage;
 import net.result.sandnode.exception.error.NoEffectException;
 import net.result.taulight.message.types.ForwardRequest;
 import net.result.taulight.db.TauChat;

@@ -6,6 +6,7 @@ import net.result.sandnode.exception.DatabaseException;
 import net.result.sandnode.db.mariadb.SandnodeMariaDBDatabase;
 import net.result.sandnode.security.PasswordHasher;
 import net.result.sandnode.util.UUIDUtil;
+import net.result.taulight.dto.ChatMessage;
 import net.result.taulight.db.*;
 import net.result.taulight.exception.AlreadyExistingRecordException;
 import org.jetbrains.annotations.NotNull;

@@ -1,8 +1,8 @@
 package net.result.taulight.db;
 
 import net.result.sandnode.db.Member;
-import net.result.taulight.message.ChatInfo;
-import net.result.taulight.message.ChatInfoProp;
+import net.result.taulight.dto.ChatInfo;
+import net.result.taulight.dto.ChatInfoProp;
 
 import java.time.ZonedDateTime;
 import java.util.Collection;

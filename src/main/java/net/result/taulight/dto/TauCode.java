@@ -1,4 +1,4 @@
-package net.result.taulight.code;
+package net.result.taulight.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSubTypes;

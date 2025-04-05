@@ -1,4 +1,4 @@
-package net.result.taulight.message;
+package net.result.taulight.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 

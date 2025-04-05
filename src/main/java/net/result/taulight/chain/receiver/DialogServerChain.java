@@ -14,7 +14,7 @@ import net.result.taulight.SysMessages;
 import net.result.taulight.TauAgentProtocol;
 import net.result.taulight.TauHubProtocol;
 import net.result.taulight.chain.sender.DialogRequest;
-import net.result.taulight.db.ChatMessage;
+import net.result.taulight.dto.ChatMessage;
 import net.result.taulight.db.TauDatabase;
 import net.result.taulight.db.TauDialog;
 import net.result.sandnode.exception.error.NoEffectException;

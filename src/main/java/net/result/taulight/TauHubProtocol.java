@@ -8,7 +8,7 @@ import net.result.sandnode.exception.error.UnauthorizedException;
 import net.result.sandnode.message.types.ChainNameRequest;
 import net.result.sandnode.serverclient.Session;
 import net.result.taulight.chain.sender.ForwardServerChain;
-import net.result.taulight.db.ChatMessage;
+import net.result.taulight.dto.ChatMessage;
 import net.result.taulight.db.TauChat;
 import net.result.taulight.db.ServerChatMessage;
 import net.result.taulight.exception.AlreadyExistingRecordException;

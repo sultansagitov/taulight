@@ -5,7 +5,7 @@ import net.result.sandnode.exception.ExpectedMessageException;
 import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.message.util.Headers;
 import net.result.sandnode.message.MSGPackMessage;
-import net.result.taulight.db.ChatMessage;
+import net.result.taulight.dto.ChatMessage;
 import net.result.taulight.message.TauMessageTypes;
 
 public class ForwardRequest extends MSGPackMessage<ChatMessage> {

@@ -2,7 +2,7 @@ package net.result.main.chain.receiver;
 
 import net.result.sandnode.util.IOController;
 import net.result.taulight.chain.receiver.ForwardClientChain;
-import net.result.taulight.db.ChatMessage;
+import net.result.taulight.dto.ChatMessage;
 import net.result.taulight.db.ServerChatMessage;
 import net.result.taulight.message.types.ForwardResponse;
 import org.apache.logging.log4j.LogManager;
