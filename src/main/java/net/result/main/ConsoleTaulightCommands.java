@@ -45,6 +45,8 @@ public class ConsoleTaulightCommands {
         commands.put("reply", ConsoleTaulightCommands::reply);
         commands.put("channelCodes", ConsoleTaulightCommands::channelCodes);
         commands.put("myCodes", ConsoleTaulightCommands::myCodes);
+        commands.put("react", ConsoleTaulightCommands::react);
+        commands.put("unreact", ConsoleTaulightCommands::unreact);
     }
 
     private static boolean setChat(List<String> args, ConsoleContext context) {
@@ -623,6 +625,48 @@ public class ConsoleTaulightCommands {
         } catch (DeserializationException | ExpectedMessageException | SandnodeErrorException |
                  UnknownSandnodeErrorException e) {
             System.out.printf("Failed to retrieve your invites - %s%n", e.getClass());
+        }
+
+        return false;
+    }
+
+    private static boolean react(@NotNull List<String> args, ConsoleContext context)
+            throws InterruptedException, UnprocessedMessagesException {
+        return handleReaction(true, args, context);
+    }
+
+    private static boolean unreact(@NotNull List<String> args, ConsoleContext context)
+            throws InterruptedException, UnprocessedMessagesException {
+        return handleReaction(false, args, context);
+    }
+
+    private static boolean handleReaction(boolean add, @NotNull List<String> args, ConsoleContext context)
+            throws InterruptedException, UnprocessedMessagesException {
+        if (args.size() < 2) {
+            System.out.println("Usage: " + (add ? "react" : "unreact") + " <messageID> <package:name>");
+            return false;
+        }
+
+        try {
+            UUID messageId = UUID.fromString(args.get(0));
+            String reaction = args.get(1);
+
+            var chain = new ReactionClientChain(context.io);
+            context.io.chainManager.linkChain(chain);
+
+            if (add) {
+                chain.react(messageId, reaction);
+                System.out.printf("Added reaction '%s' to message %s%n", reaction, messageId);
+            } else {
+                chain.unreact(messageId, reaction);
+                System.out.printf("Removed reaction '%s' from message %s%n", reaction, messageId);
+            }
+
+            context.io.chainManager.removeChain(chain);
+        } catch (IllegalArgumentException e) {
+            System.out.println("Invalid message ID or reaction format: " + e.getMessage());
+        } catch (Exception e) {
+            System.out.printf("Reaction failed - %s%n", e.getClass().getSimpleName());
         }
 
         return false;

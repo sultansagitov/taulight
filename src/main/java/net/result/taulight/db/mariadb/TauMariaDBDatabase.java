@@ -82,6 +82,28 @@ public class TauMariaDBDatabase extends SandnodeMariaDBDatabase implements TauDa
             )
         """);
 
+        stmt.execute("""
+            CREATE TABLE IF NOT EXISTS reaction_types (
+                reaction_type_id BINARY(16) PRIMARY KEY,
+                package_name VARCHAR(255) NOT NULL,
+                name VARCHAR(255) NOT NULL UNIQUE,
+                created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+            )
+        """);
+
+        stmt.execute("""
+            CREATE TABLE IF NOT EXISTS reaction_entries (
+                reaction_entry_id BINARY(16) PRIMARY KEY,
+                message_id BINARY(16) NOT NULL,
+                reaction_type_id BINARY(16) NOT NULL,
+                nickname VARCHAR(255) NOT NULL,
+                created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (message_id) REFERENCES messages(message_id) ON DELETE CASCADE,
+                FOREIGN KEY (reaction_type_id) REFERENCES reaction_types(reaction_type_id) ON DELETE CASCADE,
+                FOREIGN KEY (nickname) REFERENCES members(nickname) ON DELETE CASCADE
+            )
+        """);
+
         // Dialogs
         stmt.execute("""
             CREATE TABLE IF NOT EXISTS dialogs (
@@ -460,6 +482,41 @@ public class TauMariaDBDatabase extends SandnodeMariaDBDatabase implements TauDa
             }
         } catch (SQLException | IllegalArgumentException e) {
             throw new DatabaseException("Failed to load messages", e);
+        }
+    }
+
+    @Override
+    public Optional<ServerChatMessage> findMessage(UUID id) throws DatabaseException {
+        try (Connection conn = dataSource.getConnection()) {
+            try (PreparedStatement stmt = conn.prepareStatement("""
+                SELECT * FROM messages WHERE message_id = ?
+            """)) {
+                stmt.setBytes(1, UUIDUtil.uuidToBinary(id));
+
+                try (ResultSet rs = stmt.executeQuery()) {
+                    if (rs.next()) {
+                        UUID chatId = UUIDUtil.binaryToUUID(rs.getBytes("chat_id"));
+                        TauChat chat = (TauChat) getChat(chatId).orElseThrow();
+
+                        ChatMessage chatMessage = new ChatMessage()
+                                .setChat(chat)
+                                .setContent(rs.getString("content"))
+                                .setZtd(rs.getTimestamp("timestamp").toInstant().atZone(ZoneId.systemDefault()))
+                                .setNickname(rs.getString("nickname"))
+                                .setSys(rs.getBoolean("sys"));
+
+                        ServerChatMessage serverMsg = new ServerChatMessage(chat.database());
+                        serverMsg.setID(id);
+                        serverMsg.setChatMessage(chatMessage);
+                        serverMsg.setCreationDate(rs.getTimestamp("created_at").toInstant().atZone(ZoneId.systemDefault()));
+
+                        return Optional.of(serverMsg);
+                    }
+                }
+            }
+            return Optional.empty();
+        } catch (SQLException | IllegalArgumentException e) {
+            throw new DatabaseException("Failed to find message", e);
         }
     }
 
@@ -949,9 +1006,9 @@ public class TauMariaDBDatabase extends SandnodeMariaDBDatabase implements TauDa
     public int countActiveInvitesByNickname(String nickname) throws DatabaseException {
         try (Connection conn = dataSource.getConnection();
              PreparedStatement stmt = conn.prepareStatement("""
-             SELECT COUNT(*) FROM invite_codes
-             WHERE nickname = ? AND expires_at > NOW()
-         """)) {
+                 SELECT COUNT(*) FROM invite_codes
+                 WHERE nickname = ? AND expires_at > NOW()
+             """)) {
 
             stmt.setString(1, nickname);
 
@@ -964,5 +1021,153 @@ public class TauMariaDBDatabase extends SandnodeMariaDBDatabase implements TauDa
         } catch (SQLException e) {
             throw new DatabaseException("Failed to count active invites by nickname", e);
         }
+    }
+
+    @Override
+    public void saveReactionType(ReactionType reaction) throws DatabaseException, AlreadyExistingRecordException {
+        try (Connection conn = dataSource.getConnection();
+             PreparedStatement stmt = conn.prepareStatement("""
+                 INSERT INTO reaction_types (reaction_type_id, package_name, name, created_at)
+                 VALUES (?, ?, ?, ?)
+             """)) {
+
+            stmt.setBytes(1, UUIDUtil.uuidToBinary(reaction.id()));
+            stmt.setString(2, reaction.packageName());
+            stmt.setString(3, reaction.name());
+            stmt.setTimestamp(4, Timestamp.from(reaction.getCreationDate().toInstant()));
+
+            int rowsInserted = stmt.executeUpdate();
+            if (rowsInserted == 0) {
+                throw new AlreadyExistingRecordException("Reaction type already exists.");
+            }
+        } catch (SQLException e) {
+            throw new DatabaseException("Error saving reaction type", e);
+        }
+    }
+
+    @Override
+    public void removeReactionType(ReactionType reaction) throws DatabaseException {
+        try (Connection conn = dataSource.getConnection();
+             PreparedStatement stmt = conn.prepareStatement("""
+                DELETE FROM reaction_types WHERE reaction_type_id = ?
+            """)) {
+            stmt.setBytes(1, UUIDUtil.uuidToBinary(reaction.id()));
+            stmt.executeUpdate();
+        } catch (SQLException e) {
+            throw new DatabaseException("Failed to remove reaction type", e);
+        }
+    }
+
+    @Override
+    public void saveReactionEntry(ReactionEntry reaction) throws DatabaseException, AlreadyExistingRecordException {
+        try (Connection conn = dataSource.getConnection();
+             PreparedStatement stmt = conn.prepareStatement("""
+                 INSERT INTO reaction_entries (reaction_entry_id, message_id, reaction_type_id, nickname, created_at)
+                 VALUES (?, ?, ?, ?, ?)
+             """)) {
+
+            stmt.setBytes(1, UUIDUtil.uuidToBinary(reaction.id()));
+            stmt.setBytes(2, UUIDUtil.uuidToBinary(reaction.messageId()));
+            stmt.setBytes(3, UUIDUtil.uuidToBinary(reaction.reactionTypeId()));
+            stmt.setString(4, reaction.nickname());
+            stmt.setTimestamp(5, Timestamp.from(reaction.getCreationDate().toInstant()));
+
+            int rowsInserted = stmt.executeUpdate();
+            if (rowsInserted == 0) {
+                throw new AlreadyExistingRecordException("Reaction entry already exists.");
+            }
+        } catch (SQLException e) {
+            throw new DatabaseException("Error saving reaction entry", e);
+        }
+    }
+
+    @Override
+    public void removeReactionEntry(ReactionEntry reaction) throws DatabaseException {
+        try (Connection conn = dataSource.getConnection();
+             PreparedStatement stmt = conn.prepareStatement("""
+                DELETE FROM reaction_entries WHERE reaction_entry_id = ?
+            """)) {
+            stmt.setBytes(1, UUIDUtil.uuidToBinary(reaction.id()));
+            stmt.executeUpdate();
+        } catch (SQLException e) {
+            throw new DatabaseException("Failed to remove reaction entry", e);
+        }
+    }
+
+    @Override
+    public Optional<ReactionType> getReactionTypeByName(String name) throws DatabaseException {
+        try (Connection conn = dataSource.getConnection();
+             PreparedStatement stmt = conn.prepareStatement("""
+                 SELECT * FROM reaction_types
+                 WHERE name = ?
+             """)) {
+
+            stmt.setString(1, name);
+
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    UUID reactionTypeId = UUIDUtil.binaryToUUID(rs.getBytes("reaction_type_id"));
+                    String packageName = rs.getString("package_name");
+                    ZonedDateTime createdAt = rs.getTimestamp("created_at").toInstant().atZone(ZoneId.systemDefault());
+                    return Optional.of(new ReactionType(this, reactionTypeId, createdAt, name, packageName));
+                }
+            }
+        } catch (SQLException e) {
+            throw new DatabaseException("Error fetching reaction type by name", e);
+        }
+        return Optional.empty();
+    }
+
+    @Override
+    public List<ReactionType> getReactionTypesByPackage(String packageName) throws DatabaseException {
+        List<ReactionType> reactionTypes = new ArrayList<>();
+
+        try (Connection conn = dataSource.getConnection();
+             PreparedStatement stmt = conn.prepareStatement("""
+                 SELECT * FROM reaction_types
+                 WHERE package_name = ?
+             """)) {
+
+            stmt.setString(1, packageName);
+
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    UUID reactionTypeId = UUIDUtil.binaryToUUID(rs.getBytes("reaction_type_id"));
+                    String name = rs.getString("name");
+                    ZonedDateTime createdAt = rs.getTimestamp("created_at").toInstant().atZone(ZoneId.systemDefault());
+                    reactionTypes.add(new ReactionType(this, reactionTypeId, createdAt, name, packageName));
+                }
+            }
+        } catch (SQLException e) {
+            throw new DatabaseException("Error fetching reaction types by package", e);
+        }
+        return reactionTypes;
+    }
+
+    @Override
+    public List<ReactionEntry> getReactionsByMessage(ServerChatMessage message) throws DatabaseException {
+        List<ReactionEntry> reactions = new ArrayList<>();
+
+        try (Connection conn = dataSource.getConnection();
+             PreparedStatement stmt = conn.prepareStatement("""
+                 SELECT * FROM reaction_entries
+                 WHERE message_id = ?
+             """)) {
+
+            stmt.setBytes(1, UUIDUtil.uuidToBinary(message.id()));
+
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    UUID reactionEntryId = UUIDUtil.binaryToUUID(rs.getBytes("reaction_entry_id"));
+                    UUID reactionTypeId = UUIDUtil.binaryToUUID(rs.getBytes("reaction_type_id"));
+                    String nickname = rs.getString("nickname");
+                    ZonedDateTime createdAt = rs.getTimestamp("created_at").toInstant().atZone(ZoneId.systemDefault());
+                    reactions.add(new ReactionEntry(this, reactionEntryId, createdAt, message.id(), reactionTypeId, nickname));
+                }
+            }
+        } catch (SQLException e) {
+            throw new DatabaseException("Error fetching reactions by message", e);
+        }
+        return reactions;
     }
 }

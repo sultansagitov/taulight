@@ -24,6 +24,8 @@ public interface TauDatabase extends Database {
 
     List<ServerChatMessage> loadMessages(TauChat chat, int index, int size) throws DatabaseException;
 
+    Optional<ServerChatMessage> findMessage(UUID id) throws DatabaseException;
+
     Collection<Member> getMembersFromChannel(TauChannel channel) throws DatabaseException;
 
     void addMemberToChat(TauChat chat, Member member) throws DatabaseException;
@@ -55,4 +57,19 @@ public interface TauDatabase extends Database {
     List<InviteCodeObject> getInviteCodesByNickname(Member member) throws DatabaseException;
 
     int countActiveInvitesByNickname(String nickname) throws DatabaseException;
+
+    void saveReactionType(ReactionType reaction) throws DatabaseException, AlreadyExistingRecordException;
+
+    void removeReactionType(ReactionType reaction) throws DatabaseException;
+
+    void saveReactionEntry(ReactionEntry reaction) throws DatabaseException, AlreadyExistingRecordException;
+
+    void removeReactionEntry(ReactionEntry reaction) throws DatabaseException;
+
+    Optional<ReactionType> getReactionTypeByName(String name) throws DatabaseException;
+
+    List<ReactionType> getReactionTypesByPackage(String packageName) throws DatabaseException;
+
+    List<ReactionEntry> getReactionsByMessage(ServerChatMessage message) throws DatabaseException;
+
 }

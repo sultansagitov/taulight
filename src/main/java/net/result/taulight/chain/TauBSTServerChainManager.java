@@ -36,6 +36,7 @@ public class TauBSTServerChainManager extends BSTServerChainManager {
                 case MEMBERS -> new MembersServerChain(session);
                 case CHECK_CODE -> new CheckCodeServerChain(session);
                 case USE_CODE -> new UseCodeServerChain(session);
+                case REACTION -> new ReactionServerChain(session);
             };
         }
 

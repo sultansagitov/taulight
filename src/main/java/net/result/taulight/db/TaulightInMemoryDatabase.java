@@ -17,6 +17,8 @@ public class TaulightInMemoryDatabase extends InMemoryDatabase implements TauDat
     private final Map<UUID, List<ServerChatMessage>> messages = new HashMap<>();
     private final Map<UUID, Set<Member>> chatMembers = new HashMap<>();
     private final Map<String, InviteCodeObject> inviteCodes = new HashMap<>();
+    private final Map<UUID, ReactionType> reactionTypes = new HashMap<>();
+    private final Map<UUID, List<ReactionEntry>> messageReactions = new HashMap<>();
     
     public TaulightInMemoryDatabase(PasswordHasher hasher) {
         super(hasher);
@@ -29,23 +31,23 @@ public class TaulightInMemoryDatabase extends InMemoryDatabase implements TauDat
         if (existingDialog.isPresent()) {
             return existingDialog.get();
         }
-        
+
         // Create new dialog
         TauDialog dialog = new TauDialog(this, member1, member2);
         dialogs.put(dialog.id(), dialog);
-        
+
         // Initialize members in chat
         Set<Member> members = new HashSet<>();
         members.add(member1);
         members.add(member2);
         chatMembers.put(dialog.id(), members);
-        
+
         // Initialize message list
         messages.put(dialog.id(), new ArrayList<>());
-        
+
         // Add to chats
         chats.put(dialog.id(), dialog);
-        
+
         return dialog;
     }
 
@@ -63,12 +65,12 @@ public class TaulightInMemoryDatabase extends InMemoryDatabase implements TauDat
             throw new AlreadyExistingRecordException("Chat with ID " + chat.id() + " already exists");
         }
         chats.put(chat.id(), chat);
-        
+
         // Initialize message list and members set if not already present
         if (!messages.containsKey(chat.id())) {
             messages.put(chat.id(), new ArrayList<>());
         }
-        
+
         if (!chatMembers.containsKey(chat.id())) {
             chatMembers.put(chat.id(), new HashSet<>());
         }
@@ -82,18 +84,18 @@ public class TaulightInMemoryDatabase extends InMemoryDatabase implements TauDat
     @Override
     public void saveMessage(ServerChatMessage msg) throws DatabaseException, AlreadyExistingRecordException {
         UUID chatId = msg.message().chatID();
-        
+
         if (!messages.containsKey(chatId)) {
             messages.put(chatId, new ArrayList<>());
         }
-        
+
         List<ServerChatMessage> chatMessages = messages.get(chatId);
-        
+
         // Check if message with same ID already exists
         if (chatMessages.stream().anyMatch(m -> m.equals(msg))) {
             throw new AlreadyExistingRecordException("Message", "ID", msg.id());
         }
-        
+
         chatMessages.add(msg);
         // Sort messages by timestamp to maintain order
         chatMessages.sort(Comparator.comparing(ServerChatMessage::getCreationDate));
@@ -102,12 +104,20 @@ public class TaulightInMemoryDatabase extends InMemoryDatabase implements TauDat
     @Override
     public List<ServerChatMessage> loadMessages(TauChat chat, int index, int size) throws DatabaseException {
         List<ServerChatMessage> chatMessages = messages.getOrDefault(chat.id(), new ArrayList<>());
-        
+
         // Calculate start and end indices
         int start = Math.max(0, Math.min(index, chatMessages.size()));
         int end = Math.min(chatMessages.size(), start + size);
         
         return new ArrayList<>(chatMessages.subList(start, end));
+    }
+
+    @Override
+    public Optional<ServerChatMessage> findMessage(UUID id) throws DatabaseException {
+        return messages.values().stream()
+                .flatMap(List::stream)
+                .filter(msg -> msg.id().equals(id))
+                .findFirst();
     }
 
     @Override
@@ -149,10 +159,10 @@ public class TaulightInMemoryDatabase extends InMemoryDatabase implements TauDat
     @Override
     public void leaveFromChat(TauChat chat, Member member) throws DatabaseException {
         UUID chatId = chat.id();
-        
+
         if (chatMembers.containsKey(chatId)) {
             chatMembers.get(chatId).remove(member);
-            
+
             // If no members left, remove the chat
             if (chatMembers.get(chatId).isEmpty()) {
                 removeChat(chatId);
@@ -225,5 +235,70 @@ public class TaulightInMemoryDatabase extends InMemoryDatabase implements TauDat
                 .filter(code -> code.getExpiresData() == null || !ZonedDateTime.now().isAfter(code.getExpiresData()))
                 .filter(code -> code.getActivationDate() == null)
                 .count();
+    }
+
+    @Override
+    public void saveReactionType(ReactionType reaction) throws DatabaseException, AlreadyExistingRecordException {
+        UUID reactionTypeId = reaction.id();
+
+        if (reactionTypes.containsKey(reactionTypeId)) {
+            throw new AlreadyExistingRecordException("ReactionType with ID " + reactionTypeId + " already exists.");
+        }
+
+        reactionTypes.put(reactionTypeId, reaction);
+    }
+
+    @Override
+    public void removeReactionType(ReactionType reaction) throws DatabaseException {
+        UUID reactionId = reaction.id();
+        reactionTypes.remove(reactionId);
+
+        // Remove any reaction entries that use this reaction type
+        for (List<ReactionEntry> entries : messageReactions.values()) {
+            entries.removeIf(entry -> entry.reactionTypeId().equals(reactionId));
+        }
+    }
+
+    @Override
+    public void saveReactionEntry(ReactionEntry reaction) throws DatabaseException, AlreadyExistingRecordException {
+        UUID messageId = reaction.messageId();
+
+        messageReactions.putIfAbsent(messageId, new ArrayList<>());
+
+        List<ReactionEntry> reactions = messageReactions.get(messageId);
+        if (reactions.stream().anyMatch(r -> r.nickname().equals(reaction.nickname()) && r.reactionTypeId().equals(reaction.reactionTypeId()))) {
+            throw new AlreadyExistingRecordException("Reaction already exists for this message by " + reaction.nickname());
+        }
+
+        reactions.add(reaction);
+    }
+
+    @Override
+    public void removeReactionEntry(ReactionEntry reaction) throws DatabaseException {
+        UUID messageId = reaction.messageId();
+        if (messageReactions.containsKey(messageId)) {
+            messageReactions.get(messageId).removeIf(r ->
+                    r.nickname().equals(reaction.nickname()) &&
+                    r.reactionTypeId().equals(reaction.reactionTypeId()));
+        }
+    }
+
+    @Override
+    public Optional<ReactionType> getReactionTypeByName(String name) throws DatabaseException {
+        return reactionTypes.values().stream()
+                .filter(reactionType -> reactionType.name().equals(name))
+                .findFirst();
+    }
+
+    @Override
+    public List<ReactionType> getReactionTypesByPackage(String packageName) throws DatabaseException {
+        return reactionTypes.values().stream()
+                .filter(reactionType -> reactionType.packageName().equals(packageName))
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<ReactionEntry> getReactionsByMessage(ServerChatMessage message) throws DatabaseException {
+        return messageReactions.getOrDefault(message.id(), new ArrayList<>());
     }
 }
