@@ -74,7 +74,7 @@ public class ConsoleTaulightCommands {
                 ChatClientChain chain = new ChatClientChain(context.io);
                 context.io.chainManager.linkChain(chain);
                 opt = chain.getByMember(ChatInfoProp.all());
-                chain.send(new ChainNameRequest("chat"));
+                chain.chainName("chat");
             }
 
             opt.ifPresent(ConsoleTaulightCommands::printInfo);
@@ -108,7 +108,7 @@ public class ConsoleTaulightCommands {
                 ChatClientChain chain = new ChatClientChain(context.io);
                 context.io.chainManager.linkChain(chain);
                 opt = chain.getByMember(ChatInfoProp.dialogAll());
-                chain.send(new ChainNameRequest("chat"));
+                chain.chainName("chat");
             }
 
             opt.ifPresent(ConsoleTaulightCommands::printInfo);
@@ -142,7 +142,7 @@ public class ConsoleTaulightCommands {
                 ChatClientChain chain = new ChatClientChain(context.io);
                 context.io.chainManager.linkChain(chain);
                 opt = chain.getByMember(ChatInfoProp.channelAll());
-                chain.send(new ChainNameRequest("chat"));
+                chain.chainName("chat");
             }
 
             opt.ifPresent(ConsoleTaulightCommands::printInfo);
@@ -181,7 +181,7 @@ public class ConsoleTaulightCommands {
                 ChatClientChain chain = new ChatClientChain(context.io);
                 context.io.chainManager.linkChain(chain);
                 infos = chain.getByID(List.of(chatID), ChatInfoProp.all());
-                chain.send(new ChainNameRequest("chat"));
+                chain.chainName("chat");
             }
 
             printInfo(infos);
@@ -522,32 +522,17 @@ public class ConsoleTaulightCommands {
                 .setNickname(context.nickname)
                 .setZtdNow();
 
-        context.chain.send(new ForwardRequest(message));
-        RawMessage raw = context.chain.queue.take();
-        MessageType type = raw.headers().type();
-        if (type == MessageTypes.EXIT) return true;
-
         try {
-            ServerErrorManager.instance().handleError(raw);
+            UUID uuid = context.chain.message(message);
+            System.out.printf("Sent message UUID: %s%n", uuid);
         } catch (NotFoundException e) {
             System.out.printf("Chat %s was not found%n", context.currentChat);
-            return false;
         } catch (NoEffectException e) {
             System.out.println("Message not forwarded");
-            return false;
         } catch (UnknownSandnodeErrorException | SandnodeErrorException e) {
             System.out.printf("%s: %s%n", e.getClass().getSimpleName(), e.getMessage());
-            return false;
-        }
-
-        try {
-            raw.expect(MessageTypes.HAPPY);
-            UUIDMessage uuidMessage = new UUIDMessage(raw);
-            System.out.printf("Sent message UUID: %s%n", uuidMessage.uuid);
-        } catch (ExpectedMessageException e) {
+        } catch (Exception e) {
             System.out.printf("%s: %s%n", e.getClass().getSimpleName(), e.getMessage());
-        } catch (DeserializationException e) {
-            System.out.println("Sent message with unknown UUID due to deserialization");
         }
 
         return false;

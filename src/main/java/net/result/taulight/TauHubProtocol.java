@@ -56,12 +56,12 @@ public class TauHubProtocol {
             Optional<IChain> fwd = chainManager.getChain("fwd");
 
             if (fwd.isPresent()) {
-                fwd.get().send(request);
+                ((ForwardServerChain) fwd.get()).response(request);
             } else {
                 var chain = new ForwardServerChain(s);
                 chainManager.linkChain(chain);
-                chain.send(request);
-                chain.send(new ChainNameRequest("fwd"));
+                chain.response(request);
+                chain.chainName("fwd");
             }
         }
 

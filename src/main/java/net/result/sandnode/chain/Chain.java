@@ -5,6 +5,7 @@ import net.result.sandnode.message.util.Headers;
 import net.result.sandnode.message.util.MessageTypes;
 import net.result.sandnode.exception.*;
 import net.result.sandnode.message.IMessage;
+import net.result.sandnode.message.types.ChainNameRequest;
 import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.util.IOController;
 import org.jetbrains.annotations.NotNull;
@@ -43,7 +44,11 @@ public abstract class Chain implements IChain {
     }
 
     @Override
-    public void send(@NotNull IMessage request) throws UnprocessedMessagesException, InterruptedException {
+    public void chainName(String chainName) throws InterruptedException, UnprocessedMessagesException {
+        send(new ChainNameRequest(chainName));
+    }
+
+    protected void send(@NotNull IMessage request) throws UnprocessedMessagesException, InterruptedException {
         if (!queue.isEmpty()) {
             throw new UnprocessedMessagesException(queue.peek());
         }
@@ -58,14 +63,12 @@ public abstract class Chain implements IChain {
         io.sendMessage(request);
     }
 
-    @Override
-    public void sendFin(@NotNull IMessage message) throws UnprocessedMessagesException, InterruptedException {
+    protected void sendFin(@NotNull IMessage message) throws UnprocessedMessagesException, InterruptedException {
         message.headers().setFin(true);
         send(message);
     }
 
-    @Override
-    public void sendIgnoreQueue(@NotNull ErrorMessage request) throws InterruptedException {
+    protected void sendIgnoreQueue(@NotNull ErrorMessage request) throws InterruptedException {
         Headers headers = request.headers();
         headers.setChainID(getID());
 

@@ -18,11 +18,8 @@ public interface IChain extends Searchable<IChain, Short> {
 
     void setID(short id);
 
-    void send(@NotNull IMessage request) throws UnprocessedMessagesException, InterruptedException;
-
-    void sendFin(@NotNull IMessage message) throws UnprocessedMessagesException, InterruptedException;
-
-    void sendIgnoreQueue(@NotNull ErrorMessage request) throws InterruptedException;
+    void chainName(String chainName) throws InterruptedException, UnprocessedMessagesException;
 
     void sendFinIgnoreQueue(@NotNull ErrorMessage message) throws InterruptedException;
+
 }

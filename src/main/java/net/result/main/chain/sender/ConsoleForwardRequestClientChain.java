@@ -13,6 +13,8 @@ import net.result.sandnode.message.util.MessageTypes;
 import net.result.sandnode.util.IOController;
 import net.result.sandnode.chain.sender.ClientChain;
 import net.result.taulight.dto.ChatMessage;
+import net.result.sandnode.exception.*;
+import net.result.sandnode.exception.error.SandnodeErrorException;;
 import net.result.sandnode.exception.error.NoEffectException;
 import net.result.taulight.message.types.ForwardRequest;
 import net.result.taulight.message.types.UUIDMessage;
@@ -102,5 +104,13 @@ public class ConsoleForwardRequestClientChain extends ClientChain {
         }
 
         return false;
+    }
+
+    public synchronized UUID message(ChatMessage chatMessage) throws InterruptedException, UnprocessedMessagesException, DeserializationException, ExpectedMessageException, UnknownSandnodeErrorException, UnprocessedMessagesException, SandnodeErrorException {
+        send(new ForwardRequest(chatMessage));
+        RawMessage raw = queue.take();
+        ServerErrorManager.instance().handleError(raw);
+        raw.expect(MessageTypes.HAPPY);
+        return new UUIDMessage(raw).uuid;
     }
 }
