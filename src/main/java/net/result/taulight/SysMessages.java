@@ -1,7 +1,7 @@
 package net.result.taulight;
 
 import net.result.sandnode.db.Member;
-import net.result.taulight.dto.ChatMessage;
+import net.result.taulight.dto.ChatMessageInputDTO;
 import net.result.taulight.db.TauChat;
 
 public enum SysMessages {
@@ -21,8 +21,8 @@ public enum SysMessages {
         return message;
     }
 
-    public ChatMessage chatMessage(TauChat chat, Member member) {
-        return new ChatMessage()
+    public ChatMessageInputDTO chatMessage(TauChat chat, Member member) {
+        return new ChatMessageInputDTO()
                 .setSys(true)
                 .setChat(chat)
                 .setMember(member)

@@ -12,9 +12,9 @@ import net.result.sandnode.message.util.Headers;
 import net.result.sandnode.message.util.MessageTypes;
 import net.result.sandnode.serverclient.Session;
 import net.result.taulight.TauHubProtocol;
-import net.result.taulight.db.ServerChatMessage;
+import net.result.taulight.dto.ChatMessageViewDTO;
 import net.result.taulight.db.TauDatabase;
-import net.result.taulight.dto.ChatMessage;
+import net.result.taulight.dto.ChatMessageInputDTO;
 import net.result.sandnode.exception.error.NoEffectException;
 import net.result.taulight.message.types.ForwardRequest;
 import net.result.taulight.db.TauChat;
@@ -53,7 +53,7 @@ public class ForwardRequestServerChain extends ServerChain implements ReceiverCh
                 continue;
             }
 
-            ChatMessage chatMessage = forwardMessage.getChatMessage();
+            ChatMessageInputDTO chatMessage = forwardMessage.getChatMessage();
 
             if (chatMessage == null) {
                 LOGGER.error("Forward message contains null chatMessage");
@@ -76,7 +76,7 @@ public class ForwardRequestServerChain extends ServerChain implements ReceiverCh
                 .setSys(false)
                 .setMember(session.member);
 
-            ServerChatMessage serverMessage;
+            ChatMessageViewDTO serverMessage;
 
             try {
                 Optional<TauChat> chatOpt = database.getChat(chatID);
@@ -111,7 +111,7 @@ public class ForwardRequestServerChain extends ServerChain implements ReceiverCh
                 continue;
             }
 
-            send(new UUIDMessage(new Headers().setType(MessageTypes.HAPPY), serverMessage));
+            send(new UUIDMessage(new Headers().setType(MessageTypes.HAPPY), serverMessage.id()));
         }
     }
 

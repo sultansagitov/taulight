@@ -5,29 +5,29 @@ import net.result.sandnode.exception.DeserializationException;
 import net.result.sandnode.exception.ExpectedMessageException;
 import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.message.MSGPackMessage;
-import net.result.taulight.db.ServerChatMessage;
+import net.result.taulight.dto.ChatMessageViewDTO;
 import net.result.taulight.message.TauMessageTypes;
 
-public class ForwardResponse extends MSGPackMessage<ServerChatMessage> {
+public class ForwardResponse extends MSGPackMessage<ChatMessageViewDTO> {
 
     private static final String YOUR_SESSION_KEY = "your-session";
 
-    public ForwardResponse(Headers headers, ServerChatMessage message, boolean yourSession) {
+    public ForwardResponse(Headers headers, ChatMessageViewDTO message, boolean yourSession) {
         super(headers.setType(TauMessageTypes.FWD), message);
         if (yourSession) {
             headers().setValue(YOUR_SESSION_KEY, "true");
         }
     }
 
-    public ForwardResponse(ServerChatMessage message, boolean yourSession) {
+    public ForwardResponse(ChatMessageViewDTO message, boolean yourSession) {
         this(new Headers(), message, yourSession);
     }
 
     public ForwardResponse(RawMessage message) throws DeserializationException, ExpectedMessageException {
-        super(message.expect(TauMessageTypes.FWD), ServerChatMessage.class);
+        super(message.expect(TauMessageTypes.FWD), ChatMessageViewDTO.class);
     }
 
-    public ServerChatMessage getServerMessage() {
+    public ChatMessageViewDTO getServerMessage() {
         return object;
     }
 

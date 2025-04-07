@@ -6,7 +6,8 @@ import net.result.sandnode.exception.DatabaseException;
 import net.result.sandnode.db.mariadb.SandnodeMariaDBDatabase;
 import net.result.sandnode.security.PasswordHasher;
 import net.result.sandnode.util.UUIDUtil;
-import net.result.taulight.dto.ChatMessage;
+import net.result.taulight.dto.ChatMessageInputDTO;
+import net.result.taulight.dto.ChatMessageViewDTO;
 import net.result.taulight.db.*;
 import net.result.taulight.exception.AlreadyExistingRecordException;
 import org.jetbrains.annotations.NotNull;
@@ -15,6 +16,7 @@ import org.jetbrains.annotations.Nullable;
 import java.sql.*;
 import java.time.*;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class TauMariaDBDatabase extends SandnodeMariaDBDatabase implements TauDatabase {
     public TauMariaDBDatabase(MariaDBConfig mariaDBConfig, PasswordHasher hasher) throws DatabaseException {
@@ -335,8 +337,8 @@ public class TauMariaDBDatabase extends SandnodeMariaDBDatabase implements TauDa
     }
 
     @Override
-    public void saveMessage(@NotNull ServerChatMessage msg) throws DatabaseException, AlreadyExistingRecordException {
-        ChatMessage chatMessage = msg.message();
+    public void saveMessage(@NotNull ChatMessageViewDTO msg) throws DatabaseException, AlreadyExistingRecordException {
+        ChatMessageInputDTO chatMessage = msg.message();
 
         try (Connection connection = dataSource.getConnection()) {
             connection.setAutoCommit(false);
@@ -401,41 +403,35 @@ public class TauMariaDBDatabase extends SandnodeMariaDBDatabase implements TauDa
     }
 
     @Override
-    public List<ServerChatMessage> loadMessages(@NotNull TauChat chat, int index, int size) throws DatabaseException {
+    public List<ChatMessageViewDTO> loadMessages(@NotNull TauChat chat, int index, int size) throws DatabaseException {
         try (Connection conn = dataSource.getConnection()) {
             byte[] chatBin = UUIDUtil.uuidToBinary(chat.id());
 
-            List<ServerChatMessage> messages = new ArrayList<>();
+            List<ChatMessageViewDTO> messages = new ArrayList<>();
+            Map<UUID, ChatMessageViewDTO> messageMap = new HashMap<>();
+
             try (PreparedStatement stmt = conn.prepareStatement("""
                  SELECT * FROM messages WHERE chat_id = ?
-                 ORDER BY timestamp DESC LIMIT ? OFFSET ?
+                 ORDER BY timestamp DESC, message_id DESC LIMIT ? OFFSET ?
             """)) {
                 stmt.setBytes(1, chatBin);
                 stmt.setInt(2, size);
                 stmt.setInt(3, index);
-
-                Map<UUID, ServerChatMessage> messageMap = new HashMap<>();
+ 
                 try (ResultSet rs = stmt.executeQuery()) {
                     while (rs.next()) {
-                        byte[] messageBin = rs.getBytes("message_id");
-                        UUID messageID = UUIDUtil.binaryToUUID(messageBin);
+                        UUID messageID = UUIDUtil.binaryToUUID(rs.getBytes("message_id"));
+                        ZonedDateTime timestamp = rs.getTimestamp("timestamp").toInstant().atZone(ZoneId.systemDefault());
+                        ZonedDateTime createdAt = rs.getTimestamp("created_at").toInstant().atZone(ZoneId.systemDefault());
 
-                        ZonedDateTime timestamp = rs
-                                .getTimestamp("timestamp").toInstant()
-                                .atZone(ZonedDateTime.now().getZone());
-
-                        ChatMessage message = new ChatMessage()
+                        ChatMessageInputDTO message = new ChatMessageInputDTO()
                                 .setChat(chat)
                                 .setContent(rs.getString("content"))
                                 .setZtd(timestamp)
                                 .setNickname(rs.getString("nickname"))
                                 .setSys(rs.getBoolean("sys"));
 
-                        ZonedDateTime createdAt = rs
-                                .getTimestamp("created_at").toInstant()
-                                .atZone(ZonedDateTime.now().getZone());
-
-                        ServerChatMessage serverMessage = new ServerChatMessage(chat.database());
+                        ChatMessageViewDTO serverMessage = new ChatMessageViewDTO();
                         serverMessage.setID(messageID);
                         serverMessage.setChatMessage(message);
                         serverMessage.setCreationDate(createdAt);
@@ -444,71 +440,114 @@ public class TauMariaDBDatabase extends SandnodeMariaDBDatabase implements TauDa
                         messageMap.put(messageID, serverMessage);
                     }
                 }
+            }
 
-                if (!messages.isEmpty()) {
-                    StringBuilder messageIdList = new StringBuilder();
-                    for (int i = 0; i < messages.size(); i++) {
-                        if (i > 0) messageIdList.append(",");
-                        messageIdList.append("?");
-                    }
+            if (messages.isEmpty()) return messages;
 
-                    try (PreparedStatement replyStmt = conn.prepareStatement("""
-                        SELECT message_id, reply_to_id FROM message_replies
-                        WHERE message_id IN (%s)
-                    """.formatted(messageIdList))) {
+            String placeholders = messages.stream().map(m -> "?").collect(Collectors.joining(","));
+            try (PreparedStatement replyStmt = conn.prepareStatement("""
+                SELECT message_id, reply_to_id FROM message_replies
+                WHERE message_id IN (%s)
+            """.formatted(placeholders))) {
+                for (int i = 0; i < messages.size(); i++) {
+                    replyStmt.setBytes(i + 1, UUIDUtil.uuidToBinary(messages.get(i).id()));
+                }
 
-                        for (int i = 0; i < messages.size(); i++) {
-                            replyStmt.setBytes(i + 1, UUIDUtil.uuidToBinary(messages.get(i).id()));
-                        }
+                try (ResultSet rs = replyStmt.executeQuery()) {
+                    while (rs.next()) {
+                        UUID msgId = UUIDUtil.binaryToUUID(rs.getBytes("message_id"));
+                        UUID replyToId = UUIDUtil.binaryToUUID(rs.getBytes("reply_to_id"));
 
-                        try (ResultSet rs = replyStmt.executeQuery()) {
-                            while (rs.next()) {
-                                byte[] msgIdBin = rs.getBytes("message_id");
-                                byte[] replyToIdBin = rs.getBytes("reply_to_id");
-
-                                UUID msgId = UUIDUtil.binaryToUUID(msgIdBin);
-                                UUID replyToId = UUIDUtil.binaryToUUID(replyToIdBin);
-
-                                ServerChatMessage serverMsg = messageMap.get(msgId);
-                                if (serverMsg != null) {
-                                    serverMsg.message().addReply(replyToId);
-                                }
-                            }
+                        ChatMessageViewDTO serverMsg = messageMap.get(msgId);
+                        if (serverMsg != null) {
+                            serverMsg.message().addReply(replyToId);
                         }
                     }
                 }
-
-                return messages;
             }
+
+            try (PreparedStatement reactionStmt = conn.prepareStatement("""
+                SELECT r.*, t.name, t.package_name, t.created_at AS type_created
+                FROM reaction_entries r
+                JOIN reaction_types t ON r.reaction_type_id = t.reaction_type_id
+                WHERE r.message_id IN (%s)
+            """.formatted(placeholders))) {
+                for (int i = 0; i < messages.size(); i++) {
+                    reactionStmt.setBytes(i + 1, UUIDUtil.uuidToBinary(messages.get(i).id()));
+                }
+
+                try (ResultSet rs = reactionStmt.executeQuery()) {
+                    while (rs.next()) {
+                        UUID msgId = UUIDUtil.binaryToUUID(rs.getBytes("message_id"));
+                        ChatMessageViewDTO serverMsg = messageMap.get(msgId);
+                        if (serverMsg == null) continue;
+    
+                        String reaction = "%s:%s".formatted(rs.getString("package_name"), rs.getString("name"));
+                        serverMsg.addReaction(reaction, rs.getString("nickname"));
+                    }
+                }
+            }
+
+            return messages;
+    
         } catch (SQLException | IllegalArgumentException e) {
             throw new DatabaseException("Failed to load messages", e);
         }
     }
 
     @Override
-    public Optional<ServerChatMessage> findMessage(UUID id) throws DatabaseException {
+    public Optional<ChatMessageViewDTO> findMessage(UUID id) throws DatabaseException {
         try (Connection conn = dataSource.getConnection()) {
             try (PreparedStatement stmt = conn.prepareStatement("""
-                SELECT * FROM messages WHERE message_id = ?
+                SELECT * FROM messages
+                WHERE message_id = ?
             """)) {
                 stmt.setBytes(1, UUIDUtil.uuidToBinary(id));
 
                 try (ResultSet rs = stmt.executeQuery()) {
                     if (rs.next()) {
                         UUID chatId = UUIDUtil.binaryToUUID(rs.getBytes("chat_id"));
-                        TauChat chat = (TauChat) getChat(chatId).orElseThrow();
+                        TauChat chat = (TauChat) getChat(chatId).orElse(null);
+                        if (chat == null) return Optional.empty();
 
-                        ChatMessage chatMessage = new ChatMessage()
+                        ChatMessageInputDTO chatMessage = new ChatMessageInputDTO()
                                 .setChat(chat)
                                 .setContent(rs.getString("content"))
                                 .setZtd(rs.getTimestamp("timestamp").toInstant().atZone(ZoneId.systemDefault()))
                                 .setNickname(rs.getString("nickname"))
                                 .setSys(rs.getBoolean("sys"));
 
-                        ServerChatMessage serverMsg = new ServerChatMessage(chat.database());
+                        ChatMessageViewDTO serverMsg = new ChatMessageViewDTO();
                         serverMsg.setID(id);
                         serverMsg.setChatMessage(chatMessage);
                         serverMsg.setCreationDate(rs.getTimestamp("created_at").toInstant().atZone(ZoneId.systemDefault()));
+
+                        try (PreparedStatement replyStmt = conn.prepareStatement("""
+                            SELECT reply_to_id FROM message_replies WHERE message_id = ?
+                        """)) {
+                            replyStmt.setBytes(1, UUIDUtil.uuidToBinary(id));
+                            try (ResultSet rs2 = replyStmt.executeQuery()) {
+                                while (rs2.next()) {
+                                    UUID replyToId = UUIDUtil.binaryToUUID(rs2.getBytes("reply_to_id"));
+                                    chatMessage.addReply(replyToId);
+                                }
+                            }
+                        }
+
+                        try (PreparedStatement reactionStmt = conn.prepareStatement("""
+                            SELECT r.*, t.name, t.package_name, t.created_at AS type_created
+                            FROM reaction_entries r
+                            JOIN reaction_types t ON r.reaction_type_id = t.reaction_type_id
+                            WHERE r.message_id = ?
+                        """)) {
+                            reactionStmt.setBytes(1, UUIDUtil.uuidToBinary(id));
+                            try (ResultSet rs3 = reactionStmt.executeQuery()) {
+                                while (rs3.next()) {
+                                    String reaction = "%s:%s".formatted(rs3.getString("package_name"), rs3.getString("name"));
+                                    serverMsg.addReaction(reaction, rs3.getString("nickname"));
+                                }
+                            }
+                        }
 
                         return Optional.of(serverMsg);
                     }
@@ -1145,7 +1184,7 @@ public class TauMariaDBDatabase extends SandnodeMariaDBDatabase implements TauDa
     }
 
     @Override
-    public List<ReactionEntry> getReactionsByMessage(ServerChatMessage message) throws DatabaseException {
+    public List<ReactionEntry> getReactionsByMessage(ChatMessageViewDTO message) throws DatabaseException {
         List<ReactionEntry> reactions = new ArrayList<>();
 
         try (Connection conn = dataSource.getConnection();

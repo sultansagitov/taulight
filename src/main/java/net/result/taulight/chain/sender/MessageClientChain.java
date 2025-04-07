@@ -6,7 +6,7 @@ import net.result.sandnode.exception.*;
 import net.result.sandnode.exception.error.SandnodeErrorException;
 import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.util.IOController;
-import net.result.taulight.db.ServerChatMessage;
+import net.result.taulight.dto.ChatMessageViewDTO;
 import net.result.taulight.message.types.MessageRequest;
 import net.result.taulight.message.types.MessageResponse;
 
@@ -15,7 +15,7 @@ import java.util.UUID;
 
 public class MessageClientChain extends ClientChain {
     private long count;
-    private List<ServerChatMessage> messages;
+    private List<ChatMessageViewDTO> messages;
 
     public MessageClientChain(IOController io) {
         super(io);
@@ -38,7 +38,7 @@ public class MessageClientChain extends ClientChain {
         return count;
     }
 
-    public List<ServerChatMessage> getMessages() {
+    public List<ChatMessageViewDTO> getMessages() {
         return messages;
     }
 }

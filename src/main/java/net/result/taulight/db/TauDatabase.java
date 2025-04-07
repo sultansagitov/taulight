@@ -3,6 +3,7 @@ package net.result.taulight.db;
 import net.result.sandnode.db.Database;
 import net.result.sandnode.db.Member;
 import net.result.sandnode.exception.DatabaseException;
+import net.result.taulight.dto.ChatMessageViewDTO;
 import net.result.taulight.exception.AlreadyExistingRecordException;
 
 import java.util.Collection;
@@ -20,11 +21,11 @@ public interface TauDatabase extends Database {
 
     Optional<TauChat> getChat(UUID id) throws DatabaseException;
 
-    void saveMessage(ServerChatMessage msg) throws DatabaseException, AlreadyExistingRecordException;
+    void saveMessage(ChatMessageViewDTO msg) throws DatabaseException, AlreadyExistingRecordException;
 
-    List<ServerChatMessage> loadMessages(TauChat chat, int index, int size) throws DatabaseException;
+    List<ChatMessageViewDTO> loadMessages(TauChat chat, int index, int size) throws DatabaseException;
 
-    Optional<ServerChatMessage> findMessage(UUID id) throws DatabaseException;
+    Optional<ChatMessageViewDTO> findMessage(UUID id) throws DatabaseException;
 
     Collection<Member> getMembersFromChannel(TauChannel channel) throws DatabaseException;
 
@@ -70,6 +71,6 @@ public interface TauDatabase extends Database {
 
     List<ReactionType> getReactionTypesByPackage(String packageName) throws DatabaseException;
 
-    List<ReactionEntry> getReactionsByMessage(ServerChatMessage message) throws DatabaseException;
+    List<ReactionEntry> getReactionsByMessage(ChatMessageViewDTO message) throws DatabaseException;
 
 }

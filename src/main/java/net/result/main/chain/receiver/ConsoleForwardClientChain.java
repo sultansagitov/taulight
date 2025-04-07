@@ -2,8 +2,8 @@ package net.result.main.chain.receiver;
 
 import net.result.sandnode.util.IOController;
 import net.result.taulight.chain.receiver.ForwardClientChain;
-import net.result.taulight.dto.ChatMessage;
-import net.result.taulight.db.ServerChatMessage;
+import net.result.taulight.dto.ChatMessageInputDTO;
+import net.result.taulight.dto.ChatMessageViewDTO;
 import net.result.taulight.message.types.ForwardResponse;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -21,13 +21,13 @@ public class ConsoleForwardClientChain extends ForwardClientChain {
 
     @Override
     public void onMessage(@NotNull ForwardResponse response) {
-        ServerChatMessage serverMessage = response.getServerMessage();
+        ChatMessageViewDTO serverMessage = response.getServerMessage();
 
         String formatted = serverMessage.getCreationDate()
                 .withZoneSameInstant(ZoneId.systemDefault())
                 .format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss z"));
 
-        ChatMessage message = serverMessage.message();
+        ChatMessageInputDTO message = serverMessage.message();
         String content = message.content();
         LOGGER.info("Forwarded message details - {} - {} - {}", serverMessage.id(), formatted, content);
         String nickname = response.isYourSession() ? "You" : message.nickname();

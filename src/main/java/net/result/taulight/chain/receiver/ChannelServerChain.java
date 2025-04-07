@@ -14,7 +14,7 @@ import net.result.sandnode.serverclient.Session;
 import net.result.taulight.SysMessages;
 import net.result.taulight.TauAgentProtocol;
 import net.result.taulight.TauHubProtocol;
-import net.result.taulight.dto.ChatMessage;
+import net.result.taulight.dto.ChatMessageInputDTO;
 import net.result.taulight.dto.InviteTauCode;
 import net.result.taulight.dto.TauCode;
 import net.result.taulight.db.*;
@@ -83,7 +83,7 @@ public class ChannelServerChain extends ServerChain implements ReceiverChain {
 
         channel.addMember(session.member);
         TauAgentProtocol.addMemberToGroup(session, manager.getGroup(channel));
-        ChatMessage chatMessage = SysMessages.channelNew.chatMessage(channel, session.member);
+        ChatMessageInputDTO chatMessage = SysMessages.channelNew.chatMessage(channel, session.member);
         try {
             TauHubProtocol.send(session, channel, chatMessage);
         } catch (UnauthorizedException e) {
@@ -149,7 +149,7 @@ public class ChannelServerChain extends ServerChain implements ReceiverChain {
         }
 
         database.leaveFromChat(channel, session.member);
-        ChatMessage chatMessage = SysMessages.channelLeave.chatMessage(channel, session.member);
+        ChatMessageInputDTO chatMessage = SysMessages.channelLeave.chatMessage(channel, session.member);
         try {
             TauHubProtocol.send(session, channel, chatMessage);
         } catch (UnauthorizedException e) {

@@ -3,6 +3,7 @@ package net.result.taulight.db;
 import net.result.sandnode.db.Member;
 import net.result.sandnode.exception.DatabaseException;
 import net.result.taulight.exception.AlreadyExistingRecordException;
+import net.result.taulight.dto.ChatMessageViewDTO;
 import net.result.taulight.dto.ChatInfo;
 import net.result.taulight.dto.ChatInfoProp;
 
@@ -26,7 +27,7 @@ public abstract class TauChat extends TaulightObject {
 
     public abstract Collection<Member> getMembers() throws DatabaseException;
 
-    public List<ServerChatMessage> loadMessages(int index, int size) throws DatabaseException {
+    public List<ChatMessageViewDTO> loadMessages(int index, int size) throws DatabaseException {
         return database().loadMessages(this, index, size);
     }
 

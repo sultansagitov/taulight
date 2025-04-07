@@ -8,9 +8,10 @@ import net.result.sandnode.exception.error.UnauthorizedException;
 import net.result.sandnode.message.types.ChainNameRequest;
 import net.result.sandnode.serverclient.Session;
 import net.result.taulight.chain.sender.ForwardServerChain;
-import net.result.taulight.dto.ChatMessage;
+import net.result.taulight.dto.ChatMessageInputDTO;
 import net.result.taulight.db.TauChat;
-import net.result.taulight.db.ServerChatMessage;
+import net.result.taulight.db.TauDatabase;
+import net.result.taulight.dto.ChatMessageViewDTO;
 import net.result.taulight.exception.AlreadyExistingRecordException;
 import net.result.sandnode.exception.error.NoEffectException;
 import net.result.taulight.group.TauGroupManager;
@@ -24,7 +25,7 @@ import java.util.Optional;
 public class TauHubProtocol {
     private static final Logger LOGGER = LogManager.getLogger(TauHubProtocol.class);
 
-    public static ServerChatMessage send(Session session, TauChat chat, ChatMessage chatMessage)
+    public static ChatMessageViewDTO send(Session session, TauChat chat, ChatMessageInputDTO chatMessage)
             throws InterruptedException, DatabaseException, NoEffectException, UnprocessedMessagesException,
             UnauthorizedException {
         if (session.member == null) {
@@ -32,8 +33,9 @@ public class TauHubProtocol {
         }
 
         TauGroupManager manager = (TauGroupManager) session.server.serverConfig.groupManager();
+        TauDatabase database = (TauDatabase) session.server.serverConfig.database();
 
-        ServerChatMessage serverMessage = new ServerChatMessage(chat.database());
+        ChatMessageViewDTO serverMessage = new ChatMessageViewDTO();
         serverMessage.setCreationDateNow();
         serverMessage.setChatMessage(chatMessage);
 
@@ -41,7 +43,7 @@ public class TauHubProtocol {
         while (true) {
             serverMessage.setRandomID();
             try {
-                serverMessage.save();
+                database.saveMessage(serverMessage);
                 break;
             } catch (AlreadyExistingRecordException ignored) {
             }

@@ -10,7 +10,7 @@ import net.result.sandnode.message.types.HappyMessage;
 import net.result.sandnode.serverclient.Session;
 import net.result.taulight.SysMessages;
 import net.result.taulight.TauHubProtocol;
-import net.result.taulight.dto.ChatMessage;
+import net.result.taulight.dto.ChatMessageInputDTO;
 import net.result.taulight.db.*;
 import net.result.sandnode.exception.error.NoEffectException;
 import net.result.taulight.message.types.UseCodeRequest;
@@ -69,7 +69,7 @@ public class UseCodeServerChain extends ServerChain  implements ReceiverChain {
 
         channel.addMember(member);
 
-        ChatMessage chatMessage = SysMessages.channelAdd.chatMessage(channel, member);
+        ChatMessageInputDTO chatMessage = SysMessages.channelAdd.chatMessage(channel, member);
 
         try {
             TauHubProtocol.send(session, channel, chatMessage);

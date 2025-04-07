@@ -4,6 +4,7 @@ import net.result.sandnode.db.Member;
 import net.result.sandnode.db.InMemoryDatabase;
 import net.result.sandnode.exception.DatabaseException;
 import net.result.sandnode.security.PasswordHasher;
+import net.result.taulight.dto.ChatMessageViewDTO;
 import net.result.taulight.exception.AlreadyExistingRecordException;
 
 import java.time.ZonedDateTime;
@@ -14,7 +15,7 @@ public class TaulightInMemoryDatabase extends InMemoryDatabase implements TauDat
     
     private final Map<UUID, TauDialog> dialogs = new HashMap<>();
     private final Map<UUID, TauChat> chats = new HashMap<>();
-    private final Map<UUID, List<ServerChatMessage>> messages = new HashMap<>();
+    private final Map<UUID, List<ChatMessageViewDTO>> messages = new HashMap<>();
     private final Map<UUID, Set<Member>> chatMembers = new HashMap<>();
     private final Map<String, InviteCodeObject> inviteCodes = new HashMap<>();
     private final Map<UUID, ReactionType> reactionTypes = new HashMap<>();
@@ -82,14 +83,14 @@ public class TaulightInMemoryDatabase extends InMemoryDatabase implements TauDat
     }
 
     @Override
-    public void saveMessage(ServerChatMessage msg) throws DatabaseException, AlreadyExistingRecordException {
+    public void saveMessage(ChatMessageViewDTO msg) throws DatabaseException, AlreadyExistingRecordException {
         UUID chatId = msg.message().chatID();
 
         if (!messages.containsKey(chatId)) {
             messages.put(chatId, new ArrayList<>());
         }
 
-        List<ServerChatMessage> chatMessages = messages.get(chatId);
+        List<ChatMessageViewDTO> chatMessages = messages.get(chatId);
 
         // Check if message with same ID already exists
         if (chatMessages.stream().anyMatch(m -> m.equals(msg))) {
@@ -98,26 +99,47 @@ public class TaulightInMemoryDatabase extends InMemoryDatabase implements TauDat
 
         chatMessages.add(msg);
         // Sort messages by timestamp to maintain order
-        chatMessages.sort(Comparator.comparing(ServerChatMessage::getCreationDate));
+        chatMessages.sort(Comparator.comparing(ChatMessageViewDTO::getCreationDate));
     }
 
     @Override
-    public List<ServerChatMessage> loadMessages(TauChat chat, int index, int size) throws DatabaseException {
-        List<ServerChatMessage> chatMessages = messages.getOrDefault(chat.id(), new ArrayList<>());
+    public List<ChatMessageViewDTO> loadMessages(TauChat chat, int index, int size) throws DatabaseException {
+        List<ChatMessageViewDTO> chatMessages = messages.getOrDefault(chat.id(), new ArrayList<>());
 
-        // Calculate start and end indices
         int start = Math.max(0, Math.min(index, chatMessages.size()));
         int end = Math.min(chatMessages.size(), start + size);
-        
-        return new ArrayList<>(chatMessages.subList(start, end));
+
+        return chatMessages.subList(start, end).stream()
+                .map(this::buildMessageWithReactions)
+                .collect(Collectors.toList());
     }
 
     @Override
-    public Optional<ServerChatMessage> findMessage(UUID id) throws DatabaseException {
+    public Optional<ChatMessageViewDTO> findMessage(UUID id) throws DatabaseException {
         return messages.values().stream()
                 .flatMap(List::stream)
                 .filter(msg -> msg.id().equals(id))
-                .findFirst();
+                .findFirst()
+                .map(this::buildMessageWithReactions);
+    }
+
+    private ChatMessageViewDTO buildMessageWithReactions(ChatMessageViewDTO source) {
+        ChatMessageViewDTO dto = new ChatMessageViewDTO();
+        dto.setID(source.id());
+        dto.setCreationDate(source.getCreationDate());
+        dto.setChatMessage(source.message());
+
+        Map<String, Collection<String>> reactionMap = new HashMap<>();
+        List<ReactionEntry> entries = messageReactions.getOrDefault(source.id(), Collections.emptyList());
+        for (ReactionEntry entry : entries) {
+            ReactionType type = reactionTypes.get(entry.reactionTypeId());
+            if (type != null) {
+                reactionMap.computeIfAbsent(type.name(), k -> new HashSet<>()).add(entry.nickname());
+            }
+        }
+
+        dto.setReactions(reactionMap);
+        return dto;
     }
 
     @Override
@@ -298,7 +320,7 @@ public class TaulightInMemoryDatabase extends InMemoryDatabase implements TauDat
     }
 
     @Override
-    public List<ReactionEntry> getReactionsByMessage(ServerChatMessage message) throws DatabaseException {
+    public List<ReactionEntry> getReactionsByMessage(ChatMessageViewDTO message) throws DatabaseException {
         return messageReactions.getOrDefault(message.id(), new ArrayList<>());
     }
 }

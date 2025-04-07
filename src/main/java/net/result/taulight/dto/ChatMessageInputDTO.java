@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-public class ChatMessage {
+public class ChatMessageInputDTO {
     @JsonProperty("chat-id")
     private UUID chatID = null;
     @JsonProperty
@@ -24,7 +24,7 @@ public class ChatMessage {
     @JsonProperty
     private List<UUID> replies = null;
 
-    public ChatMessage() {}
+    public ChatMessageInputDTO() {}
 
     public UUID chatID() {
         return chatID;
@@ -50,44 +50,44 @@ public class ChatMessage {
         return replies;
     }
 
-    public ChatMessage setContent(String content) {
+    public ChatMessageInputDTO setContent(String content) {
         this.content = content;
         return this;
     }
 
-    public ChatMessage setChatID(UUID chatID) {
+    public ChatMessageInputDTO setChatID(UUID chatID) {
         this.chatID = chatID;
         return this;
     }
 
-    public ChatMessage setChat(TauChat chat) {
+    public ChatMessageInputDTO setChat(TauChat chat) {
         return setChatID(chat.id());
     }
 
-    public ChatMessage setZtd(ZonedDateTime ztd) {
+    public ChatMessageInputDTO setZtd(ZonedDateTime ztd) {
         this.ztd = ztd;
         return this;
     }
 
-    public ChatMessage setZtdNow() {
+    public ChatMessageInputDTO setZtdNow() {
         return setZtd(ZonedDateTime.now(ZoneId.of("UTC")));
     }
 
-    public ChatMessage setNickname(String nickname) {
+    public ChatMessageInputDTO setNickname(String nickname) {
         this.nickname = nickname;
         return this;
     }
 
-    public ChatMessage setMember(Member member) {
+    public ChatMessageInputDTO setMember(Member member) {
         return setNickname(member.nickname());
     }
 
-    public ChatMessage setSys(boolean sys) {
+    public ChatMessageInputDTO setSys(boolean sys) {
         this.sys = sys;
         return this;
     }
 
-    public ChatMessage setReplies(List<UUID> replies) {
+    public ChatMessageInputDTO setReplies(List<UUID> replies) {
         this.replies = replies;
         return this;
     }
@@ -102,7 +102,7 @@ public class ChatMessage {
 
     @Override
     public String toString() {
-        return "<ChatMessage content=%s chatID=%s ztd=%s sys=%s nickname=%s replies=%s>"
+        return "<ChatMessageInputDTO content=%s chatID=%s ztd=%s sys=%s nickname=%s replies=%s>"
                 .formatted(content, chatID, ztd, sys, nickname, replies);
     }
 }

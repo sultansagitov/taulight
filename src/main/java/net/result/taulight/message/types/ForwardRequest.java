@@ -5,23 +5,23 @@ import net.result.sandnode.exception.ExpectedMessageException;
 import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.message.util.Headers;
 import net.result.sandnode.message.MSGPackMessage;
-import net.result.taulight.dto.ChatMessage;
+import net.result.taulight.dto.ChatMessageInputDTO;
 import net.result.taulight.message.TauMessageTypes;
 
-public class ForwardRequest extends MSGPackMessage<ChatMessage> {
-    public ForwardRequest(ChatMessage chatMessage) {
+public class ForwardRequest extends MSGPackMessage<ChatMessageInputDTO> {
+    public ForwardRequest(ChatMessageInputDTO chatMessage) {
         this(new Headers(), chatMessage);
     }
 
-    public ForwardRequest(Headers headers, ChatMessage chatMessage) {
+    public ForwardRequest(Headers headers, ChatMessageInputDTO chatMessage) {
         super(headers.setType(TauMessageTypes.FWD_REQ), chatMessage);
     }
 
     public ForwardRequest(RawMessage request) throws DeserializationException, ExpectedMessageException {
-        super(request.expect(TauMessageTypes.FWD_REQ), ChatMessage.class);
+        super(request.expect(TauMessageTypes.FWD_REQ), ChatMessageInputDTO.class);
     }
 
-    public ChatMessage getChatMessage() {
+    public ChatMessageInputDTO getChatMessage() {
         return object;
     }
 }

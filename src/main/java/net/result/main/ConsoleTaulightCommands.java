@@ -14,8 +14,8 @@ import net.result.sandnode.message.util.MessageTypes;
 import net.result.taulight.chain.sender.*;
 import net.result.taulight.dto.InviteTauCode;
 import net.result.taulight.dto.TauCode;
-import net.result.taulight.dto.ChatMessage;
-import net.result.taulight.db.ServerChatMessage;
+import net.result.taulight.dto.ChatMessageInputDTO;
+import net.result.taulight.dto.ChatMessageViewDTO;
 import net.result.taulight.dto.ChatInfo;
 import net.result.taulight.dto.ChatInfoProp;
 import net.result.taulight.message.types.ForwardRequest;
@@ -422,7 +422,7 @@ public class ConsoleTaulightCommands {
             chain.getMessages(chatID, 0, 100);
             context.io.chainManager.removeChain(chain);
             long count = chain.getCount();
-            List<ServerChatMessage> messages = chain.getMessages();
+            List<ChatMessageViewDTO> messages = chain.getMessages();
 
             System.out.printf("Total messages length: %d%n", count);
             System.out.printf("Messages length: %d%n", messages.size());
@@ -515,7 +515,7 @@ public class ConsoleTaulightCommands {
             return false;
         }
 
-        ChatMessage message = new ChatMessage()
+        ChatMessageInputDTO message = new ChatMessageInputDTO()
                 .setChatID(context.currentChat)
                 .setContent(input)
                 .setReplies(replies)

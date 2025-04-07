@@ -14,7 +14,7 @@ import net.result.taulight.SysMessages;
 import net.result.taulight.TauAgentProtocol;
 import net.result.taulight.TauHubProtocol;
 import net.result.taulight.chain.sender.DialogRequest;
-import net.result.taulight.dto.ChatMessage;
+import net.result.taulight.dto.ChatMessageInputDTO;
 import net.result.taulight.db.TauDatabase;
 import net.result.taulight.db.TauDialog;
 import net.result.sandnode.exception.error.NoEffectException;
@@ -56,7 +56,7 @@ public class DialogServerChain extends ServerChain implements ReceiverChain {
         } else {
             dialog = database.createDialog(session.member, anotherMember);
 
-            ChatMessage chatMessage = SysMessages.dialogNew.chatMessage(dialog, session.member);
+            ChatMessageInputDTO chatMessage = SysMessages.dialogNew.chatMessage(dialog, session.member);
 
             try {
                 TauHubProtocol.send(session, dialog, chatMessage);

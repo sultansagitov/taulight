@@ -6,7 +6,7 @@ import net.result.sandnode.error.ServerErrorManager;
 import net.result.sandnode.exception.error.NotFoundException;
 import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.serverclient.Session;
-import net.result.taulight.db.ServerChatMessage;
+import net.result.taulight.dto.ChatMessageViewDTO;
 import net.result.taulight.db.TauChat;
 import net.result.taulight.db.TauDatabase;
 import net.result.taulight.message.types.MessageRequest;
@@ -36,7 +36,7 @@ public class MessageServerChain extends ServerChain implements ReceiverChain {
         }
 
         long count = chat.getMessageCount();
-        List<ServerChatMessage> messages = chat.loadMessages(request.getIndex(), request.getSize());
+        List<ChatMessageViewDTO> messages = chat.loadMessages(request.getIndex(), request.getSize());
 
         sendFin(new MessageResponse(count, messages));
     }

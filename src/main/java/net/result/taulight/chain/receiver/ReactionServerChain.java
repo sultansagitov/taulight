@@ -13,6 +13,7 @@ import net.result.sandnode.serverclient.Session;
 import net.result.taulight.SysMessages;
 import net.result.taulight.TauAgentProtocol;
 import net.result.taulight.TauHubProtocol;
+import net.result.taulight.dto.ChatMessageViewDTO;
 import net.result.taulight.db.*;
 import net.result.sandnode.exception.error.NotFoundException;
 import net.result.sandnode.exception.error.NoEffectException;
@@ -45,7 +46,7 @@ public class ReactionServerChain extends ServerChain implements ReceiverChain {
             throw new UnauthorizedException();
         }
 
-        ServerChatMessage message = database
+        ChatMessageViewDTO message = database
                 .findMessage(request.getMessageID())
                 .orElseThrow(NotFoundException::new);
 

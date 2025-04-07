@@ -12,8 +12,10 @@ import net.result.sandnode.exception.crypto.NoSuchEncryptionException;
 import net.result.sandnode.link.Links;
 import net.result.sandnode.security.PasswordHashers;
 import net.result.taulight.db.mariadb.TauMariaDBDatabase;
+import net.result.taulight.db.TaulightInMemoryDatabase;
 import net.result.taulight.group.HashSetTauGroupManager;
 import net.result.sandnode.security.JWTTokenizer;
+import net.result.taulight.db.ReactionType;
 import net.result.taulight.hubagent.TauHub;
 import net.result.main.config.ServerPropertiesConfig;
 import net.result.sandnode.serverclient.SandnodeServer;
@@ -25,7 +27,10 @@ import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
 import org.mariadb.jdbc.MariaDbDataSource;
 
+import java.util.UUID;
+import java.util.List;
 import java.net.URI;
+import java.time.ZonedDateTime;
 
 public class RunHubWork implements IWork {
 
@@ -64,8 +69,24 @@ public class RunHubWork implements IWork {
 
         MariaDBConfig mariaDBConfig = new MariaDBPropertiesConfig();
 
+        var database = new TaulightInMemoryDatabase(PasswordHashers.BCRYPT);
+
         try {
-            serverConfig.setDatabase(new TauMariaDBDatabase(mariaDBConfig, PasswordHashers.BCRYPT));
+            serverConfig.setDatabase(database);
+            if (database.getReactionTypesByPackage("taulight").isEmpty()) {
+                List<String> reactionNames = List.of("fire", "like", "laugh", "wow", "sad", "angry");
+
+                for (String name : reactionNames) {
+                    ReactionType rt = new ReactionType(
+                        database,
+                        UUID.randomUUID(),
+                        ZonedDateTime.now(),
+                        name,
+                        "taulight"
+                    );
+                    database.saveReactionType(rt);
+                }
+            }
         } catch (Exception e) {
             LOGGER.error(e);
             throw new RuntimeException(e);
