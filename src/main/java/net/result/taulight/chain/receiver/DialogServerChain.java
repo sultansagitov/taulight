@@ -19,7 +19,7 @@ import net.result.taulight.db.TauDatabase;
 import net.result.taulight.db.TauDialog;
 import net.result.sandnode.exception.error.NoEffectException;
 import net.result.taulight.group.TauGroupManager;
-import net.result.taulight.message.types.UUIDMessage;
+import net.result.sandnode.message.UUIDMessage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 

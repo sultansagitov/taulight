@@ -13,7 +13,7 @@ import net.result.taulight.dto.TauCode;
 import net.result.taulight.message.CodeListMessage;
 import net.result.taulight.message.TauMessageTypes;
 import net.result.taulight.message.types.ChannelRequest;
-import net.result.taulight.message.types.UUIDMessage;
+import net.result.sandnode.message.UUIDMessage;
 
 import java.time.Duration;
 import java.util.Collection;

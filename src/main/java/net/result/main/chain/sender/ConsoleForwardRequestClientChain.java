@@ -15,7 +15,7 @@ import net.result.taulight.dto.ChatMessageInputDTO;
 import net.result.sandnode.exception.*;
 import net.result.sandnode.exception.error.NoEffectException;
 import net.result.taulight.message.types.ForwardRequest;
-import net.result.taulight.message.types.UUIDMessage;
+import net.result.sandnode.message.UUIDMessage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 

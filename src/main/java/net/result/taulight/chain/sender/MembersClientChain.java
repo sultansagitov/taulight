@@ -14,7 +14,7 @@ import net.result.sandnode.util.IOController;
 import net.result.taulight.dto.MemberRecord;
 import net.result.taulight.message.TauMessageTypes;
 import net.result.taulight.message.types.MembersResponse;
-import net.result.taulight.message.types.UUIDMessage;
+import net.result.sandnode.message.UUIDMessage;
 
 import java.util.Collection;
 import java.util.UUID;

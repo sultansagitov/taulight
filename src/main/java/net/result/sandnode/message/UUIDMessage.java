@@ -1,9 +1,7 @@
-package net.result.taulight.message.types;
+package net.result.sandnode.message;
 
 import net.result.sandnode.db.SandnodeObject;
 import net.result.sandnode.exception.DeserializationException;
-import net.result.sandnode.message.Message;
-import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.message.util.Headers;
 import org.jetbrains.annotations.NotNull;
 

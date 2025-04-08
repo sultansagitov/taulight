@@ -6,7 +6,7 @@ import net.result.sandnode.exception.*;
 import net.result.sandnode.exception.error.SandnodeErrorException;
 import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.util.IOController;
-import net.result.taulight.message.types.UUIDMessage;
+import net.result.sandnode.message.UUIDMessage;
 
 import java.util.UUID;
 

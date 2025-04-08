@@ -1,6 +1,7 @@
 package net.result.taulight.message.types;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.core.type.TypeReference;
+import net.result.sandnode.dto.PaginatedDTO;
 import net.result.sandnode.exception.DeserializationException;
 import net.result.sandnode.exception.ExpectedMessageException;
 import net.result.sandnode.message.MSGPackMessage;
@@ -12,39 +13,24 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
-public class MessageResponse extends MSGPackMessage<MessageResponse.Data> {
-    public static class Data {
-        @JsonProperty
-        public long count;
-        @JsonProperty
-        public List<ChatMessageViewDTO> messages;
-
-        @SuppressWarnings("unused")
-        public Data() {}
-
-        public Data(long count, List<ChatMessageViewDTO> messages) {
-            this.count = count;
-            this.messages = messages;
-        }
+public class MessageResponse extends MSGPackMessage<PaginatedDTO<ChatMessageViewDTO>> {
+    public MessageResponse(@NotNull Headers headers, long totalCount, List<ChatMessageViewDTO> messages) {
+        super(headers.setType(TauMessageTypes.MESSAGE), new PaginatedDTO<>(totalCount, messages));
     }
 
-    public MessageResponse(@NotNull Headers headers, long count, List<ChatMessageViewDTO> messages) {
-        super(headers.setType(TauMessageTypes.MESSAGE), new MessageResponse.Data(count, messages));
-    }
-
-    public MessageResponse(long count, List<ChatMessageViewDTO> messages) {
-        this(new Headers(), count, messages);
+    public MessageResponse(long totalCount, List<ChatMessageViewDTO> messages) {
+        this(new Headers(), totalCount, messages);
     }
 
     public MessageResponse(@NotNull RawMessage raw) throws ExpectedMessageException, DeserializationException {
-        super(raw.expect(TauMessageTypes.MESSAGE), Data.class);
+        super(raw.expect(TauMessageTypes.MESSAGE), new TypeReference<>() {});
     }
 
     public long getCount() {
-        return object.count;
+        return object.totalCount;
     }
 
     public List<ChatMessageViewDTO> getMessages() {
-        return object.messages;
+        return object.objects;
     }
 }
