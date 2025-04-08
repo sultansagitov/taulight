@@ -13,6 +13,7 @@ public class ReactionEntry extends TaulightObject {
     @JsonProperty
     private String nickname;
 
+    @SuppressWarnings("unused")
     public ReactionEntry() {
         super();
     }
@@ -20,6 +21,13 @@ public class ReactionEntry extends TaulightObject {
     public ReactionEntry(TauDatabase database, UUID id, ZonedDateTime createdAt,
                          UUID messageId, UUID reactionTypeId, String nickname) {
         super(database, id, createdAt);
+        this.messageId = messageId;
+        this.reactionTypeId = reactionTypeId;
+        this.nickname = nickname;
+    }
+
+    public ReactionEntry(TauDatabase database, UUID messageId, UUID reactionTypeId, String nickname) {
+        super(database);
         this.messageId = messageId;
         this.reactionTypeId = reactionTypeId;
         this.nickname = nickname;

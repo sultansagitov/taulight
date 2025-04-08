@@ -83,9 +83,9 @@ public class ChannelServerChain extends ServerChain implements ReceiverChain {
 
         channel.addMember(session.member);
         TauAgentProtocol.addMemberToGroup(session, manager.getGroup(channel));
-        ChatMessageInputDTO chatMessage = SysMessages.channelNew.chatMessage(channel, session.member);
+        ChatMessageInputDTO input = SysMessages.channelNew.chatMessageInputDTO(channel, session.member);
         try {
-            TauHubProtocol.send(session, channel, chatMessage);
+            TauHubProtocol.send(session, channel, input);
         } catch (UnauthorizedException e) {
             throw new ImpossibleRuntimeException(e);
         } catch (DatabaseException | NoEffectException e) {
@@ -149,9 +149,9 @@ public class ChannelServerChain extends ServerChain implements ReceiverChain {
         }
 
         database.leaveFromChat(channel, session.member);
-        ChatMessageInputDTO chatMessage = SysMessages.channelLeave.chatMessage(channel, session.member);
+        ChatMessageInputDTO input = SysMessages.channelLeave.chatMessageInputDTO(channel, session.member);
         try {
-            TauHubProtocol.send(session, channel, chatMessage);
+            TauHubProtocol.send(session, channel, input);
         } catch (UnauthorizedException e) {
             throw new ImpossibleRuntimeException(e);
         } catch (DatabaseException | NoEffectException e) {

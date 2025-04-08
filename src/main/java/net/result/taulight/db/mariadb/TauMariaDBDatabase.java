@@ -338,7 +338,7 @@ public class TauMariaDBDatabase extends SandnodeMariaDBDatabase implements TauDa
 
     @Override
     public void saveMessage(@NotNull ChatMessageViewDTO msg) throws DatabaseException, AlreadyExistingRecordException {
-        ChatMessageInputDTO chatMessage = msg.message();
+        ChatMessageInputDTO input = msg.message();
 
         try (Connection connection = dataSource.getConnection()) {
             connection.setAutoCommit(false);
@@ -351,16 +351,16 @@ public class TauMariaDBDatabase extends SandnodeMariaDBDatabase implements TauDa
              """)) {
                     stmt.setBytes(1, UUIDUtil.uuidToBinary(msg.id()));
                     stmt.setTimestamp(2, Timestamp.from(msg.getCreationDate().toInstant()));
-                    stmt.setBytes(3, UUIDUtil.uuidToBinary(chatMessage.chatID()));
-                    stmt.setString(4, chatMessage.content());
-                    stmt.setTimestamp(5, Timestamp.from(chatMessage.ztd().toInstant()));
-                    stmt.setString(6, chatMessage.nickname());
-                    stmt.setBoolean(7, chatMessage.sys());
+                    stmt.setBytes(3, UUIDUtil.uuidToBinary(input.chatID()));
+                    stmt.setString(4, input.content());
+                    stmt.setTimestamp(5, Timestamp.from(input.ztd().toInstant()));
+                    stmt.setString(6, input.nickname());
+                    stmt.setBoolean(7, input.sys());
                     stmt.executeUpdate();
                 }
 
                 // Save replies if any exist
-                List<UUID> replies = chatMessage.replies();
+                List<UUID> replies = input.replies();
                 if (replies != null && !replies.isEmpty()) {
                     try (PreparedStatement replyStmt = connection.prepareStatement("""
                         INSERT INTO message_replies (message_id, reply_to_id) VALUES (?, ?)
@@ -384,12 +384,12 @@ public class TauMariaDBDatabase extends SandnodeMariaDBDatabase implements TauDa
                 if (errorMessage.contains("message_id")) {
                     throw new AlreadyExistingRecordException("Messages Table", "message_id", msg.id(), e);
                 } else if (errorMessage.contains("nickname")) {
-                    throw new AlreadyExistingRecordException("Messages Table", "nickname", chatMessage.nickname(), e);
+                    throw new AlreadyExistingRecordException("Messages Table", "nickname", input.nickname(), e);
                 } else if (errorMessage.contains("reply_to_id")) {
                     throw new AlreadyExistingRecordException(
                             "Message Replies Table", "reply_to_id", "one of the reply IDs", e);
                 } else {
-                    throw new AlreadyExistingRecordException("Messages Table", "chat_id (?)", chatMessage.chatID(), e);
+                    throw new AlreadyExistingRecordException("Messages Table", "chat_id (?)", input.chatID(), e);
                 }
             } catch (SQLException e) {
                 connection.rollback();
@@ -417,12 +417,16 @@ public class TauMariaDBDatabase extends SandnodeMariaDBDatabase implements TauDa
                 stmt.setBytes(1, chatBin);
                 stmt.setInt(2, size);
                 stmt.setInt(3, index);
- 
+
                 try (ResultSet rs = stmt.executeQuery()) {
                     while (rs.next()) {
                         UUID messageID = UUIDUtil.binaryToUUID(rs.getBytes("message_id"));
-                        ZonedDateTime timestamp = rs.getTimestamp("timestamp").toInstant().atZone(ZoneId.systemDefault());
-                        ZonedDateTime createdAt = rs.getTimestamp("created_at").toInstant().atZone(ZoneId.systemDefault());
+                        ZonedDateTime timestamp = rs.getTimestamp("timestamp")
+                                .toInstant()
+                                .atZone(ZoneId.of("UTC"));
+                        ZonedDateTime createdAt = rs.getTimestamp("created_at")
+                                .toInstant()
+                                .atZone(ZoneId.of("UTC"));
 
                         ChatMessageInputDTO message = new ChatMessageInputDTO()
                                 .setChat(chat)
@@ -433,7 +437,7 @@ public class TauMariaDBDatabase extends SandnodeMariaDBDatabase implements TauDa
 
                         ChatMessageViewDTO serverMessage = new ChatMessageViewDTO();
                         serverMessage.setID(messageID);
-                        serverMessage.setChatMessage(message);
+                        serverMessage.setChatMessageInputDTO(message);
                         serverMessage.setCreationDate(createdAt);
 
                         messages.add(serverMessage);
@@ -481,7 +485,7 @@ public class TauMariaDBDatabase extends SandnodeMariaDBDatabase implements TauDa
                         UUID msgId = UUIDUtil.binaryToUUID(rs.getBytes("message_id"));
                         ChatMessageViewDTO serverMsg = messageMap.get(msgId);
                         if (serverMsg == null) continue;
-    
+
                         String reaction = "%s:%s".formatted(rs.getString("package_name"), rs.getString("name"));
                         serverMsg.addReaction(reaction, rs.getString("nickname"));
                     }
@@ -489,7 +493,7 @@ public class TauMariaDBDatabase extends SandnodeMariaDBDatabase implements TauDa
             }
 
             return messages;
-    
+
         } catch (SQLException | IllegalArgumentException e) {
             throw new DatabaseException("Failed to load messages", e);
         }
@@ -507,20 +511,22 @@ public class TauMariaDBDatabase extends SandnodeMariaDBDatabase implements TauDa
                 try (ResultSet rs = stmt.executeQuery()) {
                     if (rs.next()) {
                         UUID chatId = UUIDUtil.binaryToUUID(rs.getBytes("chat_id"));
-                        TauChat chat = (TauChat) getChat(chatId).orElse(null);
+                        TauChat chat = getChat(chatId).orElse(null);
                         if (chat == null) return Optional.empty();
 
-                        ChatMessageInputDTO chatMessage = new ChatMessageInputDTO()
+                        ChatMessageInputDTO input = new ChatMessageInputDTO()
                                 .setChat(chat)
                                 .setContent(rs.getString("content"))
-                                .setZtd(rs.getTimestamp("timestamp").toInstant().atZone(ZoneId.systemDefault()))
+                                .setZtd(rs.getTimestamp("timestamp").toInstant().atZone(ZoneId.of("UTC")))
                                 .setNickname(rs.getString("nickname"))
                                 .setSys(rs.getBoolean("sys"));
 
                         ChatMessageViewDTO serverMsg = new ChatMessageViewDTO();
                         serverMsg.setID(id);
-                        serverMsg.setChatMessage(chatMessage);
-                        serverMsg.setCreationDate(rs.getTimestamp("created_at").toInstant().atZone(ZoneId.systemDefault()));
+                        serverMsg.setChatMessageInputDTO(input);
+                        serverMsg.setCreationDate(rs.getTimestamp("created_at")
+                                .toInstant()
+                                .atZone(ZoneId.of("UTC")));
 
                         try (PreparedStatement replyStmt = conn.prepareStatement("""
                             SELECT reply_to_id FROM message_replies WHERE message_id = ?
@@ -529,7 +535,7 @@ public class TauMariaDBDatabase extends SandnodeMariaDBDatabase implements TauDa
                             try (ResultSet rs2 = replyStmt.executeQuery()) {
                                 while (rs2.next()) {
                                     UUID replyToId = UUIDUtil.binaryToUUID(rs2.getBytes("reply_to_id"));
-                                    chatMessage.addReply(replyToId);
+                                    input.addReply(replyToId);
                                 }
                             }
                         }
@@ -543,7 +549,9 @@ public class TauMariaDBDatabase extends SandnodeMariaDBDatabase implements TauDa
                             reactionStmt.setBytes(1, UUIDUtil.uuidToBinary(id));
                             try (ResultSet rs3 = reactionStmt.executeQuery()) {
                                 while (rs3.next()) {
-                                    String reaction = "%s:%s".formatted(rs3.getString("package_name"), rs3.getString("name"));
+                                    String packageName = rs3.getString("package_name");
+                                    String name = rs3.getString("name");
+                                    String reaction = "%s:%s".formatted(packageName, name);
                                     serverMsg.addReaction(reaction, rs3.getString("nickname"));
                                 }
                             }
@@ -1077,7 +1085,7 @@ public class TauMariaDBDatabase extends SandnodeMariaDBDatabase implements TauDa
 
             int rowsInserted = stmt.executeUpdate();
             if (rowsInserted == 0) {
-                throw new AlreadyExistingRecordException("Reaction type already exists.");
+                throw new AlreadyExistingRecordException("Reaction type");
             }
         } catch (SQLException e) {
             throw new DatabaseException("Error saving reaction type", e);
@@ -1113,7 +1121,7 @@ public class TauMariaDBDatabase extends SandnodeMariaDBDatabase implements TauDa
 
             int rowsInserted = stmt.executeUpdate();
             if (rowsInserted == 0) {
-                throw new AlreadyExistingRecordException("Reaction entry already exists.");
+                throw new AlreadyExistingRecordException("Reaction entry");
             }
         } catch (SQLException e) {
             throw new DatabaseException("Error saving reaction entry", e);
@@ -1147,7 +1155,7 @@ public class TauMariaDBDatabase extends SandnodeMariaDBDatabase implements TauDa
                 if (rs.next()) {
                     UUID reactionTypeId = UUIDUtil.binaryToUUID(rs.getBytes("reaction_type_id"));
                     String packageName = rs.getString("package_name");
-                    ZonedDateTime createdAt = rs.getTimestamp("created_at").toInstant().atZone(ZoneId.systemDefault());
+                    ZonedDateTime createdAt = rs.getTimestamp("created_at").toInstant().atZone(ZoneId.of("UTC"));
                     return Optional.of(new ReactionType(this, reactionTypeId, createdAt, name, packageName));
                 }
             }
@@ -1173,7 +1181,7 @@ public class TauMariaDBDatabase extends SandnodeMariaDBDatabase implements TauDa
                 while (rs.next()) {
                     UUID reactionTypeId = UUIDUtil.binaryToUUID(rs.getBytes("reaction_type_id"));
                     String name = rs.getString("name");
-                    ZonedDateTime createdAt = rs.getTimestamp("created_at").toInstant().atZone(ZoneId.systemDefault());
+                    ZonedDateTime createdAt = rs.getTimestamp("created_at").toInstant().atZone(ZoneId.of("UTC"));
                     reactionTypes.add(new ReactionType(this, reactionTypeId, createdAt, name, packageName));
                 }
             }
@@ -1200,8 +1208,12 @@ public class TauMariaDBDatabase extends SandnodeMariaDBDatabase implements TauDa
                     UUID reactionEntryId = UUIDUtil.binaryToUUID(rs.getBytes("reaction_entry_id"));
                     UUID reactionTypeId = UUIDUtil.binaryToUUID(rs.getBytes("reaction_type_id"));
                     String nickname = rs.getString("nickname");
-                    ZonedDateTime createdAt = rs.getTimestamp("created_at").toInstant().atZone(ZoneId.systemDefault());
-                    reactions.add(new ReactionEntry(this, reactionEntryId, createdAt, message.id(), reactionTypeId, nickname));
+                    ZonedDateTime createdAt = rs.getTimestamp("created_at").toInstant().atZone(ZoneId.of("UTC"));
+                    ReactionEntry re = new ReactionEntry(
+                            this, reactionEntryId, createdAt,
+                            message.id(), reactionTypeId, nickname
+                    );
+                    reactions.add(re);
                 }
             }
         } catch (SQLException e) {

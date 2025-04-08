@@ -1,11 +1,6 @@
 package net.result.taulight.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import net.result.sandnode.exception.DatabaseException;
-import net.result.taulight.exception.AlreadyExistingRecordException;
-import net.result.taulight.db.TauDatabase;
-import net.result.taulight.db.TaulightObject;
-import net.result.taulight.dto.ChatMessageInputDTO;
 
 import java.time.ZonedDateTime;
 import java.util.*;
@@ -52,7 +47,7 @@ public class ChatMessageViewDTO {
         return message;
     }
 
-    public void setChatMessage(ChatMessageInputDTO message) {
+    public void setChatMessageInputDTO(ChatMessageInputDTO message) {
         this.message = message;
     }
 

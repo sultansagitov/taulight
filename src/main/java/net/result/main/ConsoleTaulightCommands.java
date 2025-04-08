@@ -1,16 +1,8 @@
 package net.result.main;
 
 import net.result.sandnode.chain.IChain;
-import net.result.sandnode.error.ServerErrorManager;
-import net.result.sandnode.exception.DeserializationException;
-import net.result.sandnode.exception.ExpectedMessageException;
-import net.result.sandnode.exception.UnknownSandnodeErrorException;
-import net.result.sandnode.exception.UnprocessedMessagesException;
+import net.result.sandnode.exception.*;
 import net.result.sandnode.exception.error.*;
-import net.result.sandnode.message.RawMessage;
-import net.result.sandnode.message.types.ChainNameRequest;
-import net.result.sandnode.message.util.MessageType;
-import net.result.sandnode.message.util.MessageTypes;
 import net.result.taulight.chain.sender.*;
 import net.result.taulight.dto.InviteTauCode;
 import net.result.taulight.dto.TauCode;
@@ -18,8 +10,6 @@ import net.result.taulight.dto.ChatMessageInputDTO;
 import net.result.taulight.dto.ChatMessageViewDTO;
 import net.result.taulight.dto.ChatInfo;
 import net.result.taulight.dto.ChatInfoProp;
-import net.result.taulight.message.types.ForwardRequest;
-import net.result.taulight.message.types.UUIDMessage;
 import org.jetbrains.annotations.NotNull;
 
 import java.time.Duration;
@@ -477,8 +467,7 @@ public class ConsoleTaulightCommands {
         return false;
     }
 
-    private static boolean reply(List<String> args, ConsoleContext context)
-            throws UnprocessedMessagesException, InterruptedException {
+    private static boolean reply(List<String> args, ConsoleContext context) {
         if (context.currentChat == null) {
             System.out.println("chat not selected");
             return false;
@@ -525,13 +514,7 @@ public class ConsoleTaulightCommands {
         try {
             UUID uuid = context.chain.message(message);
             System.out.printf("Sent message UUID: %s%n", uuid);
-        } catch (NotFoundException e) {
-            System.out.printf("Chat %s was not found%n", context.currentChat);
-        } catch (NoEffectException e) {
-            System.out.println("Message not forwarded");
-        } catch (UnknownSandnodeErrorException | SandnodeErrorException e) {
-            System.out.printf("%s: %s%n", e.getClass().getSimpleName(), e.getMessage());
-        } catch (Exception e) {
+        } catch (SandnodeException | InterruptedException e) {
             System.out.printf("%s: %s%n", e.getClass().getSimpleName(), e.getMessage());
         }
 
@@ -615,18 +598,15 @@ public class ConsoleTaulightCommands {
         return false;
     }
 
-    private static boolean react(@NotNull List<String> args, ConsoleContext context)
-            throws InterruptedException, UnprocessedMessagesException {
+    private static boolean react(@NotNull List<String> args, ConsoleContext context) {
         return handleReaction(true, args, context);
     }
 
-    private static boolean unreact(@NotNull List<String> args, ConsoleContext context)
-            throws InterruptedException, UnprocessedMessagesException {
+    private static boolean unreact(@NotNull List<String> args, ConsoleContext context) {
         return handleReaction(false, args, context);
     }
 
-    private static boolean handleReaction(boolean add, @NotNull List<String> args, ConsoleContext context)
-            throws InterruptedException, UnprocessedMessagesException {
+    private static boolean handleReaction(boolean add, @NotNull List<String> args, ConsoleContext context) {
         if (args.size() < 2) {
             System.out.println("Usage: " + (add ? "react" : "unreact") + " <messageID> <package:name>");
             return false;

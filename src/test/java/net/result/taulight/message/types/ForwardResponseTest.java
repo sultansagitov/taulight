@@ -2,27 +2,22 @@ package net.result.taulight.message.types;
 
 import net.result.sandnode.message.util.Headers;
 import net.result.sandnode.message.RawMessage;
-import net.result.sandnode.exception.DeserializationException;
-import net.result.sandnode.exception.ExpectedMessageException;
 import net.result.taulight.dto.ChatMessageViewDTO;
-import net.result.taulight.dto.ChatMessageInputDTO;
 import net.result.taulight.message.TauMessageTypes;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class ForwardResponseTest {
-
     private static final String YOUR_SESSION_KEY = "your-session";
 
     @Test
     void testConstructorWithHeadersAndYourSessionTrue() throws Exception {
         ForwardResponse response = new ForwardResponse(new ChatMessageViewDTO(), true);
-        byte[] byteArray = response.getBody(); // Get the byte array representation of the ForwardResponse
+        byte[] byteArray = response.getBody();
 
-        RawMessage rawMessage = new RawMessage(response.headers(), byteArray); // Create a RawMessage from the byte array
+        RawMessage rawMessage = new RawMessage(response.headers(), byteArray);
 
-        // Load the RawMessage into a new ForwardResponse
         ForwardResponse newResponse = new ForwardResponse(rawMessage);
 
         assertEquals(TauMessageTypes.FWD, newResponse.headers().type());
@@ -34,11 +29,10 @@ class ForwardResponseTest {
     void testConstructorWithHeadersAndYourSessionFalse() throws Exception {
         Headers headers = new Headers();
         ForwardResponse response = new ForwardResponse(headers, new ChatMessageViewDTO(), false);
-        byte[] byteArray = response.getBody(); // Get the byte array representation of the ForwardResponse
+        byte[] byteArray = response.getBody();
 
-        RawMessage rawMessage = new RawMessage(headers, byteArray); // Create a RawMessage from the byte array
+        RawMessage rawMessage = new RawMessage(headers, byteArray);
 
-        // Load the RawMessage into a new ForwardResponse
         ForwardResponse newResponse = new ForwardResponse(rawMessage);
 
         assertEquals(TauMessageTypes.FWD, newResponse.headers().type());

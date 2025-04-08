@@ -2,7 +2,6 @@ package net.result.taulight.chain.sender;
 
 import net.result.sandnode.chain.sender.ClientChain;
 import net.result.sandnode.error.ServerErrorManager;
-import net.result.sandnode.exception.DeserializationException;
 import net.result.sandnode.exception.ExpectedMessageException;
 import net.result.sandnode.exception.error.SandnodeErrorException;
 import net.result.sandnode.exception.UnprocessedMessagesException;
@@ -21,8 +20,8 @@ public class ReactionClientChain extends ClientChain {
     }
 
     public synchronized void react(UUID messageID, String reaction)
-            throws InterruptedException, DeserializationException, ExpectedMessageException,
-            SandnodeErrorException, UnknownSandnodeErrorException, UnprocessedMessagesException {
+            throws InterruptedException, ExpectedMessageException, SandnodeErrorException,
+            UnknownSandnodeErrorException, UnprocessedMessagesException {
         send(ReactionRequest.react(messageID, reaction));
         RawMessage raw = queue.take();
         ServerErrorManager.instance().handleError(raw);
@@ -30,8 +29,8 @@ public class ReactionClientChain extends ClientChain {
     }
 
     public synchronized void unreact(UUID messageID, String reaction)
-            throws InterruptedException, DeserializationException, ExpectedMessageException,
-            SandnodeErrorException, UnknownSandnodeErrorException, UnprocessedMessagesException {
+            throws InterruptedException, ExpectedMessageException, SandnodeErrorException,
+            UnknownSandnodeErrorException, UnprocessedMessagesException {
         send(ReactionRequest.unreact(messageID, reaction));
         RawMessage raw = queue.take();
         ServerErrorManager.instance().handleError(raw);

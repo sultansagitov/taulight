@@ -5,7 +5,6 @@ import net.result.sandnode.chain.IChain;
 import net.result.sandnode.exception.DatabaseException;
 import net.result.sandnode.exception.UnprocessedMessagesException;
 import net.result.sandnode.exception.error.UnauthorizedException;
-import net.result.sandnode.message.types.ChainNameRequest;
 import net.result.sandnode.serverclient.Session;
 import net.result.taulight.chain.sender.ForwardServerChain;
 import net.result.taulight.dto.ChatMessageInputDTO;
@@ -25,7 +24,7 @@ import java.util.Optional;
 public class TauHubProtocol {
     private static final Logger LOGGER = LogManager.getLogger(TauHubProtocol.class);
 
-    public static ChatMessageViewDTO send(Session session, TauChat chat, ChatMessageInputDTO chatMessage)
+    public static ChatMessageViewDTO send(Session session, TauChat chat, ChatMessageInputDTO input)
             throws InterruptedException, DatabaseException, NoEffectException, UnprocessedMessagesException,
             UnauthorizedException {
         if (session.member == null) {
@@ -37,9 +36,9 @@ public class TauHubProtocol {
 
         ChatMessageViewDTO serverMessage = new ChatMessageViewDTO();
         serverMessage.setCreationDateNow();
-        serverMessage.setChatMessage(chatMessage);
+        serverMessage.setChatMessageInputDTO(input);
 
-        LOGGER.info("Saving message with id {} content: {}", serverMessage.id(), chatMessage.content());
+        LOGGER.info("Saving message with id {} content: {}", serverMessage.id(), input.content());
         while (true) {
             serverMessage.setRandomID();
             try {

@@ -1,7 +1,6 @@
 package net.result.sandnode.chain;
 
 import net.result.sandnode.exception.UnprocessedMessagesException;
-import net.result.sandnode.message.IMessage;
 import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.message.types.ErrorMessage;
 import net.result.sandnode.util.IOController;

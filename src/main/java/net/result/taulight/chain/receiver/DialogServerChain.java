@@ -56,10 +56,10 @@ public class DialogServerChain extends ServerChain implements ReceiverChain {
         } else {
             dialog = database.createDialog(session.member, anotherMember);
 
-            ChatMessageInputDTO chatMessage = SysMessages.dialogNew.chatMessage(dialog, session.member);
+            ChatMessageInputDTO input = SysMessages.dialogNew.chatMessageInputDTO(dialog, session.member);
 
             try {
-                TauHubProtocol.send(session, dialog, chatMessage);
+                TauHubProtocol.send(session, dialog, input);
             } catch (UnauthorizedException e) {
                 throw new ImpossibleRuntimeException(e);
             } catch (DatabaseException | NoEffectException e) {

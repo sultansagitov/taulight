@@ -21,7 +21,7 @@ public enum SysMessages {
         return message;
     }
 
-    public ChatMessageInputDTO chatMessage(TauChat chat, Member member) {
+    public ChatMessageInputDTO chatMessageInputDTO(TauChat chat, Member member) {
         return new ChatMessageInputDTO()
                 .setSys(true)
                 .setChat(chat)

@@ -53,16 +53,16 @@ public class ForwardRequestServerChain extends ServerChain implements ReceiverCh
                 continue;
             }
 
-            ChatMessageInputDTO chatMessage = forwardMessage.getChatMessage();
+            ChatMessageInputDTO input = forwardMessage.getChatMessageInputDTO();
 
-            if (chatMessage == null) {
-                LOGGER.error("Forward message contains null chatMessage");
+            if (input == null) {
+                LOGGER.error("Forward message contains null input");
                 send(Errors.TOO_FEW_ARGS.createMessage());
                 continue;
             }
 
-            UUID chatID = chatMessage.chatID();
-            String content = chatMessage.content();
+            UUID chatID = input.chatID();
+            String content = input.content();
 
             if (chatID == null || content == null) {
                 LOGGER.error("Forward message contains null chatID or content");
@@ -72,7 +72,7 @@ public class ForwardRequestServerChain extends ServerChain implements ReceiverCh
 
             LOGGER.info("Forwarding message: {}", content);
 
-            chatMessage
+            input
                 .setSys(false)
                 .setMember(session.member);
 
@@ -97,7 +97,7 @@ public class ForwardRequestServerChain extends ServerChain implements ReceiverCh
                 }
 
                 try {
-                    serverMessage = TauHubProtocol.send(session, chat, chatMessage);
+                    serverMessage = TauHubProtocol.send(session, chat, input);
                 } catch (UnauthorizedException e) {
                     throw new ImpossibleRuntimeException(e);
                 }

@@ -69,10 +69,10 @@ public class UseCodeServerChain extends ServerChain  implements ReceiverChain {
 
         channel.addMember(member);
 
-        ChatMessageInputDTO chatMessage = SysMessages.channelAdd.chatMessage(channel, member);
+        ChatMessageInputDTO input = SysMessages.channelAdd.chatMessageInputDTO(channel, member);
 
         try {
-            TauHubProtocol.send(session, channel, chatMessage);
+            TauHubProtocol.send(session, channel, input);
         } catch (NoEffectException e) {
             LOGGER.warn("Exception when sending system message of creating channel {}", e.getMessage());
         }

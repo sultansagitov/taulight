@@ -4,7 +4,6 @@ import net.result.main.ConsoleSandnodeCommands;
 import net.result.main.ConsoleContext;
 import net.result.main.ConsoleTaulightCommands;
 import net.result.sandnode.error.ServerErrorManager;
-import net.result.sandnode.exception.*;
 import net.result.sandnode.exception.error.NotFoundException;
 import net.result.sandnode.exception.error.SandnodeErrorException;
 import net.result.sandnode.message.RawMessage;
@@ -14,7 +13,6 @@ import net.result.sandnode.util.IOController;
 import net.result.sandnode.chain.sender.ClientChain;
 import net.result.taulight.dto.ChatMessageInputDTO;
 import net.result.sandnode.exception.*;
-import net.result.sandnode.exception.error.SandnodeErrorException;;
 import net.result.sandnode.exception.error.NoEffectException;
 import net.result.taulight.message.types.ForwardRequest;
 import net.result.taulight.message.types.UUIDMessage;
@@ -106,8 +104,10 @@ public class ConsoleForwardRequestClientChain extends ClientChain {
         return false;
     }
 
-    public synchronized UUID message(ChatMessageInputDTO chatMessage) throws InterruptedException, UnprocessedMessagesException, DeserializationException, ExpectedMessageException, UnknownSandnodeErrorException, UnprocessedMessagesException, SandnodeErrorException {
-        send(new ForwardRequest(chatMessage));
+    public synchronized UUID message(ChatMessageInputDTO input)
+            throws InterruptedException, DeserializationException, ExpectedMessageException,
+            UnknownSandnodeErrorException, UnprocessedMessagesException, SandnodeErrorException {
+        send(new ForwardRequest(input));
         RawMessage raw = queue.take();
         ServerErrorManager.instance().handleError(raw);
         raw.expect(MessageTypes.HAPPY);

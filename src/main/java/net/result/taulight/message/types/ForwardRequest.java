@@ -9,19 +9,19 @@ import net.result.taulight.dto.ChatMessageInputDTO;
 import net.result.taulight.message.TauMessageTypes;
 
 public class ForwardRequest extends MSGPackMessage<ChatMessageInputDTO> {
-    public ForwardRequest(ChatMessageInputDTO chatMessage) {
-        this(new Headers(), chatMessage);
+    public ForwardRequest(ChatMessageInputDTO input) {
+        this(new Headers(), input);
     }
 
-    public ForwardRequest(Headers headers, ChatMessageInputDTO chatMessage) {
-        super(headers.setType(TauMessageTypes.FWD_REQ), chatMessage);
+    public ForwardRequest(Headers headers, ChatMessageInputDTO input) {
+        super(headers.setType(TauMessageTypes.FWD_REQ), input);
     }
 
     public ForwardRequest(RawMessage request) throws DeserializationException, ExpectedMessageException {
         super(request.expect(TauMessageTypes.FWD_REQ), ChatMessageInputDTO.class);
     }
 
-    public ChatMessageInputDTO getChatMessage() {
+    public ChatMessageInputDTO getChatMessageInputDTO() {
         return object;
     }
 }

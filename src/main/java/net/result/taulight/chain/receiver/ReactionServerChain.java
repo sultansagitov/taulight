@@ -2,31 +2,18 @@ package net.result.taulight.chain.receiver;
 
 import net.result.sandnode.chain.ReceiverChain;
 import net.result.sandnode.chain.receiver.ServerChain;
-import net.result.sandnode.db.Member;
-import net.result.sandnode.exception.DatabaseException;
-import net.result.sandnode.exception.ImpossibleRuntimeException;
-import net.result.sandnode.exception.error.AddressedMemberNotFoundException;
 import net.result.sandnode.exception.error.UnauthorizedException;
-import net.result.sandnode.message.util.Headers;
-import net.result.sandnode.message.util.MessageTypes;
 import net.result.sandnode.serverclient.Session;
-import net.result.taulight.SysMessages;
-import net.result.taulight.TauAgentProtocol;
-import net.result.taulight.TauHubProtocol;
 import net.result.taulight.dto.ChatMessageViewDTO;
 import net.result.taulight.db.*;
 import net.result.sandnode.exception.error.NotFoundException;
 import net.result.sandnode.exception.error.NoEffectException;
-import net.result.taulight.group.TauGroupManager;
 import net.result.taulight.message.types.ReactionRequest;
 import net.result.sandnode.message.types.HappyMessage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.time.ZonedDateTime;
 import java.util.List;
-import java.util.UUID;
-import java.util.Optional;
 
 public class ReactionServerChain extends ServerChain implements ReceiverChain {
     private static final Logger LOGGER = LogManager.getLogger(ReactionServerChain.class);
@@ -38,7 +25,6 @@ public class ReactionServerChain extends ServerChain implements ReceiverChain {
     @Override
     public void sync() throws Exception {
         TauDatabase database = (TauDatabase) session.server.serverConfig.database();
-        TauGroupManager manager = (TauGroupManager) session.server.serverConfig.groupManager();
 
         ReactionRequest request = new ReactionRequest(queue.take());
 
@@ -66,16 +52,15 @@ public class ReactionServerChain extends ServerChain implements ReceiverChain {
         List<ReactionEntry> currentReactions = database.getReactionsByMessage(message);
 
         if (request.isReact()) {
-            ReactionEntry newReaction = new ReactionEntry(
-                database, UUID.randomUUID(), ZonedDateTime.now(), message.id(), reactionType.id(), session.member.nickname()
-            );
+            var newReaction = new ReactionEntry(database, message.id(), reactionType.id(), session.member.nickname());
             database.saveReactionEntry(newReaction);
             LOGGER.info("Reaction added: {} to message {}", reactionType.name(), request.getMessageID());
         } else {
             ReactionEntry reactionToRemove = currentReactions.stream()
-                .filter(entry -> entry.nickname().equals(session.member.nickname()) && entry.reactionTypeId().equals(reactionType.id()))
-                .findFirst()
-                .orElseThrow(NoEffectException::new);
+                    .filter(entry -> entry.nickname().equals(session.member.nickname()))
+                    .filter(entry -> entry.reactionTypeId().equals(reactionType.id()))
+                    .findFirst()
+                    .orElseThrow(NoEffectException::new);
 
             database.removeReactionEntry(reactionToRemove);
             LOGGER.info("Reaction removed: {} from message {}", reactionType.name(), request.getMessageID());

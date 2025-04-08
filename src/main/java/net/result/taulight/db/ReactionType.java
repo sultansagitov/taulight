@@ -10,6 +10,7 @@ public class ReactionType extends TaulightObject {
     @JsonProperty("package_name")
     private String packageName;
 
+    @SuppressWarnings("unused")
     public ReactionType() {
         super();
     }
