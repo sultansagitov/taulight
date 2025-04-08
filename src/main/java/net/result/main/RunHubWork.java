@@ -2,16 +2,16 @@ package net.result.main;
 
 import net.result.main.config.HubPropertiesConfig;
 import net.result.main.config.JWTPropertiesConfig;
-import net.result.main.config.MariaDBPropertiesConfig;
 import net.result.sandnode.config.HubConfig;
-import net.result.sandnode.config.MariaDBConfig;
 import net.result.sandnode.config.ServerConfig;
-import net.result.sandnode.exception.*;
+import net.result.sandnode.exception.ConfigurationException;
+import net.result.sandnode.exception.FSException;
+import net.result.sandnode.exception.SandnodeException;
+import net.result.sandnode.exception.SocketAcceptException;
 import net.result.sandnode.exception.crypto.EncryptionTypeException;
 import net.result.sandnode.exception.crypto.NoSuchEncryptionException;
 import net.result.sandnode.link.Links;
-import net.result.sandnode.security.PasswordHashers;
-import net.result.taulight.db.TaulightInMemoryDatabase;
+import net.result.taulight.db.TauDatabase;
 import net.result.taulight.group.HashSetTauGroupManager;
 import net.result.sandnode.security.JWTTokenizer;
 import net.result.taulight.db.ReactionType;
@@ -65,22 +65,19 @@ public class RunHubWork implements IWork {
         ServerPropertiesConfig serverConfig = new ServerPropertiesConfig();
         serverConfig.setGroupManager(new HashSetTauGroupManager());
 
-        MariaDBConfig mariaDBConfig = new MariaDBPropertiesConfig();
-
-        var database = new TaulightInMemoryDatabase(PasswordHashers.BCRYPT);
+        TauDatabase database = (TauDatabase) serverConfig.database();
 
         try {
-            serverConfig.setDatabase(database);
             if (database.getReactionTypesByPackage("taulight").isEmpty()) {
                 List<String> reactionNames = List.of("fire", "like", "laugh", "wow", "sad", "angry");
 
                 for (String name : reactionNames) {
                     ReactionType rt = new ReactionType(
-                        database,
-                        UUID.randomUUID(),
-                        ZonedDateTime.now(),
-                        name,
-                        "taulight"
+                            database,
+                            UUID.randomUUID(),
+                            ZonedDateTime.now(),
+                            name,
+                            "taulight"
                     );
                     database.saveReactionType(rt);
                 }
@@ -89,6 +86,8 @@ public class RunHubWork implements IWork {
             LOGGER.error(e);
             throw new RuntimeException(e);
         }
+
+
         serverConfig.setTokenizer(new JWTTokenizer(new JWTPropertiesConfig()));
         return serverConfig;
     }

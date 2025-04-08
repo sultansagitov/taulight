@@ -6,13 +6,18 @@ import net.result.sandnode.encryption.KeyStorageRegistry;
 import net.result.sandnode.encryption.interfaces.AsymmetricConvertor;
 import net.result.sandnode.encryption.interfaces.AsymmetricEncryption;
 import net.result.sandnode.encryption.interfaces.AsymmetricKeyStorage;
-import net.result.sandnode.exception.*;
+import net.result.sandnode.exception.ConfigurationException;
+import net.result.sandnode.exception.FSException;
+import net.result.sandnode.exception.ImpossibleRuntimeException;
 import net.result.sandnode.exception.crypto.*;
+import net.result.sandnode.security.PasswordHashers;
 import net.result.sandnode.util.Endpoint;
 import net.result.sandnode.util.FileUtil;
 import net.result.sandnode.db.Database;
 import net.result.sandnode.group.GroupManager;
 import net.result.sandnode.security.Tokenizer;
+import net.result.taulight.db.TaulightInMemoryDatabase;
+import net.result.taulight.db.mariadb.TauMariaDBDatabase;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
@@ -79,6 +84,17 @@ public class ServerPropertiesConfig implements ServerConfig {
             LOGGER.info("KEYS_DIR does not exist, creating it: \"{}\"", KEYS_DIR);
             FileUtil.createDir(KEYS_DIR);
         }
+
+        try {
+            setDatabase(switch (properties.getProperty("server.database")) {
+                case "mariadb" -> new TauMariaDBDatabase(new MariaDBPropertiesConfig(), PasswordHashers.BCRYPT);
+                case "in-memory" -> new TaulightInMemoryDatabase(PasswordHashers.BCRYPT);
+                default -> throw new ConfigurationException("server.database is not set or set incorrectly", fileName);
+            });
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
     }
 
     @Override
