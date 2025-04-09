@@ -7,7 +7,7 @@ import net.result.sandnode.exception.error.NotFoundException;
 import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.serverclient.Session;
 import net.result.taulight.dto.ChatMessageViewDTO;
-import net.result.taulight.db.TauChat;
+import net.result.taulight.db.ChatEntity;
 import net.result.taulight.db.TauDatabase;
 import net.result.taulight.message.types.MessageRequest;
 import net.result.taulight.message.types.MessageResponse;
@@ -29,14 +29,14 @@ public class MessageServerChain extends ServerChain implements ReceiverChain {
 
         MessageRequest request = new MessageRequest(raw);
 
-        TauChat chat = database.getChat(request.getChatID()).orElseThrow(NotFoundException::new);
+        ChatEntity chat = database.getChat(request.getChatID()).orElseThrow(NotFoundException::new);
 
-        if (!chat.getMembers().contains(session.member)) {
+        if (!database.getMembers(chat).contains(session.member)) {
             throw new NotFoundException();
         }
 
-        long count = chat.getMessageCount();
-        List<ChatMessageViewDTO> messages = chat.loadMessages(request.getIndex(), request.getSize());
+        long count = database.getMessageCount(chat);
+        List<ChatMessageViewDTO> messages = database.loadMessages(chat, request.getIndex(), request.getSize());
 
         sendFin(new MessageResponse(count, messages));
     }

@@ -5,7 +5,7 @@ import net.result.sandnode.exception.DeserializationException;
 import net.result.sandnode.message.IMessage;
 import net.result.sandnode.message.MSGPackMessage;
 import net.result.sandnode.message.util.Headers;
-import net.result.sandnode.db.Member;
+import net.result.sandnode.db.MemberEntity;
 import net.result.sandnode.message.util.MessageTypes;
 import org.jetbrains.annotations.NotNull;
 
@@ -21,11 +21,11 @@ public class LoginResponse extends MSGPackMessage<LoginResponse.LoginData> {
         }
     }
 
-    public LoginResponse(@NotNull Headers headers, @NotNull Member member) {
+    public LoginResponse(@NotNull Headers headers, @NotNull MemberEntity member) {
         super(headers.setType(MessageTypes.LOGIN), new LoginData(member.nickname()));
     }
 
-    public LoginResponse(Member member) {
+    public LoginResponse(MemberEntity member) {
         this(new Headers(), member);
     }
 

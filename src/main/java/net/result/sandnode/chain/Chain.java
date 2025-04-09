@@ -43,7 +43,6 @@ public abstract class Chain implements IChain {
         this.id = id;
     }
 
-    @Override
     public void chainName(String chainName) throws InterruptedException, UnprocessedMessagesException {
         send(new ChainNameRequest(chainName));
     }

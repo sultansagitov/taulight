@@ -2,17 +2,17 @@ package net.result.taulight.chain.receiver;
 
 import net.result.sandnode.chain.ReceiverChain;
 import net.result.sandnode.chain.receiver.ServerChain;
-import net.result.sandnode.db.Member;
+import net.result.sandnode.db.MemberEntity;
 import net.result.sandnode.error.Errors;
 import net.result.sandnode.exception.DatabaseException;
 import net.result.sandnode.exception.DeserializationException;
 import net.result.sandnode.exception.UnprocessedMessagesException;
 import net.result.sandnode.serverclient.Session;
-import net.result.taulight.db.TauChat;
+import net.result.taulight.db.ChatEntity;
 import net.result.taulight.db.TauDatabase;
 import net.result.taulight.group.TauChatGroup;
 import net.result.taulight.group.TauGroupManager;
-import net.result.taulight.dto.MemberRecord;
+import net.result.taulight.dto.MemberDTO;
 import net.result.taulight.message.types.MembersResponse;
 import net.result.sandnode.message.UUIDMessage;
 import org.apache.logging.log4j.LogManager;
@@ -44,29 +44,29 @@ public class MembersServerChain extends ServerChain implements ReceiverChain {
             }
 
             try {
-                Optional<TauChat> optChat = database.getChat(request.uuid);
+                Optional<ChatEntity> optChat = database.getChat(request.uuid);
 
                 if (optChat.isEmpty()) {
                     send(Errors.NOT_FOUND.createMessage());
                     continue;
                 }
 
-                TauChat chat = optChat.get();
+                ChatEntity chat = optChat.get();
                 TauChatGroup group = groupManager.getGroup(chat);
-                Collection<Member> members = chat.getMembers();
+                Collection<MemberEntity> members = database.getMembers(chat);
 
                 if (!members.contains(session.member)) {
                     send(Errors.NOT_FOUND.createMessage());
                     continue;
                 }
 
-                Map<String, MemberRecord> map = members.stream()
-                        .collect(Collectors.toMap(Member::nickname, MemberRecord::new));
+                Map<String, MemberDTO> map = members.stream()
+                        .collect(Collectors.toMap(MemberEntity::nickname, MemberDTO::new));
 
                 for (Session session : group.getSessions()) {
                     if (session.member != null) {
                         map.computeIfPresent(session.member.nickname(), (nickname, record) -> {
-                            record.status = MemberRecord.Status.ONLINE;
+                            record.status = MemberDTO.Status.ONLINE;
                             return record;
                         });
                     }

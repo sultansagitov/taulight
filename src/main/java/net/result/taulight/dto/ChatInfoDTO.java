@@ -1,15 +1,15 @@
 package net.result.taulight.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import net.result.sandnode.db.Member;
-import net.result.taulight.db.TauChannel;
-import net.result.taulight.db.TauDialog;
+import net.result.sandnode.db.MemberEntity;
+import net.result.taulight.db.ChannelEntity;
+import net.result.taulight.db.DialogEntity;
 
 import java.time.ZonedDateTime;
 import java.util.Collection;
 import java.util.UUID;
 
-public class ChatInfo {
+public class ChatInfoDTO {
     @JsonProperty("type")
     public ChatType chatType;
     @JsonProperty
@@ -31,31 +31,31 @@ public class ChatInfo {
         @JsonProperty("no") NOT_FOUND
     }
 
-    private ChatInfo() {
+    private ChatInfoDTO() {
     }
 
-    public static ChatInfo channel(TauChannel channel, Member member, Collection<ChatInfoProp> infoProps) {
-        ChatInfo info = new ChatInfo();
+    public static ChatInfoDTO channel(ChannelEntity channel, MemberEntity member, Collection<ChatInfoPropDTO> infoProps) {
+        ChatInfoDTO info = new ChatInfoDTO();
         info.chatType = ChatType.CHANNEL;
-        if (infoProps.contains(ChatInfoProp.channelID)) info.id = channel.id();
-        if (infoProps.contains(ChatInfoProp.channelCreatedAt)) info.creationDate = channel.getCreationDate();
-        if (infoProps.contains(ChatInfoProp.channelTitle)) info.title = channel.title();
-        if (infoProps.contains(ChatInfoProp.channelOwner)) info.ownerID = channel.owner().nickname();
-        if (infoProps.contains(ChatInfoProp.channelIsMy)) info.channelIsMy = channel.owner().equals(member);
+        if (infoProps.contains(ChatInfoPropDTO.channelID)) info.id = channel.id();
+        if (infoProps.contains(ChatInfoPropDTO.channelCreatedAt)) info.creationDate = channel.creationDate();
+        if (infoProps.contains(ChatInfoPropDTO.channelTitle)) info.title = channel.title();
+        if (infoProps.contains(ChatInfoPropDTO.channelOwner)) info.ownerID = channel.owner().nickname();
+        if (infoProps.contains(ChatInfoPropDTO.channelIsMy)) info.channelIsMy = channel.owner().equals(member);
         return info;
     }
 
-    public static ChatInfo dialog(TauDialog dialog, Member member, Collection<ChatInfoProp> infoProps) {
-        ChatInfo info = new ChatInfo();
+    public static ChatInfoDTO dialog(DialogEntity dialog, MemberEntity member, Collection<ChatInfoPropDTO> infoProps) {
+        ChatInfoDTO info = new ChatInfoDTO();
         info.chatType = ChatType.DIALOG;
-        if (infoProps.contains(ChatInfoProp.dialogID)) info.id = dialog.id();
-        if (infoProps.contains(ChatInfoProp.dialogCreatedAt)) info.creationDate = dialog.getCreationDate();
-        if (infoProps.contains(ChatInfoProp.dialogOther)) info.otherNickname = dialog.otherMember(member).nickname();
+        if (infoProps.contains(ChatInfoPropDTO.dialogID)) info.id = dialog.id();
+        if (infoProps.contains(ChatInfoPropDTO.dialogCreatedAt)) info.creationDate = dialog.creationDate();
+        if (infoProps.contains(ChatInfoPropDTO.dialogOther)) info.otherNickname = dialog.otherMember(member).nickname();
         return info;
     }
 
-    public static ChatInfo chatNotFound(UUID chatID) {
-        ChatInfo info = new ChatInfo();
+    public static ChatInfoDTO chatNotFound(UUID chatID) {
+        ChatInfoDTO info = new ChatInfoDTO();
         info.chatType = ChatType.NOT_FOUND;
         info.id = chatID;
         return info;

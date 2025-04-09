@@ -7,10 +7,12 @@ import net.result.sandnode.exception.DatabaseException;
 import net.result.sandnode.exception.DeserializationException;
 import net.result.sandnode.exception.UnprocessedMessagesException;
 import net.result.sandnode.serverclient.Session;
-import net.result.taulight.db.TauChat;
+import net.result.taulight.db.ChannelEntity;
+import net.result.taulight.db.ChatEntity;
+import net.result.taulight.db.DialogEntity;
 import net.result.taulight.db.TauDatabase;
-import net.result.taulight.dto.ChatInfo;
-import net.result.taulight.dto.ChatInfoProp;
+import net.result.taulight.dto.ChatInfoDTO;
+import net.result.taulight.dto.ChatInfoPropDTO;
 import net.result.taulight.message.types.ChatRequest;
 import net.result.taulight.message.types.ChatResponse;
 import org.apache.logging.log4j.LogManager;
@@ -37,34 +39,55 @@ public class ChatServerChain extends ServerChain implements ReceiverChain {
             }
 
             Collection<UUID> allChatID = request.getAllChatID();
-            Collection<ChatInfoProp> chatInfoProps = request.getChatInfoProps();
+            Collection<ChatInfoPropDTO> chatInfoProps = request.getChatInfoProps();
 
             try {
-                Collection<ChatInfo> infos = new ArrayList<>();
+                Collection<ChatInfoDTO> infos = new ArrayList<>();
 
                 if (allChatID == null || allChatID.isEmpty()) {
-                    for (TauChat chat : database.getChats(session.member)) {
-                        if (chat.hasMatchingProps(chatInfoProps)) {
-                            infos.add(chat.getInfo(session.member, chatInfoProps));
+                    for (var channel : session.member.channels()) {
+                        if (!Collections.disjoint(chatInfoProps, ChatInfoPropDTO.channelAll())) {
+                            infos.add(ChatInfoDTO.channel(channel, session.member, chatInfoProps));
+                        }
+                    }
+
+                    for (var dialog : session.member.dialogs()) {
+                        if (!Collections.disjoint(chatInfoProps, ChatInfoPropDTO.dialogAll())) {
+                            infos.add(ChatInfoDTO.dialog(dialog, session.member, chatInfoProps));
                         }
                     }
                 } else {
                     for (UUID chatID : allChatID) {
-                        Optional<TauChat> opt = database.getChat(chatID);
+                        Optional<ChatEntity> opt = database.getChat(chatID);
                         if (opt.isEmpty()) {
-                            infos.add(ChatInfo.chatNotFound(chatID));
+                            infos.add(ChatInfoDTO.chatNotFound(chatID));
                             continue;
                         }
 
-                        TauChat chat = opt.get();
+                        ChatEntity chat = opt.get();
 
-                        if (!chat.getMembers().contains(session.member)) {
-                            infos.add(ChatInfo.chatNotFound(chatID));
-                            continue;
+                        if (chat instanceof ChannelEntity channel) {
+                            if (!channel.members().contains(session.member)) {
+                                infos.add(ChatInfoDTO.chatNotFound(chatID));
+                                continue;
+                            }
+
+                            if (!Collections.disjoint(chatInfoProps, ChatInfoPropDTO.channelAll())) {
+                                infos.add(ChatInfoDTO.channel(channel, session.member, chatInfoProps));
+                            }
                         }
 
-                        if (chat.hasMatchingProps(chatInfoProps)) {
-                            infos.add(chat.getInfo(session.member, chatInfoProps));
+                        if (chat instanceof DialogEntity dialog) {
+                            if (!dialog.firstMember().equals(session.member)) {
+                                if (!dialog.secondMember().equals(session.member)) {
+                                    infos.add(ChatInfoDTO.chatNotFound(chatID));
+                                    continue;
+                                }
+                            }
+
+                            if (!Collections.disjoint(chatInfoProps, ChatInfoPropDTO.dialogAll())) {
+                                infos.add(ChatInfoDTO.dialog(dialog, session.member, chatInfoProps));
+                            }
                         }
                     }
                 }

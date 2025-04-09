@@ -2,7 +2,7 @@ package net.result.sandnode.chain.receiver;
 
 import net.result.sandnode.chain.ReceiverChain;
 import net.result.sandnode.db.Database;
-import net.result.sandnode.db.Member;
+import net.result.sandnode.db.MemberEntity;
 import net.result.sandnode.exception.error.UnauthorizedException;
 import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.message.types.*;
@@ -20,7 +20,7 @@ public abstract class LogPasswdServerChain extends ServerChain implements Receiv
 
         Database database = session.server.serverConfig.database();
 
-        Member member = database
+        MemberEntity member = database
                 .findMemberByNickname(msg.getNickname())
                 .orElseThrow(UnauthorizedException::new);
 

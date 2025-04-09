@@ -6,15 +6,15 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
 @JsonSubTypes({
-        @JsonSubTypes.Type(value = InviteTauCode.class, name = "invite")
+        @JsonSubTypes.Type(value = InviteCodeDTO.class, name = "invite")
 })
-public abstract class TauCode {
+public abstract class CodeDTO {
     @JsonProperty
     public String code;
 
-    public TauCode() {}
+    public CodeDTO() {}
 
-    protected TauCode(String code) {
+    protected CodeDTO(String code) {
         this.code = code;
     }
 }

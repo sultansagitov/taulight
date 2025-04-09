@@ -32,9 +32,9 @@ import net.result.sandnode.chain.sender.ClientChain;
 import net.result.sandnode.chain.receiver.BSTServerChainManager;
 import net.result.sandnode.chain.receiver.ServerChainManager;
 import net.result.sandnode.chain.receiver.ServerChain;
-import net.result.sandnode.db.InMemoryDatabase;
 import net.result.sandnode.group.HashSetGroupManager;
 import net.result.sandnode.security.JWTTokenizer;
+import net.result.taulight.db.TauJPADatabase;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
@@ -149,7 +149,7 @@ public class ServerTest {
                     null,
                     asymmetricEncryption,
                     new HashSetGroupManager(),
-                    new InMemoryDatabase(PasswordHashers.BCRYPT),
+                    new TauJPADatabase(PasswordHashers.BCRYPT),
                     new JWTTokenizer(() -> Algorithm.HMAC256("test"))
             );
             server = new SandnodeServer(hub, serverConfig);

@@ -21,55 +21,31 @@ public interface TauDatabase extends Database {
 
     Optional<ChatEntity> getChat(UUID id) throws DatabaseException;
 
-    boolean saveMessage(MessageEntity msg) throws DatabaseException, AlreadyExistingRecordException;
+    boolean saveMessage(MessageEntity msg) throws DatabaseException;
 
     List<ChatMessageViewDTO> loadMessages(ChatEntity chat, int index, int size) throws DatabaseException;
 
     Optional<MessageEntity> findMessage(UUID id) throws DatabaseException;
 
-    Collection<MemberEntity> getMembersFromChannel(ChannelEntity channel) throws DatabaseException;
-
-    boolean addMemberToChat(ChatEntity chat, MemberEntity member) throws DatabaseException;
-
-    Collection<ChatEntity> getChats(MemberEntity member) throws DatabaseException;
+    boolean addMemberToChannel(ChannelEntity channel, MemberEntity member) throws DatabaseException;
 
     long getMessageCount(ChatEntity chat) throws DatabaseException;
 
-    boolean leaveFromChat(ChatEntity chat, MemberEntity member) throws DatabaseException;
+    boolean leaveFromChannel(ChannelEntity channel, MemberEntity member) throws DatabaseException;
 
-    boolean createInviteCode(InviteCodeEntity code) throws DatabaseException, AlreadyExistingRecordException;
+    void saveInviteCode(InviteCodeEntity code) throws DatabaseException;
 
     Optional<InviteCodeEntity> getInviteCode(String code) throws DatabaseException;
 
     boolean activateInviteCode(InviteCodeEntity code) throws DatabaseException;
 
-    boolean deleteInviteCode(String code) throws DatabaseException;
+    boolean saveReactionType(ReactionTypeEntity reaction) throws DatabaseException;
 
-    List<InviteCodeEntity> getInviteCodesBySender(
-            MemberEntity sender,
-            boolean includeExpired,
-            boolean includeActivated
-    ) throws DatabaseException;
+    boolean saveReactionEntry(ReactionEntryEntity reaction) throws DatabaseException;
 
-    List<InviteCodeEntity> getActiveInviteCodes(ChannelEntity channel) throws DatabaseException;
-
-    List<InviteCodeEntity> getInviteCodesByNickname(MemberEntity member) throws DatabaseException;
-
-    int countActiveInvitesByNickname(MemberEntity member) throws DatabaseException;
-
-    boolean saveReactionType(ReactionTypeEntity reaction) throws DatabaseException, AlreadyExistingRecordException;
-
-    boolean removeReactionType(ReactionTypeEntity reaction) throws DatabaseException;
-
-    boolean saveReactionEntry(ReactionEntry reaction) throws DatabaseException, AlreadyExistingRecordException;
-
-    boolean removeReactionEntry(ReactionEntry reaction) throws DatabaseException;
-
-    Optional<ReactionTypeEntity> getReactionTypeByName(String name) throws DatabaseException;
+    boolean removeReactionEntry(ReactionEntryEntity reaction) throws DatabaseException;
 
     List<ReactionTypeEntity> getReactionTypesByPackage(String packageName) throws DatabaseException;
-
-    List<ReactionEntry> getReactionsByMessage(ChatMessageViewDTO message) throws DatabaseException;
 
     Collection<MemberEntity> getMembers(ChatEntity chat);
 }

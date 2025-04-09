@@ -1,33 +1,30 @@
 package net.result.taulight.db;
 
 import net.result.sandnode.db.MemberEntity;
-import net.result.taulight.dto.ChatInfoDTO;
-import net.result.taulight.dto.ChatInfoPropDTO;
 
-import javax.persistence.Entity;
-import javax.persistence.ManyToMany;
-import java.time.ZonedDateTime;
+import javax.persistence.*;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.UUID;
+import java.util.HashSet;
 
 @Entity
 public class ChannelEntity extends ChatEntity {
-    private final String title;
-    private final MemberEntity owner;
+    private String title;
 
-    @ManyToMany
-    private List<MemberEntity> members;
+    @ManyToOne(cascade = CascadeType.ALL)
+    private MemberEntity owner;
+
+    @ManyToMany(cascade = CascadeType.ALL)
+    private Collection<MemberEntity> members = new HashSet<>();
+
+    @OneToMany(cascade = CascadeType.ALL)
+    private Collection<InviteCodeEntity> inviteCodes = new HashSet<>();
+
+    public ChannelEntity() {
+        super();
+    }
 
     public ChannelEntity(String title, MemberEntity owner) {
         super();
-        this.title = title;
-        this.owner = owner;
-    }
-
-    public ChannelEntity(UUID id, ZonedDateTime creationDate, String title, MemberEntity owner) {
-        super(id, creationDate);
         this.title = title;
         this.owner = owner;
     }
@@ -36,17 +33,32 @@ public class ChannelEntity extends ChatEntity {
         return title;
     }
 
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
     public MemberEntity owner() {
         return owner;
     }
 
-    @Override
-    public boolean hasMatchingProps(Collection<ChatInfoPropDTO> chatInfoProps) {
-        return !Collections.disjoint(chatInfoProps, ChatInfoPropDTO.channelAll());
+    public void setOwner(MemberEntity owner) {
+        this.owner = owner;
     }
 
-    @Override
-    public ChatInfoDTO getInfo(MemberEntity member, Collection<ChatInfoPropDTO> chatInfoProps) {
-        return ChatInfoDTO.channel(this, member, chatInfoProps);
+    public Collection<MemberEntity> members() {
+        return members;
     }
+
+    public void setMembers(Collection<MemberEntity> members) {
+        this.members = members;
+    }
+
+    public Collection<InviteCodeEntity> inviteCodes() {
+        return inviteCodes;
+    }
+
+    public void setInviteCodes(Collection<InviteCodeEntity> inviteCodes) {
+        this.inviteCodes = inviteCodes;
+    }
+
 }

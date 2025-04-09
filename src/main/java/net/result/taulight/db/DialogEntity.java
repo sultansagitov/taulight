@@ -1,16 +1,17 @@
 package net.result.taulight.db;
 
 import net.result.sandnode.db.MemberEntity;
-import net.result.taulight.dto.ChatInfoDTO;
-import net.result.taulight.dto.ChatInfoPropDTO;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
-import java.util.Collection;
-import java.util.Collections;
+import javax.persistence.ManyToOne;
 
 @Entity
 public class DialogEntity extends ChatEntity {
+    @ManyToOne(cascade = CascadeType.ALL)
     private MemberEntity firstMember;
+
+    @ManyToOne(cascade = CascadeType.ALL)
     private MemberEntity secondMember;
 
     public DialogEntity() {
@@ -35,16 +36,6 @@ public class DialogEntity extends ChatEntity {
         if (member.equals(firstMember)) return secondMember;
         if (member.equals(secondMember)) return firstMember;
         throw new IllegalArgumentException("Member not part of this dialog");
-    }
-
-    @Override
-    public boolean hasMatchingProps(Collection<ChatInfoPropDTO> chatInfoProps) {
-        return !Collections.disjoint(chatInfoProps, ChatInfoPropDTO.dialogAll());
-    }
-
-    @Override
-    public ChatInfoDTO getInfo(MemberEntity member, Collection<ChatInfoPropDTO> chatInfoProps) {
-        return ChatInfoDTO.dialog(this, member, chatInfoProps);
     }
 
     @Override

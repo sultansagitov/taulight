@@ -6,13 +6,13 @@ import net.result.sandnode.exception.ExpectedMessageException;
 import net.result.sandnode.message.MSGPackMessage;
 import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.message.util.Headers;
-import net.result.taulight.dto.ChatInfo;
+import net.result.taulight.dto.ChatInfoDTO;
 import net.result.taulight.message.TauMessageTypes;
 
 import java.util.Collection;
 
-public class ChatResponse extends MSGPackMessage<Collection<ChatInfo>> {
-    public ChatResponse(Collection<ChatInfo> infos) {
+public class ChatResponse extends MSGPackMessage<Collection<ChatInfoDTO>> {
+    public ChatResponse(Collection<ChatInfoDTO> infos) {
         super(new Headers().setType(TauMessageTypes.CHAT), infos);
     }
 
@@ -20,7 +20,7 @@ public class ChatResponse extends MSGPackMessage<Collection<ChatInfo>> {
         super(raw.expect(TauMessageTypes.CHAT), new TypeReference<>() {});
     }
 
-    public Collection<ChatInfo> getInfos() {
+    public Collection<ChatInfoDTO> getInfos() {
         return object;
     }
 }

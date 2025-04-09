@@ -1,15 +1,19 @@
 package net.result.taulight.db;
 
-import net.result.sandnode.db.MemberEntity;
 import net.result.sandnode.db.SandnodeEntity;
-import net.result.taulight.dto.ChatInfoDTO;
-import net.result.taulight.dto.ChatInfoPropDTO;
 
+import javax.persistence.*;
 import java.time.ZonedDateTime;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.UUID;
 
+@Entity
+@Inheritance(strategy = InheritanceType.JOINED)
 public abstract class ChatEntity extends SandnodeEntity {
+    @OneToMany(cascade = CascadeType.ALL)
+    private Collection<MessageEntity> messages = new HashSet<>();
+
     public ChatEntity() {
         super();
     }
@@ -18,8 +22,12 @@ public abstract class ChatEntity extends SandnodeEntity {
         super(id, creationDate);
     }
 
-    abstract public boolean hasMatchingProps(Collection<ChatInfoPropDTO> chatInfoProps);
+    public Collection<MessageEntity> messages() {
+        return messages;
+    }
 
-    abstract public ChatInfoDTO getInfo(MemberEntity member, Collection<ChatInfoPropDTO> chatInfoProps);
+    public void setMessages(Collection<MessageEntity> messages) {
+        this.messages = messages;
+    }
 
 }

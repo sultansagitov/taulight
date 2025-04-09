@@ -8,7 +8,6 @@ import net.result.taulight.dto.ChatMessageViewDTO;
 import net.result.taulight.exception.AlreadyExistingRecordException;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class TauJPADatabase extends JPADatabase implements TauDatabase {
     private final ChannelRepository channelRepository;
@@ -36,12 +35,13 @@ public class TauJPADatabase extends JPADatabase implements TauDatabase {
     }
 
     @Override
-    public Optional<DialogEntity> findDialog(MemberEntity firstMember, MemberEntity secondMember) {
+    public Optional<DialogEntity> findDialog(MemberEntity firstMember, MemberEntity secondMember)
+            throws DatabaseException {
         return dialogRepository.findByMembers(firstMember, secondMember);
     }
 
     @Override
-    public boolean saveChat(ChatEntity chat) throws AlreadyExistingRecordException, DatabaseException {
+    public boolean saveChat(ChatEntity chat) throws DatabaseException, AlreadyExistingRecordException {
         if (chat instanceof ChannelEntity) {
             channelRepository.save((ChannelEntity) chat);
             return true;
@@ -63,7 +63,7 @@ public class TauJPADatabase extends JPADatabase implements TauDatabase {
     }
 
     @Override
-    public boolean saveMessage(MessageEntity msg) throws AlreadyExistingRecordException {
+    public boolean saveMessage(MessageEntity msg) throws DatabaseException {
         messageRepository.save(msg);
         return true;
     }
@@ -79,27 +79,8 @@ public class TauJPADatabase extends JPADatabase implements TauDatabase {
     }
 
     @Override
-    public Collection<MemberEntity> getMembersFromChannel(ChannelEntity channel) throws DatabaseException {
-        return channelRepository.findMembersByChannel(channel);
-    }
-
-    @Override
-    public boolean addMemberToChat(ChatEntity chat, MemberEntity member) throws DatabaseException {
-        if (chat instanceof ChannelEntity) {
-            channelRepository.addMemberToChannel((ChannelEntity) chat, member);
-        } else if (chat instanceof DialogEntity) {
-            dialogRepository.addMemberToDialog((DialogEntity) chat, member);
-        } else {
-            throw new IllegalArgumentException("Unknown chat type");
-        }
-        return true;
-    }
-
-    @Override
-    public Collection<ChatEntity> getChats(MemberEntity member) {
-        Set<ChatEntity> objectStream = member.channels().stream().map(c -> (ChatEntity) c).collect(Collectors.toSet());
-        objectStream.addAll(member.dialogs());
-        return objectStream;
+    public boolean addMemberToChannel(ChannelEntity channel, MemberEntity member) throws DatabaseException {
+        return channelRepository.addMemberToChannel(channel, member);
     }
 
     @Override
@@ -108,21 +89,13 @@ public class TauJPADatabase extends JPADatabase implements TauDatabase {
     }
 
     @Override
-    public boolean leaveFromChat(ChatEntity chat, MemberEntity member) throws DatabaseException {
-        if (chat instanceof ChannelEntity channel) {
-            channelRepository.removeMemberFromChannel(channel, member);
-        } else if (chat instanceof DialogEntity dialog) {
-            dialogRepository.removeMemberFromDialog(dialog, member);
-        } else {
-            throw new IllegalArgumentException("Unknown chat type");
-        }
-        return true;
+    public boolean leaveFromChannel(ChannelEntity channel, MemberEntity member) throws DatabaseException {
+        return channelRepository.removeMemberFromChannel(channel, member);
     }
 
     @Override
-    public boolean createInviteCode(InviteCodeEntity code) throws AlreadyExistingRecordException, DatabaseException {
+    public void saveInviteCode(InviteCodeEntity code) throws DatabaseException {
         inviteCodeRepository.save(code);
-        return true;
     }
 
     @Override
@@ -137,83 +110,34 @@ public class TauJPADatabase extends JPADatabase implements TauDatabase {
     }
 
     @Override
-    public boolean deleteInviteCode(String code) throws DatabaseException {
-        Optional<InviteCodeEntity> inviteCode = inviteCodeRepository.findByCode(code);
-        if (inviteCode.isPresent()) {
-            inviteCodeRepository.delete(inviteCode.get());
-        }
-        return inviteCode.isPresent();
-    }
-
-    @Override
-    public List<InviteCodeEntity> getInviteCodesBySender(
-            MemberEntity sender,
-            boolean includeExpired,
-            boolean includeActivated
-    ) throws DatabaseException {
-        return inviteCodeRepository.findBySender(sender, includeExpired, includeActivated);
-    }
-
-    @Override
-    public List<InviteCodeEntity> getActiveInviteCodes(ChannelEntity channel) {
-        return inviteCodeRepository.ByChannel(channel);
-    }
-
-    @Override
-    public List<InviteCodeEntity> getInviteCodesByNickname(MemberEntity member) {
-        return inviteCodeRepository.findByNickname(member);
-    }
-
-    @Override
-    public int countActiveInvitesByNickname(MemberEntity member) {
-        return inviteCodeRepository.countActiveByNickname(member);
-    }
-
-    @Override
-    public boolean saveReactionType(ReactionTypeEntity reaction) throws AlreadyExistingRecordException {
-        reactionTypeRepository.save(reaction);
+    public boolean saveReactionType(ReactionTypeEntity reactionType) throws DatabaseException {
+        reactionTypeRepository.save(reactionType);
         return true;
     }
 
     @Override
-    public boolean removeReactionType(ReactionTypeEntity reaction) {
-        reactionTypeRepository.delete(reaction);
+    public boolean saveReactionEntry(ReactionEntryEntity reactionEntry) throws DatabaseException {
+        reactionEntryRepository.save(reactionEntry);
         return true;
     }
 
     @Override
-    public boolean saveReactionEntry(ReactionEntry reaction) throws AlreadyExistingRecordException {
-        reactionEntryRepository.save(reaction);
-        return true;
-    }
-
-    @Override
-    public boolean removeReactionEntry(ReactionEntry reaction) {
+    public boolean removeReactionEntry(ReactionEntryEntity reaction) throws DatabaseException {
         reactionEntryRepository.delete(reaction);
         return true;
     }
 
     @Override
-    public Optional<ReactionTypeEntity> getReactionTypeByName(String name) {
-        return reactionTypeRepository.findByName(name);
-    }
-
-    @Override
-    public List<ReactionTypeEntity> getReactionTypesByPackage(String packageName) {
+    public List<ReactionTypeEntity> getReactionTypesByPackage(String packageName) throws DatabaseException {
         return reactionTypeRepository.findByPackageName(packageName);
     }
 
     @Override
-    public List<ReactionEntry> getReactionsByMessage(ChatMessageViewDTO message) {
-        return reactionEntryRepository.findByMessage(message);
-    }
-
-    @Override
     public Collection<MemberEntity> getMembers(ChatEntity chat) {
-        if (chat instanceof ChannelEntity) {
-            return channelRepository.findMembersByChannel((ChannelEntity) chat);
-        } else if (chat instanceof DialogEntity) {
-            return dialogRepository.findMembersByDialog((DialogEntity) chat);
+        if (chat instanceof ChannelEntity channel) {
+            return channel.members();
+        } else if (chat instanceof DialogEntity dialog) {
+            return Set.of(dialog.firstMember(), dialog.secondMember());
         }
         return List.of();
     }

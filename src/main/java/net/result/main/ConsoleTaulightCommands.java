@@ -4,12 +4,12 @@ import net.result.sandnode.chain.IChain;
 import net.result.sandnode.exception.*;
 import net.result.sandnode.exception.error.*;
 import net.result.taulight.chain.sender.*;
-import net.result.taulight.dto.InviteTauCode;
-import net.result.taulight.dto.TauCode;
+import net.result.taulight.dto.InviteCodeDTO;
+import net.result.taulight.dto.CodeDTO;
 import net.result.taulight.dto.ChatMessageInputDTO;
 import net.result.taulight.dto.ChatMessageViewDTO;
-import net.result.taulight.dto.ChatInfo;
-import net.result.taulight.dto.ChatInfoProp;
+import net.result.taulight.dto.ChatInfoDTO;
+import net.result.taulight.dto.ChatInfoPropDTO;
 import org.jetbrains.annotations.NotNull;
 
 import java.time.Duration;
@@ -56,14 +56,14 @@ public class ConsoleTaulightCommands {
         try {
             // Find or add "chat" chain
             Optional<IChain> chat = context.io.chainManager.getChain("chat");
-            Optional<Collection<ChatInfo>> opt;
+            Optional<Collection<ChatInfoDTO>> opt;
             if (chat.isPresent()) {
                 ChatClientChain chain = (ChatClientChain) chat.get();
-                opt = chain.getByMember(ChatInfoProp.all());
+                opt = chain.getByMember(ChatInfoPropDTO.all());
             } else {
                 ChatClientChain chain = new ChatClientChain(context.io);
                 context.io.chainManager.linkChain(chain);
-                opt = chain.getByMember(ChatInfoProp.all());
+                opt = chain.getByMember(ChatInfoPropDTO.all());
                 chain.chainName("chat");
             }
 
@@ -90,14 +90,14 @@ public class ConsoleTaulightCommands {
         try {
             // Find or add "chat" chain
             Optional<IChain> chat = context.io.chainManager.getChain("chat");
-            Optional<Collection<ChatInfo>> opt;
+            Optional<Collection<ChatInfoDTO>> opt;
             if (chat.isPresent()) {
                 ChatClientChain chain = (ChatClientChain) chat.get();
-                opt = chain.getByMember(ChatInfoProp.dialogAll());
+                opt = chain.getByMember(ChatInfoPropDTO.dialogAll());
             } else {
                 ChatClientChain chain = new ChatClientChain(context.io);
                 context.io.chainManager.linkChain(chain);
-                opt = chain.getByMember(ChatInfoProp.dialogAll());
+                opt = chain.getByMember(ChatInfoPropDTO.dialogAll());
                 chain.chainName("chat");
             }
 
@@ -124,14 +124,14 @@ public class ConsoleTaulightCommands {
         try {
             // Find or add "chat" chain
             Optional<IChain> chat = context.io.chainManager.getChain("chat");
-            Optional<Collection<ChatInfo>> opt;
+            Optional<Collection<ChatInfoDTO>> opt;
             if (chat.isPresent()) {
                 ChatClientChain chain = (ChatClientChain) chat.get();
-                opt = chain.getByMember(ChatInfoProp.channelAll());
+                opt = chain.getByMember(ChatInfoPropDTO.channelAll());
             } else {
                 ChatClientChain chain = new ChatClientChain(context.io);
                 context.io.chainManager.linkChain(chain);
-                opt = chain.getByMember(ChatInfoProp.channelAll());
+                opt = chain.getByMember(ChatInfoPropDTO.channelAll());
                 chain.chainName("chat");
             }
 
@@ -163,14 +163,14 @@ public class ConsoleTaulightCommands {
 
             // Find or add "chat" chain
             Optional<IChain> chat = context.io.chainManager.getChain("chat");
-            Collection<ChatInfo> infos;
+            Collection<ChatInfoDTO> infos;
             if (chat.isPresent()) {
                 ChatClientChain chain = (ChatClientChain) chat.get();
-                infos = chain.getByID(List.of(chatID), ChatInfoProp.all());
+                infos = chain.getByID(List.of(chatID), ChatInfoPropDTO.all());
             } else {
                 ChatClientChain chain = new ChatClientChain(context.io);
                 context.io.chainManager.linkChain(chain);
-                infos = chain.getByID(List.of(chatID), ChatInfoProp.all());
+                infos = chain.getByID(List.of(chatID), ChatInfoPropDTO.all());
                 chain.chainName("chat");
             }
 
@@ -284,13 +284,13 @@ public class ConsoleTaulightCommands {
 
             var chain = new CheckCodeClientChain(context.io);
             context.io.chainManager.linkChain(chain);
-            TauCode c = chain.check(code);
+            CodeDTO c = chain.check(code);
             context.io.chainManager.removeChain(chain);
-            if (c instanceof InviteTauCode invite) {
+            if (c instanceof InviteCodeDTO invite) {
                 System.out.println("Invite Details:");
                 System.out.println(invite.code);
                 System.out.printf("Channel: %s%n", invite.title);
-                System.out.printf("Nickname: %s%n", invite.nickname);
+                System.out.printf("Nickname: %s%n", invite.receiverNickname);
                 System.out.printf("Sender Nickname: %s%n", invite.senderNickname);
                 System.out.printf("Creation Date: %s%n", invite.creationDate);
                 System.out.printf("Activation Date: %s%n",
@@ -509,7 +509,7 @@ public class ConsoleTaulightCommands {
                 .setContent(input)
                 .setReplies(replies)
                 .setNickname(context.nickname)
-                .setZtdNow();
+                .setSentDatetimeNow();
 
         try {
             UUID uuid = context.chain.message(message);
@@ -533,7 +533,7 @@ public class ConsoleTaulightCommands {
         try {
             var chain = new ChannelClientChain(context.io);
             context.io.chainManager.linkChain(chain);
-            Collection<TauCode> invites = chain.getChannelCodes(chatID);
+            Collection<CodeDTO> invites = chain.getChannelCodes(chatID);
             context.io.chainManager.removeChain(chain);
 
             if (invites.isEmpty()) {
@@ -541,10 +541,10 @@ public class ConsoleTaulightCommands {
             } else {
                 System.out.printf("Invites for chat %s:%n", chatID);
                 for (var k : invites) {
-                    InviteTauCode invite = (InviteTauCode) k;
+                    InviteCodeDTO invite = (InviteCodeDTO) k;
                     System.out.println("----------------------------");
                     System.out.printf("Code: %s%n", invite.code);
-                    System.out.printf("Nickname: %s%n", invite.nickname);
+                    System.out.printf("Nickname: %s%n", invite.receiverNickname);
                     System.out.printf("Sender: %s%n", invite.senderNickname);
                     System.out.printf("Created: %s%n", invite.creationDate);
                     System.out.printf("Expires: %s%n", invite.expiresDate != null ? invite.expiresDate : "Never");
@@ -570,18 +570,18 @@ public class ConsoleTaulightCommands {
             var chain = new ChannelClientChain(context.io);
             context.io.chainManager.linkChain(chain);
 
-            List<InviteTauCode> invites = chain.getMyCodes();
+            List<InviteCodeDTO> invites = chain.getMyCodes();
             context.io.chainManager.removeChain(chain);
 
             if (invites.isEmpty()) {
                 System.out.println("You have no invites");
             } else {
                 System.out.println("Your invites:");
-                for (InviteTauCode invite : invites) {
+                for (InviteCodeDTO invite : invites) {
                     System.out.println("----------------------------");
                     System.out.printf("Code: %s%n", invite.code);
                     System.out.printf("Chat: %s%n", invite.title);
-                    System.out.printf("For user: %s%n", invite.nickname);
+                    System.out.printf("For user: %s%n", invite.receiverNickname);
                     System.out.printf("Created: %s%n", invite.creationDate);
                     System.out.printf("Expires: %s%n", invite.expiresDate != null ? invite.expiresDate : "Never");
                     System.out.printf("Status: %s%n",
@@ -637,8 +637,8 @@ public class ConsoleTaulightCommands {
         return false;
     }
 
-    private static void printInfo(Collection<ChatInfo> infos) {
-        for (ChatInfo info : infos) {
+    private static void printInfo(Collection<ChatInfoDTO> infos) {
+        for (ChatInfoDTO info : infos) {
             String s = switch (info.chatType) {
                 case CHANNEL -> "Channel: %s, %s%s"
                         .formatted(info.title, info.ownerID, info.channelIsMy ? " (you)" : "");

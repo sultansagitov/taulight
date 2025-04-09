@@ -2,7 +2,7 @@ package net.result.taulight.chain.receiver;
 
 import net.result.sandnode.chain.ReceiverChain;
 import net.result.sandnode.chain.receiver.ServerChain;
-import net.result.sandnode.db.Member;
+import net.result.sandnode.db.MemberEntity;
 import net.result.sandnode.exception.DatabaseException;
 import net.result.sandnode.exception.ImpossibleRuntimeException;
 import net.result.sandnode.exception.error.*;
@@ -14,11 +14,13 @@ import net.result.sandnode.serverclient.Session;
 import net.result.taulight.SysMessages;
 import net.result.taulight.TauAgentProtocol;
 import net.result.taulight.TauHubProtocol;
+import net.result.taulight.db.ChannelEntity;
+import net.result.taulight.db.InviteCodeEntity;
+import net.result.taulight.db.ChatEntity;
+import net.result.taulight.db.TauDatabase;
 import net.result.taulight.dto.ChatMessageInputDTO;
-import net.result.taulight.dto.InviteTauCode;
-import net.result.taulight.dto.TauCode;
-import net.result.taulight.db.*;
-import net.result.taulight.exception.AlreadyExistingRecordException;
+import net.result.taulight.dto.InviteCodeDTO;
+import net.result.taulight.dto.CodeDTO;
 import net.result.taulight.group.TauGroupManager;
 import net.result.taulight.message.CodeListMessage;
 import net.result.taulight.message.TauMessageTypes;
@@ -30,11 +32,8 @@ import org.jetbrains.annotations.NotNull;
 
 import java.time.ZonedDateTime;
 import java.util.Collection;
-import java.util.HashSet;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
-@SuppressWarnings("DataFlowIssue")
 public class ChannelServerChain extends ServerChain implements ReceiverChain {
     private static final Logger LOGGER = LogManager.getLogger(ChannelServerChain.class);
 
@@ -71,17 +70,10 @@ public class ChannelServerChain extends ServerChain implements ReceiverChain {
             throw new TooFewArgumentsException();
         }
 
-        var channel = new TauChannel(database, request.title, session.member);
-        while (true) {
-            channel.setRandomID();
-            try {
-                channel.save();
-                break;
-            } catch (AlreadyExistingRecordException ignored) {
-            }
-        }
+        var channel = new ChannelEntity(request.title, session.member);
+        database.saveChat(channel);
 
-        channel.addMember(session.member);
+        database.addMemberToChannel(channel, session.member);
         TauAgentProtocol.addMemberToGroup(session, manager.getGroup(channel));
         ChatMessageInputDTO input = SysMessages.channelNew.chatMessageInputDTO(channel, session.member);
         try {
@@ -96,19 +88,21 @@ public class ChannelServerChain extends ServerChain implements ReceiverChain {
     }
 
     private void invite(@NotNull ChannelRequest request) throws Exception {
-        TauDatabase database = (TauDatabase) session.member.database();
+        TauDatabase database = (TauDatabase) session.server.serverConfig.database();
 
-        TauChat chat = database.getChat(request.chatID).orElseThrow(NotFoundException::new);
+        ChatEntity chat = database.getChat(request.chatID).orElseThrow(NotFoundException::new);
 
-        if (!chat.getMembers().contains(session.member)) {
+        Collection<MemberEntity> members = database.getMembers(chat);
+
+        if (!members.contains(session.member)) {
             throw new NotFoundException();
         }
 
-        if (!(chat instanceof TauChannel channel)) {
+        if (!(chat instanceof ChannelEntity channel)) {
             throw new WrongAddressException();
         }
 
-        Member member = database
+        MemberEntity member = database
                 .findMemberByNickname(request.otherNickname)
                 .orElseThrow(AddressedMemberNotFoundException::new);
 
@@ -117,30 +111,30 @@ public class ChannelServerChain extends ServerChain implements ReceiverChain {
             throw new UnauthorizedException();
         }
 
-        if (channel.getMembers().contains(member)) {
+        if (members.contains(member)) {
             throw new NoEffectException();
         }
 
-        for (var code : channel.getActiveInviteCodes()) {
-            if (code.getNickname().equals(member.nickname()) && code.getActivationDate() == null) {
+        for (var code : channel.inviteCodes()) {
+            if (code.receiver().equals(member) && code.activationDate() == null) {
                 throw new NoEffectException();
             }
         }
 
         ZonedDateTime expiresDate = ZonedDateTime.now().plus(request.expirationTime);
-        var token = new InviteCodeObject(database, channel, member, session.member, expiresDate);
-        token.save();
+        var code = new InviteCodeEntity(channel, member, session.member, expiresDate);
+        database.saveInviteCode(code);
 
-        sendFin(new TextMessage(new Headers().setType(TauMessageTypes.CHANNEL), token.getCode()));
+        sendFin(new TextMessage(new Headers().setType(TauMessageTypes.CHANNEL), code.code()));
     }
 
     private void leave(@NotNull ChannelRequest request) throws Exception {
         TauDatabase database = (TauDatabase) session.server.serverConfig.database();
         TauGroupManager manager = (TauGroupManager) session.server.serverConfig.groupManager();
 
-        TauChat tauChat = database.getChat(request.chatID).orElseThrow(NotFoundException::new);
+        ChatEntity chat = database.getChat(request.chatID).orElseThrow(NotFoundException::new);
 
-        if (!(tauChat instanceof TauChannel channel)) {
+        if (!(chat instanceof ChannelEntity channel)) {
             throw new WrongAddressException();
         }
 
@@ -148,7 +142,10 @@ public class ChannelServerChain extends ServerChain implements ReceiverChain {
             throw new UnauthorizedException();
         }
 
-        database.leaveFromChat(channel, session.member);
+        if (!database.leaveFromChannel(channel, session.member)) {
+            throw new NotFoundException();
+        }
+
         ChatMessageInputDTO input = SysMessages.channelLeave.chatMessageInputDTO(channel, session.member);
         try {
             TauHubProtocol.send(session, channel, input);
@@ -164,34 +161,30 @@ public class ChannelServerChain extends ServerChain implements ReceiverChain {
     }
 
     private void channelCodes(@NotNull ChannelRequest request) throws Exception {
-        TauDatabase database = (TauDatabase) session.member.database();
+        TauDatabase database = (TauDatabase) session.server.serverConfig.database();
 
-        TauChat chat = database.getChat(request.chatID).orElseThrow(NotFoundException::new);
+        ChatEntity chat = database.getChat(request.chatID).orElseThrow(NotFoundException::new);
 
-        if (!(chat instanceof TauChannel channel)) {
+        if (!(chat instanceof ChannelEntity channel)) {
             throw new WrongAddressException();
         }
 
-        Collection<TauCode> collected = channel.getActiveInviteCodes().stream()
-                .map(c -> new InviteTauCode(c, channel.title(), c.getNickname(), c.getSenderNickname()))
+        Headers headers = new Headers().setType(TauMessageTypes.CHANNEL);
+
+        Collection<CodeDTO> collected = channel
+                .inviteCodes().stream()
+                .map(InviteCodeDTO::new)
                 .collect(Collectors.toSet());
-        sendFin(new CodeListMessage(new Headers().setType(TauMessageTypes.CHANNEL), collected));
+
+        sendFin(new CodeListMessage(headers, collected));
     }
 
+    @SuppressWarnings("DataFlowIssue")
     private void myCodes() throws Exception {
-        TauDatabase database = (TauDatabase) session.member.database();
-
-        Collection<TauCode> collected = new HashSet<>();
-        for (InviteCodeObject c : database.getInviteCodesByNickname(session.member)) {
-            UUID chatID = c.getChatID();
-            TauChat chat = database.getChat(chatID).orElseThrow(NotFoundException::new);
-
-            if (!(chat instanceof TauChannel channel)) {
-                throw new WrongAddressException();
-            }
-
-            collected.add(new InviteTauCode(c, channel.title(), c.getNickname(), c.getSenderNickname()));
-        }
+        Collection<CodeDTO> collected = session.member
+                .inviteCodes().stream()
+                .map(InviteCodeDTO::new)
+                .collect(Collectors.toSet());
 
         sendFin(new CodeListMessage(new Headers().setType(TauMessageTypes.CHANNEL), collected));
     }

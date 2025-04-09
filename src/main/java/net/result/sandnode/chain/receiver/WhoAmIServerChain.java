@@ -1,7 +1,7 @@
 package net.result.sandnode.chain.receiver;
 
 import net.result.sandnode.chain.ReceiverChain;
-import net.result.sandnode.db.Member;
+import net.result.sandnode.db.MemberEntity;
 import net.result.sandnode.exception.error.UnauthorizedException;
 import net.result.sandnode.message.types.WhoAmIRequest;
 import net.result.sandnode.message.types.WhoAmIResponse;
@@ -16,7 +16,7 @@ public class WhoAmIServerChain extends ServerChain implements ReceiverChain {
     public void sync() throws Exception {
         new WhoAmIRequest(queue.take());
 
-        Member member = session.member;
+        MemberEntity member = session.member;
 
         if (member == null) {
             throw new UnauthorizedException();

@@ -4,29 +4,29 @@ import net.result.sandnode.chain.ChainManager;
 import net.result.sandnode.chain.IChain;
 import net.result.sandnode.exception.DatabaseException;
 import net.result.sandnode.exception.UnprocessedMessagesException;
+import net.result.sandnode.exception.error.NotFoundException;
 import net.result.sandnode.exception.error.UnauthorizedException;
 import net.result.sandnode.serverclient.Session;
 import net.result.taulight.chain.sender.ForwardServerChain;
+import net.result.taulight.db.MessageEntity;
 import net.result.taulight.dto.ChatMessageInputDTO;
-import net.result.taulight.db.TauChat;
+import net.result.taulight.db.ChatEntity;
 import net.result.taulight.db.TauDatabase;
 import net.result.taulight.dto.ChatMessageViewDTO;
-import net.result.taulight.exception.AlreadyExistingRecordException;
 import net.result.sandnode.exception.error.NoEffectException;
 import net.result.taulight.group.TauGroupManager;
 import net.result.taulight.message.types.ForwardResponse;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.util.Collection;
-import java.util.Optional;
+import java.util.*;
 
 public class TauHubProtocol {
     private static final Logger LOGGER = LogManager.getLogger(TauHubProtocol.class);
 
-    public static ChatMessageViewDTO send(Session session, TauChat chat, ChatMessageInputDTO input)
+    public static ChatMessageViewDTO send(Session session, ChatEntity chat, ChatMessageInputDTO input)
             throws InterruptedException, DatabaseException, NoEffectException, UnprocessedMessagesException,
-            UnauthorizedException {
+            UnauthorizedException, NotFoundException {
         if (session.member == null) {
             throw new UnauthorizedException();
         }
@@ -34,19 +34,32 @@ public class TauHubProtocol {
         TauGroupManager manager = (TauGroupManager) session.server.serverConfig.groupManager();
         TauDatabase database = (TauDatabase) session.server.serverConfig.database();
 
-        ChatMessageViewDTO serverMessage = new ChatMessageViewDTO();
-        serverMessage.setCreationDateNow();
-        serverMessage.setChatMessageInputDTO(input);
-
-        LOGGER.info("Saving message with id {} content: {}", serverMessage.id(), input.content());
-        while (true) {
-            serverMessage.setRandomID();
-            try {
-                database.saveMessage(serverMessage);
-                break;
-            } catch (AlreadyExistingRecordException ignored) {
+        MessageEntity message = new MessageEntity();
+        message.setChat(chat);
+        message.setSentDatetime(input.sentDatetime());
+        message.setContent(input.content());
+        message.setMember(session.member);
+        message.setSys(input.sys());
+        Collection<MessageEntity> messageEntities = new ArrayList<>();
+        List<UUID> replies = input.replies();
+        if (replies != null) {
+            for (UUID r : replies) {
+                MessageEntity reply = database
+                        .findMessage(r)
+                        .orElseThrow(NotFoundException::new);
+                messageEntities.add(reply);
             }
         }
+        message.setReplies(messageEntities);
+        database.saveMessage(message);
+
+        ChatMessageViewDTO serverMessage = new ChatMessageViewDTO();
+        serverMessage.setCreationDateNow();
+        serverMessage.setMessages(input);
+
+        LOGGER.info("Saving message with id {} content: {}", serverMessage.id(), input.content());
+
+
         Collection<Session> sessions = manager.getGroup(chat).getSessions();
         if (sessions.isEmpty()) throw new NoEffectException();
 

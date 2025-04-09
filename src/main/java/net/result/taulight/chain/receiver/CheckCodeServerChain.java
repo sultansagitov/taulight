@@ -6,15 +6,11 @@ import net.result.sandnode.exception.SandnodeException;
 import net.result.sandnode.exception.error.NotFoundException;
 import net.result.sandnode.exception.error.UnauthorizedException;
 import net.result.sandnode.serverclient.Session;
-import net.result.taulight.dto.InviteTauCode;
-import net.result.taulight.db.InviteCodeObject;
-import net.result.taulight.db.TauChannel;
-import net.result.taulight.db.TauChat;
+import net.result.taulight.dto.InviteCodeDTO;
+import net.result.taulight.db.InviteCodeEntity;
 import net.result.taulight.db.TauDatabase;
 import net.result.taulight.message.types.CheckCodeRequest;
 import net.result.taulight.message.types.CheckCodeResponse;
-
-import java.util.UUID;
 
 public class CheckCodeServerChain extends ServerChain implements ReceiverChain {
     public CheckCodeServerChain(Session session) {
@@ -29,30 +25,20 @@ public class CheckCodeServerChain extends ServerChain implements ReceiverChain {
             throw new UnauthorizedException();
         }
 
-        TauDatabase database = (TauDatabase) session.member.database();
+        TauDatabase database = (TauDatabase) session.server.serverConfig.database();
 
-        InviteCodeObject invite = database
+        InviteCodeEntity invite = database
                 .getInviteCode(request.content())
                 .orElseThrow(NotFoundException::new);
 
-        UUID chatID = invite.getChatID();
-
-        TauChat chat = database.getChat(chatID).orElseThrow(NotFoundException::new);
-
-        if (!(chat instanceof TauChannel channel)) {
-            throw new NotFoundException();
-        }
-
-
-        if (!invite.getNickname().equals(session.member.nickname())) {
+        if (!invite.receiver().equals(session.member)) {
             //TODO add channel roles and use it
-            if (!invite.getSenderNickname().equals(session.member.nickname())) {
+            if (!invite.sender().equals(session.member)) {
                 throw new NotFoundException();
             }
         }
 
-        var code = new InviteTauCode(invite, channel.title(), invite.getNickname(), invite.getSenderNickname());
-        CheckCodeResponse response = new CheckCodeResponse(code);
-        sendFin(response);
+        var code = new InviteCodeDTO(invite);
+        sendFin(new CheckCodeResponse(code));
     }
 }

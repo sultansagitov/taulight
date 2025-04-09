@@ -2,7 +2,7 @@ package net.result.taulight.chain.receiver;
 
 import net.result.sandnode.chain.ReceiverChain;
 import net.result.sandnode.chain.receiver.ServerChain;
-import net.result.sandnode.db.Member;
+import net.result.sandnode.db.MemberEntity;
 import net.result.sandnode.error.Errors;
 import net.result.sandnode.exception.*;
 import net.result.sandnode.exception.error.UnauthorizedException;
@@ -17,7 +17,7 @@ import net.result.taulight.db.TauDatabase;
 import net.result.taulight.dto.ChatMessageInputDTO;
 import net.result.sandnode.exception.error.NoEffectException;
 import net.result.taulight.message.types.ForwardRequest;
-import net.result.taulight.db.TauChat;
+import net.result.taulight.db.ChatEntity;
 import net.result.sandnode.message.UUIDMessage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -79,7 +79,7 @@ public class ForwardRequestServerChain extends ServerChain implements ReceiverCh
             ChatMessageViewDTO serverMessage;
 
             try {
-                Optional<TauChat> chatOpt = database.getChat(chatID);
+                Optional<ChatEntity> chatOpt = database.getChat(chatID);
 
                 if (chatOpt.isEmpty()) {
                     LOGGER.error("Chat was not found");
@@ -87,9 +87,9 @@ public class ForwardRequestServerChain extends ServerChain implements ReceiverCh
                     continue;
                 }
 
-                TauChat chat = chatOpt.get();
+                ChatEntity chat = chatOpt.get();
 
-                Collection<Member> members = chat.getMembers();
+                Collection<MemberEntity> members = database.getMembers(chat);
                 if (!members.contains(session.member)) {
                     LOGGER.warn("Unauthorized access attempt by member: {}", session.member);
                     send(Errors.NOT_FOUND.createMessage());

@@ -5,7 +5,7 @@ import net.result.sandnode.exception.DeserializationException;
 import net.result.sandnode.message.MSGPackMessage;
 import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.message.util.Headers;
-import net.result.taulight.dto.ChatInfoProp;
+import net.result.taulight.dto.ChatInfoPropDTO;
 import net.result.taulight.message.TauMessageTypes;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -18,17 +18,17 @@ public class ChatRequest extends MSGPackMessage<ChatRequest.Data> {
         @JsonProperty("chat-id-list")
         public @Nullable Collection<UUID> allChatID = null;
         @JsonProperty("properties")
-        private Collection<ChatInfoProp> infoProps;
+        private Collection<ChatInfoPropDTO> infoProps;
 
         @SuppressWarnings("unused")
         public Data() {
         }
 
-        public Data(Collection<ChatInfoProp> infoProps) {
+        public Data(Collection<ChatInfoPropDTO> infoProps) {
             this.infoProps = infoProps;
         }
 
-        public Data(@NotNull Collection<UUID> allChatID, Collection<ChatInfoProp> infoProps) {
+        public Data(@NotNull Collection<UUID> allChatID, Collection<ChatInfoPropDTO> infoProps) {
             this.allChatID = allChatID;
             this.infoProps = infoProps;
         }
@@ -46,11 +46,11 @@ public class ChatRequest extends MSGPackMessage<ChatRequest.Data> {
         super(raw, Data.class);
     }
 
-    public static ChatRequest getByMember(Collection<ChatInfoProp> infoProps) {
+    public static ChatRequest getByMember(Collection<ChatInfoPropDTO> infoProps) {
         return new ChatRequest(new Data(infoProps));
     }
 
-    public static ChatRequest getByID(Collection<UUID> chatID, Collection<ChatInfoProp> infoProps) {
+    public static ChatRequest getByID(Collection<UUID> chatID, Collection<ChatInfoPropDTO> infoProps) {
         return new ChatRequest(new Data(chatID, infoProps));
     }
 
@@ -58,7 +58,7 @@ public class ChatRequest extends MSGPackMessage<ChatRequest.Data> {
         return object.allChatID;
     }
 
-    public Collection<ChatInfoProp> getChatInfoProps() {
+    public Collection<ChatInfoPropDTO> getChatInfoProps() {
         return object.infoProps;
     }
 }

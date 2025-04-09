@@ -7,18 +7,35 @@ import net.result.sandnode.security.PasswordHasher;
 import java.util.Optional;
 
 public class JPADatabase implements Database {
-    @Override
-    public Member registerMember(String nickname, String password) throws BusyNicknameException, DatabaseException {
-        return null;
+    private final PasswordHasher hasher;
+    protected final MemberRepository memberRepo;
+
+    public JPADatabase(PasswordHasher hasher) {
+        this.hasher = hasher;
+        memberRepo = new MemberRepository();
     }
 
     @Override
-    public Optional<Member> findMemberByNickname(String nickname) throws DatabaseException {
-        return Optional.empty();
+    public MemberEntity registerMember(String nickname, String password)
+            throws BusyNicknameException, DatabaseException {
+        if (findMemberByNickname(nickname).isPresent()) {
+            throw new BusyNicknameException();
+        }
+
+        String hashedPassword = hasher.hash(password, 12);
+        MemberEntity member = new MemberEntity(nickname, hashedPassword);
+        memberRepo.save(member);
+
+        return member;
+    }
+
+    @Override
+    public Optional<MemberEntity> findMemberByNickname(String nickname) throws DatabaseException {
+        return memberRepo.findByNickname(nickname);
     }
 
     @Override
     public PasswordHasher hasher() {
-        return null;
+        return hasher;
     }
 }

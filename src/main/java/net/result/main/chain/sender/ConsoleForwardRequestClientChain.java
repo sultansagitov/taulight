@@ -73,7 +73,7 @@ public class ConsoleForwardRequestClientChain extends ClientChain {
                 .setChatID(context.currentChat)
                 .setContent(input)
                 .setNickname(context.nickname)
-                .setZtdNow();
+                .setSentDatetimeNow();
 
         send(new ForwardRequest(message));
         RawMessage raw = queue.take();

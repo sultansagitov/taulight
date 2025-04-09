@@ -1,8 +1,8 @@
 package net.result.taulight.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import net.result.sandnode.db.Member;
-import net.result.taulight.db.TauChat;
+import net.result.sandnode.db.MemberEntity;
+import net.result.taulight.db.ChatEntity;
 
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -16,7 +16,7 @@ public class ChatMessageInputDTO {
     @JsonProperty
     private String content = null;
     @JsonProperty
-    private ZonedDateTime ztd = null;
+    private ZonedDateTime sentDatetime = null;
     @JsonProperty
     private String nickname = null;
     @JsonProperty
@@ -34,8 +34,8 @@ public class ChatMessageInputDTO {
         return content;
     }
 
-    public ZonedDateTime ztd() {
-        return ztd;
+    public ZonedDateTime sentDatetime() {
+        return sentDatetime;
     }
 
     public String nickname() {
@@ -60,17 +60,17 @@ public class ChatMessageInputDTO {
         return this;
     }
 
-    public ChatMessageInputDTO setChat(TauChat chat) {
+    public ChatMessageInputDTO setChat(ChatEntity chat) {
         return setChatID(chat.id());
     }
 
-    public ChatMessageInputDTO setZtd(ZonedDateTime ztd) {
-        this.ztd = ztd;
+    public ChatMessageInputDTO setSentDatetime(ZonedDateTime sentDatetime) {
+        this.sentDatetime = sentDatetime;
         return this;
     }
 
-    public ChatMessageInputDTO setZtdNow() {
-        return setZtd(ZonedDateTime.now(ZoneId.of("UTC")));
+    public ChatMessageInputDTO setSentDatetimeNow() {
+        return setSentDatetime(ZonedDateTime.now(ZoneId.of("UTC")));
     }
 
     public ChatMessageInputDTO setNickname(String nickname) {
@@ -78,7 +78,7 @@ public class ChatMessageInputDTO {
         return this;
     }
 
-    public ChatMessageInputDTO setMember(Member member) {
+    public ChatMessageInputDTO setMember(MemberEntity member) {
         return setNickname(member.nickname());
     }
 
@@ -103,6 +103,6 @@ public class ChatMessageInputDTO {
     @Override
     public String toString() {
         return "<ChatMessageInputDTO content=%s chatID=%s ztd=%s sys=%s nickname=%s replies=%s>"
-                .formatted(content, chatID, ztd, sys, nickname, replies);
+                .formatted(content, chatID, sentDatetime, sys, nickname, replies);
     }
 }

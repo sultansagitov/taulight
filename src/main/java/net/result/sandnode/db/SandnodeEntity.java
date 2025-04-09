@@ -1,37 +1,32 @@
 package net.result.sandnode.db;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import org.hibernate.annotations.Type;
 
+import javax.persistence.Column;
+import javax.persistence.Convert;
+import javax.persistence.Id;
+import javax.persistence.MappedSuperclass;
 import java.time.ZonedDateTime;
 import java.util.UUID;
 
-public abstract class SandnodeObject {
-    @JsonProperty
-    private UUID id = null;
-    @JsonProperty("creation-date")
+@MappedSuperclass
+public abstract class SandnodeEntity {
+    @Id
+    @Type(type = "org.hibernate.type.UUIDBinaryType")
+    @Column(name = "id", columnDefinition = "BINARY(16)")
+    private UUID id;
+
+    @Convert(converter = ZonedDateTimeConverter.class)
     private ZonedDateTime creationDate;
 
-    @JsonIgnore
-    private Database database;
-
-    public SandnodeObject() {
-    }
-
-    public SandnodeObject(Database database) {
+    public SandnodeEntity() {
         setRandomID();
         setCreationDateNow();
-        this.database = database;
     }
 
-    public SandnodeObject(Database database, UUID id, ZonedDateTime createdAt) {
-        this.database = database;
+    public SandnodeEntity(UUID id, ZonedDateTime creationDate) {
         setID(id);
-        setCreationDate(createdAt);
-    }
-
-    public Database database() {
-        return database;
+        setCreationDate(creationDate);
     }
 
     public UUID id() {
@@ -46,7 +41,7 @@ public abstract class SandnodeObject {
         this.id = UUID.randomUUID();
     }
 
-    public ZonedDateTime getCreationDate() {
+    public ZonedDateTime creationDate() {
         return creationDate;
     }
 
@@ -60,7 +55,7 @@ public abstract class SandnodeObject {
 
     @Override
     public boolean equals(Object obj) {
-        return this == obj || obj instanceof SandnodeObject sn && id().equals(sn.id());
+        return this == obj || obj instanceof SandnodeEntity sn && id().equals(sn.id());
     }
 
 }

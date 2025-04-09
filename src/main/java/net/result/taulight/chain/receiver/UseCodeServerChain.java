@@ -2,9 +2,8 @@ package net.result.taulight.chain.receiver;
 
 import net.result.sandnode.chain.ReceiverChain;
 import net.result.sandnode.chain.receiver.ServerChain;
-import net.result.sandnode.db.Member;
+import net.result.sandnode.db.MemberEntity;
 import net.result.sandnode.exception.error.NotFoundException;
-import net.result.sandnode.exception.error.ServerSandnodeErrorException;
 import net.result.sandnode.exception.error.UnauthorizedException;
 import net.result.sandnode.message.types.HappyMessage;
 import net.result.sandnode.serverclient.Session;
@@ -16,8 +15,6 @@ import net.result.sandnode.exception.error.NoEffectException;
 import net.result.taulight.message.types.UseCodeRequest;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
-import java.util.UUID;
 
 public class UseCodeServerChain extends ServerChain  implements ReceiverChain {
     private static final Logger LOGGER = LogManager.getLogger(UseCodeServerChain.class);
@@ -35,39 +32,27 @@ public class UseCodeServerChain extends ServerChain  implements ReceiverChain {
             throw new UnauthorizedException();
         }
 
-        TauDatabase database = (TauDatabase) session.member.database();
+        TauDatabase database = (TauDatabase) session.server.serverConfig.database();
 
-        InviteCodeObject invite = database.getInviteCode(code).orElseThrow(NotFoundException::new);
+        InviteCodeEntity invite = database.getInviteCode(code).orElseThrow(NotFoundException::new);
 
-        String nickname = invite.getNickname();
-        UUID chatID = invite.getChatID();
+        MemberEntity member = invite.receiver();
+        ChannelEntity channel = invite.channel();
 
-        Member member = database
-                .findMemberByNickname(nickname)
-                .orElseThrow(() -> new ServerSandnodeErrorException("Member not found"));
-
-        TauChat chat = database
-                .getChat(chatID)
-                .orElseThrow(() -> new ServerSandnodeErrorException("Channel not found"));
-
-        if (!(chat instanceof TauChannel channel)) {
-            throw new ServerSandnodeErrorException("Chat is not channel");
-        }
-
-        if (!invite.getNickname().equals(session.member.nickname())) {
+        if (!invite.receiver().equals(session.member)) {
             //TODO add channel roles and use it
-            if (invite.getSenderNickname().equals(session.member.nickname())) {
+            if (invite.sender().equals(session.member)) {
                 throw new UnauthorizedException();
             } else {
                 throw new NotFoundException();
             }
         }
 
-        if (!invite.activate()) {
+        if (!database.activateInviteCode(invite)) {
             throw new NoEffectException("Invite already activated");
         }
 
-        channel.addMember(member);
+        database.addMemberToChannel(channel, member);
 
         ChatMessageInputDTO input = SysMessages.channelAdd.chatMessageInputDTO(channel, member);
 

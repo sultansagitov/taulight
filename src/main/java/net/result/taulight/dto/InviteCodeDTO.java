@@ -6,11 +6,11 @@ import org.jetbrains.annotations.Nullable;
 
 import java.time.ZonedDateTime;
 
-public class InviteTauCode extends TauCode {
+public class InviteCodeDTO extends CodeDTO {
     @JsonProperty
     public String title;
-    @JsonProperty
-    public String nickname;
+    @JsonProperty("receiver-nickname")
+    public String receiverNickname;
     @JsonProperty("sender-nickname")
     public String senderNickname;
     @JsonProperty("creation-date")
@@ -21,17 +21,17 @@ public class InviteTauCode extends TauCode {
     public ZonedDateTime expiresDate;
 
     @SuppressWarnings("unused")
-    public InviteTauCode() {
+    public InviteCodeDTO() {
         super();
     }
 
-    public InviteTauCode(InviteCodeEntity inviteCode, String title, String nickname, String senderNickname) {
-        super(inviteCode.getCode());
-        this.title = title;
-        this.nickname = nickname;
-        this.senderNickname = senderNickname;
-        creationDate = inviteCode.getCreationDate();
-        activationDate = inviteCode.getActivationDate();
-        expiresDate = inviteCode.getExpiresData();
+    public InviteCodeDTO(InviteCodeEntity invite) {
+        super(invite.code());
+        this.title = invite.channel().title();
+        this.receiverNickname = invite.receiver().nickname();
+        this.senderNickname = invite.sender().nickname();
+        creationDate = invite.creationDate();
+        activationDate = invite.activationDate();
+        expiresDate = invite.expiresDate();
     }
 }

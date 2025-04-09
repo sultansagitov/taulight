@@ -4,6 +4,7 @@ import net.result.sandnode.db.MemberEntity;
 import net.result.sandnode.db.SandnodeEntity;
 import net.result.sandnode.db.ZonedDateTimeConverter;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Convert;
 import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
@@ -20,11 +21,13 @@ public class InviteCodeEntity extends SandnodeEntity {
     @Convert(converter = ZonedDateTimeConverter.class)
     private ZonedDateTime expiresDate;
 
-    @ManyToOne
-    private ChatEntity chat;
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.ALL)
+    private ChannelEntity channel;
+
+    @ManyToOne(cascade = CascadeType.ALL)
     private MemberEntity receiver;
-    @ManyToOne
+
+    @ManyToOne(cascade = CascadeType.ALL)
     private MemberEntity sender;
 
     @SuppressWarnings("unused")
@@ -32,14 +35,30 @@ public class InviteCodeEntity extends SandnodeEntity {
         super();
     }
 
-    public InviteCodeEntity(ChatEntity chat, MemberEntity receiver, MemberEntity sender, ZonedDateTime expiresDate) {
+    public InviteCodeEntity(ChannelEntity channel, MemberEntity receiver, MemberEntity sender, ZonedDateTime expiresDate) {
         super();
         setRandomCode();
-        this.chat = chat;
+        this.channel = channel;
         this.receiver = receiver;
         this.sender = sender;
         this.expiresDate = expiresDate;
         this.activatedAt = null;
+    }
+
+    public ZonedDateTime expiresDate() {
+        return expiresDate;
+    }
+
+    public void setExpiresDate(ZonedDateTime expiresDate) {
+        this.expiresDate = expiresDate;
+    }
+
+    public String code() {
+        return code;
+    }
+
+    public void setCode(String code) {
+        this.code = code;
     }
 
     public void setRandomCode() {
@@ -49,24 +68,28 @@ public class InviteCodeEntity extends SandnodeEntity {
                 .collect(Collectors.joining());
     }
 
-    public ZonedDateTime expiresData() {
-        return expiresDate;
+    public ChannelEntity channel() {
+        return channel;
     }
 
-    public String code() {
-        return code;
-    }
-
-    public ChatEntity chat() {
-        return chat;
+    public void setChannel(ChannelEntity channel) {
+        this.channel = channel;
     }
 
     public MemberEntity receiver() {
         return receiver;
     }
 
+    public void setReceiver(MemberEntity receiver) {
+        this.receiver = receiver;
+    }
+
     public MemberEntity sender() {
         return sender;
+    }
+
+    public void setSender(MemberEntity sender) {
+        this.sender = sender;
     }
 
     public ZonedDateTime activationDate() {

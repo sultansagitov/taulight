@@ -1,10 +1,10 @@
 package net.result.taulight.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import net.result.sandnode.db.Member;
+import net.result.sandnode.db.MemberEntity;
 import org.jetbrains.annotations.NotNull;
 
-public class MemberRecord {
+public class MemberDTO {
     public enum Status {ONLINE, OFFLINE, HIDDEN}
 
     @JsonProperty
@@ -13,9 +13,9 @@ public class MemberRecord {
     public Status status = Status.OFFLINE;
 
     @SuppressWarnings("unused")
-    public MemberRecord() {}
+    public MemberDTO() {}
 
-    public MemberRecord(@NotNull Member member) {
+    public MemberDTO(@NotNull MemberEntity member) {
         nickname = member.nickname();
     }
 

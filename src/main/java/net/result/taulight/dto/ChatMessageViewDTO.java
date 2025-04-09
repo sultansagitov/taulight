@@ -1,9 +1,13 @@
 package net.result.taulight.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import net.result.sandnode.db.MemberEntity;
+import net.result.taulight.db.ReactionTypeEntity;
+import org.jetbrains.annotations.NotNull;
 
 import java.time.ZonedDateTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class ChatMessageViewDTO {
     @JsonProperty
@@ -27,10 +31,6 @@ public class ChatMessageViewDTO {
         this.id = id;
     }
 
-    public void setRandomID() {
-        this.id = UUID.randomUUID();
-    }
-
     public ZonedDateTime getCreationDate() {
         return creationDate;
     }
@@ -47,20 +47,26 @@ public class ChatMessageViewDTO {
         return message;
     }
 
-    public void setChatMessageInputDTO(ChatMessageInputDTO message) {
-        this.message = message;
+    public Map<String, Collection<String>> reactions() {
+        return reactions;
     }
 
-    public Map<String, Collection<String>> getReactions() {
-        return reactions;
+    public void setMessages(ChatMessageInputDTO message) {
+        this.message = message;
     }
 
     public void setReactions(Map<String, Collection<String>> reactions) {
         this.reactions = reactions;
     }
 
-    public void addReaction(String reaction, String nickname) {
-        reactions.computeIfAbsent(reaction, k -> new HashSet<>()).add(nickname);
+    public void mapReactionsFromEntities(@NotNull Map<ReactionTypeEntity, Collection<MemberEntity>> reactionMap) {
+        Map<String, Collection<String>> result = new HashMap<>();
+        reactionMap.forEach((type, member) -> {
+            String reaction = "%s:%s".formatted(type.packageName(), type.name());
+            Set<String> memberList = member.stream().map(MemberEntity::nickname).collect(Collectors.toSet());
+            result.put(reaction, memberList);
+        });
+        setReactions(result);
     }
 
     @Override

@@ -1,63 +1,96 @@
 package net.result.taulight.db;
 
+import net.result.sandnode.db.JPAUtil;
 import net.result.sandnode.db.MemberEntity;
 import net.result.sandnode.exception.DatabaseException;
-import net.result.taulight.exception.AlreadyExistingRecordException;
 
 import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
-import java.util.Collection;
-import java.util.Optional;
-import java.util.UUID;
+import javax.persistence.EntityTransaction;
+import java.util.*;
 
 public class ChannelRepository {
-    @PersistenceContext
-    private EntityManager entityManager;
+    private final EntityManager em = JPAUtil.getEntityManager();
 
-    public ChannelEntity save(ChannelEntity channel) throws AlreadyExistingRecordException, DatabaseException {
+    public void save(ChannelEntity channel) throws DatabaseException {
+        while (em.contains(channel)) {
+            channel.setRandomID();
+        }
+
+        EntityTransaction transaction = em.getTransaction();
         try {
-            if (channel.id() == null) {
-                throw new IllegalArgumentException("Channel ID cannot be null.");
-            }
-
-            if (findById(channel.id()).isPresent()) {
-                throw new AlreadyExistingRecordException("Channel", "ID", channel.id());
-            }
-
-            entityManager.persist(channel);
-            return channel;
-        } catch (AlreadyExistingRecordException e) {
-            throw e;
+            transaction.begin();
+            em.merge(channel);
+            transaction.commit();
         } catch (Exception e) {
+            transaction.rollback();
             throw new DatabaseException(e);
         }
     }
 
     public Optional<ChannelEntity> findById(UUID id) throws DatabaseException {
         try {
-            return Optional.ofNullable(entityManager.find(ChannelEntity.class, id));
+            return Optional.ofNullable(em.find(ChannelEntity.class, id));
         } catch (Exception e) {
             throw new DatabaseException(e);
         }
     }
 
     public void remove(ChannelEntity channel) throws DatabaseException {
+        EntityTransaction transaction = em.getTransaction();
         try {
-            entityManager.remove(channel);
+            transaction.begin();
+            em.remove(channel);
+            transaction.commit();
         } catch (Exception e) {
+            transaction.rollback();
             throw new DatabaseException(e);
         }
     }
 
-    public Collection<MemberEntity> findMembersByChannel(ChannelEntity channel) throws DatabaseException {
-
+    public boolean addMemberToChannel(ChannelEntity channel, MemberEntity member) throws DatabaseException {
+        EntityTransaction transaction = em.getTransaction();
+        try {
+            Collection<MemberEntity> members = channel.members();
+            if (members == null) {
+                channel.setMembers(List.of(member));
+            } else if (members.contains(member)) {
+                return false;
+            } else {
+                members.add(member);
+                channel.setMembers(members);
+            }
+            transaction.begin();
+            em.merge(channel);
+            transaction.commit();
+        } catch (Exception e) {
+            transaction.rollback();
+            throw new DatabaseException(e);
+        }
+        return true;
     }
 
-    public void addMemberToChannel(ChannelEntity chat, MemberEntity member) throws DatabaseException {
+    public boolean removeMemberFromChannel(ChannelEntity channel, MemberEntity member) throws DatabaseException {
+        EntityTransaction transaction = em.getTransaction();
+        try {
+            Collection<MemberEntity> members = channel.members();
 
+            if (members == null) {
+                channel.setMembers(List.of(member));
+            } else if (!members.contains(member)) {
+                return false;
+            } else {
+                members.remove(member);
+                channel.setMembers(members);
+            }
+
+            transaction.begin();
+            em.merge(channel);
+            transaction.commit();
+        } catch (Exception e) {
+            transaction.rollback();
+            throw new DatabaseException(e);
+        }
+        return true;
     }
 
-    public void removeMemberFromChannel(ChannelEntity channel, MemberEntity member) throws DatabaseException {
-
-    }
 }

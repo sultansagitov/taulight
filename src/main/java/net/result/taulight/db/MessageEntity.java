@@ -4,73 +4,84 @@ import net.result.sandnode.db.MemberEntity;
 import net.result.sandnode.db.SandnodeEntity;
 import net.result.sandnode.db.ZonedDateTimeConverter;
 
-import javax.persistence.Convert;
-import javax.persistence.Entity;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
+import javax.persistence.*;
 import java.time.ZonedDateTime;
-import java.util.List;
+import java.util.Collection;
+import java.util.HashSet;
 
 @Entity
 public class MessageEntity extends SandnodeEntity {
     private String content;
-    private MemberEntity member;
     private boolean sys;
 
     @Convert(converter = ZonedDateTimeConverter.class)
-    private ZonedDateTime sentMessage;
+    private ZonedDateTime sentDatetime;
 
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.ALL)
     private ChatEntity chat;
 
-    @OneToMany
-    private List<ReactionEntry> reactionEntries;
+    @ManyToOne(cascade = CascadeType.ALL)
+    private MemberEntity member;
+
+    @OneToMany(cascade = CascadeType.ALL)
+    private Collection<ReactionEntryEntity> reactionEntries = new HashSet<>();
+
+    @OneToMany(cascade = CascadeType.ALL)
+    private Collection<MessageEntity> replies = new HashSet<>();
 
     public ChatEntity chat() {
         return chat;
-    }
-
-    public String content() {
-        return content;
-    }
-
-    public ZonedDateTime sentMessage() {
-        return sentMessage;
-    }
-
-    public MemberEntity member() {
-        return member;
-    }
-
-    public boolean sys() {
-        return sys;
-    }
-
-    public List<ReactionEntry> reactionEntries() {
-        return reactionEntries;
     }
 
     public void setChat(ChatEntity chat) {
         this.chat = chat;
     }
 
+    public String content() {
+        return content;
+    }
+
     public void setContent(String content) {
         this.content = content;
     }
 
-    public void setSentMessage(ZonedDateTime sentMessage) {
-        this.sentMessage = sentMessage;
+    public ZonedDateTime sentDatetime() {
+        return sentDatetime;
+    }
+
+    public void setSentDatetime(ZonedDateTime sentDatetime) {
+        this.sentDatetime = sentDatetime;
+    }
+
+    public MemberEntity member() {
+        return member;
     }
 
     public void setMember(MemberEntity member) {
         this.member = member;
     }
 
+    public boolean sys() {
+        return sys;
+    }
+
     public void setSys(boolean sys) {
         this.sys = sys;
     }
 
-    public void setReactionEntries(List<ReactionEntry> reactionEntries) {
+    public Collection<ReactionEntryEntity> reactionEntries() {
+        return reactionEntries;
+    }
+
+    public void setReactionEntries(Collection<ReactionEntryEntity> reactionEntries) {
         this.reactionEntries = reactionEntries;
+    }
+
+    public Collection<MessageEntity> replies() {
+        return replies;
+    }
+
+    public void setReplies(Collection<MessageEntity> replies) {
+        this.replies = replies;
     }
 }

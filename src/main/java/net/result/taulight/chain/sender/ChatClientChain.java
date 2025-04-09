@@ -6,8 +6,8 @@ import net.result.sandnode.exception.*;
 import net.result.sandnode.exception.error.SandnodeErrorException;
 import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.util.IOController;
-import net.result.taulight.dto.ChatInfo;
-import net.result.taulight.dto.ChatInfoProp;
+import net.result.taulight.dto.ChatInfoDTO;
+import net.result.taulight.dto.ChatInfoPropDTO;
 import net.result.taulight.message.types.ChatRequest;
 import net.result.taulight.message.types.ChatResponse;
 
@@ -24,7 +24,7 @@ public class ChatClientChain extends ClientChain {
         super(io);
     }
 
-    public synchronized Optional<Collection<ChatInfo>> getByMember(Collection<ChatInfoProp> infoProps)
+    public synchronized Optional<Collection<ChatInfoDTO>> getByMember(Collection<ChatInfoPropDTO> infoProps)
             throws InterruptedException, DeserializationException, ExpectedMessageException, SandnodeErrorException,
             UnknownSandnodeErrorException, UnprocessedMessagesException {
         lock.lock();
@@ -40,7 +40,7 @@ public class ChatClientChain extends ClientChain {
         }
     }
 
-    public synchronized Collection<ChatInfo> getByID(Collection<UUID> chatID, Collection<ChatInfoProp> infoProps)
+    public synchronized Collection<ChatInfoDTO> getByID(Collection<UUID> chatID, Collection<ChatInfoPropDTO> infoProps)
             throws InterruptedException, ExpectedMessageException, UnknownSandnodeErrorException,
             SandnodeErrorException, DeserializationException, UnprocessedMessagesException {
         lock.lock();

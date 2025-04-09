@@ -1,8 +1,8 @@
 package net.result.taulight;
 
-import net.result.sandnode.db.Member;
+import net.result.sandnode.db.MemberEntity;
 import net.result.taulight.dto.ChatMessageInputDTO;
-import net.result.taulight.db.TauChat;
+import net.result.taulight.db.ChatEntity;
 
 public enum SysMessages {
     dialogNew("dialog.new"),
@@ -21,12 +21,12 @@ public enum SysMessages {
         return message;
     }
 
-    public ChatMessageInputDTO chatMessageInputDTO(TauChat chat, Member member) {
+    public ChatMessageInputDTO chatMessageInputDTO(ChatEntity chat, MemberEntity member) {
         return new ChatMessageInputDTO()
                 .setSys(true)
                 .setChat(chat)
                 .setMember(member)
                 .setContent(toString())
-                .setZtdNow();
+                .setSentDatetimeNow();
     }
 }

@@ -3,7 +3,7 @@ package net.result.sandnode.serverclient;
 import net.result.sandnode.exception.*;
 import net.result.sandnode.util.IOController;
 import net.result.sandnode.chain.receiver.ServerChainManager;
-import net.result.sandnode.db.Member;
+import net.result.sandnode.db.MemberEntity;
 import net.result.sandnode.group.Group;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -18,7 +18,7 @@ public class Session {
     private final Collection<Group> groups = new HashSet<>();
     public final SandnodeServer server;
     public final IOController io;
-    public @Nullable Member member;
+    public @Nullable MemberEntity member;
 
     public Session(@NotNull SandnodeServer server, @NotNull IOController io) {
         this.server = server;

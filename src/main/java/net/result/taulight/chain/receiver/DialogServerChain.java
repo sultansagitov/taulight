@@ -2,7 +2,7 @@ package net.result.taulight.chain.receiver;
 
 import net.result.sandnode.chain.ReceiverChain;
 import net.result.sandnode.chain.receiver.ServerChain;
-import net.result.sandnode.db.Member;
+import net.result.sandnode.db.MemberEntity;
 import net.result.sandnode.exception.DatabaseException;
 import net.result.sandnode.exception.ImpossibleRuntimeException;
 import net.result.sandnode.exception.error.AddressedMemberNotFoundException;
@@ -16,7 +16,7 @@ import net.result.taulight.TauHubProtocol;
 import net.result.taulight.chain.sender.DialogRequest;
 import net.result.taulight.dto.ChatMessageInputDTO;
 import net.result.taulight.db.TauDatabase;
-import net.result.taulight.db.TauDialog;
+import net.result.taulight.db.DialogEntity;
 import net.result.sandnode.exception.error.NoEffectException;
 import net.result.taulight.group.TauGroupManager;
 import net.result.sandnode.message.UUIDMessage;
@@ -45,12 +45,12 @@ public class DialogServerChain extends ServerChain implements ReceiverChain {
             throw new UnauthorizedException();
         }
 
-        TauDialog dialog;
-        Member anotherMember = database
+        DialogEntity dialog;
+        MemberEntity anotherMember = database
                 .findMemberByNickname(request.nickname())
                 .orElseThrow(AddressedMemberNotFoundException::new);
 
-        Optional<TauDialog> dialogOpt = database.findDialog(session.member, anotherMember);
+        Optional<DialogEntity> dialogOpt = database.findDialog(session.member, anotherMember);
         if (dialogOpt.isPresent()) {
             dialog = dialogOpt.get();
         } else {
@@ -67,7 +67,7 @@ public class DialogServerChain extends ServerChain implements ReceiverChain {
             }
         }
 
-        Collection<Member> members = List.of(session.member, anotherMember);
+        Collection<MemberEntity> members = List.of(session.member, anotherMember);
         TauAgentProtocol.addMembersToGroup(session, members, manager.getGroup(dialog));
 
         sendFin(new UUIDMessage(new Headers().setType(MessageTypes.HAPPY), dialog));
