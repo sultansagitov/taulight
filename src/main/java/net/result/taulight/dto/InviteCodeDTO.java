@@ -1,7 +1,7 @@
 package net.result.taulight.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import net.result.taulight.db.InviteCodeObject;
+import net.result.taulight.db.InviteCodeEntity;
 import org.jetbrains.annotations.Nullable;
 
 import java.time.ZonedDateTime;
@@ -25,7 +25,7 @@ public class InviteTauCode extends TauCode {
         super();
     }
 
-    public InviteTauCode(InviteCodeObject inviteCode, String title, String nickname, String senderNickname) {
+    public InviteTauCode(InviteCodeEntity inviteCode, String title, String nickname, String senderNickname) {
         super(inviteCode.getCode());
         this.title = title;
         this.nickname = nickname;

@@ -1,41 +1,33 @@
 package net.result.taulight.db;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+import net.result.sandnode.db.MemberEntity;
+import net.result.sandnode.db.SandnodeEntity;
 
-import java.time.ZonedDateTime;
-import java.util.UUID;
+import javax.persistence.ManyToOne;
 
-public class ReactionEntry extends TaulightObject {
-    @JsonProperty("message_id")
-    private UUID messageId;
-    @JsonProperty("reaction_type_id")
-    private UUID reactionTypeId;
-    @JsonProperty
-    private String nickname;
+public class ReactionEntry extends SandnodeEntity {
+    @ManyToOne
+    private MemberEntity member;
+    @ManyToOne
+    private MessageEntity message;
+    @ManyToOne
+    private ReactionTypeEntity reactionType;
 
     @SuppressWarnings("unused")
     public ReactionEntry() {
         super();
     }
 
-    public ReactionEntry(TauDatabase database, UUID id, ZonedDateTime createdAt,
-                         UUID messageId, UUID reactionTypeId, String nickname) {
-        super(database, id, createdAt);
-        this.messageId = messageId;
-        this.reactionTypeId = reactionTypeId;
-        this.nickname = nickname;
+    public ReactionEntry(MemberEntity member, MessageEntity message, ReactionTypeEntity reactionType) {
+        super();
+        this.message = message;
+        this.reactionType = reactionType;
+        this.member = member;
     }
 
-    public ReactionEntry(TauDatabase database, UUID messageId, UUID reactionTypeId, String nickname) {
-        super(database);
-        this.messageId = messageId;
-        this.reactionTypeId = reactionTypeId;
-        this.nickname = nickname;
-    }
+    public MemberEntity member() { return member; }
 
-    public UUID messageId() { return messageId; }
+    public MessageEntity message() { return message; }
 
-    public UUID reactionTypeId() { return reactionTypeId; }
-
-    public String nickname() { return nickname; }
+    public ReactionTypeEntity reactionType() { return reactionType; }
 }
