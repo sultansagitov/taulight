@@ -73,7 +73,10 @@ public class ChannelServerChain extends ServerChain implements ReceiverChain {
         var channel = new ChannelEntity(request.title, session.member);
         database.saveChat(channel);
 
-        database.addMemberToChannel(channel, session.member);
+        if (!database.addMemberToChannel(channel, session.member)) {
+            throw new NoEffectException();
+        }
+
         TauAgentProtocol.addMemberToGroup(session, manager.getGroup(channel));
         ChatMessageInputDTO input = SysMessages.channelNew.chatMessageInputDTO(channel, session.member);
         try {
@@ -87,6 +90,7 @@ public class ChannelServerChain extends ServerChain implements ReceiverChain {
         send(new UUIDMessage(new Headers().setType(MessageTypes.HAPPY), channel));
     }
 
+    @SuppressWarnings("DataFlowIssue")
     private void invite(@NotNull ChannelRequest request) throws Exception {
         TauDatabase database = (TauDatabase) session.server.serverConfig.database();
 
@@ -94,7 +98,7 @@ public class ChannelServerChain extends ServerChain implements ReceiverChain {
 
         Collection<MemberEntity> members = database.getMembers(chat);
 
-        if (!members.contains(session.member)) {
+        if (members.stream().noneMatch(m -> m.id().equals(session.member.id()))) {
             throw new NotFoundException();
         }
 
@@ -107,16 +111,16 @@ public class ChannelServerChain extends ServerChain implements ReceiverChain {
                 .orElseThrow(AddressedMemberNotFoundException::new);
 
         //TODO add settings for inviting by another members
-        if (!channel.owner().equals(session.member)) {
+        if (!channel.owner().id().equals(session.member.id())) {
             throw new UnauthorizedException();
         }
 
-        if (members.contains(member)) {
+        if (members.stream().anyMatch(m -> m.id().equals(member.id()))) {
             throw new NoEffectException();
         }
 
         for (var code : channel.inviteCodes()) {
-            if (code.receiver().equals(member) && code.activationDate() == null) {
+            if (code.receiver().id().equals(member.id()) && code.activationDate() == null) {
                 throw new NoEffectException();
             }
         }
@@ -128,6 +132,7 @@ public class ChannelServerChain extends ServerChain implements ReceiverChain {
         sendFin(new TextMessage(new Headers().setType(TauMessageTypes.CHANNEL), code.code()));
     }
 
+    @SuppressWarnings("DataFlowIssue")
     private void leave(@NotNull ChannelRequest request) throws Exception {
         TauDatabase database = (TauDatabase) session.server.serverConfig.database();
         TauGroupManager manager = (TauGroupManager) session.server.serverConfig.groupManager();
@@ -138,7 +143,7 @@ public class ChannelServerChain extends ServerChain implements ReceiverChain {
             throw new WrongAddressException();
         }
 
-        if (channel.owner().equals(session.member)) {
+        if (channel.owner().id().equals(session.member.id())) {
             throw new UnauthorizedException();
         }
 

@@ -3,12 +3,13 @@ package net.result.taulight.db;
 import net.result.sandnode.db.MemberEntity;
 import net.result.sandnode.db.SandnodeEntity;
 import net.result.sandnode.db.ZonedDateTimeConverter;
+import net.result.taulight.dto.ChatMessageInputDTO;
 
 import javax.persistence.*;
 import java.time.ZonedDateTime;
-import java.util.Collection;
-import java.util.HashSet;
+import java.util.*;
 
+@SuppressWarnings("unused")
 @Entity
 public class MessageEntity extends SandnodeEntity {
     private String content;
@@ -17,17 +18,30 @@ public class MessageEntity extends SandnodeEntity {
     @Convert(converter = ZonedDateTimeConverter.class)
     private ZonedDateTime sentDatetime;
 
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne(cascade = CascadeType.MERGE)
     private ChatEntity chat;
 
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne(cascade = CascadeType.MERGE)
     private MemberEntity member;
 
-    @OneToMany(cascade = CascadeType.ALL)
-    private Collection<ReactionEntryEntity> reactionEntries = new HashSet<>();
+    @OneToMany(cascade = CascadeType.MERGE)
+    private Set<ReactionEntryEntity> reactionEntries = new HashSet<>();
 
-    @OneToMany(cascade = CascadeType.ALL)
-    private Collection<MessageEntity> replies = new HashSet<>();
+    @OneToMany(cascade = CascadeType.MERGE)
+    private Set<MessageEntity> replies = new HashSet<>();
+
+    public MessageEntity() {
+        super();
+    }
+
+    public MessageEntity(ChatEntity chat, ChatMessageInputDTO input, MemberEntity member) {
+        super();
+        setChat(chat);
+        setSentDatetime(input.sentDatetime());
+        setContent(input.content());
+        setMember(member);
+        setSys(input.sys());
+    }
 
     public ChatEntity chat() {
         return chat;
@@ -69,19 +83,19 @@ public class MessageEntity extends SandnodeEntity {
         this.sys = sys;
     }
 
-    public Collection<ReactionEntryEntity> reactionEntries() {
+    public Set<ReactionEntryEntity> reactionEntries() {
         return reactionEntries;
     }
 
-    public void setReactionEntries(Collection<ReactionEntryEntity> reactionEntries) {
+    public void setReactionEntries(Set<ReactionEntryEntity> reactionEntries) {
         this.reactionEntries = reactionEntries;
     }
 
-    public Collection<MessageEntity> replies() {
+    public Set<MessageEntity> replies() {
         return replies;
     }
 
-    public void setReplies(Collection<MessageEntity> replies) {
+    public void setReplies(Set<MessageEntity> replies) {
         this.replies = replies;
     }
 }

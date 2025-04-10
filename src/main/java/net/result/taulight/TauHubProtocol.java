@@ -2,6 +2,7 @@ package net.result.taulight;
 
 import net.result.sandnode.chain.ChainManager;
 import net.result.sandnode.chain.IChain;
+import net.result.sandnode.db.JPAUtil;
 import net.result.sandnode.exception.DatabaseException;
 import net.result.sandnode.exception.UnprocessedMessagesException;
 import net.result.sandnode.exception.error.NotFoundException;
@@ -34,31 +35,9 @@ public class TauHubProtocol {
         TauGroupManager manager = (TauGroupManager) session.server.serverConfig.groupManager();
         TauDatabase database = (TauDatabase) session.server.serverConfig.database();
 
-        MessageEntity message = new MessageEntity();
-        message.setChat(chat);
-        message.setSentDatetime(input.sentDatetime());
-        message.setContent(input.content());
-        message.setMember(session.member);
-        message.setSys(input.sys());
-        Collection<MessageEntity> messageEntities = new ArrayList<>();
-        List<UUID> replies = input.replies();
-        if (replies != null) {
-            for (UUID r : replies) {
-                MessageEntity reply = database
-                        .findMessage(r)
-                        .orElseThrow(NotFoundException::new);
-                messageEntities.add(reply);
-            }
-        }
-        message.setReplies(messageEntities);
-        database.saveMessage(message);
-
         ChatMessageViewDTO serverMessage = new ChatMessageViewDTO();
         serverMessage.setCreationDateNow();
-        serverMessage.setMessages(input);
-
-        LOGGER.info("Saving message with id {} content: {}", serverMessage.id(), input.content());
-
+        serverMessage.setMessage(input);
 
         Collection<Session> sessions = manager.getGroup(chat).getSessions();
         if (sessions.isEmpty()) throw new NoEffectException();
@@ -78,6 +57,19 @@ public class TauHubProtocol {
                 chain.chainName("fwd");
             }
         }
+
+        session.member = JPAUtil.getEntityManager().merge(session.member);
+        MessageEntity message = new MessageEntity(chat, input, session.member);
+        Set<MessageEntity> messageEntities = new HashSet<>();
+        Set<UUID> replies = input.replies();
+        if (replies != null) {
+            for (UUID r : replies) {
+                messageEntities.add(database.findMessage(r).orElseThrow(NotFoundException::new));
+            }
+        }
+        message.setReplies(messageEntities);
+        database.saveMessage(message);
+        LOGGER.info("Saved message with id {} content: {}", serverMessage.id(), input.content());
 
         return serverMessage;
     }

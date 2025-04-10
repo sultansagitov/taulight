@@ -28,7 +28,7 @@ public class MemberRepository {
     public Optional<MemberEntity> findByNickname(String nickname) throws DatabaseException {
         try {
             return em
-                    .createQuery("FROM MemberEntity WHERE %s = :%s".formatted("nickname", "nickname"), MemberEntity.class)
+                    .createQuery("FROM MemberEntity WHERE nickname = :nickname", MemberEntity.class)
                     .setParameter("nickname", nickname)
                     .setMaxResults(1)
                     .getResultList()

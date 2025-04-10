@@ -9,8 +9,10 @@ import net.result.sandnode.message.types.HappyMessage;
 import net.result.sandnode.serverclient.Session;
 import net.result.taulight.SysMessages;
 import net.result.taulight.TauHubProtocol;
+import net.result.taulight.db.ChannelEntity;
+import net.result.taulight.db.InviteCodeEntity;
+import net.result.taulight.db.TauDatabase;
 import net.result.taulight.dto.ChatMessageInputDTO;
-import net.result.taulight.db.*;
 import net.result.sandnode.exception.error.NoEffectException;
 import net.result.taulight.message.types.UseCodeRequest;
 import org.apache.logging.log4j.LogManager;
@@ -39,9 +41,9 @@ public class UseCodeServerChain extends ServerChain  implements ReceiverChain {
         MemberEntity member = invite.receiver();
         ChannelEntity channel = invite.channel();
 
-        if (!invite.receiver().equals(session.member)) {
+        if (!invite.receiver().id().equals(session.member.id())) {
             //TODO add channel roles and use it
-            if (invite.sender().equals(session.member)) {
+            if (invite.sender().id().equals(session.member.id())) {
                 throw new UnauthorizedException();
             } else {
                 throw new NotFoundException();
@@ -52,7 +54,9 @@ public class UseCodeServerChain extends ServerChain  implements ReceiverChain {
             throw new NoEffectException("Invite already activated");
         }
 
-        database.addMemberToChannel(channel, member);
+        if (database.addMemberToChannel(channel, member)) {
+            throw new NoEffectException();
+        }
 
         ChatMessageInputDTO input = SysMessages.channelAdd.chatMessageInputDTO(channel, member);
 

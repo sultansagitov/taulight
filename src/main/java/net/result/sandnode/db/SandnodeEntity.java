@@ -53,9 +53,4 @@ public abstract class SandnodeEntity {
         setCreationDate(ZonedDateTime.now());
     }
 
-    @Override
-    public boolean equals(Object obj) {
-        return this == obj || obj instanceof SandnodeEntity sn && id().equals(sn.id());
-    }
-
 }

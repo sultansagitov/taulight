@@ -21,6 +21,6 @@ public class MemberDTO {
 
     @Override
     public String toString() {
-        return "<MemberRecord %s %s>".formatted(nickname, status.name());
+        return "<MemberDTO %s %s>".formatted(nickname, status.name());
     }
 }

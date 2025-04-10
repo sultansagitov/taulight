@@ -13,6 +13,7 @@ import java.time.ZonedDateTime;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+@SuppressWarnings("unused")
 @Entity
 public class InviteCodeEntity extends SandnodeEntity {
     private String code;
@@ -21,13 +22,13 @@ public class InviteCodeEntity extends SandnodeEntity {
     @Convert(converter = ZonedDateTimeConverter.class)
     private ZonedDateTime expiresDate;
 
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne(cascade = CascadeType.MERGE)
     private ChannelEntity channel;
 
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne(cascade = CascadeType.MERGE)
     private MemberEntity receiver;
 
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne(cascade = CascadeType.MERGE)
     private MemberEntity sender;
 
     @SuppressWarnings("unused")
@@ -35,7 +36,12 @@ public class InviteCodeEntity extends SandnodeEntity {
         super();
     }
 
-    public InviteCodeEntity(ChannelEntity channel, MemberEntity receiver, MemberEntity sender, ZonedDateTime expiresDate) {
+    public InviteCodeEntity(
+            ChannelEntity channel,
+            MemberEntity receiver,
+            MemberEntity sender,
+            ZonedDateTime expiresDate
+    ) {
         super();
         setRandomCode();
         this.channel = channel;

@@ -6,12 +6,6 @@ public class DatabaseException extends SandnodeException {
     }
 
     // TODO remove this
-    public DatabaseException(String message) {
-        super(message);
-    }
-
-
-    // TODO remove this
     public DatabaseException(Exception e) {
         super(e);
     }

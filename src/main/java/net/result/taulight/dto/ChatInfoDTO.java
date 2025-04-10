@@ -34,14 +34,19 @@ public class ChatInfoDTO {
     private ChatInfoDTO() {
     }
 
-    public static ChatInfoDTO channel(ChannelEntity channel, MemberEntity member, Collection<ChatInfoPropDTO> infoProps) {
+    public static ChatInfoDTO channel(
+            ChannelEntity channel,
+            MemberEntity member,
+            Collection<ChatInfoPropDTO> infoProps
+    ) {
         ChatInfoDTO info = new ChatInfoDTO();
         info.chatType = ChatType.CHANNEL;
         if (infoProps.contains(ChatInfoPropDTO.channelID)) info.id = channel.id();
         if (infoProps.contains(ChatInfoPropDTO.channelCreatedAt)) info.creationDate = channel.creationDate();
         if (infoProps.contains(ChatInfoPropDTO.channelTitle)) info.title = channel.title();
         if (infoProps.contains(ChatInfoPropDTO.channelOwner)) info.ownerID = channel.owner().nickname();
-        if (infoProps.contains(ChatInfoPropDTO.channelIsMy)) info.channelIsMy = channel.owner().equals(member);
+        if (infoProps.contains(ChatInfoPropDTO.channelIsMy))
+            info.channelIsMy = channel.owner().id().equals(member.id());
         return info;
     }
 
@@ -50,7 +55,8 @@ public class ChatInfoDTO {
         info.chatType = ChatType.DIALOG;
         if (infoProps.contains(ChatInfoPropDTO.dialogID)) info.id = dialog.id();
         if (infoProps.contains(ChatInfoPropDTO.dialogCreatedAt)) info.creationDate = dialog.creationDate();
-        if (infoProps.contains(ChatInfoPropDTO.dialogOther)) info.otherNickname = dialog.otherMember(member).nickname();
+        if (infoProps.contains(ChatInfoPropDTO.dialogOther))
+            info.otherNickname = dialog.otherMember(member).nickname();
         return info;
     }
 

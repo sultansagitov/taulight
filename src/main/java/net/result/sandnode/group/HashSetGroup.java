@@ -14,7 +14,6 @@ public class HashSetGroup implements Group {
         this.id = id;
     }
 
-    @Override
     public Collection<Session> getSessions() {
         return sessions;
     }

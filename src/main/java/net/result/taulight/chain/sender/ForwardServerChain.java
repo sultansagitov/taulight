@@ -10,8 +10,7 @@ public class ForwardServerChain extends ServerChain {
         super(session);
     }
 
-    public synchronized void response(ForwardResponse res)
-            throws UnprocessedMessagesException, InterruptedException {
+    public synchronized void response(ForwardResponse res) throws UnprocessedMessagesException, InterruptedException {
         send(res);
     }
 }

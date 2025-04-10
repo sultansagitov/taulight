@@ -16,7 +16,4 @@ public class AlreadyExistingRecordException extends SandnodeException {
         super("%s with %s %s already exists.".formatted(type, field, value));
     }
 
-    public AlreadyExistingRecordException(String type) {
-        super("%s already exists.".formatted(type));
-    }
 }

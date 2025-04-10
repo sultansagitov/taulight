@@ -2,17 +2,15 @@ package net.result.taulight.chain.receiver;
 
 import net.result.sandnode.chain.ReceiverChain;
 import net.result.sandnode.chain.receiver.ServerChain;
+import net.result.sandnode.exception.error.NoEffectException;
 import net.result.sandnode.exception.error.UnauthorizedException;
 import net.result.sandnode.serverclient.Session;
 import net.result.taulight.db.*;
 import net.result.sandnode.exception.error.NotFoundException;
-import net.result.sandnode.exception.error.NoEffectException;
 import net.result.taulight.message.types.ReactionRequest;
 import net.result.sandnode.message.types.HappyMessage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
-import java.util.Collection;
 
 public class ReactionServerChain extends ServerChain implements ReceiverChain {
     private static final Logger LOGGER = LogManager.getLogger(ReactionServerChain.class);
@@ -42,27 +40,23 @@ public class ReactionServerChain extends ServerChain implements ReceiverChain {
         String packageName = packageParts[0];
         String reactionTypeName = packageParts[1];
 
-        ReactionTypeEntity reactionType = database.getReactionTypesByPackage(packageName)
-                .stream()
+        ReactionTypeEntity reactionType = database
+                .getReactionTypesByPackage(packageName).stream()
                 .filter(type -> type.name().equals(reactionTypeName))
                 .findFirst()
                 .orElseThrow(NotFoundException::new);
-
-        Collection<ReactionEntryEntity> currentReactions = message.reactionEntries();
 
         if (request.isReact()) {
             var newReaction = new ReactionEntryEntity(session.member, message, reactionType);
             database.saveReactionEntry(newReaction);
             LOGGER.info("Reaction added: {} to message {}", reactionType.name(), request.getMessageID());
         } else {
-            ReactionEntryEntity reactionToRemove = currentReactions.stream()
-                    .filter(entry -> entry.member().equals(session.member))
-                    .filter(entry -> entry.reactionType().equals(reactionType))
-                    .findFirst()
-                    .orElseThrow(NoEffectException::new);
+            if (database.removeReactionEntry(message, session.member, reactionType)) {
+                LOGGER.info("Reaction removed: {} from message {}", reactionType.name(), request.getMessageID());
+            } else {
+                throw new NoEffectException();
+            }
 
-            database.removeReactionEntry(reactionToRemove);
-            LOGGER.info("Reaction removed: {} from message {}", reactionType.name(), request.getMessageID());
         }
         sendFin(new HappyMessage());
     }

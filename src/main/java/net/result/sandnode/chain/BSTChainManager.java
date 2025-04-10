@@ -27,13 +27,11 @@ public abstract class BSTChainManager implements ChainManager {
         this.chainMap = new HashMap<>();
     }
 
-    @Override
-    public Optional<IChain> getByID(short id) {
+    private Optional<IChain> getByID(short id) {
         return bst.find(id);
     }
 
-    @Override
-    public ReceiverChain createNew(RawMessage message) throws BusyChainID {
+    private ReceiverChain createNew(RawMessage message) throws BusyChainID {
         Headers headers = message.headers();
         MessageType type = headers.type();
         ReceiverChain chain = createChain(type);

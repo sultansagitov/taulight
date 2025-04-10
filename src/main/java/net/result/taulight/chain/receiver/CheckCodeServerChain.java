@@ -31,9 +31,9 @@ public class CheckCodeServerChain extends ServerChain implements ReceiverChain {
                 .getInviteCode(request.content())
                 .orElseThrow(NotFoundException::new);
 
-        if (!invite.receiver().equals(session.member)) {
+        if (!invite.receiver().id().equals(session.member.id())) {
             //TODO add channel roles and use it
-            if (!invite.sender().equals(session.member)) {
+            if (!invite.sender().id().equals(session.member.id())) {
                 throw new NotFoundException();
             }
         }

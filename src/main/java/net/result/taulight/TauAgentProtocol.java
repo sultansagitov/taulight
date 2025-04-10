@@ -14,14 +14,14 @@ public class TauAgentProtocol {
     public static void addMemberToGroup(Session session, MemberEntity member, TauChatGroup group) {
         session.server.node
                 .getAgents().stream()
-                .filter(s -> member.equals(s.member))
+                .filter(s -> s.member != null && member.id().equals(s.member.id()))
                 .forEach(s -> s.addToGroup(group));
     }
 
     public static void addMembersToGroup(Session session, Collection<MemberEntity> members, TauChatGroup group) {
         session.server.node
                 .getAgents().stream()
-                .filter(s -> members.stream().anyMatch(member -> member.equals(s.member)))
+                .filter(s -> s.member != null && members.stream().anyMatch(m -> m.id().equals(s.member.id())))
                 .forEach(s -> s.addToGroup(group));
     }
 
@@ -32,14 +32,14 @@ public class TauAgentProtocol {
     public static void removeMemberFromGroup(Session session, MemberEntity member, TauChatGroup group) {
         session.server.node
                 .getAgents().stream()
-                .filter(s -> member.equals(s.member))
+                .filter(s -> s.member != null && member.id().equals(s.member.id()))
                 .forEach(s -> s.removeFromGroup(group));
     }
 
     public static void removeMembersFromGroup(Session session, Collection<MemberEntity> members, TauChatGroup group) {
         session.server.node
                 .getAgents().stream()
-                .filter(s -> members.stream().anyMatch(member -> member.equals(s.member)))
+                .filter(s -> s.member != null && members.stream().anyMatch(m -> m.id().equals(s.member.id())))
                 .forEach(s -> s.removeFromGroup(group));
     }
 }

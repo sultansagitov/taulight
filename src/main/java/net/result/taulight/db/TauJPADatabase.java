@@ -4,7 +4,6 @@ import net.result.sandnode.db.JPADatabase;
 import net.result.sandnode.db.MemberEntity;
 import net.result.sandnode.exception.DatabaseException;
 import net.result.sandnode.security.PasswordHasher;
-import net.result.taulight.dto.ChatMessageViewDTO;
 import net.result.taulight.exception.AlreadyExistingRecordException;
 
 import java.util.*;
@@ -28,7 +27,8 @@ public class TauJPADatabase extends JPADatabase implements TauDatabase {
     }
 
     @Override
-    public DialogEntity createDialog(MemberEntity firstMember, MemberEntity secondMember) throws AlreadyExistingRecordException, DatabaseException {
+    public DialogEntity createDialog(MemberEntity firstMember, MemberEntity secondMember)
+            throws AlreadyExistingRecordException, DatabaseException {
         DialogEntity dialog = new DialogEntity(firstMember, secondMember);
         dialogRepository.save(dialog);
         return dialog;
@@ -41,15 +41,15 @@ public class TauJPADatabase extends JPADatabase implements TauDatabase {
     }
 
     @Override
-    public boolean saveChat(ChatEntity chat) throws DatabaseException, AlreadyExistingRecordException {
+    public void saveChat(ChatEntity chat) throws DatabaseException, AlreadyExistingRecordException {
         if (chat instanceof ChannelEntity) {
             channelRepository.save((ChannelEntity) chat);
-            return true;
+            return;
         }
 
         if (chat instanceof DialogEntity) {
             dialogRepository.save((DialogEntity) chat);
-            return true;
+            return;
         }
 
         throw new IllegalArgumentException("Unknown chat type");
@@ -63,13 +63,12 @@ public class TauJPADatabase extends JPADatabase implements TauDatabase {
     }
 
     @Override
-    public boolean saveMessage(MessageEntity msg) throws DatabaseException {
+    public void saveMessage(MessageEntity msg) throws DatabaseException {
         messageRepository.save(msg);
-        return true;
     }
 
     @Override
-    public List<ChatMessageViewDTO> loadMessages(ChatEntity chat, int index, int size) throws DatabaseException {
+    public List<MessageEntity> loadMessages(ChatEntity chat, int index, int size) throws DatabaseException {
         return messageRepository.findMessagesByChat(chat, index, size);
     }
 
@@ -105,26 +104,23 @@ public class TauJPADatabase extends JPADatabase implements TauDatabase {
 
     @Override
     public boolean activateInviteCode(InviteCodeEntity code) throws DatabaseException {
-        inviteCodeRepository.activate(code);
-        return true;
+        return inviteCodeRepository.activate(code);
     }
 
     @Override
-    public boolean saveReactionType(ReactionTypeEntity reactionType) throws DatabaseException {
+    public void saveReactionType(ReactionTypeEntity reactionType) throws DatabaseException {
         reactionTypeRepository.save(reactionType);
-        return true;
     }
 
     @Override
-    public boolean saveReactionEntry(ReactionEntryEntity reactionEntry) throws DatabaseException {
+    public void saveReactionEntry(ReactionEntryEntity reactionEntry) throws DatabaseException {
         reactionEntryRepository.save(reactionEntry);
-        return true;
     }
+
 
     @Override
     public boolean removeReactionEntry(ReactionEntryEntity reaction) throws DatabaseException {
-        reactionEntryRepository.delete(reaction);
-        return true;
+        return reactionEntryRepository.delete(reaction);
     }
 
     @Override
@@ -136,9 +132,18 @@ public class TauJPADatabase extends JPADatabase implements TauDatabase {
     public Collection<MemberEntity> getMembers(ChatEntity chat) {
         if (chat instanceof ChannelEntity channel) {
             return channel.members();
-        } else if (chat instanceof DialogEntity dialog) {
+        }
+
+        if (chat instanceof DialogEntity dialog) {
             return Set.of(dialog.firstMember(), dialog.secondMember());
         }
+
         return List.of();
+    }
+
+    @Override
+    public boolean removeReactionEntry(MessageEntity message, MemberEntity member, ReactionTypeEntity reactionType)
+            throws DatabaseException {
+        return reactionTypeRepository.removeReactionEntry(message, member, reactionType);
     }
 }

@@ -12,10 +12,6 @@ public class ServerSandnodeErrorException extends SandnodeErrorException {
         super(e);
     }
 
-    public ServerSandnodeErrorException(String message) {
-        super(message);
-    }
-
     @Override
     public SandnodeError getSandnodeError() {
         return Errors.SERVER_ERROR;

@@ -2,57 +2,43 @@ package net.result.taulight.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import net.result.sandnode.db.MemberEntity;
+import net.result.sandnode.db.SandnodeEntity;
 import net.result.taulight.db.ChatEntity;
+import net.result.taulight.db.MessageEntity;
 
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 public class ChatMessageInputDTO {
     @JsonProperty("chat-id")
     private UUID chatID = null;
     @JsonProperty
     private String content = null;
-    @JsonProperty
+    @JsonProperty("sent-datetime")
     private ZonedDateTime sentDatetime = null;
     @JsonProperty
     private String nickname = null;
     @JsonProperty
     private boolean sys = false;
     @JsonProperty
-    private List<UUID> replies = null;
+    private Set<UUID> replies = null;
 
     public ChatMessageInputDTO() {}
 
+    public ChatMessageInputDTO(MessageEntity message) {
+        setChat(message.chat());
+        setContent(message.content());
+        setSentDatetime(message.sentDatetime());
+        setMember(message.member());
+        setSys(message.sys());
+        setReplies(message.replies().stream().map(SandnodeEntity::id).collect(Collectors.toSet()));
+    }
+
     public UUID chatID() {
         return chatID;
-    }
-
-    public String content() {
-        return content;
-    }
-
-    public ZonedDateTime sentDatetime() {
-        return sentDatetime;
-    }
-
-    public String nickname() {
-        return nickname;
-    }
-
-    public boolean sys() {
-        return sys;
-    }
-
-    public List<UUID> replies() {
-        return replies;
-    }
-
-    public ChatMessageInputDTO setContent(String content) {
-        this.content = content;
-        return this;
     }
 
     public ChatMessageInputDTO setChatID(UUID chatID) {
@@ -64,6 +50,19 @@ public class ChatMessageInputDTO {
         return setChatID(chat.id());
     }
 
+    public String content() {
+        return content;
+    }
+
+    public ChatMessageInputDTO setContent(String content) {
+        this.content = content;
+        return this;
+    }
+
+    public ZonedDateTime sentDatetime() {
+        return sentDatetime;
+    }
+
     public ChatMessageInputDTO setSentDatetime(ZonedDateTime sentDatetime) {
         this.sentDatetime = sentDatetime;
         return this;
@@ -71,6 +70,10 @@ public class ChatMessageInputDTO {
 
     public ChatMessageInputDTO setSentDatetimeNow() {
         return setSentDatetime(ZonedDateTime.now(ZoneId.of("UTC")));
+    }
+
+    public String nickname() {
+        return nickname;
     }
 
     public ChatMessageInputDTO setNickname(String nickname) {
@@ -82,22 +85,22 @@ public class ChatMessageInputDTO {
         return setNickname(member.nickname());
     }
 
+    public boolean sys() {
+        return sys;
+    }
+
     public ChatMessageInputDTO setSys(boolean sys) {
         this.sys = sys;
         return this;
     }
 
-    public ChatMessageInputDTO setReplies(List<UUID> replies) {
-        this.replies = replies;
-        return this;
+    public Set<UUID> replies() {
+        return replies;
     }
 
-    public void addReply(UUID messageID) {
-        if (replies == null) {
-            replies = new ArrayList<>();
-        }
-
-        replies.add(messageID);
+    public ChatMessageInputDTO setReplies(Set<UUID> replies) {
+        this.replies = replies;
+        return this;
     }
 
     @Override

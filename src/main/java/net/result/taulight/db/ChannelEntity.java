@@ -3,21 +3,27 @@ package net.result.taulight.db;
 import net.result.sandnode.db.MemberEntity;
 
 import javax.persistence.*;
-import java.util.Collection;
+import java.util.Set;
 import java.util.HashSet;
 
+@SuppressWarnings("unused")
 @Entity
 public class ChannelEntity extends ChatEntity {
     private String title;
 
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne(cascade = CascadeType.MERGE)
     private MemberEntity owner;
 
-    @ManyToMany(cascade = CascadeType.ALL)
-    private Collection<MemberEntity> members = new HashSet<>();
+    @ManyToMany(cascade = CascadeType.MERGE)
+    @JoinTable(
+            name = "channel_members",
+            joinColumns = @JoinColumn(name = "channel_id"),
+            inverseJoinColumns = @JoinColumn(name = "member_id")
+    )
+    private Set<MemberEntity> members = new HashSet<>();
 
-    @OneToMany(cascade = CascadeType.ALL)
-    private Collection<InviteCodeEntity> inviteCodes = new HashSet<>();
+    @OneToMany(cascade = CascadeType.MERGE)
+    private Set<InviteCodeEntity> inviteCodes = new HashSet<>();
 
     public ChannelEntity() {
         super();
@@ -45,19 +51,19 @@ public class ChannelEntity extends ChatEntity {
         this.owner = owner;
     }
 
-    public Collection<MemberEntity> members() {
+    public Set<MemberEntity> members() {
         return members;
     }
 
-    public void setMembers(Collection<MemberEntity> members) {
+    public void setMembers(Set<MemberEntity> members) {
         this.members = members;
     }
 
-    public Collection<InviteCodeEntity> inviteCodes() {
+    public Set<InviteCodeEntity> inviteCodes() {
         return inviteCodes;
     }
 
-    public void setInviteCodes(Collection<InviteCodeEntity> inviteCodes) {
+    public void setInviteCodes(Set<InviteCodeEntity> inviteCodes) {
         this.inviteCodes = inviteCodes;
     }
 

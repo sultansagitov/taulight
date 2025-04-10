@@ -55,7 +55,7 @@ public class MembersServerChain extends ServerChain implements ReceiverChain {
                 TauChatGroup group = groupManager.getGroup(chat);
                 Collection<MemberEntity> members = database.getMembers(chat);
 
-                if (!members.contains(session.member)) {
+                if (members.stream().noneMatch(m -> m.id().equals(session.member.id()))) {
                     send(Errors.NOT_FOUND.createMessage());
                     continue;
                 }

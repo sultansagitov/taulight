@@ -50,10 +50,10 @@ public class ChannelRepository {
     public boolean addMemberToChannel(ChannelEntity channel, MemberEntity member) throws DatabaseException {
         EntityTransaction transaction = em.getTransaction();
         try {
-            Collection<MemberEntity> members = channel.members();
+            Set<MemberEntity> members = channel.members();
             if (members == null) {
-                channel.setMembers(List.of(member));
-            } else if (members.contains(member)) {
+                channel.setMembers(Set.of(member));
+            } else if (members.stream().anyMatch(m -> m.id().equals(member.id()))) {
                 return false;
             } else {
                 members.add(member);
@@ -72,11 +72,11 @@ public class ChannelRepository {
     public boolean removeMemberFromChannel(ChannelEntity channel, MemberEntity member) throws DatabaseException {
         EntityTransaction transaction = em.getTransaction();
         try {
-            Collection<MemberEntity> members = channel.members();
+            Set<MemberEntity> members = channel.members();
 
             if (members == null) {
-                channel.setMembers(List.of(member));
-            } else if (!members.contains(member)) {
+                channel.setMembers(Set.of(member));
+            } else if (members.stream().noneMatch(m -> m.id().equals(member.id()))) {
                 return false;
             } else {
                 members.remove(member);

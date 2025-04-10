@@ -4,15 +4,16 @@ import net.result.sandnode.db.SandnodeEntity;
 
 import javax.persistence.*;
 import java.time.ZonedDateTime;
-import java.util.Collection;
 import java.util.HashSet;
+import java.util.Set;
 import java.util.UUID;
 
+@SuppressWarnings("unused")
 @Entity
 @Inheritance(strategy = InheritanceType.JOINED)
 public abstract class ChatEntity extends SandnodeEntity {
-    @OneToMany(cascade = CascadeType.ALL)
-    private Collection<MessageEntity> messages = new HashSet<>();
+    @OneToMany(cascade = CascadeType.MERGE)
+    private Set<MessageEntity> messages = new HashSet<>();
 
     public ChatEntity() {
         super();
@@ -22,11 +23,11 @@ public abstract class ChatEntity extends SandnodeEntity {
         super(id, creationDate);
     }
 
-    public Collection<MessageEntity> messages() {
+    public Set<MessageEntity> messages() {
         return messages;
     }
 
-    public void setMessages(Collection<MessageEntity> messages) {
+    public void setMessages(Set<MessageEntity> messages) {
         this.messages = messages;
     }
 

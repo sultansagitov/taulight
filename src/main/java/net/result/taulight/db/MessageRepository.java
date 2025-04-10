@@ -2,11 +2,9 @@ package net.result.taulight.db;
 
 import net.result.sandnode.db.JPAUtil;
 import net.result.sandnode.exception.DatabaseException;
-import net.result.taulight.dto.ChatMessageViewDTO;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
-import javax.persistence.TypedQuery;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -17,14 +15,6 @@ public class MessageRepository {
     public void save(MessageEntity message) throws DatabaseException {
         while (em.contains(message)) {
             message.setRandomID();
-        }
-
-        String q = "SELECT m FROM MessageEntity m WHERE m.id = :id";
-        while (true) {
-            TypedQuery<MessageEntity> query = em.createQuery(q, MessageEntity.class);
-            query.setParameter("id", message.id());
-            List<MessageEntity> resultList = query.getResultList();
-            if (resultList.isEmpty()) break;
         }
 
         EntityTransaction transaction = em.getTransaction();
@@ -46,14 +36,14 @@ public class MessageRepository {
         }
     }
 
-    public List<ChatMessageViewDTO> findMessagesByChat(ChatEntity chat, int index, int size) throws DatabaseException {
+    public List<MessageEntity> findMessagesByChat(ChatEntity chat, int index, int size) throws DatabaseException {
         try {
             String q = """
                 SELECT NEW net.result.taulight.dto.ChatMessageViewDTO(m)
                 FROM MessageEntity m
                 WHERE m.chat = :chat ORDER BY m.timestamp DESC
             """;
-            return em.createQuery(q, ChatMessageViewDTO.class)
+            return em.createQuery(q, MessageEntity.class)
                     .setParameter("chat", chat)
                     .setFirstResult(index)
                     .setMaxResults(size)

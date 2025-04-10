@@ -43,7 +43,7 @@ public abstract class Chain implements IChain {
         this.id = id;
     }
 
-    public void chainName(String chainName) throws InterruptedException, UnprocessedMessagesException {
+    public synchronized void chainName(String chainName) throws InterruptedException, UnprocessedMessagesException {
         send(new ChainNameRequest(chainName));
     }
 

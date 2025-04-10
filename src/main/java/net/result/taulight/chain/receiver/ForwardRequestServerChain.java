@@ -5,6 +5,7 @@ import net.result.sandnode.chain.receiver.ServerChain;
 import net.result.sandnode.db.MemberEntity;
 import net.result.sandnode.error.Errors;
 import net.result.sandnode.exception.*;
+import net.result.sandnode.exception.error.SandnodeErrorException;
 import net.result.sandnode.exception.error.UnauthorizedException;
 import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.message.types.ErrorMessage;
@@ -15,7 +16,6 @@ import net.result.taulight.TauHubProtocol;
 import net.result.taulight.dto.ChatMessageViewDTO;
 import net.result.taulight.db.TauDatabase;
 import net.result.taulight.dto.ChatMessageInputDTO;
-import net.result.sandnode.exception.error.NoEffectException;
 import net.result.taulight.message.types.ForwardRequest;
 import net.result.taulight.db.ChatEntity;
 import net.result.sandnode.message.UUIDMessage;
@@ -90,7 +90,7 @@ public class ForwardRequestServerChain extends ServerChain implements ReceiverCh
                 ChatEntity chat = chatOpt.get();
 
                 Collection<MemberEntity> members = database.getMembers(chat);
-                if (!members.contains(session.member)) {
+                if (members.stream().noneMatch(m -> m.id().equals(session.member.id()))) {
                     LOGGER.warn("Unauthorized access attempt by member: {}", session.member);
                     send(Errors.NOT_FOUND.createMessage());
                     continue;
@@ -105,9 +105,8 @@ public class ForwardRequestServerChain extends ServerChain implements ReceiverCh
                 LOGGER.error("Database error: {}", e.getMessage(), e);
                 send(Errors.SERVER_ERROR.createMessage());
                 continue;
-            } catch (NoEffectException e) {
-                LOGGER.error("Message forwarding failed for chat: {}", chatID, e);
-                send(Errors.NO_EFFECT.createMessage());
+            } catch (SandnodeErrorException e) {
+                send(e.getSandnodeError().createMessage());
                 continue;
             }
 

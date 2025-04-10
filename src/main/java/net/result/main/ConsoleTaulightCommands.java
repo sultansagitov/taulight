@@ -486,7 +486,7 @@ public class ConsoleTaulightCommands {
             return false;
         }
 
-        List<UUID> replies = new ArrayList<>();
+        Set<UUID> replies = new HashSet<>();
 
         for (int i = 1; i <= replyCount && i < args.size(); i++) {
             try {

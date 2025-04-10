@@ -45,12 +45,14 @@ public class ChatServerChain extends ServerChain implements ReceiverChain {
                 Collection<ChatInfoDTO> infos = new ArrayList<>();
 
                 if (allChatID == null || allChatID.isEmpty()) {
+                    LOGGER.debug("channels {}", session.member.channels());
                     for (var channel : session.member.channels()) {
                         if (!Collections.disjoint(chatInfoProps, ChatInfoPropDTO.channelAll())) {
                             infos.add(ChatInfoDTO.channel(channel, session.member, chatInfoProps));
                         }
                     }
 
+                    LOGGER.debug("dialogs {}", session.member.dialogs());
                     for (var dialog : session.member.dialogs()) {
                         if (!Collections.disjoint(chatInfoProps, ChatInfoPropDTO.dialogAll())) {
                             infos.add(ChatInfoDTO.dialog(dialog, session.member, chatInfoProps));
@@ -67,7 +69,7 @@ public class ChatServerChain extends ServerChain implements ReceiverChain {
                         ChatEntity chat = opt.get();
 
                         if (chat instanceof ChannelEntity channel) {
-                            if (!channel.members().contains(session.member)) {
+                            if (channel.members().stream().noneMatch(m -> m.id().equals(session.member.id()))) {
                                 infos.add(ChatInfoDTO.chatNotFound(chatID));
                                 continue;
                             }
@@ -78,8 +80,8 @@ public class ChatServerChain extends ServerChain implements ReceiverChain {
                         }
 
                         if (chat instanceof DialogEntity dialog) {
-                            if (!dialog.firstMember().equals(session.member)) {
-                                if (!dialog.secondMember().equals(session.member)) {
+                            if (!dialog.firstMember().id().equals(session.member.id())) {
+                                if (!dialog.secondMember().id().equals(session.member.id())) {
                                     infos.add(ChatInfoDTO.chatNotFound(chatID));
                                     continue;
                                 }
