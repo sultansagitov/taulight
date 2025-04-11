@@ -4,6 +4,7 @@ import net.result.sandnode.db.JPAUtil;
 import net.result.sandnode.db.MemberEntity;
 import net.result.sandnode.exception.DatabaseException;
 import net.result.taulight.exception.AlreadyExistingRecordException;
+import org.jetbrains.annotations.NotNull;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
@@ -14,8 +15,8 @@ import java.util.UUID;
 public class DialogRepository {
     private final EntityManager em = JPAUtil.getEntityManager();
 
-    public void save(DialogEntity dialog) throws AlreadyExistingRecordException, DatabaseException {
-        while (em.contains(dialog)) {
+    public void save(@NotNull DialogEntity dialog) throws AlreadyExistingRecordException, DatabaseException {
+        while (em.find(DialogEntity.class, dialog.id()) != null) {
             dialog.setRandomID();
         }
 
@@ -32,7 +33,7 @@ public class DialogRepository {
             em.merge(dialog);
             transaction.commit();
         } catch (Exception e) {
-            transaction.rollback();
+            if (transaction.isActive()) transaction.rollback();
             throw new DatabaseException(e);
         }
     }
@@ -52,7 +53,7 @@ public class DialogRepository {
             em.remove(dialog);
             transaction.commit();
         } catch (Exception e) {
-            transaction.rollback();
+            if (transaction.isActive()) transaction.rollback();
             throw new DatabaseException(e);
         }
     }

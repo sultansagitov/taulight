@@ -12,7 +12,7 @@ public class ChannelRepository {
     private final EntityManager em = JPAUtil.getEntityManager();
 
     public void save(ChannelEntity channel) throws DatabaseException {
-        while (em.contains(channel)) {
+        while (em.find(ChannelEntity.class, channel.id()) != null) {
             channel.setRandomID();
         }
 
@@ -22,7 +22,7 @@ public class ChannelRepository {
             em.merge(channel);
             transaction.commit();
         } catch (Exception e) {
-            transaction.rollback();
+            if (transaction.isActive()) transaction.rollback();
             throw new DatabaseException(e);
         }
     }
@@ -42,7 +42,7 @@ public class ChannelRepository {
             em.remove(channel);
             transaction.commit();
         } catch (Exception e) {
-            transaction.rollback();
+            if (transaction.isActive()) transaction.rollback();
             throw new DatabaseException(e);
         }
     }
@@ -63,7 +63,7 @@ public class ChannelRepository {
             em.merge(channel);
             transaction.commit();
         } catch (Exception e) {
-            transaction.rollback();
+            if (transaction.isActive()) transaction.rollback();
             throw new DatabaseException(e);
         }
         return true;
@@ -87,7 +87,7 @@ public class ChannelRepository {
             em.merge(channel);
             transaction.commit();
         } catch (Exception e) {
-            transaction.rollback();
+            if (transaction.isActive()) transaction.rollback();
             throw new DatabaseException(e);
         }
         return true;

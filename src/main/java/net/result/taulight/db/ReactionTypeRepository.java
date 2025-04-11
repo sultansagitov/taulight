@@ -13,7 +13,7 @@ public class ReactionTypeRepository {
     private final EntityManager em = JPAUtil.getEntityManager();
 
     public void save(ReactionTypeEntity reactionType) throws DatabaseException {
-        while (em.contains(reactionType)) {
+        while (em.find(ReactionTypeEntity.class, reactionType.id()) != null) {
             reactionType.setRandomID();
         }
 
@@ -24,7 +24,7 @@ public class ReactionTypeRepository {
             em.merge(reactionType);
             transaction.commit();
         } catch (Exception e) {
-            transaction.rollback();
+            if (transaction.isActive()) transaction.rollback();
             throw new DatabaseException("Failed to save reaction type", e);
         }
     }
@@ -66,12 +66,12 @@ public class ReactionTypeRepository {
                 transaction.commit();
                 return true;
             } else {
-                transaction.rollback();
+                if (transaction.isActive()) transaction.rollback();
                 return false;
             }
 
         } catch (Exception e) {
-            transaction.rollback();
+            if (transaction.isActive()) transaction.rollback();
             throw new DatabaseException("Failed to remove reaction entry", e);
         }
     }

@@ -12,7 +12,7 @@ public class InviteCodeRepository {
     private final EntityManager em = JPAUtil.getEntityManager();
 
     public void save(InviteCodeEntity code) throws DatabaseException {
-        while (em.contains(code)) {
+        while (em.find(InviteCodeEntity.class, code.id()) != null) {
             code.setRandomID();
         }
 
@@ -22,7 +22,7 @@ public class InviteCodeRepository {
             em.merge(code);
             transaction.commit();
         } catch (Exception e) {
-            transaction.rollback();
+            if (transaction.isActive()) transaction.rollback();
             throw new DatabaseException(e);
         }
     }
@@ -43,7 +43,7 @@ public class InviteCodeRepository {
     public boolean delete(@NotNull InviteCodeEntity inviteCodeEntity) throws DatabaseException {
         EntityTransaction transaction = em.getTransaction();
         try {
-            if (em.contains(inviteCodeEntity)) {
+            if (em.find(InviteCodeEntity.class, inviteCodeEntity.id()) != null) {
                 transaction.begin();
                 em.remove(inviteCodeEntity);
                 transaction.commit();
@@ -52,7 +52,7 @@ public class InviteCodeRepository {
 
             return false;
         } catch (Exception e) {
-            transaction.rollback();
+            if (transaction.isActive()) transaction.rollback();
             throw new DatabaseException("Failed to delete invite code", e);
         }
     }
@@ -69,7 +69,7 @@ public class InviteCodeRepository {
             transaction.commit();
             return true;
         } catch (Exception e) {
-            transaction.rollback();
+            if (transaction.isActive()) transaction.rollback();
             throw new DatabaseException("Failed to activate invite code", e);
         }
     }

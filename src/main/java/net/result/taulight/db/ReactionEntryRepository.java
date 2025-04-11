@@ -1,21 +1,17 @@
 package net.result.taulight.db;
 
 import net.result.sandnode.db.JPAUtil;
-import net.result.sandnode.db.MemberEntity;
 import net.result.sandnode.exception.DatabaseException;
+import org.jetbrains.annotations.NotNull;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
-import javax.persistence.TypedQuery;
-import java.util.Collection;
-import java.util.List;
-import java.util.Optional;
 
 public class ReactionEntryRepository {
     private final EntityManager em = JPAUtil.getEntityManager();
 
-    public void save(ReactionEntryEntity reactionEntry) throws DatabaseException {
-        while (em.contains(reactionEntry)) {
+    public void save(@NotNull ReactionEntryEntity reactionEntry) throws DatabaseException {
+        while (em.find(ReactionEntryEntity.class, reactionEntry.id()) != null) {
             reactionEntry.setRandomID();
         }
 
@@ -25,63 +21,26 @@ public class ReactionEntryRepository {
             em.merge(reactionEntry);
             transaction.commit();
         } catch (Exception e) {
-            transaction.rollback();
+            if (transaction.isActive()) transaction.rollback();
             throw new DatabaseException("Failed to save reaction entry", e);
         }
     }
 
     public boolean delete(ReactionEntryEntity reactionEntry) throws DatabaseException {
+        EntityTransaction transaction = em.getTransaction();
         try {
-            if (em.contains(reactionEntry)) {
-                em.remove(reactionEntry);
+            ReactionEntryEntity re = em.find(ReactionEntryEntity.class, reactionEntry.id());
+            if (re != null) {
+                transaction.begin();
+                em.remove(re);
+                transaction.commit();
                 return true;
             }
         } catch (Exception e) {
+            if (transaction.isActive()) transaction.rollback();
             throw new DatabaseException("Failed to delete reaction entry", e);
         }
         
         return false;
-    }
-
-    public Collection<ReactionEntryEntity> find(
-            MessageEntity message,
-            MemberEntity member,
-            ReactionTypeEntity reactionType
-    ) {
-        String queryStr = """
-            SELECT r FROM ReactionEntryEntity r
-            WHERE
-                r.message = :message
-                AND r.member = :member
-                AND r.reactionType = :reactionType
-        """;
-        TypedQuery<ReactionEntryEntity> query = em.createQuery(queryStr, ReactionEntryEntity.class);
-        query.setParameter("message", message);
-        query.setParameter("member", member);
-        query.setParameter("reactionType", reactionType);
-
-        return query.getResultList();
-    }
-
-    public Optional<ReactionEntryEntity> findFirst(
-            MessageEntity message,
-            MemberEntity member,
-            ReactionTypeEntity reactionType
-    ) {
-        String queryStr = """
-            SELECT r FROM ReactionEntryEntity r
-            WHERE
-                r.message = :message
-                AND r.member = :member
-                AND r.reactionType = :reactionType
-        """;
-        TypedQuery<ReactionEntryEntity> query = em.createQuery(queryStr, ReactionEntryEntity.class);
-        query.setParameter("message", message);
-        query.setParameter("member", member);
-        query.setParameter("reactionType", reactionType);
-        query.setMaxResults(1);
-
-        List<ReactionEntryEntity> results = query.getResultList();
-        return results.isEmpty() ? Optional.empty() : Optional.of(results.get(0));
     }
 }

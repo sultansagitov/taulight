@@ -13,7 +13,7 @@ public class MessageRepository {
     private final EntityManager em = JPAUtil.getEntityManager();
 
     public void save(MessageEntity message) throws DatabaseException {
-        while (em.contains(message)) {
+        while (em.find(MessageEntity.class, message.id()) != null) {
             message.setRandomID();
         }
 
@@ -23,7 +23,7 @@ public class MessageRepository {
             em.merge(message);
             transaction.commit();
         } catch (Exception e) {
-            transaction.rollback();
+            if (transaction.isActive()) transaction.rollback();
             throw new DatabaseException(e);
         }
     }
@@ -39,9 +39,8 @@ public class MessageRepository {
     public List<MessageEntity> findMessagesByChat(ChatEntity chat, int index, int size) throws DatabaseException {
         try {
             String q = """
-                SELECT NEW net.result.taulight.dto.ChatMessageViewDTO(m)
-                FROM MessageEntity m
-                WHERE m.chat = :chat ORDER BY m.timestamp DESC
+                SELECT m FROM MessageEntity m
+                WHERE m.chat = :chat ORDER BY m.creationDate DESC
             """;
             return em.createQuery(q, MessageEntity.class)
                     .setParameter("chat", chat)

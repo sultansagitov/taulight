@@ -117,7 +117,6 @@ public class TauJPADatabase extends JPADatabase implements TauDatabase {
         reactionEntryRepository.save(reactionEntry);
     }
 
-
     @Override
     public boolean removeReactionEntry(ReactionEntryEntity reaction) throws DatabaseException {
         return reactionEntryRepository.delete(reaction);

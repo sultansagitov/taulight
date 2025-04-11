@@ -3,8 +3,6 @@ package net.result.taulight.db;
 import net.result.sandnode.db.SandnodeEntity;
 
 import javax.persistence.Entity;
-import java.time.ZonedDateTime;
-import java.util.UUID;
 
 @Entity
 public class ReactionTypeEntity extends SandnodeEntity {
@@ -14,12 +12,6 @@ public class ReactionTypeEntity extends SandnodeEntity {
     @SuppressWarnings("unused")
     public ReactionTypeEntity() {
         super();
-    }
-
-    public ReactionTypeEntity(UUID id, ZonedDateTime creationDate, String name, String packageName) {
-        super(id, creationDate);
-        setName(name);
-        setPackageName(packageName);
     }
 
     public ReactionTypeEntity(String name, String packageName) {

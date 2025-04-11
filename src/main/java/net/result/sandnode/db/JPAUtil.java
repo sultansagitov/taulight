@@ -10,7 +10,7 @@ public class JPAUtil {
     private static EntityManagerFactory emf = null;
 
     public static void buildEntityManagerFactory() {
-        if (emf != null) return;
+        if (emf != null && emf.isOpen()) return;
 
         try {
             emf = Persistence.createEntityManagerFactory(persistenceUnitName);

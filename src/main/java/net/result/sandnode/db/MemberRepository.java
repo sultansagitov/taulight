@@ -10,7 +10,7 @@ public class MemberRepository {
     private final EntityManager em = JPAUtil.getEntityManager();
 
     public void save(MemberEntity member) throws DatabaseException {
-        while (em.contains(member)) {
+        while (em.find(MemberEntity.class, member.id()) != null) {
             member.setRandomID();
         }
 
@@ -20,7 +20,7 @@ public class MemberRepository {
             em.merge(member);
             transaction.commit();
         } catch (Exception e) {
-            transaction.rollback();
+            if (transaction.isActive()) transaction.rollback();
             throw new DatabaseException("Failed to register member", e);
         }
     }

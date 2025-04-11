@@ -8,6 +8,7 @@ import net.result.sandnode.chain.receiver.UnhandledMessageTypeClientChain;
 import net.result.sandnode.config.ClientConfig;
 import net.result.sandnode.config.ServerConfig;
 import net.result.sandnode.config.ServerConfigRecord;
+import net.result.sandnode.db.JPAUtil;
 import net.result.sandnode.encryption.SymmetricEncryptions;
 import net.result.sandnode.exception.*;
 import net.result.sandnode.hubagent.Agent;
@@ -38,7 +39,9 @@ import net.result.taulight.db.TauJPADatabase;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import java.net.Socket;
@@ -70,14 +73,23 @@ public class ServerTest {
         }
     }
 
-    @Test
-    public void testMessageTransmission() throws Exception {
+    @BeforeAll
+    public static void setup() {
+        JPAUtil.buildEntityManagerFactory();
         EncryptionManager.registerAll();
 
         port = PORT_OFFSET + new Random().nextInt(PORT_RANGE);
         MessageTypeManager.instance().add(Testing.TESTING);
         LOGGER.info("Generated random port: {}", port);
+    }
 
+    @AfterAll
+    public static void tearDown() {
+        JPAUtil.shutdown();
+    }
+
+    @Test
+    public void testMessageTransmission() throws Exception {
         // Server setup
         KeyStorage rsaKeyStorage = asymmetricEncryption.generate();
         KeyStorageRegistry serverKeyStorage = new KeyStorageRegistry(rsaKeyStorage);
