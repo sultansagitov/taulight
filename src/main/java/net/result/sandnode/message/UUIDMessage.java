@@ -11,7 +11,7 @@ import java.util.UUID;
 public class UUIDMessage extends Message {
     public final UUID uuid;
 
-    public UUIDMessage(@NotNull Headers headers, UUID uuid) {
+    public UUIDMessage(@NotNull Headers headers, @NotNull UUID uuid) {
         super(headers);
         this.uuid = uuid;
     }

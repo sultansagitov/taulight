@@ -50,7 +50,11 @@ public class ChatInfoDTO {
         return info;
     }
 
-    public static ChatInfoDTO dialog(DialogEntity dialog, MemberEntity member, Collection<ChatInfoPropDTO> infoProps) {
+    public static ChatInfoDTO dialog(
+            DialogEntity dialog,
+            MemberEntity member,
+            Collection<ChatInfoPropDTO> infoProps
+    ) {
         ChatInfoDTO info = new ChatInfoDTO();
         info.chatType = ChatType.DIALOG;
         if (infoProps.contains(ChatInfoPropDTO.dialogID)) info.id = dialog.id();

@@ -8,6 +8,7 @@ public class JPAUtil {
     public static final String persistenceUnitName = "taulight-unit";
 
     private static EntityManagerFactory emf = null;
+    private static EntityManager em = null;
 
     public static void buildEntityManagerFactory() {
         if (emf != null && emf.isOpen()) return;
@@ -21,7 +22,8 @@ public class JPAUtil {
     }
 
     public static EntityManager getEntityManager() {
-        return emf.createEntityManager();
+        if (em == null) em = emf.createEntityManager();
+        return em;
     }
 
     public static void shutdown() {

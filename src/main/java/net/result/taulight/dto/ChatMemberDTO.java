@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import net.result.sandnode.db.MemberEntity;
 import org.jetbrains.annotations.NotNull;
 
-public class MemberDTO {
+public class ChatMemberDTO {
     public enum Status {ONLINE, OFFLINE, HIDDEN}
 
     @JsonProperty
@@ -13,14 +13,14 @@ public class MemberDTO {
     public Status status = Status.OFFLINE;
 
     @SuppressWarnings("unused")
-    public MemberDTO() {}
+    public ChatMemberDTO() {}
 
-    public MemberDTO(@NotNull MemberEntity member) {
+    public ChatMemberDTO(@NotNull MemberEntity member) {
         nickname = member.nickname();
     }
 
     @Override
     public String toString() {
-        return "<MemberDTO %s %s>".formatted(nickname, status.name());
+        return "<ChatMemberDTO %s %s>".formatted(nickname, status.name());
     }
 }

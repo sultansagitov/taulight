@@ -36,6 +36,7 @@ public class TauAgentProtocol {
                 .forEach(s -> s.removeFromGroup(group));
     }
 
+    @SuppressWarnings("unused")
     public static void removeMembersFromGroup(Session session, Collection<MemberEntity> members, TauChatGroup group) {
         session.server.node
                 .getAgents().stream()

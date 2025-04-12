@@ -170,4 +170,8 @@ public class Headers {
         copy.map.putAll(map);
         return copy;
     }
+
+    public Set<String> keys() {
+        return map.keySet();
+    }
 }

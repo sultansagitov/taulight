@@ -12,7 +12,7 @@ import net.result.taulight.db.ChatEntity;
 import net.result.taulight.db.TauDatabase;
 import net.result.taulight.group.TauChatGroup;
 import net.result.taulight.group.TauGroupManager;
-import net.result.taulight.dto.MemberDTO;
+import net.result.taulight.dto.ChatMemberDTO;
 import net.result.taulight.message.types.MembersResponse;
 import net.result.sandnode.message.UUIDMessage;
 import org.apache.logging.log4j.LogManager;
@@ -60,13 +60,13 @@ public class MembersServerChain extends ServerChain implements ReceiverChain {
                     continue;
                 }
 
-                Map<String, MemberDTO> map = members.stream()
-                        .collect(Collectors.toMap(MemberEntity::nickname, MemberDTO::new));
+                Map<String, ChatMemberDTO> map = members.stream()
+                        .collect(Collectors.toMap(MemberEntity::nickname, ChatMemberDTO::new));
 
                 for (Session session : group.getSessions()) {
                     if (session.member != null) {
                         map.computeIfPresent(session.member.nickname(), (nickname, record) -> {
-                            record.status = MemberDTO.Status.ONLINE;
+                            record.status = ChatMemberDTO.Status.ONLINE;
                             return record;
                         });
                     }
