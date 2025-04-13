@@ -66,7 +66,8 @@ public class ChatInfoDTO implements Comparable<ChatInfoDTO> {
         info.chatType = ChatType.DIALOG;
         if (infoProps.contains(ChatInfoPropDTO.dialogID)) info.id = dialog.id();
         if (infoProps.contains(ChatInfoPropDTO.dialogCreatedAt)) info.creationDate = dialog.creationDate();
-        if (infoProps.contains(ChatInfoPropDTO.dialogOther)) info.otherNickname = dialog.otherMember(member).member().nickname();
+        if (infoProps.contains(ChatInfoPropDTO.dialogOther))
+            info.otherNickname = dialog.otherMember(member).member().nickname();
         return info;
     }
 

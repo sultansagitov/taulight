@@ -10,25 +10,25 @@ import java.util.Set;
 @SuppressWarnings("unused")
 @Entity
 public class TauMemberEntity extends SandnodeEntity {
-    @OneToOne(cascade = CascadeType.ALL)
+    @OneToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     private MemberEntity member;
 
-    @OneToMany(cascade = CascadeType.ALL)
+    @OneToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     private Set<ReactionEntryEntity> reactionEntries = new HashSet<>();
 
-    @ManyToMany(mappedBy = "members", cascade = CascadeType.ALL)
+    @ManyToMany(mappedBy = "members", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     private Set<ChannelEntity> channels = new HashSet<>();
 
-    @OneToMany(mappedBy = "firstMember", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "firstMember", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     private Set<DialogEntity> dialogsAsFirst = new HashSet<>();
 
-    @OneToMany(mappedBy = "secondMember", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "secondMember", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     private Set<DialogEntity> dialogsAsSecond = new HashSet<>();
 
-    @OneToMany(mappedBy = "receiver", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "receiver", cascade = {CascadeType.PERSIST, CascadeType.MERGE}, orphanRemoval = true)
     private Set<InviteCodeEntity> inviteCodesAsReceiver = new HashSet<>();
 
-    @OneToMany(mappedBy = "sender", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "sender", cascade = {CascadeType.PERSIST, CascadeType.MERGE}, orphanRemoval = true)
     private Set<InviteCodeEntity> inviteCodesAsSender = new HashSet<>();
 
     public TauMemberEntity() {}

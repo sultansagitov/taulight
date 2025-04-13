@@ -51,7 +51,7 @@ public class ReactionServerChain extends ServerChain implements ReceiverChain {
             LOGGER.info("Reaction added: {} to message {} by {}",
                     reactionType.name(), message.id(), session.member.nickname());
         } else {
-            if (database.removeReactionEntry(message, session.member, reactionType)) {
+            if (database.removeReactionEntry(message, session.member.tauMember(), reactionType)) {
                 LOGGER.info("Reaction removed: {} from message {}", reactionType.name(), message.id());
             } else {
                 throw new NoEffectException();

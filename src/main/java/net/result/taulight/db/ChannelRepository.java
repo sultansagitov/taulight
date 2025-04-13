@@ -31,15 +31,7 @@ public class ChannelRepository {
         return save(new ChannelEntity(title, owner));
     }
 
-    public Optional<ChannelEntity> findById(UUID id) throws DatabaseException {
-        try {
-            return Optional.ofNullable(em.find(ChannelEntity.class, id));
-        } catch (Exception e) {
-            throw new DatabaseException(e);
-        }
-    }
-
-    public void remove(ChannelEntity channel) throws DatabaseException {
+    public void delete(ChannelEntity channel) throws DatabaseException {
         EntityTransaction transaction = em.getTransaction();
         try {
             transaction.begin();
@@ -47,6 +39,14 @@ public class ChannelRepository {
             transaction.commit();
         } catch (Exception e) {
             if (transaction.isActive()) transaction.rollback();
+            throw new DatabaseException(e);
+        }
+    }
+
+    public Optional<ChannelEntity> findById(UUID id) throws DatabaseException {
+        try {
+            return Optional.ofNullable(em.find(ChannelEntity.class, id));
+        } catch (Exception e) {
             throw new DatabaseException(e);
         }
     }
@@ -81,7 +81,7 @@ public class ChannelRepository {
             Set<TauMemberEntity> members = channel.members();
 
             if (members == null) {
-                channel.setMembers(Set.of(member));
+                channel.setMembers(Set.of());
             } else if (!members.contains(member)) {
                 return false;
             } else {

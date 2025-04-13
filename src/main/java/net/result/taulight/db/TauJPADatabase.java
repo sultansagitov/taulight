@@ -1,7 +1,6 @@
 package net.result.taulight.db;
 
 import net.result.sandnode.db.JPADatabase;
-import net.result.sandnode.db.MemberEntity;
 import net.result.sandnode.exception.DatabaseException;
 import net.result.sandnode.exception.error.NotFoundException;
 import net.result.sandnode.security.PasswordHasher;
@@ -142,8 +141,9 @@ public class TauJPADatabase extends JPADatabase implements TauDatabase {
     }
 
     @Override
-    public boolean removeReactionEntry(MessageEntity message, MemberEntity member, ReactionTypeEntity reactionType)
+    public boolean removeReactionEntry(MessageEntity message, TauMemberEntity member, ReactionTypeEntity reactionType)
             throws DatabaseException {
-        return reactionTypeRepository.removeReactionEntry(message, member, reactionType);
+        return reactionEntryRepository.removeReactionEntry(message, member, reactionType);
     }
+
 }

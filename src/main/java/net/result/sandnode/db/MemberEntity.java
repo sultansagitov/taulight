@@ -12,7 +12,7 @@ public class MemberEntity extends SandnodeEntity {
     private String nickname;
     private String passwordHash;
 
-    @OneToOne(cascade = CascadeType.ALL)
+    @OneToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     private TauMemberEntity tauMember;
 
     public MemberEntity() {}

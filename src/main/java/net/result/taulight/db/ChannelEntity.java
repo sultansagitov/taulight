@@ -20,7 +20,7 @@ public class ChannelEntity extends ChatEntity {
     )
     private Set<TauMemberEntity> members = new HashSet<>();
 
-    @OneToMany(mappedBy = "channel", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "channel", cascade = {CascadeType.PERSIST, CascadeType.MERGE}, orphanRemoval = true)
     private Set<InviteCodeEntity> inviteCodes = new HashSet<>();
 
     public ChannelEntity() {}

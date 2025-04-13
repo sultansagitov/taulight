@@ -228,7 +228,7 @@ public interface TauDatabase extends Database {
      * @return {@code true} if the entry was successfully removed, {@code false} if the entry did not exist
      * @throws DatabaseException if a database error occurs
      */
-    boolean removeReactionEntry(MessageEntity message, MemberEntity member, ReactionTypeEntity reactionType)
+    boolean removeReactionEntry(MessageEntity message, TauMemberEntity member, ReactionTypeEntity reactionType)
             throws DatabaseException;
 
 }

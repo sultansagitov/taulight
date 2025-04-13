@@ -23,7 +23,7 @@ public class MessageEntity extends SandnodeEntity {
     @ManyToOne
     private TauMemberEntity member;
 
-    @OneToMany(mappedBy = "message", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "message", cascade = {CascadeType.PERSIST, CascadeType.MERGE}, orphanRemoval = true)
     private Set<ReactionEntryEntity> reactionEntries = new HashSet<>();
 
     @ManyToMany

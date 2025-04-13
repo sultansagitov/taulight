@@ -10,7 +10,7 @@ import java.util.Set;
 @Entity
 @Inheritance(strategy = InheritanceType.JOINED)
 public abstract class ChatEntity extends SandnodeEntity {
-    @OneToMany(mappedBy = "chat", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "chat", cascade = {CascadeType.PERSIST, CascadeType.MERGE}, orphanRemoval = true)
     private Set<MessageEntity> messages = new HashSet<>();
 
     public ChatEntity() {}
