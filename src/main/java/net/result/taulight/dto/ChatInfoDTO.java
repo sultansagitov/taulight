@@ -2,9 +2,9 @@ package net.result.taulight.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import net.result.sandnode.db.MemberEntity;
 import net.result.taulight.db.ChannelEntity;
 import net.result.taulight.db.DialogEntity;
+import net.result.taulight.db.TauMemberEntity;
 import org.jetbrains.annotations.NotNull;
 
 import java.time.ZonedDateTime;
@@ -44,7 +44,7 @@ public class ChatInfoDTO implements Comparable<ChatInfoDTO> {
 
     public static ChatInfoDTO channel(
             ChannelEntity channel,
-            MemberEntity member,
+            TauMemberEntity member,
             Collection<ChatInfoPropDTO> infoProps
     ) {
         ChatInfoDTO info = new ChatInfoDTO();
@@ -52,21 +52,21 @@ public class ChatInfoDTO implements Comparable<ChatInfoDTO> {
         if (infoProps.contains(ChatInfoPropDTO.channelID)) info.id = channel.id();
         if (infoProps.contains(ChatInfoPropDTO.channelCreatedAt)) info.creationDate = channel.creationDate();
         if (infoProps.contains(ChatInfoPropDTO.channelTitle)) info.title = channel.title();
-        if (infoProps.contains(ChatInfoPropDTO.channelOwner)) info.ownerID = channel.owner().nickname();
+        if (infoProps.contains(ChatInfoPropDTO.channelOwner)) info.ownerID = channel.owner().member().nickname();
         if (infoProps.contains(ChatInfoPropDTO.channelIsMy)) info.channelIsMy = channel.owner() == member;
         return info;
     }
 
     public static ChatInfoDTO dialog(
             DialogEntity dialog,
-            MemberEntity member,
+            TauMemberEntity member,
             Collection<ChatInfoPropDTO> infoProps
     ) {
         ChatInfoDTO info = new ChatInfoDTO();
         info.chatType = ChatType.DIALOG;
         if (infoProps.contains(ChatInfoPropDTO.dialogID)) info.id = dialog.id();
         if (infoProps.contains(ChatInfoPropDTO.dialogCreatedAt)) info.creationDate = dialog.creationDate();
-        if (infoProps.contains(ChatInfoPropDTO.dialogOther)) info.otherNickname = dialog.otherMember(member).nickname();
+        if (infoProps.contains(ChatInfoPropDTO.dialogOther)) info.otherNickname = dialog.otherMember(member).member().nickname();
         return info;
     }
 

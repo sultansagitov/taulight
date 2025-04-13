@@ -1,9 +1,9 @@
 package net.result.taulight.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import net.result.sandnode.db.MemberEntity;
 import net.result.taulight.db.MessageEntity;
 import net.result.taulight.db.ReactionTypeEntity;
+import net.result.taulight.db.TauMemberEntity;
 
 import java.time.ZonedDateTime;
 import java.util.*;
@@ -48,11 +48,11 @@ public class ChatMessageViewDTO {
         Map<String, Collection<String>> result = new HashMap<>();
         message.reactionEntries().forEach((entry) -> {
             ReactionTypeEntity type = entry.reactionType();
-            MemberEntity member = entry.member();
+            TauMemberEntity member = entry.member();
 
             String reaction = "%s:%s".formatted(type.packageName(), type.name());
 
-            result.computeIfAbsent(reaction, k -> new HashSet<>()).add(member.nickname());
+            result.computeIfAbsent(reaction, k -> new HashSet<>()).add(member.member().nickname());
         });
         setReactions(result);
 

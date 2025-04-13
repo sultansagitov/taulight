@@ -1,7 +1,6 @@
 package net.result.taulight.db;
 
 import net.result.sandnode.db.JPAUtil;
-import net.result.sandnode.db.MemberEntity;
 import net.result.sandnode.exception.DatabaseException;
 import org.jetbrains.annotations.NotNull;
 
@@ -28,7 +27,7 @@ public class ReactionEntryRepository {
         }
     }
 
-    public ReactionEntryEntity create(MemberEntity member, MessageEntity message, ReactionTypeEntity reactionType)
+    public ReactionEntryEntity create(TauMemberEntity member, MessageEntity message, ReactionTypeEntity reactionType)
             throws DatabaseException {
         return save(new ReactionEntryEntity(member, message, reactionType));
     }

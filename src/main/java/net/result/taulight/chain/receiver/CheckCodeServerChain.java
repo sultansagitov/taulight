@@ -6,6 +6,7 @@ import net.result.sandnode.exception.SandnodeException;
 import net.result.sandnode.exception.error.NotFoundException;
 import net.result.sandnode.exception.error.UnauthorizedException;
 import net.result.sandnode.serverclient.Session;
+import net.result.taulight.db.TauMemberEntity;
 import net.result.taulight.dto.InviteCodeDTO;
 import net.result.taulight.db.InviteCodeEntity;
 import net.result.taulight.db.TauDatabase;
@@ -25,15 +26,17 @@ public class CheckCodeServerChain extends ServerChain implements ReceiverChain {
             throw new UnauthorizedException();
         }
 
+        TauMemberEntity tauMember = session.member.tauMember();
+
         TauDatabase database = (TauDatabase) session.server.serverConfig.database();
 
         InviteCodeEntity invite = database
                 .findInviteCode(request.content())
                 .orElseThrow(NotFoundException::new);
 
-        if (invite.receiver() != session.member) {
+        if (invite.receiver() != tauMember) {
             //TODO add channel roles and use it
-            if (invite.sender() != session.member) {
+            if (invite.sender() != tauMember) {
                 throw new NotFoundException();
             }
         }

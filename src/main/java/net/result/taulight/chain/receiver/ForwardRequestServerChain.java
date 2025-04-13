@@ -2,7 +2,6 @@ package net.result.taulight.chain.receiver;
 
 import net.result.sandnode.chain.ReceiverChain;
 import net.result.sandnode.chain.receiver.ServerChain;
-import net.result.sandnode.db.MemberEntity;
 import net.result.sandnode.error.Errors;
 import net.result.sandnode.exception.*;
 import net.result.sandnode.exception.error.SandnodeErrorException;
@@ -13,6 +12,7 @@ import net.result.sandnode.message.util.Headers;
 import net.result.sandnode.message.util.MessageTypes;
 import net.result.sandnode.serverclient.Session;
 import net.result.taulight.TauHubProtocol;
+import net.result.taulight.db.TauMemberEntity;
 import net.result.taulight.dto.ChatMessageViewDTO;
 import net.result.taulight.db.TauDatabase;
 import net.result.taulight.dto.ChatMessageInputDTO;
@@ -89,9 +89,9 @@ public class ForwardRequestServerChain extends ServerChain implements ReceiverCh
 
                 ChatEntity chat = chatOpt.get();
 
-                Collection<MemberEntity> members = database.getMembers(chat);
-                if (!members.contains(session.member)) {
-                    LOGGER.warn("Unauthorized access attempt by member: {}", session.member);
+                Collection<TauMemberEntity> members = database.getMembers(chat);
+                if (!members.contains(session.member.tauMember())) {
+                    LOGGER.warn("Unauthorized access attempt by member: {}", session.member.nickname());
                     send(Errors.NOT_FOUND.createMessage());
                     continue;
                 }

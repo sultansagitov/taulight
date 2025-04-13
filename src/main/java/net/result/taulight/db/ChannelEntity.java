@@ -1,7 +1,5 @@
 package net.result.taulight.db;
 
-import net.result.sandnode.db.MemberEntity;
-
 import javax.persistence.*;
 import java.util.Set;
 import java.util.HashSet;
@@ -12,7 +10,7 @@ public class ChannelEntity extends ChatEntity {
     private String title;
 
     @ManyToOne(cascade = CascadeType.ALL)
-    private MemberEntity owner;
+    private TauMemberEntity owner;
 
     @ManyToMany(cascade = CascadeType.ALL)
     @JoinTable(
@@ -20,14 +18,14 @@ public class ChannelEntity extends ChatEntity {
             joinColumns = @JoinColumn(name = "channel_id"),
             inverseJoinColumns = @JoinColumn(name = "member_id")
     )
-    private Set<MemberEntity> members = new HashSet<>();
+    private Set<TauMemberEntity> members = new HashSet<>();
 
     @OneToMany(cascade = CascadeType.ALL)
     private Set<InviteCodeEntity> inviteCodes = new HashSet<>();
 
     public ChannelEntity() {}
 
-    public ChannelEntity(String title, MemberEntity owner) {
+    public ChannelEntity(String title, TauMemberEntity owner) {
         this.title = title;
         this.owner = owner;
     }
@@ -40,19 +38,19 @@ public class ChannelEntity extends ChatEntity {
         this.title = title;
     }
 
-    public MemberEntity owner() {
+    public TauMemberEntity owner() {
         return owner;
     }
 
-    public void setOwner(MemberEntity owner) {
+    public void setOwner(TauMemberEntity owner) {
         this.owner = owner;
     }
 
-    public Set<MemberEntity> members() {
+    public Set<TauMemberEntity> members() {
         return members;
     }
 
-    public void setMembers(Set<MemberEntity> members) {
+    public void setMembers(Set<TauMemberEntity> members) {
         this.members = members;
     }
 

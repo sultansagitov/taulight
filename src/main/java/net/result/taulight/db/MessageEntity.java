@@ -1,6 +1,5 @@
 package net.result.taulight.db;
 
-import net.result.sandnode.db.MemberEntity;
 import net.result.sandnode.db.SandnodeEntity;
 import net.result.sandnode.db.ZonedDateTimeConverter;
 import net.result.taulight.dto.ChatMessageInputDTO;
@@ -22,7 +21,7 @@ public class MessageEntity extends SandnodeEntity {
     private ChatEntity chat;
 
     @ManyToOne(cascade = CascadeType.ALL)
-    private MemberEntity member;
+    private TauMemberEntity member;
 
     @OneToMany(cascade = CascadeType.ALL)
     private Set<ReactionEntryEntity> reactionEntries = new HashSet<>();
@@ -32,7 +31,7 @@ public class MessageEntity extends SandnodeEntity {
 
     public MessageEntity() {}
 
-    public MessageEntity(ChatEntity chat, ChatMessageInputDTO input, MemberEntity member) {
+    public MessageEntity(ChatEntity chat, ChatMessageInputDTO input, TauMemberEntity member) {
         setChat(chat);
         setSentDatetime(input.sentDatetime());
         setContent(input.content());
@@ -64,11 +63,11 @@ public class MessageEntity extends SandnodeEntity {
         this.sentDatetime = sentDatetime;
     }
 
-    public MemberEntity member() {
+    public TauMemberEntity member() {
         return member;
     }
 
-    public void setMember(MemberEntity member) {
+    public void setMember(TauMemberEntity member) {
         this.member = member;
     }
 

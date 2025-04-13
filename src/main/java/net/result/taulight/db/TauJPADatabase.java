@@ -30,19 +30,19 @@ public class TauJPADatabase extends JPADatabase implements TauDatabase {
     }
 
     @Override
-    public DialogEntity createDialog(MemberEntity firstMember, MemberEntity secondMember)
+    public DialogEntity createDialog(TauMemberEntity firstMember, TauMemberEntity secondMember)
             throws AlreadyExistingRecordException, DatabaseException {
         return dialogRepository.save(new DialogEntity(firstMember, secondMember));
     }
 
     @Override
-    public Optional<DialogEntity> findDialog(MemberEntity firstMember, MemberEntity secondMember)
+    public Optional<DialogEntity> findDialog(TauMemberEntity firstMember, TauMemberEntity secondMember)
             throws DatabaseException {
         return dialogRepository.findByMembers(firstMember, secondMember);
     }
 
     @Override
-    public ChannelEntity createChannel(String title, MemberEntity owner) throws DatabaseException {
+    public ChannelEntity createChannel(String title, TauMemberEntity owner) throws DatabaseException {
         return channelRepository.create(title, owner);
     }
 
@@ -59,7 +59,7 @@ public class TauJPADatabase extends JPADatabase implements TauDatabase {
     }
 
     @Override
-    public MessageEntity createMessage(ChatEntity chat, ChatMessageInputDTO input, MemberEntity member)
+    public MessageEntity createMessage(ChatEntity chat, ChatMessageInputDTO input, TauMemberEntity member)
             throws DatabaseException, NotFoundException {
         return messageRepository.create(chat, input, member);
     }
@@ -70,7 +70,7 @@ public class TauJPADatabase extends JPADatabase implements TauDatabase {
     }
 
     @Override
-    public boolean addMemberToChannel(ChannelEntity channel, MemberEntity member) throws DatabaseException {
+    public boolean addMemberToChannel(ChannelEntity channel, TauMemberEntity member) throws DatabaseException {
         return channelRepository.addMemberToChannel(channel, member);
     }
 
@@ -80,15 +80,15 @@ public class TauJPADatabase extends JPADatabase implements TauDatabase {
     }
 
     @Override
-    public boolean leaveFromChannel(ChannelEntity channel, MemberEntity member) throws DatabaseException {
+    public boolean leaveFromChannel(ChannelEntity channel, TauMemberEntity member) throws DatabaseException {
         return channelRepository.removeMemberFromChannel(channel, member);
     }
 
     @Override
     public InviteCodeEntity createInviteCode(
             ChannelEntity channel,
-            MemberEntity receiver,
-            MemberEntity sender,
+            TauMemberEntity receiver,
+            TauMemberEntity sender,
             ZonedDateTime expiresDate
     ) throws DatabaseException {
         return inviteCodeRepository.create(channel, receiver, sender, expiresDate);
@@ -100,7 +100,7 @@ public class TauJPADatabase extends JPADatabase implements TauDatabase {
     }
 
     @Override
-    public Collection<InviteCodeEntity> findInviteCode(ChannelEntity channel, MemberEntity member)
+    public Collection<InviteCodeEntity> findInviteCode(ChannelEntity channel, TauMemberEntity member)
             throws DatabaseException {
         return inviteCodeRepository.find(channel, member);
     }
@@ -117,7 +117,7 @@ public class TauJPADatabase extends JPADatabase implements TauDatabase {
 
     @Override
     public ReactionEntryEntity createReactionEntry(
-            MemberEntity member,
+            TauMemberEntity member,
             MessageEntity message,
             ReactionTypeEntity reactionType
     ) throws DatabaseException {
@@ -135,7 +135,7 @@ public class TauJPADatabase extends JPADatabase implements TauDatabase {
     }
 
     @Override
-    public Collection<MemberEntity> getMembers(ChatEntity chat) {
+    public Collection<TauMemberEntity> getMembers(ChatEntity chat) {
         if (chat instanceof ChannelEntity channel) return channel.members();
         if (chat instanceof DialogEntity dialog) return Set.of(dialog.firstMember(), dialog.secondMember());
         return Set.of();

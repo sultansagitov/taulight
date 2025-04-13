@@ -51,15 +51,15 @@ public class ChannelServerChain extends ServerChain implements ReceiverChain {
         }
 
         switch (request.type) {
-            case CREATE -> create(request);
-            case INVITE -> invite(request);
-            case LEAVE -> leave(request);
+            case CREATE -> create(request, session.member.tauMember());
+            case INVITE -> invite(request, session.member.tauMember());
+            case LEAVE -> leave(request, session.member.tauMember());
             case CH_CODES -> channelCodes(request);
             case MY_CODES -> myCodes();
         }
     }
 
-    private void create(@NotNull ChannelRequest request) throws Exception {
+    private void create(@NotNull ChannelRequest request, TauMemberEntity owner) throws Exception {
         var database = (TauDatabase) session.server.serverConfig.database();
         var manager = (TauGroupManager) session.server.serverConfig.groupManager();
 
@@ -67,7 +67,6 @@ public class ChannelServerChain extends ServerChain implements ReceiverChain {
             throw new TooFewArgumentsException();
         }
 
-        MemberEntity owner = session.member;
         ChannelEntity channel = database.createChannel(request.title, owner);
 
         if (!database.addMemberToChannel(channel, owner)) {
@@ -87,29 +86,31 @@ public class ChannelServerChain extends ServerChain implements ReceiverChain {
         send(new UUIDMessage(new Headers().setType(MessageTypes.HAPPY), channel));
     }
 
-    private void invite(@NotNull ChannelRequest request) throws Exception {
+    private void invite(@NotNull ChannelRequest request, TauMemberEntity you) throws Exception {
         TauDatabase database = (TauDatabase) session.server.serverConfig.database();
 
         ChatEntity chat = database.getChat(request.chatID).orElseThrow(NotFoundException::new);
 
-        Collection<MemberEntity> members = database.getMembers(chat);
+        Collection<TauMemberEntity> members = database.getMembers(chat);
 
         // You not in channel
-        if (!members.contains(session.member)) {
+        if (!members.contains(you)) {
             throw new NotFoundException();
         }
 
+        // This is not channel
         if (!(chat instanceof ChannelEntity channel)) {
             throw new WrongAddressException();
         }
 
-        MemberEntity member = database
+        TauMemberEntity member = database
                 .findMemberByNickname(request.otherNickname)
+                .map(MemberEntity::tauMember)
                 .orElseThrow(AddressedMemberNotFoundException::new);
 
         // You are not owner
         //TODO add settings for inviting by another members
-        if (channel.owner() != session.member) {
+        if (channel.owner() != you) {
             throw new UnauthorizedException();
         }
 
@@ -124,30 +125,40 @@ public class ChannelServerChain extends ServerChain implements ReceiverChain {
         }
 
         ZonedDateTime expiresDate = ZonedDateTime.now().plus(request.expirationTime);
-        InviteCodeEntity code = database.createInviteCode(channel, member, session.member, expiresDate);
+        InviteCodeEntity code = database.createInviteCode(channel, member, you, expiresDate);
 
         sendFin(new TextMessage(new Headers().setType(TauMessageTypes.CHANNEL), code.code()));
     }
 
-    private void leave(@NotNull ChannelRequest request) throws Exception {
+    private void leave(@NotNull ChannelRequest request, TauMemberEntity you) throws Exception {
         TauDatabase database = (TauDatabase) session.server.serverConfig.database();
         TauGroupManager manager = (TauGroupManager) session.server.serverConfig.groupManager();
 
         ChatEntity chat = database.getChat(request.chatID).orElseThrow(NotFoundException::new);
 
+        Collection<TauMemberEntity> members = database.getMembers(chat);
+
+        // You not in channel
+        if (!members.contains(you)) {
+            throw new NotFoundException();
+        }
+
+        // This is not chanel
         if (!(chat instanceof ChannelEntity channel)) {
             throw new WrongAddressException();
         }
 
-        if (channel.owner() == session.member) {
+        // You cannot leave, because you are owner
+        if (channel.owner() == you) {
             throw new UnauthorizedException();
         }
 
-        if (!database.leaveFromChannel(channel, session.member)) {
+        // You are not in channel (impossible)
+        if (!database.leaveFromChannel(channel, you)) {
             throw new NotFoundException();
         }
 
-        ChatMessageInputDTO input = SysMessages.channelLeave.chatMessageInputDTO(channel, session.member);
+        ChatMessageInputDTO input = SysMessages.channelLeave.chatMessageInputDTO(channel, you);
         try {
             TauHubProtocol.send(session, channel, input);
         } catch (UnauthorizedException e) {
@@ -183,6 +194,7 @@ public class ChannelServerChain extends ServerChain implements ReceiverChain {
     @SuppressWarnings("DataFlowIssue")
     private void myCodes() throws Exception {
         Collection<CodeDTO> collected = session.member
+                .tauMember()
                 .inviteCodes().stream()
                 .map(InviteCodeDTO::new)
                 .collect(Collectors.toSet());

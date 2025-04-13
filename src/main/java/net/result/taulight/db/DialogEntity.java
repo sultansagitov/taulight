@@ -1,7 +1,5 @@
 package net.result.taulight.db;
 
-import net.result.sandnode.db.MemberEntity;
-
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
@@ -11,28 +9,28 @@ import javax.persistence.ManyToOne;
 public class DialogEntity extends ChatEntity {
     @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(nullable = false)
-    private MemberEntity firstMember;
+    private TauMemberEntity firstMember;
 
     @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(nullable = false)
-    private MemberEntity secondMember;
+    private TauMemberEntity secondMember;
 
     public DialogEntity() {}
 
-    public DialogEntity(MemberEntity firstMember, MemberEntity secondMember) {
+    public DialogEntity(TauMemberEntity firstMember, TauMemberEntity secondMember) {
         this.firstMember = firstMember;
         this.secondMember = secondMember;
     }
 
-    public MemberEntity firstMember() {
+    public TauMemberEntity firstMember() {
         return firstMember;
     }
 
-    public MemberEntity secondMember() {
+    public TauMemberEntity secondMember() {
         return secondMember;
     }
 
-    public MemberEntity otherMember(MemberEntity member) {
+    public TauMemberEntity otherMember(TauMemberEntity member) {
         if (member == firstMember) return secondMember;
         if (member == secondMember) return firstMember;
         throw new IllegalArgumentException("Member not part of this dialog");
@@ -40,6 +38,6 @@ public class DialogEntity extends ChatEntity {
 
     @Override
     public String toString() {
-        return "<Dialog %s and %s>".formatted(firstMember.nickname(), secondMember.nickname());
+        return "<Dialog %s and %s>".formatted(firstMember.member().nickname(), secondMember.member().nickname());
     }
 }

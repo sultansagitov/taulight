@@ -10,6 +10,7 @@ import net.result.sandnode.exception.UnprocessedMessagesException;
 import net.result.sandnode.serverclient.Session;
 import net.result.taulight.db.ChatEntity;
 import net.result.taulight.db.TauDatabase;
+import net.result.taulight.db.TauMemberEntity;
 import net.result.taulight.group.TauChatGroup;
 import net.result.taulight.group.TauGroupManager;
 import net.result.taulight.dto.ChatMemberDTO;
@@ -53,19 +54,20 @@ public class MembersServerChain extends ServerChain implements ReceiverChain {
 
                 ChatEntity chat = optChat.get();
                 TauChatGroup group = groupManager.getGroup(chat);
-                Collection<MemberEntity> members = database.getMembers(chat);
+                Collection<TauMemberEntity> members = database.getMembers(chat);
 
-                if (!members.contains(session.member)) {
+                if (!members.contains(session.member.tauMember())) {
                     send(Errors.NOT_FOUND.createMessage());
                     continue;
                 }
 
                 Map<String, ChatMemberDTO> map = members.stream()
+                        .map(TauMemberEntity::member)
                         .collect(Collectors.toMap(MemberEntity::nickname, ChatMemberDTO::new));
 
-                for (Session session : group.getSessions()) {
-                    if (session.member != null) {
-                        map.computeIfPresent(session.member.nickname(), (nickname, record) -> {
+                for (Session s : group.getSessions()) {
+                    if (s.member != null) {
+                        map.computeIfPresent(s.member.nickname(), (nickname, record) -> {
                             record.status = ChatMemberDTO.Status.ONLINE;
                             return record;
                         });

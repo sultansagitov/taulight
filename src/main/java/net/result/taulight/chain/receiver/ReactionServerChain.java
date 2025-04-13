@@ -47,7 +47,7 @@ public class ReactionServerChain extends ServerChain implements ReceiverChain {
                 .orElseThrow(NotFoundException::new);
 
         if (request.isReact()) {
-            database.createReactionEntry(session.member, message, reactionType);
+            database.createReactionEntry(session.member.tauMember(), message, reactionType);
             LOGGER.info("Reaction added: {} to message {} by {}",
                     reactionType.name(), message.id(), session.member.nickname());
         } else {

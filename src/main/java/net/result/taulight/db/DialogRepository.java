@@ -1,7 +1,6 @@
 package net.result.taulight.db;
 
 import net.result.sandnode.db.JPAUtil;
-import net.result.sandnode.db.MemberEntity;
 import net.result.sandnode.exception.DatabaseException;
 import net.result.taulight.exception.AlreadyExistingRecordException;
 import org.jetbrains.annotations.NotNull;
@@ -59,7 +58,7 @@ public class DialogRepository {
         }
     }
 
-    public Optional<DialogEntity> findByMembers(MemberEntity firstMember, MemberEntity secondMember)
+    public Optional<DialogEntity> findByMembers(TauMemberEntity firstMember, TauMemberEntity secondMember)
             throws DatabaseException {
         String q = """
             SELECT d FROM DialogEntity d

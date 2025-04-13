@@ -1,12 +1,10 @@
 package net.result.sandnode.db;
 
-import net.result.taulight.db.*;
+import net.result.taulight.db.TauMemberEntity;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
-import javax.persistence.ManyToMany;
-import javax.persistence.OneToMany;
-import java.util.*;
+import javax.persistence.OneToOne;
 
 @SuppressWarnings("unused")
 @Entity
@@ -14,20 +12,8 @@ public class MemberEntity extends SandnodeEntity {
     private String nickname;
     private String passwordHash;
 
-    @OneToMany(cascade = CascadeType.ALL)
-    private Set<ReactionEntryEntity> reactionEntries = new HashSet<>();
-
-    @ManyToMany(cascade = CascadeType.ALL, mappedBy = "members")
-    private Set<ChannelEntity> channels = new HashSet<>();
-
-    @OneToMany(mappedBy = "firstMember", cascade = CascadeType.ALL)
-    private Set<DialogEntity> dialogsAsFirst = new HashSet<>();
-
-    @OneToMany(mappedBy = "secondMember", cascade = CascadeType.ALL)
-    private Set<DialogEntity> dialogsAsSecond = new HashSet<>();
-
-    @OneToMany(cascade = CascadeType.ALL)
-    private Set<InviteCodeEntity> inviteCodes = new HashSet<>();
+    @OneToOne(cascade = CascadeType.ALL)
+    private TauMemberEntity tauMember;
 
     public MemberEntity() {}
 
@@ -52,42 +38,12 @@ public class MemberEntity extends SandnodeEntity {
         this.passwordHash = passwordHash;
     }
 
-    public Set<ReactionEntryEntity> reactionEntries() {
-        return reactionEntries;
+    public TauMemberEntity tauMember() {
+        return tauMember;
     }
 
-    public void setReactionEntries(Set<ReactionEntryEntity> reactionEntries) {
-        this.reactionEntries = reactionEntries;
-    }
-
-    public Set<ChannelEntity> channels() {
-        return channels;
-    }
-
-    public void setChannels(Set<ChannelEntity> channels) {
-        this.channels = channels;
-    }
-
-    public Set<DialogEntity> dialogs() {
-        var all = new HashSet<>(dialogsAsFirst);
-        all.addAll(dialogsAsSecond);
-        return all;
-    }
-
-    public void setDialogsAsFirst(Set<DialogEntity> dialogsAsFirst) {
-        this.dialogsAsFirst = dialogsAsFirst;
-    }
-
-    public void setDialogsAsSecond(Set<DialogEntity> dialogsAsSecond) {
-        this.dialogsAsSecond = dialogsAsSecond;
-    }
-
-    public Set<InviteCodeEntity> inviteCodes() {
-        return inviteCodes;
-    }
-
-    public void setInviteCodes(Set<InviteCodeEntity> inviteCodes) {
-        this.inviteCodes = inviteCodes;
+    public void setTauMember(TauMemberEntity tauMember) {
+        this.tauMember = tauMember;
     }
 
     @Override

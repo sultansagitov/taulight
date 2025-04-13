@@ -25,7 +25,7 @@ public interface TauDatabase extends Database {
      * @throws DatabaseException if a database error occurs
      * @throws AlreadyExistingRecordException if a dialog between the members already exists
      */
-    DialogEntity createDialog(MemberEntity firstMember, MemberEntity secondMember)
+    DialogEntity createDialog(TauMemberEntity firstMember, TauMemberEntity secondMember)
             throws DatabaseException, AlreadyExistingRecordException;
 
     /**
@@ -36,17 +36,17 @@ public interface TauDatabase extends Database {
      * @return an optional DialogEntity if found
      * @throws DatabaseException if a database error occurs
      */
-    Optional<DialogEntity> findDialog(MemberEntity member1, MemberEntity member2) throws DatabaseException;
+    Optional<DialogEntity> findDialog(TauMemberEntity member1, TauMemberEntity member2) throws DatabaseException;
 
     /**
      * Creates a new channel with the given title and owner.
      *
      * @param title the title of the new channel
-     * @param owner the {@link MemberEntity} who will own the channel
+     * @param owner the {@link TauMemberEntity} who will own the channel
      * @return the created {@link ChannelEntity}
      * @throws DatabaseException if a database error occurs
      */
-    ChannelEntity createChannel(String title, MemberEntity owner) throws DatabaseException;
+    ChannelEntity createChannel(String title, TauMemberEntity owner) throws DatabaseException;
 
     /**
      * Retrieves a chat by its ID.
@@ -62,12 +62,12 @@ public interface TauDatabase extends Database {
      *
      * @param chat the {@link ChatEntity} where the message will be added
      * @param input the {@link ChatMessageInputDTO} containing the message content and metadata
-     * @param member the {@link MemberEntity} authoring the message
+     * @param member the {@link TauMemberEntity} authoring the message
      * @return the created {@link MessageEntity}
      * @throws NotFoundException if the chat or member is not found
      * @throws DatabaseException if a database error occurs
      */
-    MessageEntity createMessage(ChatEntity chat, ChatMessageInputDTO input, MemberEntity member)
+    MessageEntity createMessage(ChatEntity chat, ChatMessageInputDTO input, TauMemberEntity member)
             throws NotFoundException, DatabaseException;
 
     /**
@@ -99,7 +99,7 @@ public interface TauDatabase extends Database {
      *      {@code false} if the member was already part of the channel
      * @throws DatabaseException if a database error occurs
      */
-    boolean addMemberToChannel(ChannelEntity channel, MemberEntity member) throws DatabaseException;
+    boolean addMemberToChannel(ChannelEntity channel, TauMemberEntity member) throws DatabaseException;
 
     /**
      * Gets the count of messages in a chat.
@@ -119,7 +119,7 @@ public interface TauDatabase extends Database {
      *      {@code false} if the member was not part of the channel
      * @throws DatabaseException if a database error occurs
      */
-    boolean leaveFromChannel(ChannelEntity channel, MemberEntity member) throws DatabaseException;
+    boolean leaveFromChannel(ChannelEntity channel, TauMemberEntity member) throws DatabaseException;
 
     /**
      * Retrieves an invite code by its code string.
@@ -134,16 +134,16 @@ public interface TauDatabase extends Database {
      * Creates a new invite code for a specific channel and receiver.
      *
      * @param channel the {@link ChannelEntity} to which the invite code grants access
-     * @param receiver the {@link MemberEntity} who is intended to receive the invite
-     * @param sender the {@link MemberEntity} who is sending the invite
+     * @param receiver the {@link TauMemberEntity} who is intended to receive the invite
+     * @param sender the {@link TauMemberEntity} who is sending the invite
      * @param expiresDate the expiration date and time of the invite code
      * @return the created {@link InviteCodeEntity}
      * @throws DatabaseException if a database error occurs
      */
     InviteCodeEntity createInviteCode(
             ChannelEntity channel,
-            MemberEntity receiver,
-            MemberEntity sender,
+            TauMemberEntity receiver,
+            TauMemberEntity sender,
             ZonedDateTime expiresDate
     ) throws DatabaseException;
 
@@ -155,7 +155,7 @@ public interface TauDatabase extends Database {
      * @return a collection of {@link InviteCodeEntity} instances matching the criteria
      * @throws DatabaseException if a database error occurs
      */
-    Collection<InviteCodeEntity> findInviteCode(ChannelEntity channel, MemberEntity member) throws DatabaseException;
+    Collection<InviteCodeEntity> findInviteCode(ChannelEntity channel, TauMemberEntity member) throws DatabaseException;
 
     /**
      * Activates a given invite code.
@@ -180,14 +180,14 @@ public interface TauDatabase extends Database {
     /**
      * Creates a new reaction entry by a member on a message using a specific reaction type.
      *
-     * @param member the {@link MemberEntity} who is reacting
+     * @param member the {@link TauMemberEntity} who is reacting
      * @param message the {@link MessageEntity} being reacted to
      * @param reactionType the {@link ReactionTypeEntity} representing the type of reaction
      * @return the created {@link ReactionEntryEntity}
      * @throws DatabaseException if a database error occurs
      */
     ReactionEntryEntity createReactionEntry(
-            MemberEntity member,
+            TauMemberEntity member,
             MessageEntity message,
             ReactionTypeEntity reactionType
     ) throws DatabaseException;
@@ -217,7 +217,7 @@ public interface TauDatabase extends Database {
      * @param chat the chat whose members to retrieve
      * @return a collection of members in the chat
      */
-    Collection<MemberEntity> getMembers(ChatEntity chat);
+    Collection<TauMemberEntity> getMembers(ChatEntity chat);
 
     /**
      * Removes a reaction entry from the database based on message, member, and reaction type.

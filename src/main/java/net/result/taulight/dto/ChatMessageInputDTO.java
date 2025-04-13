@@ -32,7 +32,7 @@ public class ChatMessageInputDTO {
         setChat(message.chat());
         setContent(message.content());
         setSentDatetime(message.sentDatetime());
-        setMember(message.member());
+        setMember(message.member().member());
         setSys(message.sys());
         setReplies(message.replies().stream().map(SandnodeEntity::id).collect(Collectors.toSet()));
     }

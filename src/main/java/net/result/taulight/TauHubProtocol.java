@@ -34,7 +34,7 @@ public class TauHubProtocol {
         TauGroupManager manager = (TauGroupManager) session.server.serverConfig.groupManager();
         TauDatabase database = (TauDatabase) session.server.serverConfig.database();
 
-        MessageEntity message = database.createMessage(chat, input, session.member);
+        MessageEntity message = database.createMessage(chat, input, session.member.tauMember());
 
         ChatMessageViewDTO serverMessage = new ChatMessageViewDTO(message);
 

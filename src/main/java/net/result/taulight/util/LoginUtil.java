@@ -5,6 +5,7 @@ import net.result.sandnode.serverclient.Session;
 import net.result.taulight.TauAgentProtocol;
 import net.result.taulight.db.ChannelEntity;
 import net.result.taulight.db.DialogEntity;
+import net.result.taulight.db.TauMemberEntity;
 import net.result.taulight.group.TauGroupManager;
 import org.jetbrains.annotations.NotNull;
 
@@ -16,11 +17,13 @@ public class LoginUtil {
             throw new UnauthorizedException();
         }
 
-        for (ChannelEntity channel : session.member.channels()) {
+        TauMemberEntity tauMember = session.member.tauMember();
+
+        for (ChannelEntity channel : tauMember.channels()) {
             TauAgentProtocol.addMemberToGroup(session, manager.getGroup(channel));
         }
 
-        for (DialogEntity dialog : session.member.dialogs()) {
+        for (DialogEntity dialog : tauMember.dialogs()) {
             TauAgentProtocol.addMemberToGroup(session, manager.getGroup(dialog));
         }
     }

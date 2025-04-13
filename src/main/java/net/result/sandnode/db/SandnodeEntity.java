@@ -9,6 +9,7 @@ import javax.persistence.MappedSuperclass;
 import java.time.ZonedDateTime;
 import java.util.UUID;
 
+@SuppressWarnings("unused")
 @MappedSuperclass
 public abstract class SandnodeEntity {
     @Id

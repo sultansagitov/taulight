@@ -14,6 +14,7 @@ import net.result.taulight.SysMessages;
 import net.result.taulight.TauAgentProtocol;
 import net.result.taulight.TauHubProtocol;
 import net.result.taulight.chain.sender.DialogRequest;
+import net.result.taulight.db.TauMemberEntity;
 import net.result.taulight.dto.ChatMessageInputDTO;
 import net.result.taulight.db.TauDatabase;
 import net.result.taulight.db.DialogEntity;
@@ -46,17 +47,18 @@ public class DialogServerChain extends ServerChain implements ReceiverChain {
         }
 
         DialogEntity dialog;
-        MemberEntity anotherMember = database
+        TauMemberEntity anotherMember = database
                 .findMemberByNickname(request.nickname())
+                .map(MemberEntity::tauMember)
                 .orElseThrow(AddressedMemberNotFoundException::new);
 
-        Optional<DialogEntity> dialogOpt = database.findDialog(session.member, anotherMember);
+        Optional<DialogEntity> dialogOpt = database.findDialog(session.member.tauMember(), anotherMember);
         if (dialogOpt.isPresent()) {
             dialog = dialogOpt.get();
         } else {
-            dialog = database.createDialog(session.member, anotherMember);
+            dialog = database.createDialog(session.member.tauMember(), anotherMember);
 
-            ChatMessageInputDTO input = SysMessages.dialogNew.chatMessageInputDTO(dialog, session.member);
+            ChatMessageInputDTO input = SysMessages.dialogNew.chatMessageInputDTO(dialog, session.member.tauMember());
 
             try {
                 TauHubProtocol.send(session, dialog, input);
@@ -67,7 +69,7 @@ public class DialogServerChain extends ServerChain implements ReceiverChain {
             }
         }
 
-        Collection<MemberEntity> members = List.of(session.member, anotherMember);
+        Collection<MemberEntity> members = List.of(session.member, anotherMember.member());
         TauAgentProtocol.addMembersToGroup(session, members, manager.getGroup(dialog));
 
         sendFin(new UUIDMessage(new Headers().setType(MessageTypes.HAPPY), dialog));

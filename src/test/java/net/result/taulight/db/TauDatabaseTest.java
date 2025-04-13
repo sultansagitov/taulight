@@ -23,12 +23,12 @@ class TauDatabaseTest {
 
     private static final Logger LOGGER = LogManager.getLogger(TauDatabaseTest.class);
     private static TauDatabase database;
-    private static MemberEntity member1;
-    private static MemberEntity member2;
-    private static MemberEntity member3;
-    private static MemberEntity member4;
-    private static MemberEntity member5;
-    private static MemberEntity member6;
+    private static TauMemberEntity member1;
+    private static TauMemberEntity member2;
+    private static TauMemberEntity member3;
+    private static TauMemberEntity member4;
+    private static TauMemberEntity member5;
+    private static TauMemberEntity member6;
 
     @BeforeAll
     public static void setup() throws DatabaseException, BusyNicknameException {
@@ -36,12 +36,12 @@ class TauDatabaseTest {
 
         database = new TauJPADatabase(PasswordHashers.BCRYPT);
 
-        member1 = database.registerMember("user1", "password123");
-        member2 = database.registerMember("user2", "password123");
-        member3 = database.registerMember("user3", "password123");
-        member4 = database.registerMember("user4", "password123");
-        member5 = database.registerMember("user5", "password123");
-        member6 = database.registerMember("user6", "password123");
+        member1 = database.registerMember("user1", "password123").tauMember();
+        member2 = database.registerMember("user2", "password123").tauMember();
+        member3 = database.registerMember("user3", "password123").tauMember();
+        member4 = database.registerMember("user4", "password123").tauMember();
+        member5 = database.registerMember("user5", "password123").tauMember();
+        member6 = database.registerMember("user6", "password123").tauMember();
     }
 
     @Test
@@ -107,7 +107,7 @@ class TauDatabaseTest {
         ChatMessageInputDTO messageInputDTO = new ChatMessageInputDTO()
                 .setContent("Hello!")
                 .setChat(chat)
-                .setMember(member1)
+                .setMember(member1.member())
                 .setSentDatetimeNow()
                 .setReplies(new HashSet<>())
                 .setSys(true);
@@ -125,7 +125,7 @@ class TauDatabaseTest {
         ChatMessageInputDTO input1 = new ChatMessageInputDTO()
                 .setContent("Hello world")
                 .setChat(channel)
-                .setMember(member1)
+                .setMember(member1.member())
                 .setSentDatetimeNow()
                 .setReplies(new HashSet<>())
                 .setSys(true);
@@ -133,7 +133,7 @@ class TauDatabaseTest {
         ChatMessageInputDTO input2 = new ChatMessageInputDTO()
                 .setContent("Hello world")
                 .setChat(channel)
-                .setMember(member2)
+                .setMember(member2.member())
                 .setSentDatetimeNow()
                 .setReplies(new HashSet<>())
                 .setSys(true);
@@ -153,7 +153,7 @@ class TauDatabaseTest {
         ChatMessageInputDTO input = new ChatMessageInputDTO()
                 .setContent("Find me")
                 .setChat(channel)
-                .setMember(member1)
+                .setMember(member1.member())
                 .setSentDatetimeNow()
                 .setReplies(new HashSet<>())
                 .setSys(false);
@@ -172,7 +172,7 @@ class TauDatabaseTest {
         boolean added = database.addMemberToChannel(channel, member2);
         assertTrue(added);
 
-        Collection<MemberEntity> members = database.getMembers(channel);
+        Collection<TauMemberEntity> members = database.getMembers(channel);
         assertTrue(members.contains(member2));
         assertFalse(members.contains(member5));
 
@@ -187,7 +187,7 @@ class TauDatabaseTest {
         ChatMessageInputDTO input1 = new ChatMessageInputDTO()
                 .setContent("Hello world")
                 .setChat(channel)
-                .setMember(member1)
+                .setMember(member1.member())
                 .setSentDatetimeNow()
                 .setReplies(new HashSet<>())
                 .setSys(true);
@@ -195,7 +195,7 @@ class TauDatabaseTest {
         ChatMessageInputDTO input2 = new ChatMessageInputDTO()
                 .setContent("Hello world")
                 .setChat(channel)
-                .setMember(member2)
+                .setMember(member2.member())
                 .setSentDatetimeNow()
                 .setReplies(new HashSet<>())
                 .setSys(true);
@@ -215,7 +215,7 @@ class TauDatabaseTest {
         boolean removed = database.leaveFromChannel(channel, member2);
         assertTrue(removed);
 
-        Collection<MemberEntity> members = database.getMembers(channel);
+        Collection<TauMemberEntity> members = database.getMembers(channel);
         assertFalse(members.contains(member2));
     }
 
@@ -283,7 +283,7 @@ class TauDatabaseTest {
         ChatMessageInputDTO input = new ChatMessageInputDTO()
                 .setContent("Hello world")
                 .setChat(channel)
-                .setMember(member1)
+                .setMember(member1.member())
                 .setSentDatetimeNow()
                 .setReplies(new HashSet<>())
                 .setSys(true);
@@ -304,7 +304,7 @@ class TauDatabaseTest {
         ChatMessageInputDTO input = new ChatMessageInputDTO()
                 .setContent("Hello world")
                 .setChat(channel)
-                .setMember(member1)
+                .setMember(member1.member())
                 .setSentDatetimeNow()
                 .setReplies(new HashSet<>())
                 .setSys(true);
@@ -334,7 +334,7 @@ class TauDatabaseTest {
         ChannelEntity channel = database.createChannel("GetMembersChannel", member1);
         database.addMemberToChannel(channel, member2);
 
-        Collection<MemberEntity> members = database.getMembers(channel);
+        Collection<TauMemberEntity> members = database.getMembers(channel);
         assertTrue(members.contains(member2));
         assertFalse(members.contains(member6));
     }

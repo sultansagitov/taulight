@@ -1,7 +1,6 @@
 package net.result.taulight.db;
 
 import net.result.sandnode.db.JPAUtil;
-import net.result.sandnode.db.MemberEntity;
 import net.result.sandnode.exception.DatabaseException;
 import org.jetbrains.annotations.NotNull;
 
@@ -31,8 +30,8 @@ public class InviteCodeRepository {
 
     public InviteCodeEntity create(
             ChannelEntity channel,
-            MemberEntity receiver,
-            MemberEntity sender,
+            TauMemberEntity receiver,
+            TauMemberEntity sender,
             ZonedDateTime expiresDate
     ) throws DatabaseException {
         return save(new InviteCodeEntity(channel, receiver, sender, expiresDate));
@@ -51,7 +50,7 @@ public class InviteCodeRepository {
         }
     }
 
-    public Collection<InviteCodeEntity> find(ChannelEntity channel, MemberEntity receiver)
+    public Collection<InviteCodeEntity> find(ChannelEntity channel, TauMemberEntity receiver)
             throws DatabaseException {
         try {
             String q = "SELECT i FROM InviteCodeEntity i WHERE i.channel = :channel AND i.receiver = :receiver";

@@ -1,7 +1,6 @@
 package net.result.taulight.db;
 
 import net.result.sandnode.db.JPAUtil;
-import net.result.sandnode.db.MemberEntity;
 import net.result.sandnode.exception.DatabaseException;
 
 import javax.persistence.EntityManager;
@@ -28,7 +27,7 @@ public class ChannelRepository {
         }
     }
 
-    public ChannelEntity create(String title, MemberEntity owner) throws DatabaseException {
+    public ChannelEntity create(String title, TauMemberEntity owner) throws DatabaseException {
         return save(new ChannelEntity(title, owner));
     }
 
@@ -52,10 +51,10 @@ public class ChannelRepository {
         }
     }
 
-    public boolean addMemberToChannel(ChannelEntity channel, MemberEntity member) throws DatabaseException {
+    public boolean addMemberToChannel(ChannelEntity channel, TauMemberEntity member) throws DatabaseException {
         EntityTransaction transaction = em.getTransaction();
         try {
-            Set<MemberEntity> members = channel.members();
+            Set<TauMemberEntity> members = channel.members();
             if (members == null) {
                 channel.setMembers(Set.of(member));
             } else if (members.contains(member)) {
@@ -76,10 +75,10 @@ public class ChannelRepository {
         return true;
     }
 
-    public boolean removeMemberFromChannel(ChannelEntity channel, MemberEntity member) throws DatabaseException {
+    public boolean removeMemberFromChannel(ChannelEntity channel, TauMemberEntity member) throws DatabaseException {
         EntityTransaction transaction = em.getTransaction();
         try {
-            Set<MemberEntity> members = channel.members();
+            Set<TauMemberEntity> members = channel.members();
 
             if (members == null) {
                 channel.setMembers(Set.of(member));

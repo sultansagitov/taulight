@@ -1,6 +1,5 @@
 package net.result.taulight.db;
 
-import net.result.sandnode.db.MemberEntity;
 import net.result.sandnode.db.SandnodeEntity;
 
 import javax.persistence.CascadeType;
@@ -11,7 +10,7 @@ import javax.persistence.ManyToOne;
 @Entity
 public class ReactionEntryEntity extends SandnodeEntity {
     @ManyToOne(cascade = CascadeType.ALL)
-    private MemberEntity member;
+    private TauMemberEntity member;
 
     @ManyToOne(cascade = CascadeType.ALL)
     private MessageEntity message;
@@ -21,17 +20,17 @@ public class ReactionEntryEntity extends SandnodeEntity {
 
     public ReactionEntryEntity() {}
 
-    public ReactionEntryEntity(MemberEntity member, MessageEntity message, ReactionTypeEntity reactionType) {
+    public ReactionEntryEntity(TauMemberEntity member, MessageEntity message, ReactionTypeEntity reactionType) {
         this.message = message;
         this.reactionType = reactionType;
         this.member = member;
     }
 
-    public MemberEntity member() {
+    public TauMemberEntity member() {
         return member;
     }
 
-    public void setMember(MemberEntity member) {
+    public void setMember(TauMemberEntity member) {
         this.member = member;
     }
 

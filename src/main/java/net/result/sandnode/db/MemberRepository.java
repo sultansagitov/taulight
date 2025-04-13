@@ -26,6 +26,10 @@ public class MemberRepository {
         }
     }
 
+    public MemberEntity create(String nickname, String hashedPassword) throws DatabaseException {
+        return save(new MemberEntity(nickname, hashedPassword));
+    }
+
     public Optional<MemberEntity> findByNickname(String nickname) throws DatabaseException {
         try {
             return em

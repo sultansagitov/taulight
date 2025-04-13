@@ -2,7 +2,6 @@ package net.result.taulight.chain.receiver;
 
 import net.result.sandnode.chain.ReceiverChain;
 import net.result.sandnode.chain.receiver.ServerChain;
-import net.result.sandnode.db.MemberEntity;
 import net.result.sandnode.exception.error.NotFoundException;
 import net.result.sandnode.exception.error.UnauthorizedException;
 import net.result.sandnode.message.types.HappyMessage;
@@ -12,6 +11,7 @@ import net.result.taulight.TauHubProtocol;
 import net.result.taulight.db.ChannelEntity;
 import net.result.taulight.db.InviteCodeEntity;
 import net.result.taulight.db.TauDatabase;
+import net.result.taulight.db.TauMemberEntity;
 import net.result.taulight.dto.ChatMessageInputDTO;
 import net.result.sandnode.exception.error.NoEffectException;
 import net.result.taulight.message.types.UseCodeRequest;
@@ -38,12 +38,12 @@ public class UseCodeServerChain extends ServerChain  implements ReceiverChain {
 
         InviteCodeEntity invite = database.findInviteCode(code).orElseThrow(NotFoundException::new);
 
-        MemberEntity member = invite.receiver();
+        TauMemberEntity member = invite.receiver();
         ChannelEntity channel = invite.channel();
 
-        if (invite.receiver() != session.member) {
+        if (invite.receiver() != session.member.tauMember()) {
             //TODO add channel roles and use it
-            if (invite.sender() == session.member) {
+            if (invite.sender() == session.member.tauMember()) {
                 throw new UnauthorizedException();
             } else {
                 throw new NotFoundException();

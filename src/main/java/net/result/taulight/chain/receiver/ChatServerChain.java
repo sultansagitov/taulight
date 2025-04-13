@@ -7,10 +7,7 @@ import net.result.sandnode.exception.DatabaseException;
 import net.result.sandnode.exception.DeserializationException;
 import net.result.sandnode.exception.UnprocessedMessagesException;
 import net.result.sandnode.serverclient.Session;
-import net.result.taulight.db.ChannelEntity;
-import net.result.taulight.db.ChatEntity;
-import net.result.taulight.db.DialogEntity;
-import net.result.taulight.db.TauDatabase;
+import net.result.taulight.db.*;
 import net.result.taulight.dto.ChatInfoDTO;
 import net.result.taulight.dto.ChatInfoPropDTO;
 import net.result.taulight.message.types.ChatRequest;
@@ -38,6 +35,8 @@ public class ChatServerChain extends ServerChain implements ReceiverChain {
                 continue;
             }
 
+            TauMemberEntity tauMember = session.member.tauMember();
+
             Collection<UUID> allChatID = request.getAllChatID();
             Collection<ChatInfoPropDTO> chatInfoProps = request.getChatInfoProps();
 
@@ -45,17 +44,17 @@ public class ChatServerChain extends ServerChain implements ReceiverChain {
                 Collection<ChatInfoDTO> infos = new ArrayList<>();
 
                 if (allChatID == null || allChatID.isEmpty()) {
-                    LOGGER.debug("channels {}", session.member.channels());
-                    for (var channel : session.member.channels()) {
+                    LOGGER.debug("channels {}", tauMember.channels());
+                    for (var channel : tauMember.channels()) {
                         if (!Collections.disjoint(chatInfoProps, ChatInfoPropDTO.channelAll())) {
-                            infos.add(ChatInfoDTO.channel(channel, session.member, chatInfoProps));
+                            infos.add(ChatInfoDTO.channel(channel, tauMember, chatInfoProps));
                         }
                     }
 
-                    LOGGER.debug("dialogs {}", session.member.dialogs());
-                    for (var dialog : session.member.dialogs()) {
+                    LOGGER.debug("dialogs {}", tauMember.dialogs());
+                    for (var dialog : tauMember.dialogs()) {
                         if (!Collections.disjoint(chatInfoProps, ChatInfoPropDTO.dialogAll())) {
-                            infos.add(ChatInfoDTO.dialog(dialog, session.member, chatInfoProps));
+                            infos.add(ChatInfoDTO.dialog(dialog, tauMember, chatInfoProps));
                         }
                     }
                 } else {
@@ -69,22 +68,22 @@ public class ChatServerChain extends ServerChain implements ReceiverChain {
                         ChatEntity chat = opt.get();
 
                         if (chat instanceof ChannelEntity channel) {
-                            if (!channel.members().contains(session.member)) {
+                            if (!channel.members().contains(tauMember)) {
                                 infos.add(ChatInfoDTO.chatNotFound(chatID));
                                 continue;
                             }
 
                             if (!Collections.disjoint(chatInfoProps, ChatInfoPropDTO.channelAll())) {
-                                infos.add(ChatInfoDTO.channel(channel, session.member, chatInfoProps));
+                                infos.add(ChatInfoDTO.channel(channel, tauMember, chatInfoProps));
                             }
                         }
 
                         if (!(chat instanceof DialogEntity dialog)) continue;
 
-                        if (dialog.firstMember() != session.member && dialog.secondMember() != session.member) {
+                        if (dialog.firstMember() != tauMember && dialog.secondMember() != tauMember) {
                             infos.add(ChatInfoDTO.chatNotFound(chatID));
                         } else if (!Collections.disjoint(chatInfoProps, ChatInfoPropDTO.dialogAll())) {
-                            infos.add(ChatInfoDTO.dialog(dialog, session.member, chatInfoProps));
+                            infos.add(ChatInfoDTO.dialog(dialog, tauMember, chatInfoProps));
                         }
                     }
                 }

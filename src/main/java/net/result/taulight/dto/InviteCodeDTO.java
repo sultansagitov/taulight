@@ -28,8 +28,8 @@ public class InviteCodeDTO extends CodeDTO {
     public InviteCodeDTO(InviteCodeEntity invite) {
         super(invite.code());
         this.title = invite.channel().title();
-        this.receiverNickname = invite.receiver().nickname();
-        this.senderNickname = invite.sender().nickname();
+        this.receiverNickname = invite.receiver().member().nickname();
+        this.senderNickname = invite.sender().member().nickname();
         creationDate = invite.creationDate();
         activationDate = invite.activationDate();
         expiresDate = invite.expiresDate();

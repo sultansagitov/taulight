@@ -1,6 +1,5 @@
 package net.result.taulight.db;
 
-import net.result.sandnode.db.MemberEntity;
 import net.result.sandnode.db.SandnodeEntity;
 import net.result.sandnode.db.ZonedDateTimeConverter;
 
@@ -26,17 +25,17 @@ public class InviteCodeEntity extends SandnodeEntity {
     private ChannelEntity channel;
 
     @ManyToOne(cascade = CascadeType.ALL)
-    private MemberEntity receiver;
+    private TauMemberEntity receiver;
 
     @ManyToOne(cascade = CascadeType.ALL)
-    private MemberEntity sender;
+    private TauMemberEntity sender;
 
     public InviteCodeEntity() {}
 
     public InviteCodeEntity(
             ChannelEntity channel,
-            MemberEntity receiver,
-            MemberEntity sender,
+            TauMemberEntity receiver,
+            TauMemberEntity sender,
             ZonedDateTime expiresDate
     ) {
         setRandomCode();
@@ -78,19 +77,19 @@ public class InviteCodeEntity extends SandnodeEntity {
         this.channel = channel;
     }
 
-    public MemberEntity receiver() {
+    public TauMemberEntity receiver() {
         return receiver;
     }
 
-    public void setReceiver(MemberEntity receiver) {
+    public void setReceiver(TauMemberEntity receiver) {
         this.receiver = receiver;
     }
 
-    public MemberEntity sender() {
+    public TauMemberEntity sender() {
         return sender;
     }
 
-    public void setSender(MemberEntity sender) {
+    public void setSender(TauMemberEntity sender) {
         this.sender = sender;
     }
 
