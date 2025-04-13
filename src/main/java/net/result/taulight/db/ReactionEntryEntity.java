@@ -2,20 +2,19 @@ package net.result.taulight.db;
 
 import net.result.sandnode.db.SandnodeEntity;
 
-import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
 
 @SuppressWarnings("unused")
 @Entity
 public class ReactionEntryEntity extends SandnodeEntity {
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne
     private TauMemberEntity member;
 
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne
     private MessageEntity message;
 
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne
     private ReactionTypeEntity reactionType;
 
     public ReactionEntryEntity() {}

@@ -12,7 +12,7 @@ import java.util.Optional;
 public class ReactionTypeRepository {
     private final EntityManager em = JPAUtil.getEntityManager();
 
-    public ReactionTypeEntity save(ReactionTypeEntity reactionType) throws DatabaseException {
+    private ReactionTypeEntity save(ReactionTypeEntity reactionType) throws DatabaseException {
         while (em.find(ReactionTypeEntity.class, reactionType.id()) != null) {
             reactionType.setRandomID();
         }

@@ -10,7 +10,7 @@ import java.util.*;
 public class ChannelRepository {
     private final EntityManager em = JPAUtil.getEntityManager();
 
-    public ChannelEntity save(ChannelEntity channel) throws DatabaseException {
+    private ChannelEntity save(ChannelEntity channel) throws DatabaseException {
         while (em.find(ChannelEntity.class, channel.id()) != null) {
             channel.setRandomID();
         }

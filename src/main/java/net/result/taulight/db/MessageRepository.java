@@ -12,22 +12,7 @@ import java.util.*;
 public class MessageRepository {
     private final EntityManager em = JPAUtil.getEntityManager();
 
-    public MessageEntity create(ChatEntity chat, ChatMessageInputDTO input, TauMemberEntity member)
-            throws DatabaseException, NotFoundException {
-        MessageEntity message = new MessageEntity(chat, input, member);
-        Set<MessageEntity> messageEntities = new HashSet<>();
-        Set<UUID> replies = input.replies();
-        if (replies != null) {
-            for (UUID r : replies) {
-                messageEntities.add(findById(r).orElseThrow(NotFoundException::new));
-            }
-        }
-        message.setReplies(messageEntities);
-
-        return save(message);
-    }
-
-    public MessageEntity save(MessageEntity m) throws DatabaseException {
+    private MessageEntity save(MessageEntity m) throws DatabaseException {
         while (em.find(MessageEntity.class, m.id()) != null) {
             m.setRandomID();
         }
@@ -42,6 +27,21 @@ public class MessageRepository {
             if (transaction.isActive()) transaction.rollback();
             throw new DatabaseException(e);
         }
+    }
+
+    public MessageEntity create(ChatEntity chat, ChatMessageInputDTO input, TauMemberEntity member)
+            throws DatabaseException, NotFoundException {
+        MessageEntity message = new MessageEntity(chat, input, member);
+        Set<MessageEntity> messageEntities = new HashSet<>();
+        Set<UUID> replies = input.repliedToMessages();
+        if (replies != null) {
+            for (UUID r : replies) {
+                messageEntities.add(findById(r).orElseThrow(NotFoundException::new));
+            }
+        }
+        message.setRepliedToMessages(messageEntities);
+
+        return save(message);
     }
 
     public Optional<MessageEntity> findById(UUID id) throws DatabaseException {

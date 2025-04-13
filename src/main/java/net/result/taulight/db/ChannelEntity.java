@@ -9,18 +9,18 @@ import java.util.HashSet;
 public class ChannelEntity extends ChatEntity {
     private String title;
 
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne
     private TauMemberEntity owner;
 
-    @ManyToMany(cascade = CascadeType.ALL)
+    @ManyToMany
     @JoinTable(
             name = "channel_members",
-            joinColumns = @JoinColumn(name = "channel_id"),
-            inverseJoinColumns = @JoinColumn(name = "member_id")
+            joinColumns = @JoinColumn(name = "channel_id", nullable = false),
+            inverseJoinColumns = @JoinColumn(name = "member_id", nullable = false)
     )
     private Set<TauMemberEntity> members = new HashSet<>();
 
-    @OneToMany(cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "channel", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<InviteCodeEntity> inviteCodes = new HashSet<>();
 
     public ChannelEntity() {}

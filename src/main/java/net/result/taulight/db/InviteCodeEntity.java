@@ -3,7 +3,6 @@ package net.result.taulight.db;
 import net.result.sandnode.db.SandnodeEntity;
 import net.result.sandnode.db.ZonedDateTimeConverter;
 
-import javax.persistence.CascadeType;
 import javax.persistence.Convert;
 import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
@@ -21,13 +20,13 @@ public class InviteCodeEntity extends SandnodeEntity {
     @Convert(converter = ZonedDateTimeConverter.class)
     private ZonedDateTime expiresDate;
 
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne
     private ChannelEntity channel;
 
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne
     private TauMemberEntity receiver;
 
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne
     private TauMemberEntity sender;
 
     public InviteCodeEntity() {}
@@ -104,4 +103,15 @@ public class InviteCodeEntity extends SandnodeEntity {
     public void setActivationDateNow() {
         this.activatedAt = ZonedDateTime.now();
     }
+
+    @Override
+    public String toString() {
+        return "<InviteCodeEntity code=%s, channel=%s, receiver=%s, sender=%s>".formatted(
+                code,
+                channel.title(),
+                receiver.member().nickname(),
+                sender.member().nickname()
+        );
+    }
+
 }

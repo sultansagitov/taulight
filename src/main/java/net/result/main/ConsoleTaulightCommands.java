@@ -507,7 +507,7 @@ public class ConsoleTaulightCommands {
         ChatMessageInputDTO message = new ChatMessageInputDTO()
                 .setChatID(context.currentChat)
                 .setContent(input)
-                .setReplies(replies)
+                .setRepliedToMessages(replies)
                 .setNickname(context.nickname)
                 .setSentDatetimeNow();
 

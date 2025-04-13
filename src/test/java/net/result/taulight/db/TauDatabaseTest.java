@@ -7,8 +7,6 @@ import net.result.sandnode.exception.error.NotFoundException;
 import net.result.sandnode.security.PasswordHashers;
 import net.result.taulight.dto.ChatMessageInputDTO;
 import net.result.taulight.exception.AlreadyExistingRecordException;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.*;
 
 import java.time.ZonedDateTime;
@@ -21,7 +19,6 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class TauDatabaseTest {
 
-    private static final Logger LOGGER = LogManager.getLogger(TauDatabaseTest.class);
     private static TauDatabase database;
     private static TauMemberEntity member1;
     private static TauMemberEntity member2;
@@ -109,7 +106,7 @@ class TauDatabaseTest {
                 .setChat(chat)
                 .setMember(member1.member())
                 .setSentDatetimeNow()
-                .setReplies(new HashSet<>())
+                .setRepliedToMessages(new HashSet<>())
                 .setSys(true);
         MessageEntity message = database.createMessage(chat, messageInputDTO, member1);
 
@@ -127,7 +124,7 @@ class TauDatabaseTest {
                 .setChat(channel)
                 .setMember(member1.member())
                 .setSentDatetimeNow()
-                .setReplies(new HashSet<>())
+                .setRepliedToMessages(new HashSet<>())
                 .setSys(true);
 
         ChatMessageInputDTO input2 = new ChatMessageInputDTO()
@@ -135,7 +132,7 @@ class TauDatabaseTest {
                 .setChat(channel)
                 .setMember(member2.member())
                 .setSentDatetimeNow()
-                .setReplies(new HashSet<>())
+                .setRepliedToMessages(new HashSet<>())
                 .setSys(true);
 
         database.createMessage(channel, input1, member1);
@@ -155,7 +152,7 @@ class TauDatabaseTest {
                 .setChat(channel)
                 .setMember(member1.member())
                 .setSentDatetimeNow()
-                .setReplies(new HashSet<>())
+                .setRepliedToMessages(new HashSet<>())
                 .setSys(false);
 
         MessageEntity message = database.createMessage(channel, input, member1);
@@ -189,7 +186,7 @@ class TauDatabaseTest {
                 .setChat(channel)
                 .setMember(member1.member())
                 .setSentDatetimeNow()
-                .setReplies(new HashSet<>())
+                .setRepliedToMessages(new HashSet<>())
                 .setSys(true);
 
         ChatMessageInputDTO input2 = new ChatMessageInputDTO()
@@ -197,7 +194,7 @@ class TauDatabaseTest {
                 .setChat(channel)
                 .setMember(member2.member())
                 .setSentDatetimeNow()
-                .setReplies(new HashSet<>())
+                .setRepliedToMessages(new HashSet<>())
                 .setSys(true);
 
         database.createMessage(channel, input1, member1);
@@ -285,7 +282,7 @@ class TauDatabaseTest {
                 .setChat(channel)
                 .setMember(member1.member())
                 .setSentDatetimeNow()
-                .setReplies(new HashSet<>())
+                .setRepliedToMessages(new HashSet<>())
                 .setSys(true);
 
         MessageEntity message = database.createMessage(channel, input, member1);
@@ -306,14 +303,12 @@ class TauDatabaseTest {
                 .setChat(channel)
                 .setMember(member1.member())
                 .setSentDatetimeNow()
-                .setReplies(new HashSet<>())
+                .setRepliedToMessages(new HashSet<>())
                 .setSys(true);
 
         MessageEntity message = database.createMessage(channel, input, member1);
 
         ReactionEntryEntity reactionEntry = database.createReactionEntry(member1, message, reactionType);
-
-        LOGGER.debug(JPAUtil.getEntityManager().find(ReactionEntryEntity.class, reactionEntry.id()));
 
         boolean removed = database.removeReactionEntry(reactionEntry);
         assertTrue(removed);

@@ -10,7 +10,7 @@ import javax.persistence.EntityTransaction;
 public class ReactionEntryRepository {
     private final EntityManager em = JPAUtil.getEntityManager();
 
-    public ReactionEntryEntity save(@NotNull ReactionEntryEntity reactionEntry) throws DatabaseException {
+    private ReactionEntryEntity save(@NotNull ReactionEntryEntity reactionEntry) throws DatabaseException {
         while (em.find(ReactionEntryEntity.class, reactionEntry.id()) != null) {
             reactionEntry.setRandomID();
         }

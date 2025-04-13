@@ -16,7 +16,7 @@ public class TauMemberEntity extends SandnodeEntity {
     @OneToMany(cascade = CascadeType.ALL)
     private Set<ReactionEntryEntity> reactionEntries = new HashSet<>();
 
-    @ManyToMany(cascade = CascadeType.ALL, mappedBy = "members")
+    @ManyToMany(mappedBy = "members", cascade = CascadeType.ALL)
     private Set<ChannelEntity> channels = new HashSet<>();
 
     @OneToMany(mappedBy = "firstMember", cascade = CascadeType.ALL)
@@ -25,8 +25,11 @@ public class TauMemberEntity extends SandnodeEntity {
     @OneToMany(mappedBy = "secondMember", cascade = CascadeType.ALL)
     private Set<DialogEntity> dialogsAsSecond = new HashSet<>();
 
-    @OneToMany(cascade = CascadeType.ALL)
-    private Set<InviteCodeEntity> inviteCodes = new HashSet<>();
+    @OneToMany(mappedBy = "receiver", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<InviteCodeEntity> inviteCodesAsReceiver = new HashSet<>();
+
+    @OneToMany(mappedBy = "sender", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<InviteCodeEntity> inviteCodesAsSender = new HashSet<>();
 
     public TauMemberEntity() {}
 
@@ -72,12 +75,20 @@ public class TauMemberEntity extends SandnodeEntity {
         this.dialogsAsSecond = dialogsAsSecond;
     }
 
-    public Set<InviteCodeEntity> inviteCodes() {
-        return inviteCodes;
+    public Set<InviteCodeEntity> inviteCodesAsReceiver() {
+        return inviteCodesAsReceiver;
     }
 
-    public void setInviteCodes(Set<InviteCodeEntity> inviteCodes) {
-        this.inviteCodes = inviteCodes;
+    public void setInviteCodesAsReceiver(Set<InviteCodeEntity> inviteCodesAsReceiver) {
+        this.inviteCodesAsReceiver = inviteCodesAsReceiver;
+    }
+
+    public Set<InviteCodeEntity> inviteCodesAsSender() {
+        return inviteCodesAsSender;
+    }
+
+    public void setInviteCodesAsSender(Set<InviteCodeEntity> inviteCodesAsSender) {
+        this.inviteCodesAsSender = inviteCodesAsSender;
     }
 
     @Override

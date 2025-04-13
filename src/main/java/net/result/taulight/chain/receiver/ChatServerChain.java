@@ -44,14 +44,12 @@ public class ChatServerChain extends ServerChain implements ReceiverChain {
                 Collection<ChatInfoDTO> infos = new ArrayList<>();
 
                 if (allChatID == null || allChatID.isEmpty()) {
-                    LOGGER.debug("channels {}", tauMember.channels());
                     for (var channel : tauMember.channels()) {
                         if (!Collections.disjoint(chatInfoProps, ChatInfoPropDTO.channelAll())) {
                             infos.add(ChatInfoDTO.channel(channel, tauMember, chatInfoProps));
                         }
                     }
 
-                    LOGGER.debug("dialogs {}", tauMember.dialogs());
                     for (var dialog : tauMember.dialogs()) {
                         if (!Collections.disjoint(chatInfoProps, ChatInfoPropDTO.dialogAll())) {
                             infos.add(ChatInfoDTO.dialog(dialog, tauMember, chatInfoProps));

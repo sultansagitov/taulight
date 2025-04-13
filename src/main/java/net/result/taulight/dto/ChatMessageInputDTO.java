@@ -24,7 +24,7 @@ public class ChatMessageInputDTO {
     @JsonProperty
     private boolean sys = false;
     @JsonProperty
-    private Set<UUID> replies = null;
+    private Set<UUID> repliedToMessages = null;
 
     public ChatMessageInputDTO() {}
 
@@ -34,7 +34,7 @@ public class ChatMessageInputDTO {
         setSentDatetime(message.sentDatetime());
         setMember(message.member().member());
         setSys(message.sys());
-        setReplies(message.replies().stream().map(SandnodeEntity::id).collect(Collectors.toSet()));
+        setRepliedToMessages(message.repliedToMessages().stream().map(SandnodeEntity::id).collect(Collectors.toSet()));
     }
 
     public UUID chatID() {
@@ -94,18 +94,18 @@ public class ChatMessageInputDTO {
         return this;
     }
 
-    public Set<UUID> replies() {
-        return replies;
+    public Set<UUID> repliedToMessages() {
+        return repliedToMessages;
     }
 
-    public ChatMessageInputDTO setReplies(Set<UUID> replies) {
-        this.replies = replies;
+    public ChatMessageInputDTO setRepliedToMessages(Set<UUID> repliedToMessages) {
+        this.repliedToMessages = repliedToMessages;
         return this;
     }
 
     @Override
     public String toString() {
-        return "<ChatMessageInputDTO content=%s chatID=%s ztd=%s sys=%s nickname=%s replies=%s>"
-                .formatted(content, chatID, sentDatetime, sys, nickname, replies);
+        return "<ChatMessageInputDTO content=%s chatID=%s ztd=%s sys=%s nickname=%s repliedToMessages=%s>"
+                .formatted(content, chatID, sentDatetime, sys, nickname, repliedToMessages);
     }
 }

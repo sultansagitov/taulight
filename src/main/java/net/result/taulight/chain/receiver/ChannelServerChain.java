@@ -183,8 +183,7 @@ public class ChannelServerChain extends ServerChain implements ReceiverChain {
 
         Headers headers = new Headers().setType(TauMessageTypes.CHANNEL);
 
-        Collection<CodeDTO> collected = channel
-                .inviteCodes().stream()
+        Collection<CodeDTO> collected = channel.inviteCodes().stream()
                 .map(InviteCodeDTO::new)
                 .collect(Collectors.toSet());
 
@@ -195,7 +194,7 @@ public class ChannelServerChain extends ServerChain implements ReceiverChain {
     private void myCodes() throws Exception {
         Collection<CodeDTO> collected = session.member
                 .tauMember()
-                .inviteCodes().stream()
+                .inviteCodesAsReceiver().stream()
                 .map(InviteCodeDTO::new)
                 .collect(Collectors.toSet());
 

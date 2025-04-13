@@ -9,7 +9,7 @@ import java.util.Optional;
 public class MemberRepository {
     private final EntityManager em = JPAUtil.getEntityManager();
 
-    public MemberEntity save(MemberEntity member) throws DatabaseException {
+    private MemberEntity save(MemberEntity member) throws DatabaseException {
         while (em.find(MemberEntity.class, member.id()) != null) {
             member.setRandomID();
         }

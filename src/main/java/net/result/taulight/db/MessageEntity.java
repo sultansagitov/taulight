@@ -17,16 +17,24 @@ public class MessageEntity extends SandnodeEntity {
     @Convert(converter = ZonedDateTimeConverter.class)
     private ZonedDateTime sentDatetime;
 
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne
     private ChatEntity chat;
 
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne
     private TauMemberEntity member;
 
-    @OneToMany(cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "message", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<ReactionEntryEntity> reactionEntries = new HashSet<>();
 
-    @OneToMany(cascade = CascadeType.ALL)
+    @ManyToMany
+    @JoinTable(
+            name = "message_replies",
+            joinColumns = @JoinColumn(name = "reply_id", nullable = false),
+            inverseJoinColumns = @JoinColumn(name = "original_id", nullable = false)
+    )
+    private Set<MessageEntity> repliedToMessages = new HashSet<>();
+
+    @ManyToMany(mappedBy = "repliedToMessages")
     private Set<MessageEntity> replies = new HashSet<>();
 
     public MessageEntity() {}
@@ -85,6 +93,14 @@ public class MessageEntity extends SandnodeEntity {
 
     public void setReactionEntries(Set<ReactionEntryEntity> reactionEntries) {
         this.reactionEntries = reactionEntries;
+    }
+
+    public Set<MessageEntity> repliedToMessages() {
+        return repliedToMessages;
+    }
+
+    public void setRepliedToMessages(Set<MessageEntity> repliedToMessages) {
+        this.repliedToMessages = repliedToMessages;
     }
 
     public Set<MessageEntity> replies() {

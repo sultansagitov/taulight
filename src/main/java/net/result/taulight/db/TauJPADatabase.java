@@ -32,7 +32,7 @@ public class TauJPADatabase extends JPADatabase implements TauDatabase {
     @Override
     public DialogEntity createDialog(TauMemberEntity firstMember, TauMemberEntity secondMember)
             throws AlreadyExistingRecordException, DatabaseException {
-        return dialogRepository.save(new DialogEntity(firstMember, secondMember));
+        return dialogRepository.create(firstMember, secondMember);
     }
 
     @Override

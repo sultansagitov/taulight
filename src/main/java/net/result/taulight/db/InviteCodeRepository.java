@@ -13,7 +13,7 @@ import java.util.Optional;
 public class InviteCodeRepository {
     private final EntityManager em = JPAUtil.getEntityManager();
 
-    public InviteCodeEntity save(InviteCodeEntity code) throws DatabaseException {
+    private InviteCodeEntity save(InviteCodeEntity code) throws DatabaseException {
         while (em.find(InviteCodeEntity.class, code.id()) != null) code.setRandomID();
 
         EntityTransaction transaction = em.getTransaction();
@@ -34,7 +34,18 @@ public class InviteCodeRepository {
             TauMemberEntity sender,
             ZonedDateTime expiresDate
     ) throws DatabaseException {
-        return save(new InviteCodeEntity(channel, receiver, sender, expiresDate));
+        InviteCodeEntity managed = save(new InviteCodeEntity(channel, receiver, sender, expiresDate));
+
+        channel.inviteCodes().add(managed);
+        em.merge(channel);
+
+        receiver.inviteCodesAsReceiver().add(managed);
+        em.merge(receiver);
+
+        sender.inviteCodesAsReceiver().add(managed);
+        em.merge(sender);
+
+        return managed;
     }
 
     public Optional<InviteCodeEntity> find(String code) throws DatabaseException {
