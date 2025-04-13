@@ -84,7 +84,7 @@ class TauDatabaseTest {
     }
 
     @Test
-    public void saveChat() throws DatabaseException {
+    public void createChannel() throws DatabaseException {
         ChannelEntity channel = database.createChannel("General Chat", member1);
 
         Optional<ChatEntity> foundChannel = database.getChat(channel.id());
@@ -101,7 +101,7 @@ class TauDatabaseTest {
     }
 
     @Test
-    public void saveMessage() throws DatabaseException, NotFoundException {
+    public void createMessage() throws DatabaseException, NotFoundException {
         ChatEntity chat = database.createChannel("Test Channel", member1);
 
         ChatMessageInputDTO messageInputDTO = new ChatMessageInputDTO()
@@ -234,15 +234,27 @@ class TauDatabaseTest {
     }
 
     @Test
-    public void findInviteCode() throws DatabaseException {
+    public void findInviteCode1() throws DatabaseException {
         ChannelEntity channel = database.createChannel("InviteChannel", member1);
 
         ZonedDateTime expiration = ZonedDateTime.now().plusDays(1);
-        InviteCodeEntity invite = database.createInviteCode(channel, member1, member2, expiration);
+        InviteCodeEntity invite = database.createInviteCode(channel, member2, member1, expiration);
 
         Optional<InviteCodeEntity> result = database.findInviteCode(invite.code());
         assertTrue(result.isPresent());
-        assertEquals(invite.code(), result.get().code());
+        assertEquals(invite, result.get());
+    }
+
+    @Test
+    public void findInviteCode2() throws DatabaseException {
+        ChannelEntity channel = database.createChannel("InviteChannel", member3);
+
+        ZonedDateTime expiration = ZonedDateTime.now().plusDays(1);
+        database.createInviteCode(channel, member4, member3, expiration);
+        database.createInviteCode(channel, member4, member3, expiration);
+
+        Collection<InviteCodeEntity> result = database.findInviteCode(channel, member4);
+        assertEquals(2, result.size());
     }
 
     @Test
@@ -263,7 +275,7 @@ class TauDatabaseTest {
     }
 
     @Test
-    public void saveReactionEntry() throws DatabaseException, NotFoundException {
+    public void createReactionEntry() throws DatabaseException, NotFoundException {
         ReactionTypeEntity reactionType = database.createReactionType("like", "test");
 
         ChannelEntity channel = database.createChannel("Test", member1);

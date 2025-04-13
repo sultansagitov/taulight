@@ -24,11 +24,6 @@ public abstract class SandnodeEntity {
         setCreationDateNow();
     }
 
-    public SandnodeEntity(UUID id, ZonedDateTime creationDate) {
-        setID(id);
-        setCreationDate(creationDate);
-    }
-
     public UUID id() {
         return id;
     }

@@ -30,12 +30,9 @@ public class MessageEntity extends SandnodeEntity {
     @OneToMany(cascade = CascadeType.ALL)
     private Set<MessageEntity> replies = new HashSet<>();
 
-    public MessageEntity() {
-        super();
-    }
+    public MessageEntity() {}
 
     public MessageEntity(ChatEntity chat, ChatMessageInputDTO input, MemberEntity member) {
-        super();
         setChat(chat);
         setSentDatetime(input.sentDatetime());
         setContent(input.content());

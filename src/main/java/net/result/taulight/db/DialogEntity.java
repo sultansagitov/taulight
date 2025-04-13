@@ -17,12 +17,9 @@ public class DialogEntity extends ChatEntity {
     @JoinColumn(nullable = false)
     private MemberEntity secondMember;
 
-    public DialogEntity() {
-        super();
-    }
+    public DialogEntity() {}
 
     public DialogEntity(MemberEntity firstMember, MemberEntity secondMember) {
-        super();
         this.firstMember = firstMember;
         this.secondMember = secondMember;
     }

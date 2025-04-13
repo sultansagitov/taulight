@@ -29,12 +29,9 @@ public class MemberEntity extends SandnodeEntity {
     @OneToMany(cascade = CascadeType.ALL)
     private Set<InviteCodeEntity> inviteCodes = new HashSet<>();
 
-    public MemberEntity() {
-        super();
-    }
+    public MemberEntity() {}
 
     public MemberEntity(String nickname, String passwordHash) {
-        super();
         this.setNickname(nickname);
         this.setPasswordHash(passwordHash);
     }

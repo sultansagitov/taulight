@@ -29,8 +29,7 @@ public class ChannelRepository {
     }
 
     public ChannelEntity create(String title, MemberEntity owner) throws DatabaseException {
-        ChannelEntity channel = new ChannelEntity(title, owner);
-        return save(channel);
+        return save(new ChannelEntity(title, owner));
     }
 
     public Optional<ChannelEntity> findById(UUID id) throws DatabaseException {

@@ -15,9 +15,7 @@ public class InviteCodeRepository {
     private final EntityManager em = JPAUtil.getEntityManager();
 
     public InviteCodeEntity save(InviteCodeEntity code) throws DatabaseException {
-        while (em.find(InviteCodeEntity.class, code.id()) != null) {
-            code.setRandomID();
-        }
+        while (em.find(InviteCodeEntity.class, code.id()) != null) code.setRandomID();
 
         EntityTransaction transaction = em.getTransaction();
         try {
@@ -37,9 +35,7 @@ public class InviteCodeRepository {
             MemberEntity sender,
             ZonedDateTime expiresDate
     ) throws DatabaseException {
-        InviteCodeEntity code = new InviteCodeEntity(channel, receiver, sender, expiresDate);
-        while (find(code.code()).isPresent()) code.setRandomCode();
-        return save(code);
+        return save(new InviteCodeEntity(channel, receiver, sender, expiresDate));
     }
 
     public Optional<InviteCodeEntity> find(String code) throws DatabaseException {

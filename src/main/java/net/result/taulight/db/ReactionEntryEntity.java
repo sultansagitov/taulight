@@ -19,12 +19,9 @@ public class ReactionEntryEntity extends SandnodeEntity {
     @ManyToOne(cascade = CascadeType.ALL)
     private ReactionTypeEntity reactionType;
 
-    public ReactionEntryEntity() {
-        super();
-    }
+    public ReactionEntryEntity() {}
 
     public ReactionEntryEntity(MemberEntity member, MessageEntity message, ReactionTypeEntity reactionType) {
-        super();
         this.message = message;
         this.reactionType = reactionType;
         this.member = member;

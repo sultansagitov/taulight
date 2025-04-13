@@ -25,12 +25,9 @@ public class ChannelEntity extends ChatEntity {
     @OneToMany(cascade = CascadeType.ALL)
     private Set<InviteCodeEntity> inviteCodes = new HashSet<>();
 
-    public ChannelEntity() {
-        super();
-    }
+    public ChannelEntity() {}
 
     public ChannelEntity(String title, MemberEntity owner) {
-        super();
         this.title = title;
         this.owner = owner;
     }

@@ -10,9 +10,7 @@ public class ReactionTypeEntity extends SandnodeEntity {
     private String name;
     private String packageName;
 
-    public ReactionTypeEntity() {
-        super();
-    }
+    public ReactionTypeEntity() {}
 
     public ReactionTypeEntity(String name, String packageName) {
         setName(name);

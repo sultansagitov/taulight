@@ -31,9 +31,7 @@ public class InviteCodeEntity extends SandnodeEntity {
     @ManyToOne(cascade = CascadeType.ALL)
     private MemberEntity sender;
 
-    public InviteCodeEntity() {
-        super();
-    }
+    public InviteCodeEntity() {}
 
     public InviteCodeEntity(
             ChannelEntity channel,
@@ -41,7 +39,6 @@ public class InviteCodeEntity extends SandnodeEntity {
             MemberEntity sender,
             ZonedDateTime expiresDate
     ) {
-        super();
         setRandomCode();
         this.channel = channel;
         this.receiver = receiver;
