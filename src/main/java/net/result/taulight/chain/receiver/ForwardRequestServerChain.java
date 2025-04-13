@@ -90,7 +90,7 @@ public class ForwardRequestServerChain extends ServerChain implements ReceiverCh
                 ChatEntity chat = chatOpt.get();
 
                 Collection<MemberEntity> members = database.getMembers(chat);
-                if (members.stream().noneMatch(m -> m.id().equals(session.member.id()))) {
+                if (!members.contains(session.member)) {
                     LOGGER.warn("Unauthorized access attempt by member: {}", session.member);
                     send(Errors.NOT_FOUND.createMessage());
                     continue;

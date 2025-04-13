@@ -92,13 +92,6 @@ public class ChatMessageViewDTO {
     }
 
     /**
-     * Sets the creation date to the current time.
-     */
-    public void setCreationDateNow() {
-        setCreationDate(ZonedDateTime.now());
-    }
-
-    /**
      * @return the message content DTO
      */
     public ChatMessageInputDTO message() {
@@ -133,6 +126,6 @@ public class ChatMessageViewDTO {
     @Override
     public String toString() {
         return "<ChatMessageViewDTO id=%s created=%s message=%s reactions=%s>"
-                .formatted(id(), getCreationDate(), message, reactions.keySet());
+                .formatted(id(), getCreationDate(), message(), reactions().keySet());
     }
 }

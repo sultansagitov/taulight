@@ -9,11 +9,11 @@ import javax.persistence.ManyToOne;
 
 @Entity
 public class DialogEntity extends ChatEntity {
-    @ManyToOne(cascade = CascadeType.MERGE)
+    @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(nullable = false)
     private MemberEntity firstMember;
 
-    @ManyToOne(cascade = CascadeType.MERGE)
+    @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(nullable = false)
     private MemberEntity secondMember;
 
@@ -36,8 +36,8 @@ public class DialogEntity extends ChatEntity {
     }
 
     public MemberEntity otherMember(MemberEntity member) {
-        if (member.id().equals(firstMember.id())) return secondMember;
-        if (member.id().equals(secondMember.id())) return firstMember;
+        if (member == firstMember) return secondMember;
+        if (member == secondMember) return firstMember;
         throw new IllegalArgumentException("Member not part of this dialog");
     }
 

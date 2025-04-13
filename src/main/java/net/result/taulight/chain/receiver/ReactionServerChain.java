@@ -47,12 +47,12 @@ public class ReactionServerChain extends ServerChain implements ReceiverChain {
                 .orElseThrow(NotFoundException::new);
 
         if (request.isReact()) {
-            var newReaction = new ReactionEntryEntity(session.member, message, reactionType);
-            database.saveReactionEntry(newReaction);
-            LOGGER.info("Reaction added: {} to message {}", reactionType.name(), request.getMessageID());
+            database.createReactionEntry(session.member, message, reactionType);
+            LOGGER.info("Reaction added: {} to message {} by {}",
+                    reactionType.name(), message.id(), session.member.nickname());
         } else {
             if (database.removeReactionEntry(message, session.member, reactionType)) {
-                LOGGER.info("Reaction removed: {} from message {}", reactionType.name(), request.getMessageID());
+                LOGGER.info("Reaction removed: {} from message {}", reactionType.name(), message.id());
             } else {
                 throw new NoEffectException();
             }

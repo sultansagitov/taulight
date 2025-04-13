@@ -22,8 +22,7 @@ public class ReactionRequest extends MSGPackMessage<ReactionRequest.Data> {
         public boolean react = true;
 
         @SuppressWarnings("unused")
-        public Data() {
-        }
+        public Data() {}
 
         public Data(UUID messageID, String reaction, boolean react) {
             this.messageID = messageID;

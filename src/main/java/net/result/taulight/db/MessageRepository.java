@@ -1,27 +1,43 @@
 package net.result.taulight.db;
 
 import net.result.sandnode.db.JPAUtil;
+import net.result.sandnode.db.MemberEntity;
 import net.result.sandnode.exception.DatabaseException;
+import net.result.sandnode.exception.error.NotFoundException;
+import net.result.taulight.dto.ChatMessageInputDTO;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 public class MessageRepository {
     private final EntityManager em = JPAUtil.getEntityManager();
 
-    public void save(MessageEntity message) throws DatabaseException {
-        while (em.find(MessageEntity.class, message.id()) != null) {
-            message.setRandomID();
+    public MessageEntity create(ChatEntity chat, ChatMessageInputDTO input, MemberEntity member) throws DatabaseException, NotFoundException {
+        MessageEntity message = new MessageEntity(chat, input, member);
+        Set<MessageEntity> messageEntities = new HashSet<>();
+        Set<UUID> replies = input.replies();
+        if (replies != null) {
+            for (UUID r : replies) {
+                messageEntities.add(findById(r).orElseThrow(NotFoundException::new));
+            }
+        }
+        message.setReplies(messageEntities);
+
+        return save(message);
+    }
+
+    public MessageEntity save(MessageEntity m) throws DatabaseException {
+        while (em.find(MessageEntity.class, m.id()) != null) {
+            m.setRandomID();
         }
 
         EntityTransaction transaction = em.getTransaction();
         try {
             transaction.begin();
-            em.merge(message);
+            MessageEntity message = em.merge(m);
             transaction.commit();
+            return message;
         } catch (Exception e) {
             if (transaction.isActive()) transaction.rollback();
             throw new DatabaseException(e);

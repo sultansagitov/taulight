@@ -15,7 +15,6 @@ import net.result.sandnode.link.Links;
 import net.result.taulight.db.TauDatabase;
 import net.result.taulight.group.HashSetTauGroupManager;
 import net.result.sandnode.security.JWTTokenizer;
-import net.result.taulight.db.ReactionTypeEntity;
 import net.result.taulight.hubagent.TauHub;
 import net.result.main.config.ServerPropertiesConfig;
 import net.result.sandnode.serverclient.SandnodeServer;
@@ -73,8 +72,7 @@ public class RunHubWork implements IWork {
                 List<String> reactionNames = List.of("fire", "like", "laugh", "wow", "sad", "angry");
 
                 for (String name : reactionNames) {
-                    ReactionTypeEntity rt = new ReactionTypeEntity(name, "taulight");
-                    database.saveReactionType(rt);
+                    database.createReactionType(name, "taulight");
                 }
             }
         } catch (Exception e) {

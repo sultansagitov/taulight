@@ -12,7 +12,7 @@ import java.util.Optional;
 public class ReactionTypeRepository {
     private final EntityManager em = JPAUtil.getEntityManager();
 
-    public void save(ReactionTypeEntity reactionType) throws DatabaseException {
+    public ReactionTypeEntity save(ReactionTypeEntity reactionType) throws DatabaseException {
         while (em.find(ReactionTypeEntity.class, reactionType.id()) != null) {
             reactionType.setRandomID();
         }
@@ -21,12 +21,17 @@ public class ReactionTypeRepository {
         try {
             reactionType.setRandomID();
             transaction.begin();
-            em.merge(reactionType);
+            ReactionTypeEntity managed = em.merge(reactionType);
             transaction.commit();
+            return managed;
         } catch (Exception e) {
             if (transaction.isActive()) transaction.rollback();
             throw new DatabaseException("Failed to save reaction type", e);
         }
+    }
+
+    public ReactionTypeEntity create(String name, String packageName) throws DatabaseException {
+        return save(new ReactionTypeEntity(name, packageName));
     }
 
     public List<ReactionTypeEntity> findByPackageName(String packageName) throws DatabaseException {
@@ -38,8 +43,11 @@ public class ReactionTypeRepository {
         }
     }
 
-    public boolean removeReactionEntry(MessageEntity message, MemberEntity member, ReactionTypeEntity reactionType)
-            throws DatabaseException {
+    public boolean removeReactionEntry(
+            MessageEntity message,
+            MemberEntity member,
+            ReactionTypeEntity reactionType
+    ) throws DatabaseException {
         EntityTransaction transaction = em.getTransaction();
 
         try {
@@ -75,5 +83,4 @@ public class ReactionTypeRepository {
             throw new DatabaseException("Failed to remove reaction entry", e);
         }
     }
-
 }

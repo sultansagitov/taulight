@@ -10,17 +10,18 @@ import net.result.taulight.dto.ChatInfoDTO;
 import net.result.taulight.message.TauMessageTypes;
 
 import java.util.Collection;
+import java.util.List;
 
-public class ChatResponse extends MSGPackMessage<Collection<ChatInfoDTO>> {
+public class ChatResponse extends MSGPackMessage<List<ChatInfoDTO>> {
     public ChatResponse(Collection<ChatInfoDTO> infos) {
-        super(new Headers().setType(TauMessageTypes.CHAT), infos);
+        super(new Headers().setType(TauMessageTypes.CHAT), infos.stream().sorted().toList());
     }
 
     public ChatResponse(RawMessage raw) throws DeserializationException, ExpectedMessageException {
         super(raw.expect(TauMessageTypes.CHAT), new TypeReference<>() {});
     }
 
-    public Collection<ChatInfoDTO> getInfos() {
+    public List<ChatInfoDTO> getInfos() {
         return object;
     }
 }

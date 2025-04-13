@@ -69,7 +69,7 @@ public class ChatServerChain extends ServerChain implements ReceiverChain {
                         ChatEntity chat = opt.get();
 
                         if (chat instanceof ChannelEntity channel) {
-                            if (channel.members().stream().noneMatch(m -> m.id().equals(session.member.id()))) {
+                            if (!channel.members().contains(session.member)) {
                                 infos.add(ChatInfoDTO.chatNotFound(chatID));
                                 continue;
                             }
@@ -79,17 +79,12 @@ public class ChatServerChain extends ServerChain implements ReceiverChain {
                             }
                         }
 
-                        if (chat instanceof DialogEntity dialog) {
-                            if (!dialog.firstMember().id().equals(session.member.id())) {
-                                if (!dialog.secondMember().id().equals(session.member.id())) {
-                                    infos.add(ChatInfoDTO.chatNotFound(chatID));
-                                    continue;
-                                }
-                            }
+                        if (!(chat instanceof DialogEntity dialog)) continue;
 
-                            if (!Collections.disjoint(chatInfoProps, ChatInfoPropDTO.dialogAll())) {
-                                infos.add(ChatInfoDTO.dialog(dialog, session.member, chatInfoProps));
-                            }
+                        if (dialog.firstMember() != session.member && dialog.secondMember() != session.member) {
+                            infos.add(ChatInfoDTO.chatNotFound(chatID));
+                        } else if (!Collections.disjoint(chatInfoProps, ChatInfoPropDTO.dialogAll())) {
+                            infos.add(ChatInfoDTO.dialog(dialog, session.member, chatInfoProps));
                         }
                     }
                 }

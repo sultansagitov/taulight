@@ -12,7 +12,7 @@ import java.util.UUID;
 @Entity
 @Inheritance(strategy = InheritanceType.JOINED)
 public abstract class ChatEntity extends SandnodeEntity {
-    @OneToMany(cascade = CascadeType.MERGE)
+    @OneToMany(cascade = CascadeType.ALL)
     private Set<MessageEntity> messages = new HashSet<>();
 
     public ChatEntity() {

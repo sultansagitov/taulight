@@ -10,16 +10,15 @@ import javax.persistence.ManyToOne;
 @SuppressWarnings("unused")
 @Entity
 public class ReactionEntryEntity extends SandnodeEntity {
-    @ManyToOne(cascade = CascadeType.MERGE)
+    @ManyToOne(cascade = CascadeType.ALL)
     private MemberEntity member;
 
-    @ManyToOne(cascade = CascadeType.MERGE)
+    @ManyToOne(cascade = CascadeType.ALL)
     private MessageEntity message;
 
-    @ManyToOne(cascade = CascadeType.MERGE)
+    @ManyToOne(cascade = CascadeType.ALL)
     private ReactionTypeEntity reactionType;
 
-    @SuppressWarnings("unused")
     public ReactionEntryEntity() {
         super();
     }

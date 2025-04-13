@@ -11,10 +11,10 @@ import java.util.HashSet;
 public class ChannelEntity extends ChatEntity {
     private String title;
 
-    @ManyToOne(cascade = CascadeType.MERGE)
+    @ManyToOne(cascade = CascadeType.ALL)
     private MemberEntity owner;
 
-    @ManyToMany(cascade = CascadeType.MERGE)
+    @ManyToMany(cascade = CascadeType.ALL)
     @JoinTable(
             name = "channel_members",
             joinColumns = @JoinColumn(name = "channel_id"),
@@ -22,7 +22,7 @@ public class ChannelEntity extends ChatEntity {
     )
     private Set<MemberEntity> members = new HashSet<>();
 
-    @OneToMany(cascade = CascadeType.MERGE)
+    @OneToMany(cascade = CascadeType.ALL)
     private Set<InviteCodeEntity> inviteCodes = new HashSet<>();
 
     public ChannelEntity() {
@@ -67,4 +67,8 @@ public class ChannelEntity extends ChatEntity {
         this.inviteCodes = inviteCodes;
     }
 
+    @Override
+    public String toString() {
+        return "<ChannelEntity %s>".formatted(id());
+    }
 }

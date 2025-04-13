@@ -11,7 +11,7 @@ import java.util.*;
 public class ChannelRepository {
     private final EntityManager em = JPAUtil.getEntityManager();
 
-    public void save(ChannelEntity channel) throws DatabaseException {
+    public ChannelEntity save(ChannelEntity channel) throws DatabaseException {
         while (em.find(ChannelEntity.class, channel.id()) != null) {
             channel.setRandomID();
         }
@@ -19,12 +19,18 @@ public class ChannelRepository {
         EntityTransaction transaction = em.getTransaction();
         try {
             transaction.begin();
-            em.merge(channel);
+            ChannelEntity managed = em.merge(channel);
             transaction.commit();
+            return managed;
         } catch (Exception e) {
             if (transaction.isActive()) transaction.rollback();
             throw new DatabaseException(e);
         }
+    }
+
+    public ChannelEntity create(String title, MemberEntity owner) throws DatabaseException {
+        ChannelEntity channel = new ChannelEntity(title, owner);
+        return save(channel);
     }
 
     public Optional<ChannelEntity> findById(UUID id) throws DatabaseException {
@@ -53,12 +59,14 @@ public class ChannelRepository {
             Set<MemberEntity> members = channel.members();
             if (members == null) {
                 channel.setMembers(Set.of(member));
-            } else if (members.stream().anyMatch(m -> m.id().equals(member.id()))) {
+            } else if (members.contains(member)) {
                 return false;
             } else {
-                members.add(member);
-                channel.setMembers(members);
+                channel.members().add(member);
             }
+
+            member.channels().add(channel);
+
             transaction.begin();
             em.merge(channel);
             transaction.commit();
@@ -76,12 +84,13 @@ public class ChannelRepository {
 
             if (members == null) {
                 channel.setMembers(Set.of(member));
-            } else if (members.stream().noneMatch(m -> m.id().equals(member.id()))) {
+            } else if (!members.contains(member)) {
                 return false;
             } else {
-                members.remove(member);
-                channel.setMembers(members);
+                channel.members().remove(member);
             }
+
+            member.channels().remove(channel);
 
             transaction.begin();
             em.merge(channel);
@@ -92,5 +101,4 @@ public class ChannelRepository {
         }
         return true;
     }
-
 }

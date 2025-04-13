@@ -37,7 +37,7 @@ public class MessageServerChain extends ServerChain implements ReceiverChain {
 
         ChatEntity chat = database.getChat(request.getChatID()).orElseThrow(NotFoundException::new);
 
-        if (database.getMembers(chat).stream().noneMatch(m -> m.id().equals(session.member.id()))) {
+        if (!database.getMembers(chat).contains(session.member)) {
             throw new NotFoundException();
         }
 

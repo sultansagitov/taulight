@@ -1,6 +1,7 @@
 package net.result.taulight.db;
 
 import net.result.sandnode.db.JPAUtil;
+import net.result.sandnode.db.MemberEntity;
 import net.result.sandnode.exception.DatabaseException;
 import org.jetbrains.annotations.NotNull;
 
@@ -10,7 +11,7 @@ import javax.persistence.EntityTransaction;
 public class ReactionEntryRepository {
     private final EntityManager em = JPAUtil.getEntityManager();
 
-    public void save(@NotNull ReactionEntryEntity reactionEntry) throws DatabaseException {
+    public ReactionEntryEntity save(@NotNull ReactionEntryEntity reactionEntry) throws DatabaseException {
         while (em.find(ReactionEntryEntity.class, reactionEntry.id()) != null) {
             reactionEntry.setRandomID();
         }
@@ -18,12 +19,18 @@ public class ReactionEntryRepository {
         EntityTransaction transaction = em.getTransaction();
         try {
             transaction.begin();
-            em.merge(reactionEntry);
+            ReactionEntryEntity managed = em.merge(reactionEntry);
             transaction.commit();
+            return managed;
         } catch (Exception e) {
             if (transaction.isActive()) transaction.rollback();
             throw new DatabaseException("Failed to save reaction entry", e);
         }
+    }
+
+    public ReactionEntryEntity create(MemberEntity member, MessageEntity message, ReactionTypeEntity reactionType)
+            throws DatabaseException {
+        return save(new ReactionEntryEntity(member, message, reactionType));
     }
 
     public boolean delete(ReactionEntryEntity reactionEntry) throws DatabaseException {
@@ -40,7 +47,7 @@ public class ReactionEntryRepository {
             if (transaction.isActive()) transaction.rollback();
             throw new DatabaseException("Failed to delete reaction entry", e);
         }
-        
+
         return false;
     }
 }

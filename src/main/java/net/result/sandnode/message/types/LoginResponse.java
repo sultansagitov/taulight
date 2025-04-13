@@ -16,6 +16,7 @@ public class LoginResponse extends MSGPackMessage<LoginResponse.LoginData> {
 
         @SuppressWarnings("unused")
         public LoginData() {}
+
         public LoginData(String nickname) {
             this.nickname = nickname;
         }

@@ -28,12 +28,12 @@ public class CheckCodeServerChain extends ServerChain implements ReceiverChain {
         TauDatabase database = (TauDatabase) session.server.serverConfig.database();
 
         InviteCodeEntity invite = database
-                .getInviteCode(request.content())
+                .findInviteCode(request.content())
                 .orElseThrow(NotFoundException::new);
 
-        if (!invite.receiver().id().equals(session.member.id())) {
+        if (invite.receiver() != session.member) {
             //TODO add channel roles and use it
-            if (!invite.sender().id().equals(session.member.id())) {
+            if (invite.sender() != session.member) {
                 throw new NotFoundException();
             }
         }

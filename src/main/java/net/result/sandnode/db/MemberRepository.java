@@ -9,7 +9,7 @@ import java.util.Optional;
 public class MemberRepository {
     private final EntityManager em = JPAUtil.getEntityManager();
 
-    public void save(MemberEntity member) throws DatabaseException {
+    public MemberEntity save(MemberEntity member) throws DatabaseException {
         while (em.find(MemberEntity.class, member.id()) != null) {
             member.setRandomID();
         }
@@ -17,8 +17,9 @@ public class MemberRepository {
         EntityTransaction transaction = em.getTransaction();
         try {
             transaction.begin();
-            em.merge(member);
+            MemberEntity merge = em.merge(member);
             transaction.commit();
+            return merge;
         } catch (Exception e) {
             if (transaction.isActive()) transaction.rollback();
             throw new DatabaseException("Failed to register member", e);

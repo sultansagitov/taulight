@@ -74,7 +74,7 @@ public class ConsoleTaulightCommands {
         } catch (ExpectedMessageException e) {
             System.out.printf("Received an unexpected message - %s%n", e.getClass());
         } catch (SandnodeErrorException e) {
-            System.out.printf("Encountered a Sandnode error - %s%n", e.getClass());
+            System.out.printf("Encountered a Sandnode error - %s%n", e.getSandnodeError().description());
         } catch (UnknownSandnodeErrorException e) {
             System.out.printf("Encountered an unknown Sandnode error - %s%n", e.getClass());
         } catch (IllegalArgumentException e) {
@@ -108,7 +108,7 @@ public class ConsoleTaulightCommands {
         } catch (ExpectedMessageException e) {
             System.out.printf("Received an unexpected message - %s%n", e.getClass());
         } catch (SandnodeErrorException e) {
-            System.out.printf("Encountered a Sandnode error - %s%n", e.getClass());
+            System.out.printf("Encountered a Sandnode error - %s%n", e.getSandnodeError().description());
         } catch (UnknownSandnodeErrorException e) {
             System.out.printf("Encountered an unknown Sandnode error - %s%n", e.getClass());
         } catch (IllegalArgumentException e) {
@@ -142,7 +142,7 @@ public class ConsoleTaulightCommands {
         } catch (ExpectedMessageException e) {
             System.out.printf("Received an unexpected message - %s%n", e.getClass());
         } catch (SandnodeErrorException e) {
-            System.out.printf("Encountered a Sandnode error - %s%n", e.getClass());
+            System.out.printf("Encountered a Sandnode error - %s%n", e.getSandnodeError().description());
         } catch (UnknownSandnodeErrorException e) {
             System.out.printf("Encountered an unknown Sandnode error - %s%n", e.getClass());
         } catch (IllegalArgumentException e) {

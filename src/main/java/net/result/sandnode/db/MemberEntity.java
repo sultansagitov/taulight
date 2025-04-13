@@ -14,19 +14,19 @@ public class MemberEntity extends SandnodeEntity {
     private String nickname;
     private String passwordHash;
 
-    @OneToMany(cascade = CascadeType.MERGE)
+    @OneToMany(cascade = CascadeType.ALL)
     private Set<ReactionEntryEntity> reactionEntries = new HashSet<>();
 
-    @ManyToMany(cascade = CascadeType.MERGE, mappedBy = "members")
+    @ManyToMany(cascade = CascadeType.ALL, mappedBy = "members")
     private Set<ChannelEntity> channels = new HashSet<>();
 
-    @OneToMany(mappedBy = "firstMember", cascade = CascadeType.MERGE)
+    @OneToMany(mappedBy = "firstMember", cascade = CascadeType.ALL)
     private Set<DialogEntity> dialogsAsFirst = new HashSet<>();
 
-    @OneToMany(mappedBy = "secondMember", cascade = CascadeType.MERGE)
+    @OneToMany(mappedBy = "secondMember", cascade = CascadeType.ALL)
     private Set<DialogEntity> dialogsAsSecond = new HashSet<>();
 
-    @OneToMany(cascade = CascadeType.MERGE)
+    @OneToMany(cascade = CascadeType.ALL)
     private Set<InviteCodeEntity> inviteCodes = new HashSet<>();
 
     public MemberEntity() {

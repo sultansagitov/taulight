@@ -18,6 +18,7 @@ public class RegistrationRequest extends MSGPackMessage<RegistrationRequest.Memb
 
         @SuppressWarnings("unused")
         public MemberData() {}
+
         public MemberData(@NotNull String nickname, @NotNull String password) {
             this.nickname = nickname;
             this.password = password;

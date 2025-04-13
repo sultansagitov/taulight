@@ -39,7 +39,6 @@ import net.result.taulight.db.TauJPADatabase;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
-import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -81,11 +80,6 @@ public class ServerTest {
         port = PORT_OFFSET + new Random().nextInt(PORT_RANGE);
         MessageTypeManager.instance().add(Testing.TESTING);
         LOGGER.info("Generated random port: {}", port);
-    }
-
-    @AfterAll
-    public static void tearDown() {
-        JPAUtil.shutdown();
     }
 
     @Test

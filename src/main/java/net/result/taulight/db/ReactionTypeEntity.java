@@ -4,12 +4,12 @@ import net.result.sandnode.db.SandnodeEntity;
 
 import javax.persistence.Entity;
 
+@SuppressWarnings("unused")
 @Entity
 public class ReactionTypeEntity extends SandnodeEntity {
     private String name;
     private String packageName;
 
-    @SuppressWarnings("unused")
     public ReactionTypeEntity() {
         super();
     }

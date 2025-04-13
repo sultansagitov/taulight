@@ -21,8 +21,7 @@ public class ChatRequest extends MSGPackMessage<ChatRequest.Data> {
         private Collection<ChatInfoPropDTO> infoProps;
 
         @SuppressWarnings("unused")
-        public Data() {
-        }
+        public Data() {}
 
         public Data(Collection<ChatInfoPropDTO> infoProps) {
             this.infoProps = infoProps;

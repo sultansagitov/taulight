@@ -3,9 +3,12 @@ package net.result.taulight.db;
 import net.result.sandnode.db.JPADatabase;
 import net.result.sandnode.db.MemberEntity;
 import net.result.sandnode.exception.DatabaseException;
+import net.result.sandnode.exception.error.NotFoundException;
 import net.result.sandnode.security.PasswordHasher;
+import net.result.taulight.dto.ChatMessageInputDTO;
 import net.result.taulight.exception.AlreadyExistingRecordException;
 
+import java.time.ZonedDateTime;
 import java.util.*;
 
 public class TauJPADatabase extends JPADatabase implements TauDatabase {
@@ -29,9 +32,7 @@ public class TauJPADatabase extends JPADatabase implements TauDatabase {
     @Override
     public DialogEntity createDialog(MemberEntity firstMember, MemberEntity secondMember)
             throws AlreadyExistingRecordException, DatabaseException {
-        DialogEntity dialog = new DialogEntity(firstMember, secondMember);
-        dialogRepository.save(dialog);
-        return dialog;
+        return dialogRepository.save(new DialogEntity(firstMember, secondMember));
     }
 
     @Override
@@ -41,18 +42,8 @@ public class TauJPADatabase extends JPADatabase implements TauDatabase {
     }
 
     @Override
-    public void saveChat(ChatEntity chat) throws DatabaseException, AlreadyExistingRecordException {
-        if (chat instanceof ChannelEntity) {
-            channelRepository.save((ChannelEntity) chat);
-            return;
-        }
-
-        if (chat instanceof DialogEntity) {
-            dialogRepository.save((DialogEntity) chat);
-            return;
-        }
-
-        throw new IllegalArgumentException("Unknown chat type");
+    public ChannelEntity createChannel(String title, MemberEntity owner) throws DatabaseException {
+        return channelRepository.create(title, owner);
     }
 
     @Override
@@ -63,13 +54,14 @@ public class TauJPADatabase extends JPADatabase implements TauDatabase {
     }
 
     @Override
-    public void saveMessage(MessageEntity msg) throws DatabaseException {
-        messageRepository.save(msg);
+    public List<MessageEntity> loadMessages(ChatEntity chat, int index, int size) throws DatabaseException {
+        return messageRepository.findMessagesByChat(chat, index, size);
     }
 
     @Override
-    public List<MessageEntity> loadMessages(ChatEntity chat, int index, int size) throws DatabaseException {
-        return messageRepository.findMessagesByChat(chat, index, size);
+    public MessageEntity createMessage(ChatEntity chat, ChatMessageInputDTO input, MemberEntity member)
+            throws DatabaseException, NotFoundException {
+        return messageRepository.create(chat, input, member);
     }
 
     @Override
@@ -93,13 +85,24 @@ public class TauJPADatabase extends JPADatabase implements TauDatabase {
     }
 
     @Override
-    public void saveInviteCode(InviteCodeEntity code) throws DatabaseException {
-        inviteCodeRepository.save(code);
+    public InviteCodeEntity createInviteCode(
+            ChannelEntity channel,
+            MemberEntity receiver,
+            MemberEntity sender,
+            ZonedDateTime expiresDate
+    ) throws DatabaseException {
+        return inviteCodeRepository.create(channel, receiver, sender, expiresDate);
     }
 
     @Override
-    public Optional<InviteCodeEntity> getInviteCode(String code) throws DatabaseException {
-        return inviteCodeRepository.findByCode(code);
+    public Optional<InviteCodeEntity> findInviteCode(String code) throws DatabaseException {
+        return inviteCodeRepository.find(code);
+    }
+
+    @Override
+    public Collection<InviteCodeEntity> findInviteCode(ChannelEntity channel, MemberEntity member)
+            throws DatabaseException {
+        return inviteCodeRepository.find(channel, member);
     }
 
     @Override
@@ -108,13 +111,17 @@ public class TauJPADatabase extends JPADatabase implements TauDatabase {
     }
 
     @Override
-    public void saveReactionType(ReactionTypeEntity reactionType) throws DatabaseException {
-        reactionTypeRepository.save(reactionType);
+    public ReactionTypeEntity createReactionType(String name, String packageName) throws DatabaseException {
+        return reactionTypeRepository.create(name, packageName);
     }
 
     @Override
-    public void saveReactionEntry(ReactionEntryEntity reactionEntry) throws DatabaseException {
-        reactionEntryRepository.save(reactionEntry);
+    public ReactionEntryEntity createReactionEntry(
+            MemberEntity member,
+            MessageEntity message,
+            ReactionTypeEntity reactionType
+    ) throws DatabaseException {
+        return reactionEntryRepository.create(member, message, reactionType);
     }
 
     @Override
@@ -129,15 +136,9 @@ public class TauJPADatabase extends JPADatabase implements TauDatabase {
 
     @Override
     public Collection<MemberEntity> getMembers(ChatEntity chat) {
-        if (chat instanceof ChannelEntity channel) {
-            return channel.members();
-        }
-
-        if (chat instanceof DialogEntity dialog) {
-            return Set.of(dialog.firstMember(), dialog.secondMember());
-        }
-
-        return List.of();
+        if (chat instanceof ChannelEntity channel) return channel.members();
+        if (chat instanceof DialogEntity dialog) return Set.of(dialog.firstMember(), dialog.secondMember());
+        return Set.of();
     }
 
     @Override

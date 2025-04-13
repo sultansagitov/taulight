@@ -14,12 +14,8 @@ import net.result.taulight.message.types.ChatResponse;
 import java.util.Collection;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 
 public class ChatClientChain extends ClientChain {
-    private final Lock lock = new ReentrantLock();
-
     public ChatClientChain(IOController io) {
         super(io);
     }
@@ -27,33 +23,23 @@ public class ChatClientChain extends ClientChain {
     public synchronized Optional<Collection<ChatInfoDTO>> getByMember(Collection<ChatInfoPropDTO> infoProps)
             throws InterruptedException, DeserializationException, ExpectedMessageException, SandnodeErrorException,
             UnknownSandnodeErrorException, UnprocessedMessagesException {
-        lock.lock();
-        try {
-            send(ChatRequest.getByMember(infoProps));
-            RawMessage raw = queue.take();
+        send(ChatRequest.getByMember(infoProps));
+        RawMessage raw = queue.take();
 
-            ServerErrorManager.instance().handleError(raw);
+        ServerErrorManager.instance().handleError(raw);
 
-            return Optional.of(new ChatResponse(raw).getInfos());
-        } finally {
-            lock.unlock();
-        }
+        return Optional.of(new ChatResponse(raw).getInfos());
     }
 
     public synchronized Collection<ChatInfoDTO> getByID(Collection<UUID> chatID, Collection<ChatInfoPropDTO> infoProps)
             throws InterruptedException, ExpectedMessageException, UnknownSandnodeErrorException,
             SandnodeErrorException, DeserializationException, UnprocessedMessagesException {
-        lock.lock();
-        try {
-            send(ChatRequest.getByID(chatID, infoProps));
-            RawMessage raw = queue.take();
+        send(ChatRequest.getByID(chatID, infoProps));
+        RawMessage raw = queue.take();
 
-            ServerErrorManager.instance().handleError(raw);
+        ServerErrorManager.instance().handleError(raw);
 
-            ChatResponse chatResponse = new ChatResponse(raw);
-            return chatResponse.getInfos();
-        } finally {
-            lock.unlock();
-        }
+        ChatResponse chatResponse = new ChatResponse(raw);
+        return chatResponse.getInfos();
     }
 }

@@ -34,17 +34,7 @@ public class TauHubProtocol {
         TauGroupManager manager = (TauGroupManager) session.server.serverConfig.groupManager();
         TauDatabase database = (TauDatabase) session.server.serverConfig.database();
 
-
-        MessageEntity message = new MessageEntity(chat, input, session.member);
-        Set<MessageEntity> messageEntities = new HashSet<>();
-        Set<UUID> replies = input.replies();
-        if (replies != null) {
-            for (UUID r : replies) {
-                messageEntities.add(database.findMessage(r).orElseThrow(NotFoundException::new));
-            }
-        }
-        message.setReplies(messageEntities);
-        database.saveMessage(message);
+        MessageEntity message = database.createMessage(chat, input, session.member);
 
         ChatMessageViewDTO serverMessage = new ChatMessageViewDTO(message);
 

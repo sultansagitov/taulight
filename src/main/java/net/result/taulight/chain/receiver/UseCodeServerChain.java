@@ -36,14 +36,14 @@ public class UseCodeServerChain extends ServerChain  implements ReceiverChain {
 
         TauDatabase database = (TauDatabase) session.server.serverConfig.database();
 
-        InviteCodeEntity invite = database.getInviteCode(code).orElseThrow(NotFoundException::new);
+        InviteCodeEntity invite = database.findInviteCode(code).orElseThrow(NotFoundException::new);
 
         MemberEntity member = invite.receiver();
         ChannelEntity channel = invite.channel();
 
-        if (!invite.receiver().id().equals(session.member.id())) {
+        if (invite.receiver() != session.member) {
             //TODO add channel roles and use it
-            if (invite.sender().id().equals(session.member.id())) {
+            if (invite.sender() == session.member) {
                 throw new UnauthorizedException();
             } else {
                 throw new NotFoundException();
@@ -54,7 +54,7 @@ public class UseCodeServerChain extends ServerChain  implements ReceiverChain {
             throw new NoEffectException("Invite already activated");
         }
 
-        if (database.addMemberToChannel(channel, member)) {
+        if (!database.addMemberToChannel(channel, member)) {
             throw new NoEffectException();
         }
 

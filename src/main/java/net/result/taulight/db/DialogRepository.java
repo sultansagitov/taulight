@@ -15,7 +15,7 @@ import java.util.UUID;
 public class DialogRepository {
     private final EntityManager em = JPAUtil.getEntityManager();
 
-    public void save(@NotNull DialogEntity dialog) throws AlreadyExistingRecordException, DatabaseException {
+    public DialogEntity save(@NotNull DialogEntity dialog) throws AlreadyExistingRecordException, DatabaseException {
         while (em.find(DialogEntity.class, dialog.id()) != null) {
             dialog.setRandomID();
         }
@@ -30,8 +30,9 @@ public class DialogRepository {
         EntityTransaction transaction = em.getTransaction();
         try {
             transaction.begin();
-            em.merge(dialog);
+            DialogEntity managed = em.merge(dialog);
             transaction.commit();
+            return managed;
         } catch (Exception e) {
             if (transaction.isActive()) transaction.rollback();
             throw new DatabaseException(e);

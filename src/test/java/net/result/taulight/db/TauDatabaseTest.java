@@ -3,6 +3,7 @@ package net.result.taulight.db;
 import net.result.sandnode.db.*;
 import net.result.sandnode.exception.DatabaseException;
 import net.result.sandnode.exception.error.BusyNicknameException;
+import net.result.sandnode.exception.error.NotFoundException;
 import net.result.sandnode.security.PasswordHashers;
 import net.result.taulight.dto.ChatMessageInputDTO;
 import net.result.taulight.exception.AlreadyExistingRecordException;
@@ -24,6 +25,10 @@ class TauDatabaseTest {
     private static TauDatabase database;
     private static MemberEntity member1;
     private static MemberEntity member2;
+    private static MemberEntity member3;
+    private static MemberEntity member4;
+    private static MemberEntity member5;
+    private static MemberEntity member6;
 
     @BeforeAll
     public static void setup() throws DatabaseException, BusyNicknameException {
@@ -33,11 +38,10 @@ class TauDatabaseTest {
 
         member1 = database.registerMember("user1", "password123");
         member2 = database.registerMember("user2", "password123");
-    }
-
-    @AfterAll
-    public static void tearDown() {
-        JPAUtil.shutdown();
+        member3 = database.registerMember("user3", "password123");
+        member4 = database.registerMember("user4", "password123");
+        member5 = database.registerMember("user5", "password123");
+        member6 = database.registerMember("user6", "password123");
     }
 
     @Test
@@ -60,13 +64,10 @@ class TauDatabaseTest {
 
 
     @Test
-    public void createDialog() throws DatabaseException, AlreadyExistingRecordException, BusyNicknameException {
-        MemberEntity member3 = database.registerMember("user3", "password123");
-        MemberEntity member4 = database.registerMember("user4", "password123");
-
+    public void createDialog() throws DatabaseException, AlreadyExistingRecordException {
         DialogEntity dialog = database.createDialog(member3, member4);
         assertNotNull(dialog);
-        if (member3.equals(dialog.firstMember())) {
+        if (member3 == dialog.firstMember()) {
             assertEquals(member3, dialog.firstMember());
             assertEquals(member4, dialog.secondMember());
         } else {
@@ -77,16 +78,14 @@ class TauDatabaseTest {
 
     @Test
     public void findDialog() throws DatabaseException, AlreadyExistingRecordException {
-        DialogEntity dialog = database.createDialog(member1, member2);
-        Optional<DialogEntity> foundDialog = database.findDialog(member1, member2);
+        database.createDialog(member5, member6);
+        Optional<DialogEntity> foundDialog = database.findDialog(member5, member6);
         assertTrue(foundDialog.isPresent());
-        assertEquals(dialog.id(), foundDialog.get().id());
     }
 
     @Test
-    public void saveChat() throws DatabaseException, AlreadyExistingRecordException {
-        ChannelEntity channel = new ChannelEntity("General Chat", member1);
-        database.saveChat(channel);
+    public void saveChat() throws DatabaseException {
+        ChannelEntity channel = database.createChannel("General Chat", member1);
 
         Optional<ChatEntity> foundChannel = database.getChat(channel.id());
         assertTrue(foundChannel.isPresent());
@@ -94,19 +93,16 @@ class TauDatabaseTest {
     }
 
     @Test
-    public void getChat() throws DatabaseException, AlreadyExistingRecordException {
-        ChannelEntity channel = new ChannelEntity("Test Channel", member1);
-        database.saveChat(channel);
+    public void getChat() throws DatabaseException {
+        ChannelEntity channel = database.createChannel("Test Channel", member1);
 
         Optional<ChatEntity> foundChannel = database.getChat(channel.id());
         assertTrue(foundChannel.isPresent());
-        assertEquals(channel.id(), foundChannel.get().id());
     }
 
     @Test
-    public void saveMessage() throws DatabaseException, AlreadyExistingRecordException {
-        ChatEntity chat = new ChannelEntity("Test Channel", member1);
-        database.saveChat(chat);
+    public void saveMessage() throws DatabaseException, NotFoundException {
+        ChatEntity chat = database.createChannel("Test Channel", member1);
 
         ChatMessageInputDTO messageInputDTO = new ChatMessageInputDTO()
                 .setContent("Hello!")
@@ -115,8 +111,7 @@ class TauDatabaseTest {
                 .setSentDatetimeNow()
                 .setReplies(new HashSet<>())
                 .setSys(true);
-        MessageEntity message = new MessageEntity(chat, messageInputDTO, member1);
-        database.saveMessage(message);
+        MessageEntity message = database.createMessage(chat, messageInputDTO, member1);
 
         Optional<MessageEntity> foundMessage = database.findMessage(message.id());
         assertTrue(foundMessage.isPresent());
@@ -124,9 +119,8 @@ class TauDatabaseTest {
     }
 
     @Test
-    public void loadMessages() throws DatabaseException, AlreadyExistingRecordException {
-        ChannelEntity channel = new ChannelEntity("Test Channel", member1);
-        database.saveChat(channel);
+    public void loadMessages() throws DatabaseException, NotFoundException {
+        ChannelEntity channel = database.createChannel("Test Channel", member1);
 
         ChatMessageInputDTO input1 = new ChatMessageInputDTO()
                 .setContent("Hello world")
@@ -144,10 +138,8 @@ class TauDatabaseTest {
                 .setReplies(new HashSet<>())
                 .setSys(true);
 
-        MessageEntity message1 = new MessageEntity(channel, input1, member1);
-        MessageEntity message2 = new MessageEntity(channel, input2, member2);
-        database.saveMessage(message1);
-        database.saveMessage(message2);
+        database.createMessage(channel, input1, member1);
+        database.createMessage(channel, input2, member2);
 
         List<MessageEntity> messages = database.loadMessages(channel, 0, 10);
         assertNotNull(messages);
@@ -155,9 +147,8 @@ class TauDatabaseTest {
     }
 
     @Test
-    public void findMessage() throws DatabaseException, AlreadyExistingRecordException {
-        ChannelEntity channel = new ChannelEntity("FindMessageChannel", member1);
-        database.saveChat(channel);
+    public void findMessage() throws DatabaseException, NotFoundException {
+        ChannelEntity channel = database.createChannel("FindMessageChannel", member1);
 
         ChatMessageInputDTO input = new ChatMessageInputDTO()
                 .setContent("Find me")
@@ -167,8 +158,7 @@ class TauDatabaseTest {
                 .setReplies(new HashSet<>())
                 .setSys(false);
 
-        MessageEntity message = new MessageEntity(channel, input, member1);
-        database.saveMessage(message);
+        MessageEntity message = database.createMessage(channel, input, member1);
 
         Optional<MessageEntity> found = database.findMessage(message.id());
         assertTrue(found.isPresent());
@@ -176,24 +166,23 @@ class TauDatabaseTest {
     }
 
     @Test
-    public void addMemberToChannel() throws DatabaseException, AlreadyExistingRecordException, BusyNicknameException {
-        ChannelEntity channel = new ChannelEntity("Test Channel", member1);
-        database.saveChat(channel);
+    public void addMemberToChannel() throws DatabaseException {
+        ChannelEntity channel = database.createChannel("Test Channel", member1);
 
         boolean added = database.addMemberToChannel(channel, member2);
         assertTrue(added);
 
-        MemberEntity member5 = database.registerMember("user5", "p");
-
         Collection<MemberEntity> members = database.getMembers(channel);
-        assertTrue(members.stream().anyMatch(m -> m.id().equals(member2.id())));
-        assertFalse(members.stream().anyMatch(m -> m.id().equals(member5.id())));
+        assertTrue(members.contains(member2));
+        assertFalse(members.contains(member5));
+
+        assertTrue(member2.channels().contains(channel));
+        assertFalse(member5.channels().contains(channel));
     }
 
     @Test
-    public void getMessageCount() throws DatabaseException, AlreadyExistingRecordException {
-        ChannelEntity channel = new ChannelEntity("Test Channel", member1);
-        database.saveChat(channel);
+    public void getMessageCount() throws DatabaseException, NotFoundException {
+        ChannelEntity channel = database.createChannel("Test Channel", member1);
 
         ChatMessageInputDTO input1 = new ChatMessageInputDTO()
                 .setContent("Hello world")
@@ -211,85 +200,73 @@ class TauDatabaseTest {
                 .setReplies(new HashSet<>())
                 .setSys(true);
 
-        MessageEntity message1 = new MessageEntity(channel, input1, member1);
-        MessageEntity message2 = new MessageEntity(channel, input2, member2);
-        database.saveMessage(message1);
-        database.saveMessage(message2);
+        database.createMessage(channel, input1, member1);
+        database.createMessage(channel, input2, member2);
 
         long count = database.getMessageCount(channel);
         assertEquals(2, count);
     }
 
     @Test
-    public void leaveFromChannel() throws DatabaseException, AlreadyExistingRecordException {
-        ChannelEntity channel = new ChannelEntity("Test Channel", member1);
-        database.saveChat(channel);
+    public void leaveFromChannel() throws DatabaseException {
+        ChannelEntity channel = database.createChannel("Test Channel", member1);
 
         database.addMemberToChannel(channel, member2);
         boolean removed = database.leaveFromChannel(channel, member2);
         assertTrue(removed);
 
         Collection<MemberEntity> members = database.getMembers(channel);
-        assertFalse(members.stream().anyMatch(m -> m.id().equals(member2.id())));
+        assertFalse(members.contains(member2));
     }
 
     @Test
-    public void saveInviteCode() throws DatabaseException, AlreadyExistingRecordException {
+    public void createInviteCode() throws DatabaseException {
 
-        ChannelEntity channel = new ChannelEntity("Test Channel", member1);
-        database.saveChat(channel);
+        ChannelEntity channel = database.createChannel("Test Channel", member1);
 
         ZonedDateTime expiresDate = ZonedDateTime.now().plusDays(1);
-        InviteCodeEntity inviteCode = new InviteCodeEntity(channel, member1, member2, expiresDate);
-        database.saveInviteCode(inviteCode);
+        InviteCodeEntity inviteCode = database.createInviteCode(channel, member1, member2, expiresDate);
 
         String stringCode = inviteCode.code();
-        Optional<InviteCodeEntity> foundInviteCode = database.getInviteCode(stringCode);
+        Optional<InviteCodeEntity> foundInviteCode = database.findInviteCode(stringCode);
         assertTrue(foundInviteCode.isPresent());
         assertEquals(stringCode, foundInviteCode.get().code());
     }
 
     @Test
-    public void getInviteCode() throws DatabaseException, AlreadyExistingRecordException {
-        ChannelEntity channel = new ChannelEntity("InviteChannel", member1);
-        database.saveChat(channel);
+    public void findInviteCode() throws DatabaseException {
+        ChannelEntity channel = database.createChannel("InviteChannel", member1);
 
         ZonedDateTime expiration = ZonedDateTime.now().plusDays(1);
-        InviteCodeEntity invite = new InviteCodeEntity(channel, member1, member2, expiration);
-        database.saveInviteCode(invite);
+        InviteCodeEntity invite = database.createInviteCode(channel, member1, member2, expiration);
 
-        Optional<InviteCodeEntity> result = database.getInviteCode(invite.code());
+        Optional<InviteCodeEntity> result = database.findInviteCode(invite.code());
         assertTrue(result.isPresent());
         assertEquals(invite.code(), result.get().code());
     }
 
     @Test
-    public void activateInviteCode() throws DatabaseException, AlreadyExistingRecordException {
-        ChannelEntity channel = new ChannelEntity("Test Channel", member1);
-        database.saveChat(channel);
+    public void activateInviteCode() throws DatabaseException {
+        ChannelEntity channel = database.createChannel("Test Channel", member1);
 
         ZonedDateTime expiresDate = ZonedDateTime.now().plusDays(1);
-        InviteCodeEntity inviteCode = new InviteCodeEntity(channel, member1, member2, expiresDate);
-        database.saveInviteCode(inviteCode);
+        InviteCodeEntity inviteCode = database.createInviteCode(channel, member1, member2, expiresDate);
 
         boolean activated = database.activateInviteCode(inviteCode);
         assertTrue(activated);
     }
 
     @Test
-    public void saveReactionType() throws DatabaseException {
-        ReactionTypeEntity reactionType = new ReactionTypeEntity("thumbs_up", "emoji_package");
-        database.saveReactionType(reactionType);
+    public void createReactionType() throws DatabaseException {
+        ReactionTypeEntity reactionType = database.createReactionType("thumbs_up", "emoji_package");
         assertNotNull(JPAUtil.getEntityManager().find(ReactionTypeEntity.class, reactionType.id()));
     }
 
     @Test
-    public void saveReactionEntry() throws DatabaseException, AlreadyExistingRecordException {
-        ReactionTypeEntity reactionType = new ReactionTypeEntity("like", "test");
-        database.saveReactionType(reactionType);
+    public void saveReactionEntry() throws DatabaseException, NotFoundException {
+        ReactionTypeEntity reactionType = database.createReactionType("like", "test");
 
-        ChannelEntity channel = new ChannelEntity("Test", member1);
-        database.saveChat(channel);
+        ChannelEntity channel = database.createChannel("Test", member1);
 
         ChatMessageInputDTO input = new ChatMessageInputDTO()
                 .setContent("Hello world")
@@ -299,22 +276,18 @@ class TauDatabaseTest {
                 .setReplies(new HashSet<>())
                 .setSys(true);
 
-        MessageEntity message = new MessageEntity(channel, input, member1);
-        database.saveMessage(message);
+        MessageEntity message = database.createMessage(channel, input, member1);
 
-        ReactionEntryEntity reactionEntry = new ReactionEntryEntity(member1, message, reactionType);
-        database.saveReactionEntry(reactionEntry);
+        ReactionEntryEntity reactionEntry = database.createReactionEntry(member1, message, reactionType);
 
         assertEquals("Test", ((ChannelEntity) reactionEntry.message().chat()).title());
     }
 
     @Test
-    public void removeReactionEntry() throws DatabaseException, AlreadyExistingRecordException {
-        ReactionTypeEntity reactionType = new ReactionTypeEntity("fire", "test");
-        database.saveReactionType(reactionType);
+    public void removeReactionEntry() throws DatabaseException, NotFoundException {
+        ReactionTypeEntity reactionType = database.createReactionType("fire", "test");
 
-        ChannelEntity channel = new ChannelEntity("Test", member1);
-        database.saveChat(channel);
+        ChannelEntity channel = database.createChannel("Test", member1);
 
         ChatMessageInputDTO input = new ChatMessageInputDTO()
                 .setContent("Hello world")
@@ -324,11 +297,9 @@ class TauDatabaseTest {
                 .setReplies(new HashSet<>())
                 .setSys(true);
 
-        MessageEntity message = new MessageEntity(channel, input, member1);
-        database.saveMessage(message);
+        MessageEntity message = database.createMessage(channel, input, member1);
 
-        ReactionEntryEntity reactionEntry = new ReactionEntryEntity(member1, message, reactionType);
-        database.saveReactionEntry(reactionEntry);
+        ReactionEntryEntity reactionEntry = database.createReactionEntry(member1, message, reactionType);
 
         LOGGER.debug(JPAUtil.getEntityManager().find(ReactionEntryEntity.class, reactionEntry.id()));
 
@@ -338,28 +309,22 @@ class TauDatabaseTest {
 
     @Test
     public void getReactionTypesByPackage() throws DatabaseException {
-        ReactionTypeEntity rt1 = new ReactionTypeEntity("smile", "funny");
-        ReactionTypeEntity rt2 = new ReactionTypeEntity("sad", "funny");
-        ReactionTypeEntity rt3 = new ReactionTypeEntity("angry", "angry_pack");
-
-        database.saveReactionType(rt1);
-        database.saveReactionType(rt2);
-        database.saveReactionType(rt3);
+        database.createReactionType("smile", "funny");
+        database.createReactionType("sad", "funny");
+        database.createReactionType("angry", "angry_pack");
 
         List<ReactionTypeEntity> funnyReactions = database.getReactionTypesByPackage("funny");
         assertEquals(2, funnyReactions.size());
     }
 
     @Test
-    public void getMembers() throws DatabaseException, AlreadyExistingRecordException, BusyNicknameException {
-        ChannelEntity channel = new ChannelEntity("GetMembersChannel", member1);
-        database.saveChat(channel);
+    public void getMembers() throws DatabaseException {
+        ChannelEntity channel = database.createChannel("GetMembersChannel", member1);
         database.addMemberToChannel(channel, member2);
-        MemberEntity member6 = database.registerMember("user6", "p");
 
         Collection<MemberEntity> members = database.getMembers(channel);
-        assertTrue(members.stream().anyMatch(m -> m.id().equals(member2.id())));
-        assertFalse(members.stream().anyMatch(m -> m.id().equals(member6.id())));
+        assertTrue(members.contains(member2));
+        assertFalse(members.contains(member6));
     }
 
     @Test

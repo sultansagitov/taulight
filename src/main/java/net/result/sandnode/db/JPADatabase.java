@@ -18,15 +18,9 @@ public class JPADatabase implements Database {
     @Override
     public MemberEntity registerMember(String nickname, String password)
             throws BusyNicknameException, DatabaseException {
-        if (findMemberByNickname(nickname).isPresent()) {
-            throw new BusyNicknameException();
-        }
-
+        if (findMemberByNickname(nickname).isPresent()) throw new BusyNicknameException();
         String hashedPassword = hasher.hash(password, 12);
-        MemberEntity member = new MemberEntity(nickname, hashedPassword);
-        memberRepo.save(member);
-
-        return member;
+        return memberRepo.save(new MemberEntity(nickname, hashedPassword));
     }
 
     @Override
