@@ -23,23 +23,18 @@ public class MemberDeletionIntegrationTest {
 
     @Test
     public void testDeleteMemberAndCheckDialogCleanup() throws Exception {
-        // register two members
         MemberEntity m1 = database.registerMember("alice", "pass1");
         MemberEntity m2 = database.registerMember("bob", "pass2");
 
         TauMemberEntity tau1 = m1.tauMember();
         TauMemberEntity tau2 = m2.tauMember();
 
-        // create dialog between them
-        DialogEntity dialog = database.createDialog(tau1, tau2);
+        database.createDialog(tau1, tau2);
 
-        // make sure dialog exists
         assertTrue(database.findDialog(tau1, tau2).isPresent());
 
-        // remove one member
-        database.deleteMember(m1); // <- предполагается, что такой метод у тебя есть
+        database.deleteMember(m1);
 
-        // ensure dialog is also removed
         assertTrue(database.findDialog(tau1, tau2).isPresent());
     }
 
@@ -56,7 +51,7 @@ public class MemberDeletionIntegrationTest {
                 .setSentDatetimeNow()
                 .setRepliedToMessages(new HashSet<>())
                 .setSys(true);
-        MessageEntity message = database.createMessage(chat, input, tau);
+        database.createMessage(chat, input, tau);
 
         assertEquals(1, database.getMessageCount(chat));
 
@@ -83,14 +78,14 @@ public class MemberDeletionIntegrationTest {
         MessageEntity msg = database.createMessage(chat, input, tau1);
 
         ReactionTypeEntity like = database.createReactionType("Like", "emoji");
-        ReactionEntryEntity reaction = database.createReactionEntry(tau2, msg, like);
+        database.createReactionEntry(tau2, msg, like);
 
-        assertTrue(database.removeReactionEntry(msg, tau2, like)); // should remove
+        assertTrue(database.removeReactionEntry(msg, tau2, like));
 
-        database.createReactionEntry(tau2, msg, like); // add again
-        database.deleteMember(m2); // delete reacting member
+        database.createReactionEntry(tau2, msg, like);
+        database.deleteMember(m2);
 
-        assertTrue(database.removeReactionEntry(msg, tau2, like)); // should be already gone
+        assertTrue(database.removeReactionEntry(msg, tau2, like));
     }
 
     @Test
@@ -105,7 +100,7 @@ public class MemberDeletionIntegrationTest {
 
         assertTrue(database.findInviteCode(invite.code()).isPresent());
 
-        database.deleteMember(invited); // delete the invited one
+        database.deleteMember(invited);
 
         assertTrue(database.findInviteCode(invite.code()).isPresent());
     }

@@ -29,15 +29,12 @@ public class CascadingTest {
 
         ChannelEntity channel = database.createChannel("news", tau);
 
-        // Пригласим того же пользователя (да, он уже владелец, но проверим добавление)
         boolean added = database.addMemberToChannel(channel, tau);
-        assertFalse(added); // Он уже там как владелец
+        assertFalse(added);
 
-        // Попробуем убрать из канала
         boolean left = database.leaveFromChannel(channel, tau);
-        assertTrue(left); // Должно успешно удалить
+        assertTrue(left);
 
-        // Повторная попытка — уже не должен быть участником
         boolean leftAgain = database.leaveFromChannel(channel, tau);
         assertFalse(leftAgain);
     }
@@ -63,11 +60,9 @@ public class CascadingTest {
         ReactionTypeEntity like = database.createReactionType("Like", "basic");
         ReactionEntryEntity entry = database.createReactionEntry(reacter, msg, like);
 
-        // Удалим по объекту
         boolean removed = database.removeReactionEntry(entry);
         assertTrue(removed);
 
-        // Повторно — уже не существует
         boolean removedAgain = database.removeReactionEntry(entry);
         assertFalse(removedAgain);
     }
@@ -93,11 +88,9 @@ public class CascadingTest {
         ReactionTypeEntity haha = database.createReactionType("Haha", "basic");
         database.createReactionEntry(reacter, msg, haha);
 
-        // Удалим через message+member+reactionType
         boolean removed = database.removeReactionEntry(msg, reacter, haha);
         assertTrue(removed);
 
-        // Повторно — уже не существует
         boolean removedAgain = database.removeReactionEntry(msg, reacter, haha);
         assertFalse(removedAgain);
     }
@@ -112,8 +105,8 @@ public class CascadingTest {
         ChannelEntity channel = database.createChannel("private", s);
         InviteCodeEntity invite = database.createInviteCode(channel, r, s, ZonedDateTime.now().plusDays(1));
 
-        assertTrue(database.activateInviteCode(invite)); // первый раз — успех
-        assertFalse(database.activateInviteCode(invite)); // повторно — уже использован
+        assertTrue(database.activateInviteCode(invite));
+        assertFalse(database.activateInviteCode(invite));
     }
 
 }
