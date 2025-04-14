@@ -28,7 +28,25 @@ public class ChannelRepository {
     }
 
     public ChannelEntity create(String title, TauMemberEntity owner) throws DatabaseException {
-        return save(new ChannelEntity(title, owner));
+        ChannelEntity managed = save(new ChannelEntity(title, owner));
+        EntityTransaction transaction = em.getTransaction();
+        try {
+            transaction.begin();
+
+            managed.setMembers(new HashSet<>(Set.of(owner)));
+
+            owner.channels().add(managed);
+            em.merge(owner);
+
+            em.merge(managed);
+
+            transaction.commit();
+        } catch (Exception e) {
+            if (transaction.isActive()) transaction.rollback();
+            throw new DatabaseException(e);
+        }
+
+        return managed;
     }
 
     public void delete(ChannelEntity channel) throws DatabaseException {

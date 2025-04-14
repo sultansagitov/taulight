@@ -31,10 +31,13 @@ public interface Database {
      */
     Optional<MemberEntity> findMemberByNickname(String nickname) throws DatabaseException;
 
+    boolean deleteMember(MemberEntity member) throws DatabaseException;
+
     /**
      * Returns the {@link PasswordHasher} used for password hashing and verification.
      *
      * @return the {@link PasswordHasher} instance
      */
     PasswordHasher hasher();
+
 }

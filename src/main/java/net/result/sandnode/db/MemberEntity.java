@@ -11,6 +11,7 @@ import javax.persistence.OneToOne;
 public class MemberEntity extends SandnodeEntity {
     private String nickname;
     private String passwordHash;
+    private boolean deleted;
 
     @OneToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     private TauMemberEntity tauMember;
@@ -23,7 +24,7 @@ public class MemberEntity extends SandnodeEntity {
     }
 
     public String nickname() {
-        return nickname;
+        return deleted() ? "deleted" : nickname;
     }
 
     public void setNickname(String nickname) {
@@ -44,6 +45,14 @@ public class MemberEntity extends SandnodeEntity {
 
     public void setTauMember(TauMemberEntity tauMember) {
         this.tauMember = tauMember;
+    }
+
+    public boolean deleted() {
+        return deleted;
+    }
+
+    public void setDeleted(boolean deleted) {
+        this.deleted = deleted;
     }
 
     @Override

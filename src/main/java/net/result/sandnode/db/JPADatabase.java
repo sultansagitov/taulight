@@ -36,6 +36,11 @@ public class JPADatabase implements Database {
     }
 
     @Override
+    public boolean deleteMember(MemberEntity member) throws DatabaseException {
+        return memberRepo.delete(member);
+    }
+
+    @Override
     public PasswordHasher hasher() {
         return hasher;
     }

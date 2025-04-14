@@ -69,10 +69,6 @@ public class ChannelServerChain extends ServerChain implements ReceiverChain {
 
         ChannelEntity channel = database.createChannel(request.title, owner);
 
-        if (!database.addMemberToChannel(channel, owner)) {
-            throw new NoEffectException();
-        }
-
         TauAgentProtocol.addMemberToGroup(session, manager.getGroup(channel));
         ChatMessageInputDTO input = SysMessages.channelNew.chatMessageInputDTO(channel, owner);
         try {

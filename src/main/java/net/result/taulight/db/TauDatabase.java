@@ -39,7 +39,7 @@ public interface TauDatabase extends Database {
     Optional<DialogEntity> findDialog(TauMemberEntity member1, TauMemberEntity member2) throws DatabaseException;
 
     /**
-     * Creates a new channel with the given title and owner.
+     * Creates a new channel with the given title and owner. And adds owner to channel
      *
      * @param title the title of the new channel
      * @param owner the {@link TauMemberEntity} who will own the channel
