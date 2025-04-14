@@ -1,6 +1,5 @@
 package net.result.sandnode.chain;
 
-import net.result.sandnode.exception.BusyChainID;
 import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.message.util.MessageType;
 
@@ -12,11 +11,7 @@ import java.util.concurrent.ExecutorService;
 public interface ChainManager {
     void interruptAll();
 
-    Optional<IChain> getByID(short id);
-
     void linkChain(IChain chain);
-
-    ReceiverChain createNew(RawMessage message) throws BusyChainID;
 
     ReceiverChain createChain(MessageType type);
 

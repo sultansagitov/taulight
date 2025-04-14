@@ -170,13 +170,13 @@ public abstract class Message implements IMessage {
     @Override
     public String toString() {
         try {
-            return "<%s %s(headers %s %s cid=%04X %d) %s(body %d)>".formatted(
+            return "<%s %s(headers %s %s cid=%04X %s) %s(body %d)>".formatted(
                     getClass().getSimpleName(),
                     headersEncryption(),
                     headers().type().name(),
                     headers().connection().name(),
                     headers().chainID(),
-                    headers().count(),
+                    headers().keys(),
                     headers().bodyEncryption().name(),
                     getBody().length
             );

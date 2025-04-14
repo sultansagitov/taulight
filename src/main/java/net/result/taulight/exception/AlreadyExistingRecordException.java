@@ -2,6 +2,7 @@ package net.result.taulight.exception;
 
 import net.result.sandnode.exception.SandnodeException;
 
+@SuppressWarnings("unused")
 public class AlreadyExistingRecordException extends SandnodeException {
     public AlreadyExistingRecordException(String type, String field, Object value, Throwable e) {
         super("%s with %s %s already exists.".formatted(type, field, value), e);
@@ -16,7 +17,4 @@ public class AlreadyExistingRecordException extends SandnodeException {
         super("%s with %s %s already exists.".formatted(type, field, value));
     }
 
-    public AlreadyExistingRecordException(String type) {
-        super("%s already exists.".formatted(type));
-    }
 }

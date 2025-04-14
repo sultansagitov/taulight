@@ -1,58 +1,44 @@
 package net.result.taulight.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import net.result.sandnode.db.Member;
-import net.result.taulight.db.TauChat;
+import net.result.sandnode.db.MemberEntity;
+import net.result.sandnode.db.SandnodeEntity;
+import net.result.taulight.db.ChatEntity;
+import net.result.taulight.db.MessageEntity;
 
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 public class ChatMessageInputDTO {
     @JsonProperty("chat-id")
     private UUID chatID = null;
     @JsonProperty
     private String content = null;
-    @JsonProperty
-    private ZonedDateTime ztd = null;
+    @JsonProperty("sent-datetime")
+    private ZonedDateTime sentDatetime = null;
     @JsonProperty
     private String nickname = null;
     @JsonProperty
     private boolean sys = false;
     @JsonProperty
-    private List<UUID> replies = null;
+    private Set<UUID> repliedToMessages = null;
 
     public ChatMessageInputDTO() {}
 
+    public ChatMessageInputDTO(MessageEntity message) {
+        setChat(message.chat());
+        setContent(message.content());
+        setSentDatetime(message.sentDatetime());
+        setMember(message.member().member());
+        setSys(message.sys());
+        setRepliedToMessages(message.repliedToMessages().stream().map(SandnodeEntity::id).collect(Collectors.toSet()));
+    }
+
     public UUID chatID() {
         return chatID;
-    }
-
-    public String content() {
-        return content;
-    }
-
-    public ZonedDateTime ztd() {
-        return ztd;
-    }
-
-    public String nickname() {
-        return nickname;
-    }
-
-    public boolean sys() {
-        return sys;
-    }
-
-    public List<UUID> replies() {
-        return replies;
-    }
-
-    public ChatMessageInputDTO setContent(String content) {
-        this.content = content;
-        return this;
     }
 
     public ChatMessageInputDTO setChatID(UUID chatID) {
@@ -60,17 +46,34 @@ public class ChatMessageInputDTO {
         return this;
     }
 
-    public ChatMessageInputDTO setChat(TauChat chat) {
+    public ChatMessageInputDTO setChat(ChatEntity chat) {
         return setChatID(chat.id());
     }
 
-    public ChatMessageInputDTO setZtd(ZonedDateTime ztd) {
-        this.ztd = ztd;
+    public String content() {
+        return content;
+    }
+
+    public ChatMessageInputDTO setContent(String content) {
+        this.content = content;
         return this;
     }
 
-    public ChatMessageInputDTO setZtdNow() {
-        return setZtd(ZonedDateTime.now(ZoneId.of("UTC")));
+    public ZonedDateTime sentDatetime() {
+        return sentDatetime;
+    }
+
+    public ChatMessageInputDTO setSentDatetime(ZonedDateTime sentDatetime) {
+        this.sentDatetime = sentDatetime;
+        return this;
+    }
+
+    public ChatMessageInputDTO setSentDatetimeNow() {
+        return setSentDatetime(ZonedDateTime.now(ZoneId.of("UTC")));
+    }
+
+    public String nickname() {
+        return nickname;
     }
 
     public ChatMessageInputDTO setNickname(String nickname) {
@@ -78,8 +81,12 @@ public class ChatMessageInputDTO {
         return this;
     }
 
-    public ChatMessageInputDTO setMember(Member member) {
+    public ChatMessageInputDTO setMember(MemberEntity member) {
         return setNickname(member.nickname());
+    }
+
+    public boolean sys() {
+        return sys;
     }
 
     public ChatMessageInputDTO setSys(boolean sys) {
@@ -87,22 +94,18 @@ public class ChatMessageInputDTO {
         return this;
     }
 
-    public ChatMessageInputDTO setReplies(List<UUID> replies) {
-        this.replies = replies;
-        return this;
+    public Set<UUID> repliedToMessages() {
+        return repliedToMessages;
     }
 
-    public void addReply(UUID messageID) {
-        if (replies == null) {
-            replies = new ArrayList<>();
-        }
-
-        replies.add(messageID);
+    public ChatMessageInputDTO setRepliedToMessages(Set<UUID> repliedToMessages) {
+        this.repliedToMessages = repliedToMessages;
+        return this;
     }
 
     @Override
     public String toString() {
-        return "<ChatMessageInputDTO content=%s chatID=%s ztd=%s sys=%s nickname=%s replies=%s>"
-                .formatted(content, chatID, ztd, sys, nickname, replies);
+        return "<ChatMessageInputDTO content=%s chatID=%s ztd=%s sys=%s nickname=%s repliedToMessages=%s>"
+                .formatted(content, chatID, sentDatetime, sys, nickname, repliedToMessages);
     }
 }

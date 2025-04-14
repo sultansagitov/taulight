@@ -2,9 +2,7 @@ package net.result.sandnode.chain.receiver;
 
 import net.result.sandnode.chain.ReceiverChain;
 import net.result.sandnode.chain.sender.ClientChain;
-import net.result.sandnode.error.ServerErrorManager;
 import net.result.sandnode.exception.error.UnhandledMessageTypeException;
-import net.result.sandnode.exception.error.SandnodeErrorException;
 import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.message.types.ErrorMessage;
 import net.result.sandnode.message.util.MessageTypes;
@@ -28,10 +26,6 @@ public class UnhandledMessageTypeClientChain extends ClientChain implements Rece
             throw new UnhandledMessageTypeException();
         }
         ErrorMessage errorMessage = new ErrorMessage(raw);
-        try {
-            ServerErrorManager.instance().throwAll(errorMessage.error);
-        } catch (SandnodeErrorException e) {
-            LOGGER.error("Unhandled error from server", e);
-        }
+        LOGGER.error("Unhandled error from server {}", errorMessage.error.description());
     }
 }

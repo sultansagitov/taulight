@@ -1,8 +1,8 @@
 package net.result.taulight.group;
 
 import net.result.sandnode.group.GroupManager;
-import net.result.taulight.db.TauChat;
+import net.result.taulight.db.ChatEntity;
 
 public interface TauGroupManager extends GroupManager {
-    TauChatGroup getGroup(TauChat chat);
+    TauChatGroup getGroup(ChatEntity chat);
 }

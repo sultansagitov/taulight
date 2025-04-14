@@ -7,10 +7,9 @@ import net.result.sandnode.exception.DatabaseException;
 import net.result.sandnode.exception.DeserializationException;
 import net.result.sandnode.exception.UnprocessedMessagesException;
 import net.result.sandnode.serverclient.Session;
-import net.result.taulight.db.TauChat;
-import net.result.taulight.db.TauDatabase;
-import net.result.taulight.dto.ChatInfo;
-import net.result.taulight.dto.ChatInfoProp;
+import net.result.taulight.db.*;
+import net.result.taulight.dto.ChatInfoDTO;
+import net.result.taulight.dto.ChatInfoPropDTO;
 import net.result.taulight.message.types.ChatRequest;
 import net.result.taulight.message.types.ChatResponse;
 import org.apache.logging.log4j.LogManager;
@@ -27,7 +26,6 @@ public class ChatServerChain extends ServerChain implements ReceiverChain {
 
     @Override
     public void sync() throws InterruptedException, DeserializationException, UnprocessedMessagesException {
-        TauDatabase database = (TauDatabase) session.server.serverConfig.database();
         while (true) {
             ChatRequest request = new ChatRequest(queue.take());
 
@@ -36,37 +34,18 @@ public class ChatServerChain extends ServerChain implements ReceiverChain {
                 continue;
             }
 
+            TauMemberEntity tauMember = session.member.tauMember();
+
             Collection<UUID> allChatID = request.getAllChatID();
-            Collection<ChatInfoProp> chatInfoProps = request.getChatInfoProps();
+            Collection<ChatInfoPropDTO> chatInfoProps = request.getChatInfoProps();
 
             try {
-                Collection<ChatInfo> infos = new ArrayList<>();
+                Collection<ChatInfoDTO> infos = new ArrayList<>();
 
-                if (allChatID == null || allChatID.isEmpty()) {
-                    for (TauChat chat : database.getChats(session.member)) {
-                        if (chat.hasMatchingProps(chatInfoProps)) {
-                            infos.add(chat.getInfo(session.member, chatInfoProps));
-                        }
-                    }
+                if (allChatID != null && !allChatID.isEmpty()) {
+                    byID(infos, allChatID, chatInfoProps, tauMember);
                 } else {
-                    for (UUID chatID : allChatID) {
-                        Optional<TauChat> opt = database.getChat(chatID);
-                        if (opt.isEmpty()) {
-                            infos.add(ChatInfo.chatNotFound(chatID));
-                            continue;
-                        }
-
-                        TauChat chat = opt.get();
-
-                        if (!chat.getMembers().contains(session.member)) {
-                            infos.add(ChatInfo.chatNotFound(chatID));
-                            continue;
-                        }
-
-                        if (chat.hasMatchingProps(chatInfoProps)) {
-                            infos.add(chat.getInfo(session.member, chatInfoProps));
-                        }
-                    }
+                    byMember(infos, chatInfoProps, tauMember);
                 }
 
                 send(new ChatResponse(infos));
@@ -77,6 +56,65 @@ public class ChatServerChain extends ServerChain implements ReceiverChain {
             }
 
             if (request.headers().fin()) break;
+        }
+    }
+
+    private void byMember(
+            Collection<ChatInfoDTO> infos,
+            Collection<ChatInfoPropDTO> chatInfoProps,
+            TauMemberEntity tauMember
+    ) {
+        for (var channel : tauMember.channels()) {
+            if (!Collections.disjoint(chatInfoProps, ChatInfoPropDTO.channelAll())) {
+                infos.add(ChatInfoDTO.channel(channel, tauMember, chatInfoProps));
+            }
+        }
+
+        for (var dialog : tauMember.dialogs()) {
+            if (!Collections.disjoint(chatInfoProps, ChatInfoPropDTO.dialogAll())) {
+                infos.add(ChatInfoDTO.dialog(dialog, tauMember, chatInfoProps));
+            }
+        }
+    }
+
+    private void byID(
+            Collection<ChatInfoDTO> infos,
+            Collection<UUID> allChatID,
+            Collection<ChatInfoPropDTO> chatInfoProps,
+            TauMemberEntity tauMember
+    ) throws DatabaseException {
+        TauDatabase database = (TauDatabase) session.server.serverConfig.database();
+
+        for (UUID chatID : allChatID) {
+            Optional<ChatEntity> opt = database.getChat(chatID);
+            if (opt.isEmpty()) {
+                LOGGER.debug("Chat with id {} was not found", chatID);
+                infos.add(ChatInfoDTO.chatNotFound(chatID));
+                continue;
+            }
+
+            ChatEntity chat = opt.get();
+
+            if (chat instanceof ChannelEntity channel) {
+                if (!channel.members().contains(tauMember)) {
+                    LOGGER.debug("Member {} not in channel {}", tauMember.member().nickname(), chatID);
+                    infos.add(ChatInfoDTO.chatNotFound(chatID));
+                    continue;
+                }
+
+                if (!Collections.disjoint(chatInfoProps, ChatInfoPropDTO.channelAll())) {
+                    infos.add(ChatInfoDTO.channel(channel, tauMember, chatInfoProps));
+                }
+            }
+
+            if (!(chat instanceof DialogEntity dialog)) continue;
+
+            if (dialog.firstMember() != tauMember && dialog.secondMember() != tauMember) {
+                LOGGER.debug("Member {} not in dialog {}", tauMember.member().nickname(), chatID);
+                infos.add(ChatInfoDTO.chatNotFound(chatID));
+            } else if (!Collections.disjoint(chatInfoProps, ChatInfoPropDTO.dialogAll())) {
+                infos.add(ChatInfoDTO.dialog(dialog, tauMember, chatInfoProps));
+            }
         }
     }
 }

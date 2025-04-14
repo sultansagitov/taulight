@@ -9,7 +9,7 @@ import net.result.sandnode.exception.UnprocessedMessagesException;
 import net.result.sandnode.exception.error.SandnodeErrorException;
 import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.util.IOController;
-import net.result.taulight.dto.TauCode;
+import net.result.taulight.dto.CodeDTO;
 import net.result.taulight.message.types.CheckCodeRequest;
 import net.result.taulight.message.types.CheckCodeResponse;
 
@@ -18,7 +18,7 @@ public class CheckCodeClientChain extends ClientChain {
         super(io);
     }
 
-    public TauCode check(String code) throws UnprocessedMessagesException, InterruptedException,
+    public CodeDTO check(String code) throws UnprocessedMessagesException, InterruptedException,
             ExpectedMessageException, UnknownSandnodeErrorException, SandnodeErrorException, DeserializationException {
         send(new CheckCodeRequest(code));
         RawMessage raw = queue.take();

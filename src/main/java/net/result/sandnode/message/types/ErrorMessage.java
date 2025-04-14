@@ -30,4 +30,9 @@ public class ErrorMessage extends StatusMessage {
 
         throw new UnknownSandnodeErrorException(code());
     }
+
+    @Override
+    public String toString() {
+        return "%s %s".formatted(super.toString(), error.description());
+    }
 }

@@ -4,6 +4,7 @@ import net.result.main.config.HubPropertiesConfig;
 import net.result.main.config.JWTPropertiesConfig;
 import net.result.sandnode.config.HubConfig;
 import net.result.sandnode.config.ServerConfig;
+import net.result.sandnode.db.JPAUtil;
 import net.result.sandnode.exception.ConfigurationException;
 import net.result.sandnode.exception.FSException;
 import net.result.sandnode.exception.SandnodeException;
@@ -14,7 +15,6 @@ import net.result.sandnode.link.Links;
 import net.result.taulight.db.TauDatabase;
 import net.result.taulight.group.HashSetTauGroupManager;
 import net.result.sandnode.security.JWTTokenizer;
-import net.result.taulight.db.ReactionType;
 import net.result.taulight.hubagent.TauHub;
 import net.result.main.config.ServerPropertiesConfig;
 import net.result.sandnode.serverclient.SandnodeServer;
@@ -25,10 +25,8 @@ import org.apache.logging.log4j.Logger;
 
 import org.jetbrains.annotations.NotNull;
 
-import java.util.UUID;
 import java.util.List;
 import java.net.URI;
-import java.time.ZonedDateTime;
 
 public class RunHubWork implements IWork {
 
@@ -36,6 +34,8 @@ public class RunHubWork implements IWork {
 
     @Override
     public void run() throws SandnodeException {
+        JPAUtil.buildEntityManagerFactory();
+
         ServerConfig serverConfig = getServerConfig();
 
         AsymmetricEncryption mainEncryption = serverConfig.mainEncryption();
@@ -72,14 +72,7 @@ public class RunHubWork implements IWork {
                 List<String> reactionNames = List.of("fire", "like", "laugh", "wow", "sad", "angry");
 
                 for (String name : reactionNames) {
-                    ReactionType rt = new ReactionType(
-                            database,
-                            UUID.randomUUID(),
-                            ZonedDateTime.now(),
-                            name,
-                            "taulight"
-                    );
-                    database.saveReactionType(rt);
+                    database.createReactionType(name, "taulight");
                 }
             }
         } catch (Exception e) {

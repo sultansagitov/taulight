@@ -2,9 +2,9 @@ package net.result.taulight.chain.receiver;
 
 import net.result.sandnode.chain.ReceiverChain;
 import net.result.sandnode.chain.receiver.ServerChain;
-import net.result.sandnode.db.Member;
 import net.result.sandnode.error.Errors;
 import net.result.sandnode.exception.*;
+import net.result.sandnode.exception.error.SandnodeErrorException;
 import net.result.sandnode.exception.error.UnauthorizedException;
 import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.message.types.ErrorMessage;
@@ -12,12 +12,12 @@ import net.result.sandnode.message.util.Headers;
 import net.result.sandnode.message.util.MessageTypes;
 import net.result.sandnode.serverclient.Session;
 import net.result.taulight.TauHubProtocol;
+import net.result.taulight.db.TauMemberEntity;
 import net.result.taulight.dto.ChatMessageViewDTO;
 import net.result.taulight.db.TauDatabase;
 import net.result.taulight.dto.ChatMessageInputDTO;
-import net.result.sandnode.exception.error.NoEffectException;
 import net.result.taulight.message.types.ForwardRequest;
-import net.result.taulight.db.TauChat;
+import net.result.taulight.db.ChatEntity;
 import net.result.sandnode.message.UUIDMessage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -79,7 +79,7 @@ public class ForwardRequestServerChain extends ServerChain implements ReceiverCh
             ChatMessageViewDTO serverMessage;
 
             try {
-                Optional<TauChat> chatOpt = database.getChat(chatID);
+                Optional<ChatEntity> chatOpt = database.getChat(chatID);
 
                 if (chatOpt.isEmpty()) {
                     LOGGER.error("Chat was not found");
@@ -87,11 +87,11 @@ public class ForwardRequestServerChain extends ServerChain implements ReceiverCh
                     continue;
                 }
 
-                TauChat chat = chatOpt.get();
+                ChatEntity chat = chatOpt.get();
 
-                Collection<Member> members = chat.getMembers();
-                if (!members.contains(session.member)) {
-                    LOGGER.warn("Unauthorized access attempt by member: {}", session.member);
+                Collection<TauMemberEntity> members = database.getMembers(chat);
+                if (!members.contains(session.member.tauMember())) {
+                    LOGGER.warn("Unauthorized access attempt by member: {}", session.member.nickname());
                     send(Errors.NOT_FOUND.createMessage());
                     continue;
                 }
@@ -105,9 +105,8 @@ public class ForwardRequestServerChain extends ServerChain implements ReceiverCh
                 LOGGER.error("Database error: {}", e.getMessage(), e);
                 send(Errors.SERVER_ERROR.createMessage());
                 continue;
-            } catch (NoEffectException e) {
-                LOGGER.error("Message forwarding failed for chat: {}", chatID, e);
-                send(Errors.NO_EFFECT.createMessage());
+            } catch (SandnodeErrorException e) {
+                send(e.getSandnodeError().createMessage());
                 continue;
             }
 

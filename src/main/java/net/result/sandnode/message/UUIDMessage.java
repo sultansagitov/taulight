@@ -1,6 +1,6 @@
 package net.result.sandnode.message;
 
-import net.result.sandnode.db.SandnodeObject;
+import net.result.sandnode.db.SandnodeEntity;
 import net.result.sandnode.exception.DeserializationException;
 import net.result.sandnode.message.util.Headers;
 import org.jetbrains.annotations.NotNull;
@@ -11,12 +11,12 @@ import java.util.UUID;
 public class UUIDMessage extends Message {
     public final UUID uuid;
 
-    public UUIDMessage(@NotNull Headers headers, UUID uuid) {
+    public UUIDMessage(@NotNull Headers headers, @NotNull UUID uuid) {
         super(headers);
         this.uuid = uuid;
     }
 
-    public UUIDMessage(Headers headers, @NotNull SandnodeObject object) {
+    public UUIDMessage(Headers headers, @NotNull SandnodeEntity object) {
         this(headers, object.id());
     }
 

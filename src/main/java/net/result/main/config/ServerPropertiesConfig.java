@@ -16,8 +16,7 @@ import net.result.sandnode.util.FileUtil;
 import net.result.sandnode.db.Database;
 import net.result.sandnode.group.GroupManager;
 import net.result.sandnode.security.Tokenizer;
-import net.result.taulight.db.TaulightInMemoryDatabase;
-import net.result.taulight.db.mariadb.TauMariaDBDatabase;
+import net.result.taulight.db.TauJPADatabase;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
@@ -86,11 +85,7 @@ public class ServerPropertiesConfig implements ServerConfig {
         }
 
         try {
-            setDatabase(switch (properties.getProperty("server.database")) {
-                case "mariadb" -> new TauMariaDBDatabase(new MariaDBPropertiesConfig(), PasswordHashers.BCRYPT);
-                case "in-memory" -> new TaulightInMemoryDatabase(PasswordHashers.BCRYPT);
-                default -> throw new ConfigurationException("server.database is not set or set incorrectly", fileName);
-            });
+            setDatabase(new TauJPADatabase(PasswordHashers.BCRYPT));
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

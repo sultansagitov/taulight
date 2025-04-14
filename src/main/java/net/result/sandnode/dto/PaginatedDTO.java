@@ -11,8 +11,7 @@ public class PaginatedDTO<T> {
     public List<T> objects;
 
     @SuppressWarnings("unused")
-    public PaginatedDTO() {
-    }
+    public PaginatedDTO() {}
 
     public PaginatedDTO(long totalCount, List<T> objects) {
         this.totalCount = totalCount;
