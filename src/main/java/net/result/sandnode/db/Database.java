@@ -31,6 +31,13 @@ public interface Database {
      */
     Optional<MemberEntity> findMemberByNickname(String nickname) throws DatabaseException;
 
+    /**
+     * Deletes the specified member from the database.
+     *
+     * @param member the {@link MemberEntity} to be deleted
+     * @return {@code true} if the member was successfully deleted, {@code false} otherwise
+     * @throws DatabaseException if a database access error occurs
+     */
     boolean deleteMember(MemberEntity member) throws DatabaseException;
 
     /**

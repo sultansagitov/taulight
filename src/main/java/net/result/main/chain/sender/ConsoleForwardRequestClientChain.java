@@ -1,8 +1,6 @@
 package net.result.main.chain.sender;
 
-import net.result.main.ConsoleSandnodeCommands;
-import net.result.main.ConsoleContext;
-import net.result.main.ConsoleTaulightCommands;
+import net.result.main.commands.*;
 import net.result.sandnode.error.ServerErrorManager;
 import net.result.sandnode.exception.error.NotFoundException;
 import net.result.sandnode.exception.error.SandnodeErrorException;
@@ -32,7 +30,10 @@ public class ConsoleForwardRequestClientChain extends ClientChain {
         Scanner scanner = new Scanner(System.in);
         Map<String, ConsoleSandnodeCommands.LoopCondition> commands = new HashMap<>();
         ConsoleSandnodeCommands.register(commands);
-        ConsoleTaulightCommands.register(commands);
+        ConsoleChatsCommands.register(commands);
+        ConsoleCodesCommands.register(commands);
+        ConsoleReactionsCommands.register(commands);
+        ConsoleMessagesCommands.register(commands);
         ConsoleContext context = new ConsoleContext(this, io, nickname);
 
         while (true) {

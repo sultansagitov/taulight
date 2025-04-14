@@ -8,7 +8,6 @@ import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.message.TextMessage;
 import net.result.sandnode.message.types.HappyMessage;
 import net.result.sandnode.util.IOController;
-import net.result.taulight.dto.InviteCodeDTO;
 import net.result.taulight.dto.CodeDTO;
 import net.result.taulight.message.CodeListMessage;
 import net.result.taulight.message.TauMessageTypes;
@@ -17,9 +16,7 @@ import net.result.sandnode.message.UUIDMessage;
 
 import java.time.Duration;
 import java.util.Collection;
-import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 public class ChannelClientChain extends ClientChain {
     public ChannelClientChain(IOController io) {
@@ -68,7 +65,7 @@ public class ChannelClientChain extends ClientChain {
         return new CodeListMessage(raw).codes();
     }
 
-    public synchronized List<InviteCodeDTO> getMyCodes() throws InterruptedException,
+    public synchronized Collection<CodeDTO> getMyCodes() throws InterruptedException,
             UnknownSandnodeErrorException, SandnodeErrorException, DeserializationException,
             UnprocessedMessagesException, ExpectedMessageException {
         send(ChannelRequest.myCodes());
@@ -76,8 +73,6 @@ public class ChannelClientChain extends ClientChain {
         ServerErrorManager.instance().handleError(raw);
 
         raw.expect(TauMessageTypes.CHANNEL);
-        return new CodeListMessage(raw).codes().stream()
-                .map(code -> (InviteCodeDTO) code)
-                .collect(Collectors.toList());
+        return new CodeListMessage(raw).codes();
     }
 }

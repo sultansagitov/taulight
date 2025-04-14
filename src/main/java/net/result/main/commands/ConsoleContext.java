@@ -1,4 +1,4 @@
-package net.result.main;
+package net.result.main.commands;
 
 import net.result.main.chain.sender.ConsoleForwardRequestClientChain;
 import net.result.sandnode.util.IOController;

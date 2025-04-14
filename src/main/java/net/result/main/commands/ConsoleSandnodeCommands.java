@@ -1,4 +1,4 @@
-package net.result.main;
+package net.result.main.commands;
 
 import net.result.sandnode.chain.IChain;
 import net.result.sandnode.chain.sender.NameClientChain;
