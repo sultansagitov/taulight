@@ -59,7 +59,6 @@ class TauDatabaseTest {
         assertEquals("nicksearch", found.get().nickname());
     }
 
-
     @Test
     public void createDialog() throws DatabaseException, AlreadyExistingRecordException {
         DialogEntity dialog = database.createDialog(member3, member4);
@@ -266,7 +265,32 @@ class TauDatabaseTest {
     }
 
     @Test
-    public void createReactionType() throws DatabaseException {
+    public void createReactionPackage() throws DatabaseException {
+        ReactionPackageEntity reactionPackage = database.createReactionPackage("funny_emojis");
+        assertNotNull(reactionPackage);
+        assertEquals("funny_emojis", reactionPackage.name());
+
+        ReactionPackageEntity found = JPAUtil.getEntityManager().find(ReactionPackageEntity.class, reactionPackage.id());
+        assertNotNull(found);
+        assertEquals(reactionPackage.id(), found.id());
+    }
+
+    @Test
+    public void createReactionType1() throws DatabaseException {
+        ReactionPackageEntity reactionPackage = database.createReactionPackage("standard");
+        ReactionTypeEntity reactionType = database.createReactionType("laugh", reactionPackage);
+
+        assertNotNull(reactionType);
+        assertEquals("laugh", reactionType.name());
+        assertEquals("standard", reactionType.reactionPackage().name());
+
+        ReactionTypeEntity found = JPAUtil.getEntityManager().find(ReactionTypeEntity.class, reactionType.id());
+        assertNotNull(found);
+        assertEquals("laugh", found.name());
+    }
+
+    @Test
+    public void createReactionType2() throws DatabaseException {
         ReactionTypeEntity reactionType = database.createReactionType("thumbs_up", "emoji_package");
         assertNotNull(JPAUtil.getEntityManager().find(ReactionTypeEntity.class, reactionType.id()));
     }

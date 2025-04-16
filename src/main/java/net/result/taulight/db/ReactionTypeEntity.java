@@ -3,6 +3,7 @@ package net.result.taulight.db;
 import net.result.sandnode.db.SandnodeEntity;
 
 import javax.persistence.Entity;
+import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import java.util.HashSet;
 import java.util.Set;
@@ -11,16 +12,19 @@ import java.util.Set;
 @Entity
 public class ReactionTypeEntity extends SandnodeEntity {
     private String name;
-    private String packageName;
+
+    @ManyToOne
+    private ReactionPackageEntity reactionPackage;
+
 
     @OneToMany
     private Set<ReactionEntryEntity> reactionEntries = new HashSet<>();
 
     public ReactionTypeEntity() {}
 
-    public ReactionTypeEntity(String name, String packageName) {
+    public ReactionTypeEntity(String name, ReactionPackageEntity reactionPackage) {
         setName(name);
-        setPackageName(packageName);
+        setReactionPackage(reactionPackage);
     }
 
     public String name() {
@@ -31,12 +35,12 @@ public class ReactionTypeEntity extends SandnodeEntity {
         this.name = name;
     }
 
-    public String packageName() {
-        return packageName;
+    public ReactionPackageEntity reactionPackage() {
+        return reactionPackage;
     }
 
-    private void setPackageName(String packageName) {
-        this.packageName = packageName;
+    public void setReactionPackage(ReactionPackageEntity reactionPackage) {
+        this.reactionPackage = reactionPackage;
     }
 
     public Set<ReactionEntryEntity> reactionEntries() {

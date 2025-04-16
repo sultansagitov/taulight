@@ -54,10 +54,7 @@ public class MessageRepository {
 
     public List<MessageEntity> findMessagesByChat(ChatEntity chat, int index, int size) throws DatabaseException {
         try {
-            String q = """
-                SELECT m FROM MessageEntity m
-                WHERE m.chat = :chat ORDER BY m.creationDate DESC
-            """;
+            String q = "FROM MessageEntity WHERE chat = :chat ORDER BY creationDate DESC";
             return em.createQuery(q, MessageEntity.class)
                     .setParameter("chat", chat)
                     .setFirstResult(index)

@@ -50,7 +50,7 @@ public class ChatMessageViewDTO {
             ReactionTypeEntity type = entry.reactionType();
             TauMemberEntity member = entry.member();
 
-            String reaction = "%s:%s".formatted(type.packageName(), type.name());
+            String reaction = "%s:%s".formatted(type.reactionPackage().name(), type.name());
 
             result.computeIfAbsent(reaction, k -> new HashSet<>()).add(member.member().nickname());
         });

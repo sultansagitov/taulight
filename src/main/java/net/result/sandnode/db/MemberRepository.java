@@ -32,11 +32,7 @@ public class MemberRepository {
 
     public Optional<MemberEntity> findByNickname(String nickname) throws DatabaseException {
         try {
-            String q = """
-                FROM MemberEntity
-                WHERE nickname = :nickname
-                    AND deleted = false
-            """;
+            String q = "FROM MemberEntity WHERE nickname = :nickname AND deleted = false";
             return em
                     .createQuery(q, MemberEntity.class)
                     .setParameter("nickname", nickname)

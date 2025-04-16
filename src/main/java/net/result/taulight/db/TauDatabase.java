@@ -168,10 +168,31 @@ public interface TauDatabase extends Database {
     boolean activateInviteCode(InviteCodeEntity code) throws DatabaseException;
 
     /**
-     * Creates a new reaction type with the specified name and package.
+     * Creates a new reaction package with the specified name.
      *
-     * @param name the name of the reaction type (e.g., "Like", "Love", "Laugh")
-     * @param packageName the package or category this reaction type belongs to
+     * @param packageName the name of the reaction package to create
+     * @return the created {@link ReactionPackageEntity}
+     * @throws DatabaseException if a database error occurs
+     */
+    ReactionPackageEntity createReactionPackage(String packageName) throws DatabaseException;
+
+    /**
+     * Creates a new reaction type with the specified name and associates it with
+     * the given {@link ReactionPackageEntity}.
+     *
+     * @param name the name of the reaction type to create
+     * @param reactionPackage the {@link ReactionPackageEntity} to associate with
+     * @return the created {@link ReactionTypeEntity}
+     * @throws DatabaseException if a database error occurs
+     */
+    ReactionTypeEntity createReactionType(String name, ReactionPackageEntity reactionPackage) throws DatabaseException;
+
+    /**
+     * Creates a new reaction type with the specified name and associates it with
+     * a reaction package identified by its name. If the package does not exist, it will be created.
+     *
+     * @param name the name of the reaction type to create
+     * @param packageName the name of the reaction package to find or create
      * @return the created {@link ReactionTypeEntity}
      * @throws DatabaseException if a database error occurs
      */
@@ -191,7 +212,6 @@ public interface TauDatabase extends Database {
             MessageEntity message,
             ReactionTypeEntity reactionType
     ) throws DatabaseException;
-
 
     /**
      * Removes a reaction entry from the database.

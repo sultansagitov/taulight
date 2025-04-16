@@ -66,10 +66,10 @@ public class DialogRepository {
     public Optional<DialogEntity> findByMembers(TauMemberEntity firstMember, TauMemberEntity secondMember)
             throws DatabaseException {
         String q = """
-            SELECT d FROM DialogEntity d
+            FROM DialogEntity
             WHERE
-                (d.firstMember = :firstMember AND d.secondMember = :secondMember)
-                OR (d.firstMember = :secondMember AND d.secondMember = :firstMember)
+                (firstMember = :firstMember AND secondMember = :secondMember)
+                OR (firstMember = :secondMember AND secondMember = :firstMember)
         """;
         TypedQuery<DialogEntity> query = em.createQuery(q, DialogEntity.class)
                 .setParameter("firstMember", firstMember)
