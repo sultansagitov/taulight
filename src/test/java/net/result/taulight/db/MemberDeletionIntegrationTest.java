@@ -96,7 +96,8 @@ public class MemberDeletionIntegrationTest {
         TauMemberEntity tauInvited = invited.tauMember();
 
         ChannelEntity channel = database.createChannel("private", tauOwner);
-        InviteCodeEntity invite = database.createInviteCode(channel, tauInvited, tauOwner, ZonedDateTime.now().plusDays(1));
+        ZonedDateTime expiresDate = ZonedDateTime.now().plusDays(1);
+        InviteCodeEntity invite = database.createInviteCode(channel, tauInvited, tauOwner, expiresDate);
 
         assertTrue(database.findInviteCode(invite.code()).isPresent());
 
