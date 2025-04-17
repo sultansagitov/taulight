@@ -30,7 +30,7 @@ public class ChatMessageViewDTO {
      * Example entry: "emoji:thumbs_up" -> ["alice", "bob"]
      */
     @JsonProperty
-    private Map<String, Collection<String>> reactions = new HashMap<>();
+    private Map<String, List<String>> reactions = new HashMap<>();
 
     /** Default constructor. */
     public ChatMessageViewDTO() {
@@ -45,14 +45,14 @@ public class ChatMessageViewDTO {
         setID(message.id());
         setCreationDate(message.creationDate());
 
-        Map<String, Collection<String>> result = new HashMap<>();
+        Map<String, List<String>> result = new HashMap<>();
         message.reactionEntries().forEach((entry) -> {
             ReactionTypeEntity type = entry.reactionType();
             TauMemberEntity member = entry.member();
 
             String reaction = "%s:%s".formatted(type.reactionPackage().name(), type.name());
 
-            result.computeIfAbsent(reaction, k -> new HashSet<>()).add(member.member().nickname());
+            result.computeIfAbsent(reaction, k -> new ArrayList<>()).add(member.member().nickname());
         });
         setReactions(result);
 
@@ -110,7 +110,7 @@ public class ChatMessageViewDTO {
     /**
      * @return the map of reaction types to member nicknames
      */
-    public Map<String, Collection<String>> reactions() {
+    public Map<String, List<String>> reactions() {
         return reactions;
     }
 
@@ -119,7 +119,7 @@ public class ChatMessageViewDTO {
      *
      * @param reactions a map of reaction type to member nicknames
      */
-    public void setReactions(Map<String, Collection<String>> reactions) {
+    public void setReactions(Map<String, List<String>> reactions) {
         this.reactions = reactions;
     }
 

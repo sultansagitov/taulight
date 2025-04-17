@@ -63,7 +63,7 @@ public class ConsoleMessagesRunner {
             System.out.printf("Replied to: %s%n", collect);
         }
 
-        Map<String, Collection<String>> reactions = dto.reactions();
+        Map<String, List<String>> reactions = dto.reactions();
         if (!reactions.isEmpty()) {
             String collect = reactions
                     .entrySet().stream()
