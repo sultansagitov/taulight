@@ -77,7 +77,8 @@ public class MemberDeletionIntegrationTest {
                 .setSys(true);
         MessageEntity msg = database.createMessage(chat, input, tau1);
 
-        ReactionTypeEntity like = database.createReactionType("Like", "emoji");
+        ReactionPackageEntity emoji = database.createReactionPackage("emoji", "");
+        ReactionTypeEntity like = database.createReactionType("Like", emoji);
         database.createReactionEntry(tau2, msg, like);
 
         assertTrue(database.removeReactionEntry(msg, tau2, like));

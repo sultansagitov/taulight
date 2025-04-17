@@ -57,7 +57,8 @@ public class CascadingTest {
                 .setSys(true);
         MessageEntity msg = database.createMessage(chat, input, author);
 
-        ReactionTypeEntity like = database.createReactionType("Like", "basic");
+        ReactionPackageEntity basic = database.createReactionPackage("basic", "");
+        ReactionTypeEntity like = database.createReactionType("Like", basic);
         ReactionEntryEntity entry = database.createReactionEntry(reacter, msg, like);
 
         boolean removed = database.removeReactionEntry(entry);
@@ -85,7 +86,8 @@ public class CascadingTest {
                 .setSys(true);
         MessageEntity msg = database.createMessage(chat, input, author);
 
-        ReactionTypeEntity haha = database.createReactionType("Haha", "basic");
+        ReactionPackageEntity basic = database.createReactionPackage("basic", "");
+        ReactionTypeEntity haha = database.createReactionType("Haha", basic);
         database.createReactionEntry(reacter, msg, haha);
 
         boolean removed = database.removeReactionEntry(msg, reacter, haha);

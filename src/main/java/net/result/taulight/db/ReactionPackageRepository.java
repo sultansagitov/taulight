@@ -27,8 +27,8 @@ public class ReactionPackageRepository {
         }
     }
 
-    public ReactionPackageEntity create(String name) throws DatabaseException {
-        return save(new ReactionPackageEntity(name));
+    public ReactionPackageEntity create(String name, String description) throws DatabaseException {
+        return save(new ReactionPackageEntity(name, description));
     }
 
     public Optional<ReactionPackageEntity> find(String packageName) throws DatabaseException {

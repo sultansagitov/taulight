@@ -266,7 +266,7 @@ class TauDatabaseTest {
 
     @Test
     public void createReactionPackage() throws DatabaseException {
-        ReactionPackageEntity reactionPackage = database.createReactionPackage("funny_emojis");
+        ReactionPackageEntity reactionPackage = database.createReactionPackage("funny_emojis", "");
         assertNotNull(reactionPackage);
         assertEquals("funny_emojis", reactionPackage.name());
 
@@ -276,8 +276,16 @@ class TauDatabaseTest {
     }
 
     @Test
+    public void findReactionPackage() throws DatabaseException {
+        database.createReactionPackage("qwe", "rty");
+        Optional<ReactionPackageEntity> found = database.findReactionPackage("qwe");
+        assertTrue(found.isPresent());
+        assertEquals("rty", found.get().description());
+    }
+
+    @Test
     public void createReactionType1() throws DatabaseException {
-        ReactionPackageEntity reactionPackage = database.createReactionPackage("standard");
+        ReactionPackageEntity reactionPackage = database.createReactionPackage("standard", "");
         ReactionTypeEntity reactionType = database.createReactionType("laugh", reactionPackage);
 
         assertNotNull(reactionType);
@@ -291,13 +299,29 @@ class TauDatabaseTest {
 
     @Test
     public void createReactionType2() throws DatabaseException {
-        ReactionTypeEntity reactionType = database.createReactionType("thumbs_up", "emoji_package");
-        assertNotNull(JPAUtil.getEntityManager().find(ReactionTypeEntity.class, reactionType.id()));
+        ReactionPackageEntity reactionPackage = database.createReactionPackage("multi_package", "");
+
+        Collection<String> typeNames = List.of("clap", "wow", "heart");
+
+        Collection<ReactionTypeEntity> createdTypes = database.createReactionType(reactionPackage, typeNames);
+
+        assertNotNull(createdTypes);
+        assertEquals(3, createdTypes.size());
+
+        for (ReactionTypeEntity type : createdTypes) {
+            assertTrue(typeNames.contains(type.name()));
+            assertEquals(reactionPackage.id(), type.reactionPackage().id());
+
+            ReactionTypeEntity found = JPAUtil.getEntityManager().find(ReactionTypeEntity.class, type.id());
+            assertNotNull(found);
+            assertEquals(type, found);
+        }
     }
 
     @Test
     public void createReactionEntry() throws DatabaseException, NotFoundException {
-        ReactionTypeEntity reactionType = database.createReactionType("like", "test");
+        ReactionPackageEntity testPackage = database.createReactionPackage("test", "");
+        ReactionTypeEntity reactionType = database.createReactionType("like", testPackage);
 
         ChannelEntity channel = database.createChannel("Test", member1);
 
@@ -318,7 +342,8 @@ class TauDatabaseTest {
 
     @Test
     public void removeReactionEntry() throws DatabaseException, NotFoundException {
-        ReactionTypeEntity reactionType = database.createReactionType("fire", "test");
+        ReactionPackageEntity testPackage = database.createReactionPackage("test", "");
+        ReactionTypeEntity reactionType = database.createReactionType("fire", testPackage);
 
         ChannelEntity channel = database.createChannel("Test", member1);
 
@@ -340,9 +365,12 @@ class TauDatabaseTest {
 
     @Test
     public void getReactionTypesByPackage() throws DatabaseException {
-        database.createReactionType("smile", "funny");
-        database.createReactionType("sad", "funny");
-        database.createReactionType("angry", "angry_pack");
+        ReactionPackageEntity funnyPackage = database.createReactionPackage("funny", "");
+        ReactionPackageEntity angryPackage = database.createReactionPackage("angry_pack", "");
+
+        database.createReactionType("smile", funnyPackage);
+        database.createReactionType("sad", funnyPackage);
+        database.createReactionType("angry", angryPackage);
 
         List<ReactionTypeEntity> funnyReactions = database.getReactionTypesByPackage("funny");
         assertEquals(2, funnyReactions.size());

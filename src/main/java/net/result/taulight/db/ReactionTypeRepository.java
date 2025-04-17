@@ -5,6 +5,8 @@ import net.result.sandnode.exception.DatabaseException;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -19,7 +21,6 @@ public class ReactionTypeRepository {
 
         EntityTransaction transaction = em.getTransaction();
         try {
-            reactionType.setRandomID();
             transaction.begin();
             ReactionTypeEntity managed = em.merge(reactionType);
             transaction.commit();
@@ -40,7 +41,39 @@ public class ReactionTypeRepository {
             return create(name, reactionPackage.get());
         }
 
-        return create(name, reactionPackageRepo.create(packageName));
+        return create(name, reactionPackageRepo.create(packageName, ""));
+    }
+
+    public Collection<ReactionTypeEntity> create(ReactionPackageEntity rp, Collection<String> types)
+            throws DatabaseException {
+        if (types == null || types.isEmpty()) {
+            return List.of();
+        }
+
+        List<ReactionTypeEntity> createdEntities = new ArrayList<>();
+        EntityTransaction transaction = em.getTransaction();
+
+        try {
+            transaction.begin();
+
+            for (String type : types) {
+                ReactionTypeEntity reactionType = new ReactionTypeEntity(type, rp);
+
+                // Ensure unique ID
+                while (em.find(ReactionTypeEntity.class, reactionType.id()) != null) {
+                    reactionType.setRandomID();
+                }
+
+                ReactionTypeEntity managed = em.merge(reactionType);
+                createdEntities.add(managed);
+            }
+
+            transaction.commit();
+            return createdEntities;
+        } catch (Exception e) {
+            if (transaction.isActive()) transaction.rollback();
+            throw new DatabaseException("Failed to save reaction types", e);
+        }
     }
 
     public List<ReactionTypeEntity> findByPackageName(String packageName) throws DatabaseException {

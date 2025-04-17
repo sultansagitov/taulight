@@ -13,6 +13,9 @@ public class TauMemberEntity extends SandnodeEntity {
     @OneToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     private MemberEntity member;
 
+    @OneToMany(mappedBy = "author", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    private Set<ReactionPackageEntity> reactionPackages = new HashSet<>();
+
     @OneToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     private Set<ReactionEntryEntity> reactionEntries = new HashSet<>();
 
@@ -43,6 +46,14 @@ public class TauMemberEntity extends SandnodeEntity {
 
     public void setMember(MemberEntity member) {
         this.member = member;
+    }
+
+    public Set<ReactionPackageEntity> reactionPackages() {
+        return reactionPackages;
+    }
+
+    public void setReactionPackages(Set<ReactionPackageEntity> reactionPackages) {
+        this.reactionPackages = reactionPackages;
     }
 
     public Set<ReactionEntryEntity> reactionEntries() {

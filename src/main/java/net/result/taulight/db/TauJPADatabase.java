@@ -112,13 +112,20 @@ public class TauJPADatabase extends JPADatabase implements TauDatabase {
     }
 
     @Override
-    public ReactionPackageEntity createReactionPackage(String packageName) throws DatabaseException {
-        return reactionPackageRepo.create(packageName);
+    public ReactionPackageEntity createReactionPackage(String packageName, String description)
+            throws DatabaseException {
+        return reactionPackageRepo.create(packageName, description);
     }
 
     @Override
-    public ReactionTypeEntity createReactionType(String name, String packageName) throws DatabaseException {
-        return reactionTypeRepository.create(name, packageName);
+    public Optional<ReactionPackageEntity> findReactionPackage(String packageName) throws DatabaseException {
+        return reactionPackageRepo.find(packageName);
+    }
+
+    @Override
+    public Collection<ReactionTypeEntity> createReactionType(ReactionPackageEntity rp, Collection<String> types)
+            throws DatabaseException {
+        return reactionTypeRepository.create(rp, types);
     }
 
     @Override
