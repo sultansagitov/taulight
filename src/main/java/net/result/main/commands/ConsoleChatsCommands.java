@@ -53,7 +53,13 @@ public class ConsoleChatsCommands {
     }
 
     private static boolean info(@NotNull List<String> args, ConsoleContext context) throws InterruptedException {
-        UUID chatID = args.stream().findFirst().map(UUID::fromString).orElse(context.currentChat);
+        UUID chatID;
+        try {
+            chatID = args.stream().findFirst().map(UUID::fromString).orElse(context.currentChat);
+        } catch (IllegalArgumentException e) {
+            System.out.println("Invalid UUID format provided.");
+            return false;
+        }
         if (chatID == null) {
             System.out.println("Chat not selected");
             return false;
