@@ -11,7 +11,7 @@ import net.result.sandnode.exception.SandnodeException;
 import net.result.sandnode.exception.SocketAcceptException;
 import net.result.sandnode.exception.crypto.EncryptionTypeException;
 import net.result.sandnode.exception.crypto.NoSuchEncryptionException;
-import net.result.sandnode.link.Links;
+import net.result.sandnode.link.SandnodeLinkRecord;
 import net.result.taulight.db.TauDatabase;
 import net.result.taulight.group.HashSetTauGroupManager;
 import net.result.sandnode.security.JWTTokenizer;
@@ -48,7 +48,7 @@ public class RunHubWork implements IWork {
         SandnodeServer server = new SandnodeServer(hub, serverConfig);
         server.start();
 
-        URI link = Links.getServerLink(server);
+        URI link = SandnodeLinkRecord.fromServer(server).getURI();
         System.out.println("Link for server:");
         System.out.println();
         System.out.println(link);
