@@ -2,19 +2,18 @@ package net.result.taulight.db;
 
 import net.result.sandnode.db.JPAUtil;
 import net.result.sandnode.exception.DatabaseException;
+import org.jetbrains.annotations.NotNull;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Optional;
 
 public class ReactionTypeRepository {
     private final EntityManager em = JPAUtil.getEntityManager();
-    private final ReactionPackageRepository reactionPackageRepo = new ReactionPackageRepository();
 
-    private ReactionTypeEntity save(ReactionTypeEntity reactionType) throws DatabaseException {
+    private ReactionTypeEntity save(@NotNull ReactionTypeEntity reactionType) throws DatabaseException {
         while (em.find(ReactionTypeEntity.class, reactionType.id()) != null) {
             reactionType.setRandomID();
         }
@@ -33,15 +32,6 @@ public class ReactionTypeRepository {
 
     public ReactionTypeEntity create(String name, ReactionPackageEntity reactionPackage) throws DatabaseException {
         return save(new ReactionTypeEntity(name, reactionPackage));
-    }
-
-    public ReactionTypeEntity create(String name, String packageName) throws DatabaseException {
-        Optional<ReactionPackageEntity> reactionPackage = reactionPackageRepo.find(packageName);
-        if (reactionPackage.isPresent()) {
-            return create(name, reactionPackage.get());
-        }
-
-        return create(name, reactionPackageRepo.create(packageName, ""));
     }
 
     public Collection<ReactionTypeEntity> create(ReactionPackageEntity rp, Collection<String> types)

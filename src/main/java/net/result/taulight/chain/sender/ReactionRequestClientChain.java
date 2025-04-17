@@ -13,9 +13,9 @@ import net.result.taulight.message.types.ReactionRequest;
 
 import java.util.UUID;
 
-public class ReactionClientChain extends ClientChain {
+public class ReactionRequestClientChain extends ClientChain {
 
-    public ReactionClientChain(IOController io) {
+    public ReactionRequestClientChain(IOController io) {
         super(io);
     }
 

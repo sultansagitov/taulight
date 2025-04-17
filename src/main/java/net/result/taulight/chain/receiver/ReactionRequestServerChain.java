@@ -5,6 +5,7 @@ import net.result.sandnode.chain.receiver.ServerChain;
 import net.result.sandnode.exception.error.NoEffectException;
 import net.result.sandnode.exception.error.UnauthorizedException;
 import net.result.sandnode.serverclient.Session;
+import net.result.taulight.chain.sender.ReactionResponseServerChain;
 import net.result.taulight.db.*;
 import net.result.sandnode.exception.error.NotFoundException;
 import net.result.taulight.message.types.ReactionRequest;
@@ -12,10 +13,10 @@ import net.result.sandnode.message.types.HappyMessage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-public class ReactionServerChain extends ServerChain implements ReceiverChain {
-    private static final Logger LOGGER = LogManager.getLogger(ReactionServerChain.class);
+public class ReactionRequestServerChain extends ServerChain implements ReceiverChain {
+    private static final Logger LOGGER = LogManager.getLogger(ReactionRequestServerChain.class);
 
-    public ReactionServerChain(Session session) {
+    public ReactionRequestServerChain(Session session) {
         super(session);
     }
 
@@ -28,6 +29,8 @@ public class ReactionServerChain extends ServerChain implements ReceiverChain {
         if (session.member == null) {
             throw new UnauthorizedException();
         }
+
+        String nickname = session.member.nickname();
 
         MessageEntity message = database
                 .findMessage(request.getMessageID())
@@ -46,18 +49,32 @@ public class ReactionServerChain extends ServerChain implements ReceiverChain {
                 .findFirst()
                 .orElseThrow(NotFoundException::new);
 
+
+
         if (request.isReact()) {
-            database.createReactionEntry(session.member.tauMember(), message, reactionType);
-            LOGGER.info("Reaction added: {} to message {} by {}",
-                    reactionType.name(), message.id(), session.member.nickname());
+            ReactionEntryEntity re = database.createReactionEntry(session.member.tauMember(), message, reactionType);
+            LOGGER.info("Reaction added: {} to message {} by {}", reactionType.name(), message.id(), nickname);
+            for (Session s : session.server.node.getAgents()) {
+                var chain = new ReactionResponseServerChain(s);
+                s.io.chainManager.linkChain(chain);
+                chain.reaction(re, s == session);
+                s.io.chainManager.removeChain(chain);
+            }
         } else {
             if (database.removeReactionEntry(message, session.member.tauMember(), reactionType)) {
+                for (Session s : session.server.node.getAgents()) {
+                    var chain = new ReactionResponseServerChain(s);
+                    s.io.chainManager.linkChain(chain);
+                    chain.unreaction(nickname, packageName, reactionTypeName, s == session);
+                    s.io.chainManager.removeChain(chain);
+                }
+
                 LOGGER.info("Reaction removed: {} from message {}", reactionType.name(), message.id());
             } else {
                 throw new NoEffectException();
             }
-
         }
+
         sendFin(new HappyMessage());
     }
 }
