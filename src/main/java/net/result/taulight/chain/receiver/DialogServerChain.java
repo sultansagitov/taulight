@@ -24,6 +24,7 @@ import net.result.sandnode.message.UUIDMessage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
@@ -69,7 +70,7 @@ public class DialogServerChain extends ServerChain implements ReceiverChain {
             }
         }
 
-        Collection<MemberEntity> members = List.of(session.member, anotherMember.member());
+        Collection<MemberEntity> members = new ArrayList<>(List.of(session.member, anotherMember.member()));
         TauAgentProtocol.addMembersToGroup(session, members, manager.getGroup(dialog));
 
         sendFin(new UUIDMessage(new Headers().setType(MessageTypes.HAPPY), dialog));

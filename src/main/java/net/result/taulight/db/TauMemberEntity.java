@@ -73,13 +73,21 @@ public class TauMemberEntity extends SandnodeEntity {
     }
 
     public Set<DialogEntity> dialogs() {
-        var all = new HashSet<>(dialogsAsFirst);
-        all.addAll(dialogsAsSecond);
+        var all = new HashSet<>(dialogsAsFirst());
+        all.addAll(dialogsAsSecond());
         return all;
+    }
+
+    public Set<DialogEntity> dialogsAsFirst() {
+        return dialogsAsFirst;
     }
 
     public void setDialogsAsFirst(Set<DialogEntity> dialogsAsFirst) {
         this.dialogsAsFirst = dialogsAsFirst;
+    }
+
+    public Set<DialogEntity> dialogsAsSecond() {
+        return dialogsAsSecond;
     }
 
     public void setDialogsAsSecond(Set<DialogEntity> dialogsAsSecond) {

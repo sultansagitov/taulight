@@ -30,6 +30,10 @@ public class DialogRepository {
         try {
             transaction.begin();
             DialogEntity managed = em.merge(dialog);
+
+            dialog.firstMember().dialogsAsFirst().add(managed);
+            dialog.secondMember().dialogsAsSecond().add(managed);
+
             transaction.commit();
             return managed;
         } catch (Exception e) {
