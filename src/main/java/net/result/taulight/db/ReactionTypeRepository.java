@@ -31,7 +31,12 @@ public class ReactionTypeRepository {
     }
 
     public ReactionTypeEntity create(String name, ReactionPackageEntity reactionPackage) throws DatabaseException {
-        return save(new ReactionTypeEntity(name, reactionPackage));
+        ReactionTypeEntity managed = save(new ReactionTypeEntity(name, reactionPackage));
+
+        reactionPackage.reactionTypes().add(managed);
+        em.merge(reactionPackage);
+
+        return managed;
     }
 
     public Collection<ReactionTypeEntity> create(ReactionPackageEntity rp, Collection<String> types)
@@ -56,6 +61,9 @@ public class ReactionTypeRepository {
 
                 ReactionTypeEntity managed = em.merge(reactionType);
                 createdEntities.add(managed);
+
+                rp.reactionTypes().add(managed);
+                em.merge(rp);
             }
 
             transaction.commit();

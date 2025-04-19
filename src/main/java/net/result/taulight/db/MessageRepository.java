@@ -31,7 +31,7 @@ public class MessageRepository {
 
     public MessageEntity create(ChatEntity chat, ChatMessageInputDTO input, TauMemberEntity member)
             throws DatabaseException, NotFoundException {
-        MessageEntity message = new MessageEntity(chat, input, member);
+        MessageEntity managed = save(new MessageEntity(chat, input, member));
         Set<MessageEntity> messageEntities = new HashSet<>();
         Set<UUID> replies = input.repliedToMessages();
         if (replies != null) {
@@ -39,9 +39,12 @@ public class MessageRepository {
                 messageEntities.add(findById(r).orElseThrow(NotFoundException::new));
             }
         }
-        message.setRepliedToMessages(messageEntities);
+        managed.setRepliedToMessages(messageEntities);
 
-        return save(message);
+        chat.messages().add(managed);
+        em.merge(chat);
+
+        return managed;
     }
 
     public Optional<MessageEntity> findById(UUID id) throws DatabaseException {
@@ -54,7 +57,7 @@ public class MessageRepository {
 
     public List<MessageEntity> findMessagesByChat(ChatEntity chat, int index, int size) throws DatabaseException {
         try {
-            String q = "FROM MessageEntity WHERE chat = :chat ORDER BY creationDate DESC";
+            String q = "FROM MessageEntity WHERE chat = :chat ORDER BY creationDate DESC, id DESC";
             return em.createQuery(q, MessageEntity.class)
                     .setParameter("chat", chat)
                     .setFirstResult(index)

@@ -94,7 +94,7 @@ public class InviteCodeRepository {
     public boolean activate(InviteCodeEntity code) throws DatabaseException {
         EntityTransaction transaction = em.getTransaction();
         try {
-            if (code.activationDate() != null) {
+            if (code.activationDate() != null || !code.expiresDate().isAfter(ZonedDateTime.now())) {
                 return false;
             }
             code.setActivationDateNow();
