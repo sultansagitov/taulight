@@ -50,7 +50,7 @@ public class InviteCodeRepository {
 
     public Optional<InviteCodeEntity> find(String code) throws DatabaseException {
         try {
-            String q = "SELECT i FROM InviteCodeEntity i WHERE i.code = :code";
+            String q = "FROM InviteCodeEntity WHERE code = :code";
             return em.createQuery(q, InviteCodeEntity.class)
                     .setParameter("code", code)
                     .setMaxResults(1)
@@ -64,7 +64,7 @@ public class InviteCodeRepository {
     public Collection<InviteCodeEntity> find(ChannelEntity channel, TauMemberEntity receiver)
             throws DatabaseException {
         try {
-            String q = "SELECT i FROM InviteCodeEntity i WHERE i.channel = :channel AND i.receiver = :receiver";
+            String q = "FROM InviteCodeEntity WHERE channel = :channel AND receiver = :receiver";
             return em.createQuery(q, InviteCodeEntity.class)
                     .setParameter("channel", channel)
                     .setParameter("receiver", receiver)
@@ -94,7 +94,7 @@ public class InviteCodeRepository {
     public boolean activate(InviteCodeEntity code) throws DatabaseException {
         EntityTransaction transaction = em.getTransaction();
         try {
-            if (code.activationDate() != null) {
+            if (code.activationDate() != null || !code.expiresDate().isAfter(ZonedDateTime.now())) {
                 return false;
             }
             code.setActivationDateNow();

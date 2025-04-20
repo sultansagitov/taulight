@@ -78,8 +78,7 @@ public class ReactionEntryRepository {
     public boolean removeReactionEntry(MessageEntity message, TauMemberEntity member, ReactionTypeEntity reactionType)
             throws DatabaseException {
         String q = """
-            SELECT r FROM ReactionEntryEntity r
-            WHERE
+            FROM ReactionEntryEntity r WHERE
                 r.message = :message
                 AND r.member = :member
                 AND r.reactionType = :reactionType

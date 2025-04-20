@@ -17,15 +17,17 @@ public class TauJPADatabase extends JPADatabase implements TauDatabase {
     private final InviteCodeRepository inviteCodeRepository;
     private final ReactionTypeRepository reactionTypeRepository;
     private final ReactionEntryRepository reactionEntryRepository;
+    private final ReactionPackageRepository reactionPackageRepo;
 
     public TauJPADatabase(PasswordHasher hasher) {
         super(hasher);
-        this.channelRepository = new ChannelRepository();
-        this.dialogRepository = new DialogRepository();
-        this.messageRepository = new MessageRepository();
-        this.inviteCodeRepository = new InviteCodeRepository();
-        this.reactionTypeRepository = new ReactionTypeRepository();
-        this.reactionEntryRepository = new ReactionEntryRepository();
+        channelRepository = new ChannelRepository();
+        dialogRepository = new DialogRepository();
+        messageRepository = new MessageRepository();
+        inviteCodeRepository = new InviteCodeRepository();
+        reactionTypeRepository = new ReactionTypeRepository();
+        reactionEntryRepository = new ReactionEntryRepository();
+        reactionPackageRepo = new ReactionPackageRepository();
     }
 
     @Override
@@ -110,8 +112,26 @@ public class TauJPADatabase extends JPADatabase implements TauDatabase {
     }
 
     @Override
-    public ReactionTypeEntity createReactionType(String name, String packageName) throws DatabaseException {
-        return reactionTypeRepository.create(name, packageName);
+    public ReactionPackageEntity createReactionPackage(String packageName, String description)
+            throws DatabaseException {
+        return reactionPackageRepo.create(packageName, description);
+    }
+
+    @Override
+    public Optional<ReactionPackageEntity> findReactionPackage(String packageName) throws DatabaseException {
+        return reactionPackageRepo.find(packageName);
+    }
+
+    @Override
+    public Collection<ReactionTypeEntity> createReactionType(ReactionPackageEntity rp, Collection<String> types)
+            throws DatabaseException {
+        return reactionTypeRepository.create(rp, types);
+    }
+
+    @Override
+    public ReactionTypeEntity createReactionType(String name, ReactionPackageEntity reactionPackage)
+            throws DatabaseException {
+        return reactionTypeRepository.create(name, reactionPackage);
     }
 
     @Override

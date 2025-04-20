@@ -11,7 +11,8 @@ import net.result.sandnode.exception.SandnodeException;
 import net.result.sandnode.exception.SocketAcceptException;
 import net.result.sandnode.exception.crypto.EncryptionTypeException;
 import net.result.sandnode.exception.crypto.NoSuchEncryptionException;
-import net.result.sandnode.link.Links;
+import net.result.sandnode.link.SandnodeLinkRecord;
+import net.result.taulight.db.ReactionPackageEntity;
 import net.result.taulight.db.TauDatabase;
 import net.result.taulight.group.HashSetTauGroupManager;
 import net.result.sandnode.security.JWTTokenizer;
@@ -48,7 +49,7 @@ public class RunHubWork implements IWork {
         SandnodeServer server = new SandnodeServer(hub, serverConfig);
         server.start();
 
-        URI link = Links.getServerLink(server);
+        URI link = SandnodeLinkRecord.fromServer(server).getURI();
         System.out.println("Link for server:");
         System.out.println();
         System.out.println(link);
@@ -68,12 +69,9 @@ public class RunHubWork implements IWork {
         TauDatabase database = (TauDatabase) serverConfig.database();
 
         try {
-            if (database.getReactionTypesByPackage("taulight").isEmpty()) {
-                List<String> reactionNames = List.of("fire", "like", "laugh", "wow", "sad", "angry");
-
-                for (String name : reactionNames) {
-                    database.createReactionType(name, "taulight");
-                }
+            if (database.findReactionPackage("taulight").isEmpty()) {
+                ReactionPackageEntity rp = database.createReactionPackage("taulight", "Main package of taulight");
+                database.createReactionType(rp, List.of("fire", "like", "laugh", "wow", "sad", "angry"));
             }
         } catch (Exception e) {
             LOGGER.error(e);

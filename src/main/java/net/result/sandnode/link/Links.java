@@ -4,40 +4,16 @@ import net.result.sandnode.encryption.EncryptionManager;
 import net.result.sandnode.encryption.interfaces.AsymmetricEncryption;
 import net.result.sandnode.encryption.interfaces.AsymmetricKeyStorage;
 import net.result.sandnode.exception.*;
-import net.result.sandnode.exception.crypto.CannotUseEncryption;
 import net.result.sandnode.exception.crypto.CreatingKeyException;
 import net.result.sandnode.exception.crypto.EncryptionTypeException;
-import net.result.sandnode.exception.error.KeyStorageNotFoundException;
 import net.result.sandnode.exception.crypto.NoSuchEncryptionException;
 import net.result.sandnode.message.util.NodeType;
-import net.result.sandnode.serverclient.SandnodeServer;
 import net.result.sandnode.util.Endpoint;
-import net.result.sandnode.util.NetworkUtil;
-import org.jetbrains.annotations.NotNull;
 
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 
 public class Links {
-    public static @NotNull URI getServerLink(@NotNull SandnodeServer server)
-            throws KeyStorageNotFoundException, EncryptionTypeException {
-        AsymmetricEncryption encryption = server.serverConfig.mainEncryption();
-        AsymmetricKeyStorage keyStorage = server.node.keyStorageRegistry.asymmetricNonNull(encryption);
-        String string;
-        try {
-            string = "sandnode://%s@%s?encryption=%s&key=%s".formatted(
-                    URLEncoder.encode(server.node.type().name().toLowerCase(), StandardCharsets.UTF_8),
-                    NetworkUtil.replaceZeroes(server.serverConfig.endpoint(), 52525),
-                    URLEncoder.encode(encryption.name(), StandardCharsets.UTF_8),
-                    URLEncoder.encode(keyStorage.encodedPublicKey(), StandardCharsets.UTF_8)
-            );
-        } catch (CannotUseEncryption e) {
-            throw new ImpossibleRuntimeException(e);
-        }
-        return URI.create(string);
-    }
 
     public static SandnodeLinkRecord parse(String s) throws InvalidSandnodeLinkException, CreatingKeyException {
         URI uri;

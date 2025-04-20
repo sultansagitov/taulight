@@ -45,7 +45,8 @@ public class TauHubProtocol {
             ForwardResponse request = new ForwardResponse(serverMessage, s == session);
 
             ChainManager chainManager = s.io.chainManager;
-            Optional<IChain> fwd = chainManager.getChain("fwd");
+            String chainName = "fwd-%s".formatted(chat.id());
+            Optional<IChain> fwd = chainManager.getChain(chainName);
 
             if (fwd.isPresent()) {
                 ((ForwardServerChain) fwd.get()).response(request);
@@ -53,7 +54,7 @@ public class TauHubProtocol {
                 var chain = new ForwardServerChain(s);
                 chainManager.linkChain(chain);
                 chain.response(request);
-                chain.chainName("fwd");
+                chain.chainName(chainName);
             }
         }
 

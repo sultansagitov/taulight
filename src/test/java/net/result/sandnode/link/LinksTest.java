@@ -33,7 +33,7 @@ public class LinksTest {
 
         SandnodeServer server = createTestServer();
 
-        URI serverLink = Links.getServerLink(server);
+        URI serverLink = SandnodeLinkRecord.fromServer(server).getURI();
 
         assertNotNull(serverLink);
         assertEquals("sandnode", serverLink.getScheme());

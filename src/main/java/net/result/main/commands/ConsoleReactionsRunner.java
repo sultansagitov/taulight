@@ -1,13 +1,13 @@
 package net.result.main.commands;
 
-import net.result.taulight.chain.sender.ReactionClientChain;
+import net.result.taulight.chain.sender.ReactionRequestClientChain;
 
 import java.util.UUID;
 
 public class ConsoleReactionsRunner {
     public static void react(ConsoleContext context, UUID messageId, String reaction) {
         try {
-            var chain = new ReactionClientChain(context.io);
+            var chain = new ReactionRequestClientChain(context.io);
             context.io.chainManager.linkChain(chain);
 
             chain.react(messageId, reaction);
@@ -21,7 +21,7 @@ public class ConsoleReactionsRunner {
 
     public static void unreact(ConsoleContext context, UUID messageId, String reaction) {
         try {
-            var chain = new ReactionClientChain(context.io);
+            var chain = new ReactionRequestClientChain(context.io);
             context.io.chainManager.linkChain(chain);
 
             chain.unreact(messageId, reaction);

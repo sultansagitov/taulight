@@ -8,6 +8,7 @@
         <class>net.result.taulight.db.DialogEntity</class>
         <class>net.result.taulight.db.InviteCodeEntity</class>
         <class>net.result.taulight.db.MessageEntity</class>
+        <class>net.result.taulight.db.ReactionPackageEntity</class>
         <class>net.result.taulight.db.ReactionTypeEntity</class>
         <class>net.result.taulight.db.ReactionEntryEntity</class>
 

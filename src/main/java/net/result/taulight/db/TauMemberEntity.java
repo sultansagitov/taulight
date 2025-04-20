@@ -13,6 +13,9 @@ public class TauMemberEntity extends SandnodeEntity {
     @OneToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     private MemberEntity member;
 
+    @OneToMany(mappedBy = "author", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    private Set<ReactionPackageEntity> reactionPackages = new HashSet<>();
+
     @OneToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     private Set<ReactionEntryEntity> reactionEntries = new HashSet<>();
 
@@ -45,6 +48,14 @@ public class TauMemberEntity extends SandnodeEntity {
         this.member = member;
     }
 
+    public Set<ReactionPackageEntity> reactionPackages() {
+        return reactionPackages;
+    }
+
+    public void setReactionPackages(Set<ReactionPackageEntity> reactionPackages) {
+        this.reactionPackages = reactionPackages;
+    }
+
     public Set<ReactionEntryEntity> reactionEntries() {
         return reactionEntries;
     }
@@ -62,13 +73,21 @@ public class TauMemberEntity extends SandnodeEntity {
     }
 
     public Set<DialogEntity> dialogs() {
-        var all = new HashSet<>(dialogsAsFirst);
-        all.addAll(dialogsAsSecond);
+        var all = new HashSet<>(dialogsAsFirst());
+        all.addAll(dialogsAsSecond());
         return all;
+    }
+
+    public Set<DialogEntity> dialogsAsFirst() {
+        return dialogsAsFirst;
     }
 
     public void setDialogsAsFirst(Set<DialogEntity> dialogsAsFirst) {
         this.dialogsAsFirst = dialogsAsFirst;
+    }
+
+    public Set<DialogEntity> dialogsAsSecond() {
+        return dialogsAsSecond;
     }
 
     public void setDialogsAsSecond(Set<DialogEntity> dialogsAsSecond) {

@@ -110,4 +110,11 @@ public class MessageEntity extends SandnodeEntity {
     public void setReplies(Set<MessageEntity> replies) {
         this.replies = replies;
     }
+
+    @Override
+    public String toString() {
+        return "<MessageEntity content='%s' sys=%s chat=%s member=%s repliedToMessages=%s>"
+                .formatted(content, sys, chat, member, repliedToMessages);
+
+    }
 }

@@ -1,28 +1,32 @@
 package net.result.main;
 
-import net.result.main.chain.sender.ConsoleForwardRequestClientChain;
 import net.result.main.chain.ConsoleClientChainManager;
+import net.result.main.chain.sender.ConsoleForwardRequestClientChain;
+import net.result.main.commands.*;
 import net.result.main.config.ClientPropertiesConfig;
-import net.result.sandnode.exception.crypto.*;
+import net.result.sandnode.exception.*;
+import net.result.sandnode.exception.crypto.CreatingKeyException;
+import net.result.sandnode.exception.crypto.CryptoException;
 import net.result.sandnode.exception.error.*;
 import net.result.sandnode.hubagent.AgentProtocol;
 import net.result.sandnode.hubagent.ClientProtocol;
 import net.result.sandnode.serverclient.SandnodeClient;
 import net.result.sandnode.encryption.interfaces.*;
-import net.result.sandnode.exception.*;
 import net.result.sandnode.link.Links;
 import net.result.sandnode.link.SandnodeLinkRecord;
 import net.result.sandnode.util.EncryptionUtil;
 import net.result.sandnode.util.IOController;
+import net.result.taulight.dto.ChatMessageInputDTO;
 import net.result.taulight.hubagent.TauAgent;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.jetbrains.annotations.NotNull;
 
-import java.util.Optional;
-import java.util.Scanner;
+import java.util.*;
 
 public class RunAgentWork implements IWork {
     private static final Logger LOGGER = LogManager.getLogger(RunAgentWork.class);
+    private SandnodeClient client;
 
     @Override
     public void run() throws InterruptedException, SandnodeException {
@@ -44,28 +48,23 @@ public class RunAgentWork implements IWork {
         TauAgent agent = new TauAgent();
         ConsoleClientChainManager chainManager = new ConsoleClientChainManager();
 
-        SandnodeClient client = SandnodeClient.fromLink(link, agent, clientConfig);
+        client = SandnodeClient.fromLink(link, agent, clientConfig);
         client.start(chainManager);                                 // Starting client
-        getPublicKey(client, agent, link);                          // get key from fs or sending PUB if key not found
+        ensureServerPublicKey(link);                                // get key from fs or sending PUB if key not found
         ClientProtocol.sendSYM(client);                             // sending symmetric key
-        String nickname = handleAuthentication(client.io, scanner); // registration or login
-        startConsoleChain(client.io, nickname);
+        String nickname = authenticateUser(client.io, scanner); // registration or login
+        processUserCommands(nickname, client.io);
 
         LOGGER.info("Exiting...");
         client.close();
     }
 
-    private static void startConsoleChain(IOController io, String nickname) {
-        ConsoleForwardRequestClientChain consoleChain = new ConsoleForwardRequestClientChain(io);
-        io.chainManager.linkChain(consoleChain);
-        consoleChain.sync(nickname);
-        io.chainManager.removeChain(consoleChain);
-    }
-
-    private static void getPublicKey(SandnodeClient client, TauAgent agent, SandnodeLinkRecord link)
+    private void ensureServerPublicKey(@NotNull SandnodeLinkRecord link)
             throws FSException, CryptoException, LinkDoesNotMatchException, InterruptedException,
             SandnodeErrorException, ExpectedMessageException, UnknownSandnodeErrorException,
             UnprocessedMessagesException {
+
+        TauAgent agent = (TauAgent) client.node;
 
         Optional<AsymmetricKeyStorage> filePublicKey = client.clientConfig.getPublicKey(link.endpoint());
         AsymmetricKeyStorage linkKeyStorage = link.keyStorage();
@@ -100,7 +99,7 @@ public class RunAgentWork implements IWork {
         client.io.setServerKey(serverKey);
     }
 
-    private String handleAuthentication(IOController io, Scanner scanner) throws InterruptedException,
+    private String authenticateUser(IOController io, Scanner scanner) throws InterruptedException,
             ExpectedMessageException, DeserializationException, UnprocessedMessagesException {
 
         String s;
@@ -182,5 +181,74 @@ public class RunAgentWork implements IWork {
             default -> throw new RuntimeException(String.valueOf(choice));
         }
         return nickname;
+    }
+
+    private void sendChatMessage(String input, @NotNull ConsoleContext context)
+            throws InterruptedException, ExpectedMessageException, UnprocessedMessagesException {
+        if (context.currentChat == null) {
+            System.out.println("chat not selected");
+            return;
+        }
+
+        ChatMessageInputDTO message = new ChatMessageInputDTO()
+                .setChatID(context.currentChat)
+                .setContent(input)
+                .setNickname(context.nickname)
+                .setSentDatetimeNow();
+
+        try {
+            UUID messageID = context.chain.message(message);
+            System.out.printf("Sent message uuid: %s %n", messageID);
+        } catch (DeserializationException e) {
+            System.out.println("Sent message with unknown uuid due deserialization");
+        } catch (NotFoundException e) {
+            System.out.printf("Chat %s was not found%n", context.currentChat);
+        } catch (NoEffectException e) {
+            System.out.println("Message not forwarded");
+        } catch (UnknownSandnodeErrorException | SandnodeErrorException e) {
+            System.out.printf("%s: %s%n", e.getClass().getSimpleName(), e.getMessage());
+        }
+    }
+
+    private void processUserCommands(String nickname, IOController io) {
+        Scanner scanner = new Scanner(System.in);
+        Map<String, ConsoleSandnodeCommands.LoopCondition> commands = new HashMap<>();
+        ConsoleSandnodeCommands.register(commands);
+        ConsoleChatsCommands.register(commands);
+        ConsoleCodesCommands.register(commands);
+        ConsoleReactionsCommands.register(commands);
+        ConsoleMessagesCommands.register(commands);
+
+        ConsoleForwardRequestClientChain chain = new ConsoleForwardRequestClientChain(client.io);
+        client.io.chainManager.linkChain(chain);
+
+        ConsoleContext context = new ConsoleContext(chain, io, nickname);
+
+        while (true) {
+            System.out.printf(" [%s] ", Optional.ofNullable(context.currentChat).map(UUID::toString).orElse(""));
+            String input = scanner.nextLine();
+
+            if (input.trim().isEmpty()) continue;
+
+            String[] com_arg = input.split("\\s+");
+            String command = com_arg[0];
+
+            try {
+                if (commands.containsKey(command)) {
+                    List<String> args = Arrays.stream(com_arg).skip(1).toList();
+                    if (commands.get(command).breakLoop(args, context)) break;
+                } else {
+                    sendChatMessage(input, context);
+                }
+            } catch (UnprocessedMessagesException e) {
+                System.out.println("Unprocessed message: Sent before handling received: " + e.raw);
+            } catch (ExpectedMessageException e) {
+                System.out.printf("Unexpected message type. Expected: %s, Message: %s%n", e.expectedType, e.message);
+            } catch (Exception e) {
+                LOGGER.error("Unhandled exception", e);
+            }
+        }
+
+        client.io.chainManager.removeChain(chain);
     }
 }

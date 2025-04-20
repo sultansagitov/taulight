@@ -88,7 +88,6 @@ public class ChatServerChain extends ServerChain implements ReceiverChain {
         for (UUID chatID : allChatID) {
             Optional<ChatEntity> opt = database.getChat(chatID);
             if (opt.isEmpty()) {
-                LOGGER.debug("Chat with id {} was not found", chatID);
                 infos.add(ChatInfoDTO.chatNotFound(chatID));
                 continue;
             }
@@ -97,7 +96,6 @@ public class ChatServerChain extends ServerChain implements ReceiverChain {
 
             if (chat instanceof ChannelEntity channel) {
                 if (!channel.members().contains(tauMember)) {
-                    LOGGER.debug("Member {} not in channel {}", tauMember.member().nickname(), chatID);
                     infos.add(ChatInfoDTO.chatNotFound(chatID));
                     continue;
                 }
@@ -110,7 +108,6 @@ public class ChatServerChain extends ServerChain implements ReceiverChain {
             if (!(chat instanceof DialogEntity dialog)) continue;
 
             if (dialog.firstMember() != tauMember && dialog.secondMember() != tauMember) {
-                LOGGER.debug("Member {} not in dialog {}", tauMember.member().nickname(), chatID);
                 infos.add(ChatInfoDTO.chatNotFound(chatID));
             } else if (!Collections.disjoint(chatInfoProps, ChatInfoPropDTO.dialogAll())) {
                 infos.add(ChatInfoDTO.dialog(dialog, tauMember, chatInfoProps));

@@ -1,6 +1,7 @@
 package net.result.main.chain;
 
 import net.result.main.chain.receiver.ConsoleForwardClientChain;
+import net.result.main.chain.receiver.ConsoleReactionResponseClientChain;
 import net.result.sandnode.chain.ReceiverChain;
 import net.result.sandnode.chain.receiver.UnhandledMessageTypeClientChain;
 import net.result.sandnode.chain.sender.BSTClientChainManager;
@@ -15,11 +16,10 @@ public class ConsoleClientChainManager extends BSTClientChainManager {
 
     @Override
     public @Nullable ReceiverChain createChain(MessageType type) {
-        if (type == TauMessageTypes.FWD) {
-            return new ConsoleForwardClientChain(io);
-        }
-
-
-        return new UnhandledMessageTypeClientChain(io);
+        return type instanceof TauMessageTypes tau ? switch (tau) {
+            case FWD -> new ConsoleForwardClientChain(io);
+            case REACTION -> new ConsoleReactionResponseClientChain(io);
+            default -> new UnhandledMessageTypeClientChain(io);
+        } : new UnhandledMessageTypeClientChain(io);
     }
 }

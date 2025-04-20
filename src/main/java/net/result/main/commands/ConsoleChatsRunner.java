@@ -1,6 +1,5 @@
 package net.result.main.commands;
 
-import net.result.sandnode.chain.IChain;
 import net.result.sandnode.exception.*;
 import net.result.sandnode.exception.error.*;
 import net.result.taulight.chain.sender.ChannelClientChain;
@@ -14,28 +13,15 @@ import org.jetbrains.annotations.NotNull;
 import java.time.Duration;
 import java.util.Collection;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 public class ConsoleChatsRunner {
     public static void chats(@NotNull ConsoleContext context, Collection<ChatInfoPropDTO> all)
             throws InterruptedException, UnprocessedMessagesException {
         try {
-            // Find or add "chat" chain
-            Optional<IChain> chat = context.io.chainManager.getChain("chat");
-            Optional<Collection<ChatInfoDTO>> opt;
-            if (chat.isPresent()) {
-                ChatClientChain chain = (ChatClientChain) chat.get();
-                opt = chain.getByMember(all);
-            } else {
-                ChatClientChain chain = new ChatClientChain(context.io);
-                context.io.chainManager.linkChain(chain);
-                opt = chain.getByMember(all);
-                chain.chainName("chat");
-            }
-
-            opt.ifPresent(ConsoleChatsRunner::printInfo);
-
+            ChatClientChain chain = new ChatClientChain(context.io);
+            context.io.chainManager.linkChain(chain);
+            printInfo(chain.getByMember(all));
         } catch (DeserializationException e) {
             System.out.printf("Failed to deserialize data - %s%n", e.getClass());
         } catch (ExpectedMessageException e) {
@@ -146,22 +132,9 @@ public class ConsoleChatsRunner {
 
     public static void info(@NotNull ConsoleContext context, UUID chatID) throws InterruptedException {
         try {
-            // Find or add "chat" chain
-            Optional<IChain> chat = context.io.chainManager.getChain("chat");
-            Collection<ChatInfoDTO> infos;
-            if (chat.isPresent()) {
-                ChatClientChain chain = (ChatClientChain) chat.get();
-                infos = chain.getByID(List.of(chatID), ChatInfoPropDTO.all());
-            } else {
-                ChatClientChain chain = new ChatClientChain(context.io);
-                context.io.chainManager.linkChain(chain);
-                infos = chain.getByID(List.of(chatID), ChatInfoPropDTO.all());
-                chain.chainName("chat");
-            }
-
-            ConsoleChatsRunner.printInfo(infos);
-
-
+            ChatClientChain chain = new ChatClientChain(context.io);
+            context.io.chainManager.linkChain(chain);
+            printInfo(chain.getByID(List.of(chatID), ChatInfoPropDTO.all()));
         } catch (IllegalArgumentException e) {
             System.out.println("Invalid UUID format provided: " + e.getMessage());
         } catch (ArrayIndexOutOfBoundsException e) {
@@ -171,15 +144,30 @@ public class ConsoleChatsRunner {
         }
     }
 
-    public static void printInfo(Collection<ChatInfoDTO> infos) {
+    public static void printInfo(@NotNull Collection<ChatInfoDTO> infos) {
         for (ChatInfoDTO info : infos) {
-            String s = switch (info.chatType) {
-                case CHANNEL -> "Channel: %s, %s%s"
-                        .formatted(info.title, info.ownerID, info.channelIsMy ? " (you)" : "");
-                case DIALOG -> "Dialog: %s".formatted(info.otherNickname);
-                case NOT_FOUND -> "Chat not found";
+            String message = switch (info.chatType) {
+                case CHANNEL -> String.format(
+                        "%s from %s - Channel: %s, %s%s",
+                        info.id,
+                        info.creationDate,
+                        info.title,
+                        info.ownerID,
+                        info.channelIsMy ? " (you)" : ""
+                );
+                case DIALOG -> String.format(
+                        "%s from %s - Dialog: %s",
+                        info.id,
+                        info.creationDate,
+                        info.otherNickname
+                );
+                case NOT_FOUND -> String.format(
+                        "%s - Chat not found",
+                        info.id
+                );
             };
-            System.out.printf("%s from %s - %s%n", info.id, info.creationDate, s);
+
+            System.out.println(message);
         }
     }
 
