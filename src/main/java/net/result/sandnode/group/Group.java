@@ -8,5 +8,7 @@ public interface Group {
 
     void remove(@NotNull Session session);
 
+    boolean contains(Session s);
+
     String getID();
 }

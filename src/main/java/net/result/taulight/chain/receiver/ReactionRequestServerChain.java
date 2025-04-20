@@ -4,10 +4,15 @@ import net.result.sandnode.chain.ReceiverChain;
 import net.result.sandnode.chain.receiver.ServerChain;
 import net.result.sandnode.exception.error.NoEffectException;
 import net.result.sandnode.exception.error.UnauthorizedException;
+import net.result.sandnode.exception.error.UnhandledMessageTypeException;
+import net.result.sandnode.group.Group;
 import net.result.sandnode.serverclient.Session;
 import net.result.taulight.chain.sender.ReactionResponseServerChain;
-import net.result.taulight.db.*;
 import net.result.sandnode.exception.error.NotFoundException;
+import net.result.taulight.db.MessageEntity;
+import net.result.taulight.db.ReactionEntryEntity;
+import net.result.taulight.db.ReactionTypeEntity;
+import net.result.taulight.db.TauDatabase;
 import net.result.taulight.message.types.ReactionRequest;
 import net.result.sandnode.message.types.HappyMessage;
 import org.apache.logging.log4j.LogManager;
@@ -50,23 +55,36 @@ public class ReactionRequestServerChain extends ServerChain implements ReceiverC
                 .orElseThrow(NotFoundException::new);
 
 
+        Group notReactionReceiver = session.server.serverConfig.groupManager().getGroup("#not_reaction_receiver");
 
         if (request.isReact()) {
             ReactionEntryEntity re = database.createReactionEntry(session.member.tauMember(), message, reactionType);
             LOGGER.info("Reaction added: {} to message {} by {}", reactionType.name(), message.id(), nickname);
             for (Session s : session.server.node.getAgents()) {
-                var chain = new ReactionResponseServerChain(s);
-                s.io.chainManager.linkChain(chain);
-                chain.reaction(re, s == session);
-                s.io.chainManager.removeChain(chain);
+                if (!notReactionReceiver.contains(s)) {
+                    var chain = new ReactionResponseServerChain(s);
+                    s.io.chainManager.linkChain(chain);
+                    try {
+                        chain.reaction(re, s == session);
+                    } catch (UnhandledMessageTypeException e) {
+                        s.addToGroup(notReactionReceiver);
+                    }
+                    s.io.chainManager.removeChain(chain);
+                }
             }
         } else {
             if (database.removeReactionEntry(message, session.member.tauMember(), reactionType)) {
                 for (Session s : session.server.node.getAgents()) {
-                    var chain = new ReactionResponseServerChain(s);
-                    s.io.chainManager.linkChain(chain);
-                    chain.unreaction(nickname, packageName, reactionTypeName, s == session);
-                    s.io.chainManager.removeChain(chain);
+                    if (!notReactionReceiver.contains(s)) {
+                        var chain = new ReactionResponseServerChain(s);
+                        s.io.chainManager.linkChain(chain);
+                        try {
+                            chain.unreaction(nickname, packageName, reactionTypeName, s == session);
+                        } catch (UnhandledMessageTypeException e) {
+                            s.addToGroup(notReactionReceiver);
+                        }
+                        s.io.chainManager.removeChain(chain);
+                    }
                 }
 
                 LOGGER.info("Reaction removed: {} from message {}", reactionType.name(), message.id());

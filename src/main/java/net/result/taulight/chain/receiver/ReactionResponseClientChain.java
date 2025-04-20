@@ -7,7 +7,7 @@ import net.result.sandnode.util.IOController;
 import net.result.taulight.dto.ReactionDTO;
 import net.result.taulight.message.types.ReactionResponse;
 
-public class ReactionResponseClientChain extends ClientChain implements ReceiverChain {
+public abstract class ReactionResponseClientChain extends ClientChain implements ReceiverChain {
     public ReactionResponseClientChain(IOController io) {
         super(io);
     }
@@ -20,7 +20,5 @@ public class ReactionResponseClientChain extends ClientChain implements Receiver
         send(new HappyMessage());
     }
 
-    protected void onReaction(ReactionDTO reaction, boolean yourSession) {
-        System.out.printf("Reacted by %s %s%n", yourSession ? "you" : "someone", reaction);
-    }
+    protected abstract void onReaction(ReactionDTO reaction, boolean yourSession);
 }

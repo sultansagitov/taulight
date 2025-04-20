@@ -34,6 +34,11 @@ public class HashSetGroup implements Group {
     }
 
     @Override
+    public boolean contains(Session s) {
+        return sessions.contains(s);
+    }
+
+    @Override
     public String toString() {
         return "<%s %s %d>".formatted(getClass().getSimpleName(), id, sessions.size());
     }
