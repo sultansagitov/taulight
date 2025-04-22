@@ -9,6 +9,8 @@ import net.result.taulight.dto.ReactionDTO;
 import net.result.taulight.message.TauMessageTypes;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.UUID;
+
 public class ReactionResponse extends MSGPackMessage<ReactionDTO> {
     private static final String key = "your-session";
 
@@ -23,11 +25,13 @@ public class ReactionResponse extends MSGPackMessage<ReactionDTO> {
     public ReactionResponse(
             boolean isReact,
             String nickname,
+            UUID chatID,
+            UUID messageID,
             String packageName,
             String reaction,
             boolean yourSession
     ) {
-        this(new Headers(), new ReactionDTO(isReact, nickname, packageName, reaction), yourSession);
+        this(new Headers(), new ReactionDTO(isReact, nickname, chatID, messageID, packageName, reaction), yourSession);
     }
 
     public ReactionResponse(RawMessage raw) throws DeserializationException {

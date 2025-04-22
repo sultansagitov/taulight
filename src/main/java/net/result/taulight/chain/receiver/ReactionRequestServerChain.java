@@ -79,7 +79,7 @@ public class ReactionRequestServerChain extends ServerChain implements ReceiverC
                         var chain = new ReactionResponseServerChain(s);
                         s.io.chainManager.linkChain(chain);
                         try {
-                            chain.unreaction(nickname, packageName, reactionTypeName, s == session);
+                            chain.unreaction(nickname, message, reactionType, s == session);
                         } catch (UnhandledMessageTypeException e) {
                             s.addToGroup(notReactionReceiver);
                         }
