@@ -1,4 +1,4 @@
-package net.result.sandnode;
+package net.result.taulight;
 
 import com.auth0.jwt.algorithms.Algorithm;
 import net.result.sandnode.chain.ReceiverChain;
