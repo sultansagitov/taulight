@@ -2,7 +2,7 @@ package net.result.taulight;
 
 import com.auth0.jwt.algorithms.Algorithm;
 import net.result.sandnode.chain.ReceiverChain;
-import net.result.sandnode.chain.sender.BSTClientChainManager;
+import net.result.sandnode.chain.BSTClientChainManager;
 import net.result.sandnode.chain.sender.ClientChainManager;
 import net.result.sandnode.chain.receiver.UnhandledMessageTypeClientChain;
 import net.result.sandnode.config.ClientConfig;
@@ -30,7 +30,7 @@ import net.result.sandnode.util.Endpoint;
 import net.result.sandnode.encryption.KeyStorageRegistry;
 import net.result.sandnode.util.IOController;
 import net.result.sandnode.chain.sender.ClientChain;
-import net.result.sandnode.chain.receiver.BSTServerChainManager;
+import net.result.sandnode.chain.BSTServerChainManager;
 import net.result.sandnode.chain.receiver.ServerChainManager;
 import net.result.sandnode.chain.receiver.ServerChain;
 import net.result.sandnode.group.HashSetGroupManager;

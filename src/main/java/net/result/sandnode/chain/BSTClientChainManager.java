@@ -1,7 +1,7 @@
-package net.result.sandnode.chain.sender;
+package net.result.sandnode.chain;
 
+import net.result.sandnode.chain.sender.ClientChainManager;
 import net.result.sandnode.util.IOController;
-import net.result.sandnode.chain.BSTChainManager;
 
 public abstract class BSTClientChainManager extends BSTChainManager implements ClientChainManager {
     protected IOController io;
