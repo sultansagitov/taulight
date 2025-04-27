@@ -34,6 +34,9 @@ public class TauMemberEntity extends SandnodeEntity {
     @OneToMany(mappedBy = "sender", cascade = {CascadeType.PERSIST, CascadeType.MERGE}, orphanRemoval = true)
     private Set<InviteCodeEntity> inviteCodesAsSender = new HashSet<>();
 
+    @ManyToMany(mappedBy = "members", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    private Set<RoleEntity> roles = new HashSet<>();
+
     public TauMemberEntity() {}
 
     public TauMemberEntity(MemberEntity member) {
@@ -108,6 +111,14 @@ public class TauMemberEntity extends SandnodeEntity {
 
     public void setInviteCodesAsSender(Set<InviteCodeEntity> inviteCodesAsSender) {
         this.inviteCodesAsSender = inviteCodesAsSender;
+    }
+
+    public Set<RoleEntity> roles() {
+        return roles;
+    }
+
+    public void setRoles(Set<RoleEntity> roles) {
+        this.roles = roles;
     }
 
     @Override

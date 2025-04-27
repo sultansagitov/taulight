@@ -15,7 +15,8 @@ public enum TauMessageTypes implements MessageType {
     MEMBERS(22),
     CHECK_CODE(23),
     USE_CODE(24),
-    REACTION(25);
+    REACTION(25),
+    ROLES(26);
 
     private final byte type;
 

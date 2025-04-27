@@ -34,7 +34,7 @@ public class MessageEntity extends SandnodeEntity {
     )
     private Set<MessageEntity> repliedToMessages = new HashSet<>();
 
-    @ManyToMany(mappedBy = "repliedToMessages")
+    @ManyToMany(mappedBy = "repliedToMessages", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     private Set<MessageEntity> replies = new HashSet<>();
 
     public MessageEntity() {}

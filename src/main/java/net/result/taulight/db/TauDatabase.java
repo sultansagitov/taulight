@@ -261,4 +261,8 @@ public interface TauDatabase extends Database {
      */
     boolean removeReactionEntry(MessageEntity message, TauMemberEntity member, ReactionTypeEntity reactionType)
             throws DatabaseException;
+
+    boolean addMemberToRole(RoleEntity role, TauMemberEntity member) throws DatabaseException;
+
+    RoleEntity createRole(ChannelEntity channel, String role) throws DatabaseException;
 }

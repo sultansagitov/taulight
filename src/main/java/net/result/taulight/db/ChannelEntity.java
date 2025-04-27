@@ -23,6 +23,9 @@ public class ChannelEntity extends ChatEntity {
     @OneToMany(mappedBy = "channel", cascade = {CascadeType.PERSIST, CascadeType.MERGE}, orphanRemoval = true)
     private Set<InviteCodeEntity> inviteCodes = new HashSet<>();
 
+    @OneToMany(mappedBy = "channel", cascade = {CascadeType.PERSIST, CascadeType.MERGE}, orphanRemoval = true)
+    private Set<RoleEntity> roles = new HashSet<>();
+
     public ChannelEntity() {}
 
     public ChannelEntity(String title, TauMemberEntity owner) {
@@ -65,5 +68,13 @@ public class ChannelEntity extends ChatEntity {
     @Override
     public String toString() {
         return "<ChannelEntity %s>".formatted(id());
+    }
+
+    public Set<RoleEntity> roles() {
+        return roles;
+    }
+
+    public void setRoles(Set<RoleEntity> roles) {
+        this.roles = roles;
     }
 }
