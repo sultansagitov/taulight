@@ -6,6 +6,9 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
+/**
+ * Enum representing possible properties that can be selected when querying chat info.
+ */
 public enum ChatInfoPropDTO {
     @JsonProperty("channel-id") channelID,
     @JsonProperty("channel-created-at") channelCreatedAt,
@@ -23,18 +26,30 @@ public enum ChatInfoPropDTO {
     private static final Collection<ChatInfoPropDTO> all = Arrays.stream(ChatInfoPropDTO.values()).toList();
     private static final Collection<ChatInfoPropDTO> id = List.of(channelID, dialogID);
 
+    /**
+     * @return channel and dialog id
+     */
     public static Collection<ChatInfoPropDTO> id() {
         return id;
     }
 
+    /**
+     * @return all channel-related properties
+     */
     public static Collection<ChatInfoPropDTO> channelAll() {
         return channelAll;
     }
 
+    /**
+     * @return all dialog-related properties
+     */
     public static Collection<ChatInfoPropDTO> dialogAll() {
         return dialogAll;
     }
 
+    /**
+     * @return all properties
+     */
     public static Collection<ChatInfoPropDTO> all() {
         return all;
     }

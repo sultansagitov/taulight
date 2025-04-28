@@ -41,10 +41,10 @@ public class MessageEntity extends SandnodeEntity {
 
     public MessageEntity(ChatEntity chat, ChatMessageInputDTO input, TauMemberEntity member) {
         setChat(chat);
-        setSentDatetime(input.sentDatetime());
-        setContent(input.content());
+        setSentDatetime(input.sentDatetime);
+        setContent(input.content);
         setMember(member);
-        setSys(input.sys());
+        setSys(input.sys);
     }
 
     public ChatEntity chat() {

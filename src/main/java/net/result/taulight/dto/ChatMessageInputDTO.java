@@ -1,5 +1,6 @@
 package net.result.taulight.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import net.result.sandnode.db.MemberEntity;
 import net.result.sandnode.db.SandnodeEntity;
@@ -12,22 +13,38 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+/**
+ * Data Transfer Object used to send or receive chat message input data.
+ */
 public class ChatMessageInputDTO {
+    /** Unique identifier of the chat. */
     @JsonProperty("chat-id")
-    private UUID chatID = null;
+    public UUID chatID = null;
+    /** Content of the message. */
     @JsonProperty
-    private String content = null;
+    public String content = null;
+    /** Date and time when the message was sent. */
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ssX", timezone = "UTC")
     @JsonProperty("sent-datetime")
-    private ZonedDateTime sentDatetime = null;
+    public ZonedDateTime sentDatetime = null;
+    /** Nickname of the message sender. */
     @JsonProperty
-    private String nickname = null;
+    public String nickname = null;
+    /** Indicates whether the message is a system message. */
     @JsonProperty
-    private boolean sys = false;
+    public boolean sys = false;
+    /** List of IDs of messages that this message replies to. */
     @JsonProperty
-    private Set<UUID> repliedToMessages = null;
+    public Set<UUID> repliedToMessages = null;
 
+    /** Default constructor. */
     public ChatMessageInputDTO() {}
 
+    /**
+     * Constructs a ChatMessageInputDTO from a {@link MessageEntity}.
+     *
+     * @param message the message entity
+     */
     public ChatMessageInputDTO(MessageEntity message) {
         setChat(message.chat());
         setContent(message.content());
@@ -35,10 +52,6 @@ public class ChatMessageInputDTO {
         setMember(message.member().member());
         setSys(message.sys());
         setRepliedToMessages(message.repliedToMessages().stream().map(SandnodeEntity::id).collect(Collectors.toSet()));
-    }
-
-    public UUID chatID() {
-        return chatID;
     }
 
     public ChatMessageInputDTO setChatID(UUID chatID) {
@@ -50,17 +63,9 @@ public class ChatMessageInputDTO {
         return setChatID(chat.id());
     }
 
-    public String content() {
-        return content;
-    }
-
     public ChatMessageInputDTO setContent(String content) {
         this.content = content;
         return this;
-    }
-
-    public ZonedDateTime sentDatetime() {
-        return sentDatetime;
     }
 
     public ChatMessageInputDTO setSentDatetime(ZonedDateTime sentDatetime) {
@@ -72,10 +77,6 @@ public class ChatMessageInputDTO {
         return setSentDatetime(ZonedDateTime.now(ZoneId.of("UTC")));
     }
 
-    public String nickname() {
-        return nickname;
-    }
-
     public ChatMessageInputDTO setNickname(String nickname) {
         this.nickname = nickname;
         return this;
@@ -85,17 +86,9 @@ public class ChatMessageInputDTO {
         return setNickname(member.nickname());
     }
 
-    public boolean sys() {
-        return sys;
-    }
-
     public ChatMessageInputDTO setSys(boolean sys) {
         this.sys = sys;
         return this;
-    }
-
-    public Set<UUID> repliedToMessages() {
-        return repliedToMessages;
     }
 
     public ChatMessageInputDTO setRepliedToMessages(Set<UUID> repliedToMessages) {

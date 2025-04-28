@@ -61,8 +61,8 @@ public class ForwardRequestServerChain extends ServerChain implements ReceiverCh
                 continue;
             }
 
-            UUID chatID = input.chatID();
-            String content = input.content();
+            UUID chatID = input.chatID;
+            String content = input.content;
 
             if (chatID == null || content == null) {
                 LOGGER.error("Forward message contains null chatID or content");
@@ -110,7 +110,7 @@ public class ForwardRequestServerChain extends ServerChain implements ReceiverCh
                 continue;
             }
 
-            send(new UUIDMessage(new Headers().setType(MessageTypes.HAPPY), serverMessage.id()));
+            send(new UUIDMessage(new Headers().setType(MessageTypes.HAPPY), serverMessage.id));
         }
     }
 

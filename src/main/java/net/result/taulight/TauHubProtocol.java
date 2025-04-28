@@ -58,7 +58,7 @@ public class TauHubProtocol {
             }
         }
 
-        LOGGER.info("Saved message with id {} content: {}", serverMessage.id(), input.content());
+        LOGGER.info("Saved message with id {} content: {}", serverMessage.id, input.content);
 
         return serverMessage;
     }

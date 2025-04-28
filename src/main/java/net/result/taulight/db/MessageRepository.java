@@ -33,7 +33,7 @@ public class MessageRepository {
             throws DatabaseException, NotFoundException {
         MessageEntity managed = save(new MessageEntity(chat, input, member));
         Set<MessageEntity> messageEntities = new HashSet<>();
-        Set<UUID> replies = input.repliedToMessages();
+        Set<UUID> replies = input.repliedToMessages;
         if (replies != null) {
             for (UUID r : replies) {
                 messageEntities.add(findById(r).orElseThrow(NotFoundException::new));

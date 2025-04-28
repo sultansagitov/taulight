@@ -2,34 +2,37 @@ package net.result.taulight.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import net.result.taulight.db.InviteCodeEntity;
-import org.jetbrains.annotations.Nullable;
 
-import java.time.ZonedDateTime;
-
+/**
+ * Data Transfer Object representing an invite code along with metadata about sender, receiver, and validity.
+ */
 public class InviteCodeDTO extends CodeDTO {
+    /** Title of the associated channel. */
     @JsonProperty
     public String title;
+    /** Nickname of the invited user. */
     @JsonProperty("receiver-nickname")
     public String receiverNickname;
+    /** Nickname of the sender. */
     @JsonProperty("sender-nickname")
     public String senderNickname;
-    @JsonProperty("creation-date")
-    public ZonedDateTime creationDate;
-    @JsonProperty("activation-date")
-    public @Nullable ZonedDateTime activationDate;
-    @JsonProperty("expires-date")
-    public ZonedDateTime expiresDate;
 
+    /** Default constructor. */
     @SuppressWarnings("unused")
     public InviteCodeDTO() {
         super();
     }
 
+    /**
+     * Constructs an InviteCodeDTO from an {@link InviteCodeEntity}.
+     *
+     * @param invite the invite entity
+     */
     public InviteCodeDTO(InviteCodeEntity invite) {
         super(invite.code());
-        this.title = invite.channel().title();
-        this.receiverNickname = invite.receiver().member().nickname();
-        this.senderNickname = invite.sender().member().nickname();
+        title = invite.channel().title();
+        receiverNickname = invite.receiver().member().nickname();
+        senderNickname = invite.sender().member().nickname();
         creationDate = invite.creationDate();
         activationDate = invite.activationDate();
         expiresDate = invite.expiresDate();

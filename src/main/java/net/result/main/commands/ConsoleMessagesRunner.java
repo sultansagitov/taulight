@@ -53,9 +53,9 @@ public class ConsoleMessagesRunner {
 
     public static void printMessage(ChatMessageViewDTO dto) {
         System.out.printf("%s [%s] %s: %s%n",
-                dto.id(), dto.getCreationDate(), dto.message().nickname(), dto.message().content());
+                dto.id, dto.creationDate, dto.message.nickname, dto.message.content);
 
-        Set<UUID> repliedToMessages = dto.message().repliedToMessages();
+        Set<UUID> repliedToMessages = dto.message.repliedToMessages;
         if (!repliedToMessages.isEmpty()) {
             String collect = repliedToMessages.stream()
                     .map(UUID::toString)
@@ -63,7 +63,7 @@ public class ConsoleMessagesRunner {
             System.out.printf("Replied to: %s%n", collect);
         }
 
-        Map<String, List<String>> reactions = dto.reactions();
+        Map<String, List<String>> reactions = dto.reactions;
         if (!reactions.isEmpty()) {
             String collect = reactions
                     .entrySet().stream()

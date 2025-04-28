@@ -23,14 +23,14 @@ public class ConsoleForwardClientChain extends ForwardClientChain {
     public void onMessage(@NotNull ForwardResponse response) {
         ChatMessageViewDTO serverMessage = response.getServerMessage();
 
-        String formatted = serverMessage.getCreationDate()
+        String formatted = serverMessage.creationDate
                 .withZoneSameInstant(ZoneId.systemDefault())
                 .format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss z"));
 
-        ChatMessageInputDTO message = serverMessage.message();
-        String content = message.content();
-        LOGGER.info("Forwarded message details - {} - {} - {}", serverMessage.id(), formatted, content);
-        String nickname = response.isYourSession() ? "You" : message.nickname();
-        System.out.printf("%s > %s > %s%n", message.chatID(), nickname, content);
+        ChatMessageInputDTO message = serverMessage.message;
+        String content = message.content;
+        LOGGER.info("Forwarded message details - {} - {} - {}", serverMessage.id, formatted, content);
+        String nickname = response.isYourSession() ? "You" : message.nickname;
+        System.out.printf("%s > %s > %s%n", message.chatID, nickname, content);
     }
 }
