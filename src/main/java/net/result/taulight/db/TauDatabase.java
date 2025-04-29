@@ -262,7 +262,23 @@ public interface TauDatabase extends Database {
     boolean removeReactionEntry(MessageEntity message, TauMemberEntity member, ReactionTypeEntity reactionType)
             throws DatabaseException;
 
+    /**
+     * Adds a member to the specified role.
+     *
+     * @param role   the role to which the member should be added
+     * @param member the member to add to the role
+     * @return true if the member was successfully added to the role, false member already in
+     * @throws DatabaseException if a database access error occurs
+     */
     boolean addMemberToRole(RoleEntity role, TauMemberEntity member) throws DatabaseException;
 
+    /**
+     * Creates a new role within the specified channel.
+     *
+     * @param channel the channel in which the role will be created
+     * @param role    the name of the role to create
+     * @return the newly created RoleEntity
+     * @throws DatabaseException if a database access error occurs
+     */
     RoleEntity createRole(ChannelEntity channel, String role) throws DatabaseException;
 }

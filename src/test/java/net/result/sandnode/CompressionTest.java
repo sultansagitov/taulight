@@ -2,12 +2,13 @@ package net.result.sandnode;
 
 import net.result.sandnode.compression.Compression;
 import net.result.sandnode.compression.CompressionManager;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.io.*;
 import java.security.SecureRandom;
 import java.util.Random;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 public class CompressionTest {
     @Test
@@ -23,7 +24,7 @@ public class CompressionTest {
             byte[] compressed = compression.compress(bytes);
             byte[] decompressed = compression.decompress(compressed);
 
-            Assertions.assertArrayEquals(bytes, decompressed);
+            assertArrayEquals(bytes, decompressed, "Decompressed data does not match for " + compression.getClass());
         }
     }
 }
