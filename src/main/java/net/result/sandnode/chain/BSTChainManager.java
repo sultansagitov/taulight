@@ -14,8 +14,10 @@ import org.apache.logging.log4j.Logger;
 
 import java.security.SecureRandom;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.stream.Collectors;
 
 public abstract class BSTChainManager implements ChainManager {
     private static final Logger LOGGER = LogManager.getLogger(BSTChainManager.class);
@@ -24,7 +26,7 @@ public abstract class BSTChainManager implements ChainManager {
     private final ExecutorService executorService = Executors.newCachedThreadPool();
 
     protected BSTChainManager() {
-        this.chainMap = new HashMap<>();
+        this.chainMap = new ConcurrentHashMap<>();
     }
 
     private Optional<IChain> getByID(short id) {
@@ -73,17 +75,24 @@ public abstract class BSTChainManager implements ChainManager {
     @Override
     public void distributeMessage(RawMessage message) throws InterruptedException {
         Headers headers = message.headers();
-        Optional<IChain> opt = getByID(headers.chainID());
+        Optional<IChain> initialChainOpt = getByID(headers.chainID());
         IChain chain;
-        if (opt.isPresent()) {
-            chain = opt.get();
+        if (initialChainOpt.isPresent()) {
+            chain = initialChainOpt.get();
         } else {
-            try {
-                ReceiverChain aNew = createNew(message);
-                aNew.async(this);
-                chain = aNew;
-            } catch (BusyChainID e) {
-                throw new RuntimeException(e);
+            synchronized (this) {
+                Optional<IChain> retriedChainOpt = getByID(headers.chainID());
+                if (retriedChainOpt.isEmpty()) {
+                    try {
+                        ReceiverChain aNew = createNew(message);
+                        aNew.async(this);
+                        chain = aNew;
+                    } catch (BusyChainID e) {
+                        throw new RuntimeException(e);
+                    }
+                } else {
+                    chain = retriedChainOpt.get();
+                }
             }
         }
 
@@ -116,7 +125,7 @@ public abstract class BSTChainManager implements ChainManager {
     }
 
     @Override
-    public void setName(IChain chain, String chainName) {
+    public synchronized void setName(IChain chain, String chainName) {
         chainMap.put(chainName, chain);
     }
 
@@ -127,9 +136,11 @@ public abstract class BSTChainManager implements ChainManager {
 
     @Override
     public String toString() {
-        Collection<String> list = new ArrayList<>();
-        for (IChain chain : bst.getOrdered())
-            list.add(String.format("%04X", chain.getID()));
-        return "<%s chains=%s>".formatted(getClass().getSimpleName(), String.join(",", list));
+        String start = "<%s chains=".formatted(getClass().getSimpleName());
+        return bst
+                .getOrdered().stream()
+                .map(IChain::getID)
+                .map("%04X"::formatted)
+                .collect(Collectors.joining(",", start, ">"));
     }
 }

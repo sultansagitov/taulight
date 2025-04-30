@@ -116,8 +116,11 @@ public class ChannelServerChain extends ServerChain implements ReceiverChain {
         }
 
         // Receiver already have invite code
-        if (database.findInviteCode(channel, member).stream().anyMatch(code -> code.activationDate() == null)) {
-            throw new NoEffectException();
+        for (InviteCodeEntity inviteCodeEntity : database.findInviteCode(channel, member)) {
+            if (inviteCodeEntity.activationDate() == null
+                    || !inviteCodeEntity.expiresDate().isAfter(ZonedDateTime.now())) {
+                throw new NoEffectException();
+            }
         }
 
         ZonedDateTime expiresDate = ZonedDateTime.now().plus(request.expirationTime);
