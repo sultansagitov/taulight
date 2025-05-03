@@ -42,9 +42,9 @@ public class BinarySearchTree<S extends Searchable<S, ID>, ID> {
         BSTNode<S, ID> current = root;
 
         while (current != null) {
-            if (current.value.compareID(id) == 0)
-                return Optional.of(current.value);
-            current = current.value.compareID(id) < 0 ? current.right : current.left;
+            int i = current.value.compareID(id);
+            if (i == 0) return Optional.of(current.value);
+            current = i < 0 ? current.right : current.left;
         }
 
         return Optional.empty();
