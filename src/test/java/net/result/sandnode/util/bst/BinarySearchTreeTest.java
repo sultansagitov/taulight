@@ -3,12 +3,13 @@ package net.result.sandnode.util.bst;
 import net.result.sandnode.exception.BSTBusyPosition;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -35,15 +36,23 @@ class BinarySearchTreeTest {
         }
     }
 
-    public BinarySearchTree<TestSearchable, Integer> tree;
 
-    @BeforeEach
-    void setUp() {
-        tree = new BinarySearchTree<>();
+    interface TreeFactory {
+        BinarySearchTree<TestSearchable, Integer> create();
     }
 
-    @Test
-    void testAddAndFindSingleElement() throws BSTBusyPosition {
+    static Stream<TreeFactory> treeFactoryProvider() {
+        return Stream.of(
+                BinarySearchTree::new,
+                AVLTree::new
+        );
+    }
+
+    @ParameterizedTest
+    @MethodSource("treeFactoryProvider")
+    void testAddAndFindSingleElement(TreeFactory factory) throws BSTBusyPosition {
+        var tree = factory.create();
+
         TestSearchable item = new TestSearchable(10);
         tree.add(item);
 
@@ -53,8 +62,11 @@ class BinarySearchTreeTest {
         assertEquals(item, found.get(), "Found item should match the added item.");
     }
 
-    @Test
-    void testFindNonExistentElement() throws BSTBusyPosition {
+    @ParameterizedTest
+    @MethodSource("treeFactoryProvider")
+    void testFindNonExistentElement(TreeFactory factory) throws BSTBusyPosition {
+        var tree = factory.create();
+
         TestSearchable item = new TestSearchable(10);
         tree.add(item);
 
@@ -63,8 +75,11 @@ class BinarySearchTreeTest {
         assertFalse(found.isPresent(), "Item with ID 20 should not be found.");
     }
 
-    @Test
-    void testAddAndFindMultipleElements() throws BSTBusyPosition {
+    @ParameterizedTest
+    @MethodSource("treeFactoryProvider")
+    void testAddAndFindMultipleElements(TreeFactory factory) throws BSTBusyPosition {
+        var tree = factory.create();
+
         TestSearchable item1 = new TestSearchable(10);
         TestSearchable item2 = new TestSearchable(5);
         TestSearchable item3 = new TestSearchable(15);
@@ -78,8 +93,11 @@ class BinarySearchTreeTest {
         assertTrue(tree.find(15).isPresent(), "Item with ID 15 should be found.");
     }
 
-    @Test
-    void testGetOrdered() throws BSTBusyPosition {
+    @ParameterizedTest
+    @MethodSource("treeFactoryProvider")
+    void testGetOrdered(TreeFactory factory) throws BSTBusyPosition {
+        var tree = factory.create();
+
         TestSearchable item1 = new TestSearchable(10);
         TestSearchable item2 = new TestSearchable(5);
         TestSearchable item3 = new TestSearchable(15);
@@ -97,14 +115,20 @@ class BinarySearchTreeTest {
                 "The elements should be in ascending order.");
     }
 
-    @Test
-    void testEmptyTree() {
+    @ParameterizedTest
+    @MethodSource("treeFactoryProvider")
+    void testEmptyTree(TreeFactory factory) {
+        var tree = factory.create();
+
         assertTrue(tree.getOrdered().isEmpty(), "Ordered list of an empty tree should be empty.");
         assertFalse(tree.find(1).isPresent(), "Find operation on an empty tree should return empty.");
     }
 
-    @Test
-    void testDuplicateElements() throws BSTBusyPosition {
+    @ParameterizedTest
+    @MethodSource("treeFactoryProvider")
+    void testDuplicateElements(TreeFactory factory) throws BSTBusyPosition {
+        var tree = factory.create();
+
         TestSearchable item1 = new TestSearchable(10);
         TestSearchable item2 = new TestSearchable(10); // Duplicate ID
 
@@ -112,8 +136,11 @@ class BinarySearchTreeTest {
         Assertions.assertThrows(BSTBusyPosition.class, () -> tree.add(item2));
     }
 
-    @Test
-    void testRemoveElement() throws BSTBusyPosition {
+    @ParameterizedTest
+    @MethodSource("treeFactoryProvider")
+    void testRemoveElement(TreeFactory factory) throws BSTBusyPosition {
+        var tree = factory.create();
+
         // Arrange
         TestSearchable item1 = new TestSearchable(10);
         TestSearchable item2 = new TestSearchable(5);
@@ -135,8 +162,11 @@ class BinarySearchTreeTest {
         assertTrue(tree.find(15).isPresent(), "Item with ID 15 should still be in the tree.");
     }
 
-    @Test
-    void testRemoveNonExistentElement() throws BSTBusyPosition {
+    @ParameterizedTest
+    @MethodSource("treeFactoryProvider")
+    void testRemoveNonExistentElement(TreeFactory factory) throws BSTBusyPosition {
+        var tree = factory.create();
+
         // Arrange: Add some items to the tree
         TestSearchable item1 = new TestSearchable(10);
         TestSearchable item2 = new TestSearchable(5);
@@ -153,8 +183,11 @@ class BinarySearchTreeTest {
         assertTrue(tree.find(5).isPresent(), "Item with ID 5 should still be in the tree.");
     }
 
-    @Test
-    void testRemoveRootElement() throws BSTBusyPosition {
+    @ParameterizedTest
+    @MethodSource("treeFactoryProvider")
+    void testRemoveRootElement(TreeFactory factory) throws BSTBusyPosition {
+        var tree = factory.create();
+
         // Arrange: Add elements such that one of them is the root
         TestSearchable root = new TestSearchable(10);
         TestSearchable leftChild = new TestSearchable(5);
@@ -173,8 +206,11 @@ class BinarySearchTreeTest {
         assertTrue(tree.find(15).isPresent(), "Item with ID 15 should still be in the tree.");
     }
 
-    @Test
-    void testRemoveLeafElement() throws BSTBusyPosition {
+    @ParameterizedTest
+    @MethodSource("treeFactoryProvider")
+    void testRemoveLeafElement(TreeFactory factory) throws BSTBusyPosition {
+        var tree = factory.create();
+
         // Arrange: Add elements where one is a leaf node
         TestSearchable item1 = new TestSearchable(10);
         TestSearchable item2 = new TestSearchable(5);
