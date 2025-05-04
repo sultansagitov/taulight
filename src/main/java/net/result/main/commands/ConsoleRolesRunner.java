@@ -48,7 +48,7 @@ public class ConsoleRolesRunner {
             chain.addRole(chatID, roleName);
             System.out.printf("Role '%s' added successfully to chat %s.%n", roleName, chatID);
         } catch (UnprocessedMessagesException | InterruptedException | UnknownSandnodeErrorException |
-                 SandnodeErrorException | DeserializationException | ExpectedMessageException e) {
+                 SandnodeErrorException e) {
             System.out.printf("Error adding role '%s' to chat %s: %s%n",
                     roleName, chatID, e.getClass().getSimpleName());
         } finally {
@@ -70,7 +70,7 @@ public class ConsoleRolesRunner {
             chain.assignRole(chatID, nickname, roleName);
             System.out.printf("Role '%s' successfully assigned to '%s' in chat %s.%n", roleName, nickname, chatID);
         } catch (UnprocessedMessagesException | InterruptedException | UnknownSandnodeErrorException |
-                 SandnodeErrorException | DeserializationException | ExpectedMessageException e) {
+                 SandnodeErrorException e) {
             System.out.printf("Error assigning role '%s' to user '%s' in chat %s: %s%n",
                     roleName, nickname, chatID, e.getClass().getSimpleName());
         } finally {

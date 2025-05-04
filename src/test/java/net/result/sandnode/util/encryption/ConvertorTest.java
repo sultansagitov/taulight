@@ -1,46 +1,51 @@
 package net.result.sandnode.util.encryption;
 
 import net.result.sandnode.encryption.EncryptionManager;
+import net.result.sandnode.encryption.interfaces.AsymmetricEncryption;
 import net.result.sandnode.encryption.interfaces.AsymmetricKeyStorage;
 import net.result.sandnode.exception.crypto.CannotUseEncryption;
 import net.result.sandnode.exception.crypto.CreatingKeyException;
 import net.result.sandnode.encryption.interfaces.AsymmetricConvertor;
-import net.result.sandnode.encryption.interfaces.AsymmetricEncryption;
-import net.result.sandnode.exception.ImpossibleRuntimeException;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
+
+import java.util.stream.Stream;
 
 public class ConvertorTest {
-    @Test
-    public void convertTest() throws CreatingKeyException {
-        for (AsymmetricEncryption encryption : EncryptionManager.getAsymmetric()) {
-            AsymmetricKeyStorage keyStorage = encryption.generate();
+    public static Stream<AsymmetricKeyStorage> hashersProvider() {
+        return EncryptionManager.getAsymmetric().stream().map(AsymmetricEncryption::generate);
+    }
 
-            try {
-                String original = keyStorage.encodedPublicKey();
+    @BeforeAll
+    static void setUp() {
+        EncryptionManager.registerAll();
+    }
 
-                AsymmetricConvertor convertor = encryption.publicKeyConvertor();
-                AsymmetricKeyStorage keyStorage1 = convertor.toKeyStorage(original);
+    @ParameterizedTest
+    @MethodSource("hashersProvider")
+    public void convertPublicTest(AsymmetricKeyStorage keyStorage) throws CreatingKeyException, CannotUseEncryption {
+        String original = keyStorage.encodedPublicKey();
 
-                String string = keyStorage1.encodedPublicKey();
+        AsymmetricConvertor convertor = keyStorage.encryption().publicKeyConvertor();
+        AsymmetricKeyStorage keyStorage1 = convertor.toKeyStorage(original);
 
-                Assertions.assertEquals(original, string);
-            } catch (CannotUseEncryption e) {
-                throw new ImpossibleRuntimeException(e);
-            }
+        String string = keyStorage1.encodedPublicKey();
 
-            try {
-                String original = keyStorage.encodedPrivateKey();
+        Assertions.assertEquals(original, string);
+    }
 
-                AsymmetricConvertor convertor = encryption.privateKeyConvertor();
-                AsymmetricKeyStorage keyStorage1 = convertor.toKeyStorage(original);
+    @ParameterizedTest
+    @MethodSource("hashersProvider")
+    public void convertPrivateTest(AsymmetricKeyStorage keyStorage) throws CreatingKeyException, CannotUseEncryption {
+        String original = keyStorage.encodedPrivateKey();
 
-                String string = keyStorage1.encodedPrivateKey();
+        AsymmetricConvertor convertor = keyStorage.encryption().privateKeyConvertor();
+        AsymmetricKeyStorage keyStorage1 = convertor.toKeyStorage(original);
 
-                Assertions.assertEquals(original, string);
-            } catch (CannotUseEncryption e) {
-                throw new ImpossibleRuntimeException(e);
-            }
-        }
+        String string = keyStorage1.encodedPrivateKey();
+
+        Assertions.assertEquals(original, string);
     }
 }

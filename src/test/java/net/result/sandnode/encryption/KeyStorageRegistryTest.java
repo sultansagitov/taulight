@@ -6,7 +6,7 @@ import net.result.sandnode.encryption.interfaces.SymmetricKeyStorage;
 import net.result.sandnode.exception.crypto.CannotUseEncryption;
 import net.result.sandnode.exception.crypto.EncryptionTypeException;
 import net.result.sandnode.exception.error.KeyStorageNotFoundException;
-import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import java.util.Optional;
@@ -15,13 +15,13 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class KeyStorageRegistryTest {
 
-    private KeyStorageRegistry keyStorageRegistry;
+    static KeyStorageRegistry keyStorageRegistry;
 
-    private KeyStorage eciesKeyStorage;
-    private KeyStorage aesKeyStorage;
+    static KeyStorage eciesKeyStorage;
+    static KeyStorage aesKeyStorage;
 
-    @BeforeEach
-    void setUp() {
+    @BeforeAll
+    static void setUp() {
         keyStorageRegistry = new KeyStorageRegistry();
         EncryptionManager.registerAll();
 

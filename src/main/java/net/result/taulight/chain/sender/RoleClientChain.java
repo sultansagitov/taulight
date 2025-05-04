@@ -31,8 +31,7 @@ public class RoleClientChain extends ClientChain {
     }
 
     public synchronized void addRole(UUID chatID, String roleName) throws UnprocessedMessagesException,
-            InterruptedException, UnknownSandnodeErrorException, SandnodeErrorException, ExpectedMessageException,
-            DeserializationException {
+            InterruptedException, UnknownSandnodeErrorException, SandnodeErrorException {
         send(RoleRequest.addRole(chatID, roleName));
 
         RawMessage raw = queue.take();
@@ -41,7 +40,7 @@ public class RoleClientChain extends ClientChain {
 
     public synchronized void assignRole(UUID chatID, String nickname, String roleName)
             throws UnprocessedMessagesException, InterruptedException, UnknownSandnodeErrorException,
-            SandnodeErrorException, ExpectedMessageException, DeserializationException {
+            SandnodeErrorException {
         send(RoleRequest.assignRole(chatID, roleName, nickname));
 
         RawMessage raw = queue.take();

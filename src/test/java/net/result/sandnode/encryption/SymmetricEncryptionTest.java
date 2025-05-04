@@ -3,16 +3,27 @@ package net.result.sandnode.encryption;
 import net.result.sandnode.encryption.interfaces.SymmetricEncryption;
 import net.result.sandnode.encryption.interfaces.SymmetricKeyStorage;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
+
+import java.util.stream.Stream;
 
 class SymmetricEncryptionTest {
-    @Test
-    public void toBytes() {
-        for (SymmetricEncryption s : EncryptionManager.getSymmetric()) {
-            SymmetricKeyStorage keyStorage = s.generate();
-            byte[] bytes1 = keyStorage.toBytes();
-            byte[] bytes2 = s.toKeyStorage(bytes1).toBytes();
-            Assertions.assertArrayEquals(bytes1, bytes2);
-        }
+    @BeforeAll
+    static void setUp() {
+        EncryptionManager.registerAll();
+    }
+
+    public static Stream<SymmetricKeyStorage> encryptionsProvider() {
+        return EncryptionManager.getSymmetric().stream().map(SymmetricEncryption::generate);
+    }
+
+    @ParameterizedTest
+    @MethodSource("encryptionsProvider")
+    public void toBytes(SymmetricKeyStorage keyStorage) {
+        byte[] bytes1 = keyStorage.toBytes();
+        byte[] bytes2 = keyStorage.encryption().toKeyStorage(bytes1).toBytes();
+        Assertions.assertArrayEquals(bytes1, bytes2);
     }
 }

@@ -1,51 +1,43 @@
 package net.result.sandnode.util.encryption;
 
 import net.result.sandnode.encryption.EncryptionManager;
-import net.result.sandnode.encryption.interfaces.AsymmetricEncryption;
-import net.result.sandnode.encryption.interfaces.AsymmetricKeyStorage;
-import net.result.sandnode.encryption.interfaces.SymmetricEncryption;
-import net.result.sandnode.encryption.interfaces.SymmetricKeyStorage;
-import net.result.sandnode.exception.crypto.CannotUseEncryption;
-import net.result.sandnode.exception.ImpossibleRuntimeException;
+import net.result.sandnode.encryption.interfaces.*;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import java.util.Arrays;
+import java.util.stream.Stream;
 
-public class HybridEncryptionTest {
-    @Test
-    public void hybridEncryptionTest() throws Exception {
-        for (AsymmetricEncryption a : EncryptionManager.getAsymmetric()) {
-            for (SymmetricEncryption s : EncryptionManager.getSymmetric()) {
-                AsymmetricKeyStorage asymmetricKeyStorage = a.generate();
-                SymmetricKeyStorage symmetricKeyStorage = s.generate();
+class HybridEncryptionTest {
 
-                byte[] bytes = symmetricKeyStorage.toBytes();
+    static Stream<Object[]> encryptionPairs() {
+        return EncryptionManager.getAsymmetric().stream().flatMap(a ->
+                EncryptionManager.getSymmetric().stream().map(s -> new Encryption[]{a, s})
+        );
+    }
 
-                byte[] encryptedBytes;
-                byte[] decryptedBytes;
-                try {
-                    encryptedBytes = a.encryptBytes(bytes, asymmetricKeyStorage);
-                    decryptedBytes = a.decryptBytes(encryptedBytes, asymmetricKeyStorage);
-                } catch (CannotUseEncryption e) {
-                    throw new ImpossibleRuntimeException(e);
-                }
+    @ParameterizedTest
+    @MethodSource("encryptionPairs")
+    void testHybridEncryption(AsymmetricEncryption a, SymmetricEncryption s) throws Exception {
+        AsymmetricKeyStorage asymmetricKeyStorage = a.generate();
+        SymmetricKeyStorage symmetricKeyStorage = s.generate();
 
-                Assertions.assertFalse(Arrays.equals(bytes, encryptedBytes));
-                Assertions.assertArrayEquals(bytes, decryptedBytes);
+        byte[] bytes = symmetricKeyStorage.toBytes();
 
-                SymmetricKeyStorage secondKeyStorage = s.toKeyStorage(decryptedBytes);
+        byte[] encryptedBytes;
+        byte[] decryptedBytes;
+        encryptedBytes = a.encryptBytes(bytes, asymmetricKeyStorage);
+        decryptedBytes = a.decryptBytes(encryptedBytes, asymmetricKeyStorage);
 
-                try {
-                    String data = "HelloString";
-                    byte[] encryptedData = s.encrypt(data, secondKeyStorage);
-                    String decryptedData = s.decrypt(encryptedData, symmetricKeyStorage);
-                    Assertions.assertEquals(data, decryptedData);
-                } catch (CannotUseEncryption e) {
-                    throw new ImpossibleRuntimeException(e);
-                }
+        Assertions.assertFalse(Arrays.equals(bytes, encryptedBytes));
+        Assertions.assertArrayEquals(bytes, decryptedBytes);
 
-            }
-        }
+        SymmetricKeyStorage secondKeyStorage = s.toKeyStorage(decryptedBytes);
+
+        String data = "HelloString";
+        byte[] encryptedData = s.encrypt(data, secondKeyStorage);
+        String decryptedData = s.decrypt(encryptedData, symmetricKeyStorage);
+        Assertions.assertEquals(data, decryptedData);
     }
 }

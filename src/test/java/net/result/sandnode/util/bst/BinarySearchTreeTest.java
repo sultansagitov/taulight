@@ -37,22 +37,13 @@ class BinarySearchTreeTest {
     }
 
 
-    interface TreeFactory {
-        BinarySearchTree<TestSearchable, Integer> create();
-    }
-
-    static Stream<TreeFactory> treeFactoryProvider() {
-        return Stream.of(
-                BinarySearchTree::new,
-                AVLTree::new
-        );
+    static @NotNull Stream<BinarySearchTree<TestSearchable, Integer>> treesProvider() {
+        return Stream.of(new BinarySearchTree<>(), new AVLTree<>());
     }
 
     @ParameterizedTest
-    @MethodSource("treeFactoryProvider")
-    void testAddAndFindSingleElement(TreeFactory factory) throws BSTBusyPosition {
-        var tree = factory.create();
-
+    @MethodSource("treesProvider")
+    void testAddAndFindSingleElement(@NotNull BinarySearchTree<TestSearchable, Integer> tree) throws BSTBusyPosition {
         TestSearchable item = new TestSearchable(10);
         tree.add(item);
 
@@ -63,10 +54,8 @@ class BinarySearchTreeTest {
     }
 
     @ParameterizedTest
-    @MethodSource("treeFactoryProvider")
-    void testFindNonExistentElement(TreeFactory factory) throws BSTBusyPosition {
-        var tree = factory.create();
-
+    @MethodSource("treesProvider")
+    void testFindNonExistentElement(@NotNull BinarySearchTree<TestSearchable, Integer> tree) throws BSTBusyPosition {
         TestSearchable item = new TestSearchable(10);
         tree.add(item);
 
@@ -76,10 +65,8 @@ class BinarySearchTreeTest {
     }
 
     @ParameterizedTest
-    @MethodSource("treeFactoryProvider")
-    void testAddAndFindMultipleElements(TreeFactory factory) throws BSTBusyPosition {
-        var tree = factory.create();
-
+    @MethodSource("treesProvider")
+    void testAddAndFindMultipleElements(@NotNull BinarySearchTree<TestSearchable, Integer> tree) throws BSTBusyPosition {
         TestSearchable item1 = new TestSearchable(10);
         TestSearchable item2 = new TestSearchable(5);
         TestSearchable item3 = new TestSearchable(15);
@@ -94,10 +81,8 @@ class BinarySearchTreeTest {
     }
 
     @ParameterizedTest
-    @MethodSource("treeFactoryProvider")
-    void testGetOrdered(TreeFactory factory) throws BSTBusyPosition {
-        var tree = factory.create();
-
+    @MethodSource("treesProvider")
+    void testGetOrdered(@NotNull BinarySearchTree<TestSearchable, Integer> tree) throws BSTBusyPosition {
         TestSearchable item1 = new TestSearchable(10);
         TestSearchable item2 = new TestSearchable(5);
         TestSearchable item3 = new TestSearchable(15);
@@ -116,19 +101,15 @@ class BinarySearchTreeTest {
     }
 
     @ParameterizedTest
-    @MethodSource("treeFactoryProvider")
-    void testEmptyTree(TreeFactory factory) {
-        var tree = factory.create();
-
+    @MethodSource("treesProvider")
+    void testEmptyTree(@NotNull BinarySearchTree<TestSearchable, Integer> tree) {
         assertTrue(tree.getOrdered().isEmpty(), "Ordered list of an empty tree should be empty.");
         assertFalse(tree.find(1).isPresent(), "Find operation on an empty tree should return empty.");
     }
 
     @ParameterizedTest
-    @MethodSource("treeFactoryProvider")
-    void testDuplicateElements(TreeFactory factory) throws BSTBusyPosition {
-        var tree = factory.create();
-
+    @MethodSource("treesProvider")
+    void testDuplicateElements(@NotNull BinarySearchTree<TestSearchable, Integer> tree) throws BSTBusyPosition {
         TestSearchable item1 = new TestSearchable(10);
         TestSearchable item2 = new TestSearchable(10); // Duplicate ID
 
@@ -137,10 +118,8 @@ class BinarySearchTreeTest {
     }
 
     @ParameterizedTest
-    @MethodSource("treeFactoryProvider")
-    void testRemoveElement(TreeFactory factory) throws BSTBusyPosition {
-        var tree = factory.create();
-
+    @MethodSource("treesProvider")
+    void testRemoveElement(@NotNull BinarySearchTree<TestSearchable, Integer> tree) throws BSTBusyPosition {
         // Arrange
         TestSearchable item1 = new TestSearchable(10);
         TestSearchable item2 = new TestSearchable(5);
@@ -163,10 +142,8 @@ class BinarySearchTreeTest {
     }
 
     @ParameterizedTest
-    @MethodSource("treeFactoryProvider")
-    void testRemoveNonExistentElement(TreeFactory factory) throws BSTBusyPosition {
-        var tree = factory.create();
-
+    @MethodSource("treesProvider")
+    void testRemoveNonExistentElement(@NotNull BinarySearchTree<TestSearchable, Integer> tree) throws BSTBusyPosition {
         // Arrange: Add some items to the tree
         TestSearchable item1 = new TestSearchable(10);
         TestSearchable item2 = new TestSearchable(5);
@@ -184,10 +161,8 @@ class BinarySearchTreeTest {
     }
 
     @ParameterizedTest
-    @MethodSource("treeFactoryProvider")
-    void testRemoveRootElement(TreeFactory factory) throws BSTBusyPosition {
-        var tree = factory.create();
-
+    @MethodSource("treesProvider")
+    void testRemoveRootElement(@NotNull BinarySearchTree<TestSearchable, Integer> tree) throws BSTBusyPosition {
         // Arrange: Add elements such that one of them is the root
         TestSearchable root = new TestSearchable(10);
         TestSearchable leftChild = new TestSearchable(5);
@@ -207,10 +182,8 @@ class BinarySearchTreeTest {
     }
 
     @ParameterizedTest
-    @MethodSource("treeFactoryProvider")
-    void testRemoveLeafElement(TreeFactory factory) throws BSTBusyPosition {
-        var tree = factory.create();
-
+    @MethodSource("treesProvider")
+    void testRemoveLeafElement(@NotNull BinarySearchTree<TestSearchable, Integer> tree) throws BSTBusyPosition {
         // Arrange: Add elements where one is a leaf node
         TestSearchable item1 = new TestSearchable(10);
         TestSearchable item2 = new TestSearchable(5);
