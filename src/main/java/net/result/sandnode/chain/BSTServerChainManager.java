@@ -21,6 +21,7 @@ public abstract class BSTServerChainManager extends BSTChainManager implements S
             case GROUP -> new GroupServerChain(session);
             case LOGIN -> new LoginServerChain(session);
             case REG -> new RegistrationServerChain(session);
+            case LOGOUT -> new LogoutServerChain(session);
             case WHOAMI -> new WhoAmIServerChain(session);
             case NAME -> new NameServerChain(session);
             default -> new UnhandledMessageTypeServerChain(session);

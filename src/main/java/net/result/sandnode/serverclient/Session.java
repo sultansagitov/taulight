@@ -1,5 +1,6 @@
 package net.result.sandnode.serverclient;
 
+import net.result.sandnode.Logout;
 import net.result.sandnode.exception.*;
 import net.result.sandnode.util.IOController;
 import net.result.sandnode.chain.ServerChainManager;
@@ -46,8 +47,8 @@ public class Session {
                 LOGGER.error("Error receiving message", e);
             }
 
-            server.node.close();
-            server.serverConfig.groupManager().removeSession(this);
+            Logout.logout(this);
+
             server.node.removeSession(this);
         }, "%s/Receiving".formatted(io.ipString())).start();
     }

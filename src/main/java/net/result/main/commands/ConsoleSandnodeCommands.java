@@ -1,6 +1,7 @@
 package net.result.main.commands;
 
 import net.result.sandnode.chain.IChain;
+import net.result.sandnode.chain.sender.LogoutClientChain;
 import net.result.sandnode.chain.sender.NameClientChain;
 import net.result.sandnode.chain.sender.WhoAmIClientChain;
 import net.result.sandnode.exception.*;
@@ -32,6 +33,7 @@ public class ConsoleSandnodeCommands {
         commands.put("rmGroup", ConsoleSandnodeCommands::rmGroup);
         commands.put("whoami", ConsoleSandnodeCommands::whoami);
         commands.put("name", ConsoleSandnodeCommands::name);
+        commands.put("logout", ConsoleSandnodeCommands::logout);
     }
 
     private static boolean exit(List<String> ignored, ConsoleContext context) {
@@ -144,6 +146,21 @@ public class ConsoleSandnodeCommands {
             System.out.println("Unexpected array bounds error during name request.");
         }
 
+        return false;
+    }
+
+    private static boolean logout(List<String> ignored, ConsoleContext context)
+            throws InterruptedException, UnprocessedMessagesException {
+        var chain = new LogoutClientChain(context.io);
+        try {
+            context.io.chainManager.linkChain(chain);
+            chain.logout();
+            context.io.chainManager.removeChain(chain);
+        } catch (UnauthorizedException e) {
+            System.out.println("You already logged out");
+        } catch (ExpectedMessageException | UnknownSandnodeErrorException | SandnodeErrorException e) {
+            System.out.println("Sandnode error: " + e.getClass().getSimpleName());
+        }
         return false;
     }
 }
