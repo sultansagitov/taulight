@@ -1,5 +1,6 @@
 package net.result.sandnode.chain.sender;
 
+import net.result.sandnode.chain.ClientChain;
 import net.result.sandnode.exception.ExpectedMessageException;
 import net.result.sandnode.exception.UnprocessedMessagesException;
 import net.result.sandnode.message.types.GroupRequest;

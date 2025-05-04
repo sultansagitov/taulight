@@ -1,7 +1,7 @@
 package net.result.taulight.chain.receiver;
 
 import net.result.sandnode.chain.ReceiverChain;
-import net.result.sandnode.chain.sender.ClientChain;
+import net.result.sandnode.chain.ClientChain;
 import net.result.sandnode.message.types.HappyMessage;
 import net.result.sandnode.util.IOController;
 import net.result.taulight.dto.ReactionDTO;

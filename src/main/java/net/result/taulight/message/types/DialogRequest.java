@@ -1,4 +1,4 @@
-package net.result.taulight.chain.sender;
+package net.result.taulight.message.types;
 
 import net.result.sandnode.exception.ExpectedMessageException;
 import net.result.sandnode.message.Message;

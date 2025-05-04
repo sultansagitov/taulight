@@ -1,7 +1,7 @@
 package net.result.taulight.chain.receiver;
 
 import net.result.sandnode.chain.ReceiverChain;
-import net.result.sandnode.chain.receiver.ServerChain;
+import net.result.sandnode.chain.ServerChain;
 import net.result.sandnode.db.MemberEntity;
 import net.result.sandnode.exception.DatabaseException;
 import net.result.sandnode.exception.ImpossibleRuntimeException;
@@ -13,7 +13,7 @@ import net.result.sandnode.serverclient.Session;
 import net.result.taulight.SysMessages;
 import net.result.taulight.TauAgentProtocol;
 import net.result.taulight.TauHubProtocol;
-import net.result.taulight.chain.sender.DialogRequest;
+import net.result.taulight.message.types.DialogRequest;
 import net.result.taulight.db.TauMemberEntity;
 import net.result.taulight.dto.ChatMessageInputDTO;
 import net.result.taulight.db.TauDatabase;

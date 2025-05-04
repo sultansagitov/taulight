@@ -1,7 +1,7 @@
 package net.result.taulight.chain.receiver;
 
 import net.result.sandnode.chain.ReceiverChain;
-import net.result.sandnode.chain.receiver.ServerChain;
+import net.result.sandnode.chain.ServerChain;
 import net.result.sandnode.exception.error.*;
 import net.result.sandnode.serverclient.Session;
 import net.result.taulight.db.*;

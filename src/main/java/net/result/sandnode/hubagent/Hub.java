@@ -10,7 +10,7 @@ import net.result.sandnode.encryption.KeyStorageRegistry;
 import net.result.sandnode.serverclient.SandnodeServer;
 import net.result.sandnode.serverclient.Session;
 import net.result.sandnode.util.IOController;
-import net.result.sandnode.chain.receiver.ServerChainManager;
+import net.result.sandnode.chain.ServerChainManager;
 import org.jetbrains.annotations.NotNull;
 
 import java.net.Socket;

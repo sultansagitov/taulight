@@ -1,6 +1,6 @@
 package net.result.sandnode.link;
 
-import net.result.sandnode.chain.receiver.ServerChainManager;
+import net.result.sandnode.chain.ServerChainManager;
 import net.result.sandnode.config.ServerConfig;
 import net.result.sandnode.encryption.AsymmetricEncryptions;
 import net.result.sandnode.encryption.EncryptionManager;

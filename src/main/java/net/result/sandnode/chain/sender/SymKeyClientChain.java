@@ -1,5 +1,6 @@
 package net.result.sandnode.chain.sender;
 
+import net.result.sandnode.chain.ClientChain;
 import net.result.sandnode.encryption.interfaces.SymmetricEncryption;
 import net.result.sandnode.encryption.interfaces.SymmetricKeyStorage;
 import net.result.sandnode.exception.ExpectedMessageException;
@@ -10,9 +11,8 @@ import net.result.sandnode.message.types.HappyMessage;
 import net.result.sandnode.message.types.SymMessage;
 import net.result.sandnode.message.util.Headers;
 import net.result.sandnode.util.IOController;
-import net.result.sandnode.chain.Chain;
 
-public class SymKeyClientChain extends Chain {
+public class SymKeyClientChain extends ClientChain {
     private final SymmetricEncryption symmetricEncryption;
 
     public SymKeyClientChain(IOController io, SymmetricEncryption symmetricEncryption) {

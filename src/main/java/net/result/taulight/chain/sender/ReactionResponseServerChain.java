@@ -1,6 +1,6 @@
 package net.result.taulight.chain.sender;
 
-import net.result.sandnode.chain.receiver.ServerChain;
+import net.result.sandnode.chain.ServerChain;
 import net.result.sandnode.error.ServerErrorManager;
 import net.result.sandnode.exception.ExpectedMessageException;
 import net.result.sandnode.exception.UnknownSandnodeErrorException;

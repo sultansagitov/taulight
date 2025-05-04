@@ -1,7 +1,7 @@
 package net.result.taulight.chain.receiver;
 
 import net.result.sandnode.chain.ReceiverChain;
-import net.result.sandnode.chain.sender.ClientChain;
+import net.result.sandnode.chain.ClientChain;
 import net.result.sandnode.exception.DeserializationException;
 import net.result.sandnode.exception.ExpectedMessageException;
 import net.result.sandnode.message.RawMessage;

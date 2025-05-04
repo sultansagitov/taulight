@@ -1,5 +1,6 @@
 package net.result.sandnode.chain.sender;
 
+import net.result.sandnode.chain.ClientChain;
 import net.result.sandnode.error.ServerErrorManager;
 import net.result.sandnode.exception.ExpectedMessageException;
 import net.result.sandnode.exception.UnknownSandnodeErrorException;

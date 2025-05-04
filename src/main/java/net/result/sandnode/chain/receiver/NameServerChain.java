@@ -1,6 +1,7 @@
 package net.result.sandnode.chain.receiver;
 
 import net.result.sandnode.chain.ReceiverChain;
+import net.result.sandnode.chain.ServerChain;
 import net.result.sandnode.exception.ExpectedMessageException;
 import net.result.sandnode.exception.UnprocessedMessagesException;
 import net.result.sandnode.hubagent.Hub;

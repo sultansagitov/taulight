@@ -1,7 +1,6 @@
-package net.result.sandnode.chain.receiver;
+package net.result.sandnode.chain;
 
 import net.result.sandnode.serverclient.Session;
-import net.result.sandnode.chain.ChainManager;
 
 public interface ServerChainManager extends ChainManager {
     void setSession(Session session);
