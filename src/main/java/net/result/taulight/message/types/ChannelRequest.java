@@ -4,6 +4,7 @@ import net.result.sandnode.exception.DeserializationException;
 import net.result.sandnode.exception.ExpectedMessageException;
 import net.result.sandnode.exception.error.TooFewArgumentsException;
 import net.result.sandnode.message.EmptyMessage;
+import net.result.sandnode.message.IMessage;
 import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.message.util.Headers;
 import net.result.taulight.message.TauMessageTypes;
@@ -13,7 +14,7 @@ import java.time.Duration;
 import java.util.UUID;
 
 public class ChannelRequest extends EmptyMessage {
-    public enum DataType {CREATE, INVITE, LEAVE, CH_CODES, MY_CODES}
+    public enum DataType {CREATE, INVITE, LEAVE, CH_CODES, MY_CODES, SET_AVATAR, GET_AVATAR}
 
     public DataType type;
     public String title;
@@ -68,13 +69,26 @@ public class ChannelRequest extends EmptyMessage {
                             .orElseThrow(TooFewArgumentsException::new);
                 }
                 case "my-codes" -> this.type = DataType.MY_CODES;
+                case "set-avatar" -> {
+                    this.type = DataType.SET_AVATAR;
+                    this.chatID = headers()
+                            .getOptionalValue("chat-id")
+                            .map(UUID::fromString)
+                            .orElseThrow(TooFewArgumentsException::new);
+                }
+                case "get-avatar" -> {
+                    this.type = DataType.GET_AVATAR;
+                    this.chatID = headers()
+                            .getOptionalValue("chat-id")
+                            .map(UUID::fromString)
+                            .orElseThrow(TooFewArgumentsException::new);
+                }
                 default -> throw new DeserializationException("Incorrect type field - \"%s\"".formatted(type));
             }
         } catch (IllegalArgumentException e) {
             throw new DeserializationException(e);
         }
     }
-
 
     public static @NotNull ChannelRequest newChannel(String title) {
         Headers headers = new Headers()
@@ -123,6 +137,24 @@ public class ChannelRequest extends EmptyMessage {
         Headers headers = new Headers().setValue("type", "my-codes");
         ChannelRequest request = new ChannelRequest(headers);
         request.type = DataType.MY_CODES;
+        return request;
+    }
+
+    public static @NotNull IMessage setAvatar(UUID chatID) {
+        Headers headers = new Headers()
+                .setValue("type", "set-avatar")
+                .setValue("chat-id", chatID.toString());
+        ChannelRequest request = new ChannelRequest(headers);
+        request.type = DataType.SET_AVATAR;
+        return request;
+    }
+
+    public static @NotNull IMessage getAvatar(UUID chatID) {
+        Headers headers = new Headers()
+                .setValue("type", "get-avatar")
+                .setValue("chat-id", chatID.toString());
+        ChannelRequest request = new ChannelRequest(headers);
+        request.type = DataType.GET_AVATAR;
         return request;
     }
 }

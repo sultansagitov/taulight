@@ -20,6 +20,8 @@ public class ConsoleChatsCommands {
         commands.put("leave", ConsoleChatsCommands::leave);
         commands.put("dialog", ConsoleChatsCommands::dialog);
         commands.put("members", ConsoleChatsCommands::members);
+        commands.put("setChannelAvatar", ConsoleChatsCommands::setChannelAvatar);
+        commands.put("getChannelAvatar", ConsoleChatsCommands::getChannelAvatar);
     }
 
     private static boolean setChat(List<String> args, ConsoleContext context) {
@@ -196,4 +198,55 @@ public class ConsoleChatsCommands {
         return false;
     }
 
+    private static boolean setChannelAvatar(@NotNull List<String> args, ConsoleContext context)
+            throws InterruptedException, UnprocessedMessagesException {
+        UUID chatID;
+        String path;
+
+        try {
+            if (args.size() > 1) {
+                chatID = UUID.fromString(args.get(0));
+                path = args.get(1);
+            } else {
+                chatID = context.currentChat;
+                path = args.get(0);
+            }
+        } catch (IllegalArgumentException e) {
+            System.out.println("Invalid UUID format.");
+            return false;
+        } catch (IndexOutOfBoundsException e) {
+            System.out.println("Usage: setChannelAvatar [chat-id] <path>");
+            return false;
+        }
+
+        if (chatID == null) {
+            System.out.println("Chat not selected.");
+            return false;
+        }
+
+        ConsoleChatsRunner.setChannelAvatar(context, chatID, path);
+
+        return false;
+    }
+
+    private static boolean getChannelAvatar(@NotNull List<String> args, ConsoleContext context)
+            throws InterruptedException, UnprocessedMessagesException {
+        UUID chatID;
+
+        try {
+            chatID = args.stream().findFirst().map(UUID::fromString).orElse(context.currentChat);
+        } catch (IllegalArgumentException e) {
+            System.out.println("Invalid UUID format.");
+            return false;
+        }
+
+        if (chatID == null) {
+            System.out.println("Chat not selected.");
+            return false;
+        }
+
+        ConsoleChatsRunner.getChannelAvatar(context, chatID);
+
+        return false;
+    }
 }

@@ -1,5 +1,6 @@
 package net.result.main.commands;
 
+import net.result.sandnode.dto.FileDTO;
 import net.result.sandnode.exception.*;
 import net.result.sandnode.exception.error.*;
 import net.result.taulight.chain.sender.ChannelClientChain;
@@ -8,14 +9,20 @@ import net.result.taulight.chain.sender.DialogClientChain;
 import net.result.taulight.chain.sender.MembersClientChain;
 import net.result.taulight.dto.ChatInfoDTO;
 import net.result.taulight.dto.ChatInfoPropDTO;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
 
+import java.net.URLConnection;
 import java.time.Duration;
+import java.util.Base64;
 import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 
 public class ConsoleChatsRunner {
+    private static final Logger LOGGER = LogManager.getLogger(ConsoleChatsRunner.class);
+
     public static void chats(@NotNull ConsoleContext context, Collection<ChatInfoPropDTO> all)
             throws InterruptedException, UnprocessedMessagesException {
         try {
@@ -141,6 +148,46 @@ public class ConsoleChatsRunner {
             System.out.println("Missing required argument for command.");
         } catch (SandnodeException e) {
             System.out.printf("Chat info retrieval failed due to a Sandnode error - %s%n", e.getClass());
+        }
+    }
+
+    public static void setChannelAvatar(@NotNull ConsoleContext context, UUID chatID, String path)
+            throws UnprocessedMessagesException, InterruptedException {
+        try {
+            ChannelClientChain chain = new ChannelClientChain(context.io);
+            context.io.chainManager.linkChain(chain);
+            chain.setAvatar(chatID, path);
+            context.io.chainManager.removeChain(chain);
+            System.out.printf("Avatar set successfully for channel %s with path %s%n", chatID, path);
+        } catch (NotFoundException e) {
+            System.out.printf("Channel %s not found.%n", chatID);
+        } catch (SandnodeErrorException | UnknownSandnodeErrorException e) {
+            System.out.printf("Failed to set avatar - %s%n", e.getClass());
+        } catch (FSException e) {
+            LOGGER.error("Failed to read file", e);
+        } catch (ExpectedMessageException e) {
+            System.out.println("Unexpected error: " + e.getMessage());
+        }
+    }
+
+    public static void getChannelAvatar(@NotNull ConsoleContext context, UUID chatID)
+            throws UnprocessedMessagesException, InterruptedException {
+        try {
+            ChannelClientChain chain = new ChannelClientChain(context.io);
+            context.io.chainManager.linkChain(chain);
+            FileDTO avatar = chain.getAvatar(chatID);
+            context.io.chainManager.removeChain(chain);
+
+            String mimeType = URLConnection.guessContentTypeFromName(avatar.filename());
+            if (mimeType == null || mimeType.isEmpty()) mimeType = "application/octet-stream";
+            String base64 = Base64.getEncoder().encodeToString(avatar.body());
+            System.out.printf("data:%s;base64,%s%n", mimeType, base64);
+        } catch (NotFoundException e) {
+            System.out.printf("Channel %s not found.%n", chatID);
+        } catch (SandnodeErrorException | UnknownSandnodeErrorException e) {
+            System.out.printf("Failed to get avatar - %s%n", e.getClass());
+        } catch (ExpectedMessageException e) {
+            System.out.println("Unexpected error: " + e.getMessage());
         }
     }
 

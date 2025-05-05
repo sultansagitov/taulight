@@ -281,4 +281,6 @@ public interface TauDatabase extends Database {
      * @throws DatabaseException if a database access error occurs
      */
     RoleEntity createRole(ChannelEntity channel, String role) throws DatabaseException;
+
+    void setAvatarForChannel(ChannelEntity channel, String path) throws DatabaseException;
 }

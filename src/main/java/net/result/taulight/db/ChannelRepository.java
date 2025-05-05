@@ -117,4 +117,17 @@ public class ChannelRepository {
         }
         return true;
     }
+
+    public void setAvatar(ChannelEntity channel, String path) throws DatabaseException {
+        EntityTransaction transaction = em.getTransaction();
+        try {
+            transaction.begin();
+            channel.setPath(path);
+            em.merge(channel);
+            transaction.commit();
+        } catch (Exception e) {
+            if (transaction.isActive()) transaction.rollback();
+            throw new DatabaseException(e);
+        }
+    }
 }

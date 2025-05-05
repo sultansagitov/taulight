@@ -13,7 +13,8 @@ public enum MessageTypes implements MessageType {
     LOGOUT(9),
     GROUP(10),
     WHOAMI(11),
-    NAME(12);
+    NAME(12),
+    FILE(13);
 
     private final byte type;
 

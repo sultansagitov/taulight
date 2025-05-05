@@ -4,9 +4,11 @@ import net.result.sandnode.chain.ReceiverChain;
 import net.result.sandnode.chain.ServerChain;
 import net.result.sandnode.db.MemberEntity;
 import net.result.sandnode.exception.DatabaseException;
+import net.result.sandnode.exception.FSException;
 import net.result.sandnode.exception.ImpossibleRuntimeException;
 import net.result.sandnode.exception.error.*;
 import net.result.sandnode.message.TextMessage;
+import net.result.sandnode.message.types.FileMessage;
 import net.result.sandnode.message.types.HappyMessage;
 import net.result.sandnode.message.util.Headers;
 import net.result.sandnode.message.util.MessageTypes;
@@ -27,8 +29,13 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.ZonedDateTime;
 import java.util.Collection;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 public class ChannelServerChain extends ServerChain implements ReceiverChain {
@@ -55,7 +62,9 @@ public class ChannelServerChain extends ServerChain implements ReceiverChain {
             case INVITE -> invite(request, session.member.tauMember());
             case LEAVE -> leave(request, session.member.tauMember());
             case CH_CODES -> channelCodes(request);
-            case MY_CODES -> myCodes();
+            case MY_CODES -> myCodes(session.member.tauMember());
+            case SET_AVATAR -> setAvatar(request, session.member.tauMember());
+            case GET_AVATAR -> getAvatar(request, session.member.tauMember());
         }
     }
 
@@ -189,14 +198,106 @@ public class ChannelServerChain extends ServerChain implements ReceiverChain {
         sendFin(new CodeListMessage(headers, collected));
     }
 
-    @SuppressWarnings("DataFlowIssue")
-    private void myCodes() throws Exception {
-        Collection<CodeDTO> collected = session.member
-                .tauMember()
+    private void myCodes(TauMemberEntity member) throws Exception {
+        Collection<CodeDTO> collected = member
                 .inviteCodesAsReceiver().stream()
                 .map(InviteCodeDTO::new)
                 .collect(Collectors.toSet());
 
         sendFin(new CodeListMessage(new Headers().setType(TauMessageTypes.CHANNEL), collected));
+    }
+
+    private void setAvatar(ChannelRequest request, TauMemberEntity member) throws Exception {
+        var database = (TauDatabase) session.server.serverConfig.database();
+
+        UUID chatID = request.chatID;
+        FileMessage fileMessage = new FileMessage(queue.take());
+
+        ChatEntity chatEntity = database.getChat(chatID).orElseThrow(NotFoundException::new);
+
+        if (!database.getMembers(chatEntity).contains(member)) {
+            throw new UnauthorizedException();
+        }
+
+        if (!(chatEntity instanceof ChannelEntity channel)) {
+            throw new WrongAddressException();
+        }
+
+        String filename = fileMessage.filename();
+        byte[] body = fileMessage.getBody();
+
+        String fileExtension = getFileExtension(filename);
+
+        if (!isValidImageExtension(fileExtension)) {
+            throw new TooFewArgumentsException();
+        }
+
+        String savedFilename = chatID.toString() + "." + fileExtension;
+
+        //TODO Replace with path from config
+        Path avatarDirectory = Paths.get(System.getProperty("user.home")).resolve("db/images/");
+
+        try {
+            if (!Files.exists(avatarDirectory)) {
+                Files.createDirectories(avatarDirectory);
+            }
+        } catch (IOException e) {
+            LOGGER.error("Failed to create directory: {}", avatarDirectory, e);
+            throw new ServerSandnodeErrorException(e);
+        }
+
+        Path avatarPath = avatarDirectory.resolve(savedFilename);
+
+        try {
+            Files.write(avatarPath, body);
+        } catch (IOException e) {
+            LOGGER.error("Failed to save the avatar image for channel: {}", chatID, e);
+            throw new ServerSandnodeErrorException(e);
+        }
+
+        database.setAvatarForChannel(channel, savedFilename);
+
+        send(new HappyMessage());
+    }
+
+    private void getAvatar(ChannelRequest request, TauMemberEntity member) throws Exception {
+        var database = (TauDatabase) session.server.serverConfig.database();
+
+        UUID chatID = request.chatID;
+
+        ChatEntity chatEntity = database.getChat(chatID).orElseThrow(NotFoundException::new);
+
+        if (!database.getMembers(chatEntity).contains(member)) {
+            throw new UnauthorizedException();
+        }
+
+        if (!(chatEntity instanceof ChannelEntity channel)) {
+            throw new WrongAddressException();
+        }
+
+        //TODO Replace with path from config
+        Path avatarDirectory = Paths.get(System.getProperty("user.home")).resolve("db/images/");
+
+        try {
+            send(new FileMessage(new Headers(), avatarDirectory.resolve(channel.path()).toString()));
+        } catch (FSException e)  {
+            throw new ServerSandnodeErrorException(e);
+        }
+    }
+
+    private String getFileExtension(String filename) {
+        int dotIndex = filename.lastIndexOf('.');
+        if (dotIndex > 0 && dotIndex < filename.length() - 1) {
+            return filename.substring(dotIndex + 1);
+        }
+        return "";
+    }
+
+    private boolean isValidImageExtension(String extension) {
+        return extension.equalsIgnoreCase("png") ||
+                extension.equalsIgnoreCase("jpg") ||
+                extension.equalsIgnoreCase("jpeg") ||
+                extension.equalsIgnoreCase("gif") ||
+                extension.equalsIgnoreCase("bmp");
     }
 }

@@ -177,4 +177,9 @@ public class TauJPADatabase extends JPADatabase implements TauDatabase {
     public boolean addMemberToRole(RoleEntity role, TauMemberEntity member) throws DatabaseException {
         return roleRepo.addMember(role, member);
     }
+
+    @Override
+    public void setAvatarForChannel(ChannelEntity channel, String path) throws DatabaseException {
+        channelRepository.setAvatar(channel, path);
+    }
 }
