@@ -3,8 +3,8 @@ package net.result.taulight.chain.receiver;
 import net.result.sandnode.chain.ReceiverChain;
 import net.result.sandnode.chain.ServerChain;
 import net.result.sandnode.db.MemberEntity;
+import net.result.sandnode.dto.FileDTO;
 import net.result.sandnode.exception.DatabaseException;
-import net.result.sandnode.exception.FSException;
 import net.result.sandnode.exception.ImpossibleRuntimeException;
 import net.result.sandnode.exception.error.*;
 import net.result.sandnode.message.TextMessage;
@@ -57,18 +57,19 @@ public class ChannelServerChain extends ServerChain implements ReceiverChain {
             throw new UnauthorizedException();
         }
 
+        final TauMemberEntity you = session.member.tauMember();
         switch (request.type) {
-            case CREATE -> create(request, session.member.tauMember());
-            case INVITE -> invite(request, session.member.tauMember());
-            case LEAVE -> leave(request, session.member.tauMember());
-            case CH_CODES -> channelCodes(request);
-            case MY_CODES -> myCodes(session.member.tauMember());
-            case SET_AVATAR -> setAvatar(request, session.member.tauMember());
-            case GET_AVATAR -> getAvatar(request, session.member.tauMember());
+            case CREATE -> create(request, you);
+            case INVITE -> invite(request, you);
+            case LEAVE -> leave(request, you);
+            case CH_CODES -> channelCodes(request, you);
+            case MY_CODES -> myCodes(you);
+            case SET_AVATAR -> setAvatar(request, you);
+            case GET_AVATAR -> getAvatar(request, you);
         }
     }
 
-    private void create(@NotNull ChannelRequest request, TauMemberEntity owner) throws Exception {
+    private void create(@NotNull ChannelRequest request, TauMemberEntity you) throws Exception {
         var database = (TauDatabase) session.server.serverConfig.database();
         var manager = (TauGroupManager) session.server.serverConfig.groupManager();
 
@@ -76,10 +77,10 @@ public class ChannelServerChain extends ServerChain implements ReceiverChain {
             throw new TooFewArgumentsException();
         }
 
-        ChannelEntity channel = database.createChannel(request.title, owner);
+        ChannelEntity channel = database.createChannel(request.title, you);
 
         TauAgentProtocol.addMemberToGroup(session, manager.getGroup(channel));
-        ChatMessageInputDTO input = SysMessages.channelNew.chatMessageInputDTO(channel, owner);
+        ChatMessageInputDTO input = SysMessages.channelNew.chatMessageInputDTO(channel, you);
         try {
             TauHubProtocol.send(session, channel, input);
         } catch (UnauthorizedException e) {
@@ -99,14 +100,10 @@ public class ChannelServerChain extends ServerChain implements ReceiverChain {
         Collection<TauMemberEntity> members = database.getMembers(chat);
 
         // You not in channel
-        if (!members.contains(you)) {
-            throw new NotFoundException();
-        }
+        if (!members.contains(you)) throw new NotFoundException();
 
         // This is not channel
-        if (!(chat instanceof ChannelEntity channel)) {
-            throw new WrongAddressException();
-        }
+        if (!(chat instanceof ChannelEntity channel)) throw new WrongAddressException();
 
         TauMemberEntity member = database
                 .findMemberByNickname(request.otherNickname)
@@ -115,14 +112,10 @@ public class ChannelServerChain extends ServerChain implements ReceiverChain {
 
         // You are not owner
         //TODO add settings for inviting by another members
-        if (channel.owner() != you) {
-            throw new UnauthorizedException();
-        }
+        if (channel.owner() != you) throw new UnauthorizedException();
 
         // Receiver already in channel
-        if (members.contains(member)) {
-            throw new NoEffectException();
-        }
+        if (members.contains(member)) throw new NoEffectException();
 
         // Receiver already have invite code
         for (InviteCodeEntity inviteCodeEntity : database.findInviteCode(channel, member)) {
@@ -147,24 +140,16 @@ public class ChannelServerChain extends ServerChain implements ReceiverChain {
         Collection<TauMemberEntity> members = database.getMembers(chat);
 
         // You not in channel
-        if (!members.contains(you)) {
-            throw new NotFoundException();
-        }
+        if (!members.contains(you)) throw new NotFoundException();
 
         // This is not chanel
-        if (!(chat instanceof ChannelEntity channel)) {
-            throw new WrongAddressException();
-        }
+        if (!(chat instanceof ChannelEntity channel)) throw new WrongAddressException();
 
         // You cannot leave, because you are owner
-        if (channel.owner() == you) {
-            throw new UnauthorizedException();
-        }
+        if (channel.owner() == you) throw new UnauthorizedException();
 
         // You are not in channel (impossible)
-        if (!database.leaveFromChannel(channel, you)) {
-            throw new NotFoundException();
-        }
+        if (!database.leaveFromChannel(channel, you)) throw new NotFoundException();
 
         ChatMessageInputDTO input = SysMessages.channelLeave.chatMessageInputDTO(channel, you);
         try {
@@ -180,14 +165,12 @@ public class ChannelServerChain extends ServerChain implements ReceiverChain {
         send(new HappyMessage());
     }
 
-    private void channelCodes(@NotNull ChannelRequest request) throws Exception {
+    private void channelCodes(@NotNull ChannelRequest request, TauMemberEntity you) throws Exception {
         TauDatabase database = (TauDatabase) session.server.serverConfig.database();
 
         ChatEntity chat = database.getChat(request.chatID).orElseThrow(NotFoundException::new);
-
-        if (!(chat instanceof ChannelEntity channel)) {
-            throw new WrongAddressException();
-        }
+        if (!database.getMembers(chat).contains(you)) throw new UnauthorizedException();
+        if (!(chat instanceof ChannelEntity channel)) throw new WrongAddressException();
 
         Headers headers = new Headers().setType(TauMessageTypes.CHANNEL);
 
@@ -198,8 +181,8 @@ public class ChannelServerChain extends ServerChain implements ReceiverChain {
         sendFin(new CodeListMessage(headers, collected));
     }
 
-    private void myCodes(TauMemberEntity member) throws Exception {
-        Collection<CodeDTO> collected = member
+    private void myCodes(@NotNull TauMemberEntity you) throws Exception {
+        Collection<CodeDTO> collected = you
                 .inviteCodesAsReceiver().stream()
                 .map(InviteCodeDTO::new)
                 .collect(Collectors.toSet());
@@ -207,35 +190,29 @@ public class ChannelServerChain extends ServerChain implements ReceiverChain {
         sendFin(new CodeListMessage(new Headers().setType(TauMessageTypes.CHANNEL), collected));
     }
 
-    private void setAvatar(ChannelRequest request, TauMemberEntity member) throws Exception {
+    private void setAvatar(@NotNull ChannelRequest request, TauMemberEntity you) throws Exception {
         var database = (TauDatabase) session.server.serverConfig.database();
 
         UUID chatID = request.chatID;
         FileMessage fileMessage = new FileMessage(queue.take());
 
-        ChatEntity chatEntity = database.getChat(chatID).orElseThrow(NotFoundException::new);
+        ChatEntity chat = database.getChat(chatID).orElseThrow(NotFoundException::new);
+        if (!database.getMembers(chat).contains(you)) throw new UnauthorizedException();
+        if (!(chat instanceof ChannelEntity channel)) throw new WrongAddressException();
 
-        if (!database.getMembers(chatEntity).contains(member)) {
-            throw new UnauthorizedException();
-        }
+        FileDTO dto = fileMessage.dto();
+        String mime = dto.contentType();
+        byte[] body = dto.body();
 
-        if (!(chatEntity instanceof ChannelEntity channel)) {
-            throw new WrongAddressException();
-        }
-
-        String filename = fileMessage.filename();
-        byte[] body = fileMessage.getBody();
-
-        String fileExtension = getFileExtension(filename);
-
-        if (!isValidImageExtension(fileExtension)) {
+        if (!mime.startsWith("image/")) {
+            //TODO Replace it
             throw new TooFewArgumentsException();
         }
 
-        String savedFilename = chatID.toString() + "." + fileExtension;
+        String savedFilename = chatID.toString();
 
         //TODO Replace with path from config
-        Path avatarDirectory = Paths.get(System.getProperty("user.home")).resolve("db/images/");
+        Path avatarDirectory = Paths.get(System.getProperty("user.home")).resolve("db/images");
 
         try {
             if (!Files.exists(avatarDirectory)) {
@@ -255,49 +232,36 @@ public class ChannelServerChain extends ServerChain implements ReceiverChain {
             throw new ServerSandnodeErrorException(e);
         }
 
-        database.setAvatarForChannel(channel, savedFilename);
+        database.setAvatarForChannel(channel, mime, savedFilename);
 
         send(new HappyMessage());
     }
 
-    private void getAvatar(ChannelRequest request, TauMemberEntity member) throws Exception {
+    private void getAvatar(@NotNull ChannelRequest request, TauMemberEntity you) throws Exception {
         var database = (TauDatabase) session.server.serverConfig.database();
 
         UUID chatID = request.chatID;
 
-        ChatEntity chatEntity = database.getChat(chatID).orElseThrow(NotFoundException::new);
-
-        if (!database.getMembers(chatEntity).contains(member)) {
-            throw new UnauthorizedException();
-        }
-
-        if (!(chatEntity instanceof ChannelEntity channel)) {
-            throw new WrongAddressException();
-        }
+        ChatEntity chat = database.getChat(chatID).orElseThrow(NotFoundException::new);
+        if (!database.getMembers(chat).contains(you)) throw new UnauthorizedException();
+        if (!(chat instanceof ChannelEntity channel)) throw new WrongAddressException();
 
         //TODO Replace with path from config
-        Path avatarDirectory = Paths.get(System.getProperty("user.home")).resolve("db/images/");
+        Path avatarDirectory = Paths.get(System.getProperty("user.home")).resolve("db/images");
+
+        String path = channel.filename();
+        if (path == null) throw new NoEffectException();
+
+        Path filePath = avatarDirectory.resolve(path);
+        byte[] bytes;
 
         try {
-            send(new FileMessage(new Headers(), avatarDirectory.resolve(channel.path()).toString()));
-        } catch (FSException e)  {
+            bytes = Files.readAllBytes(filePath);
+        } catch (IOException e) {
             throw new ServerSandnodeErrorException(e);
         }
-    }
 
-    private String getFileExtension(String filename) {
-        int dotIndex = filename.lastIndexOf('.');
-        if (dotIndex > 0 && dotIndex < filename.length() - 1) {
-            return filename.substring(dotIndex + 1);
-        }
-        return "";
-    }
-
-    private boolean isValidImageExtension(String extension) {
-        return extension.equalsIgnoreCase("png") ||
-                extension.equalsIgnoreCase("jpg") ||
-                extension.equalsIgnoreCase("jpeg") ||
-                extension.equalsIgnoreCase("gif") ||
-                extension.equalsIgnoreCase("bmp");
+        FileDTO fileDTO = new FileDTO(channel.contentType(), bytes);
+        send(new FileMessage(new Headers(), fileDTO));
     }
 }

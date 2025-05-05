@@ -118,11 +118,12 @@ public class ChannelRepository {
         return true;
     }
 
-    public void setAvatar(ChannelEntity channel, String path) throws DatabaseException {
+    public void setAvatar(ChannelEntity channel, String contentType, String filename) throws DatabaseException {
         EntityTransaction transaction = em.getTransaction();
         try {
             transaction.begin();
-            channel.setPath(path);
+            channel.setContentType(contentType);
+            channel.setFilename(filename);
             em.merge(channel);
             transaction.commit();
         } catch (Exception e) {

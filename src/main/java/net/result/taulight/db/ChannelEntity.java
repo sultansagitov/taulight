@@ -8,7 +8,8 @@ import java.util.HashSet;
 @Entity
 public class ChannelEntity extends ChatEntity {
     private String title;
-    private String path;
+    private String contentType;
+    private String filename;
 
     @ManyToOne
     private TauMemberEntity owner;
@@ -42,12 +43,20 @@ public class ChannelEntity extends ChatEntity {
         this.title = title;
     }
 
-    public String path() {
-        return path;
+    public String contentType() {
+        return contentType;
     }
 
-    public void setPath(String path) {
-        this.path = path;
+    public void setContentType(String contentType) {
+        this.contentType = contentType;
+    }
+
+    public String filename() {
+        return filename;
+    }
+
+    public void setFilename(String filename) {
+        this.filename = filename;
     }
 
     public TauMemberEntity owner() {

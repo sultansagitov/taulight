@@ -179,7 +179,7 @@ public class TauJPADatabase extends JPADatabase implements TauDatabase {
     }
 
     @Override
-    public void setAvatarForChannel(ChannelEntity channel, String path) throws DatabaseException {
-        channelRepository.setAvatar(channel, path);
+    public void setAvatarForChannel(ChannelEntity channel, String contentType, String filename) throws DatabaseException {
+        channelRepository.setAvatar(channel, contentType, filename);
     }
 }

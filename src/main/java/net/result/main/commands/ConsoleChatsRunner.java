@@ -13,7 +13,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
 
-import java.net.URLConnection;
 import java.time.Duration;
 import java.util.Base64;
 import java.util.Collection;
@@ -178,10 +177,13 @@ public class ConsoleChatsRunner {
             FileDTO avatar = chain.getAvatar(chatID);
             context.io.chainManager.removeChain(chain);
 
-            String mimeType = URLConnection.guessContentTypeFromName(avatar.filename());
-            if (mimeType == null || mimeType.isEmpty()) mimeType = "application/octet-stream";
-            String base64 = Base64.getEncoder().encodeToString(avatar.body());
-            System.out.printf("data:%s;base64,%s%n", mimeType, base64);
+            if (avatar == null) {
+                System.out.println("Channel have no avatar");
+            } else {
+                String mimeType = avatar.contentType();
+                String base64 = Base64.getEncoder().encodeToString(avatar.body());
+                System.out.printf("data:%s;base64,%s%n", mimeType, base64);
+            }
         } catch (NotFoundException e) {
             System.out.printf("Channel %s not found.%n", chatID);
         } catch (SandnodeErrorException | UnknownSandnodeErrorException e) {
