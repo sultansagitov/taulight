@@ -47,4 +47,5 @@ public interface Database {
      */
     PasswordHasher hasher();
 
+    void shutdown();
 }

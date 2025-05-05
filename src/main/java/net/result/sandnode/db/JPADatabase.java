@@ -44,4 +44,9 @@ public class JPADatabase implements Database {
     public PasswordHasher hasher() {
         return hasher;
     }
+
+    @Override
+    public void shutdown() {
+        JPAUtil.shutdown();
+    }
 }

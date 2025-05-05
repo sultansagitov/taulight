@@ -11,10 +11,33 @@ import net.result.taulight.message.TauMessageTypes;
 import org.jetbrains.annotations.NotNull;
 
 import java.time.Duration;
+import java.util.Arrays;
 import java.util.UUID;
 
 public class ChannelRequest extends EmptyMessage {
-    public enum DataType {CREATE, INVITE, LEAVE, CH_CODES, MY_CODES, SET_AVATAR, GET_AVATAR}
+    public enum DataType {
+        CREATE("new"),
+        INVITE("add"),
+        LEAVE("leave"),
+        CH_CODES("ch-codes"),
+        MY_CODES("my-codes"),
+        SET_AVATAR("set-avatar"),
+        GET_AVATAR("get-avatar");
+
+        private final String value;
+
+        DataType(String wireValue) {
+            this.value = wireValue;
+        }
+
+        public static DataType fromValue(String value) {
+            return Arrays.stream(values())
+                    .filter(type -> type.value.equals(value))
+                    .findFirst()
+                    .orElseThrow(() -> new IllegalArgumentException("Unknown type: " + value));
+        }
+    }
+
 
     public DataType type;
     public String title;
@@ -29,17 +52,16 @@ public class ChannelRequest extends EmptyMessage {
     public ChannelRequest(@NotNull RawMessage raw)
             throws ExpectedMessageException, TooFewArgumentsException, DeserializationException {
         super(raw.expect(TauMessageTypes.CHANNEL).headers());
-        String type = headers().getOptionalValue("type").orElseThrow(TooFewArgumentsException::new);
+        String typeString = headers().getOptionalValue("type").orElseThrow(TooFewArgumentsException::new);
+
+        this.type = DataType.fromValue(typeString);
+
         try {
             switch (type) {
-                case "new" -> {
-                    this.type = DataType.CREATE;
-                    this.title = headers()
-                            .getOptionalValue("title")
-                            .orElseThrow(TooFewArgumentsException::new);
-                }
-                case "add" -> {
-                    this.type = DataType.INVITE;
+                case CREATE -> this.title = headers()
+                        .getOptionalValue("title")
+                        .orElseThrow(TooFewArgumentsException::new);
+                case INVITE -> {
                     this.chatID = headers()
                             .getOptionalValue("chat-id")
                             .map(UUID::fromString)
@@ -54,36 +76,12 @@ public class ChannelRequest extends EmptyMessage {
                     this.expirationTime = Duration.ofSeconds(seconds);
 
                 }
-                case "leave" -> {
-                    this.type = DataType.LEAVE;
-                    this.chatID = headers()
-                            .getOptionalValue("chat-id")
-                            .map(UUID::fromString)
-                            .orElseThrow(TooFewArgumentsException::new);
-                }
-                case "ch-codes" -> {
-                    this.type = DataType.CH_CODES;
-                    this.chatID = headers()
-                            .getOptionalValue("chat-id")
-                            .map(UUID::fromString)
-                            .orElseThrow(TooFewArgumentsException::new);
-                }
-                case "my-codes" -> this.type = DataType.MY_CODES;
-                case "set-avatar" -> {
-                    this.type = DataType.SET_AVATAR;
-                    this.chatID = headers()
-                            .getOptionalValue("chat-id")
-                            .map(UUID::fromString)
-                            .orElseThrow(TooFewArgumentsException::new);
-                }
-                case "get-avatar" -> {
-                    this.type = DataType.GET_AVATAR;
-                    this.chatID = headers()
-                            .getOptionalValue("chat-id")
-                            .map(UUID::fromString)
-                            .orElseThrow(TooFewArgumentsException::new);
-                }
-                default -> throw new DeserializationException("Incorrect type field - \"%s\"".formatted(type));
+                case LEAVE, CH_CODES, SET_AVATAR, GET_AVATAR -> this.chatID = headers()
+                        .getOptionalValue("chat-id")
+                        .map(UUID::fromString)
+                        .orElseThrow(TooFewArgumentsException::new);
+                case MY_CODES -> {}
+                default -> throw new DeserializationException("Incorrect type field - \"%s\"".formatted(typeString));
             }
         } catch (IllegalArgumentException e) {
             throw new DeserializationException(e);

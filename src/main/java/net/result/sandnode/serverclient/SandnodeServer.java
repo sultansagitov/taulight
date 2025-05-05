@@ -106,5 +106,7 @@ public class SandnodeServer {
         }
 
         node.close();
+
+        serverConfig.database().shutdown();
     }
 }
