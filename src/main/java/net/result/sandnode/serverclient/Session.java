@@ -53,11 +53,6 @@ public class Session {
         }, "%s/Receiving".formatted(io.ipString())).start();
     }
 
-    @Override
-    public String toString() {
-        return "<%s %s %s>".formatted(getClass().getSimpleName(), io.ipString(), member);
-    }
-
     public void addToGroup(Group group) {
         if (!groups.contains(group)) {
             groups.add(group);
@@ -88,5 +83,10 @@ public class Session {
 
     public void close() {
         groups.forEach(group -> group.remove(this));
+    }
+
+    @Override
+    public String toString() {
+        return "<%s %s %s>".formatted(getClass().getSimpleName(), io.ipString(), member != null ? member.nickname() : "");
     }
 }

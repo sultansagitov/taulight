@@ -11,7 +11,7 @@ import net.result.sandnode.serverclient.Session;
 import net.result.taulight.db.ChatEntity;
 import net.result.taulight.db.TauDatabase;
 import net.result.taulight.db.TauMemberEntity;
-import net.result.taulight.group.TauChatGroup;
+import net.result.taulight.group.ChatGroup;
 import net.result.taulight.group.TauGroupManager;
 import net.result.taulight.dto.ChatMemberDTO;
 import net.result.taulight.message.types.MembersResponse;
@@ -53,7 +53,7 @@ public class MembersServerChain extends ServerChain implements ReceiverChain {
                 }
 
                 ChatEntity chat = optChat.get();
-                TauChatGroup group = groupManager.getGroup(chat);
+                ChatGroup group = groupManager.getGroup(chat);
                 Collection<TauMemberEntity> members = database.getMembers(chat);
 
                 if (!members.contains(session.member.tauMember())) {

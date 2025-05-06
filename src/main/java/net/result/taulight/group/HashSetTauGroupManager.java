@@ -9,14 +9,14 @@ import java.util.Map;
 import java.util.UUID;
 
 public class HashSetTauGroupManager extends HashSetGroupManager implements TauGroupManager {
-    public final Map<UUID, TauChatGroup> map = new HashMap<>();
+    public final Map<UUID, ChatGroup> map = new HashMap<>();
 
     @Override
-    public TauChatGroup getGroup(@NotNull ChatEntity chat) {
+    public ChatGroup getGroup(@NotNull ChatEntity chat) {
         UUID id = chat.id();
 
         if (!map.containsKey(id)) {
-            TauChatGroup group = new TauChatGroup(id);
+            ChatGroup group = new ChatGroup(id);
             add(group);
             map.put(id, group);
             return group;
