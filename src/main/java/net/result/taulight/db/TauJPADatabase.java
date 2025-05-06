@@ -158,7 +158,15 @@ public class TauJPADatabase extends JPADatabase implements TauDatabase {
     @Override
     public Collection<TauMemberEntity> getMembers(ChatEntity chat) {
         if (chat instanceof ChannelEntity channel) return channel.members();
-        if (chat instanceof DialogEntity dialog) return Set.of(dialog.firstMember(), dialog.secondMember());
+        if (chat instanceof DialogEntity dialog) {
+            TauMemberEntity e1 = dialog.firstMember();
+            TauMemberEntity e2 = dialog.secondMember();
+            if (e1 == e2) {
+                return Set.of(e1);
+            } else {
+                return Set.of(e1, e2);
+            }
+        }
         return Set.of();
     }
 
