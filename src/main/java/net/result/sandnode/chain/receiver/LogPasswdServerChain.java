@@ -3,6 +3,7 @@ package net.result.sandnode.chain.receiver;
 import net.result.sandnode.chain.ReceiverChain;
 import net.result.sandnode.chain.ServerChain;
 import net.result.sandnode.db.Database;
+import net.result.sandnode.db.LoginRepository;
 import net.result.sandnode.db.MemberEntity;
 import net.result.sandnode.exception.error.UnauthorizedException;
 import net.result.sandnode.message.RawMessage;
@@ -10,6 +11,8 @@ import net.result.sandnode.message.types.*;
 import net.result.sandnode.serverclient.Session;
 
 public abstract class LogPasswdServerChain extends ServerChain implements ReceiverChain {
+    private final LoginRepository loginRepo = new LoginRepository();
+
     public LogPasswdServerChain(Session session) {
         super(session);
     }
@@ -31,6 +34,8 @@ public abstract class LogPasswdServerChain extends ServerChain implements Receiv
         }
 
         session.member = member;
+
+        loginRepo.create(session.member, true);
 
         onLogin();
 
