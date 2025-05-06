@@ -1,9 +1,11 @@
 package net.result.main.commands;
 
 import net.result.sandnode.chain.IChain;
+import net.result.sandnode.chain.sender.LoginClientChain;
 import net.result.sandnode.chain.sender.LogoutClientChain;
 import net.result.sandnode.chain.sender.NameClientChain;
 import net.result.sandnode.chain.sender.WhoAmIClientChain;
+import net.result.sandnode.dto.LoginHistoryDTO;
 import net.result.sandnode.exception.*;
 import net.result.sandnode.exception.error.SandnodeErrorException;
 import net.result.sandnode.exception.error.UnauthorizedException;
@@ -11,6 +13,7 @@ import net.result.sandnode.hubagent.ClientProtocol;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 @SuppressWarnings("SameReturnValue")
@@ -34,6 +37,7 @@ public class ConsoleSandnodeCommands {
         commands.put("whoami", ConsoleSandnodeCommands::whoami);
         commands.put("name", ConsoleSandnodeCommands::name);
         commands.put("logout", ConsoleSandnodeCommands::logout);
+        commands.put("loginHistory", ConsoleSandnodeCommands::loginHistory);
     }
 
     private static boolean exit(List<String> ignored, ConsoleContext context) {
@@ -159,6 +163,28 @@ public class ConsoleSandnodeCommands {
         } catch (UnauthorizedException e) {
             System.out.println("You already logged out");
         } catch (ExpectedMessageException | UnknownSandnodeErrorException | SandnodeErrorException e) {
+            System.out.println("Sandnode error: " + e.getClass().getSimpleName());
+        }
+        return false;
+    }
+
+    private static boolean loginHistory(List<String> ignored, ConsoleContext context)
+            throws InterruptedException, UnprocessedMessagesException {
+        var chain = new LoginClientChain(context.io);
+        try {
+            context.io.chainManager.linkChain(chain);
+            List<LoginHistoryDTO> h = chain.getHistory();
+            context.io.chainManager.removeChain(chain);
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss z");
+
+            for (LoginHistoryDTO dto : h) {
+                System.out.println("Time: " + dto.time.format(formatter) + ", IP: " + dto.ip);
+            }
+
+        } catch (UnauthorizedException e) {
+            System.out.println("You not logged in");
+        } catch (ExpectedMessageException | UnknownSandnodeErrorException | SandnodeErrorException |
+                 DeserializationException e) {
             System.out.println("Sandnode error: " + e.getClass().getSimpleName());
         }
         return false;

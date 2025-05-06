@@ -6,6 +6,7 @@ import javax.persistence.ManyToOne;
 @SuppressWarnings("unused")
 @Entity
 public class LoginEntity extends SandnodeEntity {
+    private String ip;
     private boolean byPassword;
 
     @ManyToOne
@@ -13,10 +14,19 @@ public class LoginEntity extends SandnodeEntity {
 
     public LoginEntity() {}
 
-    public LoginEntity(MemberEntity member, boolean byPassword) {
+    public LoginEntity(MemberEntity member, String ip, boolean byPassword) {
         super();
         setMember(member);
+        setIp(ip);
         setByPassword(byPassword);
+    }
+
+    public String ip() {
+        return ip;
+    }
+
+    public void setIp(String ip) {
+        this.ip = ip;
     }
 
     public boolean byPassword() {

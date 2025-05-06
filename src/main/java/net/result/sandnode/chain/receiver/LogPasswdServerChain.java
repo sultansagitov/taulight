@@ -35,7 +35,8 @@ public abstract class LogPasswdServerChain extends ServerChain implements Receiv
 
         session.member = member;
 
-        loginRepo.create(session.member, true);
+        String ip = session.io.socket.getInetAddress().getHostAddress();
+        loginRepo.create(session.member, ip, true);
 
         onLogin();
 
