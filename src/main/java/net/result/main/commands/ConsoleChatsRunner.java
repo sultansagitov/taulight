@@ -28,6 +28,7 @@ public class ConsoleChatsRunner {
             ChatClientChain chain = new ChatClientChain(context.io);
             context.io.chainManager.linkChain(chain);
             printInfo(chain.getByMember(all));
+            context.io.chainManager.removeChain(chain);
         } catch (DeserializationException e) {
             System.out.printf("Failed to deserialize data - %s%n", e.getClass());
         } catch (ExpectedMessageException e) {
@@ -141,6 +142,7 @@ public class ConsoleChatsRunner {
             ChatClientChain chain = new ChatClientChain(context.io);
             context.io.chainManager.linkChain(chain);
             printInfo(chain.getByID(List.of(chatID), ChatInfoPropDTO.all()));
+            context.io.chainManager.removeChain(chain);
         } catch (IllegalArgumentException e) {
             System.out.println("Invalid UUID format provided: " + e.getMessage());
         } catch (ArrayIndexOutOfBoundsException e) {
