@@ -1,9 +1,9 @@
 package net.result.sandnode.chain;
 
+import net.result.sandnode.error.Errors;
 import net.result.sandnode.exception.DatabaseException;
 import net.result.sandnode.exception.ImpossibleRuntimeException;
 import net.result.sandnode.exception.error.SandnodeErrorException;
-import net.result.sandnode.exception.error.ServerSandnodeErrorException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
@@ -20,20 +20,21 @@ public interface ReceiverChain extends IChain {
 
             try {
                 try {
-                    try {
-                        LOGGER.info("{} started in new thread", this);
-                        sync();
-                        LOGGER.info("Removing {}", this);
-                        chainManager.removeChain(this);
-                    } catch (DatabaseException e) {
-                        throw new ServerSandnodeErrorException(e);
-                    }
+                    LOGGER.info("{} started in new thread", this);
+                    sync();
+                    LOGGER.info("Removing {}", this);
+                    chainManager.removeChain(this);
+
+                } catch (DatabaseException e) {
+                    LOGGER.error("Error in {}", this, e);
+                    sendFinIgnoreQueue(Errors.SERVER_ERROR.createMessage());
+
                 } catch (SandnodeErrorException e) {
                     LOGGER.error("Error in {}", this, e);
                     sendFinIgnoreQueue(e.getSandnodeError().createMessage());
                 }
             } catch (Exception e) {
-                LOGGER.error("Error in chain {}", getClass().toString(), e);
+                LOGGER.error("Error in {}", this, e);
                 throw new ImpossibleRuntimeException(e);
             }
         });

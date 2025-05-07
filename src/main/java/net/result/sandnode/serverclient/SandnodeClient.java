@@ -71,7 +71,7 @@ public class SandnodeClient {
     public void start(ClientChainManager chainManager)
             throws InputStreamException, OutputStreamException, ConnectionException {
         try {
-            LOGGER.info("Connecting to {}", endpoint.toString());
+            LOGGER.info("Connecting to {}", endpoint);
             socket = new Socket(endpoint.host(), endpoint.port());
             LOGGER.info("Connection established.");
             Connection connection = Connection.fromType(node.type(), nodeType);
