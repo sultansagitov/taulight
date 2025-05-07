@@ -1,5 +1,6 @@
 package net.result.main.commands;
 
+import net.result.sandnode.dto.PaginatedDTO;
 import net.result.sandnode.exception.*;
 import net.result.sandnode.exception.error.SandnodeErrorException;
 import net.result.taulight.chain.sender.MessageClientChain;
@@ -15,10 +16,11 @@ public class ConsoleMessagesRunner {
         try {
             var chain = new MessageClientChain(context.io);
             context.io.chainManager.linkChain(chain);
-            chain.getMessages(chatID, 0, 100);
+            PaginatedDTO<ChatMessageViewDTO> paginated = chain.getMessages(chatID, 0, 100);
             context.io.chainManager.removeChain(chain);
-            long count = chain.getCount();
-            List<ChatMessageViewDTO> messages = chain.getMessages();
+            long count = paginated.totalCount;
+
+            List<ChatMessageViewDTO> messages = new ArrayList<>(paginated.objects);
 
             System.out.printf("Total messages length: %d%n", count);
             System.out.printf("Messages length: %d%n", messages.size());

@@ -26,11 +26,7 @@ public class MessageResponse extends MSGPackMessage<PaginatedDTO<ChatMessageView
         super(raw.expect(TauMessageTypes.MESSAGE), new TypeReference<>() {});
     }
 
-    public long getCount() {
-        return object.totalCount;
-    }
-
-    public List<ChatMessageViewDTO> getMessages() {
-        return object.objects;
+    public PaginatedDTO<ChatMessageViewDTO> getPaginated() {
+        return object;
     }
 }
