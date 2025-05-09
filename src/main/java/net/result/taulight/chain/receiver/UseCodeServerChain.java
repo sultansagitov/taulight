@@ -6,12 +6,9 @@ import net.result.sandnode.exception.error.NotFoundException;
 import net.result.sandnode.exception.error.UnauthorizedException;
 import net.result.sandnode.message.types.HappyMessage;
 import net.result.sandnode.serverclient.Session;
+import net.result.taulight.db.*;
 import net.result.taulight.util.SysMessages;
 import net.result.taulight.util.TauHubProtocol;
-import net.result.taulight.db.ChannelEntity;
-import net.result.taulight.db.InviteCodeEntity;
-import net.result.taulight.db.TauDatabase;
-import net.result.taulight.db.TauMemberEntity;
 import net.result.taulight.dto.ChatMessageInputDTO;
 import net.result.sandnode.exception.error.NoEffectException;
 import net.result.taulight.message.types.UseCodeRequest;
@@ -35,6 +32,7 @@ public class UseCodeServerChain extends ServerChain  implements ReceiverChain {
         }
 
         TauDatabase database = (TauDatabase) session.server.serverConfig.database();
+        ChannelRepository channelRepo = session.server.container.get(ChannelRepository.class);
 
         InviteCodeEntity invite = database.findInviteCode(code).orElseThrow(NotFoundException::new);
 
@@ -54,7 +52,7 @@ public class UseCodeServerChain extends ServerChain  implements ReceiverChain {
             throw new NoEffectException("Invite already activated");
         }
 
-        if (!database.addMemberToChannel(channel, member)) {
+        if (!channelRepo.addMember(channel, member)) {
             throw new NoEffectException();
         }
 

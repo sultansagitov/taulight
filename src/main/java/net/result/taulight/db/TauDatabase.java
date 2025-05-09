@@ -5,7 +5,6 @@ import net.result.sandnode.db.MemberEntity;
 import net.result.sandnode.exception.DatabaseException;
 import net.result.sandnode.exception.error.NotFoundException;
 import net.result.taulight.dto.ChatMessageInputDTO;
-import net.result.taulight.exception.AlreadyExistingRecordException;
 
 import java.time.ZonedDateTime;
 import java.util.*;
@@ -15,38 +14,6 @@ import java.util.*;
  * Extends the generic {@link net.result.sandnode.db.Database} interface.
  */
 public interface TauDatabase extends Database {
-
-    /**
-     * Creates a dialog between two members.
-     *
-     * @param firstMember the first member
-     * @param secondMember the second member
-     * @return the created DialogEntity
-     * @throws DatabaseException if a database error occurs
-     * @throws AlreadyExistingRecordException if a dialog between the members already exists
-     */
-    DialogEntity createDialog(TauMemberEntity firstMember, TauMemberEntity secondMember)
-            throws DatabaseException, AlreadyExistingRecordException;
-
-    /**
-     * Finds a dialog between two members.
-     *
-     * @param member1 the first member
-     * @param member2 the second member
-     * @return an optional DialogEntity if found
-     * @throws DatabaseException if a database error occurs
-     */
-    Optional<DialogEntity> findDialog(TauMemberEntity member1, TauMemberEntity member2) throws DatabaseException;
-
-    /**
-     * Creates a new channel with the given title and owner. And adds owner to channel
-     *
-     * @param title the title of the new channel
-     * @param owner the {@link TauMemberEntity} who will own the channel
-     * @return the created {@link ChannelEntity}
-     * @throws DatabaseException if a database error occurs
-     */
-    ChannelEntity createChannel(String title, TauMemberEntity owner) throws DatabaseException;
 
     /**
      * Retrieves a chat by its ID.
@@ -91,17 +58,6 @@ public interface TauDatabase extends Database {
     Optional<MessageEntity> findMessage(UUID id) throws DatabaseException;
 
     /**
-     * Adds a member to a channel.
-     *
-     * @param channel the channel to join
-     * @param member the member to add
-     * @return {@code true} if the member was successfully added,
-     *      {@code false} if the member was already part of the channel
-     * @throws DatabaseException if a database error occurs
-     */
-    boolean addMemberToChannel(ChannelEntity channel, TauMemberEntity member) throws DatabaseException;
-
-    /**
      * Gets the count of messages in a chat.
      *
      * @param chat the chat to count messages from
@@ -109,17 +65,6 @@ public interface TauDatabase extends Database {
      * @throws DatabaseException if a database error occurs
      */
     long getMessageCount(ChatEntity chat) throws DatabaseException;
-
-    /**
-     * Removes a member from a channel.
-     *
-     * @param channel the channel to leave
-     * @param member the member to remove
-     * @return {@code true} if the member was successfully removed,
-     *      {@code false} if the member was not part of the channel
-     * @throws DatabaseException if a database error occurs
-     */
-    boolean leaveFromChannel(ChannelEntity channel, TauMemberEntity member) throws DatabaseException;
 
     /**
      * Retrieves an invite code by its code string.
@@ -282,5 +227,4 @@ public interface TauDatabase extends Database {
      */
     RoleEntity createRole(ChannelEntity channel, String role) throws DatabaseException;
 
-    void setAvatarForChannel(ChannelEntity channel, String contentType, String filename) throws DatabaseException;
 }

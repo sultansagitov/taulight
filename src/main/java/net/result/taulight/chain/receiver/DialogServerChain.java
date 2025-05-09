@@ -11,13 +11,13 @@ import net.result.sandnode.exception.error.UnauthorizedException;
 import net.result.sandnode.message.util.Headers;
 import net.result.sandnode.message.util.MessageTypes;
 import net.result.sandnode.serverclient.Session;
+import net.result.taulight.db.DialogRepository;
 import net.result.taulight.util.SysMessages;
 import net.result.taulight.util.TauAgentProtocol;
 import net.result.taulight.util.TauHubProtocol;
 import net.result.taulight.message.types.DialogRequest;
 import net.result.taulight.db.TauMemberEntity;
 import net.result.taulight.dto.ChatMessageInputDTO;
-import net.result.taulight.db.TauDatabase;
 import net.result.taulight.db.DialogEntity;
 import net.result.sandnode.exception.error.NoEffectException;
 import net.result.taulight.group.TauGroupManager;
@@ -39,9 +39,9 @@ public class DialogServerChain extends ServerChain implements ReceiverChain {
 
     @Override
     public void sync() throws Exception {
-        TauDatabase database = (TauDatabase) session.server.serverConfig.database();
         TauGroupManager manager = (TauGroupManager) session.server.serverConfig.groupManager();
         MemberRepository memberRepo = session.server.container.get(MemberRepository.class);
+        DialogRepository dialogRepo = session.server.container.get(DialogRepository.class);
 
         DialogRequest request = new DialogRequest(queue.take());
 
@@ -55,11 +55,11 @@ public class DialogServerChain extends ServerChain implements ReceiverChain {
                 .map(MemberEntity::tauMember)
                 .orElseThrow(AddressedMemberNotFoundException::new);
 
-        Optional<DialogEntity> dialogOpt = database.findDialog(session.member.tauMember(), anotherMember);
+        Optional<DialogEntity> dialogOpt = dialogRepo.findByMembers(session.member.tauMember(), anotherMember);
         if (dialogOpt.isPresent()) {
             dialog = dialogOpt.get();
         } else {
-            dialog = database.createDialog(session.member.tauMember(), anotherMember);
+            dialog = dialogRepo.create(session.member.tauMember(), anotherMember);
 
             ChatMessageInputDTO input = SysMessages.dialogNew.toInput(dialog, session.member.tauMember());
 

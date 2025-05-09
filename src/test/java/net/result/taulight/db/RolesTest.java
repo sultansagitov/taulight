@@ -13,11 +13,13 @@ public class RolesTest {
     private static TauDatabase database;
     private static TauMemberEntity member1;
     private static TauMemberEntity member2;
+    private static ChannelRepository channelRepo;
 
     @BeforeAll
     public static void setup() throws DatabaseException, BusyNicknameException {
         JPAUtil.buildEntityManagerFactory();
         database = new TauJPADatabase(PasswordHashers.BCRYPT);
+        channelRepo = new ChannelRepository();
 
         member1 = database.registerMember("user1_roles", "password123").tauMember();
         member2 = database.registerMember("user2_roles", "password123").tauMember();
@@ -28,7 +30,7 @@ public class RolesTest {
 
     @Test
     void createRole() throws DatabaseException {
-        ChannelEntity channel = database.createChannel("role_creation_channel", member1);
+        ChannelEntity channel = channelRepo.create("role_creation_channel", member1);
         RoleEntity role = database.createRole(channel, "admin");
 
         assertNotNull(role, "Role should not be null after creation");
@@ -38,7 +40,7 @@ public class RolesTest {
 
     @Test
     void addMemberToRole() throws DatabaseException {
-        ChannelEntity channel = database.createChannel("test_channel", member1);
+        ChannelEntity channel = channelRepo.create("test_channel", member1);
         RoleEntity role = database.createRole(channel, "moderator");
         boolean result = database.addMemberToRole(role, member2);
 

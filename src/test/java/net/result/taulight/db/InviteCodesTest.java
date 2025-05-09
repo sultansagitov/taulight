@@ -22,12 +22,14 @@ public class InviteCodesTest {
     private static TauMemberEntity member4;
     private static TauMemberEntity member5;
     private static TauMemberEntity member6;
+    private static ChannelRepository channelRepo;
 
     @BeforeAll
     public static void setup() throws DatabaseException, BusyNicknameException {
         JPAUtil.buildEntityManagerFactory();
 
         database = new TauJPADatabase(PasswordHashers.BCRYPT);
+        channelRepo = new ChannelRepository();
 
         member1 = database.registerMember("user1_invites", "password123").tauMember();
         member2 = database.registerMember("user2_invites", "password123").tauMember();
@@ -47,7 +49,7 @@ public class InviteCodesTest {
 
     @Test
     public void createInviteCode() throws DatabaseException {
-        ChannelEntity channel = database.createChannel("Test Channel", member1);
+        ChannelEntity channel = channelRepo.create("Test Channel", member1);
 
         ZonedDateTime expiresDate = ZonedDateTime.now().plusDays(1);
         InviteCodeEntity inviteCode = database.createInviteCode(channel, member2, member1, expiresDate);
@@ -68,7 +70,7 @@ public class InviteCodesTest {
 
     @Test
     public void findInviteCode1() throws DatabaseException {
-        ChannelEntity channel = database.createChannel("InviteChannel", member1);
+        ChannelEntity channel = channelRepo.create("InviteChannel", member1);
 
         ZonedDateTime expiration = ZonedDateTime.now().plusDays(1);
         InviteCodeEntity invite = database.createInviteCode(channel, member2, member1, expiration);
@@ -90,7 +92,7 @@ public class InviteCodesTest {
 
     @Test
     public void findInviteCode2() throws DatabaseException {
-        ChannelEntity channel = database.createChannel("InviteChannel", member3);
+        ChannelEntity channel = channelRepo.create("InviteChannel", member3);
 
         ZonedDateTime expiration = ZonedDateTime.now().plusDays(1);
         InviteCodeEntity invite1 = database.createInviteCode(channel, member4, member3, expiration);
@@ -117,7 +119,7 @@ public class InviteCodesTest {
 
     @Test
     public void activateInviteCode() throws DatabaseException {
-        ChannelEntity channel = database.createChannel("Test Channel", member1);
+        ChannelEntity channel = channelRepo.create("Test Channel", member1);
 
         ZonedDateTime expiresDate = ZonedDateTime.now().plusDays(1);
         InviteCodeEntity inviteCode = database.createInviteCode(channel, member1, member2, expiresDate);

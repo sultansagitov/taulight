@@ -69,7 +69,7 @@ public class ChannelRepository {
         }
     }
 
-    public boolean addMemberToChannel(ChannelEntity channel, TauMemberEntity member) throws DatabaseException {
+    public boolean addMember(ChannelEntity channel, TauMemberEntity member) throws DatabaseException {
         EntityTransaction transaction = em.getTransaction();
         try {
             Set<TauMemberEntity> members = channel.members();
@@ -93,7 +93,7 @@ public class ChannelRepository {
         return true;
     }
 
-    public boolean removeMemberFromChannel(ChannelEntity channel, TauMemberEntity member) throws DatabaseException {
+    public boolean removeMember(ChannelEntity channel, TauMemberEntity member) throws DatabaseException {
         EntityTransaction transaction = em.getTransaction();
         try {
             Set<TauMemberEntity> members = channel.members();

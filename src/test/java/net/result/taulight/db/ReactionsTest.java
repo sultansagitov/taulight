@@ -17,11 +17,13 @@ class ReactionsTest {
     private static TauDatabase database;
     private static TauMemberEntity member1;
     private static TauMemberEntity member2;
+    private static ChannelRepository channelRepo;
 
     @BeforeAll
     public static void setup() throws DatabaseException, BusyNicknameException {
         JPAUtil.buildEntityManagerFactory();
         database = new TauJPADatabase(PasswordHashers.BCRYPT);
+        channelRepo = new ChannelRepository();
 
         member1 = database.registerMember("user1", "password123").tauMember();
         member2 = database.registerMember("user2", "password123").tauMember();
@@ -138,7 +140,7 @@ class ReactionsTest {
         ReactionPackageEntity testPackage = database.createReactionPackage("test", "");
         ReactionTypeEntity reactionType = database.createReactionType("like", testPackage);
 
-        ChannelEntity channel = database.createChannel("Test", member1);
+        ChannelEntity channel = channelRepo.create("Test", member1);
 
         ChatMessageInputDTO input = new ChatMessageInputDTO()
                 .setContent("Hello world")
@@ -178,7 +180,7 @@ class ReactionsTest {
         ReactionPackageEntity testPackage = database.createReactionPackage("test", "");
         ReactionTypeEntity reactionType = database.createReactionType("fire", testPackage);
 
-        ChannelEntity channel = database.createChannel("Test", member1);
+        ChannelEntity channel = channelRepo.create("Test", member1);
 
         ChatMessageInputDTO input = new ChatMessageInputDTO()
                 .setContent("Hello world")
@@ -247,7 +249,7 @@ class ReactionsTest {
         // Additional assertions - test with real entry that's already been removed
         ReactionPackageEntity testPackage = database.createReactionPackage("test_remove", "");
         ReactionTypeEntity testType = database.createReactionType("happy", testPackage);
-        ChannelEntity channel = database.createChannel("RemoveChannel", member1);
+        ChannelEntity channel = channelRepo.create("RemoveChannel", member1);
 
         ChatMessageInputDTO input = new ChatMessageInputDTO()
                 .setContent("Test remove")

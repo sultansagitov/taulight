@@ -41,6 +41,10 @@ import java.util.stream.Collectors;
 
 public class ChannelServerChain extends ServerChain implements ReceiverChain {
     private static final Logger LOGGER = LogManager.getLogger(ChannelServerChain.class);
+    private TauDatabase database;
+    private TauGroupManager manager;
+    private ChannelRepository channelRepo;
+    private MemberRepository memberRepo;
 
     public ChannelServerChain(Session session) {
         super(session);
@@ -48,6 +52,12 @@ public class ChannelServerChain extends ServerChain implements ReceiverChain {
 
     @Override
     public void sync() throws Exception {
+        database = (TauDatabase) session.server.serverConfig.database();
+        manager = (TauGroupManager) session.server.serverConfig.groupManager();
+
+        channelRepo = session.server.container.get(ChannelRepository.class);
+        memberRepo = session.server.container.get(MemberRepository.class);
+
         ChannelRequest request = new ChannelRequest(queue.take());
 
         if (request.type == null) {
@@ -71,14 +81,11 @@ public class ChannelServerChain extends ServerChain implements ReceiverChain {
     }
 
     private void create(@NotNull ChannelRequest request, TauMemberEntity you) throws Exception {
-        var database = (TauDatabase) session.server.serverConfig.database();
-        var manager = (TauGroupManager) session.server.serverConfig.groupManager();
-
         if (request.title == null) {
             throw new TooFewArgumentsException();
         }
 
-        ChannelEntity channel = database.createChannel(request.title, you);
+        ChannelEntity channel = channelRepo.create(request.title, you);
 
         TauAgentProtocol.addMemberToGroup(session, manager.getGroup(channel));
         ChatMessageInputDTO input = SysMessages.channelNew.toInput(channel, you);
@@ -94,9 +101,6 @@ public class ChannelServerChain extends ServerChain implements ReceiverChain {
     }
 
     private void invite(@NotNull ChannelRequest request, TauMemberEntity you) throws Exception {
-        TauDatabase database = (TauDatabase) session.server.serverConfig.database();
-        MemberRepository memberRepo = session.server.container.get(MemberRepository.class);
-
         ChatEntity chat = database.getChat(request.chatID).orElseThrow(NotFoundException::new);
 
         Collection<TauMemberEntity> members = database.getMembers(chat);
@@ -134,9 +138,6 @@ public class ChannelServerChain extends ServerChain implements ReceiverChain {
     }
 
     private void leave(@NotNull ChannelRequest request, TauMemberEntity you) throws Exception {
-        TauDatabase database = (TauDatabase) session.server.serverConfig.database();
-        TauGroupManager manager = (TauGroupManager) session.server.serverConfig.groupManager();
-
         ChatEntity chat = database.getChat(request.chatID).orElseThrow(NotFoundException::new);
 
         Collection<TauMemberEntity> members = database.getMembers(chat);
@@ -151,7 +152,7 @@ public class ChannelServerChain extends ServerChain implements ReceiverChain {
         if (channel.owner() == you) throw new UnauthorizedException();
 
         // You are not in channel (impossible)
-        if (!database.leaveFromChannel(channel, you)) throw new NotFoundException();
+        if (!channelRepo.removeMember(channel, you)) throw new NotFoundException();
 
         ChatMessageInputDTO input = SysMessages.channelLeave.toInput(channel, you);
         try {
@@ -168,8 +169,6 @@ public class ChannelServerChain extends ServerChain implements ReceiverChain {
     }
 
     private void channelCodes(@NotNull ChannelRequest request, TauMemberEntity you) throws Exception {
-        TauDatabase database = (TauDatabase) session.server.serverConfig.database();
-
         ChatEntity chat = database.getChat(request.chatID).orElseThrow(NotFoundException::new);
         if (!database.getMembers(chat).contains(you)) throw new UnauthorizedException();
         if (!(chat instanceof ChannelEntity channel)) throw new WrongAddressException();
@@ -193,8 +192,6 @@ public class ChannelServerChain extends ServerChain implements ReceiverChain {
     }
 
     private void setAvatar(@NotNull ChannelRequest request, TauMemberEntity you) throws Exception {
-        var database = (TauDatabase) session.server.serverConfig.database();
-
         UUID chatID = request.chatID;
         FileMessage fileMessage = new FileMessage(queue.take());
 
@@ -234,14 +231,12 @@ public class ChannelServerChain extends ServerChain implements ReceiverChain {
             throw new ServerSandnodeErrorException(e);
         }
 
-        database.setAvatarForChannel(channel, mime, savedFilename);
+        channelRepo.setAvatar(channel, mime, savedFilename);
 
         send(new HappyMessage());
     }
 
     private void getAvatar(@NotNull ChannelRequest request, TauMemberEntity you) throws Exception {
-        var database = (TauDatabase) session.server.serverConfig.database();
-
         UUID chatID = request.chatID;
 
         ChatEntity chat = database.getChat(chatID).orElseThrow(NotFoundException::new);

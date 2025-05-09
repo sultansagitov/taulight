@@ -16,12 +16,16 @@ public class MemberDeletionIntegrationTest {
 
     private static TauDatabase database;
     private static MemberRepository memberRepo;
+    private static DialogRepository dialogRepo;
+    private static ChannelRepository channelRepo;
 
     @BeforeAll
     public static void setup() {
         JPAUtil.buildEntityManagerFactory();
         database = new TauJPADatabase(PasswordHashers.BCRYPT);
         memberRepo = new MemberRepository();
+        dialogRepo = new DialogRepository();
+        channelRepo = new ChannelRepository();
     }
 
     @Test
@@ -32,14 +36,14 @@ public class MemberDeletionIntegrationTest {
         TauMemberEntity tau1 = m1.tauMember();
         TauMemberEntity tau2 = m2.tauMember();
 
-        database.createDialog(tau1, tau2);
+        dialogRepo.create(tau1, tau2);
 
-        assertTrue(database.findDialog(tau1, tau2).isPresent());
+        assertTrue(dialogRepo.findByMembers(tau1, tau2).isPresent());
 
         boolean deleted = memberRepo.delete(m1);
 
         assertTrue(deleted);
-        assertTrue(database.findDialog(tau1, tau2).isPresent());
+        assertTrue(dialogRepo.findByMembers(tau1, tau2).isPresent());
     }
 
     @Test
@@ -47,7 +51,7 @@ public class MemberDeletionIntegrationTest {
         MemberEntity member = database.registerMember("charlie", "123");
         TauMemberEntity tau = member.tauMember();
 
-        ChatEntity chat = database.createChannel("general", tau);
+        ChatEntity chat = channelRepo.create("general", tau);
         ChatMessageInputDTO input = new ChatMessageInputDTO()
                 .setContent("Hello world")
                 .setChat(chat)
@@ -72,7 +76,7 @@ public class MemberDeletionIntegrationTest {
         TauMemberEntity tau1 = m1.tauMember();
         TauMemberEntity tau2 = m2.tauMember();
 
-        ChatEntity chat = database.createChannel("fun", tau1);
+        ChatEntity chat = channelRepo.create("fun", tau1);
         ChatMessageInputDTO input = new ChatMessageInputDTO()
                 .setContent("Hello world")
                 .setChat(chat)
@@ -102,7 +106,7 @@ public class MemberDeletionIntegrationTest {
         TauMemberEntity tauOwner = owner.tauMember();
         TauMemberEntity tauInvited = invited.tauMember();
 
-        ChannelEntity channel = database.createChannel("private", tauOwner);
+        ChannelEntity channel = channelRepo.create("private", tauOwner);
         ZonedDateTime expiresDate = ZonedDateTime.now().plusDays(1);
         InviteCodeEntity invite = database.createInviteCode(channel, tauInvited, tauOwner, expiresDate);
 

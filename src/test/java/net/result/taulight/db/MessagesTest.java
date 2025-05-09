@@ -17,11 +17,13 @@ public class MessagesTest {
     private static TauDatabase database;
     private static TauMemberEntity member1;
     private static TauMemberEntity member2;
+    private static ChannelRepository channelRepo;
 
     @BeforeAll
     public static void setup() throws DatabaseException, BusyNicknameException {
         JPAUtil.buildEntityManagerFactory();
         database = new TauJPADatabase(PasswordHashers.BCRYPT);
+        channelRepo = new ChannelRepository();
 
         member1 = database.registerMember("user1_messages", "password123").tauMember();
         member2 = database.registerMember("user2_messages", "password123").tauMember();
@@ -32,7 +34,7 @@ public class MessagesTest {
 
     @Test
     public void createMessage() throws DatabaseException, NotFoundException {
-        ChatEntity chat = database.createChannel("Test Channel", member1);
+        ChatEntity chat = channelRepo.create("Test Channel", member1);
 
         ChatMessageInputDTO messageInputDTO = new ChatMessageInputDTO()
                 .setContent("Hello!")
@@ -60,7 +62,7 @@ public class MessagesTest {
 
     @Test
     public void loadMessages() throws DatabaseException, NotFoundException {
-        ChannelEntity channel = database.createChannel("Test Channel", member1);
+        ChannelEntity channel = channelRepo.create("Test Channel", member1);
 
         ChatMessageInputDTO input1 = new ChatMessageInputDTO()
                 .setContent("Hello world")
@@ -107,7 +109,7 @@ public class MessagesTest {
 
     @Test
     public void findMessage() throws DatabaseException, NotFoundException {
-        ChannelEntity channel = database.createChannel("FindMessageChannel", member1);
+        ChannelEntity channel = channelRepo.create("FindMessageChannel", member1);
 
         ChatMessageInputDTO input = new ChatMessageInputDTO()
                 .setContent("Find me")
@@ -137,7 +139,7 @@ public class MessagesTest {
 
     @Test
     public void getMessageCount() throws DatabaseException, NotFoundException {
-        ChannelEntity channel = database.createChannel("Test Channel", member1);
+        ChannelEntity channel = channelRepo.create("Test Channel", member1);
 
         ChatMessageInputDTO input1 = new ChatMessageInputDTO()
                 .setContent("Hello world")
@@ -177,7 +179,7 @@ public class MessagesTest {
         assertEquals(3, newCount, "Count should increase to 3 after adding a third message");
 
         // Test with a new empty channel
-        ChannelEntity emptyChannel = database.createChannel("Empty Channel", member1);
+        ChannelEntity emptyChannel = channelRepo.create("Empty Channel", member1);
         long emptyCount = database.getMessageCount(emptyChannel);
         assertEquals(0, emptyCount, "Empty channel should have zero messages");
     }

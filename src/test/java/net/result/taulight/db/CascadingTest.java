@@ -15,11 +15,13 @@ import static org.junit.jupiter.api.Assertions.*;
 public class CascadingTest {
 
     private static TauDatabase database;
+    private static ChannelRepository channelRepo;
 
     @BeforeAll
     public static void setup() {
         JPAUtil.buildEntityManagerFactory();
         database = new TauJPADatabase(PasswordHashers.BCRYPT);
+        channelRepo = new ChannelRepository();
     }
 
     @Test
@@ -27,15 +29,15 @@ public class CascadingTest {
         MemberEntity m1 = database.registerMember("new_user", "pass");
         TauMemberEntity tau = m1.tauMember();
 
-        ChannelEntity channel = database.createChannel("news", tau);
+        ChannelEntity channel = channelRepo.create("news", tau);
 
-        boolean added = database.addMemberToChannel(channel, tau);
+        boolean added = channelRepo.addMember(channel, tau);
         assertFalse(added);
 
-        boolean left = database.leaveFromChannel(channel, tau);
+        boolean left = channelRepo.removeMember(channel, tau);
         assertTrue(left);
 
-        boolean leftAgain = database.leaveFromChannel(channel, tau);
+        boolean leftAgain = channelRepo.removeMember(channel, tau);
         assertFalse(leftAgain);
     }
 
@@ -47,7 +49,7 @@ public class CascadingTest {
         TauMemberEntity reacter = m1.tauMember();
         TauMemberEntity author = m2.tauMember();
 
-        ChatEntity chat = database.createChannel("memes", author);
+        ChatEntity chat = channelRepo.create("memes", author);
         ChatMessageInputDTO input = new ChatMessageInputDTO()
                 .setContent("Hello world")
                 .setChat(chat)
@@ -76,7 +78,7 @@ public class CascadingTest {
         TauMemberEntity reacter = m1.tauMember();
         TauMemberEntity author = m2.tauMember();
 
-        ChatEntity chat = database.createChannel("random", author);
+        ChatEntity chat = channelRepo.create("random", author);
         ChatMessageInputDTO input = new ChatMessageInputDTO()
                 .setContent("Hello world")
                 .setChat(chat)
@@ -104,7 +106,7 @@ public class CascadingTest {
         TauMemberEntity s = sender.tauMember();
         TauMemberEntity r = receiver.tauMember();
 
-        ChannelEntity channel = database.createChannel("private", s);
+        ChannelEntity channel = channelRepo.create("private", s);
         InviteCodeEntity invite = database.createInviteCode(channel, r, s, ZonedDateTime.now().plusDays(1));
 
         assertTrue(database.activateInviteCode(invite));
