@@ -1,4 +1,4 @@
-package net.result.taulight;
+package net.result.taulight.util;
 
 import net.result.sandnode.chain.ChainManager;
 import net.result.sandnode.chain.IChain;

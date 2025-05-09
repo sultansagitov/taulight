@@ -2,7 +2,6 @@ package net.result.taulight.util;
 
 import net.result.sandnode.exception.error.UnauthorizedException;
 import net.result.sandnode.serverclient.Session;
-import net.result.taulight.TauAgentProtocol;
 import net.result.taulight.db.ChannelEntity;
 import net.result.taulight.db.DialogEntity;
 import net.result.taulight.db.TauMemberEntity;

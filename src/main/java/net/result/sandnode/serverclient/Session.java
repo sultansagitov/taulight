@@ -1,6 +1,6 @@
 package net.result.sandnode.serverclient;
 
-import net.result.sandnode.Logout;
+import net.result.sandnode.util.Logout;
 import net.result.sandnode.exception.*;
 import net.result.sandnode.util.IOController;
 import net.result.sandnode.chain.ServerChainManager;

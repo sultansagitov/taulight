@@ -1,4 +1,4 @@
-package net.result.sandnode;
+package net.result.sandnode.util;
 
 import net.result.sandnode.serverclient.Session;
 import org.jetbrains.annotations.NotNull;

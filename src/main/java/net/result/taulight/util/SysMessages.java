@@ -1,8 +1,9 @@
-package net.result.taulight;
+package net.result.taulight.util;
 
 import net.result.taulight.db.TauMemberEntity;
 import net.result.taulight.dto.ChatMessageInputDTO;
 import net.result.taulight.db.ChatEntity;
+import org.jetbrains.annotations.NotNull;
 
 public enum SysMessages {
     dialogNew("dialog.new"),
@@ -21,7 +22,7 @@ public enum SysMessages {
         return message;
     }
 
-    public ChatMessageInputDTO chatMessageInputDTO(ChatEntity chat, TauMemberEntity member) {
+    public ChatMessageInputDTO toInput(@NotNull ChatEntity chat, @NotNull TauMemberEntity member) {
         return new ChatMessageInputDTO()
                 .setSys(true)
                 .setChat(chat)

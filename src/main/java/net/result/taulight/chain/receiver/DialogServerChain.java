@@ -10,9 +10,9 @@ import net.result.sandnode.exception.error.UnauthorizedException;
 import net.result.sandnode.message.util.Headers;
 import net.result.sandnode.message.util.MessageTypes;
 import net.result.sandnode.serverclient.Session;
-import net.result.taulight.SysMessages;
-import net.result.taulight.TauAgentProtocol;
-import net.result.taulight.TauHubProtocol;
+import net.result.taulight.util.SysMessages;
+import net.result.taulight.util.TauAgentProtocol;
+import net.result.taulight.util.TauHubProtocol;
 import net.result.taulight.message.types.DialogRequest;
 import net.result.taulight.db.TauMemberEntity;
 import net.result.taulight.dto.ChatMessageInputDTO;
@@ -59,7 +59,7 @@ public class DialogServerChain extends ServerChain implements ReceiverChain {
         } else {
             dialog = database.createDialog(session.member.tauMember(), anotherMember);
 
-            ChatMessageInputDTO input = SysMessages.dialogNew.chatMessageInputDTO(dialog, session.member.tauMember());
+            ChatMessageInputDTO input = SysMessages.dialogNew.toInput(dialog, session.member.tauMember());
 
             try {
                 TauHubProtocol.send(session, dialog, input);

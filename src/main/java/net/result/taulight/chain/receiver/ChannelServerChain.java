@@ -13,9 +13,9 @@ import net.result.sandnode.message.types.HappyMessage;
 import net.result.sandnode.message.util.Headers;
 import net.result.sandnode.message.util.MessageTypes;
 import net.result.sandnode.serverclient.Session;
-import net.result.taulight.SysMessages;
-import net.result.taulight.TauAgentProtocol;
-import net.result.taulight.TauHubProtocol;
+import net.result.taulight.util.SysMessages;
+import net.result.taulight.util.TauAgentProtocol;
+import net.result.taulight.util.TauHubProtocol;
 import net.result.taulight.db.*;
 import net.result.taulight.dto.ChatMessageInputDTO;
 import net.result.taulight.dto.InviteCodeDTO;
@@ -80,7 +80,7 @@ public class ChannelServerChain extends ServerChain implements ReceiverChain {
         ChannelEntity channel = database.createChannel(request.title, you);
 
         TauAgentProtocol.addMemberToGroup(session, manager.getGroup(channel));
-        ChatMessageInputDTO input = SysMessages.channelNew.chatMessageInputDTO(channel, you);
+        ChatMessageInputDTO input = SysMessages.channelNew.toInput(channel, you);
         try {
             TauHubProtocol.send(session, channel, input);
         } catch (UnauthorizedException e) {
@@ -151,7 +151,7 @@ public class ChannelServerChain extends ServerChain implements ReceiverChain {
         // You are not in channel (impossible)
         if (!database.leaveFromChannel(channel, you)) throw new NotFoundException();
 
-        ChatMessageInputDTO input = SysMessages.channelLeave.chatMessageInputDTO(channel, you);
+        ChatMessageInputDTO input = SysMessages.channelLeave.toInput(channel, you);
         try {
             TauHubProtocol.send(session, channel, input);
         } catch (UnauthorizedException e) {

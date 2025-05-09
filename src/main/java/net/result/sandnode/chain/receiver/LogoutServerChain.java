@@ -1,6 +1,6 @@
 package net.result.sandnode.chain.receiver;
 
-import net.result.sandnode.Logout;
+import net.result.sandnode.util.Logout;
 import net.result.sandnode.chain.ReceiverChain;
 import net.result.sandnode.chain.ServerChain;
 import net.result.sandnode.exception.error.UnauthorizedException;

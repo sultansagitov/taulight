@@ -6,8 +6,8 @@ import net.result.sandnode.exception.error.NotFoundException;
 import net.result.sandnode.exception.error.UnauthorizedException;
 import net.result.sandnode.message.types.HappyMessage;
 import net.result.sandnode.serverclient.Session;
-import net.result.taulight.SysMessages;
-import net.result.taulight.TauHubProtocol;
+import net.result.taulight.util.SysMessages;
+import net.result.taulight.util.TauHubProtocol;
 import net.result.taulight.db.ChannelEntity;
 import net.result.taulight.db.InviteCodeEntity;
 import net.result.taulight.db.TauDatabase;
@@ -58,7 +58,7 @@ public class UseCodeServerChain extends ServerChain  implements ReceiverChain {
             throw new NoEffectException();
         }
 
-        ChatMessageInputDTO input = SysMessages.channelAdd.chatMessageInputDTO(channel, member);
+        ChatMessageInputDTO input = SysMessages.channelAdd.toInput(channel, member);
 
         try {
             TauHubProtocol.send(session, channel, input);

@@ -11,7 +11,7 @@ import net.result.sandnode.message.types.ErrorMessage;
 import net.result.sandnode.message.util.Headers;
 import net.result.sandnode.message.util.MessageTypes;
 import net.result.sandnode.serverclient.Session;
-import net.result.taulight.TauHubProtocol;
+import net.result.taulight.util.TauHubProtocol;
 import net.result.taulight.db.TauMemberEntity;
 import net.result.taulight.dto.ChatMessageViewDTO;
 import net.result.taulight.db.TauDatabase;
