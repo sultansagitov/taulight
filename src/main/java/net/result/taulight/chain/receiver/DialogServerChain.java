@@ -3,6 +3,7 @@ package net.result.taulight.chain.receiver;
 import net.result.sandnode.chain.ReceiverChain;
 import net.result.sandnode.chain.ServerChain;
 import net.result.sandnode.db.MemberEntity;
+import net.result.sandnode.db.MemberRepository;
 import net.result.sandnode.exception.DatabaseException;
 import net.result.sandnode.exception.ImpossibleRuntimeException;
 import net.result.sandnode.exception.error.AddressedMemberNotFoundException;
@@ -40,6 +41,7 @@ public class DialogServerChain extends ServerChain implements ReceiverChain {
     public void sync() throws Exception {
         TauDatabase database = (TauDatabase) session.server.serverConfig.database();
         TauGroupManager manager = (TauGroupManager) session.server.serverConfig.groupManager();
+        MemberRepository memberRepo = session.server.container.get(MemberRepository.class);
 
         DialogRequest request = new DialogRequest(queue.take());
 
@@ -48,8 +50,8 @@ public class DialogServerChain extends ServerChain implements ReceiverChain {
         }
 
         DialogEntity dialog;
-        TauMemberEntity anotherMember = database
-                .findMemberByNickname(request.nickname())
+        TauMemberEntity anotherMember = memberRepo
+                .findByNickname(request.nickname())
                 .map(MemberEntity::tauMember)
                 .orElseThrow(AddressedMemberNotFoundException::new);
 

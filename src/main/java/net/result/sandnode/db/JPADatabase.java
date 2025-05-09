@@ -6,8 +6,6 @@ import net.result.sandnode.security.PasswordHasher;
 import net.result.taulight.db.TauMemberEntity;
 import net.result.taulight.db.TauMemberRepository;
 
-import java.util.Optional;
-
 public class JPADatabase implements Database {
     private final PasswordHasher hasher;
     protected final MemberRepository memberRepo;
@@ -22,22 +20,12 @@ public class JPADatabase implements Database {
     @Override
     public MemberEntity registerMember(String nickname, String password)
             throws BusyNicknameException, DatabaseException {
-        if (findMemberByNickname(nickname).isPresent()) throw new BusyNicknameException();
+        if (memberRepo.findByNickname(nickname).isPresent()) throw new BusyNicknameException();
         String hashedPassword = hasher.hash(password, 12);
         MemberEntity member = memberRepo.create(nickname, hashedPassword);
         TauMemberEntity tauMember = tauMemberRepo.create(member);
         member.setTauMember(tauMember);
         return member;
-    }
-
-    @Override
-    public Optional<MemberEntity> findMemberByNickname(String nickname) throws DatabaseException {
-        return memberRepo.findByNickname(nickname);
-    }
-
-    @Override
-    public boolean deleteMember(MemberEntity member) throws DatabaseException {
-        return memberRepo.delete(member);
     }
 
     @Override

@@ -2,6 +2,7 @@ package net.result.taulight.db;
 
 import net.result.sandnode.db.JPAUtil;
 import net.result.sandnode.db.MemberEntity;
+import net.result.sandnode.db.MemberRepository;
 import net.result.sandnode.security.PasswordHashers;
 import net.result.taulight.dto.ChatMessageInputDTO;
 import org.junit.jupiter.api.*;
@@ -14,11 +15,13 @@ import static org.junit.jupiter.api.Assertions.*;
 public class MemberDeletionIntegrationTest {
 
     private static TauDatabase database;
+    private static MemberRepository memberRepo;
 
     @BeforeAll
     public static void setup() {
         JPAUtil.buildEntityManagerFactory();
         database = new TauJPADatabase(PasswordHashers.BCRYPT);
+        memberRepo = new MemberRepository();
     }
 
     @Test
@@ -33,8 +36,9 @@ public class MemberDeletionIntegrationTest {
 
         assertTrue(database.findDialog(tau1, tau2).isPresent());
 
-        database.deleteMember(m1);
+        boolean deleted = memberRepo.delete(m1);
 
+        assertTrue(deleted);
         assertTrue(database.findDialog(tau1, tau2).isPresent());
     }
 
@@ -55,8 +59,9 @@ public class MemberDeletionIntegrationTest {
 
         assertEquals(1, database.getMessageCount(chat));
 
-        database.deleteMember(member);
+        boolean deleted = memberRepo.delete(member);
 
+        assertTrue(deleted);
         assertEquals(1, database.getMessageCount(chat));
     }
 
@@ -84,8 +89,9 @@ public class MemberDeletionIntegrationTest {
         assertTrue(database.removeReactionEntry(msg, tau2, like));
 
         database.createReactionEntry(tau2, msg, like);
-        database.deleteMember(m2);
+        boolean deleted = memberRepo.delete(m2);
 
+        assertTrue(deleted);
         assertTrue(database.removeReactionEntry(msg, tau2, like));
     }
 
@@ -102,8 +108,9 @@ public class MemberDeletionIntegrationTest {
 
         assertTrue(database.findInviteCode(invite.code()).isPresent());
 
-        database.deleteMember(invited);
+        boolean deleted = memberRepo.delete(invited);
 
+        assertTrue(deleted);
         assertTrue(database.findInviteCode(invite.code()).isPresent());
     }
 }

@@ -5,6 +5,7 @@ import net.result.sandnode.config.ServerConfig;
 import net.result.sandnode.exception.*;
 import net.result.sandnode.message.*;
 import net.result.sandnode.message.util.Connection;
+import net.result.sandnode.util.Container;
 import net.result.sandnode.util.IOController;
 import net.result.sandnode.util.StreamReader;
 import org.apache.logging.log4j.LogManager;
@@ -22,6 +23,7 @@ public class SandnodeServer {
     public final ServerConfig serverConfig;
     public ServerSocket serverSocket;
     private final ExecutorService sessionExecutor = Executors.newCachedThreadPool();
+    public Container container = new Container();
 
     public SandnodeServer(Node node, ServerConfig serverConfig) {
         this.node = node;

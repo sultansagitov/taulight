@@ -5,6 +5,7 @@ import net.result.sandnode.chain.ServerChain;
 import net.result.sandnode.db.Database;
 import net.result.sandnode.db.LoginRepository;
 import net.result.sandnode.db.MemberEntity;
+import net.result.sandnode.db.MemberRepository;
 import net.result.sandnode.exception.error.UnauthorizedException;
 import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.message.types.*;
@@ -23,9 +24,10 @@ public abstract class LogPasswdServerChain extends ServerChain implements Receiv
         LogPasswdRequest msg = new LogPasswdRequest(request);
 
         Database database = session.server.serverConfig.database();
+        MemberRepository memberRepo = session.server.container.get(MemberRepository.class);
 
-        MemberEntity member = database
-                .findMemberByNickname(msg.getNickname())
+        MemberEntity member = memberRepo
+                .findByNickname(msg.getNickname())
                 .orElseThrow(UnauthorizedException::new);
 
         boolean verified = database.hasher().verify(msg.getPassword(), member.hashedPassword());

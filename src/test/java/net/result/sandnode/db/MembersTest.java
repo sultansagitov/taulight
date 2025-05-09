@@ -13,10 +13,12 @@ import static org.junit.jupiter.api.Assertions.*;
 class MembersTest {
 
     private static Database database;
+    private static MemberRepository memberRepo;
 
     @BeforeAll
     public static void setup() {
         JPAUtil.buildEntityManagerFactory();
+        memberRepo = new MemberRepository();
         database = new JPADatabase(PasswordHashers.BCRYPT);
     }
 
@@ -40,7 +42,7 @@ class MembersTest {
     public void findMemberByNickname() throws DatabaseException, BusyNicknameException {
         MemberEntity registeredMember = database.registerMember("nicksearch", "pass1234");
 
-        Optional<MemberEntity> found = database.findMemberByNickname("nicksearch");
+        Optional<MemberEntity> found = memberRepo.findByNickname("nicksearch");
         assertTrue(found.isPresent());
         assertEquals("nicksearch", found.get().nickname());
 
@@ -48,7 +50,7 @@ class MembersTest {
         assertEquals(registeredMember.id(), found.get().id(), "IDs should match");
 
         // Test non-existent nickname
-        Optional<MemberEntity> notFound = database.findMemberByNickname("nonexistentuser");
+        Optional<MemberEntity> notFound = memberRepo.findByNickname("nonexistentuser");
         assertFalse(notFound.isPresent(), "Should not find non-existent user");
     }
 }

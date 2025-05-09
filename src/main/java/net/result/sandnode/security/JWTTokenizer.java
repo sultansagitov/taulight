@@ -6,10 +6,10 @@ import com.auth0.jwt.exceptions.TokenExpiredException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.auth0.jwt.interfaces.JWTVerifier;
 import net.result.sandnode.config.JWTConfig;
+import net.result.sandnode.db.MemberRepository;
 import net.result.sandnode.exception.DatabaseException;
 import net.result.sandnode.exception.error.ExpiredTokenException;
 import net.result.sandnode.exception.error.InvalidTokenException;
-import net.result.sandnode.db.Database;
 import net.result.sandnode.db.MemberEntity;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -22,10 +22,12 @@ public class JWTTokenizer implements Tokenizer {
     private static final Logger LOGGER = LogManager.getLogger(JWTTokenizer.class);
     private final JWTVerifier VERIFIER;
     private final JWTConfig jwtConfig;
+    private final MemberRepository memberRepo;
 
     public JWTTokenizer(@NotNull JWTConfig jwtConfig) {
         this.jwtConfig = jwtConfig;
         VERIFIER = JWT.require(jwtConfig.getAlgorithm()).build();
+        memberRepo = new MemberRepository();
     }
 
     @Override
@@ -39,12 +41,12 @@ public class JWTTokenizer implements Tokenizer {
     }
 
     @Override
-    public Optional<MemberEntity> findMember(@NotNull Database database, @NotNull String token)
+    public Optional<MemberEntity> findMember(@NotNull String token)
             throws InvalidTokenException, ExpiredTokenException, DatabaseException {
         try {
             DecodedJWT decodedJWT = VERIFIER.verify(token);
             String nickname = decodedJWT.getSubject();
-            return database.findMemberByNickname(nickname);
+            return memberRepo.findByNickname(nickname);
         } catch (TokenExpiredException e) {
             LOGGER.error("Expired token", e);
             throw new ExpiredTokenException(e);

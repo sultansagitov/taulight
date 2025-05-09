@@ -4,8 +4,6 @@ import net.result.sandnode.exception.error.BusyNicknameException;
 import net.result.sandnode.exception.DatabaseException;
 import net.result.sandnode.security.PasswordHasher;
 
-import java.util.Optional;
-
 /**
  * Interface representing a database layer.
  */
@@ -21,24 +19,6 @@ public interface Database {
      * @throws DatabaseException if a general database error occurs
      */
     MemberEntity registerMember(String nickname, String password) throws BusyNicknameException, DatabaseException;
-
-    /**
-     * Finds a member by their nickname.
-     *
-     * @param nickname the nickname to search for
-     * @return an {@link Optional} containing the {@link MemberEntity} if found, or empty if not found
-     * @throws DatabaseException if a database access error occurs
-     */
-    Optional<MemberEntity> findMemberByNickname(String nickname) throws DatabaseException;
-
-    /**
-     * Deletes the specified member from the database.
-     *
-     * @param member the {@link MemberEntity} to be deleted
-     * @return {@code true} if the member was successfully deleted, {@code false} otherwise
-     * @throws DatabaseException if a database access error occurs
-     */
-    boolean deleteMember(MemberEntity member) throws DatabaseException;
 
     /**
      * Returns the {@link PasswordHasher} used for password hashing and verification.

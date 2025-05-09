@@ -3,6 +3,7 @@ package net.result.taulight.chain.receiver;
 import net.result.sandnode.chain.ReceiverChain;
 import net.result.sandnode.chain.ServerChain;
 import net.result.sandnode.db.MemberEntity;
+import net.result.sandnode.db.MemberRepository;
 import net.result.sandnode.dto.FileDTO;
 import net.result.sandnode.exception.DatabaseException;
 import net.result.sandnode.exception.ImpossibleRuntimeException;
@@ -94,6 +95,7 @@ public class ChannelServerChain extends ServerChain implements ReceiverChain {
 
     private void invite(@NotNull ChannelRequest request, TauMemberEntity you) throws Exception {
         TauDatabase database = (TauDatabase) session.server.serverConfig.database();
+        MemberRepository memberRepo = session.server.container.get(MemberRepository.class);
 
         ChatEntity chat = database.getChat(request.chatID).orElseThrow(NotFoundException::new);
 
@@ -105,8 +107,8 @@ public class ChannelServerChain extends ServerChain implements ReceiverChain {
         // This is not channel
         if (!(chat instanceof ChannelEntity channel)) throw new WrongAddressException();
 
-        TauMemberEntity member = database
-                .findMemberByNickname(request.otherNickname)
+        TauMemberEntity member = memberRepo
+                .findByNickname(request.otherNickname)
                 .map(MemberEntity::tauMember)
                 .orElseThrow(AddressedMemberNotFoundException::new);
 

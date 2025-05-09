@@ -12,7 +12,6 @@ import net.result.sandnode.message.types.LoginResponse;
 import net.result.sandnode.message.util.Headers;
 import net.result.sandnode.security.Tokenizer;
 import net.result.sandnode.serverclient.Session;
-import net.result.sandnode.db.Database;
 
 import java.util.List;
 
@@ -44,13 +43,12 @@ public class LoginServerChain extends ServerChain implements ReceiverChain {
     }
 
     private void loginByToken(LoginRequest request) throws Exception {
-        Database database = session.server.serverConfig.database();
         Tokenizer tokenizer = session.server.serverConfig.tokenizer();
 
         String token = request.content();
 
         session.member = tokenizer
-                .findMember(database, token)
+                .findMember(token)
                 .orElseThrow(UnauthorizedException::new);
 
 

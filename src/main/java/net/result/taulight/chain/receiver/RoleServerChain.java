@@ -2,6 +2,7 @@ package net.result.taulight.chain.receiver;
 
 import net.result.sandnode.chain.ReceiverChain;
 import net.result.sandnode.chain.ServerChain;
+import net.result.sandnode.db.MemberRepository;
 import net.result.sandnode.exception.error.*;
 import net.result.sandnode.serverclient.Session;
 import net.result.taulight.db.*;
@@ -24,6 +25,7 @@ public class RoleServerChain extends ServerChain implements ReceiverChain {
         if (session.member == null) throw new UnauthorizedException();
 
         TauDatabase database = (TauDatabase) session.server.serverConfig.database();
+        MemberRepository memberRepo = session.server.container.get(MemberRepository.class);
 
         RoleRequest request = new RoleRequest(queue.take());
 
@@ -68,8 +70,8 @@ public class RoleServerChain extends ServerChain implements ReceiverChain {
                         .filter(role -> role.name().equals(roleName))
                         .findFirst().orElseThrow(NotFoundException::new);
 
-                TauMemberEntity member = database
-                        .findMemberByNickname(nickname)
+                TauMemberEntity member = memberRepo
+                        .findByNickname(nickname)
                         .orElseThrow(NotFoundException::new)
                         .tauMember();
 
