@@ -9,13 +9,11 @@ import java.util.*;
 public class TauJPADatabase extends JPADatabase implements TauDatabase {
     private final ChannelRepository channelRepo;
     private final DialogRepository dialogRepo;
-    private final RoleRepository roleRepo;
 
     public TauJPADatabase(PasswordHasher hasher) {
         super(hasher);
         channelRepo = new ChannelRepository();
         dialogRepo = new DialogRepository();
-        roleRepo = new RoleRepository();
     }
 
     @Override
@@ -38,16 +36,6 @@ public class TauJPADatabase extends JPADatabase implements TauDatabase {
             }
         }
         return Set.of();
-    }
-
-    @Override
-    public RoleEntity createRole(ChannelEntity channel, String role) throws DatabaseException {
-        return roleRepo.create(channel, role);
-    }
-
-    @Override
-    public boolean addMemberToRole(RoleEntity role, TauMemberEntity member) throws DatabaseException {
-        return roleRepo.addMember(role, member);
     }
 
 }

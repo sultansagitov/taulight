@@ -26,6 +26,7 @@ public class RoleServerChain extends ServerChain implements ReceiverChain {
 
         TauDatabase database = (TauDatabase) session.server.serverConfig.database();
         MemberRepository memberRepo = session.server.container.get(MemberRepository.class);
+        RoleRepository roleRepo = session.server.container.get(RoleRepository.class);
 
         RoleRequest request = new RoleRequest(queue.take());
 
@@ -58,7 +59,7 @@ public class RoleServerChain extends ServerChain implements ReceiverChain {
 
             case CREATE:
                 if (roleName == null || roleName.trim().isEmpty()) throw new TooFewArgumentsException();
-                RoleEntity newRole = database.createRole(channel, roleName);
+                RoleEntity newRole = roleRepo.create(channel, roleName);
                 allRoles.add(newRole.name());
                 sendFin(new RoleResponse(new RolesDTO(allRoles, memberRoles)));
                 return;
@@ -75,7 +76,7 @@ public class RoleServerChain extends ServerChain implements ReceiverChain {
                         .orElseThrow(NotFoundException::new)
                         .tauMember();
 
-                if (!database.addMemberToRole(roleToAdd, member)) throw new NoEffectException();
+                if (!roleRepo.addMember(roleToAdd, member)) throw new NoEffectException();
                 sendFin(new RoleResponse(new RolesDTO(allRoles, memberRoles)));
         }
     }
