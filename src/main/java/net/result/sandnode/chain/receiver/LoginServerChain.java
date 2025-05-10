@@ -16,15 +16,16 @@ import net.result.sandnode.serverclient.Session;
 import java.util.List;
 
 public class LoginServerChain extends ServerChain implements ReceiverChain {
-    private final LoginRepository loginRepo;
+    private LoginRepository loginRepo;
 
     public LoginServerChain(Session session) {
         super(session);
-        loginRepo = new LoginRepository(session.server.container);
     }
 
     @Override
     public void sync() throws Exception {
+        loginRepo = session.server.container.get(LoginRepository.class);
+
         RawMessage raw = queue.take();
 
         var request = new LoginRequest(raw);
