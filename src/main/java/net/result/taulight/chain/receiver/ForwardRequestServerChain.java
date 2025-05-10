@@ -11,10 +11,10 @@ import net.result.sandnode.message.types.ErrorMessage;
 import net.result.sandnode.message.util.Headers;
 import net.result.sandnode.message.util.MessageTypes;
 import net.result.sandnode.serverclient.Session;
+import net.result.taulight.util.ChatUtil;
 import net.result.taulight.util.TauHubProtocol;
 import net.result.taulight.db.TauMemberEntity;
 import net.result.taulight.dto.ChatMessageViewDTO;
-import net.result.taulight.db.TauDatabase;
 import net.result.taulight.dto.ChatMessageInputDTO;
 import net.result.taulight.message.types.ForwardRequest;
 import net.result.taulight.db.ChatEntity;
@@ -36,7 +36,7 @@ public class ForwardRequestServerChain extends ServerChain implements ReceiverCh
     @SuppressWarnings("InfiniteLoopStatement")
     @Override
     public void sync() throws InterruptedException, SandnodeException {
-        TauDatabase database = (TauDatabase) session.server.serverConfig.database();
+        ChatUtil chatUtil = session.server.container.get(ChatUtil.class);
 
         while (true) {
             RawMessage raw = queue.take();
@@ -79,7 +79,7 @@ public class ForwardRequestServerChain extends ServerChain implements ReceiverCh
             ChatMessageViewDTO serverMessage;
 
             try {
-                Optional<ChatEntity> chatOpt = database.getChat(chatID);
+                Optional<ChatEntity> chatOpt = chatUtil.getChat(chatID);
 
                 if (chatOpt.isEmpty()) {
                     LOGGER.error("Chat was not found");
@@ -89,7 +89,7 @@ public class ForwardRequestServerChain extends ServerChain implements ReceiverCh
 
                 ChatEntity chat = chatOpt.get();
 
-                Collection<TauMemberEntity> members = database.getMembers(chat);
+                Collection<TauMemberEntity> members = chatUtil.getMembers(chat);
                 if (!members.contains(session.member.tauMember())) {
                     LOGGER.warn("Unauthorized access attempt by member: {}", session.member.nickname());
                     send(Errors.NOT_FOUND.createMessage());

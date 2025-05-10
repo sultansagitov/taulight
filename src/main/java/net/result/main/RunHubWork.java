@@ -83,9 +83,10 @@ public class RunHubWork implements IWork {
     private static @NotNull ServerPropertiesConfig getServerConfig()
             throws ConfigurationException, FSException, NoSuchEncryptionException, EncryptionTypeException {
         ServerPropertiesConfig serverConfig = new ServerPropertiesConfig();
-        serverConfig.setGroupManager(new HashSetTauGroupManager());
 
-        serverConfig.setTokenizer(new JWTTokenizer(new JWTPropertiesConfig()));
+        serverConfig.setGroupManager(new HashSetTauGroupManager());
+        serverConfig.setTokenizer(new JWTTokenizer(serverConfig.container(), new JWTPropertiesConfig()));
+
         return serverConfig;
     }
 }

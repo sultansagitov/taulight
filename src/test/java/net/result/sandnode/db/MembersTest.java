@@ -3,6 +3,7 @@ package net.result.sandnode.db;
 import net.result.sandnode.exception.DatabaseException;
 import net.result.sandnode.exception.error.BusyNicknameException;
 import net.result.sandnode.security.PasswordHashers;
+import net.result.sandnode.util.Container;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
@@ -17,7 +18,8 @@ class MembersTest {
     @BeforeAll
     public static void setup() {
         JPAUtil.buildEntityManagerFactory();
-        memberRepo = new MemberRepository();
+        Container container = new Container();
+        memberRepo = container.get(MemberRepository.class);
     }
 
     @Test

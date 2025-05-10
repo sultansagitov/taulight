@@ -9,6 +9,7 @@ import net.result.taulight.db.*;
 import net.result.taulight.dto.RolesDTO;
 import net.result.taulight.message.types.RoleRequest;
 import net.result.taulight.message.types.RoleResponse;
+import net.result.taulight.util.ChatUtil;
 
 import java.util.Set;
 import java.util.UUID;
@@ -24,7 +25,7 @@ public class RoleServerChain extends ServerChain implements ReceiverChain {
     public void sync() throws Exception {
         if (session.member == null) throw new UnauthorizedException();
 
-        TauDatabase database = (TauDatabase) session.server.serverConfig.database();
+        ChatUtil chatUtil = session.server.container.get(ChatUtil.class);
         MemberRepository memberRepo = session.server.container.get(MemberRepository.class);
         RoleRepository roleRepo = session.server.container.get(RoleRepository.class);
 
@@ -35,8 +36,8 @@ public class RoleServerChain extends ServerChain implements ReceiverChain {
         String roleName = request.getRoleName();
         String nickname = request.getNickname();
 
-        ChatEntity chat = database.getChat(chatID).orElseThrow(NotFoundException::new);
-        if (!database.getMembers(chat).contains(session.member.tauMember())) throw new NotFoundException();
+        ChatEntity chat = chatUtil.getChat(chatID).orElseThrow(NotFoundException::new);
+        if (!chatUtil.getMembers(chat).contains(session.member.tauMember())) throw new NotFoundException();
         if (!(chat instanceof ChannelEntity channel)) throw new WrongAddressException();
 
         if (!channel.owner().equals(session.member.tauMember())) throw new UnauthorizedException();

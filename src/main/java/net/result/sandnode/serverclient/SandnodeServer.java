@@ -22,7 +22,7 @@ public class SandnodeServer {
     private static final Logger LOGGER = LogManager.getLogger(SandnodeServer.class);
     public final Node node;
     public final ServerConfig serverConfig;
-    public final Container container = new Container();
+    public final Container container;
     public ServerSocket serverSocket;
 
     private final ExecutorService sessionExecutor = Executors.newCachedThreadPool();
@@ -30,6 +30,7 @@ public class SandnodeServer {
     public SandnodeServer(Node node, ServerConfig serverConfig) {
         this.node = node;
         this.serverConfig = serverConfig;
+        container = serverConfig.container();
     }
 
     public void start() throws ServerStartException {

@@ -2,6 +2,7 @@ package net.result.taulight.db;
 
 import net.result.sandnode.db.JPAUtil;
 import net.result.sandnode.exception.DatabaseException;
+import net.result.sandnode.util.Container;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
@@ -11,6 +12,8 @@ import java.util.Optional;
 
 public class InviteCodeRepository {
     private final EntityManager em = JPAUtil.getEntityManager();
+
+    public InviteCodeRepository(Container container) {}
 
     private InviteCodeEntity save(InviteCodeEntity code) throws DatabaseException {
         while (em.find(InviteCodeEntity.class, code.id()) != null) code.setRandomID();

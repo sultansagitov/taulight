@@ -4,6 +4,7 @@ import net.result.sandnode.db.JPAUtil;
 import net.result.sandnode.db.MemberEntity;
 import net.result.sandnode.db.MemberRepository;
 import net.result.sandnode.security.PasswordHashers;
+import net.result.sandnode.util.Container;
 import net.result.taulight.dto.ChatMessageInputDTO;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -25,13 +26,14 @@ public class CascadingTest {
     @BeforeAll
     public static void setup() {
         JPAUtil.buildEntityManagerFactory();
-        memberRepo = new MemberRepository();
-        channelRepo = new ChannelRepository();
-        messageRepo = new MessageRepository();
-        inviteCodeRepo = new InviteCodeRepository();
-        reactionPackageRepo = new ReactionPackageRepository();
-        reactionTypeRepo = new ReactionTypeRepository();
-        reactionEntryRepo = new ReactionEntryRepository();
+        Container container = new Container();
+        memberRepo = container.get(MemberRepository.class);
+        channelRepo = container.get(ChannelRepository.class);
+        messageRepo = container.get(MessageRepository.class);
+        inviteCodeRepo = container.get(InviteCodeRepository.class);
+        reactionPackageRepo = container.get(ReactionPackageRepository.class);
+        reactionTypeRepo = container.get(ReactionTypeRepository.class);
+        reactionEntryRepo = container.get(ReactionEntryRepository.class);
     }
 
     @Test

@@ -9,7 +9,7 @@ import net.result.sandnode.exception.DeserializationException;
 import net.result.sandnode.exception.UnprocessedMessagesException;
 import net.result.sandnode.serverclient.Session;
 import net.result.taulight.db.ChatEntity;
-import net.result.taulight.db.TauDatabase;
+import net.result.taulight.util.ChatUtil;
 import net.result.taulight.db.TauMemberEntity;
 import net.result.taulight.group.ChatGroup;
 import net.result.taulight.group.TauGroupManager;
@@ -33,7 +33,7 @@ public class MembersServerChain extends ServerChain implements ReceiverChain {
 
     @Override
     public void sync() throws InterruptedException, DeserializationException, UnprocessedMessagesException {
-        TauDatabase database = (TauDatabase) session.server.serverConfig.database();
+        ChatUtil chatUtil = session.server.container.get(ChatUtil.class);
         TauGroupManager groupManager = (TauGroupManager) session.server.serverConfig.groupManager();
 
         while (true) {
@@ -45,7 +45,7 @@ public class MembersServerChain extends ServerChain implements ReceiverChain {
             }
 
             try {
-                Optional<ChatEntity> optChat = database.getChat(request.uuid);
+                Optional<ChatEntity> optChat = chatUtil.getChat(request.uuid);
 
                 if (optChat.isEmpty()) {
                     send(Errors.NOT_FOUND.createMessage());
@@ -54,7 +54,7 @@ public class MembersServerChain extends ServerChain implements ReceiverChain {
 
                 ChatEntity chat = optChat.get();
                 ChatGroup group = groupManager.getGroup(chat);
-                Collection<TauMemberEntity> members = database.getMembers(chat);
+                Collection<TauMemberEntity> members = chatUtil.getMembers(chat);
 
                 if (!members.contains(session.member.tauMember())) {
                     send(Errors.NOT_FOUND.createMessage());

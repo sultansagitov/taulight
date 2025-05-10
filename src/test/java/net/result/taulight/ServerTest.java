@@ -26,6 +26,7 @@ import net.result.sandnode.security.PasswordHashers;
 import net.result.sandnode.serverclient.SandnodeClient;
 import net.result.sandnode.serverclient.SandnodeServer;
 import net.result.sandnode.serverclient.Session;
+import net.result.sandnode.util.Container;
 import net.result.sandnode.util.Endpoint;
 import net.result.sandnode.encryption.KeyStorageRegistry;
 import net.result.sandnode.util.IOController;
@@ -35,7 +36,6 @@ import net.result.sandnode.chain.ServerChainManager;
 import net.result.sandnode.chain.ServerChain;
 import net.result.sandnode.group.HashSetGroupManager;
 import net.result.sandnode.security.JWTTokenizer;
-import net.result.taulight.db.TauJPADatabase;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
@@ -149,14 +149,15 @@ public class ServerTest {
             setName("HubThread");
             hub = new TestHub(serverKeyStorage);
 
+            Container container = new Container();
             ServerConfig serverConfig = new ServerConfigRecord(
+                    container,
                     new Endpoint("localhost", port),
                     null,
                     null,
                     asymmetricEncryption,
                     new HashSetGroupManager(),
-                    new TauJPADatabase(),
-                    new JWTTokenizer(() -> Algorithm.HMAC256("test")),
+                    new JWTTokenizer(container, () -> Algorithm.HMAC256("test")),
                     PasswordHashers.BCRYPT
             );
             server = new SandnodeServer(hub, serverConfig);

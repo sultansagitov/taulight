@@ -2,6 +2,7 @@ package net.result.taulight.db;
 
 import net.result.sandnode.db.JPAUtil;
 import net.result.sandnode.exception.DatabaseException;
+import net.result.sandnode.util.Container;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
@@ -9,6 +10,8 @@ import java.util.*;
 
 public class ChannelRepository {
     private final EntityManager em = JPAUtil.getEntityManager();
+
+    public ChannelRepository(Container container) {}
 
     private ChannelEntity save(ChannelEntity channel) throws DatabaseException {
         while (em.find(ChannelEntity.class, channel.id()) != null) {

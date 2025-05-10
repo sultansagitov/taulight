@@ -16,8 +16,8 @@ import net.result.sandnode.hubagent.Hub;
 import net.result.sandnode.security.PasswordHasher;
 import net.result.sandnode.security.PasswordHashers;
 import net.result.sandnode.serverclient.SandnodeServer;
+import net.result.sandnode.util.Container;
 import net.result.sandnode.util.Endpoint;
-import net.result.sandnode.db.Database;
 import net.result.sandnode.group.GroupManager;
 import net.result.sandnode.security.Tokenizer;
 import org.jetbrains.annotations.NotNull;
@@ -85,6 +85,12 @@ public class LinksTest {
     }
 
     static class TestServerConfig implements ServerConfig {
+        @Override
+        public Container container() {
+            return null;
+        }
+
+        @Override
         public Endpoint endpoint() {
             return new Endpoint("localhost", 52525);
         }
@@ -96,11 +102,6 @@ public class LinksTest {
 
         @Override
         public GroupManager groupManager() {
-            return null;
-        }
-
-        @Override
-        public Database database() {
             return null;
         }
 

@@ -14,6 +14,7 @@ import net.result.sandnode.message.types.HappyMessage;
 import net.result.sandnode.message.util.Headers;
 import net.result.sandnode.message.util.MessageTypes;
 import net.result.sandnode.serverclient.Session;
+import net.result.taulight.util.ChatUtil;
 import net.result.taulight.util.SysMessages;
 import net.result.taulight.util.TauAgentProtocol;
 import net.result.taulight.util.TauHubProtocol;
@@ -41,7 +42,7 @@ import java.util.stream.Collectors;
 
 public class ChannelServerChain extends ServerChain implements ReceiverChain {
     private static final Logger LOGGER = LogManager.getLogger(ChannelServerChain.class);
-    private TauDatabase database;
+    private ChatUtil chatUtil;
     private TauGroupManager manager;
     private ChannelRepository channelRepo;
     private MemberRepository memberRepo;
@@ -53,7 +54,7 @@ public class ChannelServerChain extends ServerChain implements ReceiverChain {
 
     @Override
     public void sync() throws Exception {
-        database = (TauDatabase) session.server.serverConfig.database();
+        chatUtil = session.server.container.get(ChatUtil.class);
         manager = (TauGroupManager) session.server.serverConfig.groupManager();
 
         channelRepo = session.server.container.get(ChannelRepository.class);
@@ -103,9 +104,9 @@ public class ChannelServerChain extends ServerChain implements ReceiverChain {
     }
 
     private void invite(@NotNull ChannelRequest request, TauMemberEntity you) throws Exception {
-        ChatEntity chat = database.getChat(request.chatID).orElseThrow(NotFoundException::new);
+        ChatEntity chat = chatUtil.getChat(request.chatID).orElseThrow(NotFoundException::new);
 
-        Collection<TauMemberEntity> members = database.getMembers(chat);
+        Collection<TauMemberEntity> members = chatUtil.getMembers(chat);
 
         // You not in channel
         if (!members.contains(you)) throw new NotFoundException();
@@ -140,9 +141,9 @@ public class ChannelServerChain extends ServerChain implements ReceiverChain {
     }
 
     private void leave(@NotNull ChannelRequest request, TauMemberEntity you) throws Exception {
-        ChatEntity chat = database.getChat(request.chatID).orElseThrow(NotFoundException::new);
+        ChatEntity chat = chatUtil.getChat(request.chatID).orElseThrow(NotFoundException::new);
 
-        Collection<TauMemberEntity> members = database.getMembers(chat);
+        Collection<TauMemberEntity> members = chatUtil.getMembers(chat);
 
         // You not in channel
         if (!members.contains(you)) throw new NotFoundException();
@@ -171,8 +172,8 @@ public class ChannelServerChain extends ServerChain implements ReceiverChain {
     }
 
     private void channelCodes(@NotNull ChannelRequest request, TauMemberEntity you) throws Exception {
-        ChatEntity chat = database.getChat(request.chatID).orElseThrow(NotFoundException::new);
-        if (!database.getMembers(chat).contains(you)) throw new UnauthorizedException();
+        ChatEntity chat = chatUtil.getChat(request.chatID).orElseThrow(NotFoundException::new);
+        if (!chatUtil.getMembers(chat).contains(you)) throw new UnauthorizedException();
         if (!(chat instanceof ChannelEntity channel)) throw new WrongAddressException();
 
         Headers headers = new Headers().setType(TauMessageTypes.CHANNEL);
@@ -197,8 +198,8 @@ public class ChannelServerChain extends ServerChain implements ReceiverChain {
         UUID chatID = request.chatID;
         FileMessage fileMessage = new FileMessage(queue.take());
 
-        ChatEntity chat = database.getChat(chatID).orElseThrow(NotFoundException::new);
-        if (!database.getMembers(chat).contains(you)) throw new UnauthorizedException();
+        ChatEntity chat = chatUtil.getChat(chatID).orElseThrow(NotFoundException::new);
+        if (!chatUtil.getMembers(chat).contains(you)) throw new UnauthorizedException();
         if (!(chat instanceof ChannelEntity channel)) throw new WrongAddressException();
 
         FileDTO dto = fileMessage.dto();
@@ -241,8 +242,8 @@ public class ChannelServerChain extends ServerChain implements ReceiverChain {
     private void getAvatar(@NotNull ChannelRequest request, TauMemberEntity you) throws Exception {
         UUID chatID = request.chatID;
 
-        ChatEntity chat = database.getChat(chatID).orElseThrow(NotFoundException::new);
-        if (!database.getMembers(chat).contains(you)) throw new UnauthorizedException();
+        ChatEntity chat = chatUtil.getChat(chatID).orElseThrow(NotFoundException::new);
+        if (!chatUtil.getMembers(chat).contains(you)) throw new UnauthorizedException();
         if (!(chat instanceof ChannelEntity channel)) throw new WrongAddressException();
 
         //TODO Replace with path from config

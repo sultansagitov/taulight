@@ -16,10 +16,11 @@ import net.result.sandnode.serverclient.Session;
 import java.util.List;
 
 public class LoginServerChain extends ServerChain implements ReceiverChain {
-    private final LoginRepository loginRepo = new LoginRepository();
+    private final LoginRepository loginRepo;
 
     public LoginServerChain(Session session) {
         super(session);
+        loginRepo = new LoginRepository(session.server.container);
     }
 
     @Override

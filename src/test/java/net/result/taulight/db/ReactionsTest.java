@@ -6,6 +6,7 @@ import net.result.sandnode.exception.DatabaseException;
 import net.result.sandnode.exception.error.BusyNicknameException;
 import net.result.sandnode.exception.error.NotFoundException;
 import net.result.sandnode.security.PasswordHashers;
+import net.result.sandnode.util.Container;
 import net.result.taulight.dto.ChatMessageInputDTO;
 import org.junit.jupiter.api.*;
 
@@ -26,12 +27,13 @@ class ReactionsTest {
     @BeforeAll
     public static void setup() throws DatabaseException, BusyNicknameException {
         JPAUtil.buildEntityManagerFactory();
-        MemberRepository memberRepo = new MemberRepository();
-        channelRepo = new ChannelRepository();
-        messageRepo = new MessageRepository();
-        reactionPackageRepo = new ReactionPackageRepository();
-        reactionTypeRepo = new ReactionTypeRepository();
-        reactionEntryRepo = new ReactionEntryRepository();
+        Container container = new Container();
+        MemberRepository memberRepo = container.get(MemberRepository.class);
+        channelRepo = container.get(ChannelRepository.class);
+        messageRepo = container.get(MessageRepository.class);
+        reactionPackageRepo = container.get(ReactionPackageRepository.class);
+        reactionTypeRepo = container.get(ReactionTypeRepository.class);
+        reactionEntryRepo = container.get(ReactionEntryRepository.class);
 
         member1 = memberRepo.create("user1", PasswordHashers.BCRYPT.hash("password123", 12)).tauMember();
         member2 = memberRepo.create("user2", PasswordHashers.BCRYPT.hash("password123", 12)).tauMember();

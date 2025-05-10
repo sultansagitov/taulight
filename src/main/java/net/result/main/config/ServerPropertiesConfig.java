@@ -12,12 +12,11 @@ import net.result.sandnode.exception.ImpossibleRuntimeException;
 import net.result.sandnode.exception.crypto.*;
 import net.result.sandnode.security.PasswordHasher;
 import net.result.sandnode.security.PasswordHashers;
+import net.result.sandnode.util.Container;
 import net.result.sandnode.util.Endpoint;
 import net.result.sandnode.util.FileUtil;
-import net.result.sandnode.db.Database;
 import net.result.sandnode.group.GroupManager;
 import net.result.sandnode.security.Tokenizer;
-import net.result.taulight.db.TauJPADatabase;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
@@ -33,12 +32,12 @@ import java.util.Properties;
 
 public class ServerPropertiesConfig implements ServerConfig {
     private static final Logger LOGGER = LogManager.getLogger(ServerPropertiesConfig.class);
+    private final Container container = new Container();
     private final Endpoint endpoint;
     private final Path PUBLIC_KEY_PATH;
     private final Path PRIVATE_KEY_PATH;
     private final AsymmetricEncryption MAIN_ENCRYPTION;
     private GroupManager groupManager;
-    private Database database;
     private Tokenizer tokenizer;
     private final PasswordHasher HASHER;
 
@@ -52,8 +51,9 @@ public class ServerPropertiesConfig implements ServerConfig {
         Properties properties = new Properties();
 
         try (InputStream input = getClass().getClassLoader().getResourceAsStream(fileName)) {
-            if (input == null)
+            if (input == null) {
                 throw new ImpossibleRuntimeException("Unable to find %s".formatted(fileName));
+            }
             properties.load(input);
         } catch (IOException e) {
             throw new ConfigurationException("Failed to load configuration file", fileName);
@@ -91,13 +91,11 @@ public class ServerPropertiesConfig implements ServerConfig {
             LOGGER.info("KEYS_DIR does not exist, creating it: \"{}\"", KEYS_DIR);
             FileUtil.createDir(KEYS_DIR);
         }
+    }
 
-        try {
-            setDatabase(new TauJPADatabase());
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-
+    @Override
+    public Container container() {
+        return container;
     }
 
     @Override
@@ -117,15 +115,6 @@ public class ServerPropertiesConfig implements ServerConfig {
     @Override
     public GroupManager groupManager() {
         return groupManager;
-    }
-
-    public void setDatabase(Database database) {
-        this.database = database;
-    }
-
-    @Override
-    public Database database() {
-        return database;
     }
 
     public void setTokenizer(Tokenizer tokenizer) {

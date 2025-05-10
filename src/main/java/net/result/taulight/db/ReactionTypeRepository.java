@@ -2,6 +2,7 @@ package net.result.taulight.db;
 
 import net.result.sandnode.db.JPAUtil;
 import net.result.sandnode.exception.DatabaseException;
+import net.result.sandnode.util.Container;
 import org.jetbrains.annotations.NotNull;
 
 import javax.persistence.EntityManager;
@@ -12,6 +13,8 @@ import java.util.List;
 
 public class ReactionTypeRepository {
     private final EntityManager em = JPAUtil.getEntityManager();
+
+    public ReactionTypeRepository(Container container) {}
 
     private ReactionTypeEntity save(@NotNull ReactionTypeEntity reactionType) throws DatabaseException {
         while (em.find(ReactionTypeEntity.class, reactionType.id()) != null) {

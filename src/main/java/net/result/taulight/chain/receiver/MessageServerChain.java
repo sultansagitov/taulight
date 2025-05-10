@@ -8,9 +8,9 @@ import net.result.sandnode.exception.error.UnauthorizedException;
 import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.serverclient.Session;
 import net.result.taulight.db.MessageRepository;
+import net.result.taulight.util.ChatUtil;
 import net.result.taulight.dto.ChatMessageViewDTO;
 import net.result.taulight.db.ChatEntity;
-import net.result.taulight.db.TauDatabase;
 import net.result.taulight.message.types.MessageRequest;
 import net.result.taulight.message.types.MessageResponse;
 
@@ -24,7 +24,7 @@ public class MessageServerChain extends ServerChain implements ReceiverChain {
 
     @Override
     public void sync() throws Exception {
-        TauDatabase database = (TauDatabase) session.server.serverConfig.database();
+        ChatUtil chatUtil = session.server.container.get(ChatUtil.class);
         MessageRepository messageRepo = session.server.container.get(MessageRepository.class);
 
         if (session.member == null) {
@@ -37,9 +37,9 @@ public class MessageServerChain extends ServerChain implements ReceiverChain {
 
         MessageRequest request = new MessageRequest(raw);
 
-        ChatEntity chat = database.getChat(request.getChatID()).orElseThrow(NotFoundException::new);
+        ChatEntity chat = chatUtil.getChat(request.getChatID()).orElseThrow(NotFoundException::new);
 
-        if (!database.getMembers(chat).contains(session.member.tauMember())) {
+        if (!chatUtil.getMembers(chat).contains(session.member.tauMember())) {
             throw new NotFoundException();
         }
 

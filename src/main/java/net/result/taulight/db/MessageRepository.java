@@ -3,6 +3,7 @@ package net.result.taulight.db;
 import net.result.sandnode.db.JPAUtil;
 import net.result.sandnode.exception.DatabaseException;
 import net.result.sandnode.exception.error.NotFoundException;
+import net.result.sandnode.util.Container;
 import net.result.taulight.dto.ChatMessageInputDTO;
 
 import javax.persistence.EntityManager;
@@ -11,6 +12,8 @@ import java.util.*;
 
 public class MessageRepository {
     private final EntityManager em = JPAUtil.getEntityManager();
+
+    public MessageRepository(Container container) {}
 
     private MessageEntity save(MessageEntity m) throws DatabaseException {
         while (em.find(MessageEntity.class, m.id()) != null) {

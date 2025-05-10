@@ -12,7 +12,6 @@ import net.result.sandnode.security.PasswordHasher;
 import net.result.sandnode.serverclient.Session;
 
 public abstract class LogPasswdServerChain extends ServerChain implements ReceiverChain {
-    private final LoginRepository loginRepo = new LoginRepository();
 
     public LogPasswdServerChain(Session session) {
         super(session);
@@ -23,6 +22,7 @@ public abstract class LogPasswdServerChain extends ServerChain implements Receiv
         RawMessage request = queue.take();
         LogPasswdRequest msg = new LogPasswdRequest(request);
 
+        LoginRepository loginRepo = session.server.container.get(LoginRepository.class);
         MemberRepository memberRepo = session.server.container.get(MemberRepository.class);
         PasswordHasher hasher = session.server.serverConfig.hasher();
 

@@ -1,6 +1,7 @@
 package net.result.sandnode.db;
 
 import net.result.sandnode.exception.DatabaseException;
+import net.result.sandnode.util.Container;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -10,6 +11,8 @@ import java.util.List;
 
 public class LoginRepository {
     private final EntityManager em = JPAUtil.getEntityManager();
+
+    public LoginRepository(Container container) {}
 
     private LoginEntity save(@NotNull LoginEntity login) throws DatabaseException {
         while (em.find(MemberEntity.class, login.id()) != null) {

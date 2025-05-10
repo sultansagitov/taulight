@@ -2,6 +2,7 @@ package net.result.sandnode.db;
 
 import net.result.sandnode.exception.DatabaseException;
 import net.result.sandnode.exception.error.BusyNicknameException;
+import net.result.sandnode.util.Container;
 import net.result.taulight.db.TauMemberEntity;
 import net.result.taulight.db.TauMemberRepository;
 
@@ -13,8 +14,8 @@ public class MemberRepository {
     private final EntityManager em = JPAUtil.getEntityManager();
     private final TauMemberRepository tauMemberRepo;
 
-    public MemberRepository() {
-        tauMemberRepo = new TauMemberRepository();
+    public MemberRepository(Container container) {
+        tauMemberRepo = container.get(TauMemberRepository.class);
     }
 
     private MemberEntity save(MemberEntity member) throws DatabaseException {

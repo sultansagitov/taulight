@@ -6,6 +6,7 @@ import net.result.sandnode.exception.DatabaseException;
 import net.result.sandnode.exception.error.BusyNicknameException;
 import net.result.sandnode.exception.error.NotFoundException;
 import net.result.sandnode.security.PasswordHashers;
+import net.result.sandnode.util.Container;
 import net.result.taulight.dto.ChatMessageInputDTO;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -23,9 +24,10 @@ public class MessagesTest {
     @BeforeAll
     public static void setup() throws DatabaseException, BusyNicknameException {
         JPAUtil.buildEntityManagerFactory();
-        MemberRepository memberRepo = new MemberRepository();
-        channelRepo = new ChannelRepository();
-        messageRepo = new MessageRepository();
+        Container container = new Container();
+        MemberRepository memberRepo = container.get(MemberRepository.class);
+        channelRepo = container.get(ChannelRepository.class);
+        messageRepo = container.get(MessageRepository.class);
 
         member1 = memberRepo.create("user1_messages", PasswordHashers.BCRYPT.hash("password123", 12)).tauMember();
         member2 = memberRepo.create("user2_messages", PasswordHashers.BCRYPT.hash("password123", 12)).tauMember();

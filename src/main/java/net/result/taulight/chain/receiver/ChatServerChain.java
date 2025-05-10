@@ -12,6 +12,7 @@ import net.result.taulight.dto.ChatInfoDTO;
 import net.result.taulight.dto.ChatInfoPropDTO;
 import net.result.taulight.message.types.ChatRequest;
 import net.result.taulight.message.types.ChatResponse;
+import net.result.taulight.util.ChatUtil;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -83,10 +84,10 @@ public class ChatServerChain extends ServerChain implements ReceiverChain {
             Collection<ChatInfoPropDTO> chatInfoProps,
             TauMemberEntity tauMember
     ) throws DatabaseException {
-        TauDatabase database = (TauDatabase) session.server.serverConfig.database();
+        ChatUtil chatUtil = session.server.container.get(ChatUtil.class);
 
         for (UUID chatID : allChatID) {
-            Optional<ChatEntity> opt = database.getChat(chatID);
+            Optional<ChatEntity> opt = chatUtil.getChat(chatID);
             if (opt.isEmpty()) {
                 infos.add(ChatInfoDTO.chatNotFound(chatID));
                 continue;

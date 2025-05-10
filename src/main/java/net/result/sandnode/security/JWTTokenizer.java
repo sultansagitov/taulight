@@ -11,6 +11,7 @@ import net.result.sandnode.exception.DatabaseException;
 import net.result.sandnode.exception.error.ExpiredTokenException;
 import net.result.sandnode.exception.error.InvalidTokenException;
 import net.result.sandnode.db.MemberEntity;
+import net.result.sandnode.util.Container;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
@@ -24,10 +25,10 @@ public class JWTTokenizer implements Tokenizer {
     private final JWTConfig jwtConfig;
     private final MemberRepository memberRepo;
 
-    public JWTTokenizer(@NotNull JWTConfig jwtConfig) {
+    public JWTTokenizer(Container container, @NotNull JWTConfig jwtConfig) {
         this.jwtConfig = jwtConfig;
         VERIFIER = JWT.require(jwtConfig.getAlgorithm()).build();
-        memberRepo = new MemberRepository();
+        memberRepo = container.get(MemberRepository.class);
     }
 
     @Override
