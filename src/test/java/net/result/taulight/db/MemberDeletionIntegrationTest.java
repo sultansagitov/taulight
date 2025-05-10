@@ -18,6 +18,7 @@ public class MemberDeletionIntegrationTest {
     private static MemberRepository memberRepo;
     private static DialogRepository dialogRepo;
     private static ChannelRepository channelRepo;
+    private static MessageRepository messageRepo;
 
     @BeforeAll
     public static void setup() {
@@ -26,6 +27,7 @@ public class MemberDeletionIntegrationTest {
         memberRepo = new MemberRepository();
         dialogRepo = new DialogRepository();
         channelRepo = new ChannelRepository();
+        messageRepo = new MessageRepository();
     }
 
     @Test
@@ -59,14 +61,14 @@ public class MemberDeletionIntegrationTest {
                 .setSentDatetimeNow()
                 .setRepliedToMessages(new HashSet<>())
                 .setSys(true);
-        database.createMessage(chat, input, tau);
+        messageRepo.create(chat, input, tau);
 
-        assertEquals(1, database.getMessageCount(chat));
+        assertEquals(1, messageRepo.countMessagesByChat(chat));
 
         boolean deleted = memberRepo.delete(member);
 
         assertTrue(deleted);
-        assertEquals(1, database.getMessageCount(chat));
+        assertEquals(1, messageRepo.countMessagesByChat(chat));
     }
 
     @Test
@@ -84,7 +86,7 @@ public class MemberDeletionIntegrationTest {
                 .setSentDatetimeNow()
                 .setRepliedToMessages(new HashSet<>())
                 .setSys(true);
-        MessageEntity msg = database.createMessage(chat, input, tau1);
+        MessageEntity msg = messageRepo.create(chat, input, tau1);
 
         ReactionPackageEntity emoji = database.createReactionPackage("emoji", "");
         ReactionTypeEntity like = database.createReactionType("Like", emoji);

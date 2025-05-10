@@ -9,10 +9,7 @@ import net.result.sandnode.group.Group;
 import net.result.sandnode.serverclient.Session;
 import net.result.taulight.chain.sender.ReactionResponseServerChain;
 import net.result.sandnode.exception.error.NotFoundException;
-import net.result.taulight.db.MessageEntity;
-import net.result.taulight.db.ReactionEntryEntity;
-import net.result.taulight.db.ReactionTypeEntity;
-import net.result.taulight.db.TauDatabase;
+import net.result.taulight.db.*;
 import net.result.taulight.message.types.ReactionRequest;
 import net.result.sandnode.message.types.HappyMessage;
 import org.apache.logging.log4j.LogManager;
@@ -28,6 +25,7 @@ public class ReactionRequestServerChain extends ServerChain implements ReceiverC
     @Override
     public void sync() throws Exception {
         TauDatabase database = (TauDatabase) session.server.serverConfig.database();
+        MessageRepository messageRepo = session.server.container.get(MessageRepository.class);
 
         ReactionRequest request = new ReactionRequest(queue.take());
 
@@ -37,8 +35,8 @@ public class ReactionRequestServerChain extends ServerChain implements ReceiverC
 
         String nickname = session.member.nickname();
 
-        MessageEntity message = database
-                .findMessage(request.getMessageID())
+        MessageEntity message = messageRepo
+                .findById(request.getMessageID())
                 .orElseThrow(NotFoundException::new);
 
         String[] packageParts = request.getReactionType().split(":");

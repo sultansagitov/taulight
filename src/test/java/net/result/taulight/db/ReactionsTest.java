@@ -18,12 +18,14 @@ class ReactionsTest {
     private static TauMemberEntity member1;
     private static TauMemberEntity member2;
     private static ChannelRepository channelRepo;
+    private static MessageRepository messageRepo;
 
     @BeforeAll
     public static void setup() throws DatabaseException, BusyNicknameException {
         JPAUtil.buildEntityManagerFactory();
         database = new TauJPADatabase(PasswordHashers.BCRYPT);
         channelRepo = new ChannelRepository();
+        messageRepo = new MessageRepository();
 
         member1 = database.registerMember("user1", "password123").tauMember();
         member2 = database.registerMember("user2", "password123").tauMember();
@@ -150,7 +152,7 @@ class ReactionsTest {
                 .setRepliedToMessages(new HashSet<>())
                 .setSys(true);
 
-        MessageEntity message = database.createMessage(channel, input, member1);
+        MessageEntity message = messageRepo.create(channel, input, member1);
 
         ReactionEntryEntity reactionEntry = database.createReactionEntry(member1, message, reactionType);
 
@@ -190,7 +192,7 @@ class ReactionsTest {
                 .setRepliedToMessages(new HashSet<>())
                 .setSys(true);
 
-        MessageEntity message = database.createMessage(channel, input, member1);
+        MessageEntity message = messageRepo.create(channel, input, member1);
 
         ReactionEntryEntity reactionEntry = database.createReactionEntry(member1, message, reactionType);
 
@@ -261,7 +263,7 @@ class ReactionsTest {
 
         MessageEntity message;
         try {
-            message = database.createMessage(channel, input, member1);
+            message = messageRepo.create(channel, input, member1);
             ReactionEntryEntity entry = database.createReactionEntry(member1, message, testType);
 
             // Remove once

@@ -18,12 +18,14 @@ public class MessagesTest {
     private static TauMemberEntity member1;
     private static TauMemberEntity member2;
     private static ChannelRepository channelRepo;
+    private static MessageRepository messageRepo;
 
     @BeforeAll
     public static void setup() throws DatabaseException, BusyNicknameException {
         JPAUtil.buildEntityManagerFactory();
         database = new TauJPADatabase(PasswordHashers.BCRYPT);
         channelRepo = new ChannelRepository();
+        messageRepo = new MessageRepository();
 
         member1 = database.registerMember("user1_messages", "password123").tauMember();
         member2 = database.registerMember("user2_messages", "password123").tauMember();
@@ -43,9 +45,9 @@ public class MessagesTest {
                 .setSentDatetimeNow()
                 .setRepliedToMessages(new HashSet<>())
                 .setSys(true);
-        MessageEntity message = database.createMessage(chat, messageInputDTO, member1);
+        MessageEntity message = messageRepo.create(chat, messageInputDTO, member1);
 
-        Optional<MessageEntity> foundMessage = database.findMessage(message.id());
+        Optional<MessageEntity> foundMessage = messageRepo.findById(message.id());
         assertTrue(foundMessage.isPresent());
         assertEquals("Hello!", foundMessage.get().content());
 
@@ -80,10 +82,10 @@ public class MessagesTest {
                 .setRepliedToMessages(new HashSet<>())
                 .setSys(true);
 
-        MessageEntity message1 = database.createMessage(channel, input1, member1);
-        MessageEntity message2 = database.createMessage(channel, input2, member2);
+        MessageEntity message1 = messageRepo.create(channel, input1, member1);
+        MessageEntity message2 = messageRepo.create(channel, input2, member2);
 
-        List<MessageEntity> messages = database.loadMessages(channel, 0, 10);
+        List<MessageEntity> messages = messageRepo.findMessagesByChat(channel, 0, 10);
         assertNotNull(messages);
         assertEquals(2, messages.size());
 
@@ -91,10 +93,10 @@ public class MessagesTest {
         assertTrue(messages.containsAll(List.of(message1, message2)), "Retrieved messages should contain both created messages");
 
         // Test pagination
-        List<MessageEntity> firstPage = database.loadMessages(channel, 0, 1);
+        List<MessageEntity> firstPage = messageRepo.findMessagesByChat(channel, 0, 1);
         assertEquals(1, firstPage.size(), "Should retrieve only one message when limit is 1");
 
-        List<MessageEntity> secondPage = database.loadMessages(channel, 1, 1);
+        List<MessageEntity> secondPage = messageRepo.findMessagesByChat(channel, 1, 1);
         assertEquals(1, secondPage.size(), "Should retrieve one message from second page");
 
         // The combination of both pages should contain all messages
@@ -119,9 +121,9 @@ public class MessagesTest {
                 .setRepliedToMessages(new HashSet<>())
                 .setSys(false);
 
-        MessageEntity message = database.createMessage(channel, input, member1);
+        MessageEntity message = messageRepo.create(channel, input, member1);
 
-        Optional<MessageEntity> found = database.findMessage(message.id());
+        Optional<MessageEntity> found = messageRepo.findById(message.id());
         assertTrue(found.isPresent());
         assertEquals("Find me", found.get().content());
 
@@ -133,7 +135,7 @@ public class MessagesTest {
 
         // Test with non-existent message ID
         UUID nonExistentID = UUID.randomUUID();
-        Optional<MessageEntity> nonExistentMessage = database.findMessage(nonExistentID);
+        Optional<MessageEntity> nonExistentMessage = messageRepo.findById(nonExistentID);
         assertFalse(nonExistentMessage.isPresent(), "Should not find non-existent message");
     }
 
@@ -157,10 +159,10 @@ public class MessagesTest {
                 .setRepliedToMessages(new HashSet<>())
                 .setSys(true);
 
-        database.createMessage(channel, input1, member1);
-        database.createMessage(channel, input2, member2);
+        messageRepo.create(channel, input1, member1);
+        messageRepo.create(channel, input2, member2);
 
-        long count = database.getMessageCount(channel);
+        long count = messageRepo.countMessagesByChat(channel);
         assertEquals(2, count);
         assertEquals(channel.messages().size(), count);
 
@@ -174,13 +176,13 @@ public class MessagesTest {
                 .setRepliedToMessages(new HashSet<>())
                 .setSys(false);
 
-        database.createMessage(channel, input3, member1);
-        long newCount = database.getMessageCount(channel);
+        messageRepo.create(channel, input3, member1);
+        long newCount = messageRepo.countMessagesByChat(channel);
         assertEquals(3, newCount, "Count should increase to 3 after adding a third message");
 
         // Test with a new empty channel
         ChannelEntity emptyChannel = channelRepo.create("Empty Channel", member1);
-        long emptyCount = database.getMessageCount(emptyChannel);
+        long emptyCount = messageRepo.countMessagesByChat(emptyChannel);
         assertEquals(0, emptyCount, "Empty channel should have zero messages");
     }
 

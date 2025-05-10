@@ -16,12 +16,14 @@ public class CascadingTest {
 
     private static TauDatabase database;
     private static ChannelRepository channelRepo;
+    private static MessageRepository messageRepo;
 
     @BeforeAll
     public static void setup() {
         JPAUtil.buildEntityManagerFactory();
         database = new TauJPADatabase(PasswordHashers.BCRYPT);
         channelRepo = new ChannelRepository();
+        messageRepo = new MessageRepository();
     }
 
     @Test
@@ -57,7 +59,7 @@ public class CascadingTest {
                 .setSentDatetimeNow()
                 .setRepliedToMessages(new HashSet<>())
                 .setSys(true);
-        MessageEntity msg = database.createMessage(chat, input, author);
+        MessageEntity msg = messageRepo.create(chat, input, author);
 
         ReactionPackageEntity basic = database.createReactionPackage("basic", "");
         ReactionTypeEntity like = database.createReactionType("Like", basic);
@@ -86,7 +88,7 @@ public class CascadingTest {
                 .setSentDatetimeNow()
                 .setRepliedToMessages(new HashSet<>())
                 .setSys(true);
-        MessageEntity msg = database.createMessage(chat, input, author);
+        MessageEntity msg = messageRepo.create(chat, input, author);
 
         ReactionPackageEntity basic = database.createReactionPackage("basic", "");
         ReactionTypeEntity haha = database.createReactionType("Haha", basic);

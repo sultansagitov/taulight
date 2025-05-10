@@ -9,9 +9,9 @@ import net.result.sandnode.exception.error.UnauthorizedException;
 import net.result.sandnode.serverclient.Session;
 import net.result.taulight.chain.sender.ForwardServerChain;
 import net.result.taulight.db.MessageEntity;
+import net.result.taulight.db.MessageRepository;
 import net.result.taulight.dto.ChatMessageInputDTO;
 import net.result.taulight.db.ChatEntity;
-import net.result.taulight.db.TauDatabase;
 import net.result.taulight.dto.ChatMessageViewDTO;
 import net.result.sandnode.exception.error.NoEffectException;
 import net.result.taulight.group.TauGroupManager;
@@ -32,9 +32,9 @@ public class TauHubProtocol {
         }
 
         TauGroupManager manager = (TauGroupManager) session.server.serverConfig.groupManager();
-        TauDatabase database = (TauDatabase) session.server.serverConfig.database();
+        MessageRepository messageRepo = session.server.container.get(MessageRepository.class);
 
-        MessageEntity message = database.createMessage(chat, input, session.member.tauMember());
+        MessageEntity message = messageRepo.create(chat, input, session.member.tauMember());
 
         ChatMessageViewDTO serverMessage = new ChatMessageViewDTO(message);
 

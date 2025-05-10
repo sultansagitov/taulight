@@ -2,9 +2,7 @@ package net.result.taulight.db;
 
 import net.result.sandnode.db.JPADatabase;
 import net.result.sandnode.exception.DatabaseException;
-import net.result.sandnode.exception.error.NotFoundException;
 import net.result.sandnode.security.PasswordHasher;
-import net.result.taulight.dto.ChatMessageInputDTO;
 
 import java.time.ZonedDateTime;
 import java.util.*;
@@ -12,7 +10,6 @@ import java.util.*;
 public class TauJPADatabase extends JPADatabase implements TauDatabase {
     private final ChannelRepository channelRepo;
     private final DialogRepository dialogRepo;
-    private final MessageRepository messageRepository;
     private final InviteCodeRepository inviteCodeRepository;
     private final ReactionTypeRepository reactionTypeRepository;
     private final ReactionEntryRepository reactionEntryRepository;
@@ -23,7 +20,6 @@ public class TauJPADatabase extends JPADatabase implements TauDatabase {
         super(hasher);
         channelRepo = new ChannelRepository();
         dialogRepo = new DialogRepository();
-        messageRepository = new MessageRepository();
         inviteCodeRepository = new InviteCodeRepository();
         reactionTypeRepository = new ReactionTypeRepository();
         reactionEntryRepository = new ReactionEntryRepository();
@@ -36,27 +32,6 @@ public class TauJPADatabase extends JPADatabase implements TauDatabase {
         Optional<ChannelEntity> channel = channelRepo.findById(id);
         if (channel.isPresent()) return channel.map(c -> c);
         return dialogRepo.findById(id).map(d -> d);
-    }
-
-    @Override
-    public List<MessageEntity> loadMessages(ChatEntity chat, int index, int size) throws DatabaseException {
-        return messageRepository.findMessagesByChat(chat, index, size);
-    }
-
-    @Override
-    public MessageEntity createMessage(ChatEntity chat, ChatMessageInputDTO input, TauMemberEntity member)
-            throws DatabaseException, NotFoundException {
-        return messageRepository.create(chat, input, member);
-    }
-
-    @Override
-    public Optional<MessageEntity> findMessage(UUID id) throws DatabaseException {
-        return messageRepository.findById(id);
-    }
-
-    @Override
-    public long getMessageCount(ChatEntity chat) throws DatabaseException {
-        return messageRepository.countMessagesByChat(chat);
     }
 
     @Override

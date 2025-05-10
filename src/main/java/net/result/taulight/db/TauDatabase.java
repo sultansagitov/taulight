@@ -3,8 +3,6 @@ package net.result.taulight.db;
 import net.result.sandnode.db.Database;
 import net.result.sandnode.db.MemberEntity;
 import net.result.sandnode.exception.DatabaseException;
-import net.result.sandnode.exception.error.NotFoundException;
-import net.result.taulight.dto.ChatMessageInputDTO;
 
 import java.time.ZonedDateTime;
 import java.util.*;
@@ -23,48 +21,6 @@ public interface TauDatabase extends Database {
      * @throws DatabaseException if a database error occurs
      */
     Optional<ChatEntity> getChat(UUID id) throws DatabaseException;
-
-    /**
-     * Creates a new message in the specified chat.
-     *
-     * @param chat the {@link ChatEntity} where the message will be added
-     * @param input the {@link ChatMessageInputDTO} containing the message content and metadata
-     * @param member the {@link TauMemberEntity} authoring the message
-     * @return the created {@link MessageEntity}
-     * @throws NotFoundException if the chat or member is not found
-     * @throws DatabaseException if a database error occurs
-     */
-    MessageEntity createMessage(ChatEntity chat, ChatMessageInputDTO input, TauMemberEntity member)
-            throws NotFoundException, DatabaseException;
-
-    /**
-     * Loads messages from a chat with pagination support.
-     *
-     * @param chat  the chat from which to load messages
-     * @param index the starting index
-     * @param size  the number of messages to load
-     * @return a list of chat messages
-     * @throws DatabaseException if a database error occurs
-     */
-    List<MessageEntity> loadMessages(ChatEntity chat, int index, int size) throws DatabaseException;
-
-    /**
-     * Finds a message by its ID.
-     *
-     * @param id the UUID of the message
-     * @return an optional MessageEntity if found
-     * @throws DatabaseException if a database error occurs
-     */
-    Optional<MessageEntity> findMessage(UUID id) throws DatabaseException;
-
-    /**
-     * Gets the count of messages in a chat.
-     *
-     * @param chat the chat to count messages from
-     * @return the total number of messages
-     * @throws DatabaseException if a database error occurs
-     */
-    long getMessageCount(ChatEntity chat) throws DatabaseException;
 
     /**
      * Retrieves an invite code by its code string.

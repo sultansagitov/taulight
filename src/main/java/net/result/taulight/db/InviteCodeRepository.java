@@ -2,7 +2,6 @@ package net.result.taulight.db;
 
 import net.result.sandnode.db.JPAUtil;
 import net.result.sandnode.exception.DatabaseException;
-import org.jetbrains.annotations.NotNull;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
@@ -71,23 +70,6 @@ public class InviteCodeRepository {
                     .getResultList();
         } catch (Exception e) {
             throw new DatabaseException(e);
-        }
-    }
-
-    public boolean delete(@NotNull InviteCodeEntity inviteCodeEntity) throws DatabaseException {
-        EntityTransaction transaction = em.getTransaction();
-        try {
-            if (em.find(InviteCodeEntity.class, inviteCodeEntity.id()) != null) {
-                transaction.begin();
-                em.remove(inviteCodeEntity);
-                transaction.commit();
-                return true;
-            }
-
-            return false;
-        } catch (Exception e) {
-            if (transaction.isActive()) transaction.rollback();
-            throw new DatabaseException("Failed to delete invite code", e);
         }
     }
 
