@@ -2,12 +2,13 @@ package net.result.sandnode.chain.receiver;
 
 import net.result.sandnode.chain.ReceiverChain;
 import net.result.sandnode.chain.ServerChain;
-import net.result.sandnode.db.Database;
+import net.result.sandnode.db.MemberRepository;
 import net.result.sandnode.exception.SandnodeException;
 import net.result.sandnode.exception.error.InvalidNicknamePassword;
 import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.message.types.RegistrationRequest;
 import net.result.sandnode.message.types.RegistrationResponse;
+import net.result.sandnode.security.PasswordHasher;
 import net.result.sandnode.security.Tokenizer;
 import net.result.sandnode.serverclient.Session;
 
@@ -20,8 +21,9 @@ public class RegistrationServerChain extends ServerChain implements ReceiverChai
     public void sync() throws InterruptedException, SandnodeException {
         RawMessage request = queue.take();
 
-        Database database = session.server.serverConfig.database();
+        MemberRepository memberRepo = session.server.container.get(MemberRepository.class);
         Tokenizer tokenizer = session.server.serverConfig.tokenizer();
+        PasswordHasher hasher = session.server.serverConfig.hasher();
 
         RegistrationRequest regMsg = new RegistrationRequest(request);
         String nickname = regMsg.getNickname();
@@ -31,7 +33,7 @@ public class RegistrationServerChain extends ServerChain implements ReceiverChai
             throw new InvalidNicknamePassword();
         }
 
-        session.member = database.registerMember(nickname, password);
+        session.member = memberRepo.create(nickname, hasher.hash(password, 12));
         String token = tokenizer.tokenizeMember(session.member);
         sendFin(new RegistrationResponse(token));
     }

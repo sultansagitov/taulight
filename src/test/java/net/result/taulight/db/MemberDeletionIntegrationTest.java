@@ -14,7 +14,6 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class MemberDeletionIntegrationTest {
 
-    private static TauDatabase database;
     private static MemberRepository memberRepo;
     private static DialogRepository dialogRepo;
     private static ChannelRepository channelRepo;
@@ -27,7 +26,6 @@ public class MemberDeletionIntegrationTest {
     @BeforeAll
     public static void setup() {
         JPAUtil.buildEntityManagerFactory();
-        database = new TauJPADatabase(PasswordHashers.BCRYPT);
         memberRepo = new MemberRepository();
         dialogRepo = new DialogRepository();
         channelRepo = new ChannelRepository();
@@ -40,8 +38,8 @@ public class MemberDeletionIntegrationTest {
 
     @Test
     public void testDeleteMemberAndCheckDialogCleanup() throws Exception {
-        MemberEntity m1 = database.registerMember("alice", "pass1");
-        MemberEntity m2 = database.registerMember("bob", "pass2");
+        MemberEntity m1 = memberRepo.create("alice", PasswordHashers.BCRYPT.hash("pass1", 12));
+        MemberEntity m2 = memberRepo.create("bob", PasswordHashers.BCRYPT.hash("pass2", 12));
 
         TauMemberEntity tau1 = m1.tauMember();
         TauMemberEntity tau2 = m2.tauMember();
@@ -58,7 +56,7 @@ public class MemberDeletionIntegrationTest {
 
     @Test
     public void testDeleteMemberAndCheckMessageCleanup() throws Exception {
-        MemberEntity member = database.registerMember("charlie", "123");
+        MemberEntity member = memberRepo.create("charlie", PasswordHashers.BCRYPT.hash("123", 12));
         TauMemberEntity tau = member.tauMember();
 
         ChatEntity chat = channelRepo.create("general", tau);
@@ -81,8 +79,8 @@ public class MemberDeletionIntegrationTest {
 
     @Test
     public void testDeleteMemberAndCheckReactionCleanup() throws Exception {
-        MemberEntity m1 = database.registerMember("eva", "123");
-        MemberEntity m2 = database.registerMember("oliver", "456");
+        MemberEntity m1 = memberRepo.create("eva", PasswordHashers.BCRYPT.hash("123", 12));
+        MemberEntity m2 = memberRepo.create("oliver", PasswordHashers.BCRYPT.hash("456", 12));
         TauMemberEntity tau1 = m1.tauMember();
         TauMemberEntity tau2 = m2.tauMember();
 
@@ -111,8 +109,8 @@ public class MemberDeletionIntegrationTest {
 
     @Test
     public void testDeleteMemberAndCheckInviteCleanup() throws Exception {
-        MemberEntity owner = database.registerMember("sam", "123");
-        MemberEntity invited = database.registerMember("jack", "456");
+        MemberEntity owner = memberRepo.create("sam", PasswordHashers.BCRYPT.hash("123", 12));
+        MemberEntity invited = memberRepo.create("jack", PasswordHashers.BCRYPT.hash("456", 12));
         TauMemberEntity tauOwner = owner.tauMember();
         TauMemberEntity tauInvited = invited.tauMember();
 

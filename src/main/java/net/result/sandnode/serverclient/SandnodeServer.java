@@ -1,5 +1,6 @@
 package net.result.sandnode.serverclient;
 
+import net.result.sandnode.db.JPAUtil;
 import net.result.sandnode.hubagent.Node;
 import net.result.sandnode.config.ServerConfig;
 import net.result.sandnode.exception.*;
@@ -110,6 +111,6 @@ public class SandnodeServer {
 
         node.close();
 
-        serverConfig.database().shutdown();
+        JPAUtil.shutdown();
     }
 }

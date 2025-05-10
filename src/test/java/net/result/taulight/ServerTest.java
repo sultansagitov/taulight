@@ -155,8 +155,9 @@ public class ServerTest {
                     null,
                     asymmetricEncryption,
                     new HashSetGroupManager(),
-                    new TauJPADatabase(PasswordHashers.BCRYPT),
-                    new JWTTokenizer(() -> Algorithm.HMAC256("test"))
+                    new TauJPADatabase(),
+                    new JWTTokenizer(() -> Algorithm.HMAC256("test")),
+                    PasswordHashers.BCRYPT
             );
             server = new SandnodeServer(hub, serverConfig);
         }

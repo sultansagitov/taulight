@@ -1,6 +1,7 @@
 package net.result.taulight.db;
 
 import net.result.sandnode.db.JPAUtil;
+import net.result.sandnode.db.MemberRepository;
 import net.result.sandnode.exception.DatabaseException;
 import net.result.sandnode.exception.error.BusyNicknameException;
 import net.result.sandnode.security.PasswordHashers;
@@ -20,7 +21,6 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class ChatsTest {
-
     private static TauDatabase database;
     private static TauMemberEntity member1;
     private static TauMemberEntity member2;
@@ -35,16 +35,17 @@ public class ChatsTest {
     public static void setup() throws DatabaseException, BusyNicknameException {
         JPAUtil.buildEntityManagerFactory();
 
-        database = new TauJPADatabase(PasswordHashers.BCRYPT);
+        database = new TauJPADatabase();
+        MemberRepository memberRepo = new MemberRepository();
         dialogRepo = new DialogRepository();
         channelRepo = new ChannelRepository();
 
-        member1 = database.registerMember("user1_chats", "password123").tauMember();
-        member2 = database.registerMember("user2_chats", "password123").tauMember();
-        member3 = database.registerMember("user3_chats", "password123").tauMember();
-        member4 = database.registerMember("user4_chats", "password123").tauMember();
-        member5 = database.registerMember("user5_chats", "password123").tauMember();
-        member6 = database.registerMember("user6_chats", "password123").tauMember();
+        member1 = memberRepo.create("user1_chats", PasswordHashers.BCRYPT.hash("password123", 12)).tauMember();
+        member2 = memberRepo.create("user2_chats", PasswordHashers.BCRYPT.hash("password123", 12)).tauMember();
+        member3 = memberRepo.create("user3_chats", PasswordHashers.BCRYPT.hash("password123", 12)).tauMember();
+        member4 = memberRepo.create("user4_chats", PasswordHashers.BCRYPT.hash("password123", 12)).tauMember();
+        member5 = memberRepo.create("user5_chats", PasswordHashers.BCRYPT.hash("password123", 12)).tauMember();
+        member6 = memberRepo.create("user6_chats", PasswordHashers.BCRYPT.hash("password123", 12)).tauMember();
 
         // Assert that all members are properly created
         assertNotNull(member1.id());

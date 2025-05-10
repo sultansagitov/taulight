@@ -13,12 +13,15 @@ import net.result.sandnode.exception.crypto.CreatingKeyException;
 import net.result.sandnode.exception.crypto.EncryptionTypeException;
 import net.result.sandnode.exception.error.KeyStorageNotFoundException;
 import net.result.sandnode.hubagent.Hub;
+import net.result.sandnode.security.PasswordHasher;
+import net.result.sandnode.security.PasswordHashers;
 import net.result.sandnode.serverclient.SandnodeServer;
 import net.result.sandnode.util.Endpoint;
 import net.result.sandnode.db.Database;
 import net.result.sandnode.group.GroupManager;
 import net.result.sandnode.security.Tokenizer;
 import org.jetbrains.annotations.NotNull;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import java.net.URI;
@@ -27,11 +30,14 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class LinksTest {
 
+    @BeforeAll
+    static void setup() {
+        EncryptionManager.registerAll();
+    }
+
     @Test
     public void testGetServerLink() throws KeyStorageNotFoundException, EncryptionTypeException {
-        EncryptionManager.registerAll();
-
-        SandnodeServer server = createTestServer();
+        SandnodeServer server = new SandnodeServer(new TestHub(), new TestServerConfig());
 
         URI serverLink = SandnodeLinkRecord.fromServer(server).getURI();
 
@@ -44,8 +50,6 @@ public class LinksTest {
 
     @Test
     public void testParse() throws CreatingKeyException, InvalidSandnodeLinkException, CannotUseEncryption {
-        EncryptionManager.registerAll();
-
         AsymmetricKeyStorage eciesKeyStorage = AsymmetricEncryptions.ECIES.generate();
 
         String validLink = "sandnode://hub@localhost:52525?encryption=ECIES&key=%s"
@@ -80,13 +84,6 @@ public class LinksTest {
         assertThrows(InvalidSandnodeLinkException.class, () -> Links.parse(invalidLink));
     }
 
-    private SandnodeServer createTestServer() {
-        return new SandnodeServer(
-            new TestHub(),
-            new TestServerConfig()
-        );
-    }
-
     static class TestServerConfig implements ServerConfig {
         public Endpoint endpoint() {
             return new Endpoint("localhost", 52525);
@@ -118,6 +115,11 @@ public class LinksTest {
         @Override
         public KeyStorageRegistry readKey(AsymmetricEncryption mainEncryption) {
             return null;
+        }
+
+        @Override
+        public PasswordHasher hasher() {
+            return PasswordHashers.BCRYPT;
         }
     }
 

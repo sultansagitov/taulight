@@ -2,6 +2,7 @@ package net.result.taulight.db;
 
 import net.result.sandnode.db.JPAUtil;
 import net.result.sandnode.db.MemberEntity;
+import net.result.sandnode.db.MemberRepository;
 import net.result.sandnode.security.PasswordHashers;
 import net.result.taulight.dto.ChatMessageInputDTO;
 import org.junit.jupiter.api.BeforeAll;
@@ -13,8 +14,7 @@ import java.util.HashSet;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class CascadingTest {
-
-    private static TauDatabase database;
+    private static MemberRepository memberRepo;
     private static ChannelRepository channelRepo;
     private static MessageRepository messageRepo;
     private static InviteCodeRepository inviteCodeRepo;
@@ -25,7 +25,7 @@ public class CascadingTest {
     @BeforeAll
     public static void setup() {
         JPAUtil.buildEntityManagerFactory();
-        database = new TauJPADatabase(PasswordHashers.BCRYPT);
+        memberRepo = new MemberRepository();
         channelRepo = new ChannelRepository();
         messageRepo = new MessageRepository();
         inviteCodeRepo = new InviteCodeRepository();
@@ -36,7 +36,7 @@ public class CascadingTest {
 
     @Test
     public void testLeaveFromChannel() throws Exception {
-        MemberEntity m1 = database.registerMember("new_user", "pass");
+        MemberEntity m1 = memberRepo.create("new_user", PasswordHashers.BCRYPT.hash("pass", 12));
         TauMemberEntity tau = m1.tauMember();
 
         ChannelEntity channel = channelRepo.create("news", tau);
@@ -53,8 +53,8 @@ public class CascadingTest {
 
     @Test
     public void testRemoveReactionByObject() throws Exception {
-        MemberEntity m1 = database.registerMember("reacter", "123");
-        MemberEntity m2 = database.registerMember("author", "123");
+        MemberEntity m1 = memberRepo.create("reacter", PasswordHashers.BCRYPT.hash("123", 12));
+        MemberEntity m2 = memberRepo.create("author", PasswordHashers.BCRYPT.hash("123", 12));
 
         TauMemberEntity reacter = m1.tauMember();
         TauMemberEntity author = m2.tauMember();
@@ -82,8 +82,8 @@ public class CascadingTest {
 
     @Test
     public void testRemoveReactionByCompositeKey() throws Exception {
-        MemberEntity m1 = database.registerMember("maria", "123");
-        MemberEntity m2 = database.registerMember("mark", "123");
+        MemberEntity m1 = memberRepo.create("maria", PasswordHashers.BCRYPT.hash("123", 12));
+        MemberEntity m2 = memberRepo.create("mark", PasswordHashers.BCRYPT.hash("123", 12));
 
         TauMemberEntity reacter = m1.tauMember();
         TauMemberEntity author = m2.tauMember();
@@ -111,8 +111,8 @@ public class CascadingTest {
 
     @Test
     public void testActivateInviteCode() throws Exception {
-        MemberEntity sender = database.registerMember("sender", "pass");
-        MemberEntity receiver = database.registerMember("receiver", "pass");
+        MemberEntity sender = memberRepo.create("sender", PasswordHashers.BCRYPT.hash("pass", 12));
+        MemberEntity receiver = memberRepo.create("receiver", PasswordHashers.BCRYPT.hash("pass", 12));
         TauMemberEntity s = sender.tauMember();
         TauMemberEntity r = receiver.tauMember();
 

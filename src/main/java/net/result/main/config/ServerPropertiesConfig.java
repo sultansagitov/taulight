@@ -10,6 +10,7 @@ import net.result.sandnode.exception.ConfigurationException;
 import net.result.sandnode.exception.FSException;
 import net.result.sandnode.exception.ImpossibleRuntimeException;
 import net.result.sandnode.exception.crypto.*;
+import net.result.sandnode.security.PasswordHasher;
 import net.result.sandnode.security.PasswordHashers;
 import net.result.sandnode.util.Endpoint;
 import net.result.sandnode.util.FileUtil;
@@ -27,6 +28,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Arrays;
 import java.util.Properties;
 
 public class ServerPropertiesConfig implements ServerConfig {
@@ -38,6 +40,7 @@ public class ServerPropertiesConfig implements ServerConfig {
     private GroupManager groupManager;
     private Database database;
     private Tokenizer tokenizer;
+    private final PasswordHasher HASHER;
 
     public ServerPropertiesConfig()
             throws ConfigurationException, FSException, NoSuchEncryptionException, EncryptionTypeException {
@@ -78,6 +81,11 @@ public class ServerPropertiesConfig implements ServerConfig {
         PRIVATE_KEY_PATH = FileUtil.resolveHome(KEYS_DIR.resolve(privateKeyProperty));
 
         MAIN_ENCRYPTION = EncryptionManager.find(properties.getProperty("server.keys.main")).asymmetric();
+        String hasherName = properties.getProperty("hub.hasher");
+        HASHER = Arrays.stream(PasswordHashers.values())
+                .filter(h -> h.name().equalsIgnoreCase(hasherName))
+                .findFirst()
+                .orElse(PasswordHashers.values()[0]);
 
         if (!Files.exists(KEYS_DIR)) {
             LOGGER.info("KEYS_DIR does not exist, creating it: \"{}\"", KEYS_DIR);
@@ -85,7 +93,7 @@ public class ServerPropertiesConfig implements ServerConfig {
         }
 
         try {
-            setDatabase(new TauJPADatabase(PasswordHashers.BCRYPT));
+            setDatabase(new TauJPADatabase());
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -181,5 +189,10 @@ public class ServerPropertiesConfig implements ServerConfig {
         }
         AsymmetricKeyStorage keyStorage = mainEncryption.merge(publicKeyStorage, privateKeyStorage);
         return new KeyStorageRegistry(keyStorage);
+    }
+
+    @Override
+    public PasswordHasher hasher() {
+        return HASHER;
     }
 }

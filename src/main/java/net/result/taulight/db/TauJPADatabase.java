@@ -1,17 +1,15 @@
 package net.result.taulight.db;
 
-import net.result.sandnode.db.JPADatabase;
 import net.result.sandnode.exception.DatabaseException;
-import net.result.sandnode.security.PasswordHasher;
 
 import java.util.*;
 
-public class TauJPADatabase extends JPADatabase implements TauDatabase {
+public class TauJPADatabase implements TauDatabase {
     private final ChannelRepository channelRepo;
     private final DialogRepository dialogRepo;
 
-    public TauJPADatabase(PasswordHasher hasher) {
-        super(hasher);
+    public TauJPADatabase() {
+        super();
         channelRepo = new ChannelRepository();
         dialogRepo = new DialogRepository();
     }

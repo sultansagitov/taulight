@@ -2,13 +2,13 @@ package net.result.sandnode.chain.receiver;
 
 import net.result.sandnode.chain.ReceiverChain;
 import net.result.sandnode.chain.ServerChain;
-import net.result.sandnode.db.Database;
 import net.result.sandnode.db.LoginRepository;
 import net.result.sandnode.db.MemberEntity;
 import net.result.sandnode.db.MemberRepository;
 import net.result.sandnode.exception.error.UnauthorizedException;
 import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.message.types.*;
+import net.result.sandnode.security.PasswordHasher;
 import net.result.sandnode.serverclient.Session;
 
 public abstract class LogPasswdServerChain extends ServerChain implements ReceiverChain {
@@ -23,14 +23,14 @@ public abstract class LogPasswdServerChain extends ServerChain implements Receiv
         RawMessage request = queue.take();
         LogPasswdRequest msg = new LogPasswdRequest(request);
 
-        Database database = session.server.serverConfig.database();
         MemberRepository memberRepo = session.server.container.get(MemberRepository.class);
+        PasswordHasher hasher = session.server.serverConfig.hasher();
 
         MemberEntity member = memberRepo
                 .findByNickname(msg.getNickname())
                 .orElseThrow(UnauthorizedException::new);
 
-        boolean verified = database.hasher().verify(msg.getPassword(), member.hashedPassword());
+        boolean verified = hasher.verify(msg.getPassword(), member.hashedPassword());
         if (!verified) {
             throw new UnauthorizedException();
         }

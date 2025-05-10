@@ -12,19 +12,17 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class MembersTest {
 
-    private static Database database;
     private static MemberRepository memberRepo;
 
     @BeforeAll
     public static void setup() {
         JPAUtil.buildEntityManagerFactory();
         memberRepo = new MemberRepository();
-        database = new JPADatabase(PasswordHashers.BCRYPT);
     }
 
     @Test
     public void registerMember() throws DatabaseException, BusyNicknameException {
-        MemberEntity newMember = database.registerMember("testuser123", "securePass!");
+        MemberEntity newMember = memberRepo.create("testuser123", PasswordHashers.BCRYPT.hash("securePass!", 12));
         assertNotNull(newMember);
         assertEquals("testuser123", newMember.nickname());
 
@@ -35,12 +33,12 @@ class MembersTest {
         assertEquals(0, newMember.tauMember().channels().size(), "New member should have no channels");
 
         // Test duplicate nickname
-        assertThrows(BusyNicknameException.class, () -> database.registerMember("testuser123", "securePass!"));
+        assertThrows(BusyNicknameException.class, () -> memberRepo.create("testuser123", PasswordHashers.BCRYPT.hash("securePass!", 12)));
     }
 
     @Test
     public void findMemberByNickname() throws DatabaseException, BusyNicknameException {
-        MemberEntity registeredMember = database.registerMember("nicksearch", "pass1234");
+        MemberEntity registeredMember = memberRepo.create("nicksearch", PasswordHashers.BCRYPT.hash("pass1234", 12));
 
         Optional<MemberEntity> found = memberRepo.findByNickname("nicksearch");
         assertTrue(found.isPresent());

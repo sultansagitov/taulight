@@ -1,6 +1,7 @@
 package net.result.taulight.db;
 
 import net.result.sandnode.db.JPAUtil;
+import net.result.sandnode.db.MemberRepository;
 import net.result.sandnode.exception.DatabaseException;
 import net.result.sandnode.exception.error.BusyNicknameException;
 import net.result.sandnode.security.PasswordHashers;
@@ -28,16 +29,16 @@ public class InviteCodesTest {
     public static void setup() throws DatabaseException, BusyNicknameException {
         JPAUtil.buildEntityManagerFactory();
 
-        TauDatabase database = new TauJPADatabase(PasswordHashers.BCRYPT);
+        MemberRepository memberRepo = new MemberRepository();
         channelRepo = new ChannelRepository();
         inviteCodeRepo = new InviteCodeRepository();
 
-        member1 = database.registerMember("user1_invites", "password123").tauMember();
-        member2 = database.registerMember("user2_invites", "password123").tauMember();
-        member3 = database.registerMember("user3_invites", "password123").tauMember();
-        member4 = database.registerMember("user4_invites", "password123").tauMember();
-        member5 = database.registerMember("user5_invites", "password123").tauMember();
-        member6 = database.registerMember("user6_invites", "password123").tauMember();
+        member1 = memberRepo.create("user1_invites", PasswordHashers.BCRYPT.hash("password123", 12)).tauMember();
+        member2 = memberRepo.create("user2_invites", PasswordHashers.BCRYPT.hash("password123", 12)).tauMember();
+        member3 = memberRepo.create("user3_invites", PasswordHashers.BCRYPT.hash("password123", 12)).tauMember();
+        member4 = memberRepo.create("user4_invites", PasswordHashers.BCRYPT.hash("password123", 12)).tauMember();
+        member5 = memberRepo.create("user5_invites", PasswordHashers.BCRYPT.hash("password123", 12)).tauMember();
+        member6 = memberRepo.create("user6_invites", PasswordHashers.BCRYPT.hash("password123", 12)).tauMember();
 
         // Assert that all members are properly created
         assertNotNull(member1.id());

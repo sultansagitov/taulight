@@ -3,6 +3,7 @@ package net.result.sandnode.config;
 import net.result.sandnode.encryption.KeyStorageRegistry;
 import net.result.sandnode.encryption.interfaces.AsymmetricEncryption;
 import net.result.sandnode.encryption.interfaces.AsymmetricKeyStorage;
+import net.result.sandnode.security.PasswordHasher;
 import net.result.sandnode.util.Endpoint;
 import net.result.sandnode.db.Database;
 import net.result.sandnode.group.GroupManager;
@@ -17,7 +18,8 @@ public record ServerConfigRecord(
         AsymmetricEncryption mainEncryption,
         GroupManager groupManager,
         Database database,
-        Tokenizer tokenizer
+        Tokenizer tokenizer,
+        PasswordHasher hasher
 ) implements ServerConfig {
     @Override
     public void saveKey(AsymmetricKeyStorage keyStorage) {}

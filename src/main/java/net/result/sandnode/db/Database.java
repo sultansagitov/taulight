@@ -1,31 +1,7 @@
 package net.result.sandnode.db;
 
-import net.result.sandnode.exception.error.BusyNicknameException;
-import net.result.sandnode.exception.DatabaseException;
-import net.result.sandnode.security.PasswordHasher;
-
 /**
  * Interface representing a database layer.
  */
 public interface Database {
-
-    /**
-     * Registers a new member with the given nickname and password.
-     *
-     * @param nickname the nickname of the member to register
-     * @param password the raw password of the member to register
-     * @return the registered {@link MemberEntity}
-     * @throws BusyNicknameException if the nickname is already taken
-     * @throws DatabaseException if a general database error occurs
-     */
-    MemberEntity registerMember(String nickname, String password) throws BusyNicknameException, DatabaseException;
-
-    /**
-     * Returns the {@link PasswordHasher} used for password hashing and verification.
-     *
-     * @return the {@link PasswordHasher} instance
-     */
-    PasswordHasher hasher();
-
-    void shutdown();
 }

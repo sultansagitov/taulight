@@ -1,6 +1,7 @@
 package net.result.taulight.db;
 
 import net.result.sandnode.db.JPAUtil;
+import net.result.sandnode.db.MemberRepository;
 import net.result.sandnode.exception.DatabaseException;
 import net.result.sandnode.exception.error.BusyNicknameException;
 import net.result.sandnode.exception.error.NotFoundException;
@@ -22,12 +23,12 @@ public class MessagesTest {
     @BeforeAll
     public static void setup() throws DatabaseException, BusyNicknameException {
         JPAUtil.buildEntityManagerFactory();
-        TauDatabase database = new TauJPADatabase(PasswordHashers.BCRYPT);
+        MemberRepository memberRepo = new MemberRepository();
         channelRepo = new ChannelRepository();
         messageRepo = new MessageRepository();
 
-        member1 = database.registerMember("user1_messages", "password123").tauMember();
-        member2 = database.registerMember("user2_messages", "password123").tauMember();
+        member1 = memberRepo.create("user1_messages", PasswordHashers.BCRYPT.hash("password123", 12)).tauMember();
+        member2 = memberRepo.create("user2_messages", PasswordHashers.BCRYPT.hash("password123", 12)).tauMember();
 
         assertNotNull(member1.id());
         assertNotNull(member2.id());

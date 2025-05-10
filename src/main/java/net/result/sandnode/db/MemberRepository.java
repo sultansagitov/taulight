@@ -1,6 +1,9 @@
 package net.result.sandnode.db;
 
 import net.result.sandnode.exception.DatabaseException;
+import net.result.sandnode.exception.error.BusyNicknameException;
+import net.result.taulight.db.TauMemberEntity;
+import net.result.taulight.db.TauMemberRepository;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
@@ -8,6 +11,11 @@ import java.util.Optional;
 
 public class MemberRepository {
     private final EntityManager em = JPAUtil.getEntityManager();
+    private final TauMemberRepository tauMemberRepo;
+
+    public MemberRepository() {
+        tauMemberRepo = new TauMemberRepository();
+    }
 
     private MemberEntity save(MemberEntity member) throws DatabaseException {
         while (em.find(MemberEntity.class, member.id()) != null) {
@@ -19,6 +27,10 @@ public class MemberRepository {
             transaction.begin();
             MemberEntity merge = em.merge(member);
             transaction.commit();
+
+            TauMemberEntity tauMember = tauMemberRepo.create(merge);
+            merge.setTauMember(tauMember);
+
             return merge;
         } catch (Exception e) {
             if (transaction.isActive()) transaction.rollback();
@@ -26,7 +38,8 @@ public class MemberRepository {
         }
     }
 
-    public MemberEntity create(String nickname, String hashedPassword) throws DatabaseException {
+    public MemberEntity create(String nickname, String hashedPassword) throws DatabaseException, BusyNicknameException {
+        if (findByNickname(nickname).isPresent()) throw new BusyNicknameException();
         return save(new MemberEntity(nickname, hashedPassword));
     }
 

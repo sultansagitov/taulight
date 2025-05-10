@@ -6,6 +6,7 @@ import net.result.sandnode.encryption.interfaces.AsymmetricKeyStorage;
 import net.result.sandnode.exception.crypto.SavingKeyException;
 import net.result.sandnode.exception.crypto.CreatingKeyException;
 import net.result.sandnode.exception.crypto.ReadingKeyException;
+import net.result.sandnode.security.PasswordHasher;
 import net.result.sandnode.util.Endpoint;
 import net.result.sandnode.db.Database;
 import net.result.sandnode.group.GroupManager;
@@ -26,4 +27,6 @@ public interface ServerConfig {
     void saveKey(AsymmetricKeyStorage keyStorage) throws SavingKeyException;
 
     KeyStorageRegistry readKey(AsymmetricEncryption mainEncryption) throws CreatingKeyException, ReadingKeyException;
+
+    PasswordHasher hasher();
 }
