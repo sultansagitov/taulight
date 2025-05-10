@@ -15,7 +15,6 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class InviteCodesTest {
-    private static TauDatabase database;
     private static TauMemberEntity member1;
     private static TauMemberEntity member2;
     private static TauMemberEntity member3;
@@ -23,13 +22,15 @@ public class InviteCodesTest {
     private static TauMemberEntity member5;
     private static TauMemberEntity member6;
     private static ChannelRepository channelRepo;
+    private static InviteCodeRepository inviteCodeRepo;
 
     @BeforeAll
     public static void setup() throws DatabaseException, BusyNicknameException {
         JPAUtil.buildEntityManagerFactory();
 
-        database = new TauJPADatabase(PasswordHashers.BCRYPT);
+        TauDatabase database = new TauJPADatabase(PasswordHashers.BCRYPT);
         channelRepo = new ChannelRepository();
+        inviteCodeRepo = new InviteCodeRepository();
 
         member1 = database.registerMember("user1_invites", "password123").tauMember();
         member2 = database.registerMember("user2_invites", "password123").tauMember();
@@ -52,10 +53,10 @@ public class InviteCodesTest {
         ChannelEntity channel = channelRepo.create("Test Channel", member1);
 
         ZonedDateTime expiresDate = ZonedDateTime.now().plusDays(1);
-        InviteCodeEntity inviteCode = database.createInviteCode(channel, member2, member1, expiresDate);
+        InviteCodeEntity inviteCode = inviteCodeRepo.create(channel, member2, member1, expiresDate);
 
         String stringCode = inviteCode.code();
-        Optional<InviteCodeEntity> foundInviteCode = database.findInviteCode(stringCode);
+        Optional<InviteCodeEntity> foundInviteCode = inviteCodeRepo.find(stringCode);
         assertTrue(foundInviteCode.isPresent());
         assertEquals(stringCode, foundInviteCode.get().code());
 
@@ -73,9 +74,9 @@ public class InviteCodesTest {
         ChannelEntity channel = channelRepo.create("InviteChannel", member1);
 
         ZonedDateTime expiration = ZonedDateTime.now().plusDays(1);
-        InviteCodeEntity invite = database.createInviteCode(channel, member2, member1, expiration);
+        InviteCodeEntity invite = inviteCodeRepo.create(channel, member2, member1, expiration);
 
-        Optional<InviteCodeEntity> result = database.findInviteCode(invite.code());
+        Optional<InviteCodeEntity> result = inviteCodeRepo.find(invite.code());
         assertTrue(result.isPresent());
         assertEquals(invite, result.get());
 
@@ -86,7 +87,7 @@ public class InviteCodesTest {
         assertEquals(invite.sender(), result.get().sender(), "Senders should match");
 
         // Test with non-existent invite code
-        Optional<InviteCodeEntity> nonExistentInvite = database.findInviteCode("non-existent-code");
+        Optional<InviteCodeEntity> nonExistentInvite = inviteCodeRepo.find("non-existent-code");
         assertFalse(nonExistentInvite.isPresent(), "Should not find non-existent invite code");
     }
 
@@ -95,10 +96,10 @@ public class InviteCodesTest {
         ChannelEntity channel = channelRepo.create("InviteChannel", member3);
 
         ZonedDateTime expiration = ZonedDateTime.now().plusDays(1);
-        InviteCodeEntity invite1 = database.createInviteCode(channel, member4, member3, expiration);
-        InviteCodeEntity invite2 = database.createInviteCode(channel, member4, member3, expiration);
+        InviteCodeEntity invite1 = inviteCodeRepo.create(channel, member4, member3, expiration);
+        InviteCodeEntity invite2 = inviteCodeRepo.create(channel, member4, member3, expiration);
 
-        Collection<InviteCodeEntity> result = database.findInviteCode(channel, member4);
+        Collection<InviteCodeEntity> result = inviteCodeRepo.find(channel, member4);
         assertEquals(2, result.size());
 
         // Additional assertions
@@ -107,13 +108,13 @@ public class InviteCodesTest {
         assertTrue(inviteCodes.contains(invite2.code()), "Result should contain second invite code");
 
         // Test with a different receiver
-        InviteCodeEntity invite3 = database.createInviteCode(channel, member5, member3, expiration);
-        Collection<InviteCodeEntity> result2 = database.findInviteCode(channel, member5);
+        InviteCodeEntity invite3 = inviteCodeRepo.create(channel, member5, member3, expiration);
+        Collection<InviteCodeEntity> result2 = inviteCodeRepo.find(channel, member5);
         assertEquals(1, result2.size(), "Should find only one invite from member5");
         assertEquals(invite3.code(), result2.iterator().next().code(), "Should find the correct invite");
 
         // Test with no invites
-        Collection<InviteCodeEntity> emptyResult = database.findInviteCode(channel, member6);
+        Collection<InviteCodeEntity> emptyResult = inviteCodeRepo.find(channel, member6);
         assertEquals(0, emptyResult.size(), "Should find no invites for member6");
     }
 
@@ -122,24 +123,24 @@ public class InviteCodesTest {
         ChannelEntity channel = channelRepo.create("Test Channel", member1);
 
         ZonedDateTime expiresDate = ZonedDateTime.now().plusDays(1);
-        InviteCodeEntity inviteCode = database.createInviteCode(channel, member1, member2, expiresDate);
+        InviteCodeEntity inviteCode = inviteCodeRepo.create(channel, member1, member2, expiresDate);
 
-        boolean activated = database.activateInviteCode(inviteCode);
+        boolean activated = inviteCodeRepo.activate(inviteCode);
         assertTrue(activated);
 
         // Additional assertions
-        Optional<InviteCodeEntity> found = database.findInviteCode(inviteCode.code());
+        Optional<InviteCodeEntity> found = inviteCodeRepo.find(inviteCode.code());
         assertTrue(found.isPresent(), "Should still find the invite code after activation");
         assertNotNull(found.get().activationDate(), "Invite code should be marked as activated");
 
         // Test activating an already activated code
-        boolean activatedAgain = database.activateInviteCode(inviteCode);
+        boolean activatedAgain = inviteCodeRepo.activate(inviteCode);
         assertFalse(activatedAgain, "Should not activate an already activated invite code");
 
         // Test with an expired invite code
         ZonedDateTime pastDate = ZonedDateTime.now().minusDays(1);
-        InviteCodeEntity expiredInvite = database.createInviteCode(channel, member1, member3, pastDate);
-        boolean activatedExpired = database.activateInviteCode(expiredInvite);
+        InviteCodeEntity expiredInvite = inviteCodeRepo.create(channel, member1, member3, pastDate);
+        boolean activatedExpired = inviteCodeRepo.activate(expiredInvite);
         assertFalse(activatedExpired, "Should not activate an expired invite code");
     }
 

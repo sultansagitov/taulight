@@ -45,6 +45,7 @@ public class ChannelServerChain extends ServerChain implements ReceiverChain {
     private TauGroupManager manager;
     private ChannelRepository channelRepo;
     private MemberRepository memberRepo;
+    private InviteCodeRepository inviteCodeRepo;
 
     public ChannelServerChain(Session session) {
         super(session);
@@ -57,6 +58,7 @@ public class ChannelServerChain extends ServerChain implements ReceiverChain {
 
         channelRepo = session.server.container.get(ChannelRepository.class);
         memberRepo = session.server.container.get(MemberRepository.class);
+        inviteCodeRepo = session.server.container.get(InviteCodeRepository.class);
 
         ChannelRequest request = new ChannelRequest(queue.take());
 
@@ -124,7 +126,7 @@ public class ChannelServerChain extends ServerChain implements ReceiverChain {
         if (members.contains(member)) throw new NoEffectException();
 
         // Receiver already have invite code
-        for (InviteCodeEntity inviteCodeEntity : database.findInviteCode(channel, member)) {
+        for (InviteCodeEntity inviteCodeEntity : inviteCodeRepo.find(channel, member)) {
             if (inviteCodeEntity.activationDate() == null
                     || !inviteCodeEntity.expiresDate().isAfter(ZonedDateTime.now())) {
                 throw new NoEffectException();
@@ -132,7 +134,7 @@ public class ChannelServerChain extends ServerChain implements ReceiverChain {
         }
 
         ZonedDateTime expiresDate = ZonedDateTime.now().plus(request.expirationTime);
-        InviteCodeEntity code = database.createInviteCode(channel, member, you, expiresDate);
+        InviteCodeEntity code = inviteCodeRepo.create(channel, member, you, expiresDate);
 
         sendFin(new TextMessage(new Headers().setType(TauMessageTypes.CHANNEL), code.code()));
     }

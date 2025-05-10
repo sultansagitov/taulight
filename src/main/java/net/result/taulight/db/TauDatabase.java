@@ -1,10 +1,8 @@
 package net.result.taulight.db;
 
 import net.result.sandnode.db.Database;
-import net.result.sandnode.db.MemberEntity;
 import net.result.sandnode.exception.DatabaseException;
 
-import java.time.ZonedDateTime;
 import java.util.*;
 
 /**
@@ -21,52 +19,6 @@ public interface TauDatabase extends Database {
      * @throws DatabaseException if a database error occurs
      */
     Optional<ChatEntity> getChat(UUID id) throws DatabaseException;
-
-    /**
-     * Retrieves an invite code by its code string.
-     *
-     * @param code the code string
-     * @return an optional InviteCodeEntity if found
-     * @throws DatabaseException if a database error occurs
-     */
-    Optional<InviteCodeEntity> findInviteCode(String code) throws DatabaseException;
-
-    /**
-     * Creates a new invite code for a specific channel and receiver.
-     *
-     * @param channel the {@link ChannelEntity} to which the invite code grants access
-     * @param receiver the {@link TauMemberEntity} who is intended to receive the invite
-     * @param sender the {@link TauMemberEntity} who is sending the invite
-     * @param expiresDate the expiration date and time of the invite code
-     * @return the created {@link InviteCodeEntity}
-     * @throws DatabaseException if a database error occurs
-     */
-    InviteCodeEntity createInviteCode(
-            ChannelEntity channel,
-            TauMemberEntity receiver,
-            TauMemberEntity sender,
-            ZonedDateTime expiresDate
-    ) throws DatabaseException;
-
-    /**
-     * Retrieves all invite codes associated with a specific channel and member.
-     *
-     * @param channel the {@link ChannelEntity} to filter invite codes
-     * @param member the {@link MemberEntity} who created or is associated with the codes
-     * @return a collection of {@link InviteCodeEntity} instances matching the criteria
-     * @throws DatabaseException if a database error occurs
-     */
-    Collection<InviteCodeEntity> findInviteCode(ChannelEntity channel, TauMemberEntity member) throws DatabaseException;
-
-    /**
-     * Activates a given invite code.
-     *
-     * @param code the invite code to activate
-     * @return {@code true} if the code was valid and successfully activated,
-     *      {@code false} if the code was already used or invalid
-     * @throws DatabaseException if a database error occurs
-     */
-    boolean activateInviteCode(InviteCodeEntity code) throws DatabaseException;
 
     /**
      * Creates a new reaction package with the specified name and description.

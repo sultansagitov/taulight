@@ -31,10 +31,10 @@ public class UseCodeServerChain extends ServerChain  implements ReceiverChain {
             throw new UnauthorizedException();
         }
 
-        TauDatabase database = (TauDatabase) session.server.serverConfig.database();
         ChannelRepository channelRepo = session.server.container.get(ChannelRepository.class);
+        InviteCodeRepository inviteCodeRepo = session.server.container.get(InviteCodeRepository.class);
 
-        InviteCodeEntity invite = database.findInviteCode(code).orElseThrow(NotFoundException::new);
+        InviteCodeEntity invite = inviteCodeRepo.find(code).orElseThrow(NotFoundException::new);
 
         TauMemberEntity member = invite.receiver();
         ChannelEntity channel = invite.channel();
@@ -48,7 +48,7 @@ public class UseCodeServerChain extends ServerChain  implements ReceiverChain {
             }
         }
 
-        if (!database.activateInviteCode(invite)) {
+        if (!inviteCodeRepo.activate(invite)) {
             throw new NoEffectException("Invite already activated");
         }
 

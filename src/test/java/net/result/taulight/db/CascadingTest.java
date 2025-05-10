@@ -17,6 +17,7 @@ public class CascadingTest {
     private static TauDatabase database;
     private static ChannelRepository channelRepo;
     private static MessageRepository messageRepo;
+    private static InviteCodeRepository inviteCodeRepo;
 
     @BeforeAll
     public static void setup() {
@@ -24,6 +25,7 @@ public class CascadingTest {
         database = new TauJPADatabase(PasswordHashers.BCRYPT);
         channelRepo = new ChannelRepository();
         messageRepo = new MessageRepository();
+        inviteCodeRepo = new InviteCodeRepository();
     }
 
     @Test
@@ -109,10 +111,10 @@ public class CascadingTest {
         TauMemberEntity r = receiver.tauMember();
 
         ChannelEntity channel = channelRepo.create("private", s);
-        InviteCodeEntity invite = database.createInviteCode(channel, r, s, ZonedDateTime.now().plusDays(1));
+        InviteCodeEntity invite = inviteCodeRepo.create(channel, r, s, ZonedDateTime.now().plusDays(1));
 
-        assertTrue(database.activateInviteCode(invite));
-        assertFalse(database.activateInviteCode(invite));
+        assertTrue(inviteCodeRepo.activate(invite));
+        assertFalse(inviteCodeRepo.activate(invite));
     }
 
 }

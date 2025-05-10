@@ -14,7 +14,6 @@ import java.util.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class MessagesTest {
-    private static TauDatabase database;
     private static TauMemberEntity member1;
     private static TauMemberEntity member2;
     private static ChannelRepository channelRepo;
@@ -23,7 +22,7 @@ public class MessagesTest {
     @BeforeAll
     public static void setup() throws DatabaseException, BusyNicknameException {
         JPAUtil.buildEntityManagerFactory();
-        database = new TauJPADatabase(PasswordHashers.BCRYPT);
+        TauDatabase database = new TauJPADatabase(PasswordHashers.BCRYPT);
         channelRepo = new ChannelRepository();
         messageRepo = new MessageRepository();
 

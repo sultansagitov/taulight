@@ -19,6 +19,7 @@ public class MemberDeletionIntegrationTest {
     private static DialogRepository dialogRepo;
     private static ChannelRepository channelRepo;
     private static MessageRepository messageRepo;
+    private static InviteCodeRepository inviteCodeRepo;
 
     @BeforeAll
     public static void setup() {
@@ -28,6 +29,7 @@ public class MemberDeletionIntegrationTest {
         dialogRepo = new DialogRepository();
         channelRepo = new ChannelRepository();
         messageRepo = new MessageRepository();
+        inviteCodeRepo = new InviteCodeRepository();
     }
 
     @Test
@@ -110,13 +112,13 @@ public class MemberDeletionIntegrationTest {
 
         ChannelEntity channel = channelRepo.create("private", tauOwner);
         ZonedDateTime expiresDate = ZonedDateTime.now().plusDays(1);
-        InviteCodeEntity invite = database.createInviteCode(channel, tauInvited, tauOwner, expiresDate);
+        InviteCodeEntity invite = inviteCodeRepo.create(channel, tauInvited, tauOwner, expiresDate);
 
-        assertTrue(database.findInviteCode(invite.code()).isPresent());
+        assertTrue(inviteCodeRepo.find(invite.code()).isPresent());
 
         boolean deleted = memberRepo.delete(invited);
 
         assertTrue(deleted);
-        assertTrue(database.findInviteCode(invite.code()).isPresent());
+        assertTrue(inviteCodeRepo.find(invite.code()).isPresent());
     }
 }
