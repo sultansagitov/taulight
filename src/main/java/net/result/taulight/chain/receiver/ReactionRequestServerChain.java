@@ -24,8 +24,9 @@ public class ReactionRequestServerChain extends ServerChain implements ReceiverC
 
     @Override
     public void sync() throws Exception {
-        TauDatabase database = (TauDatabase) session.server.serverConfig.database();
         MessageRepository messageRepo = session.server.container.get(MessageRepository.class);
+        ReactionTypeRepository reactionTypeRepo = session.server.container.get(ReactionTypeRepository.class);
+        ReactionEntryRepository reactionEntryRepo = session.server.container.get(ReactionEntryRepository.class);
 
         ReactionRequest request = new ReactionRequest(queue.take());
 
@@ -46,8 +47,8 @@ public class ReactionRequestServerChain extends ServerChain implements ReceiverC
         String packageName = packageParts[0];
         String reactionTypeName = packageParts[1];
 
-        ReactionTypeEntity reactionType = database
-                .getReactionTypesByPackage(packageName).stream()
+        ReactionTypeEntity reactionType = reactionTypeRepo
+                .findByPackageName(packageName).stream()
                 .filter(type -> type.name().equals(reactionTypeName))
                 .findFirst()
                 .orElseThrow(NotFoundException::new);
@@ -56,7 +57,7 @@ public class ReactionRequestServerChain extends ServerChain implements ReceiverC
         Group notReactionReceiver = session.server.serverConfig.groupManager().getGroup("#not_reaction_receiver");
 
         if (request.isReact()) {
-            ReactionEntryEntity re = database.createReactionEntry(session.member.tauMember(), message, reactionType);
+            ReactionEntryEntity re = reactionEntryRepo.create(session.member.tauMember(), message, reactionType);
             LOGGER.info("Reaction added: {} to message {} by {}", reactionType.name(), message.id(), nickname);
             for (Session s : session.server.node.getAgents()) {
                 if (!notReactionReceiver.contains(s)) {
@@ -71,7 +72,7 @@ public class ReactionRequestServerChain extends ServerChain implements ReceiverC
                 }
             }
         } else {
-            if (database.removeReactionEntry(message, session.member.tauMember(), reactionType)) {
+            if (reactionEntryRepo.delete(message, session.member.tauMember(), reactionType)) {
                 for (Session s : session.server.node.getAgents()) {
                     if (!notReactionReceiver.contains(s)) {
                         var chain = new ReactionResponseServerChain(s);

@@ -18,6 +18,9 @@ public class CascadingTest {
     private static ChannelRepository channelRepo;
     private static MessageRepository messageRepo;
     private static InviteCodeRepository inviteCodeRepo;
+    private static ReactionPackageRepository reactionPackageRepo;
+    private static ReactionTypeRepository reactionTypeRepo;
+    private static ReactionEntryRepository reactionEntryRepo;
 
     @BeforeAll
     public static void setup() {
@@ -26,6 +29,9 @@ public class CascadingTest {
         channelRepo = new ChannelRepository();
         messageRepo = new MessageRepository();
         inviteCodeRepo = new InviteCodeRepository();
+        reactionPackageRepo = new ReactionPackageRepository();
+        reactionTypeRepo = new ReactionTypeRepository();
+        reactionEntryRepo = new ReactionEntryRepository();
     }
 
     @Test
@@ -63,14 +69,14 @@ public class CascadingTest {
                 .setSys(true);
         MessageEntity msg = messageRepo.create(chat, input, author);
 
-        ReactionPackageEntity basic = database.createReactionPackage("basic", "");
-        ReactionTypeEntity like = database.createReactionType("Like", basic);
-        ReactionEntryEntity entry = database.createReactionEntry(reacter, msg, like);
+        ReactionPackageEntity basic = reactionPackageRepo.create("basic", "");
+        ReactionTypeEntity like = reactionTypeRepo.create("Like", basic);
+        ReactionEntryEntity entry = reactionEntryRepo.create(reacter, msg, like);
 
-        boolean removed = database.removeReactionEntry(entry);
+        boolean removed = reactionEntryRepo.delete(entry);
         assertTrue(removed);
 
-        boolean removedAgain = database.removeReactionEntry(entry);
+        boolean removedAgain = reactionEntryRepo.delete(entry);
         assertFalse(removedAgain);
     }
 
@@ -92,14 +98,14 @@ public class CascadingTest {
                 .setSys(true);
         MessageEntity msg = messageRepo.create(chat, input, author);
 
-        ReactionPackageEntity basic = database.createReactionPackage("basic", "");
-        ReactionTypeEntity haha = database.createReactionType("Haha", basic);
-        database.createReactionEntry(reacter, msg, haha);
+        ReactionPackageEntity basic = reactionPackageRepo.create("basic", "");
+        ReactionTypeEntity haha = reactionTypeRepo.create("Haha", basic);
+        reactionEntryRepo.create(reacter, msg, haha);
 
-        boolean removed = database.removeReactionEntry(msg, reacter, haha);
+        boolean removed = reactionEntryRepo.delete(msg, reacter, haha);
         assertTrue(removed);
 
-        boolean removedAgain = database.removeReactionEntry(msg, reacter, haha);
+        boolean removedAgain = reactionEntryRepo.delete(msg, reacter, haha);
         assertFalse(removedAgain);
     }
 

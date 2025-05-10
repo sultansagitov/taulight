@@ -13,7 +13,8 @@ import net.result.sandnode.exception.crypto.EncryptionTypeException;
 import net.result.sandnode.exception.crypto.NoSuchEncryptionException;
 import net.result.sandnode.link.SandnodeLinkRecord;
 import net.result.taulight.db.ReactionPackageEntity;
-import net.result.taulight.db.TauDatabase;
+import net.result.taulight.db.ReactionPackageRepository;
+import net.result.taulight.db.ReactionTypeRepository;
 import net.result.taulight.group.HashSetTauGroupManager;
 import net.result.sandnode.security.JWTTokenizer;
 import net.result.taulight.hubagent.TauHub;
@@ -47,6 +48,9 @@ public class RunHubWork implements IWork {
 
         TauHub hub = new TauHub(keyStorageRegistry, hubConfig);
         SandnodeServer server = new SandnodeServer(hub, serverConfig);
+
+        createReactions(server);
+
         server.start();
 
         URI link = SandnodeLinkRecord.fromServer(server).getURI();
@@ -61,23 +65,25 @@ public class RunHubWork implements IWork {
         }
     }
 
-    private static @NotNull ServerPropertiesConfig getServerConfig()
-            throws ConfigurationException, FSException, NoSuchEncryptionException, EncryptionTypeException {
-        ServerPropertiesConfig serverConfig = new ServerPropertiesConfig();
-        serverConfig.setGroupManager(new HashSetTauGroupManager());
-
-        TauDatabase database = (TauDatabase) serverConfig.database();
+    private static void createReactions(SandnodeServer server) {
+        ReactionPackageRepository reactionPackageRepo = server.container.get(ReactionPackageRepository.class);
+        ReactionTypeRepository reactionTypeRepo = server.container.get(ReactionTypeRepository.class);
 
         try {
-            if (database.findReactionPackage("taulight").isEmpty()) {
-                ReactionPackageEntity rp = database.createReactionPackage("taulight", "Main package of taulight");
-                database.createReactionType(rp, List.of("fire", "like", "laugh", "wow", "sad", "angry"));
+            if (reactionPackageRepo.find("taulight").isEmpty()) {
+                ReactionPackageEntity rp = reactionPackageRepo.create("taulight", "Main package of taulight");
+                reactionTypeRepo.create(rp, List.of("fire", "like", "laugh", "wow", "sad", "angry"));
             }
         } catch (Exception e) {
             LOGGER.error(e);
             throw new RuntimeException(e);
         }
+    }
 
+    private static @NotNull ServerPropertiesConfig getServerConfig()
+            throws ConfigurationException, FSException, NoSuchEncryptionException, EncryptionTypeException {
+        ServerPropertiesConfig serverConfig = new ServerPropertiesConfig();
+        serverConfig.setGroupManager(new HashSetTauGroupManager());
 
         serverConfig.setTokenizer(new JWTTokenizer(new JWTPropertiesConfig()));
         return serverConfig;

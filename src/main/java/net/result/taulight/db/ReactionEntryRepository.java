@@ -75,7 +75,7 @@ public class ReactionEntryRepository {
         return false;
     }
 
-    public boolean removeReactionEntry(MessageEntity message, TauMemberEntity member, ReactionTypeEntity reactionType)
+    public boolean delete(MessageEntity message, TauMemberEntity member, ReactionTypeEntity reactionType)
             throws DatabaseException {
         String q = """
             FROM ReactionEntryEntity r WHERE

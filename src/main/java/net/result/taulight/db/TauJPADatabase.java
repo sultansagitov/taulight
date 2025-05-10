@@ -9,18 +9,12 @@ import java.util.*;
 public class TauJPADatabase extends JPADatabase implements TauDatabase {
     private final ChannelRepository channelRepo;
     private final DialogRepository dialogRepo;
-    private final ReactionTypeRepository reactionTypeRepository;
-    private final ReactionEntryRepository reactionEntryRepository;
-    private final ReactionPackageRepository reactionPackageRepo;
     private final RoleRepository roleRepo;
 
     public TauJPADatabase(PasswordHasher hasher) {
         super(hasher);
         channelRepo = new ChannelRepository();
         dialogRepo = new DialogRepository();
-        reactionTypeRepository = new ReactionTypeRepository();
-        reactionEntryRepository = new ReactionEntryRepository();
-        reactionPackageRepo = new ReactionPackageRepository();
         roleRepo = new RoleRepository();
     }
 
@@ -29,48 +23,6 @@ public class TauJPADatabase extends JPADatabase implements TauDatabase {
         Optional<ChannelEntity> channel = channelRepo.findById(id);
         if (channel.isPresent()) return channel.map(c -> c);
         return dialogRepo.findById(id).map(d -> d);
-    }
-
-    @Override
-    public ReactionPackageEntity createReactionPackage(String packageName, String description)
-            throws DatabaseException {
-        return reactionPackageRepo.create(packageName, description);
-    }
-
-    @Override
-    public Optional<ReactionPackageEntity> findReactionPackage(String packageName) throws DatabaseException {
-        return reactionPackageRepo.find(packageName);
-    }
-
-    @Override
-    public Collection<ReactionTypeEntity> createReactionType(ReactionPackageEntity rp, Collection<String> types)
-            throws DatabaseException {
-        return reactionTypeRepository.create(rp, types);
-    }
-
-    @Override
-    public ReactionTypeEntity createReactionType(String name, ReactionPackageEntity reactionPackage)
-            throws DatabaseException {
-        return reactionTypeRepository.create(name, reactionPackage);
-    }
-
-    @Override
-    public ReactionEntryEntity createReactionEntry(
-            TauMemberEntity member,
-            MessageEntity message,
-            ReactionTypeEntity reactionType
-    ) throws DatabaseException {
-        return reactionEntryRepository.create(member, message, reactionType);
-    }
-
-    @Override
-    public boolean removeReactionEntry(ReactionEntryEntity reaction) throws DatabaseException {
-        return reactionEntryRepository.delete(reaction);
-    }
-
-    @Override
-    public List<ReactionTypeEntity> getReactionTypesByPackage(String packageName) throws DatabaseException {
-        return reactionTypeRepository.findByPackageName(packageName);
     }
 
     @Override
@@ -86,12 +38,6 @@ public class TauJPADatabase extends JPADatabase implements TauDatabase {
             }
         }
         return Set.of();
-    }
-
-    @Override
-    public boolean removeReactionEntry(MessageEntity message, TauMemberEntity member, ReactionTypeEntity reactionType)
-            throws DatabaseException {
-        return reactionEntryRepository.removeReactionEntry(message, member, reactionType);
     }
 
     @Override

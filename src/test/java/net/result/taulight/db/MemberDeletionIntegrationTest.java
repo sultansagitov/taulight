@@ -20,6 +20,9 @@ public class MemberDeletionIntegrationTest {
     private static ChannelRepository channelRepo;
     private static MessageRepository messageRepo;
     private static InviteCodeRepository inviteCodeRepo;
+    private static ReactionPackageRepository reactionPackageRepo;
+    private static ReactionTypeRepository reactionTypeRepo;
+    private static ReactionEntryRepository reactionEntryRepo;
 
     @BeforeAll
     public static void setup() {
@@ -30,6 +33,9 @@ public class MemberDeletionIntegrationTest {
         channelRepo = new ChannelRepository();
         messageRepo = new MessageRepository();
         inviteCodeRepo = new InviteCodeRepository();
+        reactionPackageRepo = new ReactionPackageRepository();
+        reactionTypeRepo = new ReactionTypeRepository();
+        reactionEntryRepo = new ReactionEntryRepository();
     }
 
     @Test
@@ -90,17 +96,17 @@ public class MemberDeletionIntegrationTest {
                 .setSys(true);
         MessageEntity msg = messageRepo.create(chat, input, tau1);
 
-        ReactionPackageEntity emoji = database.createReactionPackage("emoji", "");
-        ReactionTypeEntity like = database.createReactionType("Like", emoji);
-        database.createReactionEntry(tau2, msg, like);
+        ReactionPackageEntity emoji = reactionPackageRepo.create("emoji", "");
+        ReactionTypeEntity like = reactionTypeRepo.create("Like", emoji);
+        reactionEntryRepo.create(tau2, msg, like);
 
-        assertTrue(database.removeReactionEntry(msg, tau2, like));
+        assertTrue(reactionEntryRepo.delete(msg, tau2, like));
 
-        database.createReactionEntry(tau2, msg, like);
+        reactionEntryRepo.create(tau2, msg, like);
         boolean deleted = memberRepo.delete(m2);
 
         assertTrue(deleted);
-        assertTrue(database.removeReactionEntry(msg, tau2, like));
+        assertTrue(reactionEntryRepo.delete(msg, tau2, like));
     }
 
     @Test
