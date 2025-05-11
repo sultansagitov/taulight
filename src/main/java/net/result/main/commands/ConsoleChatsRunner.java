@@ -197,25 +197,26 @@ public class ConsoleChatsRunner {
 
     public static void printInfo(@NotNull Collection<ChatInfoDTO> infos) {
         for (ChatInfoDTO info : infos) {
+            String lastMessageText = (info.lastMessage != null && info.lastMessage.message != null)
+                    ? info.lastMessage.message.content
+                    : "(no message)";
+
             String message = switch (info.chatType) {
-                case CHANNEL -> String.format(
-                        "%s from %s - Channel: %s, %s%s",
+                case CHANNEL -> "%s from %s - Channel: %s, %s%s | Last message: %s".formatted(
                         info.id,
                         info.creationDate,
                         info.title,
                         info.ownerID,
-                        info.channelIsMy ? " (you)" : ""
+                        info.channelIsMy ? " (you)" : "",
+                        lastMessageText
                 );
-                case DIALOG -> String.format(
-                        "%s from %s - Dialog: %s",
+                case DIALOG -> "%s from %s - Dialog: %s | Last message: %s".formatted(
                         info.id,
                         info.creationDate,
-                        info.otherNickname
+                        info.otherNickname,
+                        lastMessageText
                 );
-                case NOT_FOUND -> String.format(
-                        "%s - Chat not found",
-                        info.id
-                );
+                case NOT_FOUND -> "%s - Chat not found".formatted(info.id);
             };
 
             System.out.println(message);

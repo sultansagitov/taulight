@@ -6,6 +6,7 @@ import net.result.taulight.db.ChannelEntity;
 import net.result.taulight.db.DialogEntity;
 import net.result.taulight.db.TauMemberEntity;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.time.ZonedDateTime;
 import java.util.Collection;
@@ -21,22 +22,26 @@ public class ChatInfoDTO implements Comparable<ChatInfoDTO> {
     /** Unique identifier of the chat. */
     @JsonProperty
     public UUID id;
-    /** Title of the channel (for channel chats). */
+    /** Title of the channel (only applicable for channel chats). */
     @JsonProperty("channel-title")
     public String title;
-    /** Nickname of the channel owner (for channel chats). */
+    /** Nickname of the channel owner (only applicable for channel chats). */
     @JsonProperty("channel-owner")
     public String ownerID;
-    /** Indicates whether the channel belongs to the current member. */
+    /** Indicates whether the channel is owned by the current member. */
     @JsonProperty("channel-is-my")
     public boolean channelIsMy;
-    /** Nickname of the other participant (for dialogs). */
+    /** Nickname of the other participant (only applicable for dialog chats). */
     @JsonProperty("dialog-other")
     public String otherNickname;
-    /** Date and time when the chat was created. */
+    /** Date and time when the chat was created (in UTC). */
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ssX", timezone = "UTC")
     @JsonProperty("creation-at")
     public ZonedDateTime creationDate;
+
+    /** Information about the last message sent in the chat. May be null. */
+    @JsonProperty("last-message")
+    public @Nullable ChatMessageViewDTO lastMessage;
 
     /**
      * Compares this ChatInfoDTO with another based on creation date.
@@ -53,8 +58,11 @@ public class ChatInfoDTO implements Comparable<ChatInfoDTO> {
      * Enum representing types of chats.
      */
     public enum ChatType {
+        /** A channel chat. */
         @JsonProperty("cn") CHANNEL,
+        /** A direct dialog between two users. */
         @JsonProperty("dl") DIALOG,
+        /** A placeholder indicating the chat was not found. */
         @JsonProperty("no") NOT_FOUND
     }
 
@@ -64,15 +72,17 @@ public class ChatInfoDTO implements Comparable<ChatInfoDTO> {
     /**
      * Creates a ChatInfoDTO for a channel.
      *
-     * @param channel the channel entity
-     * @param member the current member
-     * @param infoProps properties to include
-     * @return a ChatInfoDTO populated for a channel
+     * @param channel     the channel entity from the database
+     * @param member      the member requesting the data
+     * @param infoProps   a collection of properties to include in the response
+     * @param lastMessage the last message in the channel (nullable)
+     * @return a populated ChatInfoDTO for a channel
      */
     public static ChatInfoDTO channel(
             ChannelEntity channel,
             TauMemberEntity member,
-            Collection<ChatInfoPropDTO> infoProps
+            Collection<ChatInfoPropDTO> infoProps,
+            ChatMessageViewDTO lastMessage
     ) {
         ChatInfoDTO info = new ChatInfoDTO();
         info.chatType = ChatType.CHANNEL;
@@ -81,21 +91,25 @@ public class ChatInfoDTO implements Comparable<ChatInfoDTO> {
         if (infoProps.contains(ChatInfoPropDTO.channelTitle)) info.title = channel.title();
         if (infoProps.contains(ChatInfoPropDTO.channelOwner)) info.ownerID = channel.owner().member().nickname();
         if (infoProps.contains(ChatInfoPropDTO.channelIsMy)) info.channelIsMy = channel.owner() == member;
+        if (infoProps.contains(ChatInfoPropDTO.lastMessage)) info.lastMessage = lastMessage;
         return info;
     }
 
     /**
-     * Creates a ChatInfoDTO for a dialog.
+     * Constructs a ChatInfoDTO for a dialog.
      *
-     * @param dialog the dialog entity
-     * @param member the current member
-     * @param infoProps properties to include
-     * @return a ChatInfoDTO populated for a dialog
+     * @param dialog      the dialog entity from the database
+     * @param member      the member requesting the data
+     * @param infoProps   a collection of properties to include in the response
+     * @param lastMessage the last message in the dialog (nullable)
+     *
+     * @return a populated ChatInfoDTO for a dialog
      */
     public static ChatInfoDTO dialog(
             DialogEntity dialog,
             TauMemberEntity member,
-            Collection<ChatInfoPropDTO> infoProps
+            Collection<ChatInfoPropDTO> infoProps,
+            ChatMessageViewDTO lastMessage
     ) {
         ChatInfoDTO info = new ChatInfoDTO();
         info.chatType = ChatType.DIALOG;
@@ -103,14 +117,16 @@ public class ChatInfoDTO implements Comparable<ChatInfoDTO> {
         if (infoProps.contains(ChatInfoPropDTO.dialogCreatedAt)) info.creationDate = dialog.creationDate();
         if (infoProps.contains(ChatInfoPropDTO.dialogOther))
             info.otherNickname = dialog.otherMember(member).member().nickname();
+        if (infoProps.contains(ChatInfoPropDTO.lastMessage)) info.lastMessage = lastMessage;
+
         return info;
     }
 
     /**
-     * Creates a ChatInfoDTO for a non-existing chat (Not Found).
+     * Constructs a ChatInfoDTO indicating that the chat could not be found.
      *
-     * @param chatID the ID of the missing chat
-     * @return a ChatInfoDTO representing a missing chat
+     * @param chatID the UUID of the non-existent chat
+     * @return a ChatInfoDTO marked as NOT_FOUND
      */
     public static ChatInfoDTO chatNotFound(UUID chatID) {
         ChatInfoDTO info = new ChatInfoDTO();

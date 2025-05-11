@@ -79,4 +79,31 @@ public class MessageRepository {
             throw new DatabaseException("Failed to count messages by chat", e);
         }
     }
+
+    public Collection<MessageEntity> findLastMessagesByChats(Set<UUID> accessibleChatIds) throws DatabaseException {
+        if (accessibleChatIds == null || accessibleChatIds.isEmpty()) return Collections.emptyList();
+
+        try {
+            String q = """
+                SELECT m FROM MessageEntity m
+                WHERE m.id IN (
+                    SELECT sub.id FROM MessageEntity sub
+                    WHERE sub.chat.id IN :chatIds
+                    AND sub.creationDate = (
+                        SELECT MAX(innerM.creationDate)
+                        FROM MessageEntity innerM
+                        WHERE innerM.chat.id = sub.chat.id
+                    )
+                    ORDER BY sub.chat.id
+                )
+            """;
+
+            return em.createQuery(q, MessageEntity.class)
+                    .setParameter("chatIds", accessibleChatIds)
+                    .getResultList();
+
+        } catch (Exception e) {
+            throw new DatabaseException("Failed to fetch last messages by chats", e);
+        }
+    }
 }

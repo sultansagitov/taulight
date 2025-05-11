@@ -10,6 +10,7 @@ import net.result.sandnode.serverclient.Session;
 import net.result.taulight.db.*;
 import net.result.taulight.dto.ChatInfoDTO;
 import net.result.taulight.dto.ChatInfoPropDTO;
+import net.result.taulight.dto.ChatMessageViewDTO;
 import net.result.taulight.message.types.ChatRequest;
 import net.result.taulight.message.types.ChatResponse;
 import net.result.taulight.util.ChatUtil;
@@ -17,9 +18,11 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class ChatServerChain extends ServerChain implements ReceiverChain {
     private static final Logger LOGGER = LogManager.getLogger(ChatServerChain.class);
+    private MessageRepository messageRepo;
 
     public ChatServerChain(Session session) {
         super(session);
@@ -27,6 +30,8 @@ public class ChatServerChain extends ServerChain implements ReceiverChain {
 
     @Override
     public void sync() throws InterruptedException, DeserializationException, UnprocessedMessagesException {
+        messageRepo = session.server.container.get(MessageRepository.class);
+
         while (true) {
             ChatRequest request = new ChatRequest(queue.take());
 
@@ -64,16 +69,42 @@ public class ChatServerChain extends ServerChain implements ReceiverChain {
             Collection<ChatInfoDTO> infos,
             Collection<ChatInfoPropDTO> chatInfoProps,
             TauMemberEntity tauMember
-    ) {
+    ) throws DatabaseException {
+        boolean needLastMessage = chatInfoProps.contains(ChatInfoPropDTO.lastMessage);
+        Set<UUID> chatIdsForLastMsg = new HashSet<>();
+        List<ChatEntity> relevantChats = new ArrayList<>();
+
         for (var channel : tauMember.channels()) {
             if (!Collections.disjoint(chatInfoProps, ChatInfoPropDTO.channelAll())) {
-                infos.add(ChatInfoDTO.channel(channel, tauMember, chatInfoProps));
+                relevantChats.add(channel);
+                if (needLastMessage) chatIdsForLastMsg.add(channel.id());
             }
         }
 
         for (var dialog : tauMember.dialogs()) {
             if (!Collections.disjoint(chatInfoProps, ChatInfoPropDTO.dialogAll())) {
-                infos.add(ChatInfoDTO.dialog(dialog, tauMember, chatInfoProps));
+                relevantChats.add(dialog);
+                if (needLastMessage) chatIdsForLastMsg.add(dialog.id());
+            }
+        }
+
+        Map<UUID, ChatMessageViewDTO> lastMessages = needLastMessage
+                ? messageRepo.findLastMessagesByChats(chatIdsForLastMsg)
+                    .stream()
+                    .collect(Collectors.toMap(
+                            m -> m.chat().id(),
+                            ChatMessageViewDTO::new,
+                            (a, b) -> a
+                    ))
+                : Collections.emptyMap();
+
+        for (ChatEntity chat : relevantChats) {
+            ChatMessageViewDTO lastMsg = lastMessages.get(chat.id());
+
+            if (chat instanceof ChannelEntity channel) {
+                infos.add(ChatInfoDTO.channel(channel, tauMember, chatInfoProps, lastMsg));
+            } else if (chat instanceof DialogEntity dialog) {
+                infos.add(ChatInfoDTO.dialog(dialog, tauMember, chatInfoProps, lastMsg));
             }
         }
     }
@@ -85,6 +116,10 @@ public class ChatServerChain extends ServerChain implements ReceiverChain {
             TauMemberEntity tauMember
     ) throws DatabaseException {
         ChatUtil chatUtil = session.server.container.get(ChatUtil.class);
+        boolean needLastMessage = chatInfoProps.contains(ChatInfoPropDTO.lastMessage);
+
+        Set<UUID> accessibleChatIds = new HashSet<>();
+        Map<UUID, ChatEntity> validChats = new HashMap<>();
 
         for (UUID chatID : allChatID) {
             Optional<ChatEntity> opt = chatUtil.getChat(chatID);
@@ -95,23 +130,43 @@ public class ChatServerChain extends ServerChain implements ReceiverChain {
 
             ChatEntity chat = opt.get();
 
-            if (chat instanceof ChannelEntity channel) {
-                if (!channel.members().contains(tauMember)) {
-                    infos.add(ChatInfoDTO.chatNotFound(chatID));
-                    continue;
-                }
+            boolean accessible = false;
 
-                if (!Collections.disjoint(chatInfoProps, ChatInfoPropDTO.channelAll())) {
-                    infos.add(ChatInfoDTO.channel(channel, tauMember, chatInfoProps));
-                }
+            if (chat instanceof ChannelEntity channel) {
+                accessible = channel.members().contains(tauMember);
+            } else if (chat instanceof DialogEntity dialog) {
+                accessible = dialog.firstMember().equals(tauMember) || dialog.secondMember().equals(tauMember);
             }
 
-            if (!(chat instanceof DialogEntity dialog)) continue;
-
-            if (dialog.firstMember() != tauMember && dialog.secondMember() != tauMember) {
+            if (accessible) {
+                validChats.put(chatID, chat);
+                if (needLastMessage) accessibleChatIds.add(chatID);
+            } else {
                 infos.add(ChatInfoDTO.chatNotFound(chatID));
-            } else if (!Collections.disjoint(chatInfoProps, ChatInfoPropDTO.dialogAll())) {
-                infos.add(ChatInfoDTO.dialog(dialog, tauMember, chatInfoProps));
+            }
+        }
+
+        Map<UUID, ChatMessageViewDTO> lastMessages = needLastMessage
+                ? messageRepo.findLastMessagesByChats(accessibleChatIds)
+                .stream()
+                .collect(Collectors.toMap(
+                        m -> m.chat().id(),
+                        ChatMessageViewDTO::new,
+                        (a, b) -> a
+                ))
+                : Collections.emptyMap();
+
+        for (Map.Entry<UUID, ChatEntity> entry : validChats.entrySet()) {
+            UUID chatID = entry.getKey();
+            ChatEntity chat = entry.getValue();
+            ChatMessageViewDTO lastMsg = lastMessages.get(chatID);
+
+            if (chat instanceof ChannelEntity channel &&
+                    !Collections.disjoint(chatInfoProps, ChatInfoPropDTO.channelAll())) {
+                infos.add(ChatInfoDTO.channel(channel, tauMember, chatInfoProps, lastMsg));
+            } else if (chat instanceof DialogEntity dialog &&
+                    !Collections.disjoint(chatInfoProps, ChatInfoPropDTO.dialogAll())) {
+                infos.add(ChatInfoDTO.dialog(dialog, tauMember, chatInfoProps, lastMsg));
             }
         }
     }
