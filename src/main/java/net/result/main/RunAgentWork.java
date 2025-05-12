@@ -147,7 +147,7 @@ public class RunAgentWork implements IWork {
                         nickname = AgentProtocol.getMemberFromToken(io, token);
                         System.out.printf("You log in as %s%n", nickname);
                         isLoggedIn = true;
-                    } catch (InvalidTokenException e) {
+                    } catch (InvalidArgumentException e) {
                         System.out.println("Invalid token. Please try again.");
                     } catch (ExpiredTokenException e) {
                         System.out.println("Expired token. Please try again.");

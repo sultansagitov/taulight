@@ -3,17 +3,17 @@ package net.result.sandnode.exception.error;
 import net.result.sandnode.error.Errors;
 import net.result.sandnode.error.SandnodeError;
 
-public class InvalidTokenException extends SandnodeErrorException {
-    public InvalidTokenException() {
+public class InvalidArgumentException extends SandnodeErrorException {
+    public InvalidArgumentException() {
         super();
     }
 
-    public InvalidTokenException(Throwable e) {
+    public InvalidArgumentException(Throwable e) {
         super(e);
     }
 
     @Override
     public SandnodeError getSandnodeError() {
-        return Errors.INVALID_TOKEN;
+        return Errors.INVALID_ARG;
     }
 }

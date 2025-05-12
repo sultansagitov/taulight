@@ -6,6 +6,6 @@ import net.result.sandnode.error.SandnodeError;
 public class WrongAddressException extends SandnodeErrorException {
     @Override
     public SandnodeError getSandnodeError() {
-        return Errors.WRONG_ADDRESS;
+        return Errors.WRONG_ADDR;
     }
 }

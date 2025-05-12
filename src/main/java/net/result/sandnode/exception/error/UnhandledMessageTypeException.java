@@ -6,6 +6,6 @@ import net.result.sandnode.error.SandnodeError;
 public class UnhandledMessageTypeException extends SandnodeErrorException {
     @Override
     public SandnodeError getSandnodeError() {
-        return Errors.UNHANDLED_MESSAGE_TYPE;
+        return Errors.UNHANDLED_MSG_TYPE;
     }
 }

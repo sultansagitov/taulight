@@ -14,6 +14,7 @@ import net.result.sandnode.message.types.HappyMessage;
 import net.result.sandnode.message.util.Headers;
 import net.result.sandnode.message.util.MessageTypes;
 import net.result.sandnode.serverclient.Session;
+import net.result.sandnode.util.DBFileUtil;
 import net.result.taulight.util.ChatUtil;
 import net.result.taulight.util.SysMessages;
 import net.result.taulight.util.TauAgentProtocol;
@@ -31,10 +32,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.time.ZonedDateTime;
 import java.util.Collection;
 import java.util.UUID;
@@ -47,6 +44,7 @@ public class ChannelServerChain extends ServerChain implements ReceiverChain {
     private ChannelRepository channelRepo;
     private MemberRepository memberRepo;
     private InviteCodeRepository inviteCodeRepo;
+    private DBFileUtil dbFileUtil;
 
     public ChannelServerChain(Session session) {
         super(session);
@@ -55,6 +53,8 @@ public class ChannelServerChain extends ServerChain implements ReceiverChain {
     @Override
     public void sync() throws Exception {
         chatUtil = session.server.container.get(ChatUtil.class);
+        dbFileUtil = session.server.container.get(DBFileUtil.class);
+
         manager = (TauGroupManager) session.server.serverConfig.groupManager();
 
         channelRepo = session.server.container.get(ChannelRepository.class);
@@ -203,38 +203,9 @@ public class ChannelServerChain extends ServerChain implements ReceiverChain {
         if (!(chat instanceof ChannelEntity channel)) throw new WrongAddressException();
 
         FileDTO dto = fileMessage.dto();
-        String mime = dto.contentType();
-        byte[] body = dto.body();
+        String filename = dbFileUtil.saveImage(dto, chatID);
 
-        if (!mime.startsWith("image/")) {
-            //TODO Replace it
-            throw new TooFewArgumentsException();
-        }
-
-        String savedFilename = chatID.toString();
-
-        //TODO Replace with path from config
-        Path avatarDirectory = Paths.get(System.getProperty("user.home")).resolve("db/images");
-
-        try {
-            if (!Files.exists(avatarDirectory)) {
-                Files.createDirectories(avatarDirectory);
-            }
-        } catch (IOException e) {
-            LOGGER.error("Failed to create directory: {}", avatarDirectory, e);
-            throw new ServerSandnodeErrorException(e);
-        }
-
-        Path avatarPath = avatarDirectory.resolve(savedFilename);
-
-        try {
-            Files.write(avatarPath, body);
-        } catch (IOException e) {
-            LOGGER.error("Failed to save the avatar image for channel: {}", chatID, e);
-            throw new ServerSandnodeErrorException(e);
-        }
-
-        channelRepo.setAvatar(channel, mime, savedFilename);
+        channelRepo.setAvatar(channel, dto.contentType(), filename);
 
         send(new HappyMessage());
     }
@@ -246,20 +217,7 @@ public class ChannelServerChain extends ServerChain implements ReceiverChain {
         if (!chatUtil.getMembers(chat).contains(you)) throw new UnauthorizedException();
         if (!(chat instanceof ChannelEntity channel)) throw new WrongAddressException();
 
-        //TODO Replace with path from config
-        Path avatarDirectory = Paths.get(System.getProperty("user.home")).resolve("db/images");
-
-        String path = channel.filename();
-        if (path == null) throw new NoEffectException();
-
-        Path filePath = avatarDirectory.resolve(path);
-        byte[] bytes;
-
-        try {
-            bytes = Files.readAllBytes(filePath);
-        } catch (IOException e) {
-            throw new ServerSandnodeErrorException(e);
-        }
+        byte[] bytes = dbFileUtil.readImage(channel.filename());
 
         FileDTO fileDTO = new FileDTO(channel.contentType(), bytes);
         send(new FileMessage(new Headers(), fileDTO));
