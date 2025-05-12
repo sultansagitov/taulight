@@ -55,7 +55,7 @@ public class ChannelServerChain extends ServerChain implements ReceiverChain {
         chatUtil = session.server.container.get(ChatUtil.class);
         dbFileUtil = session.server.container.get(DBFileUtil.class);
 
-        manager = (TauGroupManager) session.server.serverConfig.groupManager();
+        manager = session.server.container.get(TauGroupManager.class);
 
         channelRepo = session.server.container.get(ChannelRepository.class);
         memberRepo = session.server.container.get(MemberRepository.class);

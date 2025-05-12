@@ -34,7 +34,7 @@ public class MembersServerChain extends ServerChain implements ReceiverChain {
     @Override
     public void sync() throws InterruptedException, DeserializationException, UnprocessedMessagesException {
         ChatUtil chatUtil = session.server.container.get(ChatUtil.class);
-        TauGroupManager groupManager = (TauGroupManager) session.server.serverConfig.groupManager();
+        TauGroupManager groupManager = session.server.container.get(TauGroupManager.class);
 
         while (true) {
             UUIDMessage request = new UUIDMessage(queue.take());

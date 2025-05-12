@@ -6,9 +6,11 @@ import net.result.sandnode.db.LoginRepository;
 import net.result.sandnode.db.MemberEntity;
 import net.result.sandnode.db.MemberRepository;
 import net.result.sandnode.exception.error.UnauthorizedException;
+import net.result.sandnode.hubagent.Hub;
 import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.message.types.*;
 import net.result.sandnode.security.PasswordHasher;
+import net.result.sandnode.security.Tokenizer;
 import net.result.sandnode.serverclient.Session;
 
 public abstract class LogPasswdServerChain extends ServerChain implements ReceiverChain {
@@ -22,9 +24,11 @@ public abstract class LogPasswdServerChain extends ServerChain implements Receiv
         RawMessage request = queue.take();
         LogPasswdRequest msg = new LogPasswdRequest(request);
 
+        Tokenizer tokenizer = session.server.container.get(Tokenizer.class);
         LoginRepository loginRepo = session.server.container.get(LoginRepository.class);
         MemberRepository memberRepo = session.server.container.get(MemberRepository.class);
-        PasswordHasher hasher = session.server.serverConfig.hasher();
+        Hub hub = (Hub) session.server.node;
+        PasswordHasher hasher = hub.config.hasher();
 
         MemberEntity member = memberRepo
                 .findByNickname(msg.getNickname())
@@ -42,7 +46,7 @@ public abstract class LogPasswdServerChain extends ServerChain implements Receiv
 
         onLogin();
 
-        String token = session.server.serverConfig.tokenizer().tokenizeMember(session.member);
+        String token = tokenizer.tokenizeMember(session.member);
         sendFin(new LogPasswdResponse(token));
     }
 

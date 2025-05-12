@@ -31,7 +31,7 @@ public class TauHubProtocol {
             throw new UnauthorizedException();
         }
 
-        TauGroupManager manager = (TauGroupManager) session.server.serverConfig.groupManager();
+        TauGroupManager manager = session.server.container.get(TauGroupManager.class);
         MessageRepository messageRepo = session.server.container.get(MessageRepository.class);
 
         MessageEntity message = messageRepo.create(chat, input, session.member.tauMember());

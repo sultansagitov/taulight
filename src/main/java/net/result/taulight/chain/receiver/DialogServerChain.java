@@ -39,7 +39,7 @@ public class DialogServerChain extends ServerChain implements ReceiverChain {
 
     @Override
     public void sync() throws Exception {
-        TauGroupManager manager = (TauGroupManager) session.server.serverConfig.groupManager();
+        TauGroupManager manager = session.server.container.get(TauGroupManager.class);
         MemberRepository memberRepo = session.server.container.get(MemberRepository.class);
         DialogRepository dialogRepo = session.server.container.get(DialogRepository.class);
 

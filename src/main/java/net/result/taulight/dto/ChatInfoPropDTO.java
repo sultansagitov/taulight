@@ -11,23 +11,21 @@ import java.util.List;
  */
 public enum ChatInfoPropDTO {
     @JsonProperty("channel-id") channelID,
-    @JsonProperty("channel-created-at") channelCreatedAt,
     @JsonProperty("channel-title") channelTitle,
     @JsonProperty("channel-owner") channelOwner,
     @JsonProperty("channel-is-my") channelIsMy,
 
     @JsonProperty("dialog-id") dialogID,
-    @JsonProperty("dialog-created-at") dialogCreatedAt,
     @JsonProperty("dialog-other") dialogOther,
 
+    @JsonProperty("created-at") createdAt,
     @JsonProperty("last-message") lastMessage;
 
     private static final Collection<ChatInfoPropDTO> channelAll =
-            List.of(channelID, channelCreatedAt, channelTitle, channelOwner, channelIsMy, lastMessage);
-    private static final Collection<ChatInfoPropDTO> dialogAll =
-            List.of(dialogID, dialogCreatedAt, dialogOther, lastMessage);
+            List.of(channelID, channelTitle, channelOwner, channelIsMy, createdAt, lastMessage);
+    private static final Collection<ChatInfoPropDTO> dialogAll = List.of(dialogID, dialogOther, createdAt, lastMessage);
     private static final Collection<ChatInfoPropDTO> all = Arrays.stream(ChatInfoPropDTO.values()).toList();
-    private static final Collection<ChatInfoPropDTO> id = List.of(channelID, dialogID, lastMessage);
+    private static final Collection<ChatInfoPropDTO> id = List.of(channelID, dialogID, createdAt, lastMessage);
 
     /**
      * @return channel and dialog id

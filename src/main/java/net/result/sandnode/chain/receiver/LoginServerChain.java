@@ -45,7 +45,7 @@ public class LoginServerChain extends ServerChain implements ReceiverChain {
     }
 
     private void loginByToken(LoginRequest request) throws Exception {
-        Tokenizer tokenizer = session.server.serverConfig.tokenizer();
+        Tokenizer tokenizer = session.server.container.get(Tokenizer.class);
 
         String token = request.content();
 

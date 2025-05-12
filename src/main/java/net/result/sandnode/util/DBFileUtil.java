@@ -1,5 +1,6 @@
 package net.result.sandnode.util;
 
+import net.result.sandnode.config.HubConfig;
 import net.result.sandnode.dto.FileDTO;
 import net.result.sandnode.exception.error.InvalidArgumentException;
 import net.result.sandnode.exception.error.NoEffectException;
@@ -11,16 +12,16 @@ import org.jetbrains.annotations.NotNull;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.UUID;
 
 public class DBFileUtil {
     private static final Logger LOGGER = LogManager.getLogger(DBFileUtil.class);
 
-    //TODO Replace with path from config
-    private static final Path avatarDirectory = Paths.get(System.getProperty("user.home")).resolve("db/images");
+    private final Path avatarDirectory;
 
-    public DBFileUtil(Container container) {}
+    public DBFileUtil(Container container) {
+        avatarDirectory = container.get(HubConfig.class).imagePath();
+    }
 
     public @NotNull String saveImage(FileDTO dto, UUID chatID) throws InvalidArgumentException, ServerSandnodeErrorException {
         String mime = dto.contentType();

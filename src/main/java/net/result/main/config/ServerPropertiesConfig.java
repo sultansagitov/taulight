@@ -10,13 +10,9 @@ import net.result.sandnode.exception.ConfigurationException;
 import net.result.sandnode.exception.FSException;
 import net.result.sandnode.exception.ImpossibleRuntimeException;
 import net.result.sandnode.exception.crypto.*;
-import net.result.sandnode.security.PasswordHasher;
-import net.result.sandnode.security.PasswordHashers;
 import net.result.sandnode.util.Container;
 import net.result.sandnode.util.Endpoint;
 import net.result.sandnode.util.FileUtil;
-import net.result.sandnode.group.GroupManager;
-import net.result.sandnode.security.Tokenizer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
@@ -27,27 +23,25 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Arrays;
 import java.util.Properties;
 
 public class ServerPropertiesConfig implements ServerConfig {
     private static final Logger LOGGER = LogManager.getLogger(ServerPropertiesConfig.class);
-    private final Container container = new Container();
+    private final Container container;
     private final Endpoint endpoint;
     private final Path PUBLIC_KEY_PATH;
     private final Path PRIVATE_KEY_PATH;
     private final AsymmetricEncryption MAIN_ENCRYPTION;
-    private GroupManager groupManager;
-    private Tokenizer tokenizer;
-    private final PasswordHasher HASHER;
 
-    public ServerPropertiesConfig()
+    public ServerPropertiesConfig(Container container)
             throws ConfigurationException, FSException, NoSuchEncryptionException, EncryptionTypeException {
-        this("taulight.properties", null);
+        this(container, "taulight.properties", null);
     }
 
-    public ServerPropertiesConfig(String fileName, @Nullable Endpoint endpoint)
+    public ServerPropertiesConfig(Container container, String fileName, @Nullable Endpoint endpoint)
             throws ConfigurationException, FSException, NoSuchEncryptionException, EncryptionTypeException {
+        this.container = container;
+
         Properties properties = new Properties();
 
         try (InputStream input = getClass().getClassLoader().getResourceAsStream(fileName)) {
@@ -81,11 +75,6 @@ public class ServerPropertiesConfig implements ServerConfig {
         PRIVATE_KEY_PATH = FileUtil.resolveHome(KEYS_DIR.resolve(privateKeyProperty));
 
         MAIN_ENCRYPTION = EncryptionManager.find(properties.getProperty("server.keys.main")).asymmetric();
-        String hasherName = properties.getProperty("hub.hasher");
-        HASHER = Arrays.stream(PasswordHashers.values())
-                .filter(h -> h.name().equalsIgnoreCase(hasherName))
-                .findFirst()
-                .orElse(PasswordHashers.values()[0]);
 
         if (!Files.exists(KEYS_DIR)) {
             LOGGER.info("KEYS_DIR does not exist, creating it: \"{}\"", KEYS_DIR);
@@ -106,24 +95,6 @@ public class ServerPropertiesConfig implements ServerConfig {
     @Override
     public @NotNull AsymmetricEncryption mainEncryption() {
         return MAIN_ENCRYPTION;
-    }
-
-    public void setGroupManager(GroupManager groupManager) {
-        this.groupManager = groupManager;
-    }
-
-    @Override
-    public GroupManager groupManager() {
-        return groupManager;
-    }
-
-    public void setTokenizer(Tokenizer tokenizer) {
-        this.tokenizer = tokenizer;
-    }
-
-    @Override
-    public Tokenizer tokenizer() {
-        return tokenizer;
     }
 
     @Override
@@ -178,10 +149,5 @@ public class ServerPropertiesConfig implements ServerConfig {
         }
         AsymmetricKeyStorage keyStorage = mainEncryption.merge(publicKeyStorage, privateKeyStorage);
         return new KeyStorageRegistry(keyStorage);
-    }
-
-    @Override
-    public PasswordHasher hasher() {
-        return HASHER;
     }
 }

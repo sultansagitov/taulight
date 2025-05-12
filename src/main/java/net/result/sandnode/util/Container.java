@@ -18,5 +18,9 @@ public class Container {
         }
         return clazz.cast(instances.get(clazz));
     }
+
+    public <T> void addInstance(Class<T> clazz, T config) {
+        instances.put(clazz, config);
+    }
 }
 

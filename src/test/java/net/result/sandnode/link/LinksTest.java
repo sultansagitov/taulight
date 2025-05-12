@@ -1,6 +1,7 @@
 package net.result.sandnode.link;
 
 import net.result.sandnode.chain.ServerChainManager;
+import net.result.sandnode.config.HubConfig;
 import net.result.sandnode.config.ServerConfig;
 import net.result.sandnode.encryption.AsymmetricEncryptions;
 import net.result.sandnode.encryption.EncryptionManager;
@@ -14,17 +15,15 @@ import net.result.sandnode.exception.crypto.EncryptionTypeException;
 import net.result.sandnode.exception.error.KeyStorageNotFoundException;
 import net.result.sandnode.hubagent.Hub;
 import net.result.sandnode.security.PasswordHasher;
-import net.result.sandnode.security.PasswordHashers;
 import net.result.sandnode.serverclient.SandnodeServer;
 import net.result.sandnode.util.Container;
 import net.result.sandnode.util.Endpoint;
-import net.result.sandnode.group.GroupManager;
-import net.result.sandnode.security.Tokenizer;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import java.net.URI;
+import java.nio.file.Path;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -101,32 +100,32 @@ public class LinksTest {
         }
 
         @Override
-        public GroupManager groupManager() {
-            return null;
-        }
-
-        @Override
-        public Tokenizer tokenizer() {
-            return null;
-        }
-
-        @Override
         public void saveKey(AsymmetricKeyStorage keyStorage) {}
 
         @Override
         public KeyStorageRegistry readKey(AsymmetricEncryption mainEncryption) {
             return null;
         }
-
-        @Override
-        public PasswordHasher hasher() {
-            return PasswordHashers.BCRYPT;
-        }
     }
 
     private static class TestHub extends Hub {
         public TestHub() {
-            super(new KeyStorageRegistry(AsymmetricEncryptions.ECIES.generate()), () -> "Test Hub");
+            super(new KeyStorageRegistry(AsymmetricEncryptions.ECIES.generate()), new HubConfig() {
+                @Override
+                public String name() {
+                    return "Test Hub";
+                }
+
+                @Override
+                public PasswordHasher hasher() {
+                    return null;
+                }
+
+                @Override
+                public Path imagePath() {
+                    return null;
+                }
+            });
         }
 
         @Override

@@ -5,6 +5,7 @@ import net.result.sandnode.chain.ServerChain;
 import net.result.sandnode.db.MemberRepository;
 import net.result.sandnode.exception.SandnodeException;
 import net.result.sandnode.exception.error.InvalidNicknamePassword;
+import net.result.sandnode.hubagent.Hub;
 import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.message.types.RegistrationRequest;
 import net.result.sandnode.message.types.RegistrationResponse;
@@ -22,8 +23,9 @@ public class RegistrationServerChain extends ServerChain implements ReceiverChai
         RawMessage request = queue.take();
 
         MemberRepository memberRepo = session.server.container.get(MemberRepository.class);
-        Tokenizer tokenizer = session.server.serverConfig.tokenizer();
-        PasswordHasher hasher = session.server.serverConfig.hasher();
+        Tokenizer tokenizer = session.server.container.get(Tokenizer.class);
+        Hub hub = (Hub) session.server.node;
+        PasswordHasher hasher = hub.config.hasher();
 
         RegistrationRequest regMsg = new RegistrationRequest(request);
         String nickname = regMsg.getNickname();

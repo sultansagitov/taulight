@@ -6,6 +6,7 @@ import net.result.sandnode.exception.error.NoEffectException;
 import net.result.sandnode.exception.error.UnauthorizedException;
 import net.result.sandnode.exception.error.UnhandledMessageTypeException;
 import net.result.sandnode.group.Group;
+import net.result.sandnode.group.GroupManager;
 import net.result.sandnode.serverclient.Session;
 import net.result.taulight.chain.sender.ReactionResponseServerChain;
 import net.result.sandnode.exception.error.NotFoundException;
@@ -24,6 +25,7 @@ public class ReactionRequestServerChain extends ServerChain implements ReceiverC
 
     @Override
     public void sync() throws Exception {
+        GroupManager groupManager = session.server.container.get(GroupManager.class);
         MessageRepository messageRepo = session.server.container.get(MessageRepository.class);
         ReactionTypeRepository reactionTypeRepo = session.server.container.get(ReactionTypeRepository.class);
         ReactionEntryRepository reactionEntryRepo = session.server.container.get(ReactionEntryRepository.class);
@@ -54,7 +56,7 @@ public class ReactionRequestServerChain extends ServerChain implements ReceiverC
                 .orElseThrow(NotFoundException::new);
 
 
-        Group notReactionReceiver = session.server.serverConfig.groupManager().getGroup("#not_reaction_receiver");
+        Group notReactionReceiver = groupManager.getGroup("#not_reaction_receiver");
 
         if (request.isReact()) {
             ReactionEntryEntity re = reactionEntryRepo.create(session.member.tauMember(), message, reactionType);

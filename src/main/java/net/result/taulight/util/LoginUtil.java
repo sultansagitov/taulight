@@ -10,7 +10,7 @@ import org.jetbrains.annotations.NotNull;
 
 public class LoginUtil {
     public static void onLogin(@NotNull Session session) throws UnauthorizedException {
-        TauGroupManager manager = (TauGroupManager) session.server.serverConfig.groupManager();
+        TauGroupManager manager = session.server.container.get(TauGroupManager.class);
 
         if (session.member == null) {
             throw new UnauthorizedException();

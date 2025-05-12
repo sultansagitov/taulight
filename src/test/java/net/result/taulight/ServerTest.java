@@ -6,6 +6,7 @@ import net.result.sandnode.chain.BSTClientChainManager;
 import net.result.sandnode.chain.ClientChainManager;
 import net.result.sandnode.chain.receiver.UnhandledMessageTypeClientChain;
 import net.result.sandnode.config.ClientConfig;
+import net.result.sandnode.config.HubConfig;
 import net.result.sandnode.config.ServerConfig;
 import net.result.sandnode.config.ServerConfigRecord;
 import net.result.sandnode.db.JPAUtil;
@@ -22,7 +23,7 @@ import net.result.sandnode.encryption.interfaces.SymmetricEncryption;
 import net.result.sandnode.message.IMessage;
 import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.message.util.*;
-import net.result.sandnode.security.PasswordHashers;
+import net.result.sandnode.security.PasswordHasher;
 import net.result.sandnode.serverclient.SandnodeClient;
 import net.result.sandnode.serverclient.SandnodeServer;
 import net.result.sandnode.serverclient.Session;
@@ -44,6 +45,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import java.net.Socket;
+import java.nio.file.Path;
 import java.util.Optional;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
@@ -157,8 +159,7 @@ public class ServerTest {
                     null,
                     asymmetricEncryption,
                     new HashSetGroupManager(),
-                    new JWTTokenizer(container, () -> Algorithm.HMAC256("test")),
-                    PasswordHashers.BCRYPT
+                    new JWTTokenizer(container, () -> Algorithm.HMAC256("test"))
             );
             server = new SandnodeServer(hub, serverConfig);
         }
@@ -178,7 +179,22 @@ public class ServerTest {
 
     private static class TestHub extends Hub {
         public TestHub(KeyStorageRegistry serverKeyStorage) {
-            super(serverKeyStorage, () -> "Test Hub");
+            super(serverKeyStorage, new HubConfig() {
+                @Override
+                public String name() {
+                    return "Test Hub";
+                }
+
+                @Override
+                public PasswordHasher hasher() {
+                    return null;
+                }
+
+                @Override
+                public Path imagePath() {
+                    return null;
+                }
+            });
         }
 
         @Override

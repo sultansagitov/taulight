@@ -11,12 +11,16 @@ import net.result.sandnode.exception.SandnodeException;
 import net.result.sandnode.exception.SocketAcceptException;
 import net.result.sandnode.exception.crypto.EncryptionTypeException;
 import net.result.sandnode.exception.crypto.NoSuchEncryptionException;
+import net.result.sandnode.group.GroupManager;
 import net.result.sandnode.link.SandnodeLinkRecord;
+import net.result.sandnode.security.Tokenizer;
+import net.result.sandnode.util.Container;
 import net.result.taulight.db.ReactionPackageEntity;
 import net.result.taulight.db.ReactionPackageRepository;
 import net.result.taulight.db.ReactionTypeRepository;
 import net.result.taulight.group.HashSetTauGroupManager;
 import net.result.sandnode.security.JWTTokenizer;
+import net.result.taulight.group.TauGroupManager;
 import net.result.taulight.hubagent.TauHub;
 import net.result.main.config.ServerPropertiesConfig;
 import net.result.sandnode.serverclient.SandnodeServer;
@@ -38,13 +42,16 @@ public class RunHubWork implements IWork {
     public void run() throws SandnodeException {
         JPAUtil.buildEntityManagerFactory();
 
-        ServerConfig serverConfig = getServerConfig();
+        Container container = new Container();
+
+        ServerConfig serverConfig = getServerConfig(container);
 
         AsymmetricEncryption mainEncryption = serverConfig.mainEncryption();
 
         KeyStorageRegistry keyStorageRegistry = serverConfig.readKey(mainEncryption);
 
         HubConfig hubConfig = new HubPropertiesConfig();
+        container.addInstance(HubConfig.class, hubConfig);
 
         TauHub hub = new TauHub(keyStorageRegistry, hubConfig);
         SandnodeServer server = new SandnodeServer(hub, serverConfig);
@@ -80,12 +87,15 @@ public class RunHubWork implements IWork {
         }
     }
 
-    private static @NotNull ServerPropertiesConfig getServerConfig()
+    private static @NotNull ServerPropertiesConfig getServerConfig(Container container)
             throws ConfigurationException, FSException, NoSuchEncryptionException, EncryptionTypeException {
-        ServerPropertiesConfig serverConfig = new ServerPropertiesConfig();
+        ServerPropertiesConfig serverConfig = new ServerPropertiesConfig(container);
+        container.addInstance(ServerConfig.class, serverConfig);
 
-        serverConfig.setGroupManager(new HashSetTauGroupManager());
-        serverConfig.setTokenizer(new JWTTokenizer(serverConfig.container(), new JWTPropertiesConfig()));
+        HashSetTauGroupManager groupManager = new HashSetTauGroupManager();
+        container.addInstance(GroupManager.class, groupManager);
+        container.addInstance(TauGroupManager.class, groupManager);
+        container.addInstance(Tokenizer.class, new JWTTokenizer(container, new JWTPropertiesConfig()));
 
         return serverConfig;
     }

@@ -21,7 +21,7 @@ public class GroupServerChain extends ServerChain implements ReceiverChain {
 
     @Override
     public void sync() throws InterruptedException, ExpectedMessageException, UnprocessedMessagesException {
-        GroupManager groupManager = session.server.serverConfig.groupManager();
+        GroupManager groupManager = session.server.container.get(GroupManager.class);
         GroupRequest request = new GroupRequest(queue.take());
 
         Set<Group> groups = request

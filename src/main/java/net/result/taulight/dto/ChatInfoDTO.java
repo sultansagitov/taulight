@@ -51,6 +51,9 @@ public class ChatInfoDTO implements Comparable<ChatInfoDTO> {
      */
     @Override
     public int compareTo(@NotNull ChatInfoDTO o) {
+        if (creationDate == null && o.creationDate == null) return 0;
+        if (creationDate == null) return -1;
+        if (o.creationDate == null) return 1;
         return creationDate.compareTo(o.creationDate);
     }
 
@@ -87,7 +90,7 @@ public class ChatInfoDTO implements Comparable<ChatInfoDTO> {
         ChatInfoDTO info = new ChatInfoDTO();
         info.chatType = ChatType.CHANNEL;
         if (infoProps.contains(ChatInfoPropDTO.channelID)) info.id = channel.id();
-        if (infoProps.contains(ChatInfoPropDTO.channelCreatedAt)) info.creationDate = channel.creationDate();
+        if (infoProps.contains(ChatInfoPropDTO.createdAt)) info.creationDate = channel.creationDate();
         if (infoProps.contains(ChatInfoPropDTO.channelTitle)) info.title = channel.title();
         if (infoProps.contains(ChatInfoPropDTO.channelOwner)) info.ownerID = channel.owner().member().nickname();
         if (infoProps.contains(ChatInfoPropDTO.channelIsMy)) info.channelIsMy = channel.owner() == member;
@@ -114,7 +117,7 @@ public class ChatInfoDTO implements Comparable<ChatInfoDTO> {
         ChatInfoDTO info = new ChatInfoDTO();
         info.chatType = ChatType.DIALOG;
         if (infoProps.contains(ChatInfoPropDTO.dialogID)) info.id = dialog.id();
-        if (infoProps.contains(ChatInfoPropDTO.dialogCreatedAt)) info.creationDate = dialog.creationDate();
+        if (infoProps.contains(ChatInfoPropDTO.createdAt)) info.creationDate = dialog.creationDate();
         if (infoProps.contains(ChatInfoPropDTO.dialogOther))
             info.otherNickname = dialog.otherMember(member).member().nickname();
         if (infoProps.contains(ChatInfoPropDTO.lastMessage)) info.lastMessage = lastMessage;
