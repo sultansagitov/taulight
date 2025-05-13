@@ -1,6 +1,6 @@
 package net.result.taulight.db;
 
-import net.result.sandnode.db.JPAUtil;
+import net.result.sandnode.util.JPAUtil;
 import net.result.sandnode.exception.DatabaseException;
 import net.result.sandnode.util.Container;
 
@@ -11,9 +11,11 @@ import java.util.Collection;
 import java.util.Optional;
 
 public class InviteCodeRepository {
-    private final EntityManager em = JPAUtil.getEntityManager();
+    private final EntityManager em;
 
-    public InviteCodeRepository(Container container) {}
+    public InviteCodeRepository(Container container) {
+        em = container.get(JPAUtil.class).getEntityManager();
+    }
 
     private InviteCodeEntity save(InviteCodeEntity code) throws DatabaseException {
         while (em.find(InviteCodeEntity.class, code.id()) != null) code.setRandomID();

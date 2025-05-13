@@ -1,6 +1,6 @@
 package net.result.taulight.db;
 
-import net.result.sandnode.db.JPAUtil;
+import net.result.sandnode.GlobalTestState;
 import net.result.sandnode.db.MemberRepository;
 import net.result.sandnode.exception.DatabaseException;
 import net.result.sandnode.exception.error.BusyNicknameException;
@@ -28,9 +28,7 @@ public class InviteCodesTest {
 
     @BeforeAll
     public static void setup() throws DatabaseException, BusyNicknameException {
-        JPAUtil.buildEntityManagerFactory();
-
-        Container container = new Container();
+        Container container = GlobalTestState.container;
         MemberRepository memberRepo = container.get(MemberRepository.class);
         channelRepo = container.get(ChannelRepository.class);
         inviteCodeRepo = container.get(InviteCodeRepository.class);

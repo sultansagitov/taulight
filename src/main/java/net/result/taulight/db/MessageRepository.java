@@ -1,6 +1,6 @@
 package net.result.taulight.db;
 
-import net.result.sandnode.db.JPAUtil;
+import net.result.sandnode.util.JPAUtil;
 import net.result.sandnode.exception.DatabaseException;
 import net.result.sandnode.exception.error.NotFoundException;
 import net.result.sandnode.util.Container;
@@ -11,9 +11,11 @@ import javax.persistence.EntityTransaction;
 import java.util.*;
 
 public class MessageRepository {
-    private final EntityManager em = JPAUtil.getEntityManager();
+    private final EntityManager em;
 
-    public MessageRepository(Container container) {}
+    public MessageRepository(Container container) {
+        em = container.get(JPAUtil.class).getEntityManager();
+    }
 
     private MessageEntity save(MessageEntity m) throws DatabaseException {
         while (em.find(MessageEntity.class, m.id()) != null) {

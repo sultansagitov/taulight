@@ -1,6 +1,6 @@
 package net.result.taulight.db;
 
-import net.result.sandnode.db.JPAUtil;
+import net.result.sandnode.util.JPAUtil;
 import net.result.sandnode.exception.DatabaseException;
 import net.result.sandnode.util.Container;
 import org.jetbrains.annotations.NotNull;
@@ -11,9 +11,11 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class RoleRepository {
-    private final EntityManager em = JPAUtil.getEntityManager();
+    private final EntityManager em;
 
-    public RoleRepository(Container container) {}
+    public RoleRepository(Container container) {
+        em = container.get(JPAUtil.class).getEntityManager();
+    }
 
     private RoleEntity save(@NotNull RoleEntity reactionType) throws DatabaseException {
         while (em.find(RoleEntity.class, reactionType.id()) != null) {

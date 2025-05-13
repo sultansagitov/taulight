@@ -1,6 +1,7 @@
 package net.result.taulight;
 
 import com.auth0.jwt.algorithms.Algorithm;
+import net.result.sandnode.GlobalTestState;
 import net.result.sandnode.chain.ReceiverChain;
 import net.result.sandnode.chain.BSTClientChainManager;
 import net.result.sandnode.chain.ClientChainManager;
@@ -9,7 +10,6 @@ import net.result.sandnode.config.ClientConfig;
 import net.result.sandnode.config.HubConfig;
 import net.result.sandnode.config.ServerConfig;
 import net.result.sandnode.config.ServerConfigRecord;
-import net.result.sandnode.db.JPAUtil;
 import net.result.sandnode.encryption.SymmetricEncryptions;
 import net.result.sandnode.exception.*;
 import net.result.sandnode.hubagent.Agent;
@@ -76,7 +76,6 @@ public class ServerTest {
 
     @BeforeAll
     public static void setup() {
-        JPAUtil.buildEntityManagerFactory();
         EncryptionManager.registerAll();
 
         port = PORT_OFFSET + new Random().nextInt(PORT_RANGE);
@@ -106,7 +105,7 @@ public class ServerTest {
         // Cleanup
         agentThread.client.close();
         LOGGER.info("Client closed.");
-        hubThread.server.close();
+        hubThread.server.closeWithoutDBShutdown();
         LOGGER.info("Server closed.");
     }
 
@@ -151,7 +150,7 @@ public class ServerTest {
             setName("HubThread");
             hub = new TestHub(serverKeyStorage);
 
-            Container container = new Container();
+            Container container = GlobalTestState.container;
             ServerConfig serverConfig = new ServerConfigRecord(
                     container,
                     new Endpoint("localhost", port),

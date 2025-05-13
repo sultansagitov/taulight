@@ -1,5 +1,6 @@
 package net.result.sandnode.db;
 
+import net.result.sandnode.GlobalTestState;
 import net.result.sandnode.exception.DatabaseException;
 import net.result.sandnode.exception.error.BusyNicknameException;
 import net.result.sandnode.security.PasswordHashers;
@@ -17,8 +18,7 @@ class MembersTest {
 
     @BeforeAll
     public static void setup() {
-        JPAUtil.buildEntityManagerFactory();
-        Container container = new Container();
+        Container container = GlobalTestState.container;
         memberRepo = container.get(MemberRepository.class);
     }
 

@@ -1,6 +1,6 @@
 package net.result.taulight.db;
 
-import net.result.sandnode.db.JPAUtil;
+import net.result.sandnode.util.JPAUtil;
 import net.result.sandnode.exception.DatabaseException;
 import net.result.sandnode.util.Container;
 import net.result.taulight.exception.AlreadyExistingRecordException;
@@ -13,9 +13,11 @@ import java.util.Optional;
 import java.util.UUID;
 
 public class DialogRepository {
-    private final EntityManager em = JPAUtil.getEntityManager();
+    private final EntityManager em;
 
-    public DialogRepository(Container container) {}
+    public DialogRepository(Container container) {
+        em = container.get(JPAUtil.class).getEntityManager();
+    }
 
     private DialogEntity save(@NotNull DialogEntity dialog) throws AlreadyExistingRecordException, DatabaseException {
         while (em.find(DialogEntity.class, dialog.id()) != null) {

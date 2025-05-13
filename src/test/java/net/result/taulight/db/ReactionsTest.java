@@ -1,6 +1,7 @@
 package net.result.taulight.db;
 
-import net.result.sandnode.db.JPAUtil;
+import net.result.sandnode.GlobalTestState;
+import net.result.sandnode.util.JPAUtil;
 import net.result.sandnode.db.MemberRepository;
 import net.result.sandnode.exception.DatabaseException;
 import net.result.sandnode.exception.error.BusyNicknameException;
@@ -10,12 +11,14 @@ import net.result.sandnode.util.Container;
 import net.result.taulight.dto.ChatMessageInputDTO;
 import org.junit.jupiter.api.*;
 
+import javax.persistence.EntityManager;
 import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class ReactionsTest {
-
+    private static Container container;
+    private static EntityManager em;
     private static TauMemberEntity member1;
     private static TauMemberEntity member2;
     private static ChannelRepository channelRepo;
@@ -26,8 +29,9 @@ class ReactionsTest {
 
     @BeforeAll
     public static void setup() throws DatabaseException, BusyNicknameException {
-        JPAUtil.buildEntityManagerFactory();
-        Container container = new Container();
+        container = GlobalTestState.container;
+        em = container.get(JPAUtil.class).getEntityManager();
+
         MemberRepository memberRepo = container.get(MemberRepository.class);
         channelRepo = container.get(ChannelRepository.class);
         messageRepo = container.get(MessageRepository.class);
@@ -48,7 +52,7 @@ class ReactionsTest {
         assertNotNull(reactionPackage);
         assertEquals("funny_emojis", reactionPackage.name());
 
-        ReactionPackageEntity found = JPAUtil.getEntityManager().find(ReactionPackageEntity.class, reactionPackage.id());
+        ReactionPackageEntity found = em.find(ReactionPackageEntity.class, reactionPackage.id());
         assertNotNull(found);
         assertEquals(reactionPackage.id(), found.id());
 
@@ -92,7 +96,7 @@ class ReactionsTest {
         assertEquals("laugh", reactionType.name());
         assertEquals("standard", reactionType.reactionPackage().name());
 
-        ReactionTypeEntity found = JPAUtil.getEntityManager().find(ReactionTypeEntity.class, reactionType.id());
+        ReactionTypeEntity found = container.get(JPAUtil.class).getEntityManager().find(ReactionTypeEntity.class, reactionType.id());
         assertNotNull(found);
         assertEquals("laugh", found.name());
 
@@ -128,7 +132,7 @@ class ReactionsTest {
             assertTrue(typeNames.contains(type.name()));
             assertEquals(reactionPackage.id(), type.reactionPackage().id());
 
-            ReactionTypeEntity found = JPAUtil.getEntityManager().find(ReactionTypeEntity.class, type.id());
+            ReactionTypeEntity found = container.get(JPAUtil.class).getEntityManager().find(ReactionTypeEntity.class, type.id());
             assertNotNull(found);
             assertEquals(type, found);
         }

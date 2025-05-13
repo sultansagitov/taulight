@@ -1,6 +1,6 @@
 package net.result.sandnode.serverclient;
 
-import net.result.sandnode.db.JPAUtil;
+import net.result.sandnode.util.JPAUtil;
 import net.result.sandnode.hubagent.Node;
 import net.result.sandnode.config.ServerConfig;
 import net.result.sandnode.exception.*;
@@ -112,6 +112,16 @@ public class SandnodeServer {
 
         node.close();
 
-        JPAUtil.shutdown();
+        container.get(JPAUtil.class).shutdown();
+    }
+
+    public synchronized void closeWithoutDBShutdown() throws ServerClosingException {
+        try {
+            serverSocket.close();
+        } catch (IOException e) {
+            throw new ServerClosingException("Failed to close the server socket", e);
+        }
+
+        node.close();
     }
 }

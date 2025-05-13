@@ -1,6 +1,6 @@
 package net.result.taulight.db;
 
-import net.result.sandnode.db.JPAUtil;
+import net.result.sandnode.GlobalTestState;
 import net.result.sandnode.db.MemberEntity;
 import net.result.sandnode.db.MemberRepository;
 import net.result.sandnode.security.PasswordHashers;
@@ -26,8 +26,7 @@ public class MemberDeletionIntegrationTest {
 
     @BeforeAll
     public static void setup() {
-        JPAUtil.buildEntityManagerFactory();
-        Container container = new Container();
+        Container container = GlobalTestState.container;
         memberRepo = container.get(MemberRepository.class);
         dialogRepo = container.get(DialogRepository.class);
         channelRepo = container.get(ChannelRepository.class);

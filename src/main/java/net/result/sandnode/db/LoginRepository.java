@@ -2,6 +2,7 @@ package net.result.sandnode.db;
 
 import net.result.sandnode.exception.DatabaseException;
 import net.result.sandnode.util.Container;
+import net.result.sandnode.util.JPAUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -10,9 +11,11 @@ import javax.persistence.EntityTransaction;
 import java.util.List;
 
 public class LoginRepository {
-    private final EntityManager em = JPAUtil.getEntityManager();
+    private final EntityManager em;
 
-    public LoginRepository(Container container) {}
+    public LoginRepository(Container container) {
+        em = container.get(JPAUtil.class).getEntityManager();
+    }
 
     private LoginEntity save(@NotNull LoginEntity login) throws DatabaseException {
         while (em.find(MemberEntity.class, login.id()) != null) {

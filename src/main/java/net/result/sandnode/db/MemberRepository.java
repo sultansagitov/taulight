@@ -3,6 +3,7 @@ package net.result.sandnode.db;
 import net.result.sandnode.exception.DatabaseException;
 import net.result.sandnode.exception.error.BusyNicknameException;
 import net.result.sandnode.util.Container;
+import net.result.sandnode.util.JPAUtil;
 import net.result.taulight.db.TauMemberEntity;
 import net.result.taulight.db.TauMemberRepository;
 
@@ -11,10 +12,11 @@ import javax.persistence.EntityTransaction;
 import java.util.Optional;
 
 public class MemberRepository {
-    private final EntityManager em = JPAUtil.getEntityManager();
+    private final EntityManager em;
     private final TauMemberRepository tauMemberRepo;
 
     public MemberRepository(Container container) {
+        em = container.get(JPAUtil.class).getEntityManager();
         tauMemberRepo = container.get(TauMemberRepository.class);
     }
 

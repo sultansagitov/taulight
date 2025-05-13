@@ -4,7 +4,7 @@ import net.result.main.config.HubPropertiesConfig;
 import net.result.main.config.JWTPropertiesConfig;
 import net.result.sandnode.config.HubConfig;
 import net.result.sandnode.config.ServerConfig;
-import net.result.sandnode.db.JPAUtil;
+import net.result.sandnode.util.JPAUtil;
 import net.result.sandnode.exception.ConfigurationException;
 import net.result.sandnode.exception.FSException;
 import net.result.sandnode.exception.SandnodeException;
@@ -40,9 +40,8 @@ public class RunHubWork implements IWork {
 
     @Override
     public void run() throws SandnodeException {
-        JPAUtil.buildEntityManagerFactory();
-
         Container container = new Container();
+        container.get(JPAUtil.class);
 
         ServerConfig serverConfig = getServerConfig(container);
 
