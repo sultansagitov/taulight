@@ -11,7 +11,6 @@ import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.message.TextMessage;
 import net.result.sandnode.message.types.FileMessage;
 import net.result.sandnode.message.types.HappyMessage;
-import net.result.sandnode.message.util.Headers;
 import net.result.sandnode.util.IOController;
 import net.result.taulight.dto.CodeDTO;
 import net.result.taulight.message.CodeListMessage;
@@ -106,7 +105,7 @@ public class ChannelClientChain extends ClientChain {
         }
 
         IMessage request = ChannelRequest.setAvatar(chatID);
-        FileMessage fileMessage = new FileMessage(new Headers(), new FileDTO(contentType, bytes));
+        FileMessage fileMessage = new FileMessage(new FileDTO(contentType, bytes));
 
         send(request);
         send(fileMessage);

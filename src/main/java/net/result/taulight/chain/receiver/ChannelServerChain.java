@@ -221,7 +221,6 @@ public class ChannelServerChain extends ServerChain implements ReceiverChain {
         FileEntity avatar = channel.avatar();
         if (avatar == null) throw new NoEffectException(); 
 
-        FileDTO fileDTO = dbFileUtil.readImage(avatar);
-        send(new FileMessage(new Headers(), fileDTO));
+        send(new FileMessage(dbFileUtil.readImage(avatar)));
     }
 }

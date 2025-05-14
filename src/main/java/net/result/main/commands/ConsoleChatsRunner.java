@@ -195,6 +195,30 @@ public class ConsoleChatsRunner {
         }
     }
 
+    public static void getDialogAvatar(ConsoleContext context, UUID chatID)
+            throws UnprocessedMessagesException, InterruptedException {
+        try {
+            DialogClientChain chain = new DialogClientChain(context.io);
+            context.io.chainManager.linkChain(chain);
+            FileDTO avatar = chain.getAvatar(chatID);
+            context.io.chainManager.removeChain(chain);
+
+            if (avatar == null) {
+                System.out.println("Member have no avatar");
+            } else {
+                String mimeType = avatar.contentType();
+                String base64 = Base64.getEncoder().encodeToString(avatar.body());
+                System.out.printf("data:%s;base64,%s%n", mimeType, base64);
+            }
+        } catch (NotFoundException e) {
+            System.out.printf("Channel %s not found.%n", chatID);
+        } catch (SandnodeErrorException | UnknownSandnodeErrorException e) {
+            System.out.printf("Failed to get avatar - %s%n", e.getClass());
+        } catch (ExpectedMessageException | DeserializationException e) {
+            System.out.println("Unexpected error: " + e.getMessage());
+        }
+    }
+
     public static void printInfo(@NotNull Collection<ChatInfoDTO> infos) {
         for (ChatInfoDTO info : infos) {
             String lastMessageText = (info.lastMessage != null && info.lastMessage.message != null)
@@ -222,5 +246,4 @@ public class ConsoleChatsRunner {
             System.out.println(message);
         }
     }
-
 }

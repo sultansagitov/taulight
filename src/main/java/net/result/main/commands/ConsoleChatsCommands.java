@@ -22,6 +22,7 @@ public class ConsoleChatsCommands {
         commands.put("members", ConsoleChatsCommands::members);
         commands.put("setChannelAvatar", ConsoleChatsCommands::setChannelAvatar);
         commands.put("getChannelAvatar", ConsoleChatsCommands::getChannelAvatar);
+        commands.put("getDialogAvatar", ConsoleChatsCommands::getDialogAvatar);
     }
 
     private static boolean setChat(List<String> args, ConsoleContext context) {
@@ -246,6 +247,27 @@ public class ConsoleChatsCommands {
         }
 
         ConsoleChatsRunner.getChannelAvatar(context, chatID);
+
+        return false;
+    }
+
+    private static boolean getDialogAvatar(List<String> args, ConsoleContext context)
+            throws UnprocessedMessagesException, InterruptedException {
+        UUID chatID;
+
+        try {
+            chatID = args.stream().findFirst().map(UUID::fromString).orElse(context.currentChat);
+        } catch (IllegalArgumentException e) {
+            System.out.println("Invalid UUID format.");
+            return false;
+        }
+
+        if (chatID == null) {
+            System.out.println("Chat not selected.");
+            return false;
+        }
+
+        ConsoleChatsRunner.getDialogAvatar(context, chatID);
 
         return false;
     }

@@ -11,6 +11,10 @@ import org.jetbrains.annotations.NotNull;
 public class FileMessage extends Message {
     private final FileDTO dto;
 
+    public FileMessage(@NotNull FileDTO dto) {
+        this(new Headers(), dto);
+    }
+
     public FileMessage(@NotNull Headers headers, @NotNull FileDTO dto) {
         super(headers.setType(MessageTypes.FILE).setValue("content-type", dto.contentType()));
         this.dto = dto;

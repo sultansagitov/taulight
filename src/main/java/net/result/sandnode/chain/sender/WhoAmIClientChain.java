@@ -15,7 +15,6 @@ import net.result.sandnode.message.types.FileMessage;
 import net.result.sandnode.message.types.HappyMessage;
 import net.result.sandnode.message.types.WhoAmIRequest;
 import net.result.sandnode.message.types.WhoAmIResponse;
-import net.result.sandnode.message.util.Headers;
 import net.result.sandnode.util.IOController;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -71,7 +70,7 @@ public class WhoAmIClientChain extends ClientChain {
         }
 
         IMessage request = WhoAmIRequest.byType(WhoAmIRequest.Type.SET_AVATAR);
-        FileMessage fileMessage = new FileMessage(new Headers(), new FileDTO(contentType, bytes));
+        FileMessage fileMessage = new FileMessage(new FileDTO(contentType, bytes));
 
         send(request);
         send(fileMessage);

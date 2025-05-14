@@ -1,35 +1,44 @@
 package net.result.taulight.message.types;
 
 import net.result.sandnode.exception.ExpectedMessageException;
-import net.result.sandnode.message.Message;
 import net.result.sandnode.message.RawMessage;
+import net.result.sandnode.message.TextMessage;
 import net.result.sandnode.message.util.Headers;
 import net.result.taulight.message.TauMessageTypes;
 import org.jetbrains.annotations.NotNull;
 
-public class DialogRequest extends Message {
-    private final String nickname;
+import java.util.Arrays;
+import java.util.UUID;
 
-    public DialogRequest(@NotNull Headers headers, @NotNull String nickname) {
-        super(headers.setType(TauMessageTypes.DIALOG));
-        this.nickname = nickname;
+public class DialogRequest extends TextMessage {
+    public enum Type {
+        ID("id"),
+        AVATAR("avatar");
+
+        private final String value;
+
+        Type(String value) {
+            this.value = value;
+        }
+
+        public static Type fromValue(String value) {
+            return Arrays.stream(values()).filter(v -> v.value.equalsIgnoreCase(value)).findFirst().orElse(ID);
+        }
     }
 
-    public DialogRequest(@NotNull String nickname) {
-        this(new Headers(), nickname);
+    public DialogRequest(@NotNull Headers headers, @NotNull String nickname) {
+        super(headers.setType(TauMessageTypes.DIALOG), nickname);
+    }
+
+    public static @NotNull DialogRequest getDialogID(String nickname) {
+        return new DialogRequest(new Headers().setValue("type", Type.ID.value), nickname);
+    }
+
+    public static @NotNull DialogRequest getAvatar(UUID chatID) {
+        return new DialogRequest(new Headers().setValue("type", Type.AVATAR.value), chatID.toString());
     }
 
     public DialogRequest(@NotNull RawMessage raw) throws ExpectedMessageException {
-        super(raw.expect(TauMessageTypes.DIALOG).headers());
-        nickname = new String(raw.getBody());
-    }
-
-    @Override
-    public byte[] getBody() {
-        return nickname.getBytes();
-    }
-
-    public String nickname() {
-        return nickname;
+        super(raw.expect(TauMessageTypes.DIALOG));
     }
 }

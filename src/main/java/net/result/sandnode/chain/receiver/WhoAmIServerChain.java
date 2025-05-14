@@ -13,7 +13,6 @@ import net.result.sandnode.message.types.FileMessage;
 import net.result.sandnode.message.types.HappyMessage;
 import net.result.sandnode.message.types.WhoAmIRequest;
 import net.result.sandnode.message.types.WhoAmIResponse;
-import net.result.sandnode.message.util.Headers;
 import net.result.sandnode.serverclient.Session;
 import net.result.sandnode.util.DBFileUtil;
 import org.apache.logging.log4j.LogManager;
@@ -48,7 +47,7 @@ public class WhoAmIServerChain extends ServerChain implements ReceiverChain {
             case GET_AVATAR -> {
                 FileEntity avatar = member.avatar();
                 if (avatar == null) throw new NoEffectException();
-                yield new FileMessage(new Headers(), dbFileUtil.readImage(avatar));
+                yield new FileMessage(dbFileUtil.readImage(avatar));
             }
             case SET_AVATAR -> {
                 FileMessage fileMessage = new FileMessage(queue.take());
