@@ -75,14 +75,14 @@ public class ChatServerChain extends ServerChain implements ReceiverChain {
         List<ChatEntity> relevantChats = new ArrayList<>();
 
         for (var channel : tauMember.channels()) {
-            if (!Collections.disjoint(chatInfoProps, ChatInfoPropDTO.channelAll())) {
+            if (chatInfoProps.contains(ChatInfoPropDTO.channelID)) {
                 relevantChats.add(channel);
                 if (needLastMessage) chatIdsForLastMsg.add(channel.id());
             }
         }
 
         for (var dialog : tauMember.dialogs()) {
-            if (!Collections.disjoint(chatInfoProps, ChatInfoPropDTO.dialogAll())) {
+            if (chatInfoProps.contains(ChatInfoPropDTO.dialogID)) {
                 relevantChats.add(dialog);
                 if (needLastMessage) chatIdsForLastMsg.add(dialog.id());
             }
@@ -161,11 +161,9 @@ public class ChatServerChain extends ServerChain implements ReceiverChain {
             ChatEntity chat = entry.getValue();
             ChatMessageViewDTO lastMsg = lastMessages.get(chatID);
 
-            if (chat instanceof ChannelEntity channel &&
-                    !Collections.disjoint(chatInfoProps, ChatInfoPropDTO.channelAll())) {
+            if (chat instanceof ChannelEntity channel && chatInfoProps.contains(ChatInfoPropDTO.channelID)) {
                 infos.add(ChatInfoDTO.channel(channel, tauMember, chatInfoProps, lastMsg));
-            } else if (chat instanceof DialogEntity dialog &&
-                    !Collections.disjoint(chatInfoProps, ChatInfoPropDTO.dialogAll())) {
+            } else if (chat instanceof DialogEntity dialog && chatInfoProps.contains(ChatInfoPropDTO.dialogID)) {
                 infos.add(ChatInfoDTO.dialog(dialog, tauMember, chatInfoProps, lastMsg));
             }
         }
