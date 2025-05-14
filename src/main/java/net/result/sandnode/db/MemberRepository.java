@@ -77,4 +77,22 @@ public class MemberRepository {
             throw new DatabaseException("Failed to delete invite code", e);
         }
     }
+
+    public boolean setAvatar(MemberEntity member, FileEntity avatar) throws DatabaseException {
+        EntityTransaction transaction = em.getTransaction();
+        try {
+            if (em.find(MemberEntity.class, member.id()) != null) {
+                transaction.begin();
+                member.setAvatar(avatar);
+                em.merge(member);
+                transaction.commit();
+                return true;
+            }
+
+            return false;
+        } catch (Exception e) {
+            if (transaction.isActive()) transaction.rollback();
+            throw new DatabaseException("Failed to delete invite code", e);
+        }
+    }
 }

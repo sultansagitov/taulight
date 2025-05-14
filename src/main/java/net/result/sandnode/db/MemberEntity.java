@@ -16,6 +16,9 @@ public class MemberEntity extends SandnodeEntity {
     private String passwordHash;
     private boolean deleted;
 
+    @OneToOne
+    private FileEntity avatar;
+
     @OneToMany(mappedBy = "member", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     private Set<LoginEntity> logins = new HashSet<>();
 
@@ -51,6 +54,14 @@ public class MemberEntity extends SandnodeEntity {
 
     public void setDeleted(boolean deleted) {
         this.deleted = deleted;
+    }
+
+    public FileEntity avatar() {
+        return avatar;
+    }
+
+    public void setAvatar(FileEntity avatar) {
+        this.avatar = avatar;
     }
 
     public Set<LoginEntity> logins() {

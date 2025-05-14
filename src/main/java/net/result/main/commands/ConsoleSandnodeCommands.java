@@ -5,6 +5,7 @@ import net.result.sandnode.chain.sender.LoginClientChain;
 import net.result.sandnode.chain.sender.LogoutClientChain;
 import net.result.sandnode.chain.sender.NameClientChain;
 import net.result.sandnode.chain.sender.WhoAmIClientChain;
+import net.result.sandnode.dto.FileDTO;
 import net.result.sandnode.dto.LoginHistoryDTO;
 import net.result.sandnode.exception.*;
 import net.result.sandnode.exception.error.SandnodeErrorException;
@@ -36,6 +37,8 @@ public class ConsoleSandnodeCommands {
         commands.put("rmGroup", ConsoleSandnodeCommands::rmGroup);
         commands.put("whoami", ConsoleSandnodeCommands::whoami);
         commands.put("name", ConsoleSandnodeCommands::name);
+        commands.put("getAvatar", ConsoleSandnodeCommands::getAvatar);
+        commands.put("setAvatar", ConsoleSandnodeCommands::setAvatar);
         commands.put("logout", ConsoleSandnodeCommands::logout);
         commands.put("loginHistory", ConsoleSandnodeCommands::loginHistory);
     }
@@ -117,7 +120,7 @@ public class ConsoleSandnodeCommands {
             context.io.chainManager.linkChain(chain);
             String userID;
             try {
-                userID = chain.getUserID();
+                userID = chain.getNickname();
             } catch (UnauthorizedException e) {
                 System.out.println("You are not authorized");
                 return false;
@@ -150,6 +153,48 @@ public class ConsoleSandnodeCommands {
             System.out.println("Unexpected array bounds error during name request.");
         }
 
+        return false;
+    }
+
+    private static boolean getAvatar(List<String> ignored, ConsoleContext context)
+            throws UnprocessedMessagesException, InterruptedException {
+
+        var chain = new WhoAmIClientChain(context.io);
+        try {
+            context.io.chainManager.linkChain(chain);
+            FileDTO avatar = chain.getAvatar();
+            context.io.chainManager.removeChain(chain);
+
+            if (avatar == null) {
+                System.out.println("You have no avatar");
+            } else {
+                String mimeType = avatar.contentType();
+                String base64 = Base64.getEncoder().encodeToString(avatar.body());
+                System.out.printf("data:%s;base64,%s%n", mimeType, base64);
+            }
+
+        } catch (ExpectedMessageException | UnknownSandnodeErrorException | SandnodeErrorException e) {
+            System.out.println("Exception: " + e.getClass().getSimpleName());
+        }
+        return false;
+    }
+
+    private static boolean setAvatar(List<String> args, ConsoleContext context)
+            throws UnprocessedMessagesException, InterruptedException {
+        Optional<String> path = args.stream().findFirst();
+        if (path.isEmpty()) {
+            System.out.println("Usage: setAvatar <path>");
+            return false;
+        }
+
+        try {
+            var chain = new WhoAmIClientChain(context.io);
+            context.io.chainManager.linkChain(chain);
+            chain.setAvatar(path.get());
+            context.io.chainManager.removeChain(chain);
+        } catch (ExpectedMessageException | FSException | UnknownSandnodeErrorException | SandnodeErrorException e) {
+            System.out.println("Exception: " + e.getClass().getSimpleName());
+        }
         return false;
     }
 

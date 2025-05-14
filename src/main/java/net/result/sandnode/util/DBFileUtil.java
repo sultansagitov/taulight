@@ -56,13 +56,12 @@ public class DBFileUtil {
         return fileRepo.create(dto.contentType(), filename);
     }
 
-    public byte @NotNull [] readImage(String path) throws NoEffectException, ServerSandnodeErrorException {
-        if (path == null) throw new NoEffectException();
-
-        Path filePath = avatarDirectory.resolve(path);
+    public FileDTO readImage(FileEntity file) throws NoEffectException, ServerSandnodeErrorException {
+        if (file == null) throw new NoEffectException();
+        Path filePath = avatarDirectory.resolve(file.filename());
 
         try {
-            return Files.readAllBytes(filePath);
+            return new FileDTO(file.contentType(), Files.readAllBytes(filePath));
         } catch (IOException e) {
             throw new ServerSandnodeErrorException(e);
         }
