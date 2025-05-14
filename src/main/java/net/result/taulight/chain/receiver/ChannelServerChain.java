@@ -2,6 +2,7 @@ package net.result.taulight.chain.receiver;
 
 import net.result.sandnode.chain.ReceiverChain;
 import net.result.sandnode.chain.ServerChain;
+import net.result.sandnode.db.FileEntity;
 import net.result.sandnode.db.MemberEntity;
 import net.result.sandnode.db.MemberRepository;
 import net.result.sandnode.dto.FileDTO;
@@ -203,9 +204,9 @@ public class ChannelServerChain extends ServerChain implements ReceiverChain {
         if (!(chat instanceof ChannelEntity channel)) throw new WrongAddressException();
 
         FileDTO dto = fileMessage.dto();
-        String filename = dbFileUtil.saveImage(dto, chatID);
+        FileEntity avatar = dbFileUtil.saveImage(dto, chatID.toString());
 
-        channelRepo.setAvatar(channel, dto.contentType(), filename);
+        channelRepo.setAvatar(channel, avatar);
 
         send(new HappyMessage());
     }
@@ -217,9 +218,11 @@ public class ChannelServerChain extends ServerChain implements ReceiverChain {
         if (!chatUtil.getMembers(chat).contains(you)) throw new UnauthorizedException();
         if (!(chat instanceof ChannelEntity channel)) throw new WrongAddressException();
 
-        byte[] bytes = dbFileUtil.readImage(channel.filename());
-
-        FileDTO fileDTO = new FileDTO(channel.contentType(), bytes);
+        FileEntity avatar = channel.avatar();
+        if (avatar == null) throw new NoEffectException(); 
+        
+        byte[] bytes = dbFileUtil.readImage(avatar.filename());
+        FileDTO fileDTO = new FileDTO(avatar.contentType(), bytes);
         send(new FileMessage(new Headers(), fileDTO));
     }
 }

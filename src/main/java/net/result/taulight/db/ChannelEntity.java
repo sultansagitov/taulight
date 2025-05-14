@@ -1,5 +1,7 @@
 package net.result.taulight.db;
 
+import net.result.sandnode.db.FileEntity;
+
 import javax.persistence.*;
 import java.util.Set;
 import java.util.HashSet;
@@ -8,8 +10,9 @@ import java.util.HashSet;
 @Entity
 public class ChannelEntity extends ChatEntity {
     private String title;
-    private String contentType;
-    private String filename;
+
+    @OneToOne
+    private FileEntity avatar;
 
     @ManyToOne
     private TauMemberEntity owner;
@@ -43,20 +46,12 @@ public class ChannelEntity extends ChatEntity {
         this.title = title;
     }
 
-    public String contentType() {
-        return contentType;
+    public FileEntity avatar() {
+        return avatar;
     }
 
-    public void setContentType(String contentType) {
-        this.contentType = contentType;
-    }
-
-    public String filename() {
-        return filename;
-    }
-
-    public void setFilename(String filename) {
-        this.filename = filename;
+    public void setAvatar(FileEntity avatar) {
+        this.avatar = avatar;
     }
 
     public TauMemberEntity owner() {

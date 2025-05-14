@@ -1,5 +1,6 @@
 package net.result.taulight.db;
 
+import net.result.sandnode.db.FileEntity;
 import net.result.sandnode.util.JPAUtil;
 import net.result.sandnode.exception.DatabaseException;
 import net.result.sandnode.util.Container;
@@ -54,7 +55,7 @@ public class ChannelRepository {
         return managed;
     }
 
-    public void delete(ChannelEntity channel) throws DatabaseException {
+public void delete(ChannelEntity channel) throws DatabaseException {
         EntityTransaction transaction = em.getTransaction();
         try {
             transaction.begin();
@@ -123,12 +124,11 @@ public class ChannelRepository {
         return true;
     }
 
-    public void setAvatar(ChannelEntity channel, String contentType, String filename) throws DatabaseException {
+    public void setAvatar(ChannelEntity channel, FileEntity avatar) throws DatabaseException {
         EntityTransaction transaction = em.getTransaction();
         try {
             transaction.begin();
-            channel.setContentType(contentType);
-            channel.setFilename(filename);
+            channel.setAvatar(avatar);
             em.merge(channel);
             transaction.commit();
         } catch (Exception e) {
