@@ -1,11 +1,13 @@
 package net.result.sandnode.db;
 
-import org.hibernate.annotations.Type;
+import org.hibernate.annotations.JdbcTypeCode;
 
-import javax.persistence.Column;
-import javax.persistence.Convert;
-import javax.persistence.Id;
-import javax.persistence.MappedSuperclass;
+import jakarta.persistence.Column;
+import jakarta.persistence.Convert;
+import jakarta.persistence.Id;
+import jakarta.persistence.MappedSuperclass;
+
+import java.sql.Types;
 import java.time.ZonedDateTime;
 import java.util.UUID;
 
@@ -13,8 +15,8 @@ import java.util.UUID;
 @MappedSuperclass
 public abstract class SandnodeEntity {
     @Id
-    @Type(type = "org.hibernate.type.UUIDBinaryType")
-    @Column(name = "id", columnDefinition = "BINARY(16)")
+    @JdbcTypeCode(Types.BINARY)
+    @Column(length = 16)
     private UUID id;
 
     @Convert(converter = ZonedDateTimeConverter.class)

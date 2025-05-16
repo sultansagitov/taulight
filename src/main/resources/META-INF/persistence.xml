@@ -16,17 +16,21 @@
         <class>net.result.taulight.db.RoleEntity</class>
 
         <properties>
-            <property name="javax.persistence.jdbc.driver" value="org.mariadb.jdbc.Driver"/>
-            <property name="javax.persistence.jdbc.url" value="jdbc:mariadb://localhost:3306/taulight"/>
-            <property name="javax.persistence.jdbc.user" value="root"/>
-            <property name="javax.persistence.jdbc.password" value="12345678"/>
+            <property name="jakarta.persistence.jdbc.driver" value="org.mariadb.jdbc.Driver"/>
+            <property name="jakarta.persistence.jdbc.url" value="jdbc:mariadb://localhost:3306/taulight"/>
+            <property name="jakarta.persistence.jdbc.user" value="root"/>
+            <property name="jakarta.persistence.jdbc.password" value="12345678"/>
 
-            <property name="hibernate.dialect" value="org.hibernate.dialect.MariaDB103Dialect"/>
+            <property name="hibernate.connection.provider_class"
+                      value="org.hibernate.hikaricp.internal.HikariCPConnectionProvider"/>
+            <property name="hibernate.hikari.maximumPoolSize" value="10"/>
+            <property name="hibernate.hikari.idleTimeout" value="300000"/>
+
             <property name="hibernate.hbm2ddl.auto" value="update"/>
-            <property name="hibernate.show_sql" value="true"/>
-            <property name="hibernate.format_sql" value="true"/>
+            <!--<property name="hibernate.show_sql" value="true"/>-->
+            <!--<property name="hibernate.format_sql" value="true"/>-->
 
-            <property name="hibernate.use_sql_comments" value="true"/>
+            <!--<property name="hibernate.use_sql_comments" value="true"/>-->
         </properties>
     </persistence-unit>
 </persistence>

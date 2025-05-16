@@ -6,8 +6,8 @@ import net.result.sandnode.exception.error.NotFoundException;
 import net.result.sandnode.util.Container;
 import net.result.taulight.dto.ChatMessageInputDTO;
 
-import javax.persistence.EntityManager;
-import javax.persistence.EntityTransaction;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityTransaction;
 import java.util.*;
 
 public class MessageRepository {

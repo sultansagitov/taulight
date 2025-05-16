@@ -47,7 +47,6 @@ import org.junit.jupiter.api.Test;
 import java.net.Socket;
 import java.nio.file.Path;
 import java.util.Optional;
-import java.util.Random;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
@@ -57,13 +56,11 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class ServerTest {
     private static final Logger LOGGER = LogManager.getLogger(ServerTest.class);
-    private static final int PORT_OFFSET = 10240;
-    private static final int PORT_RANGE = 5000;
 
     private static final AsymmetricEncryptions asymmetricEncryption = AsymmetricEncryptions.ECIES;
     private static final SymmetricEncryptions symmetricEncryption = SymmetricEncryptions.AES;
     private static final short CHAIN_ID = (short) ((0xAB << 8) + 0xCD);
-    private static int port;
+    private static final int port = 52524;
 
     private enum Testing implements MessageType {
         TESTING {
@@ -78,9 +75,7 @@ public class ServerTest {
     public static void setup() {
         EncryptionManager.registerAll();
 
-        port = PORT_OFFSET + new Random().nextInt(PORT_RANGE);
         MessageTypeManager.instance().add(Testing.TESTING);
-        LOGGER.info("Generated random port: {}", port);
     }
 
     @Test

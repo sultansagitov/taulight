@@ -3,9 +3,9 @@ package net.result.taulight.db;
 import net.result.sandnode.db.SandnodeEntity;
 import net.result.sandnode.db.ZonedDateTimeConverter;
 
-import javax.persistence.Convert;
-import javax.persistence.Entity;
-import javax.persistence.ManyToOne;
+import jakarta.persistence.Convert;
+import jakarta.persistence.Entity;
+import jakarta.persistence.ManyToOne;
 import java.security.SecureRandom;
 import java.time.ZonedDateTime;
 import java.util.stream.Collectors;

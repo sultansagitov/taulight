@@ -1,6 +1,6 @@
 package net.result.sandnode.db;
 
-import javax.persistence.Entity;
+import jakarta.persistence.Entity;
 
 @SuppressWarnings("unused")
 @Entity

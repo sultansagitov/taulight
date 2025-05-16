@@ -1,7 +1,7 @@
 package net.result.sandnode.db;
 
-import javax.persistence.Entity;
-import javax.persistence.ManyToOne;
+import jakarta.persistence.Entity;
+import jakarta.persistence.ManyToOne;
 
 @SuppressWarnings("unused")
 @Entity

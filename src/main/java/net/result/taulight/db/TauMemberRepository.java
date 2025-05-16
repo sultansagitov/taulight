@@ -5,8 +5,8 @@ import net.result.sandnode.db.MemberEntity;
 import net.result.sandnode.exception.DatabaseException;
 import net.result.sandnode.util.Container;
 
-import javax.persistence.EntityManager;
-import javax.persistence.EntityTransaction;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityTransaction;
 
 public class TauMemberRepository {
     private final EntityManager em;

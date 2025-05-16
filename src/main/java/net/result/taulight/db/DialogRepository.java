@@ -6,9 +6,9 @@ import net.result.sandnode.util.Container;
 import net.result.taulight.exception.AlreadyExistingRecordException;
 import org.jetbrains.annotations.NotNull;
 
-import javax.persistence.EntityManager;
-import javax.persistence.EntityTransaction;
-import javax.persistence.TypedQuery;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityTransaction;
+import jakarta.persistence.TypedQuery;
 import java.util.Optional;
 import java.util.UUID;
 

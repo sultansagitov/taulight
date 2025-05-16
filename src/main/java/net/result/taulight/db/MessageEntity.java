@@ -4,7 +4,7 @@ import net.result.sandnode.db.SandnodeEntity;
 import net.result.sandnode.db.ZonedDateTimeConverter;
 import net.result.taulight.dto.ChatMessageInputDTO;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.time.ZonedDateTime;
 import java.util.*;
 

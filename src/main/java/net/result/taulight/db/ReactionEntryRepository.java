@@ -5,8 +5,8 @@ import net.result.sandnode.exception.DatabaseException;
 import net.result.sandnode.util.Container;
 import org.jetbrains.annotations.NotNull;
 
-import javax.persistence.EntityManager;
-import javax.persistence.EntityTransaction;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityTransaction;
 import java.util.Optional;
 
 public class ReactionEntryRepository {

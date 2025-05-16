@@ -11,7 +11,7 @@ import net.result.sandnode.util.Container;
 import net.result.taulight.dto.ChatMessageInputDTO;
 import org.junit.jupiter.api.*;
 
-import javax.persistence.EntityManager;
+import jakarta.persistence.EntityManager;
 import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;

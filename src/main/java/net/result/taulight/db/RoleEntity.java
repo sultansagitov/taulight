@@ -2,9 +2,9 @@ package net.result.taulight.db;
 
 import net.result.sandnode.db.SandnodeEntity;
 
-import javax.persistence.Entity;
-import javax.persistence.ManyToMany;
-import javax.persistence.ManyToOne;
+import jakarta.persistence.Entity;
+import jakarta.persistence.ManyToMany;
+import jakarta.persistence.ManyToOne;
 import java.util.HashSet;
 import java.util.Set;
 

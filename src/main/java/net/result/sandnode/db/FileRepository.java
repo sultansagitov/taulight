@@ -3,8 +3,8 @@ package net.result.sandnode.db;
 import net.result.sandnode.exception.DatabaseException;
 import net.result.sandnode.util.Container;
 import net.result.sandnode.util.JPAUtil;
-import javax.persistence.EntityManager;
-import javax.persistence.EntityTransaction;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityTransaction;
 
 public class FileRepository {
     private final EntityManager em;

@@ -2,9 +2,9 @@ package net.result.sandnode.util;
 
 import net.result.sandnode.exception.ConfigurationException;
 
-import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.Persistence;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityManagerFactory;
+import jakarta.persistence.Persistence;
 
 public class JPAUtil {
     public static final String persistenceUnitName = "taulight-unit";
@@ -31,4 +31,3 @@ public class JPAUtil {
         }
     }
 }
-

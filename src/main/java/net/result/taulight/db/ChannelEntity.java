@@ -2,7 +2,7 @@ package net.result.taulight.db;
 
 import net.result.sandnode.db.FileEntity;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.util.Set;
 import java.util.HashSet;
 
