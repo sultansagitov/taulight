@@ -19,7 +19,6 @@ import net.result.sandnode.message.UUIDMessage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.util.Collection;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -54,25 +53,23 @@ public class MembersServerChain extends ServerChain implements ReceiverChain {
 
                 ChatEntity chat = optChat.get();
                 ChatGroup group = groupManager.getGroup(chat);
-                Collection<TauMemberEntity> members = chatUtil.getMembers(chat);
 
-                if (!members.contains(session.member.tauMember())) {
+                if (!chatUtil.contains(chat, session.member.tauMember())) {
                     send(Errors.NOT_FOUND.createMessage());
                     continue;
                 }
 
-                Map<String, ChatMemberDTO> map = members.stream()
+                Map<String, ChatMemberDTO> map = chatUtil
+                        .getMembers(chat).stream()
                         .map(TauMemberEntity::member)
                         .collect(Collectors.toMap(MemberEntity::nickname, ChatMemberDTO::new));
 
-                for (Session s : group.getSessions()) {
-                    if (s.member != null) {
-                        map.computeIfPresent(s.member.nickname(), (nickname, record) -> {
+                group.getSessions().stream()
+                        .filter(s -> s.member != null)
+                        .forEach(s -> map.computeIfPresent(s.member.nickname(), (nickname, record) -> {
                             record.status = ChatMemberDTO.Status.ONLINE;
                             return record;
-                        });
-                    }
-                }
+                        }));
 
                 send(new MembersResponse(map.values()));
 

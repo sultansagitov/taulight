@@ -5,7 +5,7 @@ import jakarta.persistence.ManyToOne;
 
 @SuppressWarnings("unused")
 @Entity
-public class LoginEntity extends SandnodeEntity {
+public class LoginEntity extends BaseEntity {
     private String ip;
     private boolean byPassword;
 

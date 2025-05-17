@@ -7,6 +7,7 @@ import net.result.sandnode.exception.error.BusyNicknameException;
 import net.result.sandnode.exception.error.NotFoundException;
 import net.result.sandnode.security.PasswordHashers;
 import net.result.sandnode.util.Container;
+import net.result.sandnode.util.JPAUtil;
 import net.result.taulight.dto.ChatMessageInputDTO;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -16,6 +17,7 @@ import java.util.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class MessagesTest {
+    private static JPAUtil jpaUtil;
     private static TauMemberEntity member1;
     private static TauMemberEntity member2;
     private static ChannelRepository channelRepo;
@@ -24,6 +26,8 @@ public class MessagesTest {
     @BeforeAll
     public static void setup() throws DatabaseException, BusyNicknameException {
         Container container = GlobalTestState.container;
+        jpaUtil = container.get(JPAUtil.class);
+
         MemberRepository memberRepo = container.get(MemberRepository.class);
         channelRepo = container.get(ChannelRepository.class);
         messageRepo = container.get(MessageRepository.class);
@@ -48,9 +52,8 @@ public class MessagesTest {
                 .setSys(true);
         MessageEntity message = messageRepo.create(chat, messageInputDTO, member1);
 
-        Optional<MessageEntity> foundMessage = messageRepo.findById(message.id());
-        assertTrue(foundMessage.isPresent());
-        assertEquals("Hello!", foundMessage.get().content());
+        MessageEntity foundMessage = jpaUtil.refresh(message);
+        assertEquals("Hello!", foundMessage.content());
 
         // Additional assertions
         assertNotNull(message.id(), "Message ID should not be null");
@@ -124,15 +127,14 @@ public class MessagesTest {
 
         MessageEntity message = messageRepo.create(channel, input, member1);
 
-        Optional<MessageEntity> found = messageRepo.findById(message.id());
-        assertTrue(found.isPresent());
-        assertEquals("Find me", found.get().content());
+        MessageEntity found = jpaUtil.refresh(message);
+        assertEquals("Find me", found.content());
 
         // Additional assertions
-        assertEquals(message.id(), found.get().id(), "IDs should match");
-        assertEquals(message.member(), found.get().member(), "Members should match");
-        assertEquals(message.chat(), found.get().chat(), "Chats should match");
-        assertFalse(found.get().sys(), "Message should not be a system message");
+        assertEquals(message.id(), found.id(), "IDs should match");
+        assertEquals(message.member(), found.member(), "Members should match");
+        assertEquals(message.chat(), found.chat(), "Chats should match");
+        assertFalse(found.sys(), "Message should not be a system message");
 
         // Test with non-existent message ID
         UUID nonExistentID = UUID.randomUUID();

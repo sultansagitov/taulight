@@ -100,7 +100,7 @@ public class DialogServerChain extends ServerChain implements ReceiverChain {
         UUID chatID = UUID.fromString(request.content());
 
         ChatEntity chat = chatUtil.getChat(chatID).orElseThrow(NotFoundException::new);
-        if (!chatUtil.getMembers(chat).contains(you.tauMember())) throw new UnauthorizedException();
+        if (!chatUtil.contains(chat, you.tauMember())) throw new UnauthorizedException();
         if (!(chat instanceof DialogEntity dialog)) throw new WrongAddressException();
 
         FileEntity avatar = dialog.otherMember(you.tauMember()).member().avatar();

@@ -5,6 +5,7 @@ import net.result.sandnode.db.MemberEntity;
 import net.result.sandnode.db.MemberRepository;
 import net.result.sandnode.security.PasswordHashers;
 import net.result.sandnode.util.Container;
+import net.result.sandnode.util.JPAUtil;
 import net.result.taulight.dto.ChatMessageInputDTO;
 import org.junit.jupiter.api.*;
 
@@ -12,9 +13,10 @@ import java.time.ZonedDateTime;
 import java.util.HashSet;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class MemberDeletionIntegrationTest {
-
+    private static JPAUtil jpaUtil;
     private static MemberRepository memberRepo;
     private static DialogRepository dialogRepo;
     private static ChannelRepository channelRepo;
@@ -27,6 +29,7 @@ public class MemberDeletionIntegrationTest {
     @BeforeAll
     public static void setup() {
         Container container = GlobalTestState.container;
+        jpaUtil = container.get(JPAUtil.class);
         memberRepo = container.get(MemberRepository.class);
         dialogRepo = container.get(DialogRepository.class);
         channelRepo = container.get(ChannelRepository.class);
@@ -71,6 +74,8 @@ public class MemberDeletionIntegrationTest {
         messageRepo.create(chat, input, tau);
 
         assertEquals(1, messageRepo.countMessagesByChat(chat));
+
+        member = jpaUtil.refresh(member);
 
         boolean deleted = memberRepo.delete(member);
 

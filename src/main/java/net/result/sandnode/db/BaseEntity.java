@@ -13,7 +13,7 @@ import java.util.UUID;
 
 @SuppressWarnings("unused")
 @MappedSuperclass
-public abstract class SandnodeEntity {
+public abstract class BaseEntity {
     @Id
     @JdbcTypeCode(Types.BINARY)
     @Column(length = 16)
@@ -22,7 +22,7 @@ public abstract class SandnodeEntity {
     @Convert(converter = ZonedDateTimeConverter.class)
     private ZonedDateTime creationDate;
 
-    public SandnodeEntity() {
+    public BaseEntity() {
         setRandomID();
         setCreationDateNow();
     }
@@ -51,4 +51,17 @@ public abstract class SandnodeEntity {
         setCreationDate(ZonedDateTime.now());
     }
 
+    @Override
+    public int hashCode() {
+        return id.hashCode();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null) return false;
+        if (this == obj) return true;
+        if (!(obj instanceof BaseEntity sne)) return false;
+        if (this.getClass() != obj.getClass()) return false;
+        return id.equals(sne.id);
+    }
 }

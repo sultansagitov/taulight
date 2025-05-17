@@ -39,9 +39,9 @@ public class UseCodeServerChain extends ServerChain  implements ReceiverChain {
         TauMemberEntity member = invite.receiver();
         ChannelEntity channel = invite.channel();
 
-        if (invite.receiver() != session.member.tauMember()) {
+        if (!invite.receiver().equals(session.member.tauMember())) {
             //TODO add channel roles and use it
-            if (invite.sender() == session.member.tauMember()) {
+            if (invite.sender().equals(session.member.tauMember())) {
                 throw new UnauthorizedException();
             } else {
                 throw new NotFoundException();

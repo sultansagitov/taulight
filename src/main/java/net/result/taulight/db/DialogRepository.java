@@ -13,13 +13,14 @@ import java.util.Optional;
 import java.util.UUID;
 
 public class DialogRepository {
-    private final EntityManager em;
+    private final JPAUtil jpaUtil;
 
     public DialogRepository(Container container) {
-        em = container.get(JPAUtil.class).getEntityManager();
+        jpaUtil = container.get(JPAUtil.class);
     }
 
     private DialogEntity save(@NotNull DialogEntity dialog) throws AlreadyExistingRecordException, DatabaseException {
+        EntityManager em = jpaUtil.getEntityManager();
         while (em.find(DialogEntity.class, dialog.id()) != null) {
             dialog.setRandomID();
         }
@@ -53,6 +54,7 @@ public class DialogRepository {
     }
 
     public Optional<DialogEntity> findById(UUID id) throws DatabaseException {
+        EntityManager em = jpaUtil.getEntityManager();
         try {
             return Optional.ofNullable(em.find(DialogEntity.class, id));
         } catch (Exception e) {
@@ -61,6 +63,7 @@ public class DialogRepository {
     }
 
     public void remove(DialogEntity dialog) throws DatabaseException {
+        EntityManager em = jpaUtil.getEntityManager();
         EntityTransaction transaction = em.getTransaction();
         try {
             transaction.begin();
@@ -74,6 +77,7 @@ public class DialogRepository {
 
     public Optional<DialogEntity> findByMembers(TauMemberEntity firstMember, TauMemberEntity secondMember)
             throws DatabaseException {
+        EntityManager em = jpaUtil.getEntityManager();
         String q = """
             FROM DialogEntity
             WHERE

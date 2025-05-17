@@ -11,13 +11,14 @@ import java.util.Collection;
 import java.util.Optional;
 
 public class InviteCodeRepository {
-    private final EntityManager em;
+    private final JPAUtil jpaUtil;
 
     public InviteCodeRepository(Container container) {
-        em = container.get(JPAUtil.class).getEntityManager();
+        jpaUtil = container.get(JPAUtil.class);
     }
 
     private InviteCodeEntity save(InviteCodeEntity code) throws DatabaseException {
+        EntityManager em = jpaUtil.getEntityManager();
         while (em.find(InviteCodeEntity.class, code.id()) != null) code.setRandomID();
 
         EntityTransaction transaction = em.getTransaction();
@@ -38,6 +39,7 @@ public class InviteCodeRepository {
             TauMemberEntity sender,
             ZonedDateTime expiresDate
     ) throws DatabaseException {
+        EntityManager em = jpaUtil.getEntityManager();
         InviteCodeEntity managed = save(new InviteCodeEntity(channel, receiver, sender, expiresDate));
 
         channel.inviteCodes().add(managed);
@@ -53,6 +55,7 @@ public class InviteCodeRepository {
     }
 
     public Optional<InviteCodeEntity> find(String code) throws DatabaseException {
+        EntityManager em = jpaUtil.getEntityManager();
         try {
             String q = "FROM InviteCodeEntity WHERE code = :code";
             return em.createQuery(q, InviteCodeEntity.class)
@@ -67,6 +70,7 @@ public class InviteCodeRepository {
 
     public Collection<InviteCodeEntity> find(ChannelEntity channel, TauMemberEntity receiver)
             throws DatabaseException {
+        EntityManager em = jpaUtil.getEntityManager();
         try {
             String q = "FROM InviteCodeEntity WHERE channel = :channel AND receiver = :receiver";
             return em.createQuery(q, InviteCodeEntity.class)
@@ -79,6 +83,7 @@ public class InviteCodeRepository {
     }
 
     public boolean activate(InviteCodeEntity code) throws DatabaseException {
+        EntityManager em = jpaUtil.getEntityManager();
         EntityTransaction transaction = em.getTransaction();
         try {
             if (code.activationDate() != null || !code.expiresDate().isAfter(ZonedDateTime.now())) {

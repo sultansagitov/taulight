@@ -9,13 +9,14 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityTransaction;
 
 public class TauMemberRepository {
-    private final EntityManager em;
+    private final JPAUtil jpaUtil;
 
     public TauMemberRepository(Container container) {
-        em = container.get(JPAUtil.class).getEntityManager();
+        jpaUtil = container.get(JPAUtil.class);
     }
 
     private TauMemberEntity save(TauMemberEntity tauMember) throws DatabaseException {
+        EntityManager em = jpaUtil.getEntityManager();
         while (em.find(TauMemberEntity.class, tauMember.id()) != null) {
             tauMember.setRandomID();
         }

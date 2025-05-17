@@ -10,13 +10,14 @@ import jakarta.persistence.EntityTransaction;
 import java.util.*;
 
 public class ChannelRepository {
-    private final EntityManager em;
+    private final JPAUtil jpaUtil;
 
     public ChannelRepository(Container container) {
-        em = container.get(JPAUtil.class).getEntityManager();
+        jpaUtil = container.get(JPAUtil.class);
     }
 
     private ChannelEntity save(ChannelEntity channel) throws DatabaseException {
+        EntityManager em = jpaUtil.getEntityManager();
         while (em.find(ChannelEntity.class, channel.id()) != null) {
             channel.setRandomID();
         }
@@ -34,16 +35,13 @@ public class ChannelRepository {
     }
 
     public ChannelEntity create(String title, TauMemberEntity owner) throws DatabaseException {
+        EntityManager em = jpaUtil.getEntityManager();
         ChannelEntity managed = save(new ChannelEntity(title, owner));
         EntityTransaction transaction = em.getTransaction();
         try {
             transaction.begin();
 
             managed.setMembers(new HashSet<>(Set.of(owner)));
-
-            owner.channels().add(managed);
-            em.merge(owner);
-
             em.merge(managed);
 
             transaction.commit();
@@ -55,7 +53,8 @@ public class ChannelRepository {
         return managed;
     }
 
-public void delete(ChannelEntity channel) throws DatabaseException {
+    public void delete(ChannelEntity channel) throws DatabaseException {
+        EntityManager em = jpaUtil.getEntityManager();
         EntityTransaction transaction = em.getTransaction();
         try {
             transaction.begin();
@@ -68,6 +67,7 @@ public void delete(ChannelEntity channel) throws DatabaseException {
     }
 
     public Optional<ChannelEntity> findById(UUID id) throws DatabaseException {
+        EntityManager em = jpaUtil.getEntityManager();
         try {
             return Optional.ofNullable(em.find(ChannelEntity.class, id));
         } catch (Exception e) {
@@ -76,6 +76,7 @@ public void delete(ChannelEntity channel) throws DatabaseException {
     }
 
     public boolean addMember(ChannelEntity channel, TauMemberEntity member) throws DatabaseException {
+        EntityManager em = jpaUtil.getEntityManager();
         EntityTransaction transaction = em.getTransaction();
         try {
             Set<TauMemberEntity> members = channel.members();
@@ -100,6 +101,7 @@ public void delete(ChannelEntity channel) throws DatabaseException {
     }
 
     public boolean removeMember(ChannelEntity channel, TauMemberEntity member) throws DatabaseException {
+        EntityManager em = jpaUtil.getEntityManager();
         EntityTransaction transaction = em.getTransaction();
         try {
             Set<TauMemberEntity> members = channel.members();
@@ -125,6 +127,7 @@ public void delete(ChannelEntity channel) throws DatabaseException {
     }
 
     public void setAvatar(ChannelEntity channel, FileEntity avatar) throws DatabaseException {
+        EntityManager em = jpaUtil.getEntityManager();
         EntityTransaction transaction = em.getTransaction();
         try {
             transaction.begin();
@@ -133,6 +136,20 @@ public void delete(ChannelEntity channel) throws DatabaseException {
             transaction.commit();
         } catch (Exception e) {
             if (transaction.isActive()) transaction.rollback();
+            throw new DatabaseException(e);
+        }
+    }
+
+    public boolean contains(ChannelEntity channel, TauMemberEntity member) throws DatabaseException {
+        EntityManager em = jpaUtil.getEntityManager();
+        try {
+            String q = "SELECT COUNT(c) FROM ChannelEntity c JOIN c.members m WHERE c = :channel AND m = :member";
+            Long count = em.createQuery(q, Long.class)
+                    .setParameter("channel", channel)
+                    .setParameter("member", member)
+                    .getSingleResult();
+            return count > 0;
+        } catch (Exception e) {
             throw new DatabaseException(e);
         }
     }

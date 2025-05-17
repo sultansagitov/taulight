@@ -3,7 +3,7 @@ package net.result.taulight.dto;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import net.result.sandnode.db.MemberEntity;
-import net.result.sandnode.db.SandnodeEntity;
+import net.result.sandnode.db.BaseEntity;
 import net.result.taulight.db.ChatEntity;
 import net.result.taulight.db.MessageEntity;
 
@@ -51,7 +51,7 @@ public class ChatMessageInputDTO {
         setSentDatetime(message.sentDatetime());
         setMember(message.member().member());
         setSys(message.sys());
-        setRepliedToMessages(message.repliedToMessages().stream().map(SandnodeEntity::id).collect(Collectors.toSet()));
+        setRepliedToMessages(message.repliedToMessages().stream().map(BaseEntity::id).collect(Collectors.toSet()));
     }
 
     public ChatMessageInputDTO setChatID(UUID chatID) {

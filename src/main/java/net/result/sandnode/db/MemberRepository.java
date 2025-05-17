@@ -12,15 +12,16 @@ import jakarta.persistence.EntityTransaction;
 import java.util.Optional;
 
 public class MemberRepository {
-    private final EntityManager em;
+    private final JPAUtil jpaUtil;
     private final TauMemberRepository tauMemberRepo;
 
     public MemberRepository(Container container) {
-        em = container.get(JPAUtil.class).getEntityManager();
+        jpaUtil = container.get(JPAUtil.class);
         tauMemberRepo = container.get(TauMemberRepository.class);
     }
 
     private MemberEntity save(MemberEntity member) throws DatabaseException {
+        EntityManager em = jpaUtil.getEntityManager();
         while (em.find(MemberEntity.class, member.id()) != null) {
             member.setRandomID();
         }
@@ -47,6 +48,7 @@ public class MemberRepository {
     }
 
     public Optional<MemberEntity> findByNickname(String nickname) throws DatabaseException {
+        EntityManager em = jpaUtil.getEntityManager();
         try {
             String q = "FROM MemberEntity WHERE nickname = :nickname AND deleted = false";
             return em
@@ -61,17 +63,17 @@ public class MemberRepository {
     }
 
     public boolean delete(MemberEntity member) throws DatabaseException {
+        EntityManager em = jpaUtil.getEntityManager();
         EntityTransaction transaction = em.getTransaction();
         try {
-            if (em.find(MemberEntity.class, member.id()) != null) {
-                transaction.begin();
-                member.setDeleted(true);
-                em.merge(member);
-                transaction.commit();
-                return true;
-            }
+            MemberEntity m = em.find(MemberEntity.class, member.id());
+            if (m == null || m.deleted()) return false;
 
-            return false;
+            transaction.begin();
+            m.setDeleted(true);
+            em.merge(m);
+            transaction.commit();
+            return true;
         } catch (Exception e) {
             if (transaction.isActive()) transaction.rollback();
             throw new DatabaseException("Failed to delete invite code", e);
@@ -79,6 +81,7 @@ public class MemberRepository {
     }
 
     public boolean setAvatar(MemberEntity member, FileEntity avatar) throws DatabaseException {
+        EntityManager em = jpaUtil.getEntityManager();
         EntityTransaction transaction = em.getTransaction();
         try {
             if (em.find(MemberEntity.class, member.id()) != null) {

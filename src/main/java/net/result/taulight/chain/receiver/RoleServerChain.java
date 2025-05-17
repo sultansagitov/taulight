@@ -37,7 +37,7 @@ public class RoleServerChain extends ServerChain implements ReceiverChain {
         String nickname = request.getNickname();
 
         ChatEntity chat = chatUtil.getChat(chatID).orElseThrow(NotFoundException::new);
-        if (!chatUtil.getMembers(chat).contains(session.member.tauMember())) throw new NotFoundException();
+        if (!chatUtil.contains(chat, session.member.tauMember())) throw new NotFoundException();
         if (!(chat instanceof ChannelEntity channel)) throw new WrongAddressException();
 
         if (!channel.owner().equals(session.member.tauMember())) throw new UnauthorizedException();

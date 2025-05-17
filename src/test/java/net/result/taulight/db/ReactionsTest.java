@@ -17,6 +17,7 @@ import java.util.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 class ReactionsTest {
+    private static JPAUtil jpaUtil;
     private static Container container;
     private static EntityManager em;
     private static TauMemberEntity member1;
@@ -30,6 +31,9 @@ class ReactionsTest {
     @BeforeAll
     public static void setup() throws DatabaseException, BusyNicknameException {
         container = GlobalTestState.container;
+
+        jpaUtil = container.get(JPAUtil.class);
+
         em = container.get(JPAUtil.class).getEntityManager();
 
         MemberRepository memberRepo = container.get(MemberRepository.class);
@@ -211,6 +215,8 @@ class ReactionsTest {
         boolean removed = reactionEntryRepo.delete(reactionEntry);
         assertTrue(removed);
 
+        message = jpaUtil.refresh(message);
+
         // Additional assertions
         assertEquals(0, message.reactionEntries().size(), "Message should have no reactions after removal");
 
@@ -220,6 +226,8 @@ class ReactionsTest {
         ReactionEntryEntity reaction2 = reactionEntryRepo.create(member2, message, anotherType);
 
         assertEquals(2, message.reactionEntries().size(), "Message should have two reactions");
+
+        message = jpaUtil.refresh(message);
 
         boolean removedOne = reactionEntryRepo.delete(reaction1);
         assertTrue(removedOne, "Should successfully remove first reaction");

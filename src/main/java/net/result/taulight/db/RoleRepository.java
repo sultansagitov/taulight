@@ -11,13 +11,14 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class RoleRepository {
-    private final EntityManager em;
+    private final JPAUtil jpaUtil;
 
     public RoleRepository(Container container) {
-        em = container.get(JPAUtil.class).getEntityManager();
+        jpaUtil = container.get(JPAUtil.class);
     }
 
     private RoleEntity save(@NotNull RoleEntity reactionType) throws DatabaseException {
+        EntityManager em = jpaUtil.getEntityManager();
         while (em.find(RoleEntity.class, reactionType.id()) != null) {
             reactionType.setRandomID();
         }
@@ -35,6 +36,7 @@ public class RoleRepository {
     }
 
     public RoleEntity create(ChannelEntity channel, String role) throws DatabaseException {
+        EntityManager em = jpaUtil.getEntityManager();
         RoleEntity managed = save(new RoleEntity(channel, role));
 
         channel.roles().add(managed);
@@ -44,6 +46,7 @@ public class RoleRepository {
     }
 
     public boolean addMember(RoleEntity role, TauMemberEntity member) throws DatabaseException {
+        EntityManager em = jpaUtil.getEntityManager();
         EntityTransaction transaction = em.getTransaction();
         transaction.begin();
         try {

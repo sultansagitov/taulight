@@ -15,7 +15,7 @@ public class TauAgentProtocol {
     public static void addMemberToGroup(@NotNull Session session, MemberEntity member, ChatGroup group) {
         session.server.node
                 .getAgents().stream()
-                .filter(s -> member == s.member)
+                .filter(s -> member.equals(s.member))
                 .forEach(s -> s.addToGroup(group));
     }
 
@@ -33,7 +33,7 @@ public class TauAgentProtocol {
     public static void removeMemberFromGroup(@NotNull Session session, MemberEntity member, ChatGroup group) {
         session.server.node
                 .getAgents().stream()
-                .filter(s -> member == s.member)
+                .filter(s -> member.equals(s.member))
                 .forEach(s -> s.removeFromGroup(group));
     }
 }

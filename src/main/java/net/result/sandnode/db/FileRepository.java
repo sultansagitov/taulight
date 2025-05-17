@@ -7,13 +7,14 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityTransaction;
 
 public class FileRepository {
-    private final EntityManager em;
+    private final JPAUtil jpaUtil;
 
     public FileRepository(Container container) {
-        em = container.get(JPAUtil.class).getEntityManager();
+        jpaUtil = container.get(JPAUtil.class);
     }
 
     private FileEntity save(FileEntity file) throws DatabaseException {
+        EntityManager em = jpaUtil.getEntityManager();
         while (em.find(FileEntity.class, file.id()) != null) {
             file.setRandomID();
         }
@@ -31,6 +32,7 @@ public class FileRepository {
     }
 
     public FileEntity create(String contentType, String filename) throws DatabaseException {
+        EntityManager em = jpaUtil.getEntityManager();
         FileEntity managed = save(new FileEntity(contentType, filename));
         EntityTransaction transaction = em.getTransaction();
         try {

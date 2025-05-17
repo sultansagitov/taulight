@@ -1,7 +1,7 @@
 package net.result.taulight.db;
 
 import net.result.sandnode.db.MemberEntity;
-import net.result.sandnode.db.SandnodeEntity;
+import net.result.sandnode.db.BaseEntity;
 
 import jakarta.persistence.*;
 import java.util.HashSet;
@@ -9,7 +9,7 @@ import java.util.Set;
 
 @SuppressWarnings("unused")
 @Entity
-public class TauMemberEntity extends SandnodeEntity {
+public class TauMemberEntity extends BaseEntity {
     @OneToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     private MemberEntity member;
 

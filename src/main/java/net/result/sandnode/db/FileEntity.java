@@ -4,7 +4,7 @@ import jakarta.persistence.Entity;
 
 @SuppressWarnings("unused")
 @Entity
-public class FileEntity extends SandnodeEntity {
+public class FileEntity extends BaseEntity {
     private String contentType;
     private String filename;
 

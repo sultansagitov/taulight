@@ -6,6 +6,7 @@ import net.result.sandnode.exception.DatabaseException;
 import net.result.sandnode.exception.error.BusyNicknameException;
 import net.result.sandnode.security.PasswordHashers;
 import net.result.sandnode.util.Container;
+import net.result.sandnode.util.JPAUtil;
 import net.result.taulight.exception.AlreadyExistingRecordException;
 import net.result.taulight.util.ChatUtil;
 import org.junit.jupiter.api.BeforeAll;
@@ -15,14 +16,10 @@ import java.util.Collection;
 import java.util.Optional;
 import java.util.UUID;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertSame;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class ChatsTest {
+    private static JPAUtil jpaUtil;
     private static ChatUtil chatUtil;
     private static TauMemberEntity member1;
     private static TauMemberEntity member2;
@@ -36,6 +33,9 @@ public class ChatsTest {
     @BeforeAll
     public static void setup() throws DatabaseException, BusyNicknameException {
         Container container = GlobalTestState.container;
+
+        jpaUtil = container.get(JPAUtil.class);
+
         MemberRepository memberRepo = container.get(MemberRepository.class);
         dialogRepo = container.get(DialogRepository.class);
         channelRepo = container.get(ChannelRepository.class);
@@ -61,7 +61,7 @@ public class ChatsTest {
     public void createDialog() throws DatabaseException, AlreadyExistingRecordException {
         DialogEntity dialog = dialogRepo.create(member3, member4);
         assertNotNull(dialog);
-        if (member3 == dialog.firstMember()) {
+        if (member3.equals(dialog.firstMember())) {
             assertEquals(member3, dialog.firstMember());
             assertEquals(member4, dialog.secondMember());
         } else {
@@ -106,6 +106,8 @@ public class ChatsTest {
         assertTrue(foundChannel.isPresent());
         assertEquals("General Chat", ((ChannelEntity) foundChannel.get()).title());
 
+        member1 = jpaUtil.refresh(member1);
+
         // Additional assertions
         assertNotNull(channel.id(), "Channel ID should not be null");
         assertEquals(1, chatUtil.getMembers(channel).size(), "Channel should have exactly one member (creator)");
@@ -123,7 +125,7 @@ public class ChatsTest {
         assertTrue(foundChannel.isPresent());
 
         // Additional assertions
-        assertSame(channel, foundChannel.get(), "Retrieved channel should be the same object");
+        assertEquals(channel, foundChannel.get(), "Retrieved channel should be the same object");
         assertEquals(channel.id(), foundChannel.get().id(), "IDs should match");
         assertEquals("Test Channel", ((ChannelEntity) foundChannel.get()).title(), "Titles should match");
 

@@ -30,8 +30,8 @@ public class DialogEntity extends ChatEntity {
     }
 
     public TauMemberEntity otherMember(TauMemberEntity member) {
-        if (member == firstMember) return secondMember;
-        if (member == secondMember) return firstMember;
+        if (member.equals(firstMember)) return secondMember;
+        if (member.equals(secondMember)) return firstMember;
         throw new IllegalArgumentException("Member not part of this dialog");
     }
 

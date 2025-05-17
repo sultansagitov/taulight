@@ -1,6 +1,6 @@
 package net.result.taulight.db;
 
-import net.result.sandnode.db.SandnodeEntity;
+import net.result.sandnode.db.BaseEntity;
 import net.result.sandnode.db.ZonedDateTimeConverter;
 import net.result.taulight.dto.ChatMessageInputDTO;
 
@@ -10,7 +10,7 @@ import java.util.*;
 
 @SuppressWarnings("unused")
 @Entity
-public class MessageEntity extends SandnodeEntity {
+public class MessageEntity extends BaseEntity {
     private String content;
     private boolean sys;
 

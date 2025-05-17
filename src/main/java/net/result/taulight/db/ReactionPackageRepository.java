@@ -9,13 +9,14 @@ import jakarta.persistence.EntityTransaction;
 import java.util.Optional;
 
 public class ReactionPackageRepository {
-    private final EntityManager em;
+    private final JPAUtil jpaUtil;
 
     public ReactionPackageRepository(Container container) {
-        em = container.get(JPAUtil.class).getEntityManager();
+        jpaUtil = container.get(JPAUtil.class);
     }
 
     private ReactionPackageEntity save(ReactionPackageEntity packageEntity) throws DatabaseException {
+        EntityManager em = jpaUtil.getEntityManager();
         while (em.find(ReactionPackageEntity.class, packageEntity.id()) != null) {
             packageEntity.setRandomID();
         }
@@ -37,6 +38,7 @@ public class ReactionPackageRepository {
     }
 
     public Optional<ReactionPackageEntity> find(String packageName) throws DatabaseException {
+        EntityManager em = jpaUtil.getEntityManager();
         try {
             String q = "FROM ReactionPackageEntity WHERE name = :name";
             return em.createQuery(q, ReactionPackageEntity.class)

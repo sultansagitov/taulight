@@ -11,13 +11,14 @@ import jakarta.persistence.EntityTransaction;
 import java.util.List;
 
 public class LoginRepository {
-    private final EntityManager em;
+    private final JPAUtil jpaUtil;
 
     public LoginRepository(Container container) {
-        em = container.get(JPAUtil.class).getEntityManager();
+        jpaUtil = container.get(JPAUtil.class);
     }
 
     private LoginEntity save(@NotNull LoginEntity login) throws DatabaseException {
+        EntityManager em = jpaUtil.getEntityManager();
         while (em.find(MemberEntity.class, login.id()) != null) {
             login.setRandomID();
         }
@@ -39,6 +40,7 @@ public class LoginRepository {
     }
 
     public List<LoginEntity> byPassword(@Nullable MemberEntity member) throws DatabaseException {
+        EntityManager em = jpaUtil.getEntityManager();
         try {
             String q = "FROM LoginEntity l WHERE l.member = :member AND l.byPassword = true";
             return em

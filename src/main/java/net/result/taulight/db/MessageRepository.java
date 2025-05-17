@@ -11,13 +11,14 @@ import jakarta.persistence.EntityTransaction;
 import java.util.*;
 
 public class MessageRepository {
-    private final EntityManager em;
+    private final JPAUtil jpaUtil;
 
     public MessageRepository(Container container) {
-        em = container.get(JPAUtil.class).getEntityManager();
+        jpaUtil = container.get(JPAUtil.class);
     }
 
     private MessageEntity save(MessageEntity m) throws DatabaseException {
+        EntityManager em = jpaUtil.getEntityManager();
         while (em.find(MessageEntity.class, m.id()) != null) {
             m.setRandomID();
         }
@@ -36,6 +37,7 @@ public class MessageRepository {
 
     public MessageEntity create(ChatEntity chat, ChatMessageInputDTO input, TauMemberEntity member)
             throws DatabaseException, NotFoundException {
+        EntityManager em = jpaUtil.getEntityManager();
         MessageEntity managed = save(new MessageEntity(chat, input, member));
         Set<MessageEntity> messageEntities = new HashSet<>();
         Set<UUID> replies = input.repliedToMessages;
@@ -53,6 +55,7 @@ public class MessageRepository {
     }
 
     public Optional<MessageEntity> findById(UUID id) throws DatabaseException {
+        EntityManager em = jpaUtil.getEntityManager();
         try {
             return Optional.ofNullable(em.find(MessageEntity.class, id));
         } catch (Exception e) {
@@ -61,6 +64,7 @@ public class MessageRepository {
     }
 
     public List<MessageEntity> findMessagesByChat(ChatEntity chat, int index, int size) throws DatabaseException {
+        EntityManager em = jpaUtil.getEntityManager();
         try {
             String q = "FROM MessageEntity WHERE chat = :chat ORDER BY creationDate DESC, id DESC";
             return em.createQuery(q, MessageEntity.class)
@@ -74,6 +78,7 @@ public class MessageRepository {
     }
 
     public long countMessagesByChat(ChatEntity chat) throws DatabaseException {
+        EntityManager em = jpaUtil.getEntityManager();
         try {
             String q = "SELECT COUNT(m) FROM MessageEntity m WHERE m.chat = :chat";
             return em.createQuery(q, Long.class).setParameter("chat", chat).getSingleResult();
@@ -83,6 +88,7 @@ public class MessageRepository {
     }
 
     public Collection<MessageEntity> findLastMessagesByChats(Set<UUID> accessibleChatIds) throws DatabaseException {
+        EntityManager em = jpaUtil.getEntityManager();
         if (accessibleChatIds == null || accessibleChatIds.isEmpty()) return Collections.emptyList();
 
         try {

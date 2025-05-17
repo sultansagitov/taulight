@@ -11,7 +11,7 @@ import java.util.Set;
 
 @SuppressWarnings("unused")
 @Entity
-public class MemberEntity extends SandnodeEntity {
+public class MemberEntity extends BaseEntity {
     private String nickname;
     private String passwordHash;
     private boolean deleted;

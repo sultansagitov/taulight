@@ -27,12 +27,24 @@ public class ChatUtil {
         if (chat instanceof DialogEntity dialog) {
             TauMemberEntity e1 = dialog.firstMember();
             TauMemberEntity e2 = dialog.secondMember();
-            if (e1 == e2) {
+            if (e1.equals(e2)) {
                 return Set.of(e1);
             } else {
                 return Set.of(e1, e2);
             }
         }
         return Set.of();
+    }
+
+    public boolean contains(ChatEntity chat, TauMemberEntity member) throws DatabaseException {
+        if (chat instanceof ChannelEntity channel) {
+            return channelRepo.contains(channel, member);
+        }
+
+        if (chat instanceof DialogEntity dialog) {
+            if (dialog.firstMember().equals(member)) return true;
+            return dialog.secondMember().equals(member);
+        }
+        return false;
     }
 }

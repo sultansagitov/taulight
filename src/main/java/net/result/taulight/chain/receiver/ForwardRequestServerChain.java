@@ -13,7 +13,6 @@ import net.result.sandnode.message.util.MessageTypes;
 import net.result.sandnode.serverclient.Session;
 import net.result.taulight.util.ChatUtil;
 import net.result.taulight.util.TauHubProtocol;
-import net.result.taulight.db.TauMemberEntity;
 import net.result.taulight.dto.ChatMessageViewDTO;
 import net.result.taulight.dto.ChatMessageInputDTO;
 import net.result.taulight.message.types.ForwardRequest;
@@ -22,7 +21,6 @@ import net.result.sandnode.message.UUIDMessage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.util.Collection;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -89,8 +87,7 @@ public class ForwardRequestServerChain extends ServerChain implements ReceiverCh
 
                 ChatEntity chat = chatOpt.get();
 
-                Collection<TauMemberEntity> members = chatUtil.getMembers(chat);
-                if (!members.contains(session.member.tauMember())) {
+                if (!chatUtil.contains(chat, session.member.tauMember())) {
                     LOGGER.warn("Unauthorized access attempt by member: {}", session.member.nickname());
                     send(Errors.NOT_FOUND.createMessage());
                     continue;

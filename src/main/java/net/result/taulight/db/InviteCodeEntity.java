@@ -1,6 +1,6 @@
 package net.result.taulight.db;
 
-import net.result.sandnode.db.SandnodeEntity;
+import net.result.sandnode.db.BaseEntity;
 import net.result.sandnode.db.ZonedDateTimeConverter;
 
 import jakarta.persistence.Convert;
@@ -13,7 +13,7 @@ import java.util.stream.IntStream;
 
 @SuppressWarnings("unused")
 @Entity
-public class InviteCodeEntity extends SandnodeEntity {
+public class InviteCodeEntity extends BaseEntity {
     private String code;
     @Convert(converter = ZonedDateTimeConverter.class)
     private ZonedDateTime activatedAt;
