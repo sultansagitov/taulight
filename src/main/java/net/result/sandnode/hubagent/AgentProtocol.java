@@ -8,12 +8,12 @@ import net.result.sandnode.exception.error.SandnodeErrorException;
 import net.result.sandnode.util.IOController;
 
 public class AgentProtocol {
-    public static String getTokenFromRegistration(IOController io, String nickname, String password)
+    public static String getTokenFromRegistration(IOController io, String nickname, String password, String device)
             throws ExpectedMessageException, InterruptedException, SandnodeErrorException,
             UnknownSandnodeErrorException, UnprocessedMessagesException {
         RegistrationClientChain chain = new RegistrationClientChain(io);
         io.chainManager.linkChain(chain);
-        String token = chain.getTokenFromRegistration(nickname, password);
+        String token = chain.getTokenFromRegistration(nickname, password, device);
         io.chainManager.removeChain(chain);
         return token;
     }
@@ -29,12 +29,12 @@ public class AgentProtocol {
         return nickname;
     }
 
-    public static String getTokenByNicknameAndPassword(IOController io, String nickname, String password)
+    public static String getTokenByNicknameAndPassword(IOController io, String nickname, String password, String device)
             throws InterruptedException, SandnodeErrorException, ExpectedMessageException,
             UnknownSandnodeErrorException, UnprocessedMessagesException {
         LogPasswdClientChain chain = new LogPasswdClientChain(io);
         io.chainManager.linkChain(chain);
-        String token = chain.getToken(nickname, password);
+        String token = chain.getToken(nickname, password, device);
         io.chainManager.removeChain(chain);
         return token;
     }

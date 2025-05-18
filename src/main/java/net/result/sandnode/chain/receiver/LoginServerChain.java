@@ -40,7 +40,7 @@ public class LoginServerChain extends ServerChain implements ReceiverChain {
     private void history() throws Exception {
         if (session.member == null) throw new UnauthorizedException();
 
-        List<LoginEntity> logins = loginRepo.byPassword(session.member);
+        List<LoginEntity> logins = loginRepo.byDevice(session.member);
         send(new LoginHistoryResponse(new Headers(), logins));
     }
 
@@ -49,13 +49,11 @@ public class LoginServerChain extends ServerChain implements ReceiverChain {
 
         String token = request.content();
 
-        session.member = tokenizer
-                .findMember(token)
-                .orElseThrow(UnauthorizedException::new);
-
+        LoginEntity login = tokenizer.findLogin(token).orElseThrow(UnauthorizedException::new);
+        session.member = login.member();
 
         String ip = session.io.socket.getInetAddress().getHostAddress();
-        loginRepo.create(session.member, ip, false);
+        loginRepo.create(login, ip);
 
         onLogin();
 

@@ -120,9 +120,11 @@ public class RunAgentWork implements IWork {
                     nickname = scanner.nextLine();
                     System.out.print("Password: ");
                     String password = scanner.nextLine();
+                    System.out.print("Device: ");
+                    String device = scanner.nextLine();
 
                     try {
-                        String token = AgentProtocol.getTokenFromRegistration(io, nickname, password);
+                        String token = AgentProtocol.getTokenFromRegistration(io, nickname, password, device);
                         System.out.printf("Token for \"%s\":%n%s%n", nickname, token);
                         isRegistered = true;
                     } catch (BusyNicknameException e) {
@@ -164,11 +166,13 @@ public class RunAgentWork implements IWork {
                     nickname = scanner.nextLine();
                     System.out.print("Password: ");
                     String password = scanner.nextLine();
+                    System.out.print("Device: ");
+                    String device = scanner.nextLine();
 
                     if (nickname.isEmpty() || password.isEmpty()) continue;
 
                     try {
-                        String token = AgentProtocol.getTokenByNicknameAndPassword(io, nickname, password);
+                        String token = AgentProtocol.getTokenByNicknameAndPassword(io, nickname, password, device);
                         System.out.printf("Token for \"%s\": %n%s%n", nickname, token);
                         isLoggedIn = true;
                     } catch (UnauthorizedException e) {

@@ -4,7 +4,6 @@ import net.result.sandnode.exception.DatabaseException;
 import net.result.sandnode.exception.error.BusyNicknameException;
 import net.result.sandnode.util.Container;
 import net.result.sandnode.util.JPAUtil;
-import net.result.taulight.db.TauMemberEntity;
 import net.result.taulight.db.TauMemberRepository;
 
 import jakarta.persistence.EntityManager;
@@ -32,8 +31,7 @@ public class MemberRepository {
             MemberEntity merge = em.merge(member);
             transaction.commit();
 
-            TauMemberEntity tauMember = tauMemberRepo.create(merge);
-            merge.setTauMember(tauMember);
+            tauMemberRepo.create(merge);
 
             return merge;
         } catch (Exception e) {

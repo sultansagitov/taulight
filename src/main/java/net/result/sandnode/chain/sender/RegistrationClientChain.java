@@ -14,10 +14,10 @@ public class RegistrationClientChain extends ClientChain {
         super(io);
     }
 
-    public synchronized String getTokenFromRegistration(String nickname, String password)
+    public synchronized String getTokenFromRegistration(String nickname, String password, String device)
             throws InterruptedException, ExpectedMessageException, SandnodeErrorException,
             UnknownSandnodeErrorException, UnprocessedMessagesException {
-        RegistrationRequest request = new RegistrationRequest(nickname, password);
+        RegistrationRequest request = new RegistrationRequest(nickname, password, device);
         send(request);
 
         RawMessage response = queue.take();

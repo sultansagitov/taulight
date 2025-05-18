@@ -195,7 +195,7 @@ public class ConsoleChatsRunner {
         }
     }
 
-    public static void getDialogAvatar(ConsoleContext context, UUID chatID)
+    public static void getDialogAvatar(@NotNull ConsoleContext context, UUID chatID)
             throws UnprocessedMessagesException, InterruptedException {
         try {
             DialogClientChain chain = new DialogClientChain(context.io);
@@ -214,8 +214,8 @@ public class ConsoleChatsRunner {
             System.out.printf("Channel %s not found.%n", chatID);
         } catch (SandnodeErrorException | UnknownSandnodeErrorException e) {
             System.out.printf("Failed to get avatar - %s%n", e.getClass());
-        } catch (ExpectedMessageException | DeserializationException e) {
-            System.out.println("Unexpected error: " + e.getMessage());
+        } catch (ExpectedMessageException e) {
+            System.out.println(e.getMessage());
         }
     }
 

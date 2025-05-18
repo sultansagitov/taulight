@@ -15,22 +15,25 @@ public class LogPasswdRequest extends MSGPackMessage<LogPasswdRequest.Data> {
         public String nickname;
         @JsonProperty
         public String password;
+        @JsonProperty
+        public String device;
 
         @SuppressWarnings("unused")
         public Data() {}
 
-        public Data(String nickname, String password) {
+        public Data(String nickname, String password, String device) {
             this.nickname = nickname;
             this.password = password;
+            this.device = device;
         }
     }
 
-    public LogPasswdRequest(@NotNull Headers headers, String nickname, String password) {
-        super(headers.setType(MessageTypes.LOG_PASSWD), new Data(nickname, password));
+    public LogPasswdRequest(@NotNull Headers headers, String nickname, String password, String device) {
+        super(headers.setType(MessageTypes.LOG_PASSWD), new Data(nickname, password, device));
     }
 
-    public LogPasswdRequest(String nickname, String password) {
-        this(new Headers(), nickname, password);
+    public LogPasswdRequest(String nickname, String password, String device) {
+        this(new Headers(), nickname, password, device);
     }
 
     public LogPasswdRequest(RawMessage raw) throws DeserializationException, ExpectedMessageException {
@@ -44,4 +47,9 @@ public class LogPasswdRequest extends MSGPackMessage<LogPasswdRequest.Data> {
     public String getPassword() {
         return object.password;
     }
+
+    public String getDevice() {
+        return object.device;
+    }
+
 }

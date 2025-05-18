@@ -2,23 +2,59 @@ package net.result.sandnode.db;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToOne;
 
+/**
+ * Represents a login session for a {@link MemberEntity}. Each login entry stores the IP address
+ * and device information. If {@code login} is not {@code null}, it indicates that this login
+ * was performed using a token that was issued during a previous login (which may have originated
+ * from a password-based login or a registration).
+ */
 @SuppressWarnings("unused")
 @Entity
 public class LoginEntity extends BaseEntity {
     private String ip;
-    private boolean byPassword;
+    private String device;
+
+    /**
+     * Refers to the original login from which a token was issued.
+     * If not null, this login was created using that token.
+     */
+    @OneToOne
+    private LoginEntity login;
 
     @ManyToOne
     private MemberEntity member;
 
     public LoginEntity() {}
 
-    public LoginEntity(MemberEntity member, String ip, boolean byPassword) {
+    /**
+     * Constructs a new login entry for the given member with IP and device details.
+     *
+     * @param member the member associated with this login
+     * @param ip     the IP address of the login
+     * @param device the device used for login
+     */
+    public LoginEntity(MemberEntity member, String ip, String device) {
         super();
         setMember(member);
         setIp(ip);
-        setByPassword(byPassword);
+        setDevice(device);
+    }
+
+    /**
+     * Constructs a new login entry using a previous login (typically from a token).
+     * Copies the member and device from the original login.
+     *
+     * @param login the original login entity (token source)
+     * @param ip    the IP address of the new login
+     */
+    public LoginEntity(LoginEntity login, String ip) {
+        super();
+        setLogin(login);
+        setMember(login.member());
+        setIp(ip);
+        setDevice(login.device());
     }
 
     public String ip() {
@@ -29,12 +65,20 @@ public class LoginEntity extends BaseEntity {
         this.ip = ip;
     }
 
-    public boolean byPassword() {
-        return byPassword;
+    public String device() {
+        return device;
     }
 
-    public void setByPassword(boolean byPassword) {
-        this.byPassword = byPassword;
+    public void setDevice(String device) {
+        this.device = device;
+    }
+
+    public LoginEntity login() {
+        return login;
+    }
+
+    public void setLogin(LoginEntity login) {
+        this.login = login;
     }
 
     public MemberEntity member() {

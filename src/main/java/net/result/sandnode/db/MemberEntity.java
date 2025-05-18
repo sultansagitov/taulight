@@ -1,11 +1,8 @@
 package net.result.sandnode.db;
 
+import jakarta.persistence.*;
 import net.result.taulight.db.TauMemberEntity;
 
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Entity;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.OneToOne;
 import java.util.HashSet;
 import java.util.Set;
 

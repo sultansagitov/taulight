@@ -31,8 +31,7 @@ public class DialogClientChain extends ClientChain {
         return new UUIDMessage(raw).uuid;
     }
 
-    public synchronized @Nullable FileDTO getAvatar(UUID chatID)
-            throws InterruptedException, DeserializationException, SandnodeErrorException,
+    public synchronized @Nullable FileDTO getAvatar(UUID chatID) throws InterruptedException, SandnodeErrorException,
             UnknownSandnodeErrorException, UnprocessedMessagesException, ExpectedMessageException {
         send(DialogRequest.getAvatar(chatID));
         try {

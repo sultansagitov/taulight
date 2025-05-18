@@ -1,7 +1,6 @@
 package net.result.sandnode.chain;
 
 import net.result.sandnode.error.Errors;
-import net.result.sandnode.exception.DatabaseException;
 import net.result.sandnode.exception.ImpossibleRuntimeException;
 import net.result.sandnode.exception.error.SandnodeErrorException;
 import org.apache.logging.log4j.LogManager;
@@ -25,13 +24,13 @@ public interface ReceiverChain extends IChain {
                     LOGGER.info("Removing {}", this);
                     chainManager.removeChain(this);
 
-                } catch (DatabaseException e) {
-                    LOGGER.error("Error in {}", this, e);
-                    sendFinIgnoreQueue(Errors.SERVER_ERROR.createMessage());
-
                 } catch (SandnodeErrorException e) {
                     LOGGER.error("Error in {}", this, e);
                     sendFinIgnoreQueue(e.getSandnodeError().createMessage());
+
+                } catch (Exception e) {
+                    LOGGER.error("Error in {}", this, e);
+                    sendFinIgnoreQueue(Errors.SERVER_ERROR.createMessage());
                 }
             } catch (Exception e) {
                 LOGGER.error("Error in {}", this, e);

@@ -25,6 +25,7 @@ public class TauMemberRepository {
         try {
             transaction.begin();
             TauMemberEntity merge = em.merge(tauMember);
+            tauMember.member().setTauMember(tauMember);
             transaction.commit();
             return merge;
         } catch (Exception e) {

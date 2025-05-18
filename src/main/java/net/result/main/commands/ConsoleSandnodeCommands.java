@@ -223,7 +223,7 @@ public class ConsoleSandnodeCommands {
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss z");
 
             for (LoginHistoryDTO dto : h) {
-                System.out.println("Time: " + dto.time.format(formatter) + ", IP: " + dto.ip);
+                System.out.printf("Time: %s, IP: %s, Device: %s%n", dto.time.format(formatter), dto.ip, dto.device);
             }
 
         } catch (UnauthorizedException e) {

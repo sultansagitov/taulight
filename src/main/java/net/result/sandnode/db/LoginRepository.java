@@ -9,6 +9,8 @@ import org.jetbrains.annotations.Nullable;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityTransaction;
 import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 public class LoginRepository {
     private final JPAUtil jpaUtil;
@@ -35,14 +37,24 @@ public class LoginRepository {
         }
     }
 
-    public LoginEntity create(MemberEntity member, String ip, boolean byPassword) throws DatabaseException {
-        return save(new LoginEntity(member, ip, byPassword));
+    public LoginEntity create(MemberEntity member, String ip, String device) throws DatabaseException {
+        return save(new LoginEntity(member, ip, device));
     }
 
-    public List<LoginEntity> byPassword(@Nullable MemberEntity member) throws DatabaseException {
+    public LoginEntity create(LoginEntity login, String ip) throws DatabaseException {
+        return save(new LoginEntity(login, ip));
+    }
+
+    public Optional<LoginEntity> find(UUID uuid) {
+        EntityManager em = jpaUtil.getEntityManager();
+        LoginEntity login = em.find(LoginEntity.class, uuid);
+        return Optional.ofNullable(login);
+    }
+
+    public List<LoginEntity> byDevice(@Nullable MemberEntity member) throws DatabaseException {
         EntityManager em = jpaUtil.getEntityManager();
         try {
-            String q = "FROM LoginEntity l WHERE l.member = :member AND l.byPassword = true";
+            String q = "FROM LoginEntity l WHERE l.member = :member AND l.login IS NULL";
             return em
                     .createQuery(q, LoginEntity.class)
                     .setParameter("member", member)
