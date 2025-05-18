@@ -2,7 +2,6 @@ package net.result.sandnode.db;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToOne;
 
 /**
  * Represents a login session for a {@link MemberEntity}. Each login entry stores the IP address
@@ -20,7 +19,7 @@ public class LoginEntity extends BaseEntity {
      * Refers to the original login from which a token was issued.
      * If not null, this login was created using that token.
      */
-    @OneToOne
+    @ManyToOne
     private LoginEntity login;
 
     @ManyToOne
