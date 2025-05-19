@@ -2,15 +2,17 @@ package net.result.taulight.chain.receiver;
 
 import net.result.sandnode.chain.ReceiverChain;
 import net.result.sandnode.chain.ServerChain;
-import net.result.sandnode.error.Errors;
 import net.result.sandnode.exception.*;
-import net.result.sandnode.exception.error.SandnodeErrorException;
+import net.result.sandnode.exception.error.NotFoundException;
+import net.result.sandnode.exception.error.TooFewArgumentsException;
 import net.result.sandnode.exception.error.UnauthorizedException;
 import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.message.types.ErrorMessage;
 import net.result.sandnode.message.util.Headers;
 import net.result.sandnode.message.util.MessageTypes;
 import net.result.sandnode.serverclient.Session;
+import net.result.taulight.db.MessageEntity;
+import net.result.taulight.db.MessageRepository;
 import net.result.taulight.util.ChatUtil;
 import net.result.taulight.util.TauHubProtocol;
 import net.result.taulight.dto.ChatMessageViewDTO;
@@ -21,7 +23,6 @@ import net.result.sandnode.message.UUIDMessage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.util.Optional;
 import java.util.UUID;
 
 public class ForwardRequestServerChain extends ServerChain implements ReceiverChain {
@@ -35,6 +36,7 @@ public class ForwardRequestServerChain extends ServerChain implements ReceiverCh
     @Override
     public void sync() throws InterruptedException, SandnodeException {
         ChatUtil chatUtil = session.server.container.get(ChatUtil.class);
+        MessageRepository messageRepo = session.server.container.get(MessageRepository.class);
 
         while (true) {
             RawMessage raw = queue.take();
@@ -46,27 +48,14 @@ public class ForwardRequestServerChain extends ServerChain implements ReceiverCh
 
             ForwardRequest forwardMessage = new ForwardRequest(raw);
 
-            if (session.member == null) {
-                send(Errors.UNAUTHORIZED.createMessage());
-                continue;
-            }
+            if (session.member == null) throw new UnauthorizedException();
 
             ChatMessageInputDTO input = forwardMessage.getChatMessageInputDTO();
-
-            if (input == null) {
-                LOGGER.error("Forward message contains null input");
-                send(Errors.TOO_FEW_ARGS.createMessage());
-                continue;
-            }
+            if (input == null) throw new TooFewArgumentsException();
 
             UUID chatID = input.chatID;
             String content = input.content;
-
-            if (chatID == null || content == null) {
-                LOGGER.error("Forward message contains null chatID or content");
-                send(Errors.TOO_FEW_ARGS.createMessage());
-                continue;
-            }
+            if (chatID == null || content == null) throw new TooFewArgumentsException();
 
             LOGGER.info("Forwarding message: {}", content);
 
@@ -74,40 +63,15 @@ public class ForwardRequestServerChain extends ServerChain implements ReceiverCh
                 .setSys(false)
                 .setMember(session.member);
 
-            ChatMessageViewDTO serverMessage;
+            ChatEntity chat = chatUtil.getChat(chatID).orElseThrow(NotFoundException::new);
+            if (!chatUtil.contains(chat, session.member.tauMember())) throw new NotFoundException();
 
-            try {
-                Optional<ChatEntity> chatOpt = chatUtil.getChat(chatID);
-
-                if (chatOpt.isEmpty()) {
-                    LOGGER.error("Chat was not found");
-                    send(Errors.NOT_FOUND.createMessage());
-                    continue;
-                }
-
-                ChatEntity chat = chatOpt.get();
-
-                if (!chatUtil.contains(chat, session.member.tauMember())) {
-                    LOGGER.warn("Unauthorized access attempt by member: {}", session.member.nickname());
-                    send(Errors.NOT_FOUND.createMessage());
-                    continue;
-                }
-
-                try {
-                    serverMessage = TauHubProtocol.send(session, chat, input);
-                } catch (UnauthorizedException e) {
-                    throw new ImpossibleRuntimeException(e);
-                }
-            } catch (DatabaseException e) {
-                LOGGER.error("Database error: {}", e.getMessage(), e);
-                send(Errors.SERVER_ERROR.createMessage());
-                continue;
-            } catch (SandnodeErrorException e) {
-                send(e.getSandnodeError().createMessage());
-                continue;
-            }
+            MessageEntity message = messageRepo.create(chat, input, session.member.tauMember());
+            ChatMessageViewDTO serverMessage = new ChatMessageViewDTO(message);
 
             send(new UUIDMessage(new Headers().setType(MessageTypes.HAPPY), serverMessage.id));
+
+            TauHubProtocol.send(session, chat, serverMessage);
         }
     }
 

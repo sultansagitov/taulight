@@ -8,10 +8,10 @@ import net.result.sandnode.exception.error.NotFoundException;
 import net.result.sandnode.exception.error.UnauthorizedException;
 import net.result.sandnode.serverclient.Session;
 import net.result.taulight.chain.sender.ForwardServerChain;
+import net.result.taulight.db.ChatEntity;
 import net.result.taulight.db.MessageEntity;
 import net.result.taulight.db.MessageRepository;
 import net.result.taulight.dto.ChatMessageInputDTO;
-import net.result.taulight.db.ChatEntity;
 import net.result.taulight.dto.ChatMessageViewDTO;
 import net.result.sandnode.exception.error.NoEffectException;
 import net.result.taulight.group.TauGroupManager;
@@ -27,16 +27,22 @@ public class TauHubProtocol {
     public static ChatMessageViewDTO send(Session session, ChatEntity chat, ChatMessageInputDTO input)
             throws InterruptedException, DatabaseException, NoEffectException, UnprocessedMessagesException,
             UnauthorizedException, NotFoundException {
-        if (session.member == null) {
-            throw new UnauthorizedException();
-        }
+        if (session.member == null) throw new UnauthorizedException();
 
-        TauGroupManager manager = session.server.container.get(TauGroupManager.class);
         MessageRepository messageRepo = session.server.container.get(MessageRepository.class);
 
         MessageEntity message = messageRepo.create(chat, input, session.member.tauMember());
-
         ChatMessageViewDTO serverMessage = new ChatMessageViewDTO(message);
+
+        return send(session, chat, serverMessage);
+    }
+
+    public static ChatMessageViewDTO send(Session session, ChatEntity chat, ChatMessageViewDTO serverMessage)
+            throws InterruptedException, DatabaseException, NoEffectException, UnprocessedMessagesException,
+            UnauthorizedException, NotFoundException {
+        if (session.member == null) throw new UnauthorizedException();
+
+        TauGroupManager manager = session.server.container.get(TauGroupManager.class);
 
         Collection<Session> sessions = manager.getGroup(chat).getSessions();
         if (sessions.isEmpty()) throw new NoEffectException();
@@ -58,7 +64,7 @@ public class TauHubProtocol {
             }
         }
 
-        LOGGER.info("Saved message with id {} content: {}", serverMessage.id, input.content);
+        LOGGER.info("Saved message with id {} content: {}", serverMessage.id, serverMessage.message.content);
 
         return serverMessage;
     }
