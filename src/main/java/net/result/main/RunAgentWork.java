@@ -130,23 +130,14 @@ public class RunAgentWork implements IWork {
             System.out.print("Device: ");
             String device = scanner.nextLine();
 
-            Optional<AsymmetricKeyStorage> loaded = client.clientConfig.loadMemberKey(nickname);
-            AsymmetricKeyStorage keyStorage;
-            if (loaded.isPresent()) {
-                keyStorage = loaded.get();
-            } else {
-                keyStorage = AsymmetricEncryptions.ECIES.generate();
-                client.clientConfig.saveMemberKey(nickname, keyStorage);
-            }
-
-            Map<String, String> key = Map.of(
-                    "encryption", keyStorage.encryption().name(),
-                    "key", keyStorage.encodedPublicKey()
-            );
+            AsymmetricKeyStorage keyStorage = AsymmetricEncryptions.ECIES.generate();
 
             try {
-                String token = AgentProtocol.getTokenFromRegistration(client.io, nickname, password, device, key);
-                System.out.printf("Token for \"%s\":%n%s%n", nickname, token);
+                var result = AgentProtocol.register(client.io, nickname, password, device, keyStorage);
+                System.out.printf("Token for \"%s\":%n%s%n", nickname, result.token);
+
+                client.clientConfig.saveMemberKey(result.keyID, keyStorage);
+
                 isRegistered = true;
             } catch (BusyNicknameException e) {
                 System.out.println("Nickname is busy");

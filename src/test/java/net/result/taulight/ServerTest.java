@@ -47,6 +47,7 @@ import org.junit.jupiter.api.Test;
 import java.net.Socket;
 import java.nio.file.Path;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
@@ -311,10 +312,10 @@ public class ServerTest {
         }
 
         @Override
-        public void saveMemberKey(String nickname, AsymmetricKeyStorage keyStorage) {}
+        public void saveMemberKey(UUID keyID, AsymmetricKeyStorage keyStorage) {}
 
         @Override
-        public Optional<AsymmetricKeyStorage> loadMemberKey(String nickname) {
+        public Optional<AsymmetricKeyStorage> loadMemberKey(UUID keyID) {
             return Optional.empty();
         }
     }

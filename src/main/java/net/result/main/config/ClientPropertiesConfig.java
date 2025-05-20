@@ -28,7 +28,8 @@ public class ClientPropertiesConfig implements ClientConfig {
     private final Path KEYS_JSON_PATH;
     private final Path KEYS_PATH;
     private final SymmetricEncryption SYMMETRIC_ENCRYPTION;
-    private final Collection<KeyRecord> records = new ArrayList<>();
+    private final Collection<KeyRecord> serverKeys = new ArrayList<>();
+    private final Collection<MemberKeyRecord> memberKeys = new ArrayList<>();
 
     public ClientPropertiesConfig()
             throws ConfigurationException, FSException, NoSuchEncryptionException, EncryptionTypeException {
@@ -62,27 +63,54 @@ public class ClientPropertiesConfig implements ClientConfig {
 
         FileUtil.checkNotDirectory(KEYS_JSON_PATH);
         String data = FileUtil.readString(KEYS_JSON_PATH);
-        for (Object key : new JSONObject(data).getJSONArray("keys")) {
+
+        for (Object key : new JSONObject(data).getJSONArray("server-keys")) {
             JSONObject jsonObject = (JSONObject) key;
             try {
                 KeyRecord keyRecord = KeyRecord.fromJSON(jsonObject);
-                records.add(keyRecord);
+                serverKeys.add(keyRecord);
             } catch (NoSuchEncryptionException | CreatingKeyException | FSException | NoSuchHasherException |
                      EncryptionTypeException | InvalidEndpointSyntax | KeyHashCheckingException e) {
                 LOGGER.error("Error while validating \"{}\"", KEYS_JSON_PATH, e);
             }
         }
-    }
 
-    private JSONObject getKeysJson() {
-        JSONArray array = new JSONArray();
-        records.stream().map(KeyRecord::toJSON).forEach(array::put);
-        return new JSONObject().put("keys", array);
+        for (Object key : new JSONObject(data).getJSONArray("member-keys")) {
+            JSONObject jsonObject = (JSONObject) key;
+            try {
+                MemberKeyRecord keyRecord = MemberKeyRecord.fromJSON(jsonObject);
+                memberKeys.add(keyRecord);
+            } catch (NoSuchEncryptionException | CreatingKeyException | EncryptionTypeException e) {
+                LOGGER.error("Error while validating \"{}\"", KEYS_JSON_PATH, e);
+            }
+        }
     }
 
     @Override
     public @NotNull SymmetricEncryption symmetricKeyEncryption() {
         return SYMMETRIC_ENCRYPTION;
+    }
+
+    private JSONObject getKeysJson() {
+        JSONArray serverKeyArray = new JSONArray();
+        serverKeys.stream().map(KeyRecord::toJSON).forEach(serverKeyArray::put);
+
+        JSONArray memberKeyArray = new JSONArray();
+        memberKeys.stream().map(MemberKeyRecord::toJSON).forEach(memberKeyArray::put);
+
+        return new JSONObject().put("server-keys", serverKeyArray).put("member-keys", memberKeyArray);
+    }
+
+    private boolean isHaveKey(@NotNull Endpoint endpoint) {
+        return serverKeys.stream().anyMatch(record -> endpoint.equals(record.endpoint));
+    }
+
+    public synchronized void saveKeysJSON() throws FSException {
+        try (FileWriter fileWriter = new FileWriter(KEYS_JSON_PATH.toFile())) {
+            fileWriter.write(getKeysJson().toString());
+        } catch (IOException e) {
+            throw new FSException(e);
+        }
     }
 
     @Override
@@ -119,62 +147,26 @@ public class ClientPropertiesConfig implements ClientConfig {
         }
 
         KeyRecord keyRecord = new KeyRecord(publicKeyPath, keyStorage, endpoint, publicKeyString);
-        records.add(keyRecord);
+        serverKeys.add(keyRecord);
         saveKeysJSON();
-    }
-
-    private boolean isHaveKey(@NotNull Endpoint endpoint) {
-        return records.stream().anyMatch(record -> endpoint.equals(record.endpoint));
-    }
-
-    public synchronized void saveKeysJSON() throws FSException {
-        try (FileWriter fileWriter = new FileWriter(KEYS_JSON_PATH.toFile())) {
-            fileWriter.write(getKeysJson().toString());
-        } catch (IOException e) {
-            throw new FSException(e);
-        }
     }
 
     @Override
     public Optional<AsymmetricKeyStorage> getPublicKey(@NotNull Endpoint endpoint) {
-        return records.stream()
+        return serverKeys.stream()
                 .filter(keyRecord -> keyRecord.endpoint.equals(endpoint))
                 .findFirst()
                 .map(keyRecord -> keyRecord.keyStorage.asymmetric());
     }
 
     @Override
-    public synchronized void saveMemberKey(String nickname, @NotNull AsymmetricKeyStorage keyStorage) {
-        Path memberKeyPath = KEYS_PATH.resolve(nickname + "_member_key.json");
-        MemberKeyRecord memberKey = new MemberKeyRecord(memberKeyPath, keyStorage);
-
-        try (FileWriter writer = new FileWriter(memberKeyPath.toFile())) {
-            writer.write(memberKey.toJSON().toString());
-            FileUtil.makeOwnerOnlyRead(memberKeyPath);
-            LOGGER.info("Member key saved at {}", memberKeyPath);
-        } catch (Exception e) {
-            LOGGER.error("Failed to save member key", e);
-            throw new ImpossibleRuntimeException(e);
-        }
+    public synchronized void saveMemberKey(UUID keyID, @NotNull AsymmetricKeyStorage keyStorage) throws FSException {
+        memberKeys.add(new MemberKeyRecord(keyID, keyStorage));
+        saveKeysJSON();
     }
 
     @Override
-    public synchronized Optional<AsymmetricKeyStorage> loadMemberKey(String nickname) {
-        Path memberKeyPath = KEYS_PATH.resolve(nickname + "_member_key.json");
-
-        if (!Files.exists(memberKeyPath)) {
-            LOGGER.warn("Member key file not found at {}", memberKeyPath);
-            return Optional.empty();
-        }
-
-        try {
-            String jsonStr = FileUtil.readString(memberKeyPath);
-            JSONObject json = new JSONObject(jsonStr);
-            MemberKeyRecord memberKey = MemberKeyRecord.fromJSON(memberKeyPath, json);
-            return Optional.of(memberKey.keyStorage());
-        } catch (Exception e) {
-            LOGGER.error("Failed to load member key", e);
-            throw new ImpossibleRuntimeException(e);
-        }
+    public synchronized Optional<AsymmetricKeyStorage> loadMemberKey(UUID keyID) {
+        return memberKeys.stream().filter(k -> k.keyID().equals(keyID)).map(MemberKeyRecord::keyStorage).findFirst();
     }
 }

@@ -9,19 +9,25 @@ import net.result.sandnode.exception.crypto.EncryptionTypeException;
 import net.result.sandnode.exception.crypto.NoSuchEncryptionException;
 import org.json.JSONObject;
 
-import java.nio.file.Path;
+import java.util.UUID;
 
-public record MemberKeyRecord(Path keyPath, AsymmetricKeyStorage keyStorage) {
+public record MemberKeyRecord(UUID keyID, AsymmetricKeyStorage keyStorage) {
 
-    public JSONObject toJSON() throws CannotUseEncryption {
-        return new JSONObject()
-                .put("encryption", keyStorage.encryption().name())
-                .put("public", keyStorage.encodedPublicKey())
-                .put("private", keyStorage.encodedPrivateKey());
+    public JSONObject toJSON() {
+        try {
+            return new JSONObject()
+                    .put("id", keyID)
+                    .put("encryption", keyStorage.encryption().name())
+                    .put("public", keyStorage.encodedPublicKey())
+                    .put("private", keyStorage.encodedPrivateKey());
+        } catch (CannotUseEncryption e) {
+            throw new RuntimeException(e);
+        }
     }
 
-    public static MemberKeyRecord fromJSON(Path path, JSONObject json)
+    public static MemberKeyRecord fromJSON(JSONObject json)
             throws NoSuchEncryptionException, CreatingKeyException, EncryptionTypeException {
+        UUID keyID = UUID.fromString(json.getString("id"));
         String encryptionType = json.getString("encryption");
         String publicString = json.getString("public");
         String privateString = json.getString("private");
@@ -32,6 +38,6 @@ public record MemberKeyRecord(Path keyPath, AsymmetricKeyStorage keyStorage) {
 
         AsymmetricKeyStorage keyStorage = encryption.merge(publicKey, privateKey);
 
-        return new MemberKeyRecord(path, keyStorage);
+        return new MemberKeyRecord(keyID, keyStorage);
     }
 }

@@ -2,21 +2,21 @@ package net.result.sandnode.chain.receiver;
 
 import net.result.sandnode.chain.ReceiverChain;
 import net.result.sandnode.chain.ServerChain;
+import net.result.sandnode.config.HubConfig;
 import net.result.sandnode.db.*;
+import net.result.sandnode.dto.PublicKeyDTO;
+import net.result.sandnode.dto.RegisterRequestDTO;
 import net.result.sandnode.encryption.EncryptionManager;
 import net.result.sandnode.encryption.interfaces.AsymmetricEncryption;
 import net.result.sandnode.encryption.interfaces.AsymmetricKeyStorage;
 import net.result.sandnode.exception.SandnodeException;
 import net.result.sandnode.exception.error.InvalidNicknamePassword;
-import net.result.sandnode.hubagent.Hub;
 import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.message.types.RegistrationRequest;
 import net.result.sandnode.message.types.RegistrationResponse;
 import net.result.sandnode.security.PasswordHasher;
 import net.result.sandnode.security.Tokenizer;
 import net.result.sandnode.serverclient.Session;
-
-import java.util.Map;
 
 public class RegistrationServerChain extends ServerChain implements ReceiverChain {
     public RegistrationServerChain(Session session) {
@@ -30,27 +30,32 @@ public class RegistrationServerChain extends ServerChain implements ReceiverChai
         MemberRepository memberRepo = session.server.container.get(MemberRepository.class);
         LoginRepository loginRepo = session.server.container.get(LoginRepository.class);
         Tokenizer tokenizer = session.server.container.get(Tokenizer.class);
-        Hub hub = (Hub) session.server.node;
-        PasswordHasher hasher = hub.config.hasher();
+        HubConfig hubConfig = session.server.container.get(HubConfig.class);
+
+        PasswordHasher hasher = hubConfig.hasher();
 
         RegistrationRequest regMsg = new RegistrationRequest(request);
-        String nickname = regMsg.getNickname();
-        String password = regMsg.getPassword();
-        String device = regMsg.getDevice();
-        Map<String, String> map = regMsg.getKeyStorage();
-        AsymmetricEncryption encryption = EncryptionManager.find(map.get("encryption")).asymmetric();
-        AsymmetricKeyStorage keyStorage = encryption.publicKeyConvertor().toKeyStorage(map.get("key"));
+
+        RegisterRequestDTO dto = regMsg.dto();
+        String nickname = dto.nickname;
+        String password = dto.password;
+        String device = dto.device;
+        PublicKeyDTO pub = dto.keyStorage;
+
+        AsymmetricEncryption encryption = EncryptionManager.find(pub.encryption).asymmetric();
+        AsymmetricKeyStorage keyStorage = encryption.publicKeyConvertor().toKeyStorage(pub.encoded);
 
         if (nickname.isEmpty() || password.isEmpty()) {
             throw new InvalidNicknamePassword();
         }
 
-        session.member = memberRepo.create(nickname, hasher.hash(password, 12), keyStorage);
+        MemberEntity member = memberRepo.create(nickname, hasher.hash(password, 12), keyStorage);
+        session.member = member;
 
         String ip = session.io.socket.getInetAddress().getHostAddress();
-        LoginEntity login = loginRepo.create(session.member, ip, device);
+        LoginEntity login = loginRepo.create(member, ip, device);
 
         String token = tokenizer.tokenizeLogin(login);
-        sendFin(new RegistrationResponse(token));
+        sendFin(new RegistrationResponse(token, member.publicKey().id()));
     }
 }

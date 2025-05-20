@@ -8,6 +8,7 @@ import net.result.sandnode.encryption.interfaces.AsymmetricKeyStorage;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
+import java.util.UUID;
 
 public interface ClientConfig {
     @NotNull SymmetricEncryption symmetricKeyEncryption();
@@ -17,7 +18,7 @@ public interface ClientConfig {
 
     Optional<AsymmetricKeyStorage> getPublicKey(@NotNull Endpoint endpoint);
 
-    void saveMemberKey(String nickname, AsymmetricKeyStorage keyStorage) throws FSException;
+    void saveMemberKey(UUID keyID, AsymmetricKeyStorage keyStorage) throws FSException;
 
-    Optional<AsymmetricKeyStorage> loadMemberKey(String nickname);
+    Optional<AsymmetricKeyStorage> loadMemberKey(UUID keyID);
 }
