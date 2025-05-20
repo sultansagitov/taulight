@@ -226,18 +226,20 @@ public class ConsoleChatsRunner {
                     : "(no message)";
 
             String message = switch (info.chatType) {
-                case CHANNEL -> "%s from %s - Channel: %s, %s%s | Last message: %s".formatted(
+                case CHANNEL -> "%s from %s - Channel: %s, %s%s%s | Last message: %s".formatted(
                         info.id,
                         info.creationDate,
                         info.title,
                         info.ownerID,
                         info.channelIsMy ? " (you)" : "",
+                        info.hasAvatar ? " | avatar" : "",
                         lastMessageText
                 );
-                case DIALOG -> "%s from %s - Dialog: %s | Last message: %s".formatted(
+                case DIALOG -> "%s from %s - Dialog: %s%s | Last message: %s".formatted(
                         info.id,
                         info.creationDate,
                         info.otherNickname,
+                        info.hasAvatar ? " | avatar" : "",
                         lastMessageText
                 );
                 case NOT_FOUND -> "%s - Chat not found".formatted(info.id);

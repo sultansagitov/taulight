@@ -38,10 +38,17 @@ public class ChatInfoDTO implements Comparable<ChatInfoDTO> {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ssX", timezone = "UTC")
     @JsonProperty("creation-at")
     public ZonedDateTime creationDate;
-
     /** Information about the last message sent in the chat. May be null. */
     @JsonProperty("last-message")
     public @Nullable ChatMessageViewDTO lastMessage;
+
+    /**
+     * Indicates whether the chat (channel or dialog) has an associated avatar image.
+     * For channels, this is based on the presence of a channel avatar.
+     * For dialogs, this is based on whether the other participant has an avatar.
+     */
+    @JsonProperty("has-avatar")
+    public boolean hasAvatar;
 
     /**
      * Compares this ChatInfoDTO with another based on creation date.
@@ -95,6 +102,7 @@ public class ChatInfoDTO implements Comparable<ChatInfoDTO> {
         if (infoProps.contains(ChatInfoPropDTO.channelOwner)) info.ownerID = channel.owner().member().nickname();
         if (infoProps.contains(ChatInfoPropDTO.channelIsMy)) info.channelIsMy = channel.owner() == member;
         if (infoProps.contains(ChatInfoPropDTO.lastMessage)) info.lastMessage = lastMessage;
+        if (infoProps.contains(ChatInfoPropDTO.hasAvatar)) info.hasAvatar = channel.avatar() != null;
         return info;
     }
 
@@ -121,6 +129,8 @@ public class ChatInfoDTO implements Comparable<ChatInfoDTO> {
         if (infoProps.contains(ChatInfoPropDTO.dialogOther))
             info.otherNickname = dialog.otherMember(member).member().nickname();
         if (infoProps.contains(ChatInfoPropDTO.lastMessage)) info.lastMessage = lastMessage;
+        if (infoProps.contains(ChatInfoPropDTO.hasAvatar))
+            info.hasAvatar = dialog.otherMember(member).member().avatar() != null;
 
         return info;
     }

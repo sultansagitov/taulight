@@ -19,13 +19,15 @@ public enum ChatInfoPropDTO {
     @JsonProperty("dialog-other") dialogOther,
 
     @JsonProperty("created-at") createdAt,
-    @JsonProperty("last-message") lastMessage;
+    @JsonProperty("last-message") lastMessage,
+    @JsonProperty("has-avatar") hasAvatar;
 
     private static final Collection<ChatInfoPropDTO> channelAll =
-            List.of(channelID, channelTitle, channelOwner, channelIsMy, createdAt, lastMessage);
-    private static final Collection<ChatInfoPropDTO> dialogAll = List.of(dialogID, dialogOther, createdAt, lastMessage);
+            List.of(channelID, channelTitle, channelOwner, channelIsMy, createdAt, lastMessage, hasAvatar);
+    private static final Collection<ChatInfoPropDTO> dialogAll =
+            List.of(dialogID, dialogOther, createdAt, lastMessage, hasAvatar);
     private static final Collection<ChatInfoPropDTO> all = Arrays.stream(ChatInfoPropDTO.values()).toList();
-    private static final Collection<ChatInfoPropDTO> id = List.of(channelID, dialogID, createdAt, lastMessage);
+    private static final Collection<ChatInfoPropDTO> id = List.of(channelID, dialogID);
 
     /**
      * @return channel and dialog id
