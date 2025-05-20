@@ -16,6 +16,9 @@ public class MemberEntity extends BaseEntity {
     @OneToOne
     private FileEntity avatar;
 
+    @OneToOne
+    private KeyStorageEntity publicKey;
+
     @OneToMany(mappedBy = "member", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     private Set<LoginEntity> logins = new HashSet<>();
 
@@ -25,8 +28,8 @@ public class MemberEntity extends BaseEntity {
     public MemberEntity() {}
 
     public MemberEntity(String nickname, String passwordHash) {
-        this.setNickname(nickname);
-        this.setPasswordHash(passwordHash);
+        setNickname(nickname);
+        setPasswordHash(passwordHash);
     }
 
     public String nickname() {
@@ -59,6 +62,14 @@ public class MemberEntity extends BaseEntity {
 
     public void setAvatar(FileEntity avatar) {
         this.avatar = avatar;
+    }
+
+    public KeyStorageEntity publicKey() {
+        return publicKey;
+    }
+
+    public void setPublicKey(KeyStorageEntity publicKey) {
+        this.publicKey = publicKey;
     }
 
     public Set<LoginEntity> logins() {

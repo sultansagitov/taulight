@@ -4,6 +4,7 @@ import net.result.main.chain.ConsoleClientChainManager;
 import net.result.main.chain.sender.ConsoleForwardRequestClientChain;
 import net.result.main.commands.*;
 import net.result.main.config.ClientPropertiesConfig;
+import net.result.sandnode.encryption.AsymmetricEncryptions;
 import net.result.sandnode.exception.*;
 import net.result.sandnode.exception.crypto.CreatingKeyException;
 import net.result.sandnode.exception.crypto.CryptoException;
@@ -27,10 +28,11 @@ import java.util.*;
 public class RunAgentWork implements IWork {
     private static final Logger LOGGER = LogManager.getLogger(RunAgentWork.class);
     private SandnodeClient client;
+    private Scanner scanner;
 
     @Override
-    public void run() throws InterruptedException, SandnodeException {
-        Scanner scanner = new Scanner(System.in);
+    public void run() throws Exception {
+        scanner = new Scanner(System.in);
 
         SandnodeLinkRecord link;
         ClientPropertiesConfig clientConfig;
@@ -49,10 +51,10 @@ public class RunAgentWork implements IWork {
         ConsoleClientChainManager chainManager = new ConsoleClientChainManager();
 
         client = SandnodeClient.fromLink(link, agent, clientConfig);
-        client.start(chainManager);                                 // Starting client
-        ensureServerPublicKey(link);                                // get key from fs or sending PUB if key not found
-        ClientProtocol.sendSYM(client);                             // sending symmetric key
-        String nickname = authenticateUser(client.io, scanner); // registration or login
+        client.start(chainManager);             // Starting client
+        ensureServerPublicKey(link);            // get key from fs or sending PUB if key not found
+        ClientProtocol.sendSYM(client);         // sending symmetric key
+        String nickname = authenticateUser();   // registration or login
         processUserCommands(nickname, client.io);
 
         LOGGER.info("Exiting...");
@@ -99,9 +101,7 @@ public class RunAgentWork implements IWork {
         client.io.setServerKey(serverKey);
     }
 
-    private String authenticateUser(IOController io, Scanner scanner) throws InterruptedException,
-            ExpectedMessageException, DeserializationException, UnprocessedMessagesException {
-
+    private String authenticateUser() throws Exception {
         String s;
         do {
             System.out.print("[r for register, 'l' for login by password, 't' for login by token]: ");
@@ -111,84 +111,105 @@ public class RunAgentWork implements IWork {
 
         char choice = s.charAt(0);
 
-        String nickname = "";
-        switch (choice) {
-            case 'r' -> {
-                boolean isRegistered = false;
-                while (!isRegistered) {
-                    System.out.print("Nickname: ");
-                    nickname = scanner.nextLine();
-                    System.out.print("Password: ");
-                    String password = scanner.nextLine();
-                    System.out.print("Device: ");
-                    String device = scanner.nextLine();
-
-                    try {
-                        String token = AgentProtocol.getTokenFromRegistration(io, nickname, password, device);
-                        System.out.printf("Token for \"%s\":%n%s%n", nickname, token);
-                        isRegistered = true;
-                    } catch (BusyNicknameException e) {
-                        System.out.println("Nickname is busy");
-                    } catch (InvalidNicknamePassword e) {
-                        System.out.println("Invalid nickname or password");
-                    } catch (SandnodeErrorException | UnknownSandnodeErrorException e) {
-                        System.out.printf("Unknown sandnode error exception. Please try again. %s%n", e.getClass());
-                    }
-                }
-            }
-            case 't' -> {
-                boolean isLoggedIn = false;
-
-                while (!isLoggedIn) {
-                    System.out.print("Token: ");
-                    String token = scanner.nextLine();
-
-                    if (token.isEmpty()) continue;
-
-                    try {
-                        nickname = AgentProtocol.getMemberFromToken(io, token);
-                        System.out.printf("You log in as %s%n", nickname);
-                        isLoggedIn = true;
-                    } catch (InvalidArgumentException e) {
-                        System.out.println("Invalid token. Please try again.");
-                    } catch (ExpiredTokenException e) {
-                        System.out.println("Expired token. Please try again.");
-                    } catch (SandnodeErrorException | UnknownSandnodeErrorException e) {
-                        System.out.printf("Unknown sandnode error exception. Please try again. %s%n", e.getClass());
-                    }
-                }
-            }
-            case 'l' -> {
-                boolean isLoggedIn = false;
-
-                while (!isLoggedIn) {
-                    System.out.print("Nickname: ");
-                    nickname = scanner.nextLine();
-                    System.out.print("Password: ");
-                    String password = scanner.nextLine();
-                    System.out.print("Device: ");
-                    String device = scanner.nextLine();
-
-                    if (nickname.isEmpty() || password.isEmpty()) continue;
-
-                    try {
-                        String token = AgentProtocol.getTokenByNicknameAndPassword(io, nickname, password, device);
-                        System.out.printf("Token for \"%s\": %n%s%n", nickname, token);
-                        isLoggedIn = true;
-                    } catch (UnauthorizedException e) {
-                        System.out.println("Incorrect nickname or password. Please try again.");
-                    } catch (SandnodeErrorException | UnknownSandnodeErrorException e) {
-                        System.out.printf("Unknown sandnode error exception. Please try again. %s%n", e.getClass());
-                    }
-                }
-            }
+        return switch (choice) {
+            case 'r' -> register();
+            case 't' -> login();
+            case 'l' -> password();
             default -> throw new RuntimeException(String.valueOf(choice));
+        };
+    }
+
+    private @NotNull String register() throws Exception {
+        boolean isRegistered = false;
+        String nickname = "";
+        while (!isRegistered) {
+            System.out.print("Nickname: ");
+            nickname = scanner.nextLine();
+            System.out.print("Password: ");
+            String password = scanner.nextLine();
+            System.out.print("Device: ");
+            String device = scanner.nextLine();
+
+            Optional<AsymmetricKeyStorage> loaded = client.clientConfig.loadMemberKey(nickname);
+            AsymmetricKeyStorage keyStorage;
+            if (loaded.isPresent()) {
+                keyStorage = loaded.get();
+            } else {
+                keyStorage = AsymmetricEncryptions.ECIES.generate();
+                client.clientConfig.saveMemberKey(nickname, keyStorage);
+            }
+
+            Map<String, String> key = Map.of(
+                    "encryption", keyStorage.encryption().name(),
+                    "key", keyStorage.encodedPublicKey()
+            );
+
+            try {
+                String token = AgentProtocol.getTokenFromRegistration(client.io, nickname, password, device, key);
+                System.out.printf("Token for \"%s\":%n%s%n", nickname, token);
+                isRegistered = true;
+            } catch (BusyNicknameException e) {
+                System.out.println("Nickname is busy");
+            } catch (InvalidNicknamePassword e) {
+                System.out.println("Invalid nickname or password");
+            } catch (SandnodeErrorException | UnknownSandnodeErrorException e) {
+                System.out.printf("Unknown sandnode error exception. Please try again. %s%n", e.getClass());
+            }
         }
         return nickname;
     }
 
-    private void sendChatMessage(String input, @NotNull ConsoleContext context)
-            throws InterruptedException, ExpectedMessageException, UnprocessedMessagesException {
+    private String login() throws Exception {
+        boolean isLoggedIn = false;
+        String nickname = "";
+        while (!isLoggedIn) {
+            System.out.print("Token: ");
+            String token = scanner.nextLine();
+
+            if (token.isEmpty()) continue;
+
+            try {
+                nickname = AgentProtocol.getMemberFromToken(client.io, token);
+                System.out.printf("You log in as %s%n", nickname);
+                isLoggedIn = true;
+            } catch (InvalidArgumentException e) {
+                System.out.println("Invalid token. Please try again.");
+            } catch (ExpiredTokenException e) {
+                System.out.println("Expired token. Please try again.");
+            } catch (SandnodeErrorException | UnknownSandnodeErrorException e) {
+                System.out.printf("Unknown sandnode error exception. Please try again. %s%n", e.getClass());
+            }
+        }
+        return nickname;
+    }
+
+    private @NotNull String password() throws Exception {
+        boolean isLoggedIn = false;
+        String nickname = "";
+        while (!isLoggedIn) {
+            System.out.print("Nickname: ");
+            nickname = scanner.nextLine();
+            System.out.print("Password: ");
+            String password = scanner.nextLine();
+            System.out.print("Device: ");
+            String device = scanner.nextLine();
+
+            if (nickname.isEmpty() || password.isEmpty()) continue;
+
+            try {
+                String token = AgentProtocol.getTokenByNicknameAndPassword(client.io, nickname, password, device);
+                System.out.printf("Token for \"%s\": %n%s%n", nickname, token);
+                isLoggedIn = true;
+            } catch (UnauthorizedException e) {
+                System.out.println("Incorrect nickname or password. Please try again.");
+            } catch (SandnodeErrorException | UnknownSandnodeErrorException e) {
+                System.out.printf("Unknown sandnode error exception. Please try again. %s%n", e.getClass());
+            }
+        }
+        return nickname;
+    }
+
+    private void sendChatMessage(String input, @NotNull ConsoleContext context) throws Exception {
         if (context.currentChat == null) {
             System.out.println("chat not selected");
             return;

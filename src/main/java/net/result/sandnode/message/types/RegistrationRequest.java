@@ -9,22 +9,27 @@ import net.result.sandnode.message.util.Headers;
 import net.result.sandnode.message.util.MessageTypes;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Map;
+
 public class RegistrationRequest extends MSGPackMessage<RegistrationRequest.MemberData> {
-    public static class MemberData {
+    protected static class MemberData {
         @JsonProperty
         public String nickname;
         @JsonProperty
         public String password;
         @JsonProperty
         public String device;
+        @JsonProperty
+        public Map<String, String> keyStorage;
 
         @SuppressWarnings("unused")
         public MemberData() {}
 
-        public MemberData(@NotNull String nickname, @NotNull String password, String device) {
+        public MemberData(String nickname, String password, String device, Map<String, String> keyStorage) {
             this.nickname = nickname;
             this.password = password;
             this.device = device;
+            this.keyStorage = keyStorage;
         }
     }
 
@@ -32,12 +37,13 @@ public class RegistrationRequest extends MSGPackMessage<RegistrationRequest.Memb
         super(message.expect(MessageTypes.REG), MemberData.class);
     }
 
-    public RegistrationRequest(@NotNull Headers headers, String nickname, String password, String device) {
-        super(headers.setType(MessageTypes.REG), new MemberData(nickname, password, device));
-    }
-
-    public RegistrationRequest(@NotNull String nickname, @NotNull String password, @NotNull String device) {
-        this(new Headers(), nickname, password, device);
+    public RegistrationRequest(
+            @NotNull String nickname,
+            @NotNull String password,
+            @NotNull String device,
+            @NotNull Map<String, String> keyStorage
+    ) {
+        super(new Headers().setType(MessageTypes.REG), new MemberData(nickname, password, device, keyStorage));
     }
 
     public String getNickname() {
@@ -50,5 +56,9 @@ public class RegistrationRequest extends MSGPackMessage<RegistrationRequest.Memb
 
     public String getDevice() {
         return object.device;
+    }
+
+    public Map<String, String> getKeyStorage() {
+        return object.keyStorage;
     }
 }

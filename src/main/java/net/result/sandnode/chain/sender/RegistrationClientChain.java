@@ -8,16 +8,23 @@ import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.message.types.RegistrationRequest;
 import net.result.sandnode.message.types.RegistrationResponse;
 import net.result.sandnode.util.IOController;
+import org.jetbrains.annotations.NotNull;
+
+import java.util.Map;
 
 public class RegistrationClientChain extends ClientChain {
     public RegistrationClientChain(IOController io) {
         super(io);
     }
 
-    public synchronized String getTokenFromRegistration(String nickname, String password, String device)
-            throws InterruptedException, ExpectedMessageException, SandnodeErrorException,
-            UnknownSandnodeErrorException, UnprocessedMessagesException {
-        RegistrationRequest request = new RegistrationRequest(nickname, password, device);
+    public synchronized String getTokenFromRegistration(
+            @NotNull String nickname,
+            @NotNull String password,
+            @NotNull String device,
+            @NotNull Map<String, String> keyStorage
+    ) throws InterruptedException, ExpectedMessageException, SandnodeErrorException, UnknownSandnodeErrorException,
+            UnprocessedMessagesException {
+        RegistrationRequest request = new RegistrationRequest(nickname, password, device, keyStorage);
         send(request);
 
         RawMessage response = queue.take();

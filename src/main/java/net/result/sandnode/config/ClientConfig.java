@@ -16,4 +16,8 @@ public interface ClientConfig {
             throws FSException, KeyAlreadySaved;
 
     Optional<AsymmetricKeyStorage> getPublicKey(@NotNull Endpoint endpoint);
+
+    void saveMemberKey(String nickname, AsymmetricKeyStorage keyStorage) throws FSException;
+
+    Optional<AsymmetricKeyStorage> loadMemberKey(String nickname);
 }

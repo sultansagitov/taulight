@@ -303,11 +303,18 @@ public class ServerTest {
         }
 
         @Override
-        public void saveKey(@NotNull Endpoint endpoint, @NotNull AsymmetricKeyStorage keyStorage) {
-        }
+        public void saveKey(@NotNull Endpoint endpoint, @NotNull AsymmetricKeyStorage keyStorage) {}
 
         @Override
         public Optional<AsymmetricKeyStorage> getPublicKey(@NotNull Endpoint endpoint) {
+            return Optional.empty();
+        }
+
+        @Override
+        public void saveMemberKey(String nickname, AsymmetricKeyStorage keyStorage) {}
+
+        @Override
+        public Optional<AsymmetricKeyStorage> loadMemberKey(String nickname) {
             return Optional.empty();
         }
     }

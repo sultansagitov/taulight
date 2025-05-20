@@ -1,6 +1,8 @@
 package net.result.sandnode.db;
 
+import net.result.sandnode.encryption.interfaces.AsymmetricKeyStorage;
 import net.result.sandnode.exception.DatabaseException;
+import net.result.sandnode.exception.crypto.CannotUseEncryption;
 import net.result.sandnode.exception.error.BusyNicknameException;
 import net.result.sandnode.util.Container;
 import net.result.sandnode.util.JPAUtil;
@@ -40,9 +42,43 @@ public class MemberRepository {
         }
     }
 
+    private MemberEntity save(MemberEntity member, AsymmetricKeyStorage keyStorage) throws DatabaseException {
+        EntityManager em = jpaUtil.getEntityManager();
+        while (em.find(MemberEntity.class, member.id()) != null) {
+            member.setRandomID();
+        }
+
+        EntityTransaction transaction = em.getTransaction();
+        try {
+            transaction.begin();
+
+            KeyStorageEntity keyStorageEntity =
+                    em.merge(new KeyStorageEntity(keyStorage.encryption(), keyStorage.encodedPublicKey()));
+            member.setPublicKey(keyStorageEntity);
+
+            MemberEntity managed = em.merge(member);
+
+            transaction.commit();
+
+            tauMemberRepo.create(managed);
+
+            return managed;
+        } catch (Exception e) {
+            if (transaction.isActive()) transaction.rollback();
+            throw new DatabaseException("Failed to register member", e);
+        }
+    }
+
     public MemberEntity create(String nickname, String hashedPassword) throws DatabaseException, BusyNicknameException {
         if (findByNickname(nickname).isPresent()) throw new BusyNicknameException();
         return save(new MemberEntity(nickname, hashedPassword));
+    }
+
+    public MemberEntity create(String nickname, String hashedPassword, AsymmetricKeyStorage keyStorage)
+            throws DatabaseException, BusyNicknameException, CannotUseEncryption {
+        if (findByNickname(nickname).isPresent()) throw new BusyNicknameException();
+
+        return save(new MemberEntity(nickname, hashedPassword), keyStorage);
     }
 
     public Optional<MemberEntity> findByNickname(String nickname) throws DatabaseException {

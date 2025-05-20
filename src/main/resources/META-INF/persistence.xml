@@ -3,6 +3,7 @@
     <persistence-unit name="taulight-unit" transaction-type="RESOURCE_LOCAL">
         <class>net.result.sandnode.db.MemberEntity</class>
         <class>net.result.sandnode.db.LoginEntity</class>
+        <class>net.result.sandnode.db.KeyStorageEntity</class>
         <class>net.result.sandnode.db.FileEntity</class>
         <class>net.result.taulight.db.TauMemberEntity</class>
         <class>net.result.taulight.db.ChatEntity</class>

@@ -142,4 +142,39 @@ public class ClientPropertiesConfig implements ClientConfig {
                 .findFirst()
                 .map(keyRecord -> keyRecord.keyStorage.asymmetric());
     }
+
+    @Override
+    public synchronized void saveMemberKey(String nickname, @NotNull AsymmetricKeyStorage keyStorage) {
+        Path memberKeyPath = KEYS_PATH.resolve(nickname + "_member_key.json");
+        MemberKeyRecord memberKey = new MemberKeyRecord(memberKeyPath, keyStorage);
+
+        try (FileWriter writer = new FileWriter(memberKeyPath.toFile())) {
+            writer.write(memberKey.toJSON().toString());
+            FileUtil.makeOwnerOnlyRead(memberKeyPath);
+            LOGGER.info("Member key saved at {}", memberKeyPath);
+        } catch (Exception e) {
+            LOGGER.error("Failed to save member key", e);
+            throw new ImpossibleRuntimeException(e);
+        }
+    }
+
+    @Override
+    public synchronized Optional<AsymmetricKeyStorage> loadMemberKey(String nickname) {
+        Path memberKeyPath = KEYS_PATH.resolve(nickname + "_member_key.json");
+
+        if (!Files.exists(memberKeyPath)) {
+            LOGGER.warn("Member key file not found at {}", memberKeyPath);
+            return Optional.empty();
+        }
+
+        try {
+            String jsonStr = FileUtil.readString(memberKeyPath);
+            JSONObject json = new JSONObject(jsonStr);
+            MemberKeyRecord memberKey = MemberKeyRecord.fromJSON(memberKeyPath, json);
+            return Optional.of(memberKey.keyStorage());
+        } catch (Exception e) {
+            LOGGER.error("Failed to load member key", e);
+            throw new ImpossibleRuntimeException(e);
+        }
+    }
 }
