@@ -6,6 +6,7 @@ import net.result.sandnode.exception.error.NotFoundException;
 import net.result.sandnode.exception.error.UnauthorizedException;
 import net.result.sandnode.message.types.HappyMessage;
 import net.result.sandnode.serverclient.Session;
+import net.result.sandnode.util.JPAUtil;
 import net.result.taulight.db.*;
 import net.result.taulight.util.SysMessages;
 import net.result.taulight.util.TauHubProtocol;
@@ -31,6 +32,7 @@ public class UseCodeServerChain extends ServerChain  implements ReceiverChain {
             throw new UnauthorizedException();
         }
 
+        JPAUtil jpaUtil = session.server.container.get(JPAUtil.class);
         ChannelRepository channelRepo = session.server.container.get(ChannelRepository.class);
         InviteCodeRepository inviteCodeRepo = session.server.container.get(InviteCodeRepository.class);
 
@@ -55,6 +57,8 @@ public class UseCodeServerChain extends ServerChain  implements ReceiverChain {
         if (!channelRepo.addMember(channel, member)) {
             throw new NoEffectException();
         }
+
+        session.member = jpaUtil.refresh(session.member);
 
         ChatMessageInputDTO input = SysMessages.channelAdd.toInput(channel, member);
 

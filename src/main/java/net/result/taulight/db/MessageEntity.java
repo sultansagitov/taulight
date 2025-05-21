@@ -14,8 +14,10 @@ import java.util.*;
 @SuppressWarnings("unused")
 @Entity
 public class MessageEntity extends BaseEntity {
-    private String content;
     private boolean sys;
+
+    @Lob
+    private String content;
 
     @Convert(converter = ZonedDateTimeConverter.class)
     private ZonedDateTime sentDatetime;
