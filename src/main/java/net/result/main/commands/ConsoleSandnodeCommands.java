@@ -31,6 +31,7 @@ public class ConsoleSandnodeCommands {
 
     public static void register(Map<String, LoopCondition> commands) {
         commands.put("exit", ConsoleSandnodeCommands::exit);
+        commands.put("keyID", ConsoleSandnodeCommands::keyID);
         commands.put("chains", ConsoleSandnodeCommands::chains);
         commands.put("groups", ConsoleSandnodeCommands::groups);
         commands.put("addGroup", ConsoleSandnodeCommands::addGroup);
@@ -50,6 +51,11 @@ public class ConsoleSandnodeCommands {
             LOGGER.error("Error during disconnect", e);
         }
         return true;
+    }
+
+    private static boolean keyID(List<String> ignored, ConsoleContext context) {
+        System.out.println(context.keyID);
+        return false;
     }
 
     private static boolean chains(List<String> ignored, ConsoleContext context) {

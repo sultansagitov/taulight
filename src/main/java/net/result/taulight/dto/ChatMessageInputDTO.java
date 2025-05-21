@@ -20,7 +20,10 @@ public class ChatMessageInputDTO {
     /** Unique identifier of the chat. */
     @JsonProperty("chat-id")
     public UUID chatID = null;
-    /** Content of the message. */
+    /** ID of key that was encrypted. */
+    @JsonProperty
+    public UUID keyID = null;
+    /** Encrypted content of the message. */
     @JsonProperty
     public String content = null;
     /** Date and time when the message was sent. */

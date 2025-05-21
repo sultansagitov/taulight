@@ -1,6 +1,7 @@
 package net.result.sandnode.chain.sender;
 
 import net.result.sandnode.chain.ClientChain;
+import net.result.sandnode.dto.LogPasswdResponseDTO;
 import net.result.sandnode.error.ServerErrorManager;
 import net.result.sandnode.exception.*;
 import net.result.sandnode.exception.error.SandnodeErrorException;
@@ -13,8 +14,9 @@ public class LogPasswdClientChain extends ClientChain {
         super(io);
     }
 
-    public String getToken(String nickname, String password, String device) throws InterruptedException, SandnodeErrorException,
-            ExpectedMessageException, UnknownSandnodeErrorException, UnprocessedMessagesException {
+    public LogPasswdResponseDTO getToken(String nickname, String password, String device)
+            throws InterruptedException, SandnodeErrorException, ExpectedMessageException,
+            UnknownSandnodeErrorException, UnprocessedMessagesException, DeserializationException {
         LogPasswdRequest loginRequest = new LogPasswdRequest(nickname, password, device);
         send(loginRequest);
 
@@ -23,6 +25,6 @@ public class LogPasswdClientChain extends ClientChain {
 
         LogPasswdResponse loginResponse = new LogPasswdResponse(message);
 
-        return loginResponse.content();
+        return loginResponse.dto();
     }
 }

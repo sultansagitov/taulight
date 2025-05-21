@@ -2,6 +2,8 @@ package net.result.sandnode.hubagent;
 
 import net.result.sandnode.chain.sender.LogPasswdClientChain;
 import net.result.sandnode.chain.sender.LoginClientChain;
+import net.result.sandnode.dto.LogPasswdResponseDTO;
+import net.result.sandnode.dto.LoginResponseDTO;
 import net.result.sandnode.dto.RegistrationResponseDTO;
 import net.result.sandnode.encryption.interfaces.AsymmetricKeyStorage;
 import net.result.sandnode.exception.*;
@@ -28,23 +30,23 @@ public class AgentProtocol {
         return dto;
     }
 
-    public static String getMemberFromToken(IOController io, String token)
+    public static LoginResponseDTO byToken(IOController io, String token)
             throws InterruptedException, SandnodeErrorException, DeserializationException,
             UnknownSandnodeErrorException, UnprocessedMessagesException {
         LoginClientChain chain = new LoginClientChain(io);
         io.chainManager.linkChain(chain);
-        String nickname = chain.getNickname(token);
+        LoginResponseDTO dto = chain.login(token);
         io.chainManager.removeChain(chain);
 
-        return nickname;
+        return dto;
     }
 
-    public static String getTokenByNicknameAndPassword(IOController io, String nickname, String password, String device)
+    public static LogPasswdResponseDTO byPassword(IOController io, String nickname, String password, String device)
             throws InterruptedException, SandnodeErrorException, ExpectedMessageException,
-            UnknownSandnodeErrorException, UnprocessedMessagesException {
+            UnknownSandnodeErrorException, UnprocessedMessagesException, DeserializationException {
         LogPasswdClientChain chain = new LogPasswdClientChain(io);
         io.chainManager.linkChain(chain);
-        String token = chain.getToken(nickname, password, device);
+        LogPasswdResponseDTO token = chain.getToken(nickname, password, device);
         io.chainManager.removeChain(chain);
         return token;
     }

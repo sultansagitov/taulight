@@ -41,12 +41,12 @@ public abstract class LogPasswdServerChain extends ServerChain implements Receiv
         session.member = member;
 
         String ip = session.io.socket.getInetAddress().getHostAddress();
-        LoginEntity login = loginRepo.create(session.member, ip, request.getDevice());
+        LoginEntity login = loginRepo.create(member, ip, request.getDevice());
 
         onLogin();
 
         String token = tokenizer.tokenizeLogin(login);
-        sendFin(new LogPasswdResponse(token));
+        sendFin(new LogPasswdResponse(token, member.publicKey().id()));
     }
 
     protected abstract void onLogin() throws Exception;

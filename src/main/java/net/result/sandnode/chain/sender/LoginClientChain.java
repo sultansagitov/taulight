@@ -2,6 +2,7 @@ package net.result.sandnode.chain.sender;
 
 import net.result.sandnode.chain.ClientChain;
 import net.result.sandnode.dto.LoginHistoryDTO;
+import net.result.sandnode.dto.LoginResponseDTO;
 import net.result.sandnode.error.ServerErrorManager;
 import net.result.sandnode.exception.*;
 import net.result.sandnode.exception.error.SandnodeErrorException;
@@ -19,8 +20,9 @@ public class LoginClientChain extends ClientChain {
         super(io);
     }
 
-    public synchronized String getNickname(String token) throws InterruptedException, DeserializationException,
-            SandnodeErrorException, UnknownSandnodeErrorException, UnprocessedMessagesException {
+    public synchronized LoginResponseDTO login(String token)
+            throws InterruptedException, DeserializationException, SandnodeErrorException,
+            UnknownSandnodeErrorException, UnprocessedMessagesException {
         LoginRequest loginRequest = LoginRequest.byToken(new Headers(), token);
         send(loginRequest);
 
@@ -30,7 +32,7 @@ public class LoginClientChain extends ClientChain {
 
         LoginResponse loginResponse = new LoginResponse(raw);
 
-        return loginResponse.getNickname();
+        return loginResponse.dto();
     }
 
     public synchronized List<LoginHistoryDTO> getHistory() throws UnprocessedMessagesException, InterruptedException,

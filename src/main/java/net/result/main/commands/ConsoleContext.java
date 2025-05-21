@@ -6,14 +6,15 @@ import net.result.sandnode.util.IOController;
 import java.util.UUID;
 
 public class ConsoleContext {
-    public final ConsoleForwardRequestClientChain chain;
     public final IOController io;
     public final String nickname;
+    public final UUID keyID;
+    public ConsoleForwardRequestClientChain chain;
     public UUID currentChat = null;
 
-    public ConsoleContext(ConsoleForwardRequestClientChain chain, IOController io, String nickname) {
-        this.chain = chain;
+    public ConsoleContext(IOController io, String nickname, UUID keyID) {
         this.io = io;
         this.nickname = nickname;
+        this.keyID = keyID;
     }
 }
