@@ -3,27 +3,32 @@ package net.result.taulight.chain.receiver;
 import net.result.sandnode.chain.ReceiverChain;
 import net.result.sandnode.chain.ServerChain;
 import net.result.sandnode.db.FileEntity;
+import net.result.sandnode.db.KeyStorageEntity;
 import net.result.sandnode.db.MemberEntity;
 import net.result.sandnode.db.MemberRepository;
+import net.result.sandnode.encryption.interfaces.AsymmetricKeyStorage;
+import net.result.sandnode.encryption.interfaces.Encryption;
 import net.result.sandnode.exception.DatabaseException;
 import net.result.sandnode.exception.ImpossibleRuntimeException;
-import net.result.sandnode.exception.UnprocessedMessagesException;
 import net.result.sandnode.exception.error.*;
+import net.result.sandnode.message.UUIDMessage;
 import net.result.sandnode.message.types.FileMessage;
+import net.result.sandnode.message.types.PublicKeyResponse;
 import net.result.sandnode.message.util.Headers;
 import net.result.sandnode.message.util.MessageTypes;
 import net.result.sandnode.serverclient.Session;
 import net.result.sandnode.util.DBFileUtil;
-import net.result.taulight.db.*;
-import net.result.taulight.exception.AlreadyExistingRecordException;
+import net.result.taulight.db.ChatEntity;
+import net.result.taulight.db.DialogEntity;
+import net.result.taulight.db.DialogRepository;
+import net.result.taulight.db.TauMemberEntity;
+import net.result.taulight.dto.ChatMessageInputDTO;
+import net.result.taulight.group.TauGroupManager;
+import net.result.taulight.message.types.DialogRequest;
 import net.result.taulight.util.ChatUtil;
 import net.result.taulight.util.SysMessages;
 import net.result.taulight.util.TauAgentProtocol;
 import net.result.taulight.util.TauHubProtocol;
-import net.result.taulight.message.types.DialogRequest;
-import net.result.taulight.dto.ChatMessageInputDTO;
-import net.result.taulight.group.TauGroupManager;
-import net.result.sandnode.message.UUIDMessage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -52,12 +57,11 @@ public class DialogServerChain extends ServerChain implements ReceiverChain {
         switch (type) {
             case ID -> id(request, session.member);
             case AVATAR -> avatar(request, session.member);
+            case KEY -> key(request, session.member);
         }
     }
 
-    private void id(DialogRequest request, MemberEntity you)
-            throws AddressedMemberNotFoundException, DatabaseException, AlreadyExistingRecordException,
-            InterruptedException, UnprocessedMessagesException, NotFoundException {
+    private void id(DialogRequest request, MemberEntity you) throws Exception {
         TauGroupManager manager = session.server.container.get(TauGroupManager.class);
         MemberRepository memberRepo = session.server.container.get(MemberRepository.class);
         DialogRepository dialogRepo = session.server.container.get(DialogRepository.class);
@@ -91,9 +95,7 @@ public class DialogServerChain extends ServerChain implements ReceiverChain {
         sendFin(new UUIDMessage(new Headers().setType(MessageTypes.HAPPY), dialog));
     }
 
-    private void avatar(DialogRequest request, MemberEntity you) throws DatabaseException, UnauthorizedException,
-            WrongAddressException, NotFoundException, NoEffectException, ServerSandnodeErrorException,
-            UnprocessedMessagesException, InterruptedException {
+    private void avatar(DialogRequest request, MemberEntity you) throws Exception {
         ChatUtil chatUtil = session.server.container.get(ChatUtil.class);
         DBFileUtil dbFileUtil = session.server.container.get(DBFileUtil.class);
 
@@ -107,5 +109,24 @@ public class DialogServerChain extends ServerChain implements ReceiverChain {
         if (avatar == null) throw new NoEffectException();
 
         sendFin(new FileMessage(dbFileUtil.readImage(avatar)));
+    }
+
+    private void key(DialogRequest request, MemberEntity you) throws Exception {
+        ChatUtil chatUtil = session.server.container.get(ChatUtil.class);
+
+        UUID chatID = UUID.fromString(request.content());
+
+        ChatEntity chat = chatUtil.getChat(chatID).orElseThrow(NotFoundException::new);
+        if (!chatUtil.contains(chat, you.tauMember())) throw new UnauthorizedException();
+        if (!(chat instanceof DialogEntity dialog)) throw new WrongAddressException();
+
+        KeyStorageEntity keyStorageEntity = dialog.otherMember(you.tauMember()).member().publicKey();
+        Encryption encryption = keyStorageEntity.encryption();
+        AsymmetricKeyStorage keyStorage = encryption.asymmetric()
+                .publicKeyConvertor()
+                .toKeyStorage(keyStorageEntity.encodedKey());
+
+        send(new UUIDMessage(new Headers(), keyStorageEntity));
+        sendFin(new PublicKeyResponse(new Headers(), keyStorage));
     }
 }

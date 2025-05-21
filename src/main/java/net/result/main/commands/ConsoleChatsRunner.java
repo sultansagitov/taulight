@@ -2,6 +2,9 @@ package net.result.main.commands;
 
 import net.result.sandnode.dto.FileDTO;
 import net.result.sandnode.exception.*;
+import net.result.sandnode.exception.crypto.CreatingKeyException;
+import net.result.sandnode.exception.crypto.EncryptionTypeException;
+import net.result.sandnode.exception.crypto.NoSuchEncryptionException;
 import net.result.sandnode.exception.error.*;
 import net.result.taulight.chain.sender.ChannelClientChain;
 import net.result.taulight.chain.sender.ChatClientChain;
@@ -9,6 +12,7 @@ import net.result.taulight.chain.sender.DialogClientChain;
 import net.result.taulight.chain.sender.MembersClientChain;
 import net.result.taulight.dto.ChatInfoDTO;
 import net.result.taulight.dto.ChatInfoPropDTO;
+import net.result.taulight.dto.DialogKeyDTO;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
@@ -196,27 +200,35 @@ public class ConsoleChatsRunner {
     }
 
     public static void getDialogAvatar(@NotNull ConsoleContext context, UUID chatID)
-            throws UnprocessedMessagesException, InterruptedException {
-        try {
-            DialogClientChain chain = new DialogClientChain(context.client);
-            context.io.chainManager.linkChain(chain);
-            FileDTO avatar = chain.getAvatar(chatID);
-            context.io.chainManager.removeChain(chain);
+            throws UnprocessedMessagesException, InterruptedException, ExpectedMessageException,
+            SandnodeErrorException, UnknownSandnodeErrorException {
+        DialogClientChain chain = new DialogClientChain(context.client);
+        context.io.chainManager.linkChain(chain);
+        FileDTO avatar = chain.getAvatar(chatID);
+        context.io.chainManager.removeChain(chain);
 
-            if (avatar == null) {
-                System.out.println("Member have no avatar");
-            } else {
-                String mimeType = avatar.contentType();
-                String base64 = Base64.getEncoder().encodeToString(avatar.body());
-                System.out.printf("data:%s;base64,%s%n", mimeType, base64);
-            }
-        } catch (NotFoundException e) {
-            System.out.printf("Channel %s not found.%n", chatID);
-        } catch (SandnodeErrorException | UnknownSandnodeErrorException e) {
-            System.out.printf("Failed to get avatar - %s%n", e.getClass());
-        } catch (ExpectedMessageException e) {
-            System.out.println(e.getMessage());
+        if (avatar == null) {
+            System.out.println("Member have no avatar");
+        } else {
+            String mimeType = avatar.contentType();
+            String base64 = Base64.getEncoder().encodeToString(avatar.body());
+            System.out.printf("data:%s;base64,%s%n", mimeType, base64);
         }
+
+    }
+
+    public static void getDialogKey(UUID chatID, ConsoleContext context)
+            throws UnprocessedMessagesException, EncryptionTypeException, NoSuchEncryptionException,
+            CreatingKeyException, ExpectedMessageException, UnknownSandnodeErrorException, SandnodeErrorException,
+            InterruptedException, DeserializationException, FSException {
+        DialogClientChain chain = new DialogClientChain(context.client);
+        context.io.chainManager.linkChain(chain);
+        DialogKeyDTO dialogKey = chain.getDialogKey(chatID);
+        context.io.chainManager.removeChain(chain);
+
+        System.out.println(dialogKey.keyID());
+
+        context.client.clientConfig.saveMemberKey(dialogKey.keyID(), dialogKey.keyStorage());
     }
 
     public static void printInfo(@NotNull Collection<ChatInfoDTO> infos) {

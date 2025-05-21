@@ -1,17 +1,16 @@
 package net.result.main.config;
 
-import net.result.sandnode.encryption.interfaces.AsymmetricEncryption;
-import net.result.sandnode.encryption.interfaces.AsymmetricKeyStorage;
+import net.result.sandnode.encryption.interfaces.*;
 import net.result.sandnode.encryption.EncryptionManager;
-import net.result.sandnode.encryption.interfaces.KeyStorage;
-import net.result.sandnode.encryption.interfaces.SymmetricKeyStorage;
 import net.result.sandnode.exception.ImpossibleRuntimeException;
 import net.result.sandnode.exception.crypto.CannotUseEncryption;
 import net.result.sandnode.exception.crypto.CreatingKeyException;
 import net.result.sandnode.exception.crypto.EncryptionTypeException;
 import net.result.sandnode.exception.crypto.NoSuchEncryptionException;
+import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.Base64;
 import java.util.UUID;
 
 public record MemberKeyRecord(UUID keyID, KeyStorage keyStorage) {
@@ -19,11 +18,15 @@ public record MemberKeyRecord(UUID keyID, KeyStorage keyStorage) {
     public JSONObject toJSON() {
         try {
             if (keyStorage instanceof AsymmetricKeyStorage a) {
-                return new JSONObject()
+                JSONObject json = new JSONObject()
                         .put("id", keyID)
                         .put("encryption", keyStorage.encryption().name())
-                        .put("public", a.encodedPublicKey())
-                        .put("private", a.encodedPrivateKey());
+                        .put("public", a.encodedPublicKey());
+                try {
+                    return json.put("private", a.encodedPrivateKey());
+                } catch (Exception e) {
+                    return json;
+                }
             } else if (keyStorage instanceof SymmetricKeyStorage s) {
                 return new JSONObject()
                         .put("id", keyID)
@@ -41,15 +44,31 @@ public record MemberKeyRecord(UUID keyID, KeyStorage keyStorage) {
             throws NoSuchEncryptionException, CreatingKeyException, EncryptionTypeException {
         UUID keyID = UUID.fromString(json.getString("id"));
         String encryptionType = json.getString("encryption");
-        String publicString = json.getString("public");
-        String privateString = json.getString("private");
+        Encryption encryption = EncryptionManager.find(encryptionType).asymmetric();
+        if (encryption.isAsymmetric()) {
+            String publicString = json.getString("public");
+            String privateString = null;
+            try {
+                privateString = json.getString("private");
+            } catch (JSONException ignored) {
+            }
 
-        AsymmetricEncryption encryption = EncryptionManager.find(encryptionType).asymmetric();
-        AsymmetricKeyStorage publicKey = encryption.publicKeyConvertor().toKeyStorage(publicString);
-        AsymmetricKeyStorage privateKey = encryption.privateKeyConvertor().toKeyStorage(privateString);
+            AsymmetricKeyStorage keyStorage;
+            AsymmetricKeyStorage publicKey = encryption.asymmetric().publicKeyConvertor().toKeyStorage(publicString);
+            if (privateString != null) {
+                AsymmetricKeyStorage privateKey = encryption.asymmetric()
+                        .privateKeyConvertor()
+                        .toKeyStorage(privateString);
+                keyStorage = encryption.asymmetric().merge(publicKey, privateKey);
+            } else {
+                keyStorage = publicKey;
+            }
 
-        AsymmetricKeyStorage keyStorage = encryption.merge(publicKey, privateKey);
-
-        return new MemberKeyRecord(keyID, keyStorage);
+            return new MemberKeyRecord(keyID, keyStorage);
+        } else {
+            byte[] decoded = Base64.getDecoder().decode(json.getString("encoded"));
+            SymmetricKeyStorage keyStorage = encryption.symmetric().toKeyStorage(decoded);
+            return new MemberKeyRecord(keyID, keyStorage);
+        }
     }
 }

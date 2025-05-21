@@ -1,11 +1,18 @@
 package net.result.main.commands;
 
 import net.result.sandnode.exception.*;
+import net.result.sandnode.exception.crypto.CreatingKeyException;
+import net.result.sandnode.exception.crypto.EncryptionTypeException;
+import net.result.sandnode.exception.crypto.NoSuchEncryptionException;
+import net.result.sandnode.exception.error.NotFoundException;
+import net.result.sandnode.exception.error.SandnodeErrorException;
 import net.result.taulight.dto.ChatInfoPropDTO;
 import org.jetbrains.annotations.NotNull;
 
 import java.time.Duration;
-import java.util.*;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 @SuppressWarnings("SameReturnValue")
 public class ConsoleChatsCommands {
@@ -23,6 +30,7 @@ public class ConsoleChatsCommands {
         commands.put("setChannelAvatar", ConsoleChatsCommands::setChannelAvatar);
         commands.put("getChannelAvatar", ConsoleChatsCommands::getChannelAvatar);
         commands.put("getDialogAvatar", ConsoleChatsCommands::getDialogAvatar);
+        commands.put("getDialogKey", ConsoleChatsCommands::getDialogKey);
     }
 
     private static boolean setChat(List<String> args, ConsoleContext context) {
@@ -267,7 +275,40 @@ public class ConsoleChatsCommands {
             return false;
         }
 
-        ConsoleChatsRunner.getDialogAvatar(context, chatID);
+        try {
+            ConsoleChatsRunner.getDialogAvatar(context, chatID);
+        } catch (NotFoundException e) {
+            System.out.printf("Channel %s not found.%n", chatID);
+        } catch (SandnodeErrorException | UnknownSandnodeErrorException e) {
+            System.out.printf("Failed to get avatar - %s%n", e.getClass());
+        } catch (ExpectedMessageException e) {
+            System.out.println(e.getMessage());
+        }
+
+        return false;
+    }
+
+    private static boolean getDialogKey(List<String> args, ConsoleContext context) {
+        UUID chatID;
+
+        try {
+            chatID = args.stream().findFirst().map(UUID::fromString).orElse(context.currentChat);
+        } catch (IllegalArgumentException e) {
+            System.out.println("Invalid UUID format.");
+            return false;
+        }
+
+        try {
+            ConsoleChatsRunner.getDialogKey(chatID, context);
+        } catch (NotFoundException e) {
+            System.out.printf("Channel %s not found.%n", chatID);
+        } catch (SandnodeErrorException | UnknownSandnodeErrorException | UnprocessedMessagesException |
+                 EncryptionTypeException | NoSuchEncryptionException | CreatingKeyException | InterruptedException |
+                 DeserializationException | FSException e) {
+            System.out.printf("Failed to get avatar - %s%n", e.getClass());
+        } catch (ExpectedMessageException e) {
+            System.out.println(e.getMessage());
+        }
 
         return false;
     }

@@ -13,7 +13,8 @@ import java.util.UUID;
 public class DialogRequest extends TextMessage {
     public enum Type {
         ID("id"),
-        AVATAR("avatar");
+        AVATAR("avatar"),
+        KEY("key");
 
         private final String value;
 
@@ -26,16 +27,21 @@ public class DialogRequest extends TextMessage {
         }
     }
 
-    public DialogRequest(@NotNull Headers headers, @NotNull String nickname) {
-        super(headers.setType(TauMessageTypes.DIALOG), nickname);
+
+    private DialogRequest(Type type, String string) {
+        super(new Headers().setType(TauMessageTypes.DIALOG).setValue("type", type.value), string);
     }
 
     public static @NotNull DialogRequest getDialogID(String nickname) {
-        return new DialogRequest(new Headers().setValue("type", Type.ID.value), nickname);
+        return new DialogRequest(Type.ID, nickname);
     }
 
     public static @NotNull DialogRequest getAvatar(UUID chatID) {
-        return new DialogRequest(new Headers().setValue("type", Type.AVATAR.value), chatID.toString());
+        return new DialogRequest(Type.AVATAR, chatID.toString());
+    }
+
+    public static @NotNull DialogRequest getKey(UUID chatID) {
+        return new DialogRequest(Type.KEY, chatID.toString());
     }
 
     public DialogRequest(@NotNull RawMessage raw) throws ExpectedMessageException {

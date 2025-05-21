@@ -107,8 +107,9 @@ public class ClientPropertiesConfig implements ClientConfig {
     }
 
     public synchronized void saveKeysJSON() throws FSException {
+        String string = getKeysJson().toString();
         try (FileWriter fileWriter = new FileWriter(KEYS_JSON_PATH.toFile())) {
-            fileWriter.write(getKeysJson().toString());
+            fileWriter.write(string);
         } catch (IOException e) {
             throw new FSException(e);
         }
