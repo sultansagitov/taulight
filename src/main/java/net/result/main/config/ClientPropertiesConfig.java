@@ -3,6 +3,7 @@ package net.result.main.config;
 import net.result.main.exception.crypto.KeyHashCheckingException;
 import net.result.sandnode.config.ClientConfig;
 import net.result.sandnode.encryption.EncryptionManager;
+import net.result.sandnode.encryption.interfaces.KeyStorage;
 import net.result.sandnode.encryption.interfaces.SymmetricEncryption;
 import net.result.sandnode.exception.*;
 import net.result.sandnode.exception.crypto.*;
@@ -160,13 +161,13 @@ public class ClientPropertiesConfig implements ClientConfig {
     }
 
     @Override
-    public synchronized void saveMemberKey(UUID keyID, @NotNull AsymmetricKeyStorage keyStorage) throws FSException {
+    public synchronized void saveMemberKey(UUID keyID, KeyStorage keyStorage) throws FSException {
         memberKeys.add(new MemberKeyRecord(keyID, keyStorage));
         saveKeysJSON();
     }
 
     @Override
-    public synchronized Optional<AsymmetricKeyStorage> loadMemberKey(UUID keyID) {
+    public synchronized Optional<KeyStorage> loadMemberKey(UUID keyID) {
         return memberKeys.stream().filter(k -> k.keyID().equals(keyID)).map(MemberKeyRecord::keyStorage).findFirst();
     }
 }

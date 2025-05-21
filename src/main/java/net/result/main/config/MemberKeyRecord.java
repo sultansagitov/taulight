@@ -3,6 +3,9 @@ package net.result.main.config;
 import net.result.sandnode.encryption.interfaces.AsymmetricEncryption;
 import net.result.sandnode.encryption.interfaces.AsymmetricKeyStorage;
 import net.result.sandnode.encryption.EncryptionManager;
+import net.result.sandnode.encryption.interfaces.KeyStorage;
+import net.result.sandnode.encryption.interfaces.SymmetricKeyStorage;
+import net.result.sandnode.exception.ImpossibleRuntimeException;
 import net.result.sandnode.exception.crypto.CannotUseEncryption;
 import net.result.sandnode.exception.crypto.CreatingKeyException;
 import net.result.sandnode.exception.crypto.EncryptionTypeException;
@@ -11,15 +14,24 @@ import org.json.JSONObject;
 
 import java.util.UUID;
 
-public record MemberKeyRecord(UUID keyID, AsymmetricKeyStorage keyStorage) {
+public record MemberKeyRecord(UUID keyID, KeyStorage keyStorage) {
 
     public JSONObject toJSON() {
         try {
-            return new JSONObject()
-                    .put("id", keyID)
-                    .put("encryption", keyStorage.encryption().name())
-                    .put("public", keyStorage.encodedPublicKey())
-                    .put("private", keyStorage.encodedPrivateKey());
+            if (keyStorage instanceof AsymmetricKeyStorage a) {
+                return new JSONObject()
+                        .put("id", keyID)
+                        .put("encryption", keyStorage.encryption().name())
+                        .put("public", a.encodedPublicKey())
+                        .put("private", a.encodedPrivateKey());
+            } else if (keyStorage instanceof SymmetricKeyStorage s) {
+                return new JSONObject()
+                        .put("id", keyID)
+                        .put("encryption", keyStorage.encryption().name())
+                        .put("encoded", s.encoded());
+            } else {
+                throw new ImpossibleRuntimeException("keyStorage is not asymmetric nor symmetric");
+            }
         } catch (CannotUseEncryption e) {
             throw new RuntimeException(e);
         }

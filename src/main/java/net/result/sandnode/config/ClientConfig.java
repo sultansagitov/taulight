@@ -1,5 +1,6 @@
 package net.result.sandnode.config;
 
+import net.result.sandnode.encryption.interfaces.KeyStorage;
 import net.result.sandnode.encryption.interfaces.SymmetricEncryption;
 import net.result.sandnode.exception.FSException;
 import net.result.sandnode.exception.crypto.KeyAlreadySaved;
@@ -18,7 +19,7 @@ public interface ClientConfig {
 
     Optional<AsymmetricKeyStorage> getPublicKey(@NotNull Endpoint endpoint);
 
-    void saveMemberKey(UUID keyID, AsymmetricKeyStorage keyStorage) throws FSException;
+    void saveMemberKey(UUID keyID, KeyStorage keyStorage) throws FSException;
 
-    Optional<AsymmetricKeyStorage> loadMemberKey(UUID keyID);
+    Optional<KeyStorage> loadMemberKey(UUID keyID);
 }

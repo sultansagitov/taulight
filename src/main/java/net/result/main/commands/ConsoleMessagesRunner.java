@@ -1,7 +1,7 @@
 package net.result.main.commands;
 
 import net.result.sandnode.dto.PaginatedDTO;
-import net.result.sandnode.encryption.interfaces.AsymmetricKeyStorage;
+import net.result.sandnode.encryption.interfaces.KeyStorage;
 import net.result.sandnode.exception.*;
 import net.result.sandnode.exception.crypto.CannotUseEncryption;
 import net.result.sandnode.exception.crypto.CryptoException;
@@ -53,7 +53,7 @@ public class ConsoleMessagesRunner {
         try {
             // TODO replace with key of other member
             UUID keyID = context.keyID;
-            AsymmetricKeyStorage keyStorage = context.client.clientConfig
+            KeyStorage keyStorage = context.client.clientConfig
                     .loadMemberKey(context.keyID)
                     .orElseThrow(KeyStorageNotFoundException::new);
 
@@ -83,7 +83,7 @@ public class ConsoleMessagesRunner {
         String decrypted;
         ChatMessageInputDTO input = dto.message;
         if (input.keyID != null) {
-            AsymmetricKeyStorage keyStorage = context.client.clientConfig
+            KeyStorage keyStorage = context.client.clientConfig
                     .loadMemberKey(input.keyID)
                     .orElseThrow(KeyStorageNotFoundException::new);
             decrypted = keyStorage.encryption().decrypt(Base64.getDecoder().decode(input.content), keyStorage);

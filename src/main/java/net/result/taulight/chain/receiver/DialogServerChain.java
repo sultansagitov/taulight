@@ -63,7 +63,7 @@ public class DialogServerChain extends ServerChain implements ReceiverChain {
         DialogRepository dialogRepo = session.server.container.get(DialogRepository.class);
 
         DialogEntity dialog;
-        TauMemberEntity anotherMember = memberRepo
+        TauMemberEntity anotherMember = memberRepo // TODO replace with tauMemberRepo
                 .findByNickname(request.content())
                 .map(MemberEntity::tauMember)
                 .orElseThrow(AddressedMemberNotFoundException::new);
@@ -73,6 +73,9 @@ public class DialogServerChain extends ServerChain implements ReceiverChain {
             dialog = dialogOpt.get();
         } else {
             dialog = dialogRepo.create(you.tauMember(), anotherMember);
+
+            Collection<MemberEntity> members = new ArrayList<>(List.of(you, anotherMember.member()));
+            TauAgentProtocol.addMembersToGroup(session, members, manager.getGroup(dialog));
 
             ChatMessageInputDTO input = SysMessages.dialogNew.toInput(dialog, you.tauMember());
 
@@ -84,9 +87,6 @@ public class DialogServerChain extends ServerChain implements ReceiverChain {
                 LOGGER.warn("Ignored exception: {}", e.getMessage());
             }
         }
-
-        Collection<MemberEntity> members = new ArrayList<>(List.of(you, anotherMember.member()));
-        TauAgentProtocol.addMembersToGroup(session, members, manager.getGroup(dialog));
 
         sendFin(new UUIDMessage(new Headers().setType(MessageTypes.HAPPY), dialog));
     }

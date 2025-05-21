@@ -9,6 +9,7 @@ import net.result.sandnode.dto.LoginResponseDTO;
 import net.result.sandnode.encryption.AsymmetricEncryptions;
 import net.result.sandnode.encryption.interfaces.AsymmetricEncryption;
 import net.result.sandnode.encryption.interfaces.AsymmetricKeyStorage;
+import net.result.sandnode.encryption.interfaces.KeyStorage;
 import net.result.sandnode.exception.*;
 import net.result.sandnode.exception.crypto.CreatingKeyException;
 import net.result.sandnode.exception.crypto.CryptoException;
@@ -192,7 +193,7 @@ public class RunAgentWork implements IWork {
 
         // TODO replace with key of other member
         UUID keyID = context.keyID;
-        AsymmetricKeyStorage keyStorage = client.clientConfig.loadMemberKey(keyID).get();
+        KeyStorage keyStorage = client.clientConfig.loadMemberKey(keyID).get();
 
         ChatMessageInputDTO message = new ChatMessageInputDTO()
                 .setChatID(context.currentChat)

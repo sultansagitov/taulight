@@ -2,7 +2,7 @@ package net.result.taulight.chain.receiver;
 
 import net.result.sandnode.chain.ClientChain;
 import net.result.sandnode.chain.ReceiverChain;
-import net.result.sandnode.encryption.interfaces.AsymmetricKeyStorage;
+import net.result.sandnode.encryption.interfaces.KeyStorage;
 import net.result.sandnode.exception.SandnodeException;
 import net.result.sandnode.exception.error.KeyStorageNotFoundException;
 import net.result.sandnode.message.RawMessage;
@@ -39,7 +39,7 @@ public abstract class ForwardClientChain extends ClientChain implements Receiver
 
             String decrypted;
             if (input.keyID != null) {
-                AsymmetricKeyStorage keyStorage = client.clientConfig
+                KeyStorage keyStorage = client.clientConfig
                         .loadMemberKey(input.keyID)
                         .orElseThrow(KeyStorageNotFoundException::new);
                 decrypted = keyStorage.encryption().decrypt(Base64.getDecoder().decode(input.content), keyStorage);

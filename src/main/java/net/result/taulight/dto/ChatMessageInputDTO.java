@@ -2,9 +2,9 @@ package net.result.taulight.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import net.result.sandnode.db.MemberEntity;
 import net.result.sandnode.db.BaseEntity;
-import net.result.sandnode.encryption.interfaces.AsymmetricKeyStorage;
+import net.result.sandnode.db.MemberEntity;
+import net.result.sandnode.encryption.interfaces.KeyStorage;
 import net.result.sandnode.exception.crypto.CryptoException;
 import net.result.sandnode.exception.error.EncryptionException;
 import net.result.taulight.db.ChatEntity;
@@ -76,7 +76,7 @@ public class ChatMessageInputDTO {
         return setChatID(chat.id());
     }
 
-    public ChatMessageInputDTO setEncryptedContent(UUID keyID, AsymmetricKeyStorage keyStorage, String input)
+    public ChatMessageInputDTO setEncryptedContent(UUID keyID, KeyStorage keyStorage, String input)
             throws EncryptionException, CryptoException {
         setKeyID(keyID);
 

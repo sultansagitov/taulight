@@ -312,10 +312,10 @@ public class ServerTest {
         }
 
         @Override
-        public void saveMemberKey(UUID keyID, AsymmetricKeyStorage keyStorage) {}
+        public void saveMemberKey(UUID keyID, KeyStorage keyStorage) {}
 
         @Override
-        public Optional<AsymmetricKeyStorage> loadMemberKey(UUID keyID) {
+        public Optional<KeyStorage> loadMemberKey(UUID keyID) {
             return Optional.empty();
         }
     }
