@@ -14,9 +14,10 @@ import java.util.Collection;
 import java.util.Set;
 
 public class ClientProtocol {
-    public static void PUB(@NotNull IOController io) throws CryptoException, ExpectedMessageException,
+    public static void PUB(@NotNull SandnodeClient client) throws CryptoException, ExpectedMessageException,
             InterruptedException, SandnodeErrorException, UnknownSandnodeErrorException, UnprocessedMessagesException {
-        PublicKeyClientChain pubkeyChain = new PublicKeyClientChain(io);
+        IOController io = client.io;
+        PublicKeyClientChain pubkeyChain = new PublicKeyClientChain(client);
         io.chainManager.linkChain(pubkeyChain);
         pubkeyChain.getPublicKey();
         io.chainManager.removeChain(pubkeyChain);
@@ -25,29 +26,31 @@ public class ClientProtocol {
     public static void sendSYM(@NotNull SandnodeClient client) throws InterruptedException, ExpectedMessageException,
             KeyNotCreatedException, UnprocessedMessagesException {
         IOController io = client.io;
-        SymKeyClientChain symKeyChain = new SymKeyClientChain(io, client.clientConfig.symmetricKeyEncryption());
+        SymKeyClientChain symKeyChain = new SymKeyClientChain(client);
         io.chainManager.linkChain(symKeyChain);
         symKeyChain.sendSymKey();
         io.chainManager.removeChain(symKeyChain);
     }
 
-    public static Collection<String> addToGroups(@NotNull IOController io, Collection<String> groups)
+    public static Collection<String> addToGroups(@NotNull SandnodeClient client, Collection<String> groups)
             throws InterruptedException, ExpectedMessageException, UnprocessedMessagesException {
-        GroupClientChain groupClientChain = new GroupClientChain(io);
+        IOController io = client.io;
+        GroupClientChain groupClientChain = new GroupClientChain(client);
         io.chainManager.linkChain(groupClientChain);
         Collection<String> groupsID = groupClientChain.add(groups);
         io.chainManager.removeChain(groupClientChain);
         return groupsID;
     }
 
-    public static Collection<String> getGroups(@NotNull IOController io)
+    public static Collection<String> getGroups(@NotNull SandnodeClient client)
             throws ExpectedMessageException, InterruptedException, UnprocessedMessagesException {
-        return addToGroups(io, Set.of());
+        return addToGroups(client, Set.of());
     }
 
-    public static Collection<String> removeFromGroups(@NotNull IOController io, Collection<String> groups)
+    public static Collection<String> removeFromGroups(@NotNull SandnodeClient client, Collection<String> groups)
             throws InterruptedException, ExpectedMessageException, UnprocessedMessagesException {
-        GroupClientChain groupClientChain = new GroupClientChain(io);
+        IOController io = client.io;
+        GroupClientChain groupClientChain = new GroupClientChain(client);
         io.chainManager.linkChain(groupClientChain);
         Collection<String> groupsID = groupClientChain.remove(groups);
         io.chainManager.removeChain(groupClientChain);

@@ -8,7 +8,7 @@ import net.result.sandnode.exception.UnknownSandnodeErrorException;
 import net.result.sandnode.exception.UnprocessedMessagesException;
 import net.result.sandnode.exception.error.SandnodeErrorException;
 import net.result.sandnode.message.RawMessage;
-import net.result.sandnode.util.IOController;
+import net.result.sandnode.serverclient.SandnodeClient;
 import net.result.taulight.dto.RolesDTO;
 import net.result.taulight.message.types.RoleRequest;
 import net.result.taulight.message.types.RoleResponse;
@@ -16,8 +16,8 @@ import net.result.taulight.message.types.RoleResponse;
 import java.util.UUID;
 
 public class RoleClientChain extends ClientChain {
-    public RoleClientChain(IOController io) {
-        super(io);
+    public RoleClientChain(SandnodeClient client) {
+        super(client);
     }
 
     public synchronized RolesDTO getRoles(UUID chatID) throws UnprocessedMessagesException, InterruptedException,

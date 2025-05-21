@@ -14,7 +14,7 @@ public class ConsoleCodesRunner {
     public static void checkCode(@NotNull ConsoleContext context, String code)
             throws UnprocessedMessagesException, InterruptedException {
         try {
-            var chain = new CheckCodeClientChain(context.io);
+            var chain = new CheckCodeClientChain(context.client);
             context.io.chainManager.linkChain(chain);
             CodeDTO c = chain.check(code);
             context.io.chainManager.removeChain(chain);
@@ -44,7 +44,7 @@ public class ConsoleCodesRunner {
     public static void useCode(ConsoleContext context, String code)
             throws InterruptedException, UnprocessedMessagesException {
         try {
-            var chain = new UseCodeClientChain(context.io);
+            var chain = new UseCodeClientChain(context.client);
             context.io.chainManager.linkChain(chain);
             chain.use(code);
             context.io.chainManager.removeChain(chain);
@@ -64,7 +64,7 @@ public class ConsoleCodesRunner {
     public static void channelCodes(ConsoleContext context, UUID chatID)
             throws InterruptedException, UnprocessedMessagesException {
         try {
-            var chain = new ChannelClientChain(context.io);
+            var chain = new ChannelClientChain(context.client);
             context.io.chainManager.linkChain(chain);
             Collection<CodeDTO> invites = chain.getChannelCodes(chatID);
             context.io.chainManager.removeChain(chain);
@@ -87,7 +87,7 @@ public class ConsoleCodesRunner {
 
     public static void myCodes(ConsoleContext context) throws InterruptedException, UnprocessedMessagesException {
         try {
-            var chain = new ChannelClientChain(context.io);
+            var chain = new ChannelClientChain(context.client);
             context.io.chainManager.linkChain(chain);
 
             Collection<CodeDTO> codes = chain.getMyCodes();

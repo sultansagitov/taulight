@@ -16,7 +16,7 @@ public class ConsoleRolesRunner {
 
     public static void roles(@NotNull ConsoleContext context, UUID chatID) {
         IOController io = context.io;
-        RoleClientChain chain = new RoleClientChain(io);
+        RoleClientChain chain = new RoleClientChain(context.client);
         io.chainManager.linkChain(chain);
 
         RolesDTO roles;
@@ -41,7 +41,7 @@ public class ConsoleRolesRunner {
         }
 
         IOController io = context.io;
-        RoleClientChain chain = new RoleClientChain(io);
+        RoleClientChain chain = new RoleClientChain(context.client);
         io.chainManager.linkChain(chain);
 
         try {
@@ -63,7 +63,7 @@ public class ConsoleRolesRunner {
         }
 
         IOController io = context.io;
-        RoleClientChain chain = new RoleClientChain(io);
+        RoleClientChain chain = new RoleClientChain(context.client);
         io.chainManager.linkChain(chain);
 
         try {

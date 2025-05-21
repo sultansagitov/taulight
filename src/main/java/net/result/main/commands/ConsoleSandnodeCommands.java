@@ -77,7 +77,7 @@ public class ConsoleSandnodeCommands {
     private static boolean groups(List<String> ignored, ConsoleContext context)
             throws InterruptedException, UnprocessedMessagesException {
         try {
-            Collection<String> groups = ClientProtocol.getGroups(context.io);
+            Collection<String> groups = ClientProtocol.getGroups(context.client);
             System.out.printf("Your groups: %s%n", groups);
         } catch (ExpectedMessageException e) {
             System.out.printf("Failed to retrieve groups - %s%n", e.getClass());
@@ -92,7 +92,7 @@ public class ConsoleSandnodeCommands {
     private static boolean addGroup(List<String> groups, ConsoleContext context)
             throws InterruptedException, UnprocessedMessagesException {
         try {
-            Collection<String> groupsAfterAdding = ClientProtocol.addToGroups(context.io, groups);
+            Collection<String> groupsAfterAdding = ClientProtocol.addToGroups(context.client, groups);
             System.out.printf("Your groups now (after adding): %s%n", groupsAfterAdding);
         } catch (ExpectedMessageException e) {
             System.out.printf("Failed to add to groups - %s%n", e.getClass());
@@ -107,7 +107,7 @@ public class ConsoleSandnodeCommands {
     private static boolean rmGroup(List<String> groups, ConsoleContext context)
             throws InterruptedException, UnprocessedMessagesException {
         try {
-            Collection<String> groupsAfterRemoving = ClientProtocol.removeFromGroups(context.io, groups);
+            Collection<String> groupsAfterRemoving = ClientProtocol.removeFromGroups(context.client, groups);
             System.out.printf("Your groups now (after removing): %s%n", groupsAfterRemoving);
         } catch (ExpectedMessageException e) {
             System.out.printf("Failed to remove from groups - %s%n", e.getClass());
@@ -122,7 +122,7 @@ public class ConsoleSandnodeCommands {
     private static boolean whoami(List<String> ignored, ConsoleContext context)
             throws InterruptedException, UnprocessedMessagesException {
         try {
-            WhoAmIClientChain chain = new WhoAmIClientChain(context.io);
+            WhoAmIClientChain chain = new WhoAmIClientChain(context.client);
             context.io.chainManager.linkChain(chain);
             String userID;
             try {
@@ -147,7 +147,7 @@ public class ConsoleSandnodeCommands {
     private static boolean name(List<String> ignored, ConsoleContext context)
             throws UnprocessedMessagesException, InterruptedException {
         try {
-            NameClientChain chain = new NameClientChain(context.io);
+            NameClientChain chain = new NameClientChain(context.client);
             context.io.chainManager.linkChain(chain);
             System.out.printf("Hub name: %s%n", chain.getName());
             context.io.chainManager.removeChain(chain);
@@ -165,7 +165,7 @@ public class ConsoleSandnodeCommands {
     private static boolean getAvatar(List<String> ignored, ConsoleContext context)
             throws UnprocessedMessagesException, InterruptedException {
 
-        var chain = new WhoAmIClientChain(context.io);
+        var chain = new WhoAmIClientChain(context.client);
         try {
             context.io.chainManager.linkChain(chain);
             FileDTO avatar = chain.getAvatar();
@@ -194,7 +194,7 @@ public class ConsoleSandnodeCommands {
         }
 
         try {
-            var chain = new WhoAmIClientChain(context.io);
+            var chain = new WhoAmIClientChain(context.client);
             context.io.chainManager.linkChain(chain);
             chain.setAvatar(path.get());
             context.io.chainManager.removeChain(chain);
@@ -206,7 +206,7 @@ public class ConsoleSandnodeCommands {
 
     private static boolean logout(List<String> ignored, ConsoleContext context)
             throws InterruptedException, UnprocessedMessagesException {
-        var chain = new LogoutClientChain(context.io);
+        var chain = new LogoutClientChain(context.client);
         try {
             context.io.chainManager.linkChain(chain);
             chain.logout();
@@ -221,7 +221,7 @@ public class ConsoleSandnodeCommands {
 
     private static boolean loginHistory(List<String> ignored, ConsoleContext context)
             throws InterruptedException, UnprocessedMessagesException {
-        var chain = new LoginClientChain(context.io);
+        var chain = new LoginClientChain(context.client);
         try {
             context.io.chainManager.linkChain(chain);
             List<LoginHistoryDTO> h = chain.getHistory();

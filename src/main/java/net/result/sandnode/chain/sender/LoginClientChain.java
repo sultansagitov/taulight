@@ -4,20 +4,23 @@ import net.result.sandnode.chain.ClientChain;
 import net.result.sandnode.dto.LoginHistoryDTO;
 import net.result.sandnode.dto.LoginResponseDTO;
 import net.result.sandnode.error.ServerErrorManager;
-import net.result.sandnode.exception.*;
+import net.result.sandnode.exception.DeserializationException;
+import net.result.sandnode.exception.ExpectedMessageException;
+import net.result.sandnode.exception.UnknownSandnodeErrorException;
+import net.result.sandnode.exception.UnprocessedMessagesException;
 import net.result.sandnode.exception.error.SandnodeErrorException;
 import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.message.types.LoginHistoryResponse;
 import net.result.sandnode.message.types.LoginRequest;
 import net.result.sandnode.message.types.LoginResponse;
 import net.result.sandnode.message.util.Headers;
-import net.result.sandnode.util.IOController;
+import net.result.sandnode.serverclient.SandnodeClient;
 
 import java.util.List;
 
 public class LoginClientChain extends ClientChain {
-    public LoginClientChain(IOController io) {
-        super(io);
+    public LoginClientChain(SandnodeClient client) {
+        super(client);
     }
 
     public synchronized LoginResponseDTO login(String token)

@@ -1,9 +1,12 @@
 package net.result.sandnode.chain;
 
-import net.result.sandnode.util.IOController;
+import net.result.sandnode.serverclient.SandnodeClient;
 
 public abstract class ClientChain extends Chain {
-    public ClientChain(IOController io) {
-        super(io);
+    protected final SandnodeClient client;
+
+    public ClientChain(SandnodeClient client) {
+        super(client.io);
+        this.client = client;
     }
 }

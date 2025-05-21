@@ -3,20 +3,20 @@ package net.result.taulight.chain.sender;
 import net.result.sandnode.chain.ClientChain;
 import net.result.sandnode.error.ServerErrorManager;
 import net.result.sandnode.exception.ExpectedMessageException;
-import net.result.sandnode.exception.error.SandnodeErrorException;
-import net.result.sandnode.exception.UnprocessedMessagesException;
 import net.result.sandnode.exception.UnknownSandnodeErrorException;
+import net.result.sandnode.exception.UnprocessedMessagesException;
+import net.result.sandnode.exception.error.SandnodeErrorException;
 import net.result.sandnode.message.RawMessage;
-import net.result.sandnode.util.IOController;
 import net.result.sandnode.message.types.HappyMessage;
+import net.result.sandnode.serverclient.SandnodeClient;
 import net.result.taulight.message.types.ReactionRequest;
 
 import java.util.UUID;
 
 public class ReactionRequestClientChain extends ClientChain {
 
-    public ReactionRequestClientChain(IOController io) {
-        super(io);
+    public ReactionRequestClientChain(SandnodeClient client) {
+        super(client);
     }
 
     public synchronized void react(UUID messageID, String reaction)

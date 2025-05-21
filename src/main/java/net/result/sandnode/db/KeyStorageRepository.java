@@ -9,6 +9,9 @@ import net.result.sandnode.util.JPAUtil;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityTransaction;
 
+import java.util.Optional;
+import java.util.UUID;
+
 public class KeyStorageRepository {
     private final JPAUtil jpaUtil;
 
@@ -38,5 +41,10 @@ public class KeyStorageRepository {
 
     public KeyStorageEntity create(AsymmetricKeyStorage keyStorage) throws CannotUseEncryption, DatabaseException {
         return save(new KeyStorageEntity(keyStorage.encryption(), keyStorage.encodedPublicKey()));
+    }
+
+    public Optional<KeyStorageEntity> find(UUID id) {
+        EntityManager em = jpaUtil.getEntityManager();
+        return Optional.ofNullable(em.find(KeyStorageEntity.class, id));
     }
 }

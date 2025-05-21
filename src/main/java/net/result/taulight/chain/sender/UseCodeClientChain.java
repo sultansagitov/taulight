@@ -8,12 +8,12 @@ import net.result.sandnode.exception.UnprocessedMessagesException;
 import net.result.sandnode.exception.error.SandnodeErrorException;
 import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.message.types.HappyMessage;
-import net.result.sandnode.util.IOController;
+import net.result.sandnode.serverclient.SandnodeClient;
 import net.result.taulight.message.types.UseCodeRequest;
 
 public class UseCodeClientChain extends ClientChain {
-    public UseCodeClientChain(IOController io) {
-        super(io);
+    public UseCodeClientChain(SandnodeClient client) {
+        super(client);
     }
 
     public void use(String code) throws InterruptedException, UnprocessedMessagesException, ExpectedMessageException,

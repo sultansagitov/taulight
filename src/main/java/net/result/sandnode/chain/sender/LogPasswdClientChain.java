@@ -7,11 +7,11 @@ import net.result.sandnode.exception.*;
 import net.result.sandnode.exception.error.SandnodeErrorException;
 import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.message.types.*;
-import net.result.sandnode.util.IOController;
+import net.result.sandnode.serverclient.SandnodeClient;
 
 public class LogPasswdClientChain extends ClientChain {
-    public LogPasswdClientChain(IOController io) {
-        super(io);
+    public LogPasswdClientChain(SandnodeClient client) {
+        super(client);
     }
 
     public LogPasswdResponseDTO getToken(String nickname, String password, String device)

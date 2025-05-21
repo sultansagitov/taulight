@@ -10,14 +10,14 @@ import net.result.sandnode.message.IMessage;
 import net.result.sandnode.message.types.HappyMessage;
 import net.result.sandnode.message.types.SymMessage;
 import net.result.sandnode.message.util.Headers;
-import net.result.sandnode.util.IOController;
+import net.result.sandnode.serverclient.SandnodeClient;
 
 public class SymKeyClientChain extends ClientChain {
     private final SymmetricEncryption symmetricEncryption;
 
-    public SymKeyClientChain(IOController io, SymmetricEncryption symmetricEncryption) {
-        super(io);
-        this.symmetricEncryption = symmetricEncryption;
+    public SymKeyClientChain(SandnodeClient client) {
+        super(client);
+        this.symmetricEncryption = client.clientConfig.symmetricKeyEncryption();
     }
 
     public void sendSymKey() throws InterruptedException, KeyNotCreatedException, ExpectedMessageException,

@@ -15,7 +15,7 @@ import net.result.sandnode.message.types.FileMessage;
 import net.result.sandnode.message.types.HappyMessage;
 import net.result.sandnode.message.types.WhoAmIRequest;
 import net.result.sandnode.message.types.WhoAmIResponse;
-import net.result.sandnode.util.IOController;
+import net.result.sandnode.serverclient.SandnodeClient;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.Nullable;
@@ -30,8 +30,8 @@ public class WhoAmIClientChain extends ClientChain {
 
     private static final Logger LOGGER = LogManager.getLogger(WhoAmIClientChain.class);
 
-    public WhoAmIClientChain(IOController io) {
-        super(io);
+    public WhoAmIClientChain(SandnodeClient client) {
+        super(client);
     }
 
     public synchronized String getNickname() throws InterruptedException, ExpectedMessageException,

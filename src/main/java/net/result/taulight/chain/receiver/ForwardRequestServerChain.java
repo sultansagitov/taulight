@@ -2,7 +2,10 @@ package net.result.taulight.chain.receiver;
 
 import net.result.sandnode.chain.ReceiverChain;
 import net.result.sandnode.chain.ServerChain;
+import net.result.sandnode.db.KeyStorageEntity;
+import net.result.sandnode.db.KeyStorageRepository;
 import net.result.sandnode.exception.*;
+import net.result.sandnode.exception.error.KeyStorageNotFoundException;
 import net.result.sandnode.exception.error.NotFoundException;
 import net.result.sandnode.exception.error.TooFewArgumentsException;
 import net.result.sandnode.exception.error.UnauthorizedException;
@@ -37,6 +40,7 @@ public class ForwardRequestServerChain extends ServerChain implements ReceiverCh
     public void sync() throws InterruptedException, SandnodeException {
         ChatUtil chatUtil = session.server.container.get(ChatUtil.class);
         MessageRepository messageRepo = session.server.container.get(MessageRepository.class);
+        KeyStorageRepository keyStorageRepo = session.server.container.get(KeyStorageRepository.class);
 
         while (true) {
             RawMessage raw = queue.take();
@@ -65,8 +69,13 @@ public class ForwardRequestServerChain extends ServerChain implements ReceiverCh
 
             ChatEntity chat = chatUtil.getChat(chatID).orElseThrow(NotFoundException::new);
             if (!chatUtil.contains(chat, session.member.tauMember())) throw new NotFoundException();
-
-            MessageEntity message = messageRepo.create(chat, input, session.member.tauMember());
+            MessageEntity message;
+            if (input.keyID == null) {
+                message = messageRepo.create(chat, input, session.member.tauMember());
+            } else {
+                KeyStorageEntity key = keyStorageRepo.find(input.keyID).orElseThrow(KeyStorageNotFoundException::new);
+                message = messageRepo.create(chat, input, session.member.tauMember(), key);
+            }
             ChatMessageViewDTO serverMessage = new ChatMessageViewDTO(message);
 
             send(new UUIDMessage(new Headers().setType(MessageTypes.HAPPY), serverMessage.id));

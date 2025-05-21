@@ -12,12 +12,12 @@ import net.result.sandnode.exception.error.SandnodeErrorException;
 import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.message.types.RegistrationRequest;
 import net.result.sandnode.message.types.RegistrationResponse;
-import net.result.sandnode.util.IOController;
+import net.result.sandnode.serverclient.SandnodeClient;
 import org.jetbrains.annotations.NotNull;
 
 public class RegistrationClientChain extends ClientChain {
-    public RegistrationClientChain(IOController io) {
-        super(io);
+    public RegistrationClientChain(SandnodeClient client) {
+        super(client);
     }
 
     public synchronized RegistrationResponseDTO register(

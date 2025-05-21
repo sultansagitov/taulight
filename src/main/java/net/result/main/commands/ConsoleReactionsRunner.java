@@ -7,7 +7,7 @@ import java.util.UUID;
 public class ConsoleReactionsRunner {
     public static void react(ConsoleContext context, UUID messageId, String reaction) {
         try {
-            var chain = new ReactionRequestClientChain(context.io);
+            var chain = new ReactionRequestClientChain(context.client);
             context.io.chainManager.linkChain(chain);
 
             chain.react(messageId, reaction);
@@ -21,7 +21,7 @@ public class ConsoleReactionsRunner {
 
     public static void unreact(ConsoleContext context, UUID messageId, String reaction) {
         try {
-            var chain = new ReactionRequestClientChain(context.io);
+            var chain = new ReactionRequestClientChain(context.client);
             context.io.chainManager.linkChain(chain);
 
             chain.unreact(messageId, reaction);

@@ -4,11 +4,15 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import net.result.sandnode.db.MemberEntity;
 import net.result.sandnode.db.BaseEntity;
+import net.result.sandnode.encryption.interfaces.AsymmetricKeyStorage;
+import net.result.sandnode.exception.crypto.CryptoException;
+import net.result.sandnode.exception.error.EncryptionException;
 import net.result.taulight.db.ChatEntity;
 import net.result.taulight.db.MessageEntity;
 
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.util.Base64;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -51,6 +55,7 @@ public class ChatMessageInputDTO {
     public ChatMessageInputDTO(MessageEntity message) {
         setChat(message.chat());
         setContent(message.content());
+        setKeyID(message.key() != null ? message.key().id() : null);
         setSentDatetime(message.sentDatetime());
         setMember(message.member().member());
         setSys(message.sys());
@@ -62,8 +67,23 @@ public class ChatMessageInputDTO {
         return this;
     }
 
+    public ChatMessageInputDTO setKeyID(UUID keyID) {
+        this.keyID = keyID;
+        return this;
+    }
+
     public ChatMessageInputDTO setChat(ChatEntity chat) {
         return setChatID(chat.id());
+    }
+
+    public ChatMessageInputDTO setEncryptedContent(UUID keyID, AsymmetricKeyStorage keyStorage, String input)
+            throws EncryptionException, CryptoException {
+        setKeyID(keyID);
+
+        String content = Base64.getEncoder().encodeToString(keyStorage.encryption().encrypt(input, keyStorage));
+        setContent(content);
+
+        return this;
     }
 
     public ChatMessageInputDTO setContent(String content) {

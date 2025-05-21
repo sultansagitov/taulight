@@ -1,7 +1,15 @@
 package net.result.main.commands;
 
 import net.result.sandnode.dto.PaginatedDTO;
+import net.result.sandnode.encryption.interfaces.AsymmetricKeyStorage;
 import net.result.sandnode.exception.*;
+import net.result.sandnode.exception.crypto.CannotUseEncryption;
+import net.result.sandnode.exception.crypto.CryptoException;
+import net.result.sandnode.exception.crypto.PrivateKeyNotFoundException;
+import net.result.sandnode.exception.crypto.WrongKeyException;
+import net.result.sandnode.exception.error.DecryptionException;
+import net.result.sandnode.exception.error.EncryptionException;
+import net.result.sandnode.exception.error.KeyStorageNotFoundException;
 import net.result.sandnode.exception.error.SandnodeErrorException;
 import net.result.taulight.chain.sender.MessageClientChain;
 import net.result.taulight.dto.ChatMessageInputDTO;
@@ -14,7 +22,7 @@ public class ConsoleMessagesRunner {
     public static void messages(ConsoleContext context, UUID chatID)
             throws InterruptedException, UnprocessedMessagesException {
         try {
-            var chain = new MessageClientChain(context.io);
+            var chain = new MessageClientChain(context.client);
             context.io.chainManager.linkChain(chain);
             PaginatedDTO<ChatMessageViewDTO> paginated = chain.getMessages(chatID, 0, 100);
             context.io.chainManager.removeChain(chain);
@@ -25,12 +33,15 @@ public class ConsoleMessagesRunner {
             System.out.printf("Total messages length: %d%n", count);
             System.out.printf("Messages length: %d%n", messages.size());
             Collections.reverse(messages);
-            messages.forEach(ConsoleMessagesRunner::printMessage);
+            for (ChatMessageViewDTO message : messages) {
+                printMessage(context, message);
+            }
         } catch (ExpectedMessageException e) {
             System.out.printf("Failed to retrieve messages due to an unexpected message - %s%n", e.getClass());
         } catch (DeserializationException e) {
             System.out.printf("Failed to deserialize messages - %s%n", e.getClass());
-        } catch (SandnodeErrorException | UnknownSandnodeErrorException e) {
+        } catch (SandnodeErrorException | UnknownSandnodeErrorException | WrongKeyException | CannotUseEncryption |
+                 PrivateKeyNotFoundException e) {
             System.out.printf("Message retrieval failed due to a Sandnode error - %s%n", e.getClass());
         } catch (ArrayIndexOutOfBoundsException e) {
             System.out.println("Missing required argument for command.");
@@ -38,12 +49,25 @@ public class ConsoleMessagesRunner {
     }
 
     public static void reply(ConsoleContext context, String input, Set<UUID> replies) {
-        ChatMessageInputDTO message = new ChatMessageInputDTO()
-                .setChatID(context.currentChat)
-                .setContent(input)
-                .setRepliedToMessages(replies)
-                .setNickname(context.nickname)
-                .setSentDatetimeNow();
+        ChatMessageInputDTO message;
+        try {
+            // TODO replace with key of other member
+            UUID keyID = context.keyID;
+            AsymmetricKeyStorage keyStorage = context.client.clientConfig
+                    .loadMemberKey(context.keyID)
+                    .orElseThrow(KeyStorageNotFoundException::new);
+
+            message = new ChatMessageInputDTO()
+                    .setChatID(context.currentChat)
+                    .setEncryptedContent(keyID, keyStorage, input)
+                    .setRepliedToMessages(replies)
+                    .setNickname(context.nickname)
+                    .setSentDatetimeNow();
+
+        } catch (EncryptionException | CryptoException | KeyStorageNotFoundException e) {
+            System.out.printf("%s: %s%n", e.getClass().getSimpleName(), e.getMessage());
+            return;
+        }
 
         try {
             UUID uuid = context.chain.message(message);
@@ -53,11 +77,23 @@ public class ConsoleMessagesRunner {
         }
     }
 
-    public static void printMessage(ChatMessageViewDTO dto) {
-        System.out.printf("%s [%s] %s: %s%n",
-                dto.id, dto.creationDate, dto.message.nickname, dto.message.content);
+    public static void printMessage(ConsoleContext context, ChatMessageViewDTO dto)
+            throws KeyStorageNotFoundException, WrongKeyException, CannotUseEncryption,
+            PrivateKeyNotFoundException, DecryptionException {
+        String decrypted;
+        ChatMessageInputDTO input = dto.message;
+        if (input.keyID != null) {
+            AsymmetricKeyStorage keyStorage = context.client.clientConfig
+                    .loadMemberKey(input.keyID)
+                    .orElseThrow(KeyStorageNotFoundException::new);
+            decrypted = keyStorage.encryption().decrypt(Base64.getDecoder().decode(input.content), keyStorage);
+        } else {
+            decrypted = input.content;
+        }
 
-        Set<UUID> repliedToMessages = dto.message.repliedToMessages;
+        System.out.printf("%s [%s] %s: %s%n", dto.id, dto.creationDate, input.nickname, decrypted);
+
+        Set<UUID> repliedToMessages = input.repliedToMessages;
         if (!repliedToMessages.isEmpty()) {
             String collect = repliedToMessages.stream()
                     .map(UUID::toString)

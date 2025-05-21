@@ -6,6 +6,8 @@ import net.result.sandnode.db.ZonedDateTimeConverter;
 import net.result.taulight.dto.ChatMessageInputDTO;
 
 import jakarta.persistence.*;
+import org.jetbrains.annotations.Nullable;
+
 import java.time.ZonedDateTime;
 import java.util.*;
 
@@ -43,11 +45,18 @@ public class MessageEntity extends BaseEntity {
 
     public MessageEntity() {}
 
-    public MessageEntity(ChatEntity chat, ChatMessageInputDTO input, TauMemberEntity member) {
+    public MessageEntity(
+            ChatEntity chat,
+            ChatMessageInputDTO input,
+            TauMemberEntity member,
+            @Nullable KeyStorageEntity key
+    ) {
         setChat(chat);
+        setMember(member);
+        if (key != null) setKey(key);
+
         setSentDatetime(input.sentDatetime);
         setContent(input.content);
-        setMember(member);
         setSys(input.sys);
     }
 

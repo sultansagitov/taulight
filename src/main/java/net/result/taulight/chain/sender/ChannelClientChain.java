@@ -9,14 +9,14 @@ import net.result.sandnode.exception.error.SandnodeErrorException;
 import net.result.sandnode.message.IMessage;
 import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.message.TextMessage;
+import net.result.sandnode.message.UUIDMessage;
 import net.result.sandnode.message.types.FileMessage;
 import net.result.sandnode.message.types.HappyMessage;
-import net.result.sandnode.util.IOController;
+import net.result.sandnode.serverclient.SandnodeClient;
 import net.result.taulight.dto.CodeDTO;
 import net.result.taulight.message.CodeListMessage;
 import net.result.taulight.message.TauMessageTypes;
 import net.result.taulight.message.types.ChannelRequest;
-import net.result.sandnode.message.UUIDMessage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.Nullable;
@@ -33,8 +33,8 @@ import java.util.UUID;
 public class ChannelClientChain extends ClientChain {
     private static final Logger LOGGER = LogManager.getLogger(ChannelClientChain.class);
 
-    public ChannelClientChain(IOController io) {
-        super(io);
+    public ChannelClientChain(SandnodeClient client) {
+        super(client);
     }
 
     public synchronized UUID sendNewChannelRequest(String title)

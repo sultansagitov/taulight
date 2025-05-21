@@ -25,7 +25,7 @@ public class ConsoleChatsRunner {
     public static void chats(@NotNull ConsoleContext context, Collection<ChatInfoPropDTO> all)
             throws InterruptedException, UnprocessedMessagesException {
         try {
-            ChatClientChain chain = new ChatClientChain(context.io);
+            ChatClientChain chain = new ChatClientChain(context.client);
             context.io.chainManager.linkChain(chain);
             printInfo(chain.getByMember(all));
             context.io.chainManager.removeChain(chain);
@@ -47,7 +47,7 @@ public class ConsoleChatsRunner {
     public static void newChannel(@NotNull ConsoleContext context, String title)
             throws InterruptedException, UnprocessedMessagesException {
         try {
-            var chain = new ChannelClientChain(context.io);
+            var chain = new ChannelClientChain(context.client);
             context.io.chainManager.linkChain(chain);
             UUID id = chain.sendNewChannelRequest(title);
             context.io.chainManager.removeChain(chain);
@@ -62,7 +62,7 @@ public class ConsoleChatsRunner {
     public static void addMember(ConsoleContext context, UUID chatID, String otherNickname, Duration expirationTime)
             throws InterruptedException, UnprocessedMessagesException {
         try {
-            var chain = new ChannelClientChain(context.io);
+            var chain = new ChannelClientChain(context.client);
             context.io.chainManager.linkChain(chain);
             String code = chain.createInviteCode(chatID, otherNickname, expirationTime);
             context.io.chainManager.removeChain(chain);
@@ -84,7 +84,7 @@ public class ConsoleChatsRunner {
     public static void leave(ConsoleContext context, UUID chatID)
             throws InterruptedException, UnprocessedMessagesException {
         try {
-            ChannelClientChain chain = new ChannelClientChain(context.io);
+            ChannelClientChain chain = new ChannelClientChain(context.client);
             context.io.chainManager.linkChain(chain);
             chain.sendLeaveRequest(chatID);
             context.io.chainManager.removeChain(chain);
@@ -103,7 +103,7 @@ public class ConsoleChatsRunner {
     public static void members(ConsoleContext context, UUID chatID)
             throws InterruptedException, UnprocessedMessagesException {
         try {
-            MembersClientChain chain = new MembersClientChain(context.io);
+            MembersClientChain chain = new MembersClientChain(context.client);
 
             context.io.chainManager.linkChain(chain);
             try {
@@ -123,7 +123,7 @@ public class ConsoleChatsRunner {
     public static void dialog(ConsoleContext context, String nickname)
             throws InterruptedException, UnprocessedMessagesException {
         try {
-            DialogClientChain chain = new DialogClientChain(context.io);
+            DialogClientChain chain = new DialogClientChain(context.client);
             context.io.chainManager.linkChain(chain);
             UUID chatID = chain.getDialogID(nickname);
             System.out.printf("Dialog with member %s found or created. Chat ID: %s%n", nickname, chatID);
@@ -139,7 +139,7 @@ public class ConsoleChatsRunner {
 
     public static void info(@NotNull ConsoleContext context, UUID chatID) throws InterruptedException {
         try {
-            ChatClientChain chain = new ChatClientChain(context.io);
+            ChatClientChain chain = new ChatClientChain(context.client);
             context.io.chainManager.linkChain(chain);
             printInfo(chain.getByID(List.of(chatID), ChatInfoPropDTO.all()));
             context.io.chainManager.removeChain(chain);
@@ -155,7 +155,7 @@ public class ConsoleChatsRunner {
     public static void setChannelAvatar(@NotNull ConsoleContext context, UUID chatID, String path)
             throws UnprocessedMessagesException, InterruptedException {
         try {
-            ChannelClientChain chain = new ChannelClientChain(context.io);
+            ChannelClientChain chain = new ChannelClientChain(context.client);
             context.io.chainManager.linkChain(chain);
             chain.setAvatar(chatID, path);
             context.io.chainManager.removeChain(chain);
@@ -174,7 +174,7 @@ public class ConsoleChatsRunner {
     public static void getChannelAvatar(@NotNull ConsoleContext context, UUID chatID)
             throws UnprocessedMessagesException, InterruptedException {
         try {
-            ChannelClientChain chain = new ChannelClientChain(context.io);
+            ChannelClientChain chain = new ChannelClientChain(context.client);
             context.io.chainManager.linkChain(chain);
             FileDTO avatar = chain.getAvatar(chatID);
             context.io.chainManager.removeChain(chain);
@@ -198,7 +198,7 @@ public class ConsoleChatsRunner {
     public static void getDialogAvatar(@NotNull ConsoleContext context, UUID chatID)
             throws UnprocessedMessagesException, InterruptedException {
         try {
-            DialogClientChain chain = new DialogClientChain(context.io);
+            DialogClientChain chain = new DialogClientChain(context.client);
             context.io.chainManager.linkChain(chain);
             FileDTO avatar = chain.getAvatar(chatID);
             context.io.chainManager.removeChain(chain);

@@ -15,12 +15,8 @@ import net.result.sandnode.message.types.WhoAmIRequest;
 import net.result.sandnode.message.types.WhoAmIResponse;
 import net.result.sandnode.serverclient.Session;
 import net.result.sandnode.util.DBFileUtil;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 public class WhoAmIServerChain extends ServerChain implements ReceiverChain {
-
-    private static final Logger LOGGER = LogManager.getLogger(WhoAmIServerChain.class);
     private final DBFileUtil dbFileUtil = session.server.container.get(DBFileUtil.class);
     private final MemberRepository memberRepo = session.server.container.get(MemberRepository.class);
 
@@ -39,8 +35,6 @@ public class WhoAmIServerChain extends ServerChain implements ReceiverChain {
         }
 
         WhoAmIRequest.Type type = request.getType();
-
-        LOGGER.debug(type);
 
         sendFin(switch (type) {
             case NICKNAME -> new WhoAmIResponse(member);

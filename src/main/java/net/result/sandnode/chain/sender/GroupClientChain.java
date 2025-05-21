@@ -5,13 +5,13 @@ import net.result.sandnode.exception.ExpectedMessageException;
 import net.result.sandnode.exception.UnprocessedMessagesException;
 import net.result.sandnode.message.types.GroupRequest;
 import net.result.sandnode.message.types.GroupResponse;
-import net.result.sandnode.util.IOController;
+import net.result.sandnode.serverclient.SandnodeClient;
 
 import java.util.Collection;
 
 public class GroupClientChain extends ClientChain {
-    public GroupClientChain(IOController io) {
-        super(io);
+    public GroupClientChain(SandnodeClient client) {
+        super(client);
     }
 
     public Collection<String> remove(Collection<String> groups)

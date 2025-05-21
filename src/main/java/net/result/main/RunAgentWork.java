@@ -7,16 +7,17 @@ import net.result.main.config.ClientPropertiesConfig;
 import net.result.sandnode.dto.LogPasswdResponseDTO;
 import net.result.sandnode.dto.LoginResponseDTO;
 import net.result.sandnode.encryption.AsymmetricEncryptions;
+import net.result.sandnode.encryption.interfaces.AsymmetricEncryption;
+import net.result.sandnode.encryption.interfaces.AsymmetricKeyStorage;
 import net.result.sandnode.exception.*;
 import net.result.sandnode.exception.crypto.CreatingKeyException;
 import net.result.sandnode.exception.crypto.CryptoException;
 import net.result.sandnode.exception.error.*;
 import net.result.sandnode.hubagent.AgentProtocol;
 import net.result.sandnode.hubagent.ClientProtocol;
-import net.result.sandnode.serverclient.SandnodeClient;
-import net.result.sandnode.encryption.interfaces.*;
 import net.result.sandnode.link.Links;
 import net.result.sandnode.link.SandnodeLinkRecord;
+import net.result.sandnode.serverclient.SandnodeClient;
 import net.result.sandnode.util.EncryptionUtil;
 import net.result.taulight.dto.ChatMessageInputDTO;
 import net.result.taulight.hubagent.TauAgent;
@@ -50,14 +51,14 @@ public class RunAgentWork implements IWork {
 
         clientConfig = new ClientPropertiesConfig();
         TauAgent agent = new TauAgent();
-        ConsoleClientChainManager chainManager = new ConsoleClientChainManager();
 
         client = SandnodeClient.fromLink(link, agent, clientConfig);
+        ConsoleClientChainManager chainManager = new ConsoleClientChainManager(client);
+
         client.start(chainManager);                         // Starting client
         client.io.setServerKey(loadServerPublicKey(link));  // get key from fs or sending PUB if key not found
         ClientProtocol.sendSYM(client);                     // sending symmetric key
-        // registration or login
-        authenticateUser();
+        authenticateUser();                                 // registration or login
         processUserCommands();
 
         LOGGER.info("Exiting...");
@@ -90,7 +91,7 @@ public class RunAgentWork implements IWork {
         } else if (filePublicKey.isPresent()) {
             return filePublicKey.get();
         } else {
-            ClientProtocol.PUB(client.io);
+            ClientProtocol.PUB(client);
             AsymmetricEncryption encryption = client.io.serverEncryption().asymmetric();
             AsymmetricKeyStorage serverKey = agent.keyStorageRegistry.asymmetricNonNull(encryption);
 
@@ -129,11 +130,11 @@ public class RunAgentWork implements IWork {
         AsymmetricKeyStorage keyStorage = AsymmetricEncryptions.ECIES.generate();
 
         try {
-            var result = AgentProtocol.register(client.io, nickname, password, device, keyStorage);
+            var result = AgentProtocol.register(client, nickname, password, device, keyStorage);
             System.out.printf("Token for \"%s\":%n%s%n", nickname, result.token);
 
             client.clientConfig.saveMemberKey(result.keyID, keyStorage);
-            context = new ConsoleContext(client.io, nickname, result.keyID);
+            context = new ConsoleContext(client, nickname, result.keyID);
         } catch (BusyNicknameException e) {
             System.out.println("Nickname is busy");
         } catch (InvalidNicknamePassword e) {
@@ -150,9 +151,9 @@ public class RunAgentWork implements IWork {
         if (token.isEmpty()) return;
 
         try {
-            LoginResponseDTO result = AgentProtocol.byToken(client.io, token);
+            LoginResponseDTO result = AgentProtocol.byToken(client, token);
             System.out.printf("You log in as %s%n", result.nickname);
-            context = new ConsoleContext(client.io, result.nickname, result.keyID);
+            context = new ConsoleContext(client, result.nickname, result.keyID);
         } catch (InvalidArgumentException e) {
             System.out.println("Invalid token. Please try again.");
         } catch (ExpiredTokenException e) {
@@ -173,9 +174,9 @@ public class RunAgentWork implements IWork {
         if (nickname.isEmpty() || password.isEmpty()) return;
 
         try {
-            LogPasswdResponseDTO result = AgentProtocol.byPassword(client.io, nickname, password, device);
+            LogPasswdResponseDTO result = AgentProtocol.byPassword(client, nickname, password, device);
             System.out.printf("Token for \"%s\": %n%s%n", nickname, result.token);
-            context = new ConsoleContext(client.io, nickname, result.keyID);
+            context = new ConsoleContext(client, nickname, result.keyID);
         } catch (UnauthorizedException e) {
             System.out.println("Incorrect nickname or password. Please try again.");
         } catch (SandnodeErrorException | UnknownSandnodeErrorException e) {
@@ -189,9 +190,13 @@ public class RunAgentWork implements IWork {
             return;
         }
 
+        // TODO replace with key of other member
+        UUID keyID = context.keyID;
+        AsymmetricKeyStorage keyStorage = client.clientConfig.loadMemberKey(keyID).get();
+
         ChatMessageInputDTO message = new ChatMessageInputDTO()
                 .setChatID(context.currentChat)
-                .setContent(input)
+                .setEncryptedContent(keyID, keyStorage, input)
                 .setNickname(context.nickname)
                 .setSentDatetimeNow();
 
@@ -219,8 +224,10 @@ public class RunAgentWork implements IWork {
         ConsoleMessagesCommands.register(commands);
         ConsoleRolesCommands.register(commands);
 
-        ConsoleForwardRequestClientChain chain = new ConsoleForwardRequestClientChain(client.io);
+        ConsoleForwardRequestClientChain chain = new ConsoleForwardRequestClientChain(client);
         client.io.chainManager.linkChain(chain);
+
+        context.chain = chain;
 
         while (true) {
             System.out.printf(" [%s] ", Optional.ofNullable(context.currentChat).map(UUID::toString).orElse(""));

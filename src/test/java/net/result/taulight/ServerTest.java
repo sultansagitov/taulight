@@ -259,22 +259,22 @@ public class ServerTest {
                 Endpoint endpoint = new Endpoint("localhost", port);
 
                 TestClientConfig clientConfig = new TestClientConfig();
-                ClientChainManager chainManager = new BSTClientChainManager() {
+                client = new SandnodeClient(endpoint, agent, NodeType.HUB, clientConfig);
+                ClientChainManager chainManager = new BSTClientChainManager(client) {
                     @Override
                     public ReceiverChain createChain(MessageType type) {
-                        return new UnhandledMessageTypeClientChain(io);
+                        return new UnhandledMessageTypeClientChain(client);
                     }
                 };
-                client = new SandnodeClient(endpoint, agent, NodeType.HUB, clientConfig);
                 client.start(chainManager);
-                ClientProtocol.PUB(client.io);
+                ClientProtocol.PUB(client);
                 ClientProtocol.sendSYM(client);
 
                 IMessage sentMessage = prepareMessage();
 
                 IOController io = client.io;
 
-                TestClientChain testClientChain = new TestClientChain(io, sentMessage);
+                TestClientChain testClientChain = new TestClientChain(client, sentMessage);
                 io.chainManager.linkChain(testClientChain);
                 testClientChain.sync();
                 io.chainManager.removeChain(testClientChain);
@@ -323,8 +323,8 @@ public class ServerTest {
     private static class TestClientChain extends ClientChain implements ReceiverChain {
         private final IMessage message;
 
-        public TestClientChain(IOController io, IMessage message) {
-            super(io);
+        public TestClientChain(SandnodeClient client, IMessage message) {
+            super(client);
             this.message = message;
         }
 
