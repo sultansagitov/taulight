@@ -168,6 +168,12 @@ public class ClientPropertiesConfig implements ClientConfig {
     }
 
     @Override
+    public void saveDialogKey(String nickname, UUID keyID, KeyStorage keyStorage) throws FSException {
+        memberKeys.add(new MemberKeyRecord(nickname, keyID, keyStorage));
+        saveKeysJSON();
+    }
+
+    @Override
     public synchronized Optional<KeyStorage> loadMemberKey(UUID keyID) {
         return memberKeys.stream().filter(k -> k.keyID().equals(keyID)).map(MemberKeyRecord::keyStorage).findFirst();
     }

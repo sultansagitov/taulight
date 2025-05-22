@@ -1,7 +1,7 @@
 package net.result.taulight.dto;
 
-import net.result.sandnode.encryption.interfaces.AsymmetricKeyStorage;
+import net.result.sandnode.encryption.interfaces.KeyStorage;
 
 import java.util.UUID;
 
-public record KeyDTO(UUID keyID, AsymmetricKeyStorage keyStorage) {}
+public record KeyDTO(UUID keyID, KeyStorage keyStorage) {}

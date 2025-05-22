@@ -1,16 +1,16 @@
 package net.result.main.commands;
 
 import net.result.sandnode.chain.IChain;
-import net.result.sandnode.chain.sender.LoginClientChain;
-import net.result.sandnode.chain.sender.LogoutClientChain;
-import net.result.sandnode.chain.sender.NameClientChain;
-import net.result.sandnode.chain.sender.WhoAmIClientChain;
+import net.result.sandnode.chain.sender.*;
 import net.result.sandnode.dto.FileDTO;
 import net.result.sandnode.dto.LoginHistoryDTO;
+import net.result.sandnode.encryption.AsymmetricEncryptions;
 import net.result.sandnode.exception.*;
+import net.result.sandnode.exception.crypto.CryptoException;
 import net.result.sandnode.exception.error.SandnodeErrorException;
 import net.result.sandnode.exception.error.UnauthorizedException;
 import net.result.sandnode.hubagent.ClientProtocol;
+import net.result.taulight.dto.KeyDTO;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -42,6 +42,7 @@ public class ConsoleSandnodeCommands {
         commands.put("setAvatar", ConsoleSandnodeCommands::setAvatar);
         commands.put("logout", ConsoleSandnodeCommands::logout);
         commands.put("loginHistory", ConsoleSandnodeCommands::loginHistory);
+        commands.put("sendKey", ConsoleSandnodeCommands::sendKey);
     }
 
     private static boolean exit(List<String> ignored, ConsoleContext context) {
@@ -238,6 +239,27 @@ public class ConsoleSandnodeCommands {
                  DeserializationException e) {
             System.out.println("Sandnode error: " + e.getClass().getSimpleName());
         }
+        return false;
+    }
+
+    public static boolean sendKey(List<String> args, ConsoleContext context) {
+        try {
+            String nickname = args.get(0);
+            UUID encryptorID = UUID.fromString(args.get(1));
+
+            KeyDTO key = new KeyDTO(UUID.randomUUID(), AsymmetricEncryptions.ECIES.generate());
+
+            PersonalKeyClientChain chain = new PersonalKeyClientChain(context.client);
+            context.io.chainManager.linkChain(chain);
+            chain.sendPersonalKey(nickname, encryptorID, key);
+            context.io.chainManager.removeChain(chain);
+
+            context.client.clientConfig.saveDialogKey(nickname, key.keyID(), key.keyStorage());
+        } catch (UnprocessedMessagesException | ExpectedMessageException | FSException | SandnodeErrorException |
+                 UnknownSandnodeErrorException | CryptoException | InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+
         return false;
     }
 }

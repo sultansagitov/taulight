@@ -4,6 +4,7 @@ import net.result.sandnode.chain.receiver.*;
 import net.result.sandnode.message.util.MessageType;
 import net.result.sandnode.message.util.MessageTypes;
 import net.result.sandnode.serverclient.Session;
+import net.result.sandnode.chain.receiver.PersonalKeyServerChain;
 
 public abstract class BSTServerChainManager extends BSTChainManager implements ServerChainManager {
     protected Session session;
@@ -24,6 +25,7 @@ public abstract class BSTServerChainManager extends BSTChainManager implements S
             case LOGOUT -> new LogoutServerChain(session);
             case WHOAMI -> new WhoAmIServerChain(session);
             case NAME -> new NameServerChain(session);
+            case PERSONAL_KEY -> new PersonalKeyServerChain(session);
             default -> new UnhandledMessageTypeServerChain(session);
         } : new UnhandledMessageTypeServerChain(session);
     }

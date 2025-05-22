@@ -19,7 +19,9 @@ public interface ClientConfig {
 
     Optional<AsymmetricKeyStorage> getPublicKey(@NotNull Endpoint endpoint);
 
-    void saveMemberKey(UUID keyID, KeyStorage keyStorage) throws FSException;
+    void saveMemberKey(UUID keyID, KeyStorage keyStorage) throws FSException; // TODO replace FSException
+
+    void saveDialogKey(String nickname, UUID keyID, KeyStorage keyStorage) throws FSException;
 
     Optional<KeyStorage> loadMemberKey(UUID keyID);
 }

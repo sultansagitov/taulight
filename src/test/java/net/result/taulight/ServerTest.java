@@ -318,6 +318,9 @@ public class ServerTest {
         public Optional<KeyStorage> loadMemberKey(UUID keyID) {
             return Optional.empty();
         }
+
+        @Override
+        public void saveDialogKey(String nickname, UUID keyID, KeyStorage keyStorage) {}
     }
 
     private static class TestClientChain extends ClientChain implements ReceiverChain {
