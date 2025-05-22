@@ -2,6 +2,7 @@ package net.result.main.config;
 
 import net.result.main.exception.crypto.KeyHashCheckingException;
 import net.result.sandnode.config.ClientConfig;
+import net.result.sandnode.config.DialogKey;
 import net.result.sandnode.encryption.EncryptionManager;
 import net.result.sandnode.encryption.interfaces.KeyStorage;
 import net.result.sandnode.encryption.interfaces.SymmetricEncryption;
@@ -169,12 +170,24 @@ public class ClientPropertiesConfig implements ClientConfig {
 
     @Override
     public void saveDialogKey(String nickname, UUID keyID, KeyStorage keyStorage) throws FSException {
+        LOGGER.debug("{}, {}, {}", nickname, keyID, keyStorage);
         memberKeys.add(new MemberKeyRecord(nickname, keyID, keyStorage));
         saveKeysJSON();
     }
 
     @Override
     public synchronized Optional<KeyStorage> loadMemberKey(UUID keyID) {
-        return memberKeys.stream().filter(k -> k.keyID().equals(keyID)).map(MemberKeyRecord::keyStorage).findFirst();
+        return memberKeys.stream()
+                .filter(k -> k.keyID.equals(keyID))
+                .map(k -> k.keyStorage)
+                .findFirst();
+    }
+
+    @Override
+    public Optional<DialogKey> loadDialogKey(String nickname) {
+        return memberKeys.stream()
+                .filter(k -> Objects.equals(k.nickname, nickname))
+                .map(k -> new DialogKey(k.keyID, k.keyStorage))
+                .findFirst();
     }
 }

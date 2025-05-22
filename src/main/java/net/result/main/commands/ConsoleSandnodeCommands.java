@@ -4,13 +4,14 @@ import net.result.sandnode.chain.IChain;
 import net.result.sandnode.chain.sender.*;
 import net.result.sandnode.dto.FileDTO;
 import net.result.sandnode.dto.LoginHistoryDTO;
-import net.result.sandnode.encryption.AsymmetricEncryptions;
+import net.result.sandnode.encryption.SymmetricEncryptions;
+import net.result.sandnode.encryption.interfaces.KeyStorage;
 import net.result.sandnode.exception.*;
 import net.result.sandnode.exception.crypto.CryptoException;
 import net.result.sandnode.exception.error.SandnodeErrorException;
 import net.result.sandnode.exception.error.UnauthorizedException;
 import net.result.sandnode.hubagent.ClientProtocol;
-import net.result.taulight.dto.KeyDTO;
+import net.result.taulight.dto.PersonalKeyDTO;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -43,6 +44,7 @@ public class ConsoleSandnodeCommands {
         commands.put("logout", ConsoleSandnodeCommands::logout);
         commands.put("loginHistory", ConsoleSandnodeCommands::loginHistory);
         commands.put("sendKey", ConsoleSandnodeCommands::sendKey);
+        commands.put("personalKeys", ConsoleSandnodeCommands::personalKeys);
     }
 
     private static boolean exit(List<String> ignored, ConsoleContext context) {
@@ -247,17 +249,38 @@ public class ConsoleSandnodeCommands {
             String nickname = args.get(0);
             UUID encryptorID = UUID.fromString(args.get(1));
 
-            KeyDTO key = new KeyDTO(UUID.randomUUID(), AsymmetricEncryptions.ECIES.generate());
+            KeyStorage key = SymmetricEncryptions.AES.generate();
 
             PersonalKeyClientChain chain = new PersonalKeyClientChain(context.client);
             context.io.chainManager.linkChain(chain);
-            chain.sendPersonalKey(nickname, encryptorID, key);
+            UUID uuid = chain.sendPersonalKey(nickname, encryptorID, key);
             context.io.chainManager.removeChain(chain);
 
-            context.client.clientConfig.saveDialogKey(nickname, key.keyID(), key.keyStorage());
+            context.client.clientConfig.saveDialogKey(nickname, uuid, key);
         } catch (UnprocessedMessagesException | ExpectedMessageException | FSException | SandnodeErrorException |
-                 UnknownSandnodeErrorException | CryptoException | InterruptedException e) {
-            throw new RuntimeException(e);
+                 UnknownSandnodeErrorException | CryptoException | InterruptedException | DeserializationException e) {
+            System.out.println("Sandnode error: " + e.getClass().getSimpleName());
+        }
+
+        return false;
+    }
+
+    private static boolean personalKeys(List<String> strings, ConsoleContext context) {
+        try {
+            PersonalKeyClientChain chain = new PersonalKeyClientChain(context.client);
+            context.io.chainManager.linkChain(chain);
+            Collection<PersonalKeyDTO> keys = chain.getKeys();
+            context.io.chainManager.removeChain(chain);
+
+            for (PersonalKeyDTO key : keys) {
+                KeyStorage decrypted = key.decrypt(context.client);
+
+                context.client.clientConfig.saveDialogKey(key.senderNickname, key.id, decrypted);
+
+                System.out.println(decrypted);
+            }
+        } catch (Exception e) {
+            LOGGER.error("Sandnode error", e);
         }
 
         return false;

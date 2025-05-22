@@ -6,10 +6,7 @@ import net.result.sandnode.chain.ReceiverChain;
 import net.result.sandnode.chain.BSTClientChainManager;
 import net.result.sandnode.chain.ClientChainManager;
 import net.result.sandnode.chain.receiver.UnhandledMessageTypeClientChain;
-import net.result.sandnode.config.ClientConfig;
-import net.result.sandnode.config.HubConfig;
-import net.result.sandnode.config.ServerConfig;
-import net.result.sandnode.config.ServerConfigRecord;
+import net.result.sandnode.config.*;
 import net.result.sandnode.encryption.SymmetricEncryptions;
 import net.result.sandnode.exception.*;
 import net.result.sandnode.hubagent.Agent;
@@ -316,6 +313,11 @@ public class ServerTest {
 
         @Override
         public Optional<KeyStorage> loadMemberKey(UUID keyID) {
+            return Optional.empty();
+        }
+
+        @Override
+        public Optional<DialogKey> loadDialogKey(String nickname) {
             return Optional.empty();
         }
 

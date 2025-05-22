@@ -12,6 +12,7 @@ import net.result.sandnode.util.Endpoint;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Objects;
 
 public class Links {
 
@@ -25,7 +26,7 @@ public class Links {
 
         Endpoint endpoint = new Endpoint(uri.getHost(), uri.getPort() == -1 ? 52525 : uri.getPort());
 
-        if (!uri.getScheme().equals("sandnode")) {
+        if (!Objects.equals(uri.getScheme(), "sandnode")) {
             throw new InvalidSandnodeLinkException("Invalid scheme: " + uri.getScheme());
         }
 

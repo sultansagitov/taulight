@@ -10,6 +10,10 @@ public class KeyStorageNotFoundException extends SandnodeErrorException {
         super(encryption.name());
     }
 
+    public KeyStorageNotFoundException(String message) {
+        super(message);
+    }
+
     public KeyStorageNotFoundException() {
         super();
     }

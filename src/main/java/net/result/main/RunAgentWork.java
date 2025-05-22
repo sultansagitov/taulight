@@ -4,12 +4,12 @@ import net.result.main.chain.ConsoleClientChainManager;
 import net.result.main.chain.sender.ConsoleForwardRequestClientChain;
 import net.result.main.commands.*;
 import net.result.main.config.ClientPropertiesConfig;
+import net.result.sandnode.config.DialogKey;
 import net.result.sandnode.dto.LogPasswdResponseDTO;
 import net.result.sandnode.dto.LoginResponseDTO;
 import net.result.sandnode.encryption.AsymmetricEncryptions;
 import net.result.sandnode.encryption.interfaces.AsymmetricEncryption;
 import net.result.sandnode.encryption.interfaces.AsymmetricKeyStorage;
-import net.result.sandnode.encryption.interfaces.KeyStorage;
 import net.result.sandnode.exception.*;
 import net.result.sandnode.exception.crypto.CreatingKeyException;
 import net.result.sandnode.exception.crypto.CryptoException;
@@ -20,6 +20,7 @@ import net.result.sandnode.link.Links;
 import net.result.sandnode.link.SandnodeLinkRecord;
 import net.result.sandnode.serverclient.SandnodeClient;
 import net.result.sandnode.util.EncryptionUtil;
+import net.result.taulight.dto.ChatInfoDTO;
 import net.result.taulight.dto.ChatMessageInputDTO;
 import net.result.taulight.hubagent.TauAgent;
 import org.apache.logging.log4j.LogManager;
@@ -191,27 +192,49 @@ public class RunAgentWork implements IWork {
             return;
         }
 
-        // TODO replace with key of other member
-        UUID keyID = context.keyID;
-        KeyStorage keyStorage = client.clientConfig.loadMemberKey(keyID).get();
-
         ChatMessageInputDTO message = new ChatMessageInputDTO()
                 .setChatID(context.currentChat)
-                .setEncryptedContent(keyID, keyStorage, input)
                 .setNickname(context.nickname)
                 .setSentDatetimeNow();
 
+        if (context.chat.chatType == ChatInfoDTO.ChatType.DIALOG) {
+            String otherNickname = context.chat.otherNickname;
+            DialogKey key = client.clientConfig
+                    .loadDialogKey(otherNickname)
+                    .orElseThrow(() -> new KeyStorageNotFoundException(otherNickname));
+
+            LOGGER.debug("Using {} {}", key.id(), key.keyStorage());
+
+            message.setEncryptedContent(key.id(), key.keyStorage(), input);
+        } else {
+            message.setContent(input);
+        }
+
+
         try {
+            if (context.chain == null) {
+                ConsoleForwardRequestClientChain chain = new ConsoleForwardRequestClientChain(client);
+                client.io.chainManager.linkChain(chain);
+                context.chain = chain;
+            }
             UUID messageID = context.chain.message(message);
             System.out.printf("Sent message uuid: %s %n", messageID);
         } catch (DeserializationException e) {
             System.out.println("Sent message with unknown uuid due deserialization");
+            context.io.chainManager.removeChain(context.chain);
+            context.chain = null;
         } catch (NotFoundException e) {
             System.out.printf("Chat %s was not found%n", context.currentChat);
+            context.io.chainManager.removeChain(context.chain);
+            context.chain = null;
         } catch (NoEffectException e) {
             System.out.println("Message not forwarded");
+            context.io.chainManager.removeChain(context.chain);
+            context.chain = null;
         } catch (UnknownSandnodeErrorException | SandnodeErrorException e) {
-            System.out.printf("%s: %s%n", e.getClass().getSimpleName(), e.getMessage());
+            LOGGER.error("Error", e);
+            context.io.chainManager.removeChain(context.chain);
+            context.chain = null;
         }
     }
 
@@ -225,13 +248,18 @@ public class RunAgentWork implements IWork {
         ConsoleMessagesCommands.register(commands);
         ConsoleRolesCommands.register(commands);
 
-        ConsoleForwardRequestClientChain chain = new ConsoleForwardRequestClientChain(client);
-        client.io.chainManager.linkChain(chain);
-
-        context.chain = chain;
-
         while (true) {
-            System.out.printf(" [%s] ", Optional.ofNullable(context.currentChat).map(UUID::toString).orElse(""));
+
+            ChatInfoDTO chat = context.chat;
+            String result = chat != null ? switch (chat.chatType) {
+                case DIALOG -> chat.otherNickname;
+                case CHANNEL -> chat.title;
+                case NOT_FOUND -> "NOT_FOUND";
+            } : null;
+            if ((result == null || result.isEmpty()) && context.currentChat != null) {
+                result = context.currentChat.toString();
+            }
+            System.out.printf(" [%s] ", result == null ? "" : result);
             String input = scanner.nextLine();
 
             if (input.trim().isEmpty()) continue;
@@ -255,6 +283,6 @@ public class RunAgentWork implements IWork {
             }
         }
 
-        client.io.chainManager.removeChain(chain);
+        client.io.chainManager.removeChain(context.chain);
     }
 }

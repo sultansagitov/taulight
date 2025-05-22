@@ -1,6 +1,6 @@
 package net.result.taulight.db;
 
-import net.result.sandnode.db.KeyStorageEntity;
+import net.result.sandnode.db.EncryptedKeyEntity;
 import net.result.sandnode.util.JPAUtil;
 import net.result.sandnode.exception.DatabaseException;
 import net.result.sandnode.exception.error.NotFoundException;
@@ -45,7 +45,7 @@ public class MessageRepository {
             ChatEntity chat,
             ChatMessageInputDTO input,
             TauMemberEntity member,
-            KeyStorageEntity key
+            EncryptedKeyEntity key
     ) throws DatabaseException, NotFoundException {
         EntityManager em = jpaUtil.getEntityManager();
         MessageEntity managed = save(new MessageEntity(chat, input, member, key));

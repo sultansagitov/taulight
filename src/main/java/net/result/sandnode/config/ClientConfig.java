@@ -24,4 +24,6 @@ public interface ClientConfig {
     void saveDialogKey(String nickname, UUID keyID, KeyStorage keyStorage) throws FSException;
 
     Optional<KeyStorage> loadMemberKey(UUID keyID);
+
+    Optional<DialogKey> loadDialogKey(String nickname);
 }

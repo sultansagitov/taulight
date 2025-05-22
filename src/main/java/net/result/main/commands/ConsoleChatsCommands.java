@@ -6,6 +6,8 @@ import net.result.sandnode.exception.crypto.EncryptionTypeException;
 import net.result.sandnode.exception.crypto.NoSuchEncryptionException;
 import net.result.sandnode.exception.error.NotFoundException;
 import net.result.sandnode.exception.error.SandnodeErrorException;
+import net.result.taulight.chain.sender.ChatClientChain;
+import net.result.taulight.dto.ChatInfoDTO;
 import net.result.taulight.dto.ChatInfoPropDTO;
 import org.jetbrains.annotations.NotNull;
 
@@ -34,14 +36,36 @@ public class ConsoleChatsCommands {
     }
 
     private static boolean setChat(List<String> args, ConsoleContext context) {
+        UUID currentChat;
         try {
-            context.currentChat = UUID.fromString(args.get(0));
+            currentChat = UUID.fromString(args.get(0));
         } catch (IllegalArgumentException e) {
             System.out.println("Invalid UUID format provided.");
+            return false;
         } catch (ArrayIndexOutOfBoundsException e) {
             System.out.println("No arguments provided. Expected a UUID.");
+            return false;
         }
 
+        ChatInfoDTO chatInfoDTO;
+        try {
+            ChatClientChain chain = new ChatClientChain(context.client);
+            context.io.chainManager.linkChain(chain);
+            List<ChatInfoPropDTO> props = List.of(
+                    ChatInfoPropDTO.channelID,
+                    ChatInfoPropDTO.dialogID,
+                    ChatInfoPropDTO.channelTitle,
+                    ChatInfoPropDTO.dialogOther
+            );
+            chatInfoDTO = chain.getByID(List.of(currentChat), props).stream().findFirst().orElse(null);
+            context.io.chainManager.removeChain(chain);
+        } catch (Exception e) {
+            System.out.println("Sandnode error: " + e.getClass().getSimpleName());
+            return false;
+        }
+
+        context.chat = chatInfoDTO;
+        context.currentChat = currentChat;
         return false;
     }
 

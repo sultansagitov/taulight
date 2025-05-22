@@ -22,6 +22,9 @@ public class MemberEntity extends BaseEntity {
     @OneToMany(mappedBy = "member", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     private Set<LoginEntity> logins = new HashSet<>();
 
+    @OneToMany(mappedBy = "receiver", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    private Set<EncryptedKeyEntity> encryptedKeys = new HashSet<>();
+
     @OneToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     private TauMemberEntity tauMember;
 
@@ -78,6 +81,14 @@ public class MemberEntity extends BaseEntity {
 
     public void setLogins(Set<LoginEntity> logins) {
         this.logins = logins;
+    }
+
+    public Set<EncryptedKeyEntity> encryptedKeys() {
+        return encryptedKeys;
+    }
+
+    public void setEncryptedKeys(Set<EncryptedKeyEntity> encryptedKeys) {
+        this.encryptedKeys = encryptedKeys;
     }
 
     public TauMemberEntity tauMember() {

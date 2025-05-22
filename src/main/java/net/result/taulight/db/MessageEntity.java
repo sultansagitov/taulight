@@ -1,7 +1,7 @@
 package net.result.taulight.db;
 
 import net.result.sandnode.db.BaseEntity;
-import net.result.sandnode.db.KeyStorageEntity;
+import net.result.sandnode.db.EncryptedKeyEntity;
 import net.result.sandnode.db.ZonedDateTimeConverter;
 import net.result.taulight.dto.ChatMessageInputDTO;
 
@@ -23,7 +23,7 @@ public class MessageEntity extends BaseEntity {
     private ZonedDateTime sentDatetime;
 
     @ManyToOne
-    private KeyStorageEntity key;
+    private EncryptedKeyEntity key;
 
     @ManyToOne
     private ChatEntity chat;
@@ -51,7 +51,7 @@ public class MessageEntity extends BaseEntity {
             ChatEntity chat,
             ChatMessageInputDTO input,
             TauMemberEntity member,
-            @Nullable KeyStorageEntity key
+            @Nullable EncryptedKeyEntity key
     ) {
         setChat(chat);
         setMember(member);
@@ -62,11 +62,11 @@ public class MessageEntity extends BaseEntity {
         setSys(input.sys);
     }
 
-    public KeyStorageEntity key() {
+    public EncryptedKeyEntity key() {
         return key;
     }
 
-    public void setKey(KeyStorageEntity key) {
+    public void setKey(EncryptedKeyEntity key) {
         this.key = key;
     }
 

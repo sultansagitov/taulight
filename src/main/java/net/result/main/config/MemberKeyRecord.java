@@ -17,9 +17,9 @@ import java.util.Base64;
 import java.util.UUID;
 
 public class MemberKeyRecord {
-    private String nickname;
-    private final UUID keyID;
-    private final KeyStorage keyStorage;
+    public final UUID keyID;
+    public final KeyStorage keyStorage;
+    public String nickname = null;
 
     public MemberKeyRecord(UUID keyID, KeyStorage keyStorage) {
         this.keyID = keyID;
@@ -30,14 +30,6 @@ public class MemberKeyRecord {
         this.nickname = nickname;
         this.keyID = keyID;
         this.keyStorage = keyStorage;
-    }
-
-    public UUID keyID() {
-        return keyID;
-    }
-
-    public KeyStorage keyStorage() {
-        return keyStorage;
     }
 
     public JSONObject toJSON() {

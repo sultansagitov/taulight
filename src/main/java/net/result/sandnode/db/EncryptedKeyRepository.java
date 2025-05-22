@@ -6,6 +6,9 @@ import net.result.sandnode.exception.DatabaseException;
 import net.result.sandnode.util.Container;
 import net.result.sandnode.util.JPAUtil;
 
+import java.util.Optional;
+import java.util.UUID;
+
 public class EncryptedKeyRepository {
     private final JPAUtil jpaUtil;
 
@@ -39,5 +42,14 @@ public class EncryptedKeyRepository {
             String encrypted
     ) throws DatabaseException {
         return save(new EncryptedKeyEntity(sender, receiver, encryptor, encrypted));
+    }
+
+    public Optional<EncryptedKeyEntity> find(UUID keyID) throws DatabaseException {
+        EntityManager em = jpaUtil.getEntityManager();
+        try {
+             return Optional.ofNullable(em.find(EncryptedKeyEntity.class, keyID));
+        } catch (Exception e) {
+            throw new DatabaseException(e);
+        }
     }
 }
