@@ -126,7 +126,7 @@ public class DialogServerChain extends ServerChain implements ReceiverChain {
                 .publicKeyConvertor()
                 .toKeyStorage(keyStorageEntity.encodedKey());
 
-        send(new UUIDMessage(new Headers(), keyStorageEntity));
-        sendFin(new PublicKeyResponse(new Headers(), keyStorage));
+        Headers headers = new Headers().setValue("chat-id", keyStorageEntity.id().toString());
+        sendFin(new PublicKeyResponse(headers, keyStorage));
     }
 }

@@ -18,7 +18,7 @@ import net.result.sandnode.message.UUIDMessage;
 import net.result.sandnode.message.types.FileMessage;
 import net.result.sandnode.message.types.PublicKeyResponse;
 import net.result.sandnode.serverclient.SandnodeClient;
-import net.result.taulight.dto.DialogKeyDTO;
+import net.result.taulight.dto.KeyDTO;
 import net.result.taulight.message.types.DialogRequest;
 import org.jetbrains.annotations.Nullable;
 
@@ -53,19 +53,21 @@ public class DialogClientChain extends ClientChain {
         }
     }
 
-    public synchronized DialogKeyDTO getDialogKey(UUID chatID) throws UnprocessedMessagesException,
+    public synchronized KeyDTO getDialogKey(UUID chatID) throws UnprocessedMessagesException,
             InterruptedException, UnknownSandnodeErrorException, SandnodeErrorException, EncryptionTypeException,
             NoSuchEncryptionException, CreatingKeyException, ExpectedMessageException, DeserializationException {
         send(DialogRequest.getKey(chatID));
 
-        RawMessage uuidMsg = queue.take();
-        ServerErrorManager.instance().handleError(uuidMsg);
-        UUID uuid = new UUIDMessage(uuidMsg).uuid;
-
-        RawMessage keyMsg = queue.take();
-        ServerErrorManager.instance().handleError(keyMsg);
-        AsymmetricKeyStorage keyStorage = new PublicKeyResponse(keyMsg).keyStorage;
-
-        return new DialogKeyDTO(uuid, keyStorage);
+        RawMessage raw = queue.take();
+        ServerErrorManager.instance().handleError(raw);
+        PublicKeyResponse response = new PublicKeyResponse(raw);
+        AsymmetricKeyStorage keyStorage = response.keyStorage;
+        UUID uuid;
+        try {
+            uuid = UUID.fromString(response.headers().getValue("chat-id"));
+        } catch (Exception e) {
+            throw new DeserializationException(e);
+        }
+        return new KeyDTO(uuid, keyStorage);
     }
 }

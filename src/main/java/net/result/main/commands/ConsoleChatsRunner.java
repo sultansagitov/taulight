@@ -12,7 +12,7 @@ import net.result.taulight.chain.sender.DialogClientChain;
 import net.result.taulight.chain.sender.MembersClientChain;
 import net.result.taulight.dto.ChatInfoDTO;
 import net.result.taulight.dto.ChatInfoPropDTO;
-import net.result.taulight.dto.DialogKeyDTO;
+import net.result.taulight.dto.KeyDTO;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
@@ -223,7 +223,7 @@ public class ConsoleChatsRunner {
             InterruptedException, DeserializationException, FSException {
         DialogClientChain chain = new DialogClientChain(context.client);
         context.io.chainManager.linkChain(chain);
-        DialogKeyDTO dialogKey = chain.getDialogKey(chatID);
+        KeyDTO dialogKey = chain.getDialogKey(chatID);
         context.io.chainManager.removeChain(chain);
 
         System.out.println(dialogKey.keyID());
