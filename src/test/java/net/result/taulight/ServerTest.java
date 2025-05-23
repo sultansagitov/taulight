@@ -309,20 +309,35 @@ public class ServerTest {
         }
 
         @Override
-        public void saveMemberKey(UUID keyID, KeyStorage keyStorage) {}
+        public void savePersonalKey(UUID keyID, KeyStorage keyStorage) {}
 
         @Override
-        public Optional<KeyStorage> loadMemberKey(UUID keyID) {
+        public Optional<KeyStorage> loadPersonalKey(UUID keyID) {
             return Optional.empty();
         }
 
         @Override
-        public Optional<DialogKey> loadDialogKey(String nickname) {
+        public Optional<KeyEntry> loadEncryptor(String nickname) {
             return Optional.empty();
         }
 
         @Override
-        public void saveDialogKey(String nickname, UUID keyID, KeyStorage keyStorage) {}
+        public Optional<KeyEntry> loadDEK(String nickname) {
+            return Optional.empty();
+        }
+
+        @Override
+        public Optional<KeyStorage> loadDEK(UUID keyID) {
+            return Optional.empty();
+        }
+
+        @Override
+        public void saveEncryptor(String nickname, UUID keyID, KeyStorage keyStorage) {}
+
+        @Override
+        public void saveDEK(String nickname, UUID keyID, KeyStorage keyStorage) {
+
+        }
     }
 
     private static class TestClientChain extends ClientChain implements ReceiverChain {

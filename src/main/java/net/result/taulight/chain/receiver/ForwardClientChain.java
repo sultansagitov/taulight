@@ -40,8 +40,8 @@ public abstract class ForwardClientChain extends ClientChain implements Receiver
             String decrypted;
             if (input.keyID != null) {
                 KeyStorage keyStorage = client.clientConfig
-                        .loadMemberKey(input.keyID)
-                        .orElseThrow(KeyStorageNotFoundException::new);
+                        .loadDEK(input.keyID)
+                        .orElseThrow(() -> new KeyStorageNotFoundException(input.keyID.toString()));
                 decrypted = keyStorage.encryption().decrypt(Base64.getDecoder().decode(input.content), keyStorage);
             } else {
                 decrypted = input.content;

@@ -2,6 +2,7 @@ package net.result.main.commands;
 
 import net.result.sandnode.chain.IChain;
 import net.result.sandnode.chain.sender.*;
+import net.result.sandnode.config.KeyEntry;
 import net.result.sandnode.dto.FileDTO;
 import net.result.sandnode.dto.LoginHistoryDTO;
 import net.result.sandnode.encryption.SymmetricEncryptions;
@@ -11,6 +12,7 @@ import net.result.sandnode.exception.crypto.CryptoException;
 import net.result.sandnode.exception.error.SandnodeErrorException;
 import net.result.sandnode.exception.error.UnauthorizedException;
 import net.result.sandnode.hubagent.ClientProtocol;
+import net.result.taulight.dto.KeyDTO;
 import net.result.taulight.dto.PersonalKeyDTO;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -247,16 +249,25 @@ public class ConsoleSandnodeCommands {
     public static boolean sendKey(List<String> args, ConsoleContext context) {
         try {
             String nickname = args.get(0);
-            UUID encryptorID = UUID.fromString(args.get(1));
-
-            KeyStorage key = SymmetricEncryptions.AES.generate();
 
             PersonalKeyClientChain chain = new PersonalKeyClientChain(context.client);
             context.io.chainManager.linkChain(chain);
+
+            Optional<KeyEntry> opt = context.client.clientConfig.loadEncryptor(nickname);
+            UUID encryptorID;
+
+            if (opt.isPresent()) {
+                encryptorID = opt.get().id();
+            } else {
+                KeyDTO key = chain.getKeyOf(nickname);
+                encryptorID = key.keyID();
+            }
+
+            KeyStorage key = SymmetricEncryptions.AES.generate();
             UUID uuid = chain.sendPersonalKey(nickname, encryptorID, key);
             context.io.chainManager.removeChain(chain);
 
-            context.client.clientConfig.saveDialogKey(nickname, uuid, key);
+            context.client.clientConfig.saveDEK(nickname, uuid, key);
         } catch (UnprocessedMessagesException | ExpectedMessageException | FSException | SandnodeErrorException |
                  UnknownSandnodeErrorException | CryptoException | InterruptedException | DeserializationException e) {
             System.out.println("Sandnode error: " + e.getClass().getSimpleName());
@@ -275,7 +286,7 @@ public class ConsoleSandnodeCommands {
             for (PersonalKeyDTO key : keys) {
                 KeyStorage decrypted = key.decrypt(context.client);
 
-                context.client.clientConfig.saveDialogKey(key.senderNickname, key.id, decrypted);
+                context.client.clientConfig.saveDEK(key.senderNickname, key.id, decrypted);
 
                 System.out.println(decrypted);
             }

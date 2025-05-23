@@ -3,17 +3,13 @@ package net.result.taulight.chain.receiver;
 import net.result.sandnode.chain.ReceiverChain;
 import net.result.sandnode.chain.ServerChain;
 import net.result.sandnode.db.FileEntity;
-import net.result.sandnode.db.KeyStorageEntity;
 import net.result.sandnode.db.MemberEntity;
 import net.result.sandnode.db.MemberRepository;
-import net.result.sandnode.encryption.interfaces.AsymmetricKeyStorage;
-import net.result.sandnode.encryption.interfaces.Encryption;
 import net.result.sandnode.exception.DatabaseException;
 import net.result.sandnode.exception.ImpossibleRuntimeException;
 import net.result.sandnode.exception.error.*;
 import net.result.sandnode.message.UUIDMessage;
 import net.result.sandnode.message.types.FileMessage;
-import net.result.sandnode.message.types.PublicKeyResponse;
 import net.result.sandnode.message.util.Headers;
 import net.result.sandnode.message.util.MessageTypes;
 import net.result.sandnode.serverclient.Session;
@@ -51,13 +47,12 @@ public class DialogServerChain extends ServerChain implements ReceiverChain {
 
         DialogRequest.Type type = request.headers()
                 .getOptionalValue("type")
-                .map(DialogRequest.Type::fromValue)
+                .map(name -> DialogRequest.Type.valueOf(name.toUpperCase()))
                 .orElse(DialogRequest.Type.ID);
 
         switch (type) {
             case ID -> id(request, session.member);
             case AVATAR -> avatar(request, session.member);
-            case KEY -> key(request, session.member);
         }
     }
 
@@ -109,24 +104,5 @@ public class DialogServerChain extends ServerChain implements ReceiverChain {
         if (avatar == null) throw new NoEffectException();
 
         sendFin(new FileMessage(dbFileUtil.readImage(avatar)));
-    }
-
-    private void key(DialogRequest request, MemberEntity you) throws Exception {
-        ChatUtil chatUtil = session.server.container.get(ChatUtil.class);
-
-        UUID chatID = UUID.fromString(request.content());
-
-        ChatEntity chat = chatUtil.getChat(chatID).orElseThrow(NotFoundException::new);
-        if (!chatUtil.contains(chat, you.tauMember())) throw new UnauthorizedException();
-        if (!(chat instanceof DialogEntity dialog)) throw new WrongAddressException();
-
-        KeyStorageEntity keyStorageEntity = dialog.otherMember(you.tauMember()).member().publicKey();
-        Encryption encryption = keyStorageEntity.encryption();
-        AsymmetricKeyStorage keyStorage = encryption.asymmetric()
-                .publicKeyConvertor()
-                .toKeyStorage(keyStorageEntity.encodedKey());
-
-        Headers headers = new Headers().setValue("chat-id", keyStorageEntity.id().toString());
-        sendFin(new PublicKeyResponse(headers, keyStorage));
     }
 }

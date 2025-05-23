@@ -19,11 +19,19 @@ public interface ClientConfig {
 
     Optional<AsymmetricKeyStorage> getPublicKey(@NotNull Endpoint endpoint);
 
-    void saveMemberKey(UUID keyID, KeyStorage keyStorage) throws FSException; // TODO replace FSException
+    // TODO explain terminology
 
-    void saveDialogKey(String nickname, UUID keyID, KeyStorage keyStorage) throws FSException;
+    void savePersonalKey(UUID keyID, KeyStorage keyStorage) throws FSException; // TODO replace FSException
 
-    Optional<KeyStorage> loadMemberKey(UUID keyID);
+    void saveEncryptor(String nickname, UUID keyID, KeyStorage keyStorage) throws FSException;
 
-    Optional<DialogKey> loadDialogKey(String nickname);
+    void saveDEK(String nickname, UUID keyID, KeyStorage keyStorage) throws FSException;
+
+    Optional<KeyStorage> loadPersonalKey(UUID keyID);
+
+    Optional<KeyEntry> loadEncryptor(String nickname);
+
+    Optional<KeyEntry> loadDEK(String nickname);
+
+    Optional<KeyStorage> loadDEK(UUID keyID);
 }

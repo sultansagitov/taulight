@@ -1,9 +1,6 @@
 package net.result.main.commands;
 
 import net.result.sandnode.exception.*;
-import net.result.sandnode.exception.crypto.CreatingKeyException;
-import net.result.sandnode.exception.crypto.EncryptionTypeException;
-import net.result.sandnode.exception.crypto.NoSuchEncryptionException;
 import net.result.sandnode.exception.error.NotFoundException;
 import net.result.sandnode.exception.error.SandnodeErrorException;
 import net.result.taulight.chain.sender.ChatClientChain;
@@ -32,7 +29,6 @@ public class ConsoleChatsCommands {
         commands.put("setChannelAvatar", ConsoleChatsCommands::setChannelAvatar);
         commands.put("getChannelAvatar", ConsoleChatsCommands::getChannelAvatar);
         commands.put("getDialogAvatar", ConsoleChatsCommands::getDialogAvatar);
-        commands.put("getDialogKey", ConsoleChatsCommands::getDialogKey);
     }
 
     private static boolean setChat(List<String> args, ConsoleContext context) {
@@ -304,31 +300,6 @@ public class ConsoleChatsCommands {
         } catch (NotFoundException e) {
             System.out.printf("Channel %s not found.%n", chatID);
         } catch (SandnodeErrorException | UnknownSandnodeErrorException e) {
-            System.out.printf("Failed to get avatar - %s%n", e.getClass());
-        } catch (ExpectedMessageException e) {
-            System.out.println(e.getMessage());
-        }
-
-        return false;
-    }
-
-    private static boolean getDialogKey(List<String> args, ConsoleContext context) {
-        UUID chatID;
-
-        try {
-            chatID = args.stream().findFirst().map(UUID::fromString).orElse(context.currentChat);
-        } catch (IllegalArgumentException e) {
-            System.out.println("Invalid UUID format.");
-            return false;
-        }
-
-        try {
-            ConsoleChatsRunner.getDialogKey(chatID, context);
-        } catch (NotFoundException e) {
-            System.out.printf("Channel %s not found.%n", chatID);
-        } catch (SandnodeErrorException | UnknownSandnodeErrorException | UnprocessedMessagesException |
-                 EncryptionTypeException | NoSuchEncryptionException | CreatingKeyException | InterruptedException |
-                 DeserializationException | FSException e) {
             System.out.printf("Failed to get avatar - %s%n", e.getClass());
         } catch (ExpectedMessageException e) {
             System.out.println(e.getMessage());

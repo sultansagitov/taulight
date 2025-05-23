@@ -2,9 +2,6 @@ package net.result.main.commands;
 
 import net.result.sandnode.dto.FileDTO;
 import net.result.sandnode.exception.*;
-import net.result.sandnode.exception.crypto.CreatingKeyException;
-import net.result.sandnode.exception.crypto.EncryptionTypeException;
-import net.result.sandnode.exception.crypto.NoSuchEncryptionException;
 import net.result.sandnode.exception.error.*;
 import net.result.taulight.chain.sender.ChannelClientChain;
 import net.result.taulight.chain.sender.ChatClientChain;
@@ -12,7 +9,6 @@ import net.result.taulight.chain.sender.DialogClientChain;
 import net.result.taulight.chain.sender.MembersClientChain;
 import net.result.taulight.dto.ChatInfoDTO;
 import net.result.taulight.dto.ChatInfoPropDTO;
-import net.result.taulight.dto.KeyDTO;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
@@ -215,20 +211,6 @@ public class ConsoleChatsRunner {
             System.out.printf("data:%s;base64,%s%n", mimeType, base64);
         }
 
-    }
-
-    public static void getDialogKey(UUID chatID, ConsoleContext context)
-            throws UnprocessedMessagesException, EncryptionTypeException, NoSuchEncryptionException,
-            CreatingKeyException, ExpectedMessageException, UnknownSandnodeErrorException, SandnodeErrorException,
-            InterruptedException, DeserializationException, FSException {
-        DialogClientChain chain = new DialogClientChain(context.client);
-        context.io.chainManager.linkChain(chain);
-        KeyDTO dialogKey = chain.getDialogKey(chatID);
-        context.io.chainManager.removeChain(chain);
-
-        System.out.println(dialogKey.keyID());
-
-        context.client.clientConfig.saveMemberKey(dialogKey.keyID(), dialogKey.keyStorage());
     }
 
     public static void printInfo(@NotNull Collection<ChatInfoDTO> infos) {

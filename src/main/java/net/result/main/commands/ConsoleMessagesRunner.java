@@ -12,6 +12,7 @@ import net.result.sandnode.exception.error.EncryptionException;
 import net.result.sandnode.exception.error.KeyStorageNotFoundException;
 import net.result.sandnode.exception.error.SandnodeErrorException;
 import net.result.taulight.chain.sender.MessageClientChain;
+import net.result.taulight.dto.ChatInfoDTO;
 import net.result.taulight.dto.ChatMessageInputDTO;
 import net.result.taulight.dto.ChatMessageViewDTO;
 
@@ -51,18 +52,22 @@ public class ConsoleMessagesRunner {
     public static void reply(ConsoleContext context, String input, Set<UUID> replies) {
         ChatMessageInputDTO message;
         try {
-            // TODO replace with key of other member
-            UUID keyID = context.keyID;
-            KeyStorage keyStorage = context.client.clientConfig
-                    .loadMemberKey(context.keyID)
-                    .orElseThrow(KeyStorageNotFoundException::new);
-
             message = new ChatMessageInputDTO()
                     .setChatID(context.currentChat)
-                    .setEncryptedContent(keyID, keyStorage, input)
                     .setRepliedToMessages(replies)
                     .setNickname(context.nickname)
                     .setSentDatetimeNow();
+
+            ChatInfoDTO chat = context.chat;
+            if (chat.chatType == ChatInfoDTO.ChatType.DIALOG) {
+                var entry = context.client.clientConfig
+                        .loadDEK(chat.otherNickname)
+                        .orElseThrow(KeyStorageNotFoundException::new);
+
+                message.setEncryptedContent(entry.id(), entry.keyStorage(), input);
+            } else {
+                message.setContent(input);
+            }
 
         } catch (EncryptionException | CryptoException | KeyStorageNotFoundException e) {
             System.out.printf("%s: %s%n", e.getClass().getSimpleName(), e.getMessage());
@@ -84,8 +89,8 @@ public class ConsoleMessagesRunner {
         ChatMessageInputDTO input = dto.message;
         if (input.keyID != null) {
             KeyStorage keyStorage = context.client.clientConfig
-                    .loadMemberKey(input.keyID)
-                    .orElseThrow(KeyStorageNotFoundException::new);
+                    .loadDEK(input.keyID)
+                    .orElseThrow(() -> new KeyStorageNotFoundException(input.keyID.toString()));
             decrypted = keyStorage.encryption().decrypt(Base64.getDecoder().decode(input.content), keyStorage);
         } else {
             decrypted = input.content;

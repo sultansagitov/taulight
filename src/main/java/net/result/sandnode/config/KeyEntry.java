@@ -4,4 +4,4 @@ import net.result.sandnode.encryption.interfaces.KeyStorage;
 
 import java.util.UUID;
 
-public record DialogKey(UUID id, KeyStorage keyStorage) {}
+public record KeyEntry(UUID id, KeyStorage keyStorage) {}

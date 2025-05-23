@@ -14,6 +14,7 @@ import net.result.sandnode.serverclient.SandnodeClient;
 import java.util.Base64;
 import java.util.UUID;
 
+// TODO make test
 public class PersonalKeyDTO {
     @JsonProperty
     public UUID id;
@@ -37,6 +38,10 @@ public class PersonalKeyDTO {
         this.receiverNickname = receiverNickname;
         this.encryptorID = encryptorID;
         this.encryptedKey = encryptedKey;
+    }
+
+    public PersonalKeyDTO(String receiverNickname) {
+        this.receiverNickname = receiverNickname;
     }
 
     public PersonalKeyDTO(EncryptedKeyEntity entity) {
@@ -70,11 +75,11 @@ public class PersonalKeyDTO {
     public KeyStorage decrypt(SandnodeClient client) throws KeyStorageNotFoundException, WrongKeyException,
             CannotUseEncryption, PrivateKeyNotFoundException, DecryptionException, NoSuchEncryptionException,
             EncryptionTypeException, CreatingKeyException {
-        KeyStorage encryptor = client.clientConfig
-                .loadMemberKey(encryptorID)
-                .orElseThrow(KeyStorageNotFoundException::new);
+        KeyStorage personalKey = client.clientConfig
+                .loadPersonalKey(encryptorID)
+                .orElseThrow(() -> new KeyStorageNotFoundException(encryptorID.toString()));
 
-        String decrypted = encryptor.encryption().decrypt(Base64.getDecoder().decode(encryptedKey), encryptor);
+        String decrypted = personalKey.encryption().decrypt(Base64.getDecoder().decode(encryptedKey), personalKey);
         String[] s = decrypted.split(":");
         String encryptionString = s[0];
         String encoded = s[1];

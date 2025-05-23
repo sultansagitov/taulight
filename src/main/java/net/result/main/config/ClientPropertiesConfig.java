@@ -2,7 +2,7 @@ package net.result.main.config;
 
 import net.result.main.exception.crypto.KeyHashCheckingException;
 import net.result.sandnode.config.ClientConfig;
-import net.result.sandnode.config.DialogKey;
+import net.result.sandnode.config.KeyEntry;
 import net.result.sandnode.encryption.EncryptionManager;
 import net.result.sandnode.encryption.interfaces.KeyStorage;
 import net.result.sandnode.encryption.interfaces.SymmetricEncryption;
@@ -32,6 +32,7 @@ public class ClientPropertiesConfig implements ClientConfig {
     private final SymmetricEncryption SYMMETRIC_ENCRYPTION;
     private final Collection<KeyRecord> serverKeys = new ArrayList<>();
     private final Collection<MemberKeyRecord> memberKeys = new ArrayList<>();
+    private final Collection<MemberKeyRecord> DEKs = new ArrayList<>();
 
     public ClientPropertiesConfig()
             throws ConfigurationException, FSException, NoSuchEncryptionException, EncryptionTypeException {
@@ -86,6 +87,16 @@ public class ClientPropertiesConfig implements ClientConfig {
                 LOGGER.error("Error while validating \"{}\"", KEYS_JSON_PATH, e);
             }
         }
+
+        for (Object key : new JSONObject(data).getJSONArray("deks")) {
+            JSONObject jsonObject = (JSONObject) key;
+            try {
+                MemberKeyRecord keyRecord = MemberKeyRecord.fromJSON(jsonObject);
+                DEKs.add(keyRecord);
+            } catch (NoSuchEncryptionException | CreatingKeyException | EncryptionTypeException e) {
+                LOGGER.error("Error while validating \"{}\"", KEYS_JSON_PATH, e);
+            }
+        }
     }
 
     @Override
@@ -100,7 +111,13 @@ public class ClientPropertiesConfig implements ClientConfig {
         JSONArray memberKeyArray = new JSONArray();
         memberKeys.stream().map(MemberKeyRecord::toJSON).forEach(memberKeyArray::put);
 
-        return new JSONObject().put("server-keys", serverKeyArray).put("member-keys", memberKeyArray);
+        JSONArray DEKArray = new JSONArray();
+        DEKs.stream().map(MemberKeyRecord::toJSON).forEach(memberKeyArray::put);
+
+        return new JSONObject()
+                .put("server-keys", serverKeyArray)
+                .put("member-keys", memberKeyArray)
+                .put("deks", DEKArray);
     }
 
     private boolean isHaveKey(@NotNull Endpoint endpoint) {
@@ -163,20 +180,27 @@ public class ClientPropertiesConfig implements ClientConfig {
     }
 
     @Override
-    public synchronized void saveMemberKey(UUID keyID, KeyStorage keyStorage) throws FSException {
+    public synchronized void savePersonalKey(UUID keyID, KeyStorage keyStorage) throws FSException {
         memberKeys.add(new MemberKeyRecord(keyID, keyStorage));
         saveKeysJSON();
     }
 
     @Override
-    public void saveDialogKey(String nickname, UUID keyID, KeyStorage keyStorage) throws FSException {
+    public void saveEncryptor(String nickname, UUID keyID, KeyStorage keyStorage) throws FSException {
         LOGGER.debug("{}, {}, {}", nickname, keyID, keyStorage);
         memberKeys.add(new MemberKeyRecord(nickname, keyID, keyStorage));
         saveKeysJSON();
     }
 
     @Override
-    public synchronized Optional<KeyStorage> loadMemberKey(UUID keyID) {
+    public void saveDEK(String nickname, UUID keyID, KeyStorage keyStorage) throws FSException {
+        LOGGER.debug("{}, {}, {}", nickname, keyID, keyStorage);
+        DEKs.add(new MemberKeyRecord(nickname, keyID, keyStorage));
+        saveKeysJSON();
+    }
+
+    @Override
+    public synchronized Optional<KeyStorage> loadPersonalKey(UUID keyID) {
         return memberKeys.stream()
                 .filter(k -> k.keyID.equals(keyID))
                 .map(k -> k.keyStorage)
@@ -184,10 +208,26 @@ public class ClientPropertiesConfig implements ClientConfig {
     }
 
     @Override
-    public Optional<DialogKey> loadDialogKey(String nickname) {
+    public Optional<KeyEntry> loadEncryptor(String nickname) {
         return memberKeys.stream()
                 .filter(k -> Objects.equals(k.nickname, nickname))
-                .map(k -> new DialogKey(k.keyID, k.keyStorage))
+                .map(k -> new KeyEntry(k.keyID, k.keyStorage))
+                .findFirst();
+    }
+
+    @Override
+    public Optional<KeyEntry> loadDEK(String nickname) {
+        return DEKs.stream()
+                .filter(k -> Objects.equals(k.nickname, nickname))
+                .map(k -> new KeyEntry(k.keyID, k.keyStorage))
+                .findFirst();
+    }
+
+    @Override
+    public Optional<KeyStorage> loadDEK(UUID keyID) {
+        return DEKs.stream()
+                .filter(k -> Objects.equals(k.keyID, keyID))
+                .map(k -> k.keyStorage)
                 .findFirst();
     }
 }

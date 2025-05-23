@@ -4,7 +4,7 @@ import net.result.main.chain.ConsoleClientChainManager;
 import net.result.main.chain.sender.ConsoleForwardRequestClientChain;
 import net.result.main.commands.*;
 import net.result.main.config.ClientPropertiesConfig;
-import net.result.sandnode.config.DialogKey;
+import net.result.sandnode.config.KeyEntry;
 import net.result.sandnode.dto.LogPasswdResponseDTO;
 import net.result.sandnode.dto.LoginResponseDTO;
 import net.result.sandnode.encryption.AsymmetricEncryptions;
@@ -135,7 +135,7 @@ public class RunAgentWork implements IWork {
             var result = AgentProtocol.register(client, nickname, password, device, keyStorage);
             System.out.printf("Token for \"%s\":%n%s%n", nickname, result.token);
 
-            client.clientConfig.saveMemberKey(result.keyID, keyStorage);
+            client.clientConfig.savePersonalKey(result.keyID, keyStorage);
             context = new ConsoleContext(client, nickname, result.keyID);
         } catch (BusyNicknameException e) {
             System.out.println("Nickname is busy");
@@ -199,13 +199,13 @@ public class RunAgentWork implements IWork {
 
         if (context.chat.chatType == ChatInfoDTO.ChatType.DIALOG) {
             String otherNickname = context.chat.otherNickname;
-            DialogKey key = client.clientConfig
-                    .loadDialogKey(otherNickname)
+            KeyEntry dek = client.clientConfig
+                    .loadDEK(otherNickname)
                     .orElseThrow(() -> new KeyStorageNotFoundException(otherNickname));
 
-            LOGGER.debug("Using {} {}", key.id(), key.keyStorage());
+            LOGGER.debug("Using {} {}", dek.id(), dek.keyStorage());
 
-            message.setEncryptedContent(key.id(), key.keyStorage(), input);
+            message.setEncryptedContent(dek.id(), dek.keyStorage(), input);
         } else {
             message.setContent(input);
         }
