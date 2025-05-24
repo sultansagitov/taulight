@@ -15,7 +15,7 @@ public enum MessageTypes implements MessageType {
     WHOAMI(11),
     NAME(12),
     FILE(13),
-    PERSONAL_KEY(14);
+    DEK(14);
 
     private final byte type;
 

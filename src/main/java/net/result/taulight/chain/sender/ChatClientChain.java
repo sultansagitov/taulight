@@ -6,6 +6,9 @@ import net.result.sandnode.exception.DeserializationException;
 import net.result.sandnode.exception.ExpectedMessageException;
 import net.result.sandnode.exception.UnknownSandnodeErrorException;
 import net.result.sandnode.exception.UnprocessedMessagesException;
+import net.result.sandnode.exception.crypto.CannotUseEncryption;
+import net.result.sandnode.exception.crypto.PrivateKeyNotFoundException;
+import net.result.sandnode.exception.crypto.WrongKeyException;
 import net.result.sandnode.exception.error.SandnodeErrorException;
 import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.serverclient.SandnodeClient;
@@ -24,24 +27,29 @@ public class ChatClientChain extends ClientChain {
 
     public synchronized Collection<ChatInfoDTO> getByMember(Collection<ChatInfoPropDTO> infoProps)
             throws InterruptedException, DeserializationException, ExpectedMessageException, SandnodeErrorException,
-            UnknownSandnodeErrorException, UnprocessedMessagesException {
+            UnknownSandnodeErrorException, UnprocessedMessagesException, WrongKeyException, CannotUseEncryption,
+            PrivateKeyNotFoundException {
         send(ChatRequest.getByMember(infoProps));
         RawMessage raw = queue.take();
 
         ServerErrorManager.instance().handleError(raw);
 
-        return new ChatResponse(raw).getInfos();
+        var infos = new ChatResponse(raw).getInfos();
+        for (ChatInfoDTO info : infos) info.decrypt(client);
+        return infos;
     }
 
     public synchronized Collection<ChatInfoDTO> getByID(Collection<UUID> chatID, Collection<ChatInfoPropDTO> infoProps)
             throws InterruptedException, ExpectedMessageException, UnknownSandnodeErrorException,
-            SandnodeErrorException, DeserializationException, UnprocessedMessagesException {
+            SandnodeErrorException, DeserializationException, UnprocessedMessagesException, WrongKeyException,
+            CannotUseEncryption, PrivateKeyNotFoundException {
         send(ChatRequest.getByID(chatID, infoProps));
         RawMessage raw = queue.take();
 
         ServerErrorManager.instance().handleError(raw);
 
-        ChatResponse chatResponse = new ChatResponse(raw);
-        return chatResponse.getInfos();
+        var infos = new ChatResponse(raw).getInfos();
+        for (ChatInfoDTO info : infos) info.decrypt(client);
+        return infos;
     }
 }

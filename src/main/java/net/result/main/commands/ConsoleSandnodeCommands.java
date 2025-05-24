@@ -2,18 +2,18 @@ package net.result.main.commands;
 
 import net.result.sandnode.chain.IChain;
 import net.result.sandnode.chain.sender.*;
-import net.result.sandnode.config.KeyEntry;
 import net.result.sandnode.dto.FileDTO;
 import net.result.sandnode.dto.LoginHistoryDTO;
 import net.result.sandnode.encryption.SymmetricEncryptions;
 import net.result.sandnode.encryption.interfaces.KeyStorage;
 import net.result.sandnode.exception.*;
 import net.result.sandnode.exception.crypto.CryptoException;
+import net.result.sandnode.exception.error.KeyStorageNotFoundException;
 import net.result.sandnode.exception.error.SandnodeErrorException;
 import net.result.sandnode.exception.error.UnauthorizedException;
 import net.result.sandnode.hubagent.ClientProtocol;
 import net.result.taulight.dto.KeyDTO;
-import net.result.taulight.dto.PersonalKeyDTO;
+import net.result.taulight.dto.DEKDTO;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -45,8 +45,8 @@ public class ConsoleSandnodeCommands {
         commands.put("setAvatar", ConsoleSandnodeCommands::setAvatar);
         commands.put("logout", ConsoleSandnodeCommands::logout);
         commands.put("loginHistory", ConsoleSandnodeCommands::loginHistory);
-        commands.put("sendKey", ConsoleSandnodeCommands::sendKey);
-        commands.put("personalKeys", ConsoleSandnodeCommands::personalKeys);
+        commands.put("sendDEK", ConsoleSandnodeCommands::sendDEK);
+        commands.put("DEK", ConsoleSandnodeCommands::DEK);
     }
 
     private static boolean exit(List<String> ignored, ConsoleContext context) {
@@ -246,25 +246,24 @@ public class ConsoleSandnodeCommands {
         return false;
     }
 
-    public static boolean sendKey(List<String> args, ConsoleContext context) {
+    public static boolean sendDEK(List<String> args, ConsoleContext context) {
         try {
             String nickname = args.get(0);
 
-            PersonalKeyClientChain chain = new PersonalKeyClientChain(context.client);
+            DEKClientChain chain = new DEKClientChain(context.client);
             context.io.chainManager.linkChain(chain);
 
-            Optional<KeyEntry> opt = context.client.clientConfig.loadEncryptor(nickname);
             UUID encryptorID;
 
-            if (opt.isPresent()) {
-                encryptorID = opt.get().id();
-            } else {
+            try {
+                encryptorID = context.client.clientConfig.loadEncryptor(nickname).id();
+            } catch (KeyStorageNotFoundException ignored) {
                 KeyDTO key = chain.getKeyOf(nickname);
                 encryptorID = key.keyID();
             }
 
             KeyStorage key = SymmetricEncryptions.AES.generate();
-            UUID uuid = chain.sendPersonalKey(nickname, encryptorID, key);
+            UUID uuid = chain.sendDEK(nickname, encryptorID, key);
             context.io.chainManager.removeChain(chain);
 
             context.client.clientConfig.saveDEK(nickname, uuid, key);
@@ -276,14 +275,14 @@ public class ConsoleSandnodeCommands {
         return false;
     }
 
-    private static boolean personalKeys(List<String> strings, ConsoleContext context) {
+    private static boolean DEK(List<String> strings, ConsoleContext context) {
         try {
-            PersonalKeyClientChain chain = new PersonalKeyClientChain(context.client);
+            DEKClientChain chain = new DEKClientChain(context.client);
             context.io.chainManager.linkChain(chain);
-            Collection<PersonalKeyDTO> keys = chain.getKeys();
+            Collection<DEKDTO> keys = chain.get();
             context.io.chainManager.removeChain(chain);
 
-            for (PersonalKeyDTO key : keys) {
+            for (DEKDTO key : keys) {
                 KeyStorage decrypted = key.decrypt(context.client);
 
                 context.client.clientConfig.saveDEK(key.senderNickname, key.id, decrypted);

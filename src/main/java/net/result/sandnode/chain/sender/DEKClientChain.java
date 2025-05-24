@@ -9,29 +9,28 @@ import net.result.sandnode.exception.crypto.CreatingKeyException;
 import net.result.sandnode.exception.crypto.CryptoException;
 import net.result.sandnode.exception.crypto.EncryptionTypeException;
 import net.result.sandnode.exception.crypto.NoSuchEncryptionException;
-import net.result.sandnode.exception.error.KeyStorageNotFoundException;
 import net.result.sandnode.exception.error.SandnodeErrorException;
 import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.message.UUIDMessage;
-import net.result.sandnode.message.types.PersonalKeyListMessage;
+import net.result.sandnode.message.types.DEKListMessage;
 import net.result.sandnode.message.types.PublicKeyResponse;
 import net.result.sandnode.serverclient.SandnodeClient;
 import net.result.taulight.dto.KeyDTO;
-import net.result.taulight.dto.PersonalKeyDTO;
-import net.result.taulight.message.types.PersonalKeyRequest;
+import net.result.taulight.dto.DEKDTO;
+import net.result.taulight.message.types.DEKRequest;
 
 import java.util.Collection;
 import java.util.UUID;
 
-public class PersonalKeyClientChain extends ClientChain {
-    public PersonalKeyClientChain(SandnodeClient client) {
+public class DEKClientChain extends ClientChain {
+    public DEKClientChain(SandnodeClient client) {
         super(client);
     }
 
-    public UUID sendPersonalKey(String nickname, KeyDTO encryptor, KeyStorage keyStorage)
+    public UUID sendDEK(String nickname, KeyDTO encryptor, KeyStorage keyStorage)
             throws InterruptedException, SandnodeErrorException, UnknownSandnodeErrorException,
             UnprocessedMessagesException, CryptoException, DeserializationException {
-        send(PersonalKeyRequest.sendPersonalKey(nickname, encryptor, keyStorage));
+        send(DEKRequest.send(nickname, encryptor, keyStorage));
 
         RawMessage raw = queue.take();
         ServerErrorManager.instance().handleError(raw);
@@ -39,29 +38,27 @@ public class PersonalKeyClientChain extends ClientChain {
         return new UUIDMessage(raw).uuid;
     }
 
-    public UUID sendPersonalKey(String nickname, UUID encryptorID, KeyStorage keyStorage)
+    public UUID sendDEK(String nickname, UUID encryptorID, KeyStorage keyStorage)
             throws InterruptedException, SandnodeErrorException, UnknownSandnodeErrorException,
             UnprocessedMessagesException, CryptoException, DeserializationException {
-        KeyStorage encryptor = client.clientConfig
-                .loadPersonalKey(encryptorID)
-                .orElseThrow(KeyStorageNotFoundException::new);
-        return sendPersonalKey(nickname, new KeyDTO(encryptorID, encryptor), keyStorage);
+        KeyStorage encryptor = client.clientConfig.loadPersonalKey(encryptorID);
+        return sendDEK(nickname, new KeyDTO(encryptorID, encryptor), keyStorage);
     }
 
-    public Collection<PersonalKeyDTO> getKeys() throws UnprocessedMessagesException, InterruptedException,
+    public Collection<DEKDTO> get() throws UnprocessedMessagesException, InterruptedException,
             UnknownSandnodeErrorException, SandnodeErrorException, ExpectedMessageException, DeserializationException {
-        send(PersonalKeyRequest.getKeys());
+        send(DEKRequest.get());
 
         RawMessage raw = queue.take();
         ServerErrorManager.instance().handleError(raw);
 
-        return new PersonalKeyListMessage(raw).list();
+        return new DEKListMessage(raw).list();
     }
 
     public KeyDTO getKeyOf(String nickname) throws ExpectedMessageException, DeserializationException,
             InterruptedException, UnknownSandnodeErrorException, SandnodeErrorException, UnprocessedMessagesException,
             EncryptionTypeException, NoSuchEncryptionException, CreatingKeyException, FSException {
-        send(PersonalKeyRequest.getKeyOf(nickname));
+        send(DEKRequest.getPersonalKeyOf(nickname));
 
         RawMessage raw = queue.take();
         ServerErrorManager.instance().handleError(raw);

@@ -9,6 +9,7 @@ import net.result.sandnode.chain.receiver.UnhandledMessageTypeClientChain;
 import net.result.sandnode.config.*;
 import net.result.sandnode.encryption.SymmetricEncryptions;
 import net.result.sandnode.exception.*;
+import net.result.sandnode.exception.error.KeyStorageNotFoundException;
 import net.result.sandnode.hubagent.Agent;
 import net.result.sandnode.hubagent.ClientProtocol;
 import net.result.sandnode.hubagent.Hub;
@@ -312,23 +313,23 @@ public class ServerTest {
         public void savePersonalKey(UUID keyID, KeyStorage keyStorage) {}
 
         @Override
-        public Optional<KeyStorage> loadPersonalKey(UUID keyID) {
-            return Optional.empty();
+        public KeyStorage loadPersonalKey(UUID keyID) throws KeyStorageNotFoundException {
+            throw new KeyStorageNotFoundException(keyID);
         }
 
         @Override
-        public Optional<KeyEntry> loadEncryptor(String nickname) {
-            return Optional.empty();
+        public KeyEntry loadEncryptor(String nickname) throws KeyStorageNotFoundException {
+            throw new KeyStorageNotFoundException(nickname);
         }
 
         @Override
-        public Optional<KeyEntry> loadDEK(String nickname) {
-            return Optional.empty();
+        public KeyEntry loadDEK(String nickname) throws KeyStorageNotFoundException {
+            throw new KeyStorageNotFoundException(nickname);
         }
 
         @Override
-        public Optional<KeyStorage> loadDEK(UUID keyID) {
-            return Optional.empty();
+        public KeyStorage loadDEK(UUID keyID) throws KeyStorageNotFoundException {
+            throw new KeyStorageNotFoundException(keyID);
         }
 
         @Override

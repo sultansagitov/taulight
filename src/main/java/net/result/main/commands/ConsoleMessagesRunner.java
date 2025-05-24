@@ -60,9 +60,7 @@ public class ConsoleMessagesRunner {
 
             ChatInfoDTO chat = context.chat;
             if (chat.chatType == ChatInfoDTO.ChatType.DIALOG) {
-                var entry = context.client.clientConfig
-                        .loadDEK(chat.otherNickname)
-                        .orElseThrow(KeyStorageNotFoundException::new);
+                var entry = context.client.clientConfig.loadDEK(chat.otherNickname);
 
                 message.setEncryptedContent(entry.id(), entry.keyStorage(), input);
             } else {
@@ -88,9 +86,7 @@ public class ConsoleMessagesRunner {
         String decrypted;
         ChatMessageInputDTO input = dto.message;
         if (input.keyID != null) {
-            KeyStorage keyStorage = context.client.clientConfig
-                    .loadDEK(input.keyID)
-                    .orElseThrow(() -> new KeyStorageNotFoundException(input.keyID.toString()));
+            KeyStorage keyStorage = context.client.clientConfig.loadDEK(input.keyID);
             decrypted = keyStorage.encryption().decrypt(Base64.getDecoder().decode(input.content), keyStorage);
         } else {
             decrypted = input.content;

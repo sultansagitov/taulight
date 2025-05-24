@@ -1,8 +1,9 @@
-package net.result.main.chain.sender;
+package net.result.taulight.chain.sender;
 
 import net.result.sandnode.error.ServerErrorManager;
 import net.result.sandnode.exception.error.SandnodeErrorException;
 import net.result.sandnode.message.RawMessage;
+import net.result.sandnode.message.types.HappyMessage;
 import net.result.sandnode.message.util.MessageTypes;
 import net.result.sandnode.serverclient.SandnodeClient;
 import net.result.sandnode.chain.ClientChain;
@@ -13,8 +14,8 @@ import net.result.sandnode.message.UUIDMessage;
 
 import java.util.*;
 
-public class ConsoleForwardRequestClientChain extends ClientChain {
-    public ConsoleForwardRequestClientChain(SandnodeClient client) {
+public class ForwardRequestClientChain extends ClientChain {
+    public ForwardRequestClientChain(SandnodeClient client) {
         super(client);
     }
 
@@ -25,6 +26,8 @@ public class ConsoleForwardRequestClientChain extends ClientChain {
         RawMessage raw = queue.take();
         ServerErrorManager.instance().handleError(raw);
         raw.expect(MessageTypes.HAPPY);
-        return new UUIDMessage(raw).uuid;
+        UUID uuid = new UUIDMessage(raw).uuid;
+        new HappyMessage(queue.take());
+        return uuid;
     }
 }

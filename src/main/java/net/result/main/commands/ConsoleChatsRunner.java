@@ -22,8 +22,7 @@ import java.util.UUID;
 public class ConsoleChatsRunner {
     private static final Logger LOGGER = LogManager.getLogger(ConsoleChatsRunner.class);
 
-    public static void chats(@NotNull ConsoleContext context, Collection<ChatInfoPropDTO> all)
-            throws InterruptedException, UnprocessedMessagesException {
+    public static void chats(@NotNull ConsoleContext context, Collection<ChatInfoPropDTO> all) {
         try {
             ChatClientChain chain = new ChatClientChain(context.client);
             context.io.chainManager.linkChain(chain);
@@ -33,14 +32,10 @@ public class ConsoleChatsRunner {
             System.out.printf("Failed to deserialize data - %s%n", e.getClass());
         } catch (ExpectedMessageException e) {
             System.out.printf("Received an unexpected message - %s%n", e.getClass());
-        } catch (SandnodeErrorException e) {
-            System.out.printf("Encountered a Sandnode error - %s%n", e.getSandnodeError().description());
-        } catch (UnknownSandnodeErrorException e) {
-            System.out.printf("Encountered an unknown Sandnode error - %s%n", e.getClass());
-        } catch (IllegalArgumentException e) {
-            System.out.printf("Invalid argument while retrieving chats: %s%n", e.getMessage());
         } catch (ArrayIndexOutOfBoundsException e) {
             System.out.println("Array index error while processing chats.");
+        } catch (Exception e) {
+            LOGGER.error("Sandnode error", e);
         }
     }
 
@@ -215,9 +210,8 @@ public class ConsoleChatsRunner {
 
     public static void printInfo(@NotNull Collection<ChatInfoDTO> infos) {
         for (ChatInfoDTO info : infos) {
-            String lastMessageText = (info.lastMessage != null && info.lastMessage.message != null)
-                    ? info.lastMessage.message.content
-                    : "(no message)";
+            String decryptedMessage = info.decryptedMessage;
+            String lastMessageText = (decryptedMessage != null) ? decryptedMessage : "(no message)";
 
             String message = switch (info.chatType) {
                 case CHANNEL -> "%s from %s - Channel: %s, %s%s%s | Last message: %s".formatted(

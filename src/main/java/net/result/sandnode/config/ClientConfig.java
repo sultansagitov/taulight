@@ -4,6 +4,7 @@ import net.result.sandnode.encryption.interfaces.KeyStorage;
 import net.result.sandnode.encryption.interfaces.SymmetricEncryption;
 import net.result.sandnode.exception.FSException;
 import net.result.sandnode.exception.crypto.KeyAlreadySaved;
+import net.result.sandnode.exception.error.KeyStorageNotFoundException;
 import net.result.sandnode.util.Endpoint;
 import net.result.sandnode.encryption.interfaces.AsymmetricKeyStorage;
 import org.jetbrains.annotations.NotNull;
@@ -27,11 +28,11 @@ public interface ClientConfig {
 
     void saveDEK(String nickname, UUID keyID, KeyStorage keyStorage) throws FSException;
 
-    Optional<KeyStorage> loadPersonalKey(UUID keyID);
+    KeyStorage loadPersonalKey(UUID keyID) throws KeyStorageNotFoundException;
 
-    Optional<KeyEntry> loadEncryptor(String nickname);
+    KeyEntry loadEncryptor(String nickname) throws KeyStorageNotFoundException;
 
-    Optional<KeyEntry> loadDEK(String nickname);
+    KeyEntry loadDEK(String nickname) throws KeyStorageNotFoundException;
 
-    Optional<KeyStorage> loadDEK(UUID keyID);
+    KeyStorage loadDEK(UUID keyID) throws KeyStorageNotFoundException;
 }

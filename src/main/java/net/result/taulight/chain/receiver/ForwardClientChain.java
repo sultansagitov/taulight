@@ -4,7 +4,6 @@ import net.result.sandnode.chain.ClientChain;
 import net.result.sandnode.chain.ReceiverChain;
 import net.result.sandnode.encryption.interfaces.KeyStorage;
 import net.result.sandnode.exception.SandnodeException;
-import net.result.sandnode.exception.error.KeyStorageNotFoundException;
 import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.serverclient.SandnodeClient;
 import net.result.taulight.dto.ChatMessageInputDTO;
@@ -39,9 +38,7 @@ public abstract class ForwardClientChain extends ClientChain implements Receiver
 
             String decrypted;
             if (input.keyID != null) {
-                KeyStorage keyStorage = client.clientConfig
-                        .loadDEK(input.keyID)
-                        .orElseThrow(() -> new KeyStorageNotFoundException(input.keyID.toString()));
+                KeyStorage keyStorage = client.clientConfig.loadDEK(input.keyID);
                 decrypted = keyStorage.encryption().decrypt(Base64.getDecoder().decode(input.content), keyStorage);
             } else {
                 decrypted = input.content;

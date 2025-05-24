@@ -15,7 +15,7 @@ import java.util.Base64;
 import java.util.UUID;
 
 // TODO make test
-public class PersonalKeyDTO {
+public class DEKDTO {
     @JsonProperty
     public UUID id;
 
@@ -31,26 +31,26 @@ public class PersonalKeyDTO {
     @JsonProperty
     public String encryptedKey;
 
-    public PersonalKeyDTO() {
+    public DEKDTO() {
     }
 
-    public PersonalKeyDTO(String receiverNickname, UUID encryptorID, String encryptedKey) {
+    public DEKDTO(String receiverNickname, UUID encryptorID, String encryptedKey) {
         this.receiverNickname = receiverNickname;
         this.encryptorID = encryptorID;
         this.encryptedKey = encryptedKey;
     }
 
-    public PersonalKeyDTO(String receiverNickname) {
+    public DEKDTO(String receiverNickname) {
         this.receiverNickname = receiverNickname;
     }
 
-    public PersonalKeyDTO(EncryptedKeyEntity entity) {
+    public DEKDTO(EncryptedKeyEntity entity) {
         this(entity.receiver().nickname(), entity.encryptor().id(), entity.encryptedKey());
         id = entity.id();
         senderNickname = entity.sender().nickname();
     }
 
-    public PersonalKeyDTO(String receiverNickname, KeyDTO encryptor, KeyStorage keyStorage)
+    public DEKDTO(String receiverNickname, KeyDTO encryptor, KeyStorage keyStorage)
             throws CryptoException, EncryptionException {
         this.receiverNickname = receiverNickname;
         this.encryptorID = encryptor.keyID();
@@ -75,9 +75,7 @@ public class PersonalKeyDTO {
     public KeyStorage decrypt(SandnodeClient client) throws KeyStorageNotFoundException, WrongKeyException,
             CannotUseEncryption, PrivateKeyNotFoundException, DecryptionException, NoSuchEncryptionException,
             EncryptionTypeException, CreatingKeyException {
-        KeyStorage personalKey = client.clientConfig
-                .loadPersonalKey(encryptorID)
-                .orElseThrow(() -> new KeyStorageNotFoundException(encryptorID.toString()));
+        KeyStorage personalKey = client.clientConfig.loadPersonalKey(encryptorID);
 
         String decrypted = personalKey.encryption().decrypt(Base64.getDecoder().decode(encryptedKey), personalKey);
         String[] s = decrypted.split(":");

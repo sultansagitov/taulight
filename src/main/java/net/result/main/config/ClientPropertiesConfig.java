@@ -8,6 +8,7 @@ import net.result.sandnode.encryption.interfaces.KeyStorage;
 import net.result.sandnode.encryption.interfaces.SymmetricEncryption;
 import net.result.sandnode.exception.*;
 import net.result.sandnode.exception.crypto.*;
+import net.result.sandnode.exception.error.KeyStorageNotFoundException;
 import net.result.sandnode.util.Endpoint;
 import net.result.sandnode.util.FileUtil;
 import net.result.sandnode.encryption.interfaces.AsymmetricKeyStorage;
@@ -112,7 +113,7 @@ public class ClientPropertiesConfig implements ClientConfig {
         memberKeys.stream().map(MemberKeyRecord::toJSON).forEach(memberKeyArray::put);
 
         JSONArray DEKArray = new JSONArray();
-        DEKs.stream().map(MemberKeyRecord::toJSON).forEach(memberKeyArray::put);
+        DEKs.stream().map(MemberKeyRecord::toJSON).forEach(DEKArray::put);
 
         return new JSONObject()
                 .put("server-keys", serverKeyArray)
@@ -200,34 +201,38 @@ public class ClientPropertiesConfig implements ClientConfig {
     }
 
     @Override
-    public synchronized Optional<KeyStorage> loadPersonalKey(UUID keyID) {
+    public synchronized KeyStorage loadPersonalKey(UUID keyID) throws KeyStorageNotFoundException {
         return memberKeys.stream()
                 .filter(k -> k.keyID.equals(keyID))
                 .map(k -> k.keyStorage)
-                .findFirst();
+                .findFirst()
+                .orElseThrow(() -> new KeyStorageNotFoundException(keyID));
     }
 
     @Override
-    public Optional<KeyEntry> loadEncryptor(String nickname) {
+    public KeyEntry loadEncryptor(String nickname) throws KeyStorageNotFoundException {
         return memberKeys.stream()
                 .filter(k -> Objects.equals(k.nickname, nickname))
                 .map(k -> new KeyEntry(k.keyID, k.keyStorage))
-                .findFirst();
+                .findFirst()
+                .orElseThrow(() -> new KeyStorageNotFoundException(nickname));
     }
 
     @Override
-    public Optional<KeyEntry> loadDEK(String nickname) {
+    public KeyEntry loadDEK(String nickname) throws KeyStorageNotFoundException {
         return DEKs.stream()
                 .filter(k -> Objects.equals(k.nickname, nickname))
                 .map(k -> new KeyEntry(k.keyID, k.keyStorage))
-                .findFirst();
+                .findFirst()
+                .orElseThrow(() -> new KeyStorageNotFoundException(nickname));
     }
 
     @Override
-    public Optional<KeyStorage> loadDEK(UUID keyID) {
+    public KeyStorage loadDEK(UUID keyID) throws KeyStorageNotFoundException {
         return DEKs.stream()
                 .filter(k -> Objects.equals(k.keyID, keyID))
                 .map(k -> k.keyStorage)
-                .findFirst();
+                .findFirst()
+                .orElseThrow(() -> new KeyStorageNotFoundException(keyID));
     }
 }

@@ -1,7 +1,15 @@
 package net.result.taulight.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import net.result.sandnode.encryption.interfaces.KeyStorage;
+import net.result.sandnode.exception.crypto.CannotUseEncryption;
+import net.result.sandnode.exception.crypto.PrivateKeyNotFoundException;
+import net.result.sandnode.exception.crypto.WrongKeyException;
+import net.result.sandnode.exception.error.DecryptionException;
+import net.result.sandnode.exception.error.KeyStorageNotFoundException;
+import net.result.sandnode.serverclient.SandnodeClient;
 import net.result.taulight.db.ChannelEntity;
 import net.result.taulight.db.DialogEntity;
 import net.result.taulight.db.TauMemberEntity;
@@ -9,6 +17,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.time.ZonedDateTime;
+import java.util.Base64;
 import java.util.Collection;
 import java.util.UUID;
 
@@ -41,6 +50,9 @@ public class ChatInfoDTO implements Comparable<ChatInfoDTO> {
     /** Information about the last message sent in the chat. May be null. */
     @JsonProperty("last-message")
     public @Nullable ChatMessageViewDTO lastMessage;
+    /** Information about the last message sent in the chat. May be null. */
+    @JsonIgnore
+    public @Nullable String decryptedMessage;
 
     /**
      * Indicates whether the chat (channel or dialog) has an associated avatar image.
@@ -62,6 +74,19 @@ public class ChatInfoDTO implements Comparable<ChatInfoDTO> {
         if (creationDate == null) return -1;
         if (o.creationDate == null) return 1;
         return creationDate.compareTo(o.creationDate);
+    }
+
+    public void decrypt(SandnodeClient client) throws KeyStorageNotFoundException, WrongKeyException,
+            CannotUseEncryption, PrivateKeyNotFoundException, DecryptionException {
+        if (lastMessage != null) {
+            UUID keyID = lastMessage.message.keyID;
+            if (keyID != null) {
+                KeyStorage DEK = client.clientConfig.loadDEK(keyID);
+                decryptedMessage = DEK.encryption().decrypt(Base64.getDecoder().decode(lastMessage.message.content), DEK);
+            } else {
+                decryptedMessage = lastMessage.message.content;
+            }
+        }
     }
 
     /**

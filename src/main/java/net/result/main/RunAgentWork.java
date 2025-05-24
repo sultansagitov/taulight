@@ -1,7 +1,7 @@
 package net.result.main;
 
 import net.result.main.chain.ConsoleClientChainManager;
-import net.result.main.chain.sender.ConsoleForwardRequestClientChain;
+import net.result.taulight.chain.sender.ForwardRequestClientChain;
 import net.result.main.commands.*;
 import net.result.main.config.ClientPropertiesConfig;
 import net.result.sandnode.config.KeyEntry;
@@ -199,9 +199,7 @@ public class RunAgentWork implements IWork {
 
         if (context.chat.chatType == ChatInfoDTO.ChatType.DIALOG) {
             String otherNickname = context.chat.otherNickname;
-            KeyEntry dek = client.clientConfig
-                    .loadDEK(otherNickname)
-                    .orElseThrow(() -> new KeyStorageNotFoundException(otherNickname));
+            KeyEntry dek = client.clientConfig.loadDEK(otherNickname);
 
             LOGGER.debug("Using {} {}", dek.id(), dek.keyStorage());
 
@@ -213,7 +211,7 @@ public class RunAgentWork implements IWork {
 
         try {
             if (context.chain == null) {
-                ConsoleForwardRequestClientChain chain = new ConsoleForwardRequestClientChain(client);
+                ForwardRequestClientChain chain = new ForwardRequestClientChain(client);
                 client.io.chainManager.linkChain(chain);
                 context.chain = chain;
             }

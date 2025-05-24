@@ -65,20 +65,17 @@ public class ConsoleChatsCommands {
         return false;
     }
 
-    private static boolean chats(List<String> ignored, ConsoleContext context)
-            throws InterruptedException, UnprocessedMessagesException {
+    private static boolean chats(List<String> ignored, ConsoleContext context) {
         ConsoleChatsRunner.chats(context, ChatInfoPropDTO.all());
         return false;
     }
 
-    private static boolean dialogs(List<String> ignored, ConsoleContext context)
-            throws InterruptedException, UnprocessedMessagesException {
+    private static boolean dialogs(List<String> ignored, ConsoleContext context) {
         ConsoleChatsRunner.chats(context, ChatInfoPropDTO.dialogAll());
         return false;
     }
 
-    private static boolean channels(List<String> ignored, ConsoleContext context)
-            throws InterruptedException, UnprocessedMessagesException {
+    private static boolean channels(List<String> ignored, ConsoleContext context) {
         ConsoleChatsRunner.chats(context, ChatInfoPropDTO.channelAll());
         return false;
     }

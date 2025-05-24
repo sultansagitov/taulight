@@ -1,6 +1,6 @@
 package net.result.main.commands;
 
-import net.result.main.chain.sender.ConsoleForwardRequestClientChain;
+import net.result.taulight.chain.sender.ForwardRequestClientChain;
 import net.result.sandnode.serverclient.SandnodeClient;
 import net.result.sandnode.util.IOController;
 import net.result.taulight.dto.ChatInfoDTO;
@@ -12,7 +12,7 @@ public class ConsoleContext {
     public final IOController io;
     public final String nickname;
     public final UUID keyID;
-    public ConsoleForwardRequestClientChain chain;
+    public ForwardRequestClientChain chain;
     public UUID currentChat = null;
     public ChatInfoDTO chat;
 
