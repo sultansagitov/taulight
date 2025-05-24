@@ -74,7 +74,12 @@ public class RunAgentWork implements IWork {
 
         TauAgent agent = (TauAgent) client.node;
 
-        Optional<AsymmetricKeyStorage> filePublicKey = client.clientConfig.getPublicKey(link.endpoint());
+        Optional<AsymmetricKeyStorage> filePublicKey;
+        try {
+            filePublicKey = Optional.of(client.clientConfig.getPublicKey(link.endpoint()));
+        } catch (KeyStorageNotFoundException e) {
+            filePublicKey = Optional.empty();
+        }
         AsymmetricKeyStorage linkKeyStorage = link.keyStorage();
 
         if (linkKeyStorage != null) {

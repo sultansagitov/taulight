@@ -2,39 +2,36 @@ package net.result.taulight;
 
 import com.auth0.jwt.algorithms.Algorithm;
 import net.result.sandnode.GlobalTestState;
-import net.result.sandnode.chain.ReceiverChain;
-import net.result.sandnode.chain.BSTClientChainManager;
-import net.result.sandnode.chain.ClientChainManager;
+import net.result.sandnode.chain.*;
 import net.result.sandnode.chain.receiver.UnhandledMessageTypeClientChain;
 import net.result.sandnode.config.*;
-import net.result.sandnode.encryption.SymmetricEncryptions;
-import net.result.sandnode.exception.*;
-import net.result.sandnode.exception.error.KeyStorageNotFoundException;
-import net.result.sandnode.hubagent.Agent;
-import net.result.sandnode.hubagent.ClientProtocol;
-import net.result.sandnode.hubagent.Hub;
 import net.result.sandnode.encryption.AsymmetricEncryptions;
 import net.result.sandnode.encryption.EncryptionManager;
+import net.result.sandnode.encryption.KeyStorageRegistry;
+import net.result.sandnode.encryption.SymmetricEncryptions;
 import net.result.sandnode.encryption.interfaces.AsymmetricKeyStorage;
 import net.result.sandnode.encryption.interfaces.KeyStorage;
 import net.result.sandnode.encryption.interfaces.SymmetricEncryption;
+import net.result.sandnode.exception.ImpossibleRuntimeException;
+import net.result.sandnode.exception.ServerStartException;
+import net.result.sandnode.exception.SocketAcceptException;
+import net.result.sandnode.exception.UnprocessedMessagesException;
+import net.result.sandnode.exception.error.KeyStorageNotFoundException;
+import net.result.sandnode.group.HashSetGroupManager;
+import net.result.sandnode.hubagent.Agent;
+import net.result.sandnode.hubagent.ClientProtocol;
+import net.result.sandnode.hubagent.Hub;
 import net.result.sandnode.message.IMessage;
 import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.message.util.*;
+import net.result.sandnode.security.JWTTokenizer;
 import net.result.sandnode.security.PasswordHasher;
 import net.result.sandnode.serverclient.SandnodeClient;
 import net.result.sandnode.serverclient.SandnodeServer;
 import net.result.sandnode.serverclient.Session;
 import net.result.sandnode.util.Container;
 import net.result.sandnode.util.Endpoint;
-import net.result.sandnode.encryption.KeyStorageRegistry;
 import net.result.sandnode.util.IOController;
-import net.result.sandnode.chain.ClientChain;
-import net.result.sandnode.chain.BSTServerChainManager;
-import net.result.sandnode.chain.ServerChainManager;
-import net.result.sandnode.chain.ServerChain;
-import net.result.sandnode.group.HashSetGroupManager;
-import net.result.sandnode.security.JWTTokenizer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
@@ -44,7 +41,6 @@ import org.junit.jupiter.api.Test;
 
 import java.net.Socket;
 import java.nio.file.Path;
-import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Condition;
@@ -305,8 +301,8 @@ public class ServerTest {
         public void saveKey(@NotNull Endpoint endpoint, @NotNull AsymmetricKeyStorage keyStorage) {}
 
         @Override
-        public Optional<AsymmetricKeyStorage> getPublicKey(@NotNull Endpoint endpoint) {
-            return Optional.empty();
+        public AsymmetricKeyStorage getPublicKey(@NotNull Endpoint endpoint) throws KeyStorageNotFoundException {
+            throw new KeyStorageNotFoundException();
         }
 
         @Override

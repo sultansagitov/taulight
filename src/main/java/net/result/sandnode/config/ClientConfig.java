@@ -9,7 +9,6 @@ import net.result.sandnode.util.Endpoint;
 import net.result.sandnode.encryption.interfaces.AsymmetricKeyStorage;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Optional;
 import java.util.UUID;
 
 public interface ClientConfig {
@@ -18,7 +17,7 @@ public interface ClientConfig {
     void saveKey(@NotNull Endpoint endpoint, @NotNull AsymmetricKeyStorage keyStorage)
             throws FSException, KeyAlreadySaved;
 
-    Optional<AsymmetricKeyStorage> getPublicKey(@NotNull Endpoint endpoint);
+    AsymmetricKeyStorage getPublicKey(@NotNull Endpoint endpoint) throws KeyStorageNotFoundException;
 
     // TODO explain terminology
 

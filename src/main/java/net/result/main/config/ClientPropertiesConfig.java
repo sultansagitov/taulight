@@ -173,11 +173,12 @@ public class ClientPropertiesConfig implements ClientConfig {
     }
 
     @Override
-    public Optional<AsymmetricKeyStorage> getPublicKey(@NotNull Endpoint endpoint) {
+    public AsymmetricKeyStorage getPublicKey(@NotNull Endpoint endpoint) throws KeyStorageNotFoundException {
         return serverKeys.stream()
                 .filter(keyRecord -> keyRecord.endpoint.equals(endpoint))
                 .findFirst()
-                .map(keyRecord -> keyRecord.keyStorage.asymmetric());
+                .map(keyRecord -> keyRecord.keyStorage.asymmetric())
+                .orElseThrow(() -> new KeyStorageNotFoundException(endpoint.toString()));
     }
 
     @Override
