@@ -98,12 +98,12 @@ public class ChannelRequest extends EmptyMessage {
         return request;
     }
 
-    public static @NotNull ChannelRequest addMember(UUID chatID, String otherNickname, Duration expirationTime) {
+    public static @NotNull ChannelRequest addMember(UUID chatID, String otherNickname, String expirationTime) {
         Headers headers = new Headers()
                 .setValue("type", "add")
                 .setValue("chat-id", chatID.toString())
                 .setValue("other-nickname", otherNickname)
-                .setValue("expires-in", String.valueOf(expirationTime.toSeconds()));
+                .setValue("expires-in", expirationTime);
         ChannelRequest request = new ChannelRequest(headers);
         request.chatID = chatID;
         request.otherNickname = otherNickname;

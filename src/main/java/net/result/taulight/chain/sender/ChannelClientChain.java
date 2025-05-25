@@ -61,6 +61,12 @@ public class ChannelClientChain extends ClientChain {
     public synchronized String createInviteCode(UUID chatID, String otherNickname, Duration expirationTime)
             throws InterruptedException, SandnodeErrorException, UnknownSandnodeErrorException,
             UnprocessedMessagesException {
+        return createInviteCode(chatID, otherNickname, String.valueOf(expirationTime.toSeconds()));
+    }
+
+    public synchronized String createInviteCode(UUID chatID, String otherNickname, String expirationTime)
+            throws InterruptedException, SandnodeErrorException, UnknownSandnodeErrorException,
+            UnprocessedMessagesException {
         send(ChannelRequest.addMember(chatID, otherNickname, expirationTime));
         RawMessage raw = queue.take();
         ServerErrorManager.instance().handleError(raw);
