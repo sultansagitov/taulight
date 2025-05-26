@@ -121,11 +121,15 @@ public class ServerPropertiesConfig implements ServerConfig {
                 privateKeyWriter.write(privateString);
 
                 LOGGER.info("Setting key file permissions.");
-                FileUtil.makeOwnerOnlyRead(PUBLIC_KEY_PATH);
-                FileUtil.makeOwnerOnlyRead(PRIVATE_KEY_PATH);
+                if (FileUtil.isPosixSupported()) {
+                    FileUtil.makeOwnerOnlyRead(PUBLIC_KEY_PATH);
+                    FileUtil.makeOwnerOnlyRead(PRIVATE_KEY_PATH);
+                } else {
+                    LOGGER.warn("POSIX unsupported here");
+                }
             } catch (IOException | FSException e) {
                 throw new SavingKeyException("Error writing keys to files", e);
-            }
+        }
         }
     }
 

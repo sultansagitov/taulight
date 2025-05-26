@@ -162,7 +162,11 @@ public class ClientPropertiesConfig implements ClientConfig {
             publicKeyWriter.write(publicKeyString);
 
             LOGGER.info("Setting public key file permissions.");
-            FileUtil.makeOwnerOnlyRead(publicKeyPath);
+            if (FileUtil.isPosixSupported()) {
+                FileUtil.makeOwnerOnlyRead(publicKeyPath);
+            } else {
+                LOGGER.warn("POSIX unsupported here");
+            }
         } catch (IOException e) {
             throw new FSException("Error writing public key to file", e);
         }
