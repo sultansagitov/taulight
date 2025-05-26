@@ -15,6 +15,7 @@ import net.result.sandnode.message.types.WhoAmIRequest;
 import net.result.sandnode.message.types.WhoAmIResponse;
 import net.result.sandnode.serverclient.Session;
 import net.result.sandnode.util.DBFileUtil;
+import net.result.sandnode.util.JPAUtil;
 
 public class WhoAmIServerChain extends ServerChain implements ReceiverChain {
     private final DBFileUtil dbFileUtil = session.server.container.get(DBFileUtil.class);
@@ -28,33 +29,41 @@ public class WhoAmIServerChain extends ServerChain implements ReceiverChain {
     public void sync() throws Exception {
         WhoAmIRequest request = new WhoAmIRequest(queue.take());
 
-        MemberEntity member = session.member;
-
-        if (member == null) {
-            throw new UnauthorizedException();
-        }
+        if (session.member == null) throw new UnauthorizedException();
 
         WhoAmIRequest.Type type = request.getType();
 
         sendFin(switch (type) {
-            case NICKNAME -> new WhoAmIResponse(member);
-            case GET_AVATAR -> {
-                FileEntity avatar = member.avatar();
-                if (avatar == null) throw new NoEffectException();
-                yield new FileMessage(dbFileUtil.readImage(avatar));
-            }
-            case SET_AVATAR -> {
-                FileMessage fileMessage = new FileMessage(queue.take());
-
-                FileDTO dto = fileMessage.dto();
-                FileEntity avatar = dbFileUtil.saveImage(dto, member.id().toString());
-
-                if (!memberRepo.setAvatar(member, avatar)) {
-                    throw new ServerSandnodeErrorException();
-                }
-
-                yield new HappyMessage();
-            }
+            case NICKNAME -> nickname(session.member);
+            case GET_AVATAR -> getAvatar(session.member);
+            case SET_AVATAR -> setAvatar(session.member);
         });
+    }
+
+    private WhoAmIResponse nickname(MemberEntity you) {
+        return new WhoAmIResponse(you);
+    }
+
+    private FileMessage getAvatar(MemberEntity you) throws Exception {
+        FileEntity avatar = you.avatar();
+        if (avatar == null) throw new NoEffectException();
+        return new FileMessage(dbFileUtil.readImage(avatar));
+    }
+
+    private HappyMessage setAvatar(MemberEntity you) throws Exception {
+        JPAUtil jpaUtil = session.server.container.get(JPAUtil.class);
+
+        FileMessage fileMessage = new FileMessage(queue.take());
+
+        FileDTO dto = fileMessage.dto();
+        FileEntity avatar = dbFileUtil.saveImage(dto, you.id().toString());
+
+        if (!memberRepo.setAvatar(you, avatar)) {
+            throw new ServerSandnodeErrorException();
+        }
+
+        session.member = jpaUtil.refresh(you);
+
+        return new HappyMessage();
     }
 }
