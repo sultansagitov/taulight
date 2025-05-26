@@ -23,11 +23,16 @@ public class ForwardRequestClientChain extends ClientChain {
             throws InterruptedException, DeserializationException, ExpectedMessageException,
             UnknownSandnodeErrorException, UnprocessedMessagesException, SandnodeErrorException {
         send(new ForwardRequest(input));
-        RawMessage raw = queue.take();
-        ServerErrorManager.instance().handleError(raw);
-        raw.expect(MessageTypes.HAPPY);
-        UUID uuid = new UUIDMessage(raw).uuid;
-        new HappyMessage(queue.take());
+
+        RawMessage uuidRaw = queue.take();
+        ServerErrorManager.instance().handleError(uuidRaw);
+        uuidRaw.expect(MessageTypes.HAPPY);
+        UUID uuid = new UUIDMessage(uuidRaw).uuid;
+
+        RawMessage happyRaw = queue.take();
+        ServerErrorManager.instance().handleError(happyRaw);
+        new HappyMessage(happyRaw);
+
         return uuid;
     }
 }
