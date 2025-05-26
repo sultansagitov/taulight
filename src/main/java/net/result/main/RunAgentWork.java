@@ -203,12 +203,17 @@ public class RunAgentWork implements IWork {
                 .setSentDatetimeNow();
 
         if (context.chat.chatType == ChatInfoDTO.ChatType.DIALOG) {
-            String otherNickname = context.chat.otherNickname;
-            KeyEntry dek = client.clientConfig.loadDEK(otherNickname);
+            try {
+                String otherNickname = context.chat.otherNickname;
+                KeyEntry dek = client.clientConfig.loadDEK(otherNickname);
 
-            LOGGER.debug("Using {} {}", dek.id(), dek.keyStorage());
+                LOGGER.debug("Using {} {}", dek.id(), dek.keyStorage());
 
-            message.setEncryptedContent(dek.id(), dek.keyStorage(), input);
+                message.setEncryptedContent(dek.id(), dek.keyStorage(), input);
+            } catch (KeyStorageNotFoundException e) {
+                LOGGER.error("Using null", e);
+                message.setContent(input);
+            }
         } else {
             message.setContent(input);
         }
