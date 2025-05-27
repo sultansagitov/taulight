@@ -15,8 +15,6 @@ import net.result.taulight.dto.ChatMessageInputDTO;
 import net.result.taulight.dto.ChatMessageViewDTO;
 import net.result.taulight.dto.DEKDTO;
 import net.result.taulight.message.types.ForwardResponse;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 import java.util.Base64;
 
