@@ -20,6 +20,10 @@ public class KeyStorageNotFoundException extends SandnodeErrorException {
         super(message);
     }
 
+    public KeyStorageNotFoundException(Throwable e) {
+        super(e);
+    }
+
     public KeyStorageNotFoundException() {
         super();
     }

@@ -27,16 +27,13 @@ public class ChatClientChain extends ClientChain {
 
     public synchronized Collection<ChatInfoDTO> getByMember(Collection<ChatInfoPropDTO> infoProps)
             throws InterruptedException, DeserializationException, ExpectedMessageException, SandnodeErrorException,
-            UnknownSandnodeErrorException, UnprocessedMessagesException, WrongKeyException, CannotUseEncryption,
-            PrivateKeyNotFoundException {
+            UnknownSandnodeErrorException, UnprocessedMessagesException {
         send(ChatRequest.getByMember(infoProps));
         RawMessage raw = queue.take();
 
         ServerErrorManager.instance().handleError(raw);
 
-        var infos = new ChatResponse(raw).getInfos();
-        for (ChatInfoDTO info : infos) info.decrypt(client);
-        return infos;
+        return new ChatResponse(raw).getInfos();
     }
 
     public synchronized Collection<ChatInfoDTO> getByID(Collection<UUID> chatID, Collection<ChatInfoPropDTO> infoProps)
@@ -48,8 +45,6 @@ public class ChatClientChain extends ClientChain {
 
         ServerErrorManager.instance().handleError(raw);
 
-        var infos = new ChatResponse(raw).getInfos();
-        for (ChatInfoDTO info : infos) info.decrypt(client);
-        return infos;
+        return new ChatResponse(raw).getInfos();
     }
 }

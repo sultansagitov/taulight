@@ -2,7 +2,11 @@ package net.result.main.commands;
 
 import net.result.sandnode.dto.FileDTO;
 import net.result.sandnode.exception.*;
+import net.result.sandnode.exception.crypto.CannotUseEncryption;
+import net.result.sandnode.exception.crypto.PrivateKeyNotFoundException;
+import net.result.sandnode.exception.crypto.WrongKeyException;
 import net.result.sandnode.exception.error.*;
+import net.result.sandnode.serverclient.SandnodeClient;
 import net.result.taulight.chain.sender.ChannelClientChain;
 import net.result.taulight.chain.sender.ChatClientChain;
 import net.result.taulight.chain.sender.DialogClientChain;
@@ -26,7 +30,7 @@ public class ConsoleChatsRunner {
         try {
             ChatClientChain chain = new ChatClientChain(context.client);
             context.io.chainManager.linkChain(chain);
-            printInfo(chain.getByMember(all));
+            printInfo(chain.getByMember(all), context.client);
             context.io.chainManager.removeChain(chain);
         } catch (DeserializationException e) {
             System.out.printf("Failed to deserialize data - %s%n", e.getClass());
@@ -136,7 +140,7 @@ public class ConsoleChatsRunner {
         try {
             ChatClientChain chain = new ChatClientChain(context.client);
             context.io.chainManager.linkChain(chain);
-            printInfo(chain.getByID(List.of(chatID), ChatInfoPropDTO.all()));
+            printInfo(chain.getByID(List.of(chatID), ChatInfoPropDTO.all()), context.client);
             context.io.chainManager.removeChain(chain);
         } catch (IllegalArgumentException e) {
             System.out.println("Invalid UUID format provided: " + e.getMessage());
@@ -208,8 +212,12 @@ public class ConsoleChatsRunner {
 
     }
 
-    public static void printInfo(@NotNull Collection<ChatInfoDTO> infos) {
+    public static void printInfo(@NotNull Collection<ChatInfoDTO> infos, SandnodeClient client)
+            throws KeyStorageNotFoundException, WrongKeyException, CannotUseEncryption, PrivateKeyNotFoundException,
+            DecryptionException {
         for (ChatInfoDTO info : infos) {
+            info.decrypt(client);
+
             String decryptedMessage = info.decryptedMessage;
             String lastMessageText = (decryptedMessage != null) ? decryptedMessage : "(no message)";
 
