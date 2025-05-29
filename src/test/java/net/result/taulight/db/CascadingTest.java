@@ -3,7 +3,6 @@ package net.result.taulight.db;
 import net.result.sandnode.GlobalTestState;
 import net.result.sandnode.db.MemberEntity;
 import net.result.sandnode.db.MemberRepository;
-import net.result.sandnode.security.PasswordHashers;
 import net.result.sandnode.util.Container;
 import net.result.taulight.dto.ChatMessageInputDTO;
 import org.junit.jupiter.api.BeforeAll;
@@ -37,7 +36,7 @@ public class CascadingTest {
 
     @Test
     public void testLeaveFromChannel() throws Exception {
-        MemberEntity m1 = memberRepo.create("new_user", PasswordHashers.BCRYPT.hash("pass", 12));
+        MemberEntity m1 = memberRepo.create("new_user", "hash");
         TauMemberEntity tau = m1.tauMember();
 
         ChannelEntity channel = channelRepo.create("news", tau);
@@ -54,8 +53,8 @@ public class CascadingTest {
 
     @Test
     public void testRemoveReactionByObject() throws Exception {
-        MemberEntity m1 = memberRepo.create("reacter", PasswordHashers.BCRYPT.hash("123", 12));
-        MemberEntity m2 = memberRepo.create("author", PasswordHashers.BCRYPT.hash("123", 12));
+        MemberEntity m1 = memberRepo.create("reacter", "hash");
+        MemberEntity m2 = memberRepo.create("author", "hash");
 
         TauMemberEntity reacter = m1.tauMember();
         TauMemberEntity author = m2.tauMember();
@@ -83,8 +82,8 @@ public class CascadingTest {
 
     @Test
     public void testRemoveReactionByCompositeKey() throws Exception {
-        MemberEntity m1 = memberRepo.create("maria", PasswordHashers.BCRYPT.hash("123", 12));
-        MemberEntity m2 = memberRepo.create("mark", PasswordHashers.BCRYPT.hash("123", 12));
+        MemberEntity m1 = memberRepo.create("maria", "hash");
+        MemberEntity m2 = memberRepo.create("mark", "hash");
 
         TauMemberEntity reacter = m1.tauMember();
         TauMemberEntity author = m2.tauMember();
@@ -112,8 +111,8 @@ public class CascadingTest {
 
     @Test
     public void testActivateInviteCode() throws Exception {
-        MemberEntity sender = memberRepo.create("sender", PasswordHashers.BCRYPT.hash("pass", 12));
-        MemberEntity receiver = memberRepo.create("receiver", PasswordHashers.BCRYPT.hash("pass", 12));
+        MemberEntity sender = memberRepo.create("sender_cascading", "hash");
+        MemberEntity receiver = memberRepo.create("receiver_cascading", "hash");
         TauMemberEntity s = sender.tauMember();
         TauMemberEntity r = receiver.tauMember();
 

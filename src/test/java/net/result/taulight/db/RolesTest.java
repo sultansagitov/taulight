@@ -4,7 +4,6 @@ import net.result.sandnode.GlobalTestState;
 import net.result.sandnode.db.MemberRepository;
 import net.result.sandnode.exception.DatabaseException;
 import net.result.sandnode.exception.error.BusyNicknameException;
-import net.result.sandnode.security.PasswordHashers;
 import net.result.sandnode.util.Container;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -24,8 +23,8 @@ public class RolesTest {
         channelRepo = container.get(ChannelRepository.class);
         roleRepo = container.get(RoleRepository.class);
 
-        member1 = memberRepo.create("user1_roles", PasswordHashers.BCRYPT.hash("password123", 12)).tauMember();
-        member2 = memberRepo.create("user2_roles", PasswordHashers.BCRYPT.hash("password123", 12)).tauMember();
+        member1 = memberRepo.create("user1_roles", "hash").tauMember();
+        member2 = memberRepo.create("user2_roles", "hash").tauMember();
 
         assertNotNull(member1.id());
         assertNotNull(member2.id());

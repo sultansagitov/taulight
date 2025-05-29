@@ -1,4 +1,4 @@
-package net.result.taulight.dto;
+package net.result.sandnode.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import net.result.sandnode.db.EncryptedKeyEntity;
@@ -9,12 +9,10 @@ import net.result.sandnode.exception.crypto.*;
 import net.result.sandnode.exception.error.DecryptionException;
 import net.result.sandnode.exception.error.EncryptionException;
 import net.result.sandnode.exception.error.KeyStorageNotFoundException;
-import net.result.sandnode.serverclient.SandnodeClient;
 
 import java.util.Base64;
 import java.util.UUID;
 
-// TODO make test
 public class DEKDTO {
     @JsonProperty
     public UUID id;
@@ -72,11 +70,9 @@ public class DEKDTO {
         this.encryptedKey = Base64.getEncoder().encodeToString(encrypted);
     }
 
-    public KeyStorage decrypt(SandnodeClient client) throws KeyStorageNotFoundException, WrongKeyException,
+    public KeyStorage decrypt(KeyStorage personalKey) throws KeyStorageNotFoundException, WrongKeyException,
             CannotUseEncryption, PrivateKeyNotFoundException, DecryptionException, NoSuchEncryptionException,
             EncryptionTypeException, CreatingKeyException {
-        KeyStorage personalKey = client.clientConfig.loadPersonalKey(encryptorID);
-
         String decrypted = personalKey.encryption().decrypt(Base64.getDecoder().decode(encryptedKey), personalKey);
         String[] s = decrypted.split(":");
         String encryptionString = s[0];

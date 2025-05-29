@@ -4,7 +4,6 @@ import net.result.sandnode.chain.ReceiverChain;
 import net.result.sandnode.chain.ServerChain;
 import net.result.sandnode.db.FileEntity;
 import net.result.sandnode.db.MemberEntity;
-import net.result.sandnode.db.MemberRepository;
 import net.result.sandnode.exception.DatabaseException;
 import net.result.sandnode.exception.ImpossibleRuntimeException;
 import net.result.sandnode.exception.error.*;
@@ -14,10 +13,7 @@ import net.result.sandnode.message.util.Headers;
 import net.result.sandnode.message.util.MessageTypes;
 import net.result.sandnode.serverclient.Session;
 import net.result.sandnode.util.DBFileUtil;
-import net.result.taulight.db.ChatEntity;
-import net.result.taulight.db.DialogEntity;
-import net.result.taulight.db.DialogRepository;
-import net.result.taulight.db.TauMemberEntity;
+import net.result.taulight.db.*;
 import net.result.taulight.dto.ChatMessageInputDTO;
 import net.result.taulight.group.TauGroupManager;
 import net.result.taulight.message.types.DialogRequest;
@@ -58,13 +54,12 @@ public class DialogServerChain extends ServerChain implements ReceiverChain {
 
     private void id(DialogRequest request, MemberEntity you) throws Exception {
         TauGroupManager manager = session.server.container.get(TauGroupManager.class);
-        MemberRepository memberRepo = session.server.container.get(MemberRepository.class);
+        TauMemberRepository tauMemberRepo = session.server.container.get(TauMemberRepository.class);
         DialogRepository dialogRepo = session.server.container.get(DialogRepository.class);
 
         DialogEntity dialog;
-        TauMemberEntity anotherMember = memberRepo // TODO replace with tauMemberRepo
+        TauMemberEntity anotherMember = tauMemberRepo
                 .findByNickname(request.content())
-                .map(MemberEntity::tauMember)
                 .orElseThrow(AddressedMemberNotFoundException::new);
 
         Optional<DialogEntity> dialogOpt = dialogRepo.findByMembers(you.tauMember(), anotherMember);

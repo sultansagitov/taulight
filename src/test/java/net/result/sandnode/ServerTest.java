@@ -1,7 +1,6 @@
-package net.result.taulight;
+package net.result.sandnode;
 
 import com.auth0.jwt.algorithms.Algorithm;
-import net.result.sandnode.GlobalTestState;
 import net.result.sandnode.chain.*;
 import net.result.sandnode.chain.receiver.UnhandledMessageTypeClientChain;
 import net.result.sandnode.config.*;
@@ -279,7 +278,7 @@ public class ServerTest {
         }
     }
 
-    private static class TestAgent extends Agent {
+    public static class TestAgent extends Agent {
         public TestAgent() {
             super(new KeyStorageRegistry());
         }
@@ -291,7 +290,7 @@ public class ServerTest {
         }
     }
 
-    private static class TestClientConfig implements ClientConfig {
+    public static class TestClientConfig implements ClientConfig {
         @Override
         public @NotNull SymmetricEncryption symmetricKeyEncryption() {
             return symmetricEncryption;

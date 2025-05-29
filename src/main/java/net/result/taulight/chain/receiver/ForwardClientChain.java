@@ -13,7 +13,7 @@ import net.result.sandnode.message.types.HappyMessage;
 import net.result.sandnode.serverclient.SandnodeClient;
 import net.result.taulight.dto.ChatMessageInputDTO;
 import net.result.taulight.dto.ChatMessageViewDTO;
-import net.result.taulight.dto.DEKDTO;
+import net.result.sandnode.dto.DEKDTO;
 import net.result.taulight.message.types.ForwardResponse;
 
 import java.util.Base64;
@@ -42,7 +42,7 @@ public abstract class ForwardClientChain extends ClientChain implements Receiver
                 RawMessage raw = queue.take();
                 ServerErrorManager.instance().handleError(raw);
                 DEKDTO dto = new DEKListMessage(raw).list().get(0);
-                keyStorage = dto.decrypt(client);
+                keyStorage = dto.decrypt(client.clientConfig.loadPersonalKey(dto.encryptorID));
                 client.clientConfig.saveDEK(input.nickname, dto.id, keyStorage);
             }
             decrypted = keyStorage.encryption().decrypt(Base64.getDecoder().decode(input.content), keyStorage);

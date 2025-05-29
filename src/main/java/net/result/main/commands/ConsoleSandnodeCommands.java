@@ -12,8 +12,8 @@ import net.result.sandnode.exception.error.KeyStorageNotFoundException;
 import net.result.sandnode.exception.error.SandnodeErrorException;
 import net.result.sandnode.exception.error.UnauthorizedException;
 import net.result.sandnode.hubagent.ClientProtocol;
-import net.result.taulight.dto.KeyDTO;
-import net.result.taulight.dto.DEKDTO;
+import net.result.sandnode.dto.KeyDTO;
+import net.result.sandnode.dto.DEKDTO;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -283,7 +283,7 @@ public class ConsoleSandnodeCommands {
             context.io.chainManager.removeChain(chain);
 
             for (DEKDTO key : keys) {
-                KeyStorage decrypted = key.decrypt(context.client);
+                KeyStorage decrypted = key.decrypt(context.client.clientConfig.loadPersonalKey(key.encryptorID));
 
                 context.client.clientConfig.saveDEK(key.senderNickname, key.id, decrypted);
 

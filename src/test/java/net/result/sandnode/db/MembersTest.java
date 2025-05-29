@@ -3,7 +3,6 @@ package net.result.sandnode.db;
 import net.result.sandnode.GlobalTestState;
 import net.result.sandnode.exception.DatabaseException;
 import net.result.sandnode.exception.error.BusyNicknameException;
-import net.result.sandnode.security.PasswordHashers;
 import net.result.sandnode.util.Container;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -24,7 +23,7 @@ class MembersTest {
 
     @Test
     public void registerMember() throws DatabaseException, BusyNicknameException {
-        MemberEntity newMember = memberRepo.create("testuser123", PasswordHashers.BCRYPT.hash("securePass!", 12));
+        MemberEntity newMember = memberRepo.create("testuser123", "hash");
         assertNotNull(newMember);
         assertEquals("testuser123", newMember.nickname());
 
@@ -35,12 +34,12 @@ class MembersTest {
         assertEquals(0, newMember.tauMember().channels().size(), "New member should have no channels");
 
         // Test duplicate nickname
-        assertThrows(BusyNicknameException.class, () -> memberRepo.create("testuser123", PasswordHashers.BCRYPT.hash("securePass!", 12)));
+        assertThrows(BusyNicknameException.class, () -> memberRepo.create("testuser123", "hash"));
     }
 
     @Test
     public void findMemberByNickname() throws DatabaseException, BusyNicknameException {
-        MemberEntity registeredMember = memberRepo.create("nicksearch", PasswordHashers.BCRYPT.hash("pass1234", 12));
+        MemberEntity registeredMember = memberRepo.create("nicksearch", "hash");
 
         Optional<MemberEntity> found = memberRepo.findByNickname("nicksearch");
         assertTrue(found.isPresent());

@@ -4,10 +4,9 @@ import net.result.sandnode.GlobalTestState;
 import net.result.sandnode.db.MemberRepository;
 import net.result.sandnode.exception.DatabaseException;
 import net.result.sandnode.exception.error.BusyNicknameException;
-import net.result.sandnode.security.PasswordHashers;
 import net.result.sandnode.util.Container;
 import net.result.sandnode.util.JPAUtil;
-import net.result.taulight.exception.AlreadyExistingRecordException;
+import net.result.sandnode.exception.AlreadyExistingRecordException;
 import net.result.taulight.util.ChatUtil;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -41,12 +40,12 @@ public class ChatsTest {
         channelRepo = container.get(ChannelRepository.class);
         chatUtil = container.get(ChatUtil.class);
 
-        member1 = memberRepo.create("user1_chats", PasswordHashers.BCRYPT.hash("password123", 12)).tauMember();
-        member2 = memberRepo.create("user2_chats", PasswordHashers.BCRYPT.hash("password123", 12)).tauMember();
-        member3 = memberRepo.create("user3_chats", PasswordHashers.BCRYPT.hash("password123", 12)).tauMember();
-        member4 = memberRepo.create("user4_chats", PasswordHashers.BCRYPT.hash("password123", 12)).tauMember();
-        member5 = memberRepo.create("user5_chats", PasswordHashers.BCRYPT.hash("password123", 12)).tauMember();
-        member6 = memberRepo.create("user6_chats", PasswordHashers.BCRYPT.hash("password123", 12)).tauMember();
+        member1 = memberRepo.create("user1_chats", "hash").tauMember();
+        member2 = memberRepo.create("user2_chats", "hash").tauMember();
+        member3 = memberRepo.create("user3_chats", "hash").tauMember();
+        member4 = memberRepo.create("user4_chats", "hash").tauMember();
+        member5 = memberRepo.create("user5_chats", "hash").tauMember();
+        member6 = memberRepo.create("user6_chats", "hash").tauMember();
 
         // Assert that all members are properly created
         assertNotNull(member1.id());

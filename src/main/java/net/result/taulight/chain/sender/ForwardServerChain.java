@@ -15,7 +15,7 @@ import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.message.types.DEKListMessage;
 import net.result.sandnode.message.types.HappyMessage;
 import net.result.sandnode.serverclient.Session;
-import net.result.taulight.dto.DEKDTO;
+import net.result.sandnode.dto.DEKDTO;
 import net.result.taulight.message.types.ForwardResponse;
 
 import java.util.List;

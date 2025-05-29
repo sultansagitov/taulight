@@ -15,9 +15,9 @@ import net.result.sandnode.message.UUIDMessage;
 import net.result.sandnode.message.types.DEKListMessage;
 import net.result.sandnode.message.types.PublicKeyResponse;
 import net.result.sandnode.serverclient.SandnodeClient;
-import net.result.taulight.dto.KeyDTO;
-import net.result.taulight.dto.DEKDTO;
-import net.result.taulight.message.types.DEKRequest;
+import net.result.sandnode.dto.KeyDTO;
+import net.result.sandnode.dto.DEKDTO;
+import net.result.sandnode.message.types.DEKRequest;
 
 import java.util.Collection;
 import java.util.UUID;

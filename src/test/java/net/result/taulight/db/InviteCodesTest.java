@@ -4,7 +4,6 @@ import net.result.sandnode.GlobalTestState;
 import net.result.sandnode.db.MemberRepository;
 import net.result.sandnode.exception.DatabaseException;
 import net.result.sandnode.exception.error.BusyNicknameException;
-import net.result.sandnode.security.PasswordHashers;
 import net.result.sandnode.util.Container;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -33,12 +32,12 @@ public class InviteCodesTest {
         channelRepo = container.get(ChannelRepository.class);
         inviteCodeRepo = container.get(InviteCodeRepository.class);
 
-        member1 = memberRepo.create("user1_invites", PasswordHashers.BCRYPT.hash("password123", 12)).tauMember();
-        member2 = memberRepo.create("user2_invites", PasswordHashers.BCRYPT.hash("password123", 12)).tauMember();
-        member3 = memberRepo.create("user3_invites", PasswordHashers.BCRYPT.hash("password123", 12)).tauMember();
-        member4 = memberRepo.create("user4_invites", PasswordHashers.BCRYPT.hash("password123", 12)).tauMember();
-        member5 = memberRepo.create("user5_invites", PasswordHashers.BCRYPT.hash("password123", 12)).tauMember();
-        member6 = memberRepo.create("user6_invites", PasswordHashers.BCRYPT.hash("password123", 12)).tauMember();
+        member1 = memberRepo.create("user1_invites", "hash").tauMember();
+        member2 = memberRepo.create("user2_invites", "hash").tauMember();
+        member3 = memberRepo.create("user3_invites", "hash").tauMember();
+        member4 = memberRepo.create("user4_invites", "hash").tauMember();
+        member5 = memberRepo.create("user5_invites", "hash").tauMember();
+        member6 = memberRepo.create("user6_invites", "hash").tauMember();
 
         // Assert that all members are properly created
         assertNotNull(member1.id());

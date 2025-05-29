@@ -1,6 +1,4 @@
-package net.result.taulight.exception;
-
-import net.result.sandnode.exception.SandnodeException;
+package net.result.sandnode.exception;
 
 @SuppressWarnings("unused")
 public class AlreadyExistingRecordException extends SandnodeException {

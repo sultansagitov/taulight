@@ -3,7 +3,7 @@ package net.result.taulight.db;
 import net.result.sandnode.util.JPAUtil;
 import net.result.sandnode.exception.DatabaseException;
 import net.result.sandnode.util.Container;
-import net.result.taulight.exception.AlreadyExistingRecordException;
+import net.result.sandnode.exception.AlreadyExistingRecordException;
 import org.jetbrains.annotations.NotNull;
 
 import jakarta.persistence.EntityManager;

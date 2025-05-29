@@ -1,4 +1,4 @@
-package net.result.taulight.dto;
+package net.result.sandnode.dto;
 
 import net.result.sandnode.encryption.interfaces.KeyStorage;
 

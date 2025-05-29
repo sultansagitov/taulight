@@ -6,6 +6,9 @@ import net.result.sandnode.util.JPAUtil;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityTransaction;
 
+import java.util.Optional;
+import java.util.UUID;
+
 public class FileRepository {
     private final JPAUtil jpaUtil;
 
@@ -45,5 +48,14 @@ public class FileRepository {
         }
 
         return managed;
+    }
+
+    public Optional<FileEntity> find(UUID id) throws DatabaseException {
+        EntityManager em = jpaUtil.getEntityManager();
+        try    {
+            return Optional.ofNullable(em.find(FileEntity.class, id));
+        } catch (Exception e) {
+            throw new DatabaseException(e);
+        }
     }
 }

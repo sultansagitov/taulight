@@ -5,7 +5,6 @@ import net.result.sandnode.db.MemberRepository;
 import net.result.sandnode.exception.DatabaseException;
 import net.result.sandnode.exception.error.BusyNicknameException;
 import net.result.sandnode.exception.error.NotFoundException;
-import net.result.sandnode.security.PasswordHashers;
 import net.result.sandnode.util.Container;
 import net.result.sandnode.util.JPAUtil;
 import net.result.taulight.dto.ChatMessageInputDTO;
@@ -32,8 +31,8 @@ public class MessagesTest {
         channelRepo = container.get(ChannelRepository.class);
         messageRepo = container.get(MessageRepository.class);
 
-        member1 = memberRepo.create("user1_messages", PasswordHashers.BCRYPT.hash("password123", 12)).tauMember();
-        member2 = memberRepo.create("user2_messages", PasswordHashers.BCRYPT.hash("password123", 12)).tauMember();
+        member1 = memberRepo.create("user1_messages", "hash").tauMember();
+        member2 = memberRepo.create("user2_messages", "hash").tauMember();
 
         assertNotNull(member1.id());
         assertNotNull(member2.id());

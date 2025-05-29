@@ -1,4 +1,4 @@
-package net.result.taulight.message.types;
+package net.result.sandnode.message.types;
 
 import net.result.sandnode.encryption.interfaces.KeyStorage;
 import net.result.sandnode.exception.DeserializationException;
@@ -9,8 +9,8 @@ import net.result.sandnode.message.MSGPackMessage;
 import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.message.util.Headers;
 import net.result.sandnode.message.util.MessageTypes;
-import net.result.taulight.dto.KeyDTO;
-import net.result.taulight.dto.DEKDTO;
+import net.result.sandnode.dto.KeyDTO;
+import net.result.sandnode.dto.DEKDTO;
 
 public class DEKRequest extends MSGPackMessage<DEKDTO> {
     public enum DataType {SEND, GET, GET_PERSONAL_KEY_OF}

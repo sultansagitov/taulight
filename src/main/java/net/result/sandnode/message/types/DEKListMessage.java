@@ -7,7 +7,7 @@ import net.result.sandnode.message.MSGPackMessage;
 import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.message.util.Headers;
 import net.result.sandnode.message.util.MessageTypes;
-import net.result.taulight.dto.DEKDTO;
+import net.result.sandnode.dto.DEKDTO;
 
 import java.util.List;
 

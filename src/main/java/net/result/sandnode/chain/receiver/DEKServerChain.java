@@ -14,8 +14,8 @@ import net.result.sandnode.message.types.PublicKeyResponse;
 import net.result.sandnode.message.util.Headers;
 import net.result.sandnode.serverclient.Session;
 import net.result.sandnode.util.JPAUtil;
-import net.result.taulight.dto.DEKDTO;
-import net.result.taulight.message.types.DEKRequest;
+import net.result.sandnode.dto.DEKDTO;
+import net.result.sandnode.message.types.DEKRequest;
 
 import java.util.List;
 import java.util.Optional;

@@ -3,7 +3,6 @@ package net.result.taulight.db;
 import net.result.sandnode.GlobalTestState;
 import net.result.sandnode.db.MemberEntity;
 import net.result.sandnode.db.MemberRepository;
-import net.result.sandnode.security.PasswordHashers;
 import net.result.sandnode.util.Container;
 import net.result.sandnode.util.JPAUtil;
 import net.result.taulight.dto.ChatMessageInputDTO;
@@ -42,8 +41,8 @@ public class MemberDeletionIntegrationTest {
 
     @Test
     public void testDeleteMemberAndCheckDialogCleanup() throws Exception {
-        MemberEntity m1 = memberRepo.create("alice", PasswordHashers.BCRYPT.hash("pass1", 12));
-        MemberEntity m2 = memberRepo.create("bob", PasswordHashers.BCRYPT.hash("pass2", 12));
+        MemberEntity m1 = memberRepo.create("alice", "hash");
+        MemberEntity m2 = memberRepo.create("bob", "hash");
 
         TauMemberEntity tau1 = m1.tauMember();
         TauMemberEntity tau2 = m2.tauMember();
@@ -60,7 +59,7 @@ public class MemberDeletionIntegrationTest {
 
     @Test
     public void testDeleteMemberAndCheckMessageCleanup() throws Exception {
-        MemberEntity member = memberRepo.create("charlie", PasswordHashers.BCRYPT.hash("123", 12));
+        MemberEntity member = memberRepo.create("charlie", "hash");
         TauMemberEntity tau = member.tauMember();
 
         ChatEntity chat = channelRepo.create("general", tau);
@@ -85,8 +84,8 @@ public class MemberDeletionIntegrationTest {
 
     @Test
     public void testDeleteMemberAndCheckReactionCleanup() throws Exception {
-        MemberEntity m1 = memberRepo.create("eva", PasswordHashers.BCRYPT.hash("123", 12));
-        MemberEntity m2 = memberRepo.create("oliver", PasswordHashers.BCRYPT.hash("456", 12));
+        MemberEntity m1 = memberRepo.create("eva", "hash");
+        MemberEntity m2 = memberRepo.create("oliver", "hash");
         TauMemberEntity tau1 = m1.tauMember();
         TauMemberEntity tau2 = m2.tauMember();
 
@@ -115,8 +114,8 @@ public class MemberDeletionIntegrationTest {
 
     @Test
     public void testDeleteMemberAndCheckInviteCleanup() throws Exception {
-        MemberEntity owner = memberRepo.create("sam", PasswordHashers.BCRYPT.hash("123", 12));
-        MemberEntity invited = memberRepo.create("jack", PasswordHashers.BCRYPT.hash("456", 12));
+        MemberEntity owner = memberRepo.create("sam", "hash");
+        MemberEntity invited = memberRepo.create("jack", "hash");
         TauMemberEntity tauOwner = owner.tauMember();
         TauMemberEntity tauInvited = invited.tauMember();
 
