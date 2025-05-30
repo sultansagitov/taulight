@@ -17,6 +17,7 @@ import net.result.sandnode.message.util.MessageTypes;
 import net.result.sandnode.serverclient.Session;
 import net.result.sandnode.util.DBFileUtil;
 import net.result.sandnode.util.JPAUtil;
+import net.result.taulight.dto.ChannelRequestDTO;
 import net.result.taulight.util.ChatUtil;
 import net.result.taulight.util.SysMessages;
 import net.result.taulight.util.TauAgentProtocol;
@@ -34,6 +35,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
 
+import java.time.Duration;
 import java.time.ZonedDateTime;
 import java.util.Collection;
 import java.util.UUID;
@@ -66,7 +68,9 @@ public class ChannelServerChain extends ServerChain implements ReceiverChain {
 
         ChannelRequest request = new ChannelRequest(queue.take());
 
-        if (request.type == null) {
+        ChannelRequestDTO dto = request.dto();
+
+        if (dto.type == null) {
             throw new TooFewArgumentsException();
         }
 
@@ -75,25 +79,25 @@ public class ChannelServerChain extends ServerChain implements ReceiverChain {
         }
 
         final TauMemberEntity you = session.member.tauMember();
-        switch (request.type) {
-            case CREATE -> create(request, you);
-            case INVITE -> invite(request, you);
-            case LEAVE -> leave(request, you);
-            case CH_CODES -> channelCodes(request, you);
+        switch (dto.type) {
+            case CREATE -> create(dto, you);
+            case INVITE -> invite(dto, you);
+            case LEAVE -> leave(dto, you);
+            case CH_CODES -> channelCodes(dto, you);
             case MY_CODES -> myCodes(you);
-            case SET_AVATAR -> setAvatar(request, you);
-            case GET_AVATAR -> getAvatar(request, you);
+            case SET_AVATAR -> setAvatar(dto, you);
+            case GET_AVATAR -> getAvatar(dto, you);
         }
 
         session.member = jpaUtil.refresh(session.member);
     }
 
-    private void create(@NotNull ChannelRequest request, TauMemberEntity you) throws Exception {
-        if (request.title == null) {
+    private void create(ChannelRequestDTO dto, TauMemberEntity you) throws Exception {
+        if (dto.title == null) {
             throw new TooFewArgumentsException();
         }
 
-        ChannelEntity channel = channelRepo.create(request.title, you);
+        ChannelEntity channel = channelRepo.create(dto.title, you);
 
         TauAgentProtocol.addMemberToGroup(session, manager.getGroup(channel));
         ChatMessageInputDTO input = SysMessages.channelNew.toInput(channel, you);
@@ -108,8 +112,8 @@ public class ChannelServerChain extends ServerChain implements ReceiverChain {
         send(new UUIDMessage(new Headers().setType(MessageTypes.HAPPY), channel));
     }
 
-    private void invite(@NotNull ChannelRequest request, TauMemberEntity you) throws Exception {
-        ChatEntity chat = chatUtil.getChat(request.chatID).orElseThrow(NotFoundException::new);
+    private void invite(ChannelRequestDTO dto, TauMemberEntity you) throws Exception {
+        ChatEntity chat = chatUtil.getChat(dto.chatID).orElseThrow(NotFoundException::new);
 
         // You not in channel
         if (!chatUtil.contains(chat, you)) throw new NotFoundException();
@@ -118,7 +122,7 @@ public class ChannelServerChain extends ServerChain implements ReceiverChain {
         if (!(chat instanceof ChannelEntity channel)) throw new WrongAddressException();
 
         TauMemberEntity member = memberRepo
-                .findByNickname(request.otherNickname)
+                .findByNickname(dto.otherNickname)
                 .map(MemberEntity::tauMember)
                 .orElseThrow(AddressedMemberNotFoundException::new);
 
@@ -137,14 +141,16 @@ public class ChannelServerChain extends ServerChain implements ReceiverChain {
             }
         }
 
-        ZonedDateTime expiresDate = ZonedDateTime.now().plus(request.expirationTime);
+        String expirationString = dto.expirationTime;
+        Duration duration = Duration.ofSeconds(Long.parseLong(expirationString));
+        ZonedDateTime expiresDate = ZonedDateTime.now().plus(duration);
         InviteCodeEntity code = inviteCodeRepo.create(channel, member, you, expiresDate);
 
         sendFin(new TextMessage(new Headers().setType(TauMessageTypes.CHANNEL), code.code()));
     }
 
-    private void leave(@NotNull ChannelRequest request, TauMemberEntity you) throws Exception {
-        ChatEntity chat = chatUtil.getChat(request.chatID).orElseThrow(NotFoundException::new);
+    private void leave(ChannelRequestDTO dto, TauMemberEntity you) throws Exception {
+        ChatEntity chat = chatUtil.getChat(dto.chatID).orElseThrow(NotFoundException::new);
 
         // You not in channel
         if (!chatUtil.contains(chat, you)) throw new NotFoundException();
@@ -172,8 +178,8 @@ public class ChannelServerChain extends ServerChain implements ReceiverChain {
         send(new HappyMessage());
     }
 
-    private void channelCodes(@NotNull ChannelRequest request, TauMemberEntity you) throws Exception {
-        ChatEntity chat = chatUtil.getChat(request.chatID).orElseThrow(NotFoundException::new);
+    private void channelCodes(ChannelRequestDTO dto, TauMemberEntity you) throws Exception {
+        ChatEntity chat = chatUtil.getChat(dto.chatID).orElseThrow(NotFoundException::new);
         if (!chatUtil.contains(chat, you)) throw new UnauthorizedException();
         if (!(chat instanceof ChannelEntity channel)) throw new WrongAddressException();
 
@@ -195,24 +201,24 @@ public class ChannelServerChain extends ServerChain implements ReceiverChain {
         sendFin(new CodeListMessage(new Headers().setType(TauMessageTypes.CHANNEL), collected));
     }
 
-    private void setAvatar(@NotNull ChannelRequest request, TauMemberEntity you) throws Exception {
-        UUID chatID = request.chatID;
+    private void setAvatar(ChannelRequestDTO dto, TauMemberEntity you) throws Exception {
+        UUID chatID = dto.chatID;
         FileMessage fileMessage = new FileMessage(queue.take());
 
         ChatEntity chat = chatUtil.getChat(chatID).orElseThrow(NotFoundException::new);
         if (!chatUtil.contains(chat, you)) throw new UnauthorizedException();
         if (!(chat instanceof ChannelEntity channel)) throw new WrongAddressException();
 
-        FileDTO dto = fileMessage.dto();
-        FileEntity avatar = dbFileUtil.saveImage(dto, chatID.toString());
+        FileDTO fileDTO = fileMessage.dto();
+        FileEntity avatar = dbFileUtil.saveImage(fileDTO, chatID.toString());
 
         channelRepo.setAvatar(channel, avatar);
 
         send(new HappyMessage());
     }
 
-    private void getAvatar(@NotNull ChannelRequest request, TauMemberEntity you) throws Exception {
-        UUID chatID = request.chatID;
+    private void getAvatar(ChannelRequestDTO dto, TauMemberEntity you) throws Exception {
+        UUID chatID = dto.chatID;
 
         ChatEntity chat = chatUtil.getChat(chatID).orElseThrow(NotFoundException::new);
         if (!chatUtil.contains(chat, you)) throw new UnauthorizedException();
