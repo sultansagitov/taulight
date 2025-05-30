@@ -96,7 +96,7 @@ public class InviteCodeRepository {
             return true;
         } catch (Exception e) {
             if (transaction.isActive()) transaction.rollback();
-            throw new DatabaseException("Failed to activate invite code", e);
+            throw new DatabaseException(e);
         }
     }
 }

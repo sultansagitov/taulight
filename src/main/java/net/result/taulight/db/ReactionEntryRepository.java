@@ -30,7 +30,7 @@ public class ReactionEntryRepository {
             return managed;
         } catch (Exception e) {
             if (transaction.isActive()) transaction.rollback();
-            throw new DatabaseException("Failed to save reaction entry", e);
+            throw new DatabaseException(e);
         }
     }
 
@@ -77,7 +77,7 @@ public class ReactionEntryRepository {
             }
         } catch (Exception e) {
             if (transaction.isActive()) transaction.rollback();
-            throw new DatabaseException("Failed to delete reaction entry", e);
+            throw new DatabaseException(e);
         }
 
         return false;

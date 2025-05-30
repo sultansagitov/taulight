@@ -93,7 +93,7 @@ public class MessageRepository {
             String q = "SELECT COUNT(m) FROM MessageEntity m WHERE m.chat = :chat";
             return em.createQuery(q, Long.class).setParameter("chat", chat).getSingleResult();
         } catch (Exception e) {
-            throw new DatabaseException("Failed to count messages by chat", e);
+            throw new DatabaseException(e);
         }
     }
 
@@ -121,7 +121,7 @@ public class MessageRepository {
                     .getResultList();
 
         } catch (Exception e) {
-            throw new DatabaseException("Failed to fetch last messages by chats", e);
+            throw new DatabaseException(e);
         }
     }
 }

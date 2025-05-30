@@ -33,7 +33,7 @@ public class LoginRepository {
             return merged;
         } catch (Exception e) {
             if (transaction.isActive()) transaction.rollback();
-            throw new DatabaseException("Failed to save login entity", e);
+            throw new DatabaseException(e);
         }
     }
 
@@ -60,7 +60,7 @@ public class LoginRepository {
                     .setParameter("member", member)
                     .getResultList();
         } catch (Exception e) {
-            throw new DatabaseException("Failed to find login by member", e);
+            throw new DatabaseException(e);
         }
     }
 }

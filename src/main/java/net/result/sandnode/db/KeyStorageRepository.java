@@ -35,7 +35,7 @@ public class KeyStorageRepository {
             return merged;
         } catch (Exception e) {
             if (transaction.isActive()) transaction.rollback();
-            throw new DatabaseException("Failed to save KeyStorageEntity", e);
+            throw new DatabaseException(e);
         }
     }
 

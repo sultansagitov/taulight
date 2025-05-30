@@ -29,7 +29,7 @@ public class ReactionPackageRepository {
             return managed;
         } catch (Exception e) {
             if (transaction.isActive()) transaction.rollback();
-            throw new DatabaseException("Failed to save reaction package", e);
+            throw new DatabaseException(e);
         }
     }
 
@@ -47,7 +47,7 @@ public class ReactionPackageRepository {
                     .getResultList().stream()
                     .findFirst();
         } catch (Exception e) {
-            throw new DatabaseException("Failed to retrieve reaction packages", e);
+            throw new DatabaseException(e);
         }
     }
 }

@@ -38,7 +38,7 @@ public class MemberRepository {
             return merge;
         } catch (Exception e) {
             if (transaction.isActive()) transaction.rollback();
-            throw new DatabaseException("Failed to register member", e);
+            throw new DatabaseException(e);
         }
     }
 
@@ -65,7 +65,7 @@ public class MemberRepository {
             return managed;
         } catch (Exception e) {
             if (transaction.isActive()) transaction.rollback();
-            throw new DatabaseException("Failed to register member", e);
+            throw new DatabaseException(e);
         }
     }
 
@@ -92,7 +92,7 @@ public class MemberRepository {
                     .getResultList()
                     .stream().findFirst();
         } catch (Exception e) {
-            throw new DatabaseException("Failed to find member by " + "nickname", e);
+            throw new DatabaseException(e);
         }
     }
 
@@ -110,7 +110,7 @@ public class MemberRepository {
             return true;
         } catch (Exception e) {
             if (transaction.isActive()) transaction.rollback();
-            throw new DatabaseException("Failed to delete invite code", e);
+            throw new DatabaseException(e);
         }
     }
 
@@ -129,7 +129,7 @@ public class MemberRepository {
             return false;
         } catch (Exception e) {
             if (transaction.isActive()) transaction.rollback();
-            throw new DatabaseException("Failed to delete invite code", e);
+            throw new DatabaseException(e);
         }
     }
 }

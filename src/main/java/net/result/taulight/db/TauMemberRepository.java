@@ -35,7 +35,7 @@ public class TauMemberRepository {
             return merge;
         } catch (Exception e) {
             if (transaction.isActive()) transaction.rollback();
-            throw new DatabaseException("Failed to register member", e);
+            throw new DatabaseException(e);
         }
     }
 

@@ -31,7 +31,7 @@ public class RoleRepository {
             return managed;
         } catch (Exception e) {
             if (transaction.isActive()) transaction.rollback();
-            throw new DatabaseException("Failed to save role", e);
+            throw new DatabaseException(e);
         }
     }
 
@@ -66,7 +66,7 @@ public class RoleRepository {
             return true;
         } catch (Exception e) {
             transaction.rollback();
-            throw new DatabaseException("Failed to add member to role", e);
+            throw new DatabaseException(e);
         }
     }
 }

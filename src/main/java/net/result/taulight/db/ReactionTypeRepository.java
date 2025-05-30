@@ -32,7 +32,7 @@ public class ReactionTypeRepository {
             return managed;
         } catch (Exception e) {
             if (transaction.isActive()) transaction.rollback();
-            throw new DatabaseException("Failed to save reaction type", e);
+            throw new DatabaseException(e);
         }
     }
 
@@ -78,7 +78,7 @@ public class ReactionTypeRepository {
             return createdEntities;
         } catch (Exception e) {
             if (transaction.isActive()) transaction.rollback();
-            throw new DatabaseException("Failed to save reaction types", e);
+            throw new DatabaseException(e);
         }
     }
 
@@ -88,7 +88,7 @@ public class ReactionTypeRepository {
             String q = "FROM ReactionTypeEntity WHERE reactionPackage.name = :packageName";
             return em.createQuery(q, ReactionTypeEntity.class).setParameter("packageName", packageName).getResultList();
         } catch (Exception e) {
-            throw new DatabaseException("Failed to find reaction types by package name", e);
+            throw new DatabaseException(e);
         }
     }
 }
