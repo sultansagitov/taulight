@@ -1,5 +1,6 @@
 package net.result.sandnode.db;
 
+import jakarta.persistence.TypedQuery;
 import net.result.sandnode.encryption.interfaces.AsymmetricKeyStorage;
 import net.result.sandnode.exception.DatabaseException;
 import net.result.sandnode.exception.error.BusyNicknameException;
@@ -131,4 +132,24 @@ public class MemberRepository {
             throw new DatabaseException(e);
         }
     }
+
+
+
+    public Optional<KeyStorageEntity> findPersonalKeyByNickname(String nickname) throws DatabaseException {
+        EntityManager em = jpaUtil.getEntityManager();
+        String q = """
+            SELECT m.publicKey
+            FROM MemberEntity m
+            WHERE m.nickname = :nickname AND m.deleted = false
+        """;
+        TypedQuery<KeyStorageEntity> query = em.createQuery(q, KeyStorageEntity.class)
+                .setParameter("nickname", nickname)
+                .setMaxResults(1);
+        try {
+            return query.getResultList().stream().findFirst();
+        } catch (Exception e) {
+            throw new DatabaseException(e);
+        }
+    }
+
 }

@@ -1,7 +1,6 @@
 package net.result.sandnode.chain.sender;
 
 import net.result.sandnode.chain.ClientChain;
-import net.result.sandnode.encryption.interfaces.AsymmetricKeyStorage;
 import net.result.sandnode.encryption.interfaces.KeyStorage;
 import net.result.sandnode.error.ServerErrorManager;
 import net.result.sandnode.exception.*;
@@ -63,12 +62,8 @@ public class DEKClientChain extends ClientChain {
         RawMessage raw = queue.take();
         ServerErrorManager.instance().handleError(raw);
 
-        // TODO move logic
-        PublicKeyResponse response = new PublicKeyResponse(raw);
-        UUID keyID = UUID.fromString(response.headers().getValue("id"));
-        AsymmetricKeyStorage keyStorage = response.keyStorage;
+        KeyDTO key = PublicKeyResponse.getKeyDTO(raw);
 
-        KeyDTO key = new KeyDTO(keyID, keyStorage);
         client.clientConfig.saveEncryptor(nickname, key.keyID(), key.keyStorage());
 
         return key;

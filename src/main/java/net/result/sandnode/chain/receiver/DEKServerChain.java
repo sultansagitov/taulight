@@ -3,8 +3,6 @@ package net.result.sandnode.chain.receiver;
 import net.result.sandnode.chain.ReceiverChain;
 import net.result.sandnode.chain.ServerChain;
 import net.result.sandnode.db.*;
-import net.result.sandnode.encryption.interfaces.AsymmetricKeyStorage;
-import net.result.sandnode.encryption.interfaces.Encryption;
 import net.result.sandnode.exception.error.AddressedMemberNotFoundException;
 import net.result.sandnode.exception.error.NotFoundException;
 import net.result.sandnode.exception.error.UnauthorizedException;
@@ -40,8 +38,13 @@ public class DEKServerChain extends ServerChain implements ReceiverChain {
 
         switch (type) {
             case SEND -> {
-                MemberEntity receiver = memberRepo.findByNickname(dto.receiverNickname).orElseThrow(NotFoundException::new);
-                KeyStorageEntity encryptor = keyStorageRepo.find(dto.encryptorID).orElseThrow(NotFoundException::new);
+                MemberEntity receiver = memberRepo
+                        .findByNickname(dto.receiverNickname)
+                        .orElseThrow(NotFoundException::new);
+
+                KeyStorageEntity encryptor = keyStorageRepo
+                        .find(dto.encryptorID)
+                        .orElseThrow(NotFoundException::new);
 
                 EncryptedKeyEntity entity = encryptedKeyRepo.create(session.member, receiver, encryptor, dto.encryptedKey);
 
@@ -53,18 +56,10 @@ public class DEKServerChain extends ServerChain implements ReceiverChain {
                 sendFin(new DEKListMessage(list));
             }
             case GET_PERSONAL_KEY_OF -> {
-                // TODO make with one db request
-                Optional<MemberEntity> opt = memberRepo.findByNickname(dto.receiverNickname);
-                MemberEntity member = opt.orElseThrow(AddressedMemberNotFoundException::new);
-                KeyStorageEntity entity = member.publicKey();
+                Optional<KeyStorageEntity> opt = memberRepo.findPersonalKeyByNickname(dto.receiverNickname);
+                KeyStorageEntity entity = opt.orElseThrow(AddressedMemberNotFoundException::new);
 
-                // TODO move logic
-                Encryption encryption = entity.encryption();
-                AsymmetricKeyStorage keyStorage = encryption.asymmetric()
-                        .publicKeyConvertor()
-                        .toKeyStorage(entity.encodedKey());
-
-                sendFin(new PublicKeyResponse(new Headers().setValue("id", entity.id().toString()), keyStorage));
+                sendFin(PublicKeyResponse.fromEntity(entity));
             }
         }
     }
