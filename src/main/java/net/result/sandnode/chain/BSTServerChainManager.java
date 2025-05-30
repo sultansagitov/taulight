@@ -4,7 +4,6 @@ import net.result.sandnode.chain.receiver.*;
 import net.result.sandnode.message.util.MessageType;
 import net.result.sandnode.message.util.MessageTypes;
 import net.result.sandnode.serverclient.Session;
-import net.result.sandnode.chain.receiver.DEKServerChain;
 
 public abstract class BSTServerChainManager extends BSTChainManager implements ServerChainManager {
     protected Session session;

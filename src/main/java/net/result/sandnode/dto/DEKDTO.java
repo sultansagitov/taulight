@@ -8,7 +8,6 @@ import net.result.sandnode.encryption.interfaces.KeyStorage;
 import net.result.sandnode.exception.crypto.*;
 import net.result.sandnode.exception.error.DecryptionException;
 import net.result.sandnode.exception.error.EncryptionException;
-import net.result.sandnode.exception.error.KeyStorageNotFoundException;
 
 import java.util.Base64;
 import java.util.UUID;
@@ -70,9 +69,9 @@ public class DEKDTO {
         this.encryptedKey = Base64.getEncoder().encodeToString(encrypted);
     }
 
-    public KeyStorage decrypt(KeyStorage personalKey) throws KeyStorageNotFoundException, WrongKeyException,
-            CannotUseEncryption, PrivateKeyNotFoundException, DecryptionException, NoSuchEncryptionException,
-            EncryptionTypeException, CreatingKeyException {
+    public KeyStorage decrypt(KeyStorage personalKey) throws WrongKeyException, CannotUseEncryption,
+            PrivateKeyNotFoundException, DecryptionException, NoSuchEncryptionException, EncryptionTypeException,
+            CreatingKeyException {
         String decrypted = personalKey.encryption().decrypt(Base64.getDecoder().decode(encryptedKey), personalKey);
         String[] s = decrypted.split(":");
         String encryptionString = s[0];

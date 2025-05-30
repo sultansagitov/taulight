@@ -55,9 +55,9 @@ public class DEKClientChain extends ClientChain {
         return new DEKListMessage(raw).list();
     }
 
-    public KeyDTO getKeyOf(String nickname) throws ExpectedMessageException, DeserializationException,
-            InterruptedException, UnknownSandnodeErrorException, SandnodeErrorException, UnprocessedMessagesException,
-            EncryptionTypeException, NoSuchEncryptionException, CreatingKeyException, FSException {
+    public KeyDTO getKeyOf(String nickname) throws ExpectedMessageException, InterruptedException,
+            UnknownSandnodeErrorException, SandnodeErrorException, UnprocessedMessagesException,
+            EncryptionTypeException, NoSuchEncryptionException, CreatingKeyException, StorageException {
         send(DEKRequest.getPersonalKeyOf(nickname));
 
         RawMessage raw = queue.take();

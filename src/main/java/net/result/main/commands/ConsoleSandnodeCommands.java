@@ -267,15 +267,15 @@ public class ConsoleSandnodeCommands {
             context.io.chainManager.removeChain(chain);
 
             context.client.clientConfig.saveDEK(nickname, uuid, key);
-        } catch (UnprocessedMessagesException | ExpectedMessageException | FSException | SandnodeErrorException |
-                 UnknownSandnodeErrorException | CryptoException | InterruptedException | DeserializationException e) {
+        } catch (UnprocessedMessagesException | ExpectedMessageException | SandnodeErrorException | CryptoException |
+                 UnknownSandnodeErrorException | InterruptedException | DeserializationException | StorageException e) {
             System.out.println("Sandnode error: " + e.getClass().getSimpleName());
         }
 
         return false;
     }
 
-    private static boolean DEK(List<String> strings, ConsoleContext context) {
+    private static boolean DEK(List<String> ignoredArgs, ConsoleContext context) {
         try {
             DEKClientChain chain = new DEKClientChain(context.client);
             context.io.chainManager.linkChain(chain);

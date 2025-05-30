@@ -2,7 +2,6 @@ package net.result.sandnode.db;
 
 import net.result.sandnode.encryption.interfaces.AsymmetricKeyStorage;
 import net.result.sandnode.exception.DatabaseException;
-import net.result.sandnode.exception.crypto.CannotUseEncryption;
 import net.result.sandnode.exception.error.BusyNicknameException;
 import net.result.sandnode.util.Container;
 import net.result.sandnode.util.JPAUtil;
@@ -75,7 +74,7 @@ public class MemberRepository {
     }
 
     public MemberEntity create(String nickname, String hashedPassword, AsymmetricKeyStorage keyStorage)
-            throws DatabaseException, BusyNicknameException, CannotUseEncryption {
+            throws DatabaseException, BusyNicknameException {
         if (findByNickname(nickname).isPresent()) throw new BusyNicknameException();
 
         return save(new MemberEntity(nickname, hashedPassword), keyStorage);

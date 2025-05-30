@@ -2,7 +2,7 @@ package net.result.sandnode.config;
 
 import net.result.sandnode.encryption.interfaces.KeyStorage;
 import net.result.sandnode.encryption.interfaces.SymmetricEncryption;
-import net.result.sandnode.exception.FSException;
+import net.result.sandnode.exception.StorageException;
 import net.result.sandnode.exception.crypto.KeyAlreadySaved;
 import net.result.sandnode.exception.error.KeyStorageNotFoundException;
 import net.result.sandnode.util.Endpoint;
@@ -15,17 +15,17 @@ public interface ClientConfig {
     @NotNull SymmetricEncryption symmetricKeyEncryption();
 
     void saveKey(@NotNull Endpoint endpoint, @NotNull AsymmetricKeyStorage keyStorage)
-            throws FSException, KeyAlreadySaved;
+            throws KeyAlreadySaved, StorageException;
 
     AsymmetricKeyStorage getPublicKey(@NotNull Endpoint endpoint) throws KeyStorageNotFoundException;
 
     // TODO explain terminology
 
-    void savePersonalKey(UUID keyID, KeyStorage keyStorage) throws FSException; // TODO replace FSException
+    void savePersonalKey(UUID keyID, KeyStorage keyStorage) throws StorageException;
 
-    void saveEncryptor(String nickname, UUID keyID, KeyStorage keyStorage) throws FSException;
+    void saveEncryptor(String nickname, UUID keyID, KeyStorage keyStorage) throws StorageException;
 
-    void saveDEK(String nickname, UUID keyID, KeyStorage keyStorage) throws FSException;
+    void saveDEK(String nickname, UUID keyID, KeyStorage keyStorage) throws StorageException;
 
     KeyStorage loadPersonalKey(UUID keyID) throws KeyStorageNotFoundException;
 

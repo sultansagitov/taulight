@@ -6,9 +6,6 @@ import net.result.sandnode.exception.DeserializationException;
 import net.result.sandnode.exception.ExpectedMessageException;
 import net.result.sandnode.exception.UnknownSandnodeErrorException;
 import net.result.sandnode.exception.UnprocessedMessagesException;
-import net.result.sandnode.exception.crypto.CannotUseEncryption;
-import net.result.sandnode.exception.crypto.PrivateKeyNotFoundException;
-import net.result.sandnode.exception.crypto.WrongKeyException;
 import net.result.sandnode.exception.error.SandnodeErrorException;
 import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.serverclient.SandnodeClient;
@@ -38,8 +35,7 @@ public class ChatClientChain extends ClientChain {
 
     public synchronized Collection<ChatInfoDTO> getByID(Collection<UUID> chatID, Collection<ChatInfoPropDTO> infoProps)
             throws InterruptedException, ExpectedMessageException, UnknownSandnodeErrorException,
-            SandnodeErrorException, DeserializationException, UnprocessedMessagesException, WrongKeyException,
-            CannotUseEncryption, PrivateKeyNotFoundException {
+            SandnodeErrorException, DeserializationException, UnprocessedMessagesException {
         send(ChatRequest.getByID(chatID, infoProps));
         RawMessage raw = queue.take();
 

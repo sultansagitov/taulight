@@ -28,7 +28,7 @@ import java.util.concurrent.Future;
 public class TauHubProtocol {
     private static final Logger LOGGER = LogManager.getLogger(TauHubProtocol.class);
 
-    public static ChatMessageViewDTO send(Session session, ChatEntity chat, ChatMessageInputDTO input)
+    public static void send(Session session, ChatEntity chat, ChatMessageInputDTO input)
             throws InterruptedException, DatabaseException, SandnodeErrorException, UnprocessedMessagesException,
             ExpectedMessageException, UnknownSandnodeErrorException {
         if (session.member == null) throw new UnauthorizedException();
@@ -38,7 +38,7 @@ public class TauHubProtocol {
         MessageEntity message = messageRepo.create(chat, input, session.member.tauMember());
         ChatMessageViewDTO serverMessage = new ChatMessageViewDTO(message);
 
-        return send(session, chat, serverMessage);
+        send(session, chat, serverMessage);
     }
 
     public static ChatMessageViewDTO send(Session session, ChatEntity chat, ChatMessageViewDTO serverMessage)

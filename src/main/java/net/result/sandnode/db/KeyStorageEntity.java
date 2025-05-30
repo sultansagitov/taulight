@@ -4,6 +4,7 @@ import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
 import net.result.sandnode.encryption.interfaces.Encryption;
 
+@SuppressWarnings("unused")
 @Entity
 public class KeyStorageEntity extends BaseEntity {
     @Convert(converter = EncryptionConverter.class)

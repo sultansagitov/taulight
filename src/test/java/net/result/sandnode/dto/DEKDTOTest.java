@@ -6,8 +6,6 @@ import net.result.sandnode.encryption.SymmetricEncryptions;
 import net.result.sandnode.encryption.interfaces.AsymmetricKeyStorage;
 import net.result.sandnode.encryption.interfaces.KeyStorage;
 import net.result.sandnode.encryption.interfaces.SymmetricKeyStorage;
-import net.result.sandnode.exception.DatabaseException;
-import net.result.sandnode.exception.crypto.*;
 import org.junit.jupiter.api.*;
 
 import java.util.*;
@@ -20,7 +18,7 @@ public class DEKDTOTest {
     private static SymmetricKeyStorage keyStorage;
 
     @BeforeAll
-    public static void setup() throws CannotUseEncryption, DatabaseException {
+    public static void setup() {
         EncryptionManager.registerAll();
 
         encryptorID = UUID.randomUUID();

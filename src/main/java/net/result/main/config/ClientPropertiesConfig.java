@@ -36,12 +36,12 @@ public class ClientPropertiesConfig implements ClientConfig {
     private final Collection<MemberKeyRecord> DEKs = new ArrayList<>();
 
     public ClientPropertiesConfig()
-            throws ConfigurationException, FSException, NoSuchEncryptionException, EncryptionTypeException {
+            throws ConfigurationException, StorageException, NoSuchEncryptionException, EncryptionTypeException {
         this("taulight.properties");
     }
 
     public ClientPropertiesConfig(@NotNull String fileName)
-            throws ConfigurationException, FSException, NoSuchEncryptionException, EncryptionTypeException {
+            throws ConfigurationException, StorageException, NoSuchEncryptionException, EncryptionTypeException {
         Properties properties = new Properties();
         try (InputStream input = getClass().getClassLoader().getResourceAsStream(fileName)) {
             properties.load(input);
@@ -58,45 +58,48 @@ public class ClientPropertiesConfig implements ClientConfig {
 
         String symKeyProperty = properties.getProperty("client.keys.symmetric");
         SYMMETRIC_ENCRYPTION = EncryptionManager.find(symKeyProperty).symmetric();
-
-        if (!Files.exists(KEYS_JSON_PATH)) {
-            FileUtil.createFile(KEYS_JSON_PATH);
-            saveKeysJSON();
-            return;
-        }
-
-        FileUtil.checkNotDirectory(KEYS_JSON_PATH);
-        String data = FileUtil.readString(KEYS_JSON_PATH);
-
-        for (Object key : new JSONObject(data).getJSONArray("server-keys")) {
-            JSONObject jsonObject = (JSONObject) key;
-            try {
-                KeyRecord keyRecord = KeyRecord.fromJSON(jsonObject);
-                serverKeys.add(keyRecord);
-            } catch (NoSuchEncryptionException | CreatingKeyException | FSException | NoSuchHasherException |
-                     EncryptionTypeException | InvalidEndpointSyntax | KeyHashCheckingException e) {
-                LOGGER.error("Error while validating \"{}\"", KEYS_JSON_PATH, e);
+        try {
+            if (!Files.exists(KEYS_JSON_PATH)) {
+                FileUtil.createFile(KEYS_JSON_PATH);
+                saveKeysJSON();
+                return;
             }
-        }
 
-        for (Object key : new JSONObject(data).getJSONArray("member-keys")) {
-            JSONObject jsonObject = (JSONObject) key;
-            try {
-                MemberKeyRecord keyRecord = MemberKeyRecord.fromJSON(jsonObject);
-                memberKeys.add(keyRecord);
-            } catch (NoSuchEncryptionException | CreatingKeyException | EncryptionTypeException e) {
-                LOGGER.error("Error while validating \"{}\"", KEYS_JSON_PATH, e);
-            }
-        }
+            FileUtil.checkNotDirectory(KEYS_JSON_PATH);
+            String data = FileUtil.readString(KEYS_JSON_PATH);
 
-        for (Object key : new JSONObject(data).getJSONArray("deks")) {
-            JSONObject jsonObject = (JSONObject) key;
-            try {
-                MemberKeyRecord keyRecord = MemberKeyRecord.fromJSON(jsonObject);
-                DEKs.add(keyRecord);
-            } catch (NoSuchEncryptionException | CreatingKeyException | EncryptionTypeException e) {
-                LOGGER.error("Error while validating \"{}\"", KEYS_JSON_PATH, e);
+            for (Object key : new JSONObject(data).getJSONArray("server-keys")) {
+                JSONObject jsonObject = (JSONObject) key;
+                try {
+                    KeyRecord keyRecord = KeyRecord.fromJSON(jsonObject);
+                    serverKeys.add(keyRecord);
+                } catch (NoSuchEncryptionException | CreatingKeyException | FSException | NoSuchHasherException |
+                         EncryptionTypeException | InvalidEndpointSyntax | KeyHashCheckingException e) {
+                    LOGGER.error("Error while validating \"{}\"", KEYS_JSON_PATH, e);
+                }
             }
+
+            for (Object key : new JSONObject(data).getJSONArray("member-keys")) {
+                JSONObject jsonObject = (JSONObject) key;
+                try {
+                    MemberKeyRecord keyRecord = MemberKeyRecord.fromJSON(jsonObject);
+                    memberKeys.add(keyRecord);
+                } catch (NoSuchEncryptionException | CreatingKeyException | EncryptionTypeException e) {
+                    LOGGER.error("Error while validating \"{}\"", KEYS_JSON_PATH, e);
+                }
+            }
+
+            for (Object key : new JSONObject(data).getJSONArray("deks")) {
+                JSONObject jsonObject = (JSONObject) key;
+                try {
+                    MemberKeyRecord keyRecord = MemberKeyRecord.fromJSON(jsonObject);
+                    DEKs.add(keyRecord);
+                } catch (NoSuchEncryptionException | CreatingKeyException | EncryptionTypeException e) {
+                    LOGGER.error("Error while validating \"{}\"", KEYS_JSON_PATH, e);
+                }
+            }
+        } catch (Exception e) {
+            throw new StorageException(e);
         }
     }
 
@@ -125,18 +128,18 @@ public class ClientPropertiesConfig implements ClientConfig {
         return serverKeys.stream().anyMatch(record -> endpoint.equals(record.endpoint));
     }
 
-    public synchronized void saveKeysJSON() throws FSException {
+    public synchronized void saveKeysJSON() throws StorageException {
         String string = getKeysJson().toString();
         try (FileWriter fileWriter = new FileWriter(KEYS_JSON_PATH.toFile())) {
             fileWriter.write(string);
         } catch (IOException e) {
-            throw new FSException(e);
+            throw new StorageException(e);
         }
     }
 
     @Override
     public synchronized void saveKey(@NotNull Endpoint endpoint, @NotNull AsymmetricKeyStorage keyStorage)
-            throws FSException, KeyAlreadySaved {
+            throws KeyAlreadySaved, StorageException {
         String sanitizedEndpoint = endpoint.toString().replaceAll("[.:\\\\/*?\"<>|]", "_");
         String filename = "%s_%s_public.key".formatted(sanitizedEndpoint, UUID.randomUUID());
 
@@ -167,8 +170,8 @@ public class ClientPropertiesConfig implements ClientConfig {
             } else {
                 LOGGER.warn("POSIX unsupported here");
             }
-        } catch (IOException e) {
-            throw new FSException("Error writing public key to file", e);
+        } catch (IOException | FSException e) {
+            throw new StorageException("Error writing public key to file", e);
         }
 
         KeyRecord keyRecord = new KeyRecord(publicKeyPath, keyStorage, endpoint, publicKeyString);
@@ -186,20 +189,20 @@ public class ClientPropertiesConfig implements ClientConfig {
     }
 
     @Override
-    public synchronized void savePersonalKey(UUID keyID, KeyStorage keyStorage) throws FSException {
+    public synchronized void savePersonalKey(UUID keyID, KeyStorage keyStorage) throws StorageException {
         memberKeys.add(new MemberKeyRecord(keyID, keyStorage));
         saveKeysJSON();
     }
 
     @Override
-    public void saveEncryptor(String nickname, UUID keyID, KeyStorage keyStorage) throws FSException {
+    public void saveEncryptor(String nickname, UUID keyID, KeyStorage keyStorage) throws StorageException {
         LOGGER.debug("{}, {}, {}", nickname, keyID, keyStorage);
         memberKeys.add(new MemberKeyRecord(nickname, keyID, keyStorage));
         saveKeysJSON();
     }
 
     @Override
-    public void saveDEK(String nickname, UUID keyID, KeyStorage keyStorage) throws FSException {
+    public void saveDEK(String nickname, UUID keyID, KeyStorage keyStorage) throws StorageException {
         LOGGER.debug("{}, {}, {}", nickname, keyID, keyStorage);
         DEKs.add(new MemberKeyRecord(nickname, keyID, keyStorage));
         saveKeysJSON();

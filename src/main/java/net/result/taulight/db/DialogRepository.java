@@ -62,19 +62,6 @@ public class DialogRepository {
         }
     }
 
-    public void remove(DialogEntity dialog) throws DatabaseException {
-        EntityManager em = jpaUtil.getEntityManager();
-        EntityTransaction transaction = em.getTransaction();
-        try {
-            transaction.begin();
-            em.remove(dialog);
-            transaction.commit();
-        } catch (Exception e) {
-            if (transaction.isActive()) transaction.rollback();
-            throw new DatabaseException(e);
-        }
-    }
-
     public Optional<DialogEntity> findByMembers(TauMemberEntity firstMember, TauMemberEntity secondMember)
             throws DatabaseException {
         EntityManager em = jpaUtil.getEntityManager();

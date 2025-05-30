@@ -12,7 +12,7 @@ public class JPAUtil {
 
     private final EntityManagerFactory emf;
 
-    public JPAUtil(Container container) throws ConfigurationException {
+    public JPAUtil(@SuppressWarnings("unused") Container container) throws ConfigurationException {
         try {
             emf = Persistence.createEntityManagerFactory(persistenceUnitName);
         } catch (Exception e) {

@@ -68,9 +68,8 @@ public class RunAgentWork implements IWork {
     }
 
     private AsymmetricKeyStorage loadServerPublicKey(@NotNull SandnodeLinkRecord link)
-            throws FSException, CryptoException, LinkDoesNotMatchException, InterruptedException,
-            SandnodeErrorException, ExpectedMessageException, UnknownSandnodeErrorException,
-            UnprocessedMessagesException {
+            throws CryptoException, LinkDoesNotMatchException, InterruptedException, SandnodeErrorException,
+            ExpectedMessageException, UnknownSandnodeErrorException, UnprocessedMessagesException, StorageException {
 
         TauAgent agent = (TauAgent) client.node;
 
