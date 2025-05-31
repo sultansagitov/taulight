@@ -249,7 +249,7 @@ public class RunAgentWork implements IWork {
 
     private void processUserCommands() {
         Scanner scanner = new Scanner(System.in);
-        Map<String, ConsoleSandnodeCommands.LoopCondition> commands = new HashMap<>();
+        Map<String, LoopCondition> commands = new HashMap<>();
         ConsoleSandnodeCommands.register(commands);
         ConsoleChatsCommands.register(commands);
         ConsoleCodesCommands.register(commands);
@@ -277,9 +277,12 @@ public class RunAgentWork implements IWork {
             String command = com_arg[0];
 
             try {
-                if (commands.containsKey(command)) {
+                if (command.equals("exit")) {
+                    context.io.disconnect();
+                    break;
+                } else if (commands.containsKey(command)) {
                     List<String> args = Arrays.stream(com_arg).skip(1).toList();
-                    if (commands.get(command).breakLoop(args, context)) break;
+                    commands.get(command).run(args, context);
                 } else {
                     sendChatMessage(input, context);
                 }

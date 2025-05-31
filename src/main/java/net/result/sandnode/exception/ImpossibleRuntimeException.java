@@ -1,7 +1,6 @@
 package net.result.sandnode.exception;
 
 public class ImpossibleRuntimeException extends RuntimeException {
-
     public ImpossibleRuntimeException(Throwable e) {
         super(e);
     }
@@ -9,5 +8,4 @@ public class ImpossibleRuntimeException extends RuntimeException {
     public ImpossibleRuntimeException(String message) {
         super(message);
     }
-
 }

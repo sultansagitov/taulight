@@ -1,11 +1,10 @@
 package net.result.sandnode.util;
 
-import net.result.sandnode.db.BaseEntity;
-import net.result.sandnode.exception.ConfigurationException;
-
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.Persistence;
+import net.result.sandnode.db.BaseEntity;
+import net.result.sandnode.exception.ConfigurationException;
 
 public class JPAUtil {
     public static final String persistenceUnitName = "taulight-unit";

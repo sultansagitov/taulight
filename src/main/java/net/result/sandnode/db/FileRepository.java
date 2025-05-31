@@ -1,10 +1,10 @@
 package net.result.sandnode.db;
 
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityTransaction;
 import net.result.sandnode.exception.DatabaseException;
 import net.result.sandnode.util.Container;
 import net.result.sandnode.util.JPAUtil;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.EntityTransaction;
 
 import java.util.Optional;
 import java.util.UUID;

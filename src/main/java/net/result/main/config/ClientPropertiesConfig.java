@@ -37,5 +37,4 @@ public class ClientPropertiesConfig implements ClientConfig {
     public @NotNull SymmetricEncryption symmetricKeyEncryption() {
         return SYMMETRIC_ENCRYPTION;
     }
-
 }

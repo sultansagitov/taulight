@@ -51,5 +51,4 @@ public class LogPasswdRequest extends MSGPackMessage<LogPasswdRequest.Data> {
     public String getDevice() {
         return object.device;
     }
-
 }

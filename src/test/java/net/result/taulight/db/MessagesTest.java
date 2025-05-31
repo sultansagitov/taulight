@@ -187,5 +187,4 @@ public class MessagesTest {
         long emptyCount = messageRepo.countMessagesByChat(emptyChannel);
         assertEquals(0, emptyCount, "Empty channel should have zero messages");
     }
-
 }

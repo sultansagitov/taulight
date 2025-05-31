@@ -1,7 +1,6 @@
 package net.result.sandnode.exception;
 
 public class InvalidSandnodeLinkException extends SandnodeException {
-
     public InvalidSandnodeLinkException(String message) {
         super(message);
     }
@@ -13,5 +12,4 @@ public class InvalidSandnodeLinkException extends SandnodeException {
     public InvalidSandnodeLinkException(Throwable e) {
         super(e);
     }
-
 }

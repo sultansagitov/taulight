@@ -2,21 +2,24 @@ package net.result.taulight.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import net.result.sandnode.db.MemberEntity;
-import org.jetbrains.annotations.NotNull;
+import net.result.taulight.db.TauMemberEntity;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.List;
 
 /**
  * Data Transfer Object representing a chat member's nickname and online status.
  */
 public class ChatMemberDTO {
-    /** Possible online statuses for a chat member. */
-    public enum Status {ONLINE, OFFLINE, HIDDEN}
-
     /** Nickname of the member. */
     @JsonProperty
     public String nickname;
     /** Online status of the member. */
     @JsonProperty
-    public Status status = Status.OFFLINE;
+    public MemberStatus status = MemberStatus.OFFLINE;
+    /** Roles of the member in current chat */
+    @JsonProperty
+    public @Nullable List<String> roles;
 
     /** Default constructor. */
     @SuppressWarnings("unused")
@@ -26,9 +29,11 @@ public class ChatMemberDTO {
      * Constructs a ChatMemberDTO from a {@link MemberEntity}.
      *
      * @param member the member entity
+     * @param roles  roles of member in current chat
      */
-    public ChatMemberDTO(@NotNull MemberEntity member) {
-        nickname = member.nickname();
+    public ChatMemberDTO(TauMemberEntity member, @Nullable List<String> roles) {
+        nickname = member.member().nickname();
+        this.roles = roles;
     }
 
     @Override

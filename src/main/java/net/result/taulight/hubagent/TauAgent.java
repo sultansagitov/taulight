@@ -29,5 +29,4 @@ public class TauAgent extends Agent {
     public TauAgent(@NotNull KeyStorageRegistry keyStorageRegistry, AgentConfig config) {
         super(keyStorageRegistry, config);
     }
-
 }

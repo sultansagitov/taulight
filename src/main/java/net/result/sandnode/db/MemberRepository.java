@@ -1,5 +1,7 @@
 package net.result.sandnode.db;
 
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityTransaction;
 import jakarta.persistence.TypedQuery;
 import net.result.sandnode.encryption.interfaces.AsymmetricKeyStorage;
 import net.result.sandnode.exception.DatabaseException;
@@ -8,8 +10,6 @@ import net.result.sandnode.util.Container;
 import net.result.sandnode.util.JPAUtil;
 import net.result.taulight.db.TauMemberRepository;
 
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.EntityTransaction;
 import java.util.Optional;
 
 public class MemberRepository {
@@ -133,8 +133,6 @@ public class MemberRepository {
         }
     }
 
-
-
     public Optional<KeyStorageEntity> findPersonalKeyByNickname(String nickname) throws DatabaseException {
         EntityManager em = jpaUtil.getEntityManager();
         String q = """
@@ -151,5 +149,4 @@ public class MemberRepository {
             throw new DatabaseException(e);
         }
     }
-
 }

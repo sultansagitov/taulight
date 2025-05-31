@@ -122,5 +122,4 @@ public class CascadingTest {
         assertTrue(inviteCodeRepo.activate(invite));
         assertFalse(inviteCodeRepo.activate(invite));
     }
-
 }

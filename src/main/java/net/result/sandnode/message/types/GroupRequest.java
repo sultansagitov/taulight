@@ -59,7 +59,6 @@ public class GroupRequest extends Message {
                 .filter(str -> str.matches("^#?[a-z0-9_]+$"))
                 .map(str -> str.startsWith("#") ? str : "#" + str)
                 .collect(Collectors.toSet());
-
     }
 
     public Collection<String> getGroupsID() {

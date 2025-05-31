@@ -143,5 +143,4 @@ public class InviteCodesTest {
         boolean activatedExpired = inviteCodeRepo.activate(expiredInvite);
         assertFalse(activatedExpired, "Should not activate an expired invite code");
     }
-
 }

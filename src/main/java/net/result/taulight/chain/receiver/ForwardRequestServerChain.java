@@ -65,8 +65,8 @@ public class ForwardRequestServerChain extends ServerChain implements ReceiverCh
             LOGGER.info("Forwarding message: {}", content);
 
             input
-                .setSys(false)
-                .setMember(session.member);
+                    .setSys(false)
+                    .setMember(session.member);
 
             ChatEntity chat = chatUtil.getChat(chatID).orElseThrow(NotFoundException::new);
             if (!chatUtil.contains(chat, session.member.tauMember())) throw new NotFoundException();
@@ -86,5 +86,4 @@ public class ForwardRequestServerChain extends ServerChain implements ReceiverCh
             send(new HappyMessage());
         }
     }
-
 }

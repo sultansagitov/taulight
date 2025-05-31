@@ -1,9 +1,8 @@
 package net.result.taulight.db;
 
-import net.result.sandnode.db.BaseEntity;
-
 import jakarta.persistence.Entity;
 import jakarta.persistence.ManyToOne;
+import net.result.sandnode.db.BaseEntity;
 
 @SuppressWarnings("unused")
 @Entity

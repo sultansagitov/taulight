@@ -1,15 +1,15 @@
 package net.result.taulight.db;
 
+import jakarta.persistence.*;
 import net.result.sandnode.db.BaseEntity;
 import net.result.sandnode.db.EncryptedKeyEntity;
 import net.result.sandnode.db.ZonedDateTimeConverter;
 import net.result.taulight.dto.ChatMessageInputDTO;
-
-import jakarta.persistence.*;
 import org.jetbrains.annotations.Nullable;
 
 import java.time.ZonedDateTime;
-import java.util.*;
+import java.util.HashSet;
+import java.util.Set;
 
 @SuppressWarnings("unused")
 @Entity
@@ -138,6 +138,5 @@ public class MessageEntity extends BaseEntity {
     public String toString() {
         return "<MessageEntity content='%s' sys=%s chat=%s member=%s repliedToMessages=%s>"
                 .formatted(content, sys, chat, member, repliedToMessages);
-
     }
 }

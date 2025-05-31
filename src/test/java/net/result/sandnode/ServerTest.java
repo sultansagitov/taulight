@@ -159,7 +159,6 @@ public class ServerTest {
                 throw new ImpossibleRuntimeException(e);
             }
         }
-
     }
 
     private static class TestHub extends Hub {

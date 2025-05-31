@@ -1,9 +1,9 @@
 package net.result.taulight.db;
 
-import net.result.sandnode.db.MemberEntity;
-import net.result.sandnode.db.BaseEntity;
-
 import jakarta.persistence.*;
+import net.result.sandnode.db.BaseEntity;
+import net.result.sandnode.db.MemberEntity;
+
 import java.util.HashSet;
 import java.util.Set;
 

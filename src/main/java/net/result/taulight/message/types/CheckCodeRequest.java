@@ -19,5 +19,4 @@ public class CheckCodeRequest extends TextMessage {
     public CheckCodeRequest(@NotNull RawMessage raw) throws ExpectedMessageException {
         super(raw.expect(TauMessageTypes.CHECK_CODE));
     }
-
 }

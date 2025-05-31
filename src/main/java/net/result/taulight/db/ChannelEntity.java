@@ -1,10 +1,10 @@
 package net.result.taulight.db;
 
+import jakarta.persistence.*;
 import net.result.sandnode.db.FileEntity;
 
-import jakarta.persistence.*;
-import java.util.Set;
 import java.util.HashSet;
+import java.util.Set;
 
 @SuppressWarnings("unused")
 @Entity

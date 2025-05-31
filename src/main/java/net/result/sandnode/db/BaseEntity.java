@@ -1,11 +1,10 @@
 package net.result.sandnode.db;
 
-import org.hibernate.annotations.JdbcTypeCode;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Convert;
 import jakarta.persistence.Id;
 import jakarta.persistence.MappedSuperclass;
+import org.hibernate.annotations.JdbcTypeCode;
 
 import java.sql.Types;
 import java.time.ZonedDateTime;

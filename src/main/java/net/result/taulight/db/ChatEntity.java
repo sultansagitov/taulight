@@ -1,8 +1,8 @@
 package net.result.taulight.db;
 
+import jakarta.persistence.*;
 import net.result.sandnode.db.BaseEntity;
 
-import jakarta.persistence.*;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -22,5 +22,4 @@ public abstract class ChatEntity extends BaseEntity {
     public void setMessages(Set<MessageEntity> messages) {
         this.messages = messages;
     }
-
 }

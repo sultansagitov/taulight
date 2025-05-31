@@ -216,5 +216,4 @@ public class ChatsTest {
         assertEquals(1, singleMember.size(), "Empty channel should have just the owner");
         assertTrue(singleMember.contains(member4), "Owner should be in the member list");
     }
-
 }

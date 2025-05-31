@@ -46,7 +46,6 @@ public class ChatUtilTest {
 
         dialog = dialogRepo.create(member1.tauMember(), member2.tauMember());
         monolog = dialogRepo.create(member3.tauMember(), member3.tauMember());
-
     }
 
     @Test
