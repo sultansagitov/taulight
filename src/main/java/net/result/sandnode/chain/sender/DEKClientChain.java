@@ -9,6 +9,7 @@ import net.result.sandnode.exception.crypto.CryptoException;
 import net.result.sandnode.exception.crypto.EncryptionTypeException;
 import net.result.sandnode.exception.crypto.NoSuchEncryptionException;
 import net.result.sandnode.exception.error.SandnodeErrorException;
+import net.result.sandnode.hubagent.Agent;
 import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.message.UUIDMessage;
 import net.result.sandnode.message.types.DEKListMessage;
@@ -40,7 +41,7 @@ public class DEKClientChain extends ClientChain {
     public UUID sendDEK(String nickname, UUID encryptorID, KeyStorage keyStorage)
             throws InterruptedException, SandnodeErrorException, UnknownSandnodeErrorException,
             UnprocessedMessagesException, CryptoException, DeserializationException {
-        KeyStorage encryptor = client.clientConfig.loadPersonalKey(encryptorID);
+        KeyStorage encryptor = ((Agent) client.node).config.loadPersonalKey(encryptorID);
         return sendDEK(nickname, new KeyDTO(encryptorID, encryptor), keyStorage);
     }
 
@@ -64,7 +65,7 @@ public class DEKClientChain extends ClientChain {
 
         KeyDTO key = PublicKeyResponse.getKeyDTO(raw);
 
-        client.clientConfig.saveEncryptor(nickname, key.keyID(), key.keyStorage());
+        ((Agent) client.node).config.saveEncryptor(nickname, key.keyID(), key.keyStorage());
 
         return key;
     }

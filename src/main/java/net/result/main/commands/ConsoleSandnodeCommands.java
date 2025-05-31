@@ -11,6 +11,7 @@ import net.result.sandnode.exception.crypto.CryptoException;
 import net.result.sandnode.exception.error.KeyStorageNotFoundException;
 import net.result.sandnode.exception.error.SandnodeErrorException;
 import net.result.sandnode.exception.error.UnauthorizedException;
+import net.result.sandnode.hubagent.Agent;
 import net.result.sandnode.hubagent.ClientProtocol;
 import net.result.sandnode.dto.KeyDTO;
 import net.result.sandnode.dto.DEKDTO;
@@ -256,7 +257,7 @@ public class ConsoleSandnodeCommands {
             UUID encryptorID;
 
             try {
-                encryptorID = context.client.clientConfig.loadEncryptor(nickname).id();
+                encryptorID = ((Agent) context.client.node).config.loadEncryptor(nickname).id();
             } catch (KeyStorageNotFoundException ignored) {
                 KeyDTO key = chain.getKeyOf(nickname);
                 encryptorID = key.keyID();
@@ -266,7 +267,7 @@ public class ConsoleSandnodeCommands {
             UUID uuid = chain.sendDEK(nickname, encryptorID, key);
             context.io.chainManager.removeChain(chain);
 
-            context.client.clientConfig.saveDEK(nickname, uuid, key);
+            ((Agent) context.client.node).config.saveDEK(nickname, uuid, key);
         } catch (UnprocessedMessagesException | ExpectedMessageException | SandnodeErrorException | CryptoException |
                  UnknownSandnodeErrorException | InterruptedException | DeserializationException | StorageException e) {
             System.out.println("Sandnode error: " + e.getClass().getSimpleName());
@@ -283,9 +284,9 @@ public class ConsoleSandnodeCommands {
             context.io.chainManager.removeChain(chain);
 
             for (DEKDTO key : keys) {
-                KeyStorage decrypted = key.decrypt(context.client.clientConfig.loadPersonalKey(key.encryptorID));
+                KeyStorage decrypted = key.decrypt(((Agent) context.client.node).config.loadPersonalKey(key.encryptorID));
 
-                context.client.clientConfig.saveDEK(key.senderNickname, key.id, decrypted);
+                ((Agent) context.client.node).config.saveDEK(key.senderNickname, key.id, decrypted);
 
                 System.out.println(decrypted);
             }

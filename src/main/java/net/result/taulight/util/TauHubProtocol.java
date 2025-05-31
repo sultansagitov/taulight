@@ -36,12 +36,13 @@ public class TauHubProtocol {
         MessageRepository messageRepo = session.server.container.get(MessageRepository.class);
 
         MessageEntity message = messageRepo.create(chat, input, session.member.tauMember());
+        LOGGER.info("Saved message with id {} content: {}", message.id(), message.content());
         ChatMessageViewDTO serverMessage = new ChatMessageViewDTO(message);
 
         send(session, chat, serverMessage);
     }
 
-    public static ChatMessageViewDTO send(Session session, ChatEntity chat, ChatMessageViewDTO serverMessage)
+    public static void send(Session session, ChatEntity chat, ChatMessageViewDTO serverMessage)
             throws InterruptedException, DatabaseException, SandnodeErrorException, UnprocessedMessagesException,
             ExpectedMessageException, UnknownSandnodeErrorException {
         if (session.member == null) throw new UnauthorizedException();
@@ -84,10 +85,6 @@ public class TauHubProtocol {
                 executorService.shutdown();
             }
         }
-
-        LOGGER.info("Saved message with id {} content: {}", serverMessage.id, serverMessage.message.content);
-
-        return serverMessage;
     }
 
     private static void getObjectCallable(Session session, ChatMessageViewDTO serverMessage, Session s)

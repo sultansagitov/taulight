@@ -7,6 +7,7 @@ import net.result.sandnode.error.Errors;
 import net.result.sandnode.error.ServerErrorManager;
 import net.result.sandnode.exception.SandnodeException;
 import net.result.sandnode.exception.error.KeyStorageNotFoundException;
+import net.result.sandnode.hubagent.Agent;
 import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.message.types.DEKListMessage;
 import net.result.sandnode.message.types.HappyMessage;
@@ -36,14 +37,14 @@ public abstract class ForwardClientChain extends ClientChain implements Receiver
         if (input.keyID != null) {
             KeyStorage keyStorage;
             try {
-                keyStorage = client.clientConfig.loadDEK(input.keyID);
+                keyStorage = ((Agent) client.node).config.loadDEK(input.keyID);
             } catch (KeyStorageNotFoundException e) {
                 send(Errors.KEY_NOT_FOUND.createMessage());
                 RawMessage raw = queue.take();
                 ServerErrorManager.instance().handleError(raw);
                 DEKDTO dto = new DEKListMessage(raw).list().get(0);
-                keyStorage = dto.decrypt(client.clientConfig.loadPersonalKey(dto.encryptorID));
-                client.clientConfig.saveDEK(input.nickname, dto.id, keyStorage);
+                keyStorage = dto.decrypt(((Agent) client.node).config.loadPersonalKey(dto.encryptorID));
+                ((Agent) client.node).config.saveDEK(input.nickname, dto.id, keyStorage);
             }
             decrypted = keyStorage.encryption().decrypt(Base64.getDecoder().decode(input.content), keyStorage);
         } else {

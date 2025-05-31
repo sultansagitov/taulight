@@ -1,6 +1,8 @@
 package net.result.main;
 
 import net.result.main.chain.ConsoleClientChainManager;
+import net.result.main.config.AgentPropertiesConfig;
+import net.result.sandnode.hubagent.Agent;
 import net.result.taulight.chain.sender.ForwardRequestClientChain;
 import net.result.main.commands.*;
 import net.result.main.config.ClientPropertiesConfig;
@@ -52,7 +54,7 @@ public class RunAgentWork implements IWork {
         }
 
         clientConfig = new ClientPropertiesConfig();
-        TauAgent agent = new TauAgent();
+        TauAgent agent = new TauAgent(new AgentPropertiesConfig());
 
         client = SandnodeClient.fromLink(link, agent, clientConfig);
         ConsoleClientChainManager chainManager = new ConsoleClientChainManager(client);
@@ -75,7 +77,7 @@ public class RunAgentWork implements IWork {
 
         Optional<AsymmetricKeyStorage> filePublicKey;
         try {
-            filePublicKey = Optional.of(client.clientConfig.getPublicKey(link.endpoint()));
+            filePublicKey = Optional.of(((Agent) client.node).config.getPublicKey(link.endpoint()));
         } catch (KeyStorageNotFoundException e) {
             filePublicKey = Optional.empty();
         }
@@ -91,7 +93,7 @@ public class RunAgentWork implements IWork {
                 LOGGER.info("Key already saved and matches");
                 return fileKey;
             } else {
-                client.clientConfig.saveKey(link.endpoint(), linkKeyStorage);
+                ((Agent) client.node).config.saveKey(link.endpoint(), linkKeyStorage);
                 return linkKeyStorage;
             }
         } else if (filePublicKey.isPresent()) {
@@ -101,7 +103,7 @@ public class RunAgentWork implements IWork {
             AsymmetricEncryption encryption = client.io.serverEncryption().asymmetric();
             AsymmetricKeyStorage serverKey = agent.keyStorageRegistry.asymmetricNonNull(encryption);
 
-            client.clientConfig.saveKey(link.endpoint(), serverKey);
+            ((Agent) client.node).config.saveKey(link.endpoint(), serverKey);
             return serverKey;
         }
     }
@@ -139,7 +141,7 @@ public class RunAgentWork implements IWork {
             var result = AgentProtocol.register(client, nickname, password, device, keyStorage);
             System.out.printf("Token for \"%s\":%n%s%n", nickname, result.token);
 
-            client.clientConfig.savePersonalKey(result.keyID, keyStorage);
+            ((Agent) client.node).config.savePersonalKey(result.keyID, keyStorage);
             context = new ConsoleContext(client, nickname, result.keyID);
         } catch (BusyNicknameException e) {
             System.out.println("Nickname is busy");
@@ -204,7 +206,7 @@ public class RunAgentWork implements IWork {
         if (context.chat.chatType == ChatInfoDTO.ChatType.DIALOG) {
             try {
                 String otherNickname = context.chat.otherNickname;
-                KeyEntry dek = client.clientConfig.loadDEK(otherNickname);
+                KeyEntry dek = ((Agent) client.node).config.loadDEK(otherNickname);
 
                 LOGGER.debug("Using {} {}", dek.id(), dek.keyStorage());
 

@@ -1,7 +1,6 @@
 package net.result.sandnode.chain.sender;
 
 import net.result.sandnode.chain.ClientChain;
-import net.result.sandnode.encryption.interfaces.SymmetricEncryption;
 import net.result.sandnode.encryption.interfaces.SymmetricKeyStorage;
 import net.result.sandnode.exception.ExpectedMessageException;
 import net.result.sandnode.exception.UnprocessedMessagesException;
@@ -13,16 +12,13 @@ import net.result.sandnode.message.util.Headers;
 import net.result.sandnode.serverclient.SandnodeClient;
 
 public class SymKeyClientChain extends ClientChain {
-    private final SymmetricEncryption symmetricEncryption;
-
     public SymKeyClientChain(SandnodeClient client) {
         super(client);
-        this.symmetricEncryption = client.clientConfig.symmetricKeyEncryption();
     }
 
     public void sendSymKey() throws InterruptedException, KeyNotCreatedException, ExpectedMessageException,
             UnprocessedMessagesException {
-        SymmetricKeyStorage keyStorage = symmetricEncryption.generate();
+        SymmetricKeyStorage keyStorage = client.config.symmetricKeyEncryption().generate();
 
         if (!io.keyStorageRegistry.has(io.serverEncryption()))
             throw new KeyNotCreatedException(io.serverEncryption());

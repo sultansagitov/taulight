@@ -11,10 +11,7 @@ import net.result.sandnode.encryption.SymmetricEncryptions;
 import net.result.sandnode.encryption.interfaces.AsymmetricKeyStorage;
 import net.result.sandnode.encryption.interfaces.KeyStorage;
 import net.result.sandnode.encryption.interfaces.SymmetricEncryption;
-import net.result.sandnode.exception.ImpossibleRuntimeException;
-import net.result.sandnode.exception.ServerStartException;
-import net.result.sandnode.exception.SocketAcceptException;
-import net.result.sandnode.exception.UnprocessedMessagesException;
+import net.result.sandnode.exception.*;
 import net.result.sandnode.exception.error.KeyStorageNotFoundException;
 import net.result.sandnode.group.HashSetGroupManager;
 import net.result.sandnode.hubagent.Agent;
@@ -280,7 +277,48 @@ public class ServerTest {
 
     public static class TestAgent extends Agent {
         public TestAgent() {
-            super(new KeyStorageRegistry());
+            super(new KeyStorageRegistry(), new AgentConfig() {
+
+                @Override
+                public void saveKey(@NotNull Endpoint endpoint, @NotNull AsymmetricKeyStorage keyStorage) {}
+
+                @Override
+                public AsymmetricKeyStorage getPublicKey(@NotNull Endpoint endpoint)
+                        throws KeyStorageNotFoundException {
+                    throw new KeyStorageNotFoundException();
+                }
+
+                @Override
+                public void savePersonalKey(UUID keyID, KeyStorage keyStorage) {}
+
+                @Override
+                public KeyStorage loadPersonalKey(UUID keyID) throws KeyStorageNotFoundException {
+                    throw new KeyStorageNotFoundException(keyID);
+                }
+
+                @Override
+                public KeyEntry loadEncryptor(String nickname) throws KeyStorageNotFoundException {
+                    throw new KeyStorageNotFoundException(nickname);
+                }
+
+                @Override
+                public KeyEntry loadDEK(String nickname) throws KeyStorageNotFoundException {
+                    throw new KeyStorageNotFoundException(nickname);
+                }
+
+                @Override
+                public KeyStorage loadDEK(UUID keyID) throws KeyStorageNotFoundException {
+                    throw new KeyStorageNotFoundException(keyID);
+                }
+
+                @Override
+                public void saveEncryptor(String nickname, UUID keyID, KeyStorage keyStorage) {}
+
+                @Override
+                public void saveDEK(String nickname, UUID keyID, KeyStorage keyStorage) {
+
+                }
+            });
         }
 
         @SuppressWarnings("DataFlowIssue")
@@ -294,45 +332,6 @@ public class ServerTest {
         @Override
         public @NotNull SymmetricEncryption symmetricKeyEncryption() {
             return symmetricEncryption;
-        }
-
-        @Override
-        public void saveKey(@NotNull Endpoint endpoint, @NotNull AsymmetricKeyStorage keyStorage) {}
-
-        @Override
-        public AsymmetricKeyStorage getPublicKey(@NotNull Endpoint endpoint) throws KeyStorageNotFoundException {
-            throw new KeyStorageNotFoundException();
-        }
-
-        @Override
-        public void savePersonalKey(UUID keyID, KeyStorage keyStorage) {}
-
-        @Override
-        public KeyStorage loadPersonalKey(UUID keyID) throws KeyStorageNotFoundException {
-            throw new KeyStorageNotFoundException(keyID);
-        }
-
-        @Override
-        public KeyEntry loadEncryptor(String nickname) throws KeyStorageNotFoundException {
-            throw new KeyStorageNotFoundException(nickname);
-        }
-
-        @Override
-        public KeyEntry loadDEK(String nickname) throws KeyStorageNotFoundException {
-            throw new KeyStorageNotFoundException(nickname);
-        }
-
-        @Override
-        public KeyStorage loadDEK(UUID keyID) throws KeyStorageNotFoundException {
-            throw new KeyStorageNotFoundException(keyID);
-        }
-
-        @Override
-        public void saveEncryptor(String nickname, UUID keyID, KeyStorage keyStorage) {}
-
-        @Override
-        public void saveDEK(String nickname, UUID keyID, KeyStorage keyStorage) {
-
         }
     }
 

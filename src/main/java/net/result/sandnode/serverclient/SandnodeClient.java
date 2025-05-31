@@ -44,7 +44,7 @@ public class SandnodeClient {
     public final Endpoint endpoint;
     public final Node node;
     public final NodeType nodeType;
-    public final ClientConfig clientConfig;
+    public final ClientConfig config;
 
     public IOController io;
     public Socket socket;
@@ -56,11 +56,11 @@ public class SandnodeClient {
      * to create an instance instead of calling this constructor directly.
      * </p>
      */
-    public SandnodeClient(Endpoint endpoint, Node node, NodeType nodeType, ClientConfig clientConfig) {
+    public SandnodeClient(Endpoint endpoint, Node node, NodeType nodeType, ClientConfig config) {
         this.endpoint = endpoint;
         this.node = node;
         this.nodeType = nodeType;
-        this.clientConfig = clientConfig;
+        this.config = config;
     }
 
     @Contract("_, _, _ -> new")

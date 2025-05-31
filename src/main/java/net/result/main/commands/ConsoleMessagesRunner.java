@@ -11,6 +11,7 @@ import net.result.sandnode.exception.error.DecryptionException;
 import net.result.sandnode.exception.error.EncryptionException;
 import net.result.sandnode.exception.error.KeyStorageNotFoundException;
 import net.result.sandnode.exception.error.SandnodeErrorException;
+import net.result.sandnode.hubagent.Agent;
 import net.result.taulight.chain.sender.MessageClientChain;
 import net.result.taulight.dto.ChatInfoDTO;
 import net.result.taulight.dto.ChatMessageInputDTO;
@@ -60,7 +61,7 @@ public class ConsoleMessagesRunner {
 
             ChatInfoDTO chat = context.chat;
             if (chat.chatType == ChatInfoDTO.ChatType.DIALOG) {
-                var entry = context.client.clientConfig.loadDEK(chat.otherNickname);
+                var entry = ((Agent) context.client.node).config.loadDEK(chat.otherNickname);
 
                 message.setEncryptedContent(entry.id(), entry.keyStorage(), input);
             } else {
@@ -86,7 +87,7 @@ public class ConsoleMessagesRunner {
         String decrypted;
         ChatMessageInputDTO input = dto.message;
         if (input.keyID != null) {
-            KeyStorage keyStorage = context.client.clientConfig.loadDEK(input.keyID);
+            KeyStorage keyStorage = ((Agent) context.client.node).config.loadDEK(input.keyID);
             decrypted = keyStorage.encryption().decrypt(Base64.getDecoder().decode(input.content), keyStorage);
         } else {
             decrypted = input.content;

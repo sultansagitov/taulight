@@ -9,6 +9,7 @@ import net.result.sandnode.exception.crypto.PrivateKeyNotFoundException;
 import net.result.sandnode.exception.crypto.WrongKeyException;
 import net.result.sandnode.exception.error.DecryptionException;
 import net.result.sandnode.exception.error.KeyStorageNotFoundException;
+import net.result.sandnode.hubagent.Agent;
 import net.result.sandnode.serverclient.SandnodeClient;
 import net.result.taulight.db.ChannelEntity;
 import net.result.taulight.db.DialogEntity;
@@ -81,7 +82,7 @@ public class ChatInfoDTO implements Comparable<ChatInfoDTO> {
         if (lastMessage != null) {
             UUID keyID = lastMessage.message.keyID;
             if (keyID != null) {
-                KeyStorage DEK = client.clientConfig.loadDEK(keyID);
+                KeyStorage DEK = ((Agent) client.node).config.loadDEK(keyID);
                 decryptedMessage = DEK.encryption().decrypt(Base64.getDecoder().decode(lastMessage.message.content), DEK);
             } else {
                 decryptedMessage = lastMessage.message.content;
