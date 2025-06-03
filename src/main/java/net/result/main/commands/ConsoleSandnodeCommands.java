@@ -117,8 +117,16 @@ public class ConsoleSandnodeCommands {
         context.io.chainManager.removeChain(chain);
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss z");
 
+        Agent agent = (Agent) context.client.node;
+
+
         for (LoginHistoryDTO dto : h) {
-            System.out.printf("Time: %s, IP: %s, Device: %s%n", dto.time.format(formatter), dto.ip, dto.device);
+            KeyStorage personalKey = agent.config.loadPersonalKey(dto.encryptorID);
+
+            String ip = personalKey.encryption().decrypt(Base64.getDecoder().decode(dto.ip), personalKey);
+            String device = personalKey.encryption().decrypt(Base64.getDecoder().decode(dto.device), personalKey);
+
+            System.out.printf("Time: %s, IP: %s, Device: %s%n", dto.time.format(formatter), ip, device);
         }
     }
 

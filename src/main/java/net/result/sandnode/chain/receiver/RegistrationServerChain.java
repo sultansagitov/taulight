@@ -18,6 +18,8 @@ import net.result.sandnode.security.PasswordHasher;
 import net.result.sandnode.security.Tokenizer;
 import net.result.sandnode.serverclient.Session;
 
+import java.util.Base64;
+
 public class RegistrationServerChain extends ServerChain implements ReceiverChain {
     public RegistrationServerChain(Session session) {
         super(session);
@@ -53,9 +55,14 @@ public class RegistrationServerChain extends ServerChain implements ReceiverChai
         session.member = member;
 
         String ip = session.io.socket.getInetAddress().getHostAddress();
-        LoginEntity login = loginRepo.create(member, ip, device);
+
+        String encryptedIP = Base64.getEncoder().encodeToString(encryption.encrypt(ip, keyStorage));
+        String encryptedDevice = Base64.getEncoder().encodeToString(encryption.encrypt(device, keyStorage));
+
+        KeyStorageEntity keyEntity = member.publicKey();
+        LoginEntity login = loginRepo.create(member, keyEntity, encryptedIP, encryptedDevice);
 
         String token = tokenizer.tokenizeLogin(login);
-        sendFin(new RegistrationResponse(token, member.publicKey().id()));
+        sendFin(new RegistrationResponse(token, keyEntity.id()));
     }
 }

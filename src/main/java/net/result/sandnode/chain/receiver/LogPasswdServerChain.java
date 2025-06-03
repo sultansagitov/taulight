@@ -2,16 +2,18 @@ package net.result.sandnode.chain.receiver;
 
 import net.result.sandnode.chain.ReceiverChain;
 import net.result.sandnode.chain.ServerChain;
-import net.result.sandnode.db.LoginEntity;
-import net.result.sandnode.db.LoginRepository;
-import net.result.sandnode.db.MemberEntity;
-import net.result.sandnode.db.MemberRepository;
+import net.result.sandnode.db.*;
+import net.result.sandnode.encryption.interfaces.AsymmetricEncryption;
+import net.result.sandnode.encryption.interfaces.AsymmetricKeyStorage;
 import net.result.sandnode.exception.error.UnauthorizedException;
 import net.result.sandnode.hubagent.Hub;
-import net.result.sandnode.message.types.*;
+import net.result.sandnode.message.types.LogPasswdRequest;
+import net.result.sandnode.message.types.LogPasswdResponse;
 import net.result.sandnode.security.PasswordHasher;
 import net.result.sandnode.security.Tokenizer;
 import net.result.sandnode.serverclient.Session;
+
+import java.util.Base64;
 
 public abstract class LogPasswdServerChain extends ServerChain implements ReceiverChain {
 
@@ -41,7 +43,15 @@ public abstract class LogPasswdServerChain extends ServerChain implements Receiv
         session.member = member;
 
         String ip = session.io.socket.getInetAddress().getHostAddress();
-        LoginEntity login = loginRepo.create(member, ip, request.getDevice());
+
+        KeyStorageEntity keyEntity = member.publicKey();
+        AsymmetricEncryption encryption = keyEntity.encryption().asymmetric();
+        AsymmetricKeyStorage keyStorage = encryption.publicKeyConvertor().toKeyStorage(keyEntity.encodedKey());
+
+        String encryptedIP = Base64.getEncoder().encodeToString(encryption.encrypt(ip, keyStorage));
+        String encryptedDevice = Base64.getEncoder().encodeToString(encryption.encrypt(request.getDevice(), keyStorage));
+
+        LoginEntity login = loginRepo.create(member, keyEntity, encryptedIP, encryptedDevice);
 
         onLogin();
 

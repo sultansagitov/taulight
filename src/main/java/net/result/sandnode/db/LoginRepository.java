@@ -37,8 +37,8 @@ public class LoginRepository {
         }
     }
 
-    public LoginEntity create(MemberEntity member, String ip, String device) throws DatabaseException {
-        return save(new LoginEntity(member, ip, device));
+    public LoginEntity create(MemberEntity member, KeyStorageEntity encryptor, String ip, String device) throws DatabaseException {
+        return save(new LoginEntity(member, encryptor, ip, device));
     }
 
     public LoginEntity create(LoginEntity login, String ip) throws DatabaseException {

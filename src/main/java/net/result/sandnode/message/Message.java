@@ -103,7 +103,6 @@ public abstract class Message implements IMessage {
             if (compression.isPresent()) {
                 compressed = compression.get().compress(bodyBytes);
             } else {
-                LOGGER.info("{} is not set in headers", CompressionManager.HEADER_NAME);
                 Compressions defaultCompression = Compressions.DEFLATE;
                 compressed = defaultCompression.compress(bodyBytes);
 

@@ -23,6 +23,9 @@ public class LoginEntity extends BaseEntity {
     private LoginEntity login;
 
     @ManyToOne
+    private KeyStorageEntity encryptor;
+
+    @ManyToOne
     private MemberEntity member;
 
     public LoginEntity() {}
@@ -34,8 +37,9 @@ public class LoginEntity extends BaseEntity {
      * @param ip     the IP address of the login
      * @param device the device used for login
      */
-    public LoginEntity(MemberEntity member, String ip, String device) {
+    public LoginEntity(MemberEntity member, KeyStorageEntity encryptor, String ip, String device) {
         super();
+        setEncryptor(encryptor);
         setMember(member);
         setIp(ip);
         setDevice(device);
@@ -78,6 +82,14 @@ public class LoginEntity extends BaseEntity {
 
     public void setLogin(LoginEntity login) {
         this.login = login;
+    }
+
+    public KeyStorageEntity encryptor() {
+        return encryptor;
+    }
+
+    public void setEncryptor(KeyStorageEntity encryptor) {
+        this.encryptor = encryptor;
     }
 
     public MemberEntity member() {
