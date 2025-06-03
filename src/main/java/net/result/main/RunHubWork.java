@@ -4,7 +4,7 @@ import net.result.main.config.HubPropertiesConfig;
 import net.result.main.config.JWTPropertiesConfig;
 import net.result.sandnode.config.HubConfig;
 import net.result.sandnode.config.ServerConfig;
-import net.result.sandnode.group.GroupManager;
+import net.result.sandnode.cluster.ClusterManager;
 import net.result.sandnode.security.Tokenizer;
 import net.result.sandnode.util.JPAUtil;
 import net.result.sandnode.exception.ConfigurationException;
@@ -18,9 +18,9 @@ import net.result.sandnode.util.Container;
 import net.result.taulight.db.ReactionPackageEntity;
 import net.result.taulight.db.ReactionPackageRepository;
 import net.result.taulight.db.ReactionTypeRepository;
-import net.result.taulight.group.HashSetTauGroupManager;
+import net.result.taulight.cluster.HashSetTauClusterManager;
 import net.result.sandnode.security.JWTTokenizer;
-import net.result.taulight.group.TauGroupManager;
+import net.result.taulight.cluster.TauClusterManager;
 import net.result.taulight.hubagent.TauHub;
 import net.result.main.config.ServerPropertiesConfig;
 import net.result.sandnode.serverclient.SandnodeServer;
@@ -91,9 +91,9 @@ public class RunHubWork implements IWork {
         ServerPropertiesConfig serverConfig = new ServerPropertiesConfig(container);
         container.addInstance(ServerConfig.class, serverConfig);
 
-        HashSetTauGroupManager groupManager = new HashSetTauGroupManager();
-        container.addInstance(GroupManager.class, groupManager);
-        container.addInstance(TauGroupManager.class, groupManager);
+        HashSetTauClusterManager clusterManager = new HashSetTauClusterManager();
+        container.addInstance(ClusterManager.class, clusterManager);
+        container.addInstance(TauClusterManager.class, clusterManager);
         container.addInstance(Tokenizer.class, new JWTTokenizer(container, new JWTPropertiesConfig()));
 
         return serverConfig;

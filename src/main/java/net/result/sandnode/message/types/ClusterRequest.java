@@ -16,43 +16,43 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public class GroupRequest extends Message {
-    private static final Logger LOGGER = LogManager.getLogger(GroupRequest.class);
+public class ClusterRequest extends Message {
+    private static final Logger LOGGER = LogManager.getLogger(ClusterRequest.class);
 
     @Unmodifiable
-    private final Collection<String> groupsID;
+    private final Collection<String> clustersID;
 
-    public GroupRequest(@NotNull Headers headers, @NotNull Collection<String> groupsID) {
-        super(headers.setType(MessageTypes.GROUP));
-        Set<String> filteredGroupNames = new HashSet<>();
-        for (String s : groupsID) {
+    public ClusterRequest(@NotNull Headers headers, @NotNull Collection<String> clustersID) {
+        super(headers.setType(MessageTypes.CLUSTER));
+        Set<String> filteredClusterNames = new HashSet<>();
+        for (String s : clustersID) {
             if (s == null || s.trim().isEmpty()) {
-                LOGGER.warn("Skipping invalid group name: null or empty");
+                LOGGER.warn("Skipping invalid cluster name: null or empty");
                 continue;
             }
 
             String str = s.trim().toLowerCase();
 
             if (!str.matches("^#?[a-z0-9_]+$")) {
-                LOGGER.warn("Skipping invalid group name: {}", s);
+                LOGGER.warn("Skipping invalid cluster name: {}", s);
                 continue;
             }
 
-            filteredGroupNames.add(str);
+            filteredClusterNames.add(str);
         }
-        this.groupsID = filteredGroupNames;
+        this.clustersID = filteredClusterNames;
     }
 
-    public GroupRequest(@NotNull Collection<String> groupsID) {
-        this(new Headers(), groupsID);
+    public ClusterRequest(@NotNull Collection<String> clustersID) {
+        this(new Headers(), clustersID);
     }
 
-    public GroupRequest(@NotNull RawMessage message) throws ExpectedMessageException {
-        super(message.expect(MessageTypes.GROUP).headers());
+    public ClusterRequest(@NotNull RawMessage message) throws ExpectedMessageException {
+        super(message.expect(MessageTypes.CLUSTER).headers());
 
-        String[] groupsID = new String(message.getBody()).split(",");
-        this.groupsID = Arrays
-                .stream(groupsID)
+        String[] clustersID = new String(message.getBody()).split(",");
+        this.clustersID = Arrays
+                .stream(clustersID)
                 .map(String::trim)
                 .filter(s -> !s.isEmpty())
                 .map(String::toLowerCase)
@@ -61,16 +61,16 @@ public class GroupRequest extends Message {
                 .collect(Collectors.toSet());
     }
 
-    public Collection<String> getGroupsID() {
-        return groupsID;
+    public Collection<String> getClustersID() {
+        return clustersID;
     }
 
     public String toString() {
-        return super.toString() + " " + groupsID;
+        return super.toString() + " " + clustersID;
     }
 
     @Override
     public byte[] getBody() {
-        return String.join(",", groupsID).getBytes();
+        return String.join(",", clustersID).getBytes();
     }
 }

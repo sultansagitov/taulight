@@ -12,7 +12,7 @@ import net.result.taulight.db.MessageEntity;
 import net.result.taulight.db.MessageRepository;
 import net.result.taulight.dto.ChatMessageInputDTO;
 import net.result.taulight.dto.ChatMessageViewDTO;
-import net.result.taulight.group.TauGroupManager;
+import net.result.taulight.cluster.TauClusterManager;
 import net.result.taulight.message.types.ForwardResponse;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -47,9 +47,9 @@ public class TauHubProtocol {
             ExpectedMessageException, UnknownSandnodeErrorException {
         if (session.member == null) throw new UnauthorizedException();
 
-        TauGroupManager manager = session.server.container.get(TauGroupManager.class);
+        TauClusterManager manager = session.server.container.get(TauClusterManager.class);
 
-        Collection<Session> sessions = manager.getGroup(chat).getSessions();
+        Collection<Session> sessions = manager.getCluster(chat).getSessions();
         if (sessions.isEmpty()) throw new NoEffectException();
 
         ExecutorService executorService = null;

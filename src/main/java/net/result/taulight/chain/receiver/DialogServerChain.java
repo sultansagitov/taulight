@@ -15,7 +15,7 @@ import net.result.sandnode.serverclient.Session;
 import net.result.sandnode.util.DBFileUtil;
 import net.result.taulight.db.*;
 import net.result.taulight.dto.ChatMessageInputDTO;
-import net.result.taulight.group.TauGroupManager;
+import net.result.taulight.cluster.TauClusterManager;
 import net.result.taulight.message.types.DialogRequest;
 import net.result.taulight.util.ChatUtil;
 import net.result.taulight.util.SysMessages;
@@ -53,7 +53,7 @@ public class DialogServerChain extends ServerChain implements ReceiverChain {
     }
 
     private void id(DialogRequest request, MemberEntity you) throws Exception {
-        TauGroupManager manager = session.server.container.get(TauGroupManager.class);
+        TauClusterManager manager = session.server.container.get(TauClusterManager.class);
         TauMemberRepository tauMemberRepo = session.server.container.get(TauMemberRepository.class);
         DialogRepository dialogRepo = session.server.container.get(DialogRepository.class);
 
@@ -69,7 +69,7 @@ public class DialogServerChain extends ServerChain implements ReceiverChain {
             dialog = dialogRepo.create(you.tauMember(), anotherMember);
 
             Collection<MemberEntity> members = new ArrayList<>(List.of(you, anotherMember.member()));
-            TauAgentProtocol.addMembersToGroup(session, members, manager.getGroup(dialog));
+            TauAgentProtocol.addMembersToCluster(session, members, manager.getCluster(dialog));
 
             ChatMessageInputDTO input = SysMessages.dialogNew.toInput(dialog, you.tauMember());
 

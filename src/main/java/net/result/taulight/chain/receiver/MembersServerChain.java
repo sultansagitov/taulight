@@ -13,8 +13,8 @@ import net.result.taulight.db.*;
 import net.result.taulight.dto.ChatMemberDTO;
 import net.result.taulight.dto.MemberStatus;
 import net.result.taulight.dto.RoleDTO;
-import net.result.taulight.group.ChatGroup;
-import net.result.taulight.group.TauGroupManager;
+import net.result.taulight.cluster.ChatCluster;
+import net.result.taulight.cluster.TauClusterManager;
 import net.result.taulight.message.types.MembersResponse;
 import net.result.taulight.util.ChatUtil;
 import org.apache.logging.log4j.LogManager;
@@ -32,7 +32,7 @@ public class MembersServerChain extends ServerChain implements ReceiverChain {
     @Override
     public void sync() throws InterruptedException, DeserializationException, UnprocessedMessagesException {
         ChatUtil chatUtil = session.server.container.get(ChatUtil.class);
-        TauGroupManager groupManager = session.server.container.get(TauGroupManager.class);
+        TauClusterManager clusterManager = session.server.container.get(TauClusterManager.class);
 
         while (true) {
             UUIDMessage request = new UUIDMessage(queue.take());
@@ -51,7 +51,7 @@ public class MembersServerChain extends ServerChain implements ReceiverChain {
                 }
 
                 ChatEntity chat = optChat.get();
-                ChatGroup group = groupManager.getGroup(chat);
+                ChatCluster cluster = clusterManager.getCluster(chat);
 
                 if (!chatUtil.contains(chat, session.member.tauMember())) {
                     send(Errors.NOT_FOUND.createMessage());
@@ -85,7 +85,7 @@ public class MembersServerChain extends ServerChain implements ReceiverChain {
                     map.put(m.member(), new ChatMemberDTO(m, roleIds));
                 }
 
-                for (Session s : group.getSessions()) {
+                for (Session s : cluster.getSessions()) {
                     if (s.member != null) {
                         map.get(s.member).status = MemberStatus.ONLINE;
                     }

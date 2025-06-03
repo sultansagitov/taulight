@@ -19,9 +19,9 @@ public class ConsoleSandnodeCommands {
     public static void register(Map<String, LoopCondition> commands) {
         commands.put("keyID", ConsoleSandnodeCommands::keyID);
         commands.put("chains", ConsoleSandnodeCommands::chains);
-        commands.put("groups", ConsoleSandnodeCommands::groups);
-        commands.put("addGroup", ConsoleSandnodeCommands::addGroup);
-        commands.put("rmGroup", ConsoleSandnodeCommands::rmGroup);
+        commands.put("clusters", ConsoleSandnodeCommands::clusters);
+        commands.put("addCluster", ConsoleSandnodeCommands::addCluster);
+        commands.put("rmCluster", ConsoleSandnodeCommands::rmCluster);
         commands.put("whoami", ConsoleSandnodeCommands::whoami);
         commands.put("name", ConsoleSandnodeCommands::name);
         commands.put("getAvatar", ConsoleSandnodeCommands::getAvatar);
@@ -44,19 +44,19 @@ public class ConsoleSandnodeCommands {
         System.out.printf("All named client chains: %s%n", map);
     }
 
-    private static void groups(List<String> ignored, ConsoleContext context) throws Exception {
-        Collection<String> groups = ClientProtocol.getGroups(context.client);
-        System.out.printf("Your groups: %s%n", groups);
+    private static void clusters(List<String> ignored, ConsoleContext context) throws Exception {
+        Collection<String> clusters = ClientProtocol.getClusters(context.client);
+        System.out.printf("Your clusters: %s%n", clusters);
     }
 
-    private static void addGroup(List<String> groups, ConsoleContext context) throws Exception {
-        Collection<String> groupsAfterAdding = ClientProtocol.addToGroups(context.client, groups);
-        System.out.printf("Your groups now (after adding): %s%n", groupsAfterAdding);
+    private static void addCluster(List<String> clusters, ConsoleContext context) throws Exception {
+        Collection<String> clustersAfterAdding = ClientProtocol.addToClusters(context.client, clusters);
+        System.out.printf("Your clusters now (after adding): %s%n", clustersAfterAdding);
     }
 
-    private static void rmGroup(List<String> groups, ConsoleContext context) throws Exception {
-        Collection<String> groupsAfterRemoving = ClientProtocol.removeFromGroups(context.client, groups);
-        System.out.printf("Your groups now (after removing): %s%n", groupsAfterRemoving);
+    private static void rmCluster(List<String> clusters, ConsoleContext context) throws Exception {
+        Collection<String> clustersAfterRemoving = ClientProtocol.removeFromClusters(context.client, clusters);
+        System.out.printf("Your clusters now (after removing): %s%n", clustersAfterRemoving);
     }
 
     private static void whoami(List<String> ignored, ConsoleContext context) throws Exception {

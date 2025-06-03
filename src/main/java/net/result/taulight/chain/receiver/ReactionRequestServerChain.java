@@ -5,8 +5,8 @@ import net.result.sandnode.chain.ServerChain;
 import net.result.sandnode.exception.error.NoEffectException;
 import net.result.sandnode.exception.error.UnauthorizedException;
 import net.result.sandnode.exception.error.UnhandledMessageTypeException;
-import net.result.sandnode.group.Group;
-import net.result.sandnode.group.GroupManager;
+import net.result.sandnode.cluster.Cluster;
+import net.result.sandnode.cluster.ClusterManager;
 import net.result.sandnode.serverclient.Session;
 import net.result.taulight.chain.sender.ReactionResponseServerChain;
 import net.result.sandnode.exception.error.NotFoundException;
@@ -25,7 +25,7 @@ public class ReactionRequestServerChain extends ServerChain implements ReceiverC
 
     @Override
     public void sync() throws Exception {
-        GroupManager groupManager = session.server.container.get(GroupManager.class);
+        ClusterManager clusterManager = session.server.container.get(ClusterManager.class);
         MessageRepository messageRepo = session.server.container.get(MessageRepository.class);
         ReactionTypeRepository reactionTypeRepo = session.server.container.get(ReactionTypeRepository.class);
         ReactionEntryRepository reactionEntryRepo = session.server.container.get(ReactionEntryRepository.class);
@@ -56,7 +56,7 @@ public class ReactionRequestServerChain extends ServerChain implements ReceiverC
                 .orElseThrow(NotFoundException::new);
 
 
-        Group notReactionReceiver = groupManager.getGroup("#not_reaction_receiver");
+        Cluster notReactionReceiver = clusterManager.get("#not_reaction_receiver");
 
         if (request.isReact()) {
             ReactionEntryEntity re = reactionEntryRepo.create(session.member.tauMember(), message, reactionType);
@@ -68,7 +68,7 @@ public class ReactionRequestServerChain extends ServerChain implements ReceiverC
                     try {
                         chain.reaction(re, s == session);
                     } catch (UnhandledMessageTypeException e) {
-                        s.addToGroup(notReactionReceiver);
+                        s.addToCluster(notReactionReceiver);
                     }
                     s.io.chainManager.removeChain(chain);
                 }
@@ -82,7 +82,7 @@ public class ReactionRequestServerChain extends ServerChain implements ReceiverC
                         try {
                             chain.unreaction(nickname, message, reactionType, s == session);
                         } catch (UnhandledMessageTypeException e) {
-                            s.addToGroup(notReactionReceiver);
+                            s.addToCluster(notReactionReceiver);
                         }
                         s.io.chainManager.removeChain(chain);
                     }

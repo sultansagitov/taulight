@@ -1,4 +1,4 @@
-package net.result.sandnode.group;
+package net.result.sandnode.cluster;
 
 import net.result.sandnode.serverclient.Session;
 import org.jetbrains.annotations.NotNull;
@@ -6,11 +6,11 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Collection;
 import java.util.HashSet;
 
-public class HashSetGroup implements Group {
+public class HashSetCluster implements Cluster {
     private final Collection<Session> sessions = new HashSet<>();
     private final String id;
 
-    public HashSetGroup(@NotNull String id) {
+    public HashSetCluster(@NotNull String id) {
         this.id = id;
     }
 

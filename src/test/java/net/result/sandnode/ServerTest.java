@@ -13,7 +13,7 @@ import net.result.sandnode.encryption.interfaces.KeyStorage;
 import net.result.sandnode.encryption.interfaces.SymmetricEncryption;
 import net.result.sandnode.exception.*;
 import net.result.sandnode.exception.error.KeyStorageNotFoundException;
-import net.result.sandnode.group.HashSetGroupManager;
+import net.result.sandnode.cluster.HashSetClusterManager;
 import net.result.sandnode.hubagent.Agent;
 import net.result.sandnode.hubagent.ClientProtocol;
 import net.result.sandnode.hubagent.Hub;
@@ -143,7 +143,7 @@ public class ServerTest {
                     null,
                     null,
                     asymmetricEncryption,
-                    new HashSetGroupManager(),
+                    new HashSetClusterManager(),
                     new JWTTokenizer(container, () -> Algorithm.HMAC256("test"))
             );
             server = new SandnodeServer(hub, serverConfig);

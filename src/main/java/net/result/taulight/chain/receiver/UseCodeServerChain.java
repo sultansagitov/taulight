@@ -8,8 +8,8 @@ import net.result.sandnode.message.types.HappyMessage;
 import net.result.sandnode.serverclient.Session;
 import net.result.sandnode.util.JPAUtil;
 import net.result.taulight.db.*;
-import net.result.taulight.group.ChatGroup;
-import net.result.taulight.group.TauGroupManager;
+import net.result.taulight.cluster.ChatCluster;
+import net.result.taulight.cluster.TauClusterManager;
 import net.result.taulight.util.SysMessages;
 import net.result.taulight.util.TauHubProtocol;
 import net.result.taulight.dto.ChatMessageInputDTO;
@@ -37,7 +37,7 @@ public class UseCodeServerChain extends ServerChain  implements ReceiverChain {
         JPAUtil jpaUtil = session.server.container.get(JPAUtil.class);
         ChannelRepository channelRepo = session.server.container.get(ChannelRepository.class);
         InviteCodeRepository inviteCodeRepo = session.server.container.get(InviteCodeRepository.class);
-        TauGroupManager tauGroupManager = session.server.container.get(TauGroupManager.class);
+        TauClusterManager tauClusterManager = session.server.container.get(TauClusterManager.class);
 
         InviteCodeEntity invite = inviteCodeRepo.find(code).orElseThrow(NotFoundException::new);
 
@@ -63,12 +63,12 @@ public class UseCodeServerChain extends ServerChain  implements ReceiverChain {
 
         session.member = jpaUtil.refresh(session.member);
 
-        ChatGroup group = tauGroupManager.getGroup(channel);
+        ChatCluster cluster = tauClusterManager.getCluster(channel);
 
         for (Session agent : session.server.node.getAgents()) {
             //noinspection DataFlowIssue
             if (session.member.equals(agent.member)) {
-                agent.addToGroup(group);
+                agent.addToCluster(cluster);
             }
         }
 

@@ -5,7 +5,7 @@ import net.result.sandnode.exception.error.SandnodeErrorException;
 import net.result.sandnode.serverclient.SandnodeClient;
 import net.result.sandnode.exception.*;
 import net.result.sandnode.util.IOController;
-import net.result.sandnode.chain.sender.GroupClientChain;
+import net.result.sandnode.chain.sender.ClusterClientChain;
 import net.result.sandnode.chain.sender.PublicKeyClientChain;
 import net.result.sandnode.chain.sender.SymKeyClientChain;
 import org.jetbrains.annotations.NotNull;
@@ -32,28 +32,28 @@ public class ClientProtocol {
         io.chainManager.removeChain(symKeyChain);
     }
 
-    public static Collection<String> addToGroups(@NotNull SandnodeClient client, Collection<String> groups)
+    public static Collection<String> addToClusters(@NotNull SandnodeClient client, Collection<String> clusters)
             throws InterruptedException, ExpectedMessageException, UnprocessedMessagesException {
         IOController io = client.io;
-        GroupClientChain groupClientChain = new GroupClientChain(client);
-        io.chainManager.linkChain(groupClientChain);
-        Collection<String> groupsID = groupClientChain.add(groups);
-        io.chainManager.removeChain(groupClientChain);
-        return groupsID;
+        ClusterClientChain chain = new ClusterClientChain(client);
+        io.chainManager.linkChain(chain);
+        Collection<String> clustersID = chain.add(clusters);
+        io.chainManager.removeChain(chain);
+        return clustersID;
     }
 
-    public static Collection<String> getGroups(@NotNull SandnodeClient client)
+    public static Collection<String> getClusters(@NotNull SandnodeClient client)
             throws ExpectedMessageException, InterruptedException, UnprocessedMessagesException {
-        return addToGroups(client, Set.of());
+        return addToClusters(client, Set.of());
     }
 
-    public static Collection<String> removeFromGroups(@NotNull SandnodeClient client, Collection<String> groups)
+    public static Collection<String> removeFromClusters(@NotNull SandnodeClient client, Collection<String> clusters)
             throws InterruptedException, ExpectedMessageException, UnprocessedMessagesException {
         IOController io = client.io;
-        GroupClientChain groupClientChain = new GroupClientChain(client);
-        io.chainManager.linkChain(groupClientChain);
-        Collection<String> groupsID = groupClientChain.remove(groups);
-        io.chainManager.removeChain(groupClientChain);
-        return groupsID;
+        ClusterClientChain chain = new ClusterClientChain(client);
+        io.chainManager.linkChain(chain);
+        Collection<String> clustersID = chain.remove(clusters);
+        io.chainManager.removeChain(chain);
+        return clustersID;
     }
 }

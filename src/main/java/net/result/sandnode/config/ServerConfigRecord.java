@@ -5,7 +5,7 @@ import net.result.sandnode.encryption.interfaces.AsymmetricEncryption;
 import net.result.sandnode.encryption.interfaces.AsymmetricKeyStorage;
 import net.result.sandnode.util.Container;
 import net.result.sandnode.util.Endpoint;
-import net.result.sandnode.group.GroupManager;
+import net.result.sandnode.cluster.ClusterManager;
 import net.result.sandnode.security.Tokenizer;
 
 import java.nio.file.Path;
@@ -16,7 +16,7 @@ public record ServerConfigRecord(
         Path publicKeyPath,
         Path privateKeyPath,
         AsymmetricEncryption mainEncryption,
-        GroupManager groupManager,
+        ClusterManager clusterManager,
         Tokenizer tokenizer
 ) implements ServerConfig {
     @Override

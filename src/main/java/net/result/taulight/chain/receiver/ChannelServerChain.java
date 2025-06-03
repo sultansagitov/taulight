@@ -26,7 +26,7 @@ import net.result.taulight.db.*;
 import net.result.taulight.dto.ChatMessageInputDTO;
 import net.result.taulight.dto.InviteCodeDTO;
 import net.result.taulight.dto.CodeDTO;
-import net.result.taulight.group.TauGroupManager;
+import net.result.taulight.cluster.TauClusterManager;
 import net.result.taulight.message.CodeListMessage;
 import net.result.taulight.message.TauMessageTypes;
 import net.result.taulight.message.types.ChannelRequest;
@@ -45,7 +45,7 @@ public class ChannelServerChain extends ServerChain implements ReceiverChain {
     private static final Logger LOGGER = LogManager.getLogger(ChannelServerChain.class);
     private ChatUtil chatUtil;
     private DBFileUtil dbFileUtil;
-    private TauGroupManager manager;
+    private TauClusterManager manager;
     private ChannelRepository channelRepo;
     private MemberRepository memberRepo;
     private InviteCodeRepository inviteCodeRepo;
@@ -60,7 +60,7 @@ public class ChannelServerChain extends ServerChain implements ReceiverChain {
         chatUtil = session.server.container.get(ChatUtil.class);
         dbFileUtil = session.server.container.get(DBFileUtil.class);
 
-        manager = session.server.container.get(TauGroupManager.class);
+        manager = session.server.container.get(TauClusterManager.class);
 
         channelRepo = session.server.container.get(ChannelRepository.class);
         memberRepo = session.server.container.get(MemberRepository.class);
@@ -99,7 +99,7 @@ public class ChannelServerChain extends ServerChain implements ReceiverChain {
 
         ChannelEntity channel = channelRepo.create(dto.title, you);
 
-        TauAgentProtocol.addMemberToGroup(session, manager.getGroup(channel));
+        TauAgentProtocol.addMemberToCluster(session, manager.getCluster(channel));
         ChatMessageInputDTO input = SysMessages.channelNew.toInput(channel, you);
         try {
             TauHubProtocol.send(session, channel, input);
@@ -173,7 +173,7 @@ public class ChannelServerChain extends ServerChain implements ReceiverChain {
             LOGGER.warn("Exception when sending system message of leaving member: {}", e.getMessage());
         }
 
-        TauAgentProtocol.removeMemberFromGroup(session, manager.getGroup(channel));
+        TauAgentProtocol.removeMemberFromCluster(session, manager.getCluster(channel));
 
         send(new HappyMessage());
     }

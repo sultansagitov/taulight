@@ -18,7 +18,7 @@ public abstract class BSTServerChainManager extends BSTChainManager implements S
         return (type instanceof MessageTypes sysType) ? switch (sysType) {
             case PUB -> new PublicKeyServerChain(session);
             case SYM -> new SymKeyServerChain(session);
-            case GROUP -> new GroupServerChain(session);
+            case CLUSTER -> new ClusterServerChain(session);
             case LOGIN -> new LoginServerChain(session);
             case REG -> new RegistrationServerChain(session);
             case LOGOUT -> new LogoutServerChain(session);

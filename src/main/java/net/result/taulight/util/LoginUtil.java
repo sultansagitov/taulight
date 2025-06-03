@@ -5,12 +5,12 @@ import net.result.sandnode.serverclient.Session;
 import net.result.taulight.db.ChannelEntity;
 import net.result.taulight.db.DialogEntity;
 import net.result.taulight.db.TauMemberEntity;
-import net.result.taulight.group.TauGroupManager;
+import net.result.taulight.cluster.TauClusterManager;
 import org.jetbrains.annotations.NotNull;
 
 public class LoginUtil {
     public static void onLogin(@NotNull Session session) throws UnauthorizedException {
-        TauGroupManager manager = session.server.container.get(TauGroupManager.class);
+        TauClusterManager manager = session.server.container.get(TauClusterManager.class);
 
         if (session.member == null) {
             throw new UnauthorizedException();
@@ -19,11 +19,11 @@ public class LoginUtil {
         TauMemberEntity tauMember = session.member.tauMember();
 
         for (ChannelEntity channel : tauMember.channels()) {
-            TauAgentProtocol.addMemberToGroup(session, manager.getGroup(channel));
+            TauAgentProtocol.addMemberToCluster(session, manager.getCluster(channel));
         }
 
         for (DialogEntity dialog : tauMember.dialogs()) {
-            TauAgentProtocol.addMemberToGroup(session, manager.getGroup(dialog));
+            TauAgentProtocol.addMemberToCluster(session, manager.getCluster(dialog));
         }
     }
 }
