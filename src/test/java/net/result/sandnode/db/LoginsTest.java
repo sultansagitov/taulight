@@ -1,7 +1,9 @@
 package net.result.sandnode.db;
 
 import net.result.sandnode.GlobalTestState;
+import net.result.sandnode.encryption.AsymmetricEncryptions;
 import net.result.sandnode.exception.DatabaseException;
+import net.result.sandnode.exception.crypto.CannotUseEncryption;
 import net.result.sandnode.exception.error.BusyNicknameException;
 import net.result.sandnode.util.Container;
 import org.junit.jupiter.api.*;
@@ -16,21 +18,25 @@ public class LoginsTest {
 
     private static LoginRepository loginRepo;
     private static MemberEntity member;
+    private static KeyStorageRepository keyStorageRepo;
 
     @BeforeAll
     static void setup() throws BusyNicknameException, DatabaseException {
         Container container = GlobalTestState.container;
         loginRepo = container.get(LoginRepository.class);
+        keyStorageRepo = container.get(KeyStorageRepository.class);
         MemberRepository memberRepo = container.get(MemberRepository.class);
         member = memberRepo.create("user_login_test", "hash");
     }
 
     @Test
-    void testCreateAndFindLogin() throws DatabaseException {
+    void testCreateAndFindLogin() throws DatabaseException, CannotUseEncryption {
         String ip = "192.168.0.1";
         String device = "Firefox on Linux";
 
-        LoginEntity created = loginRepo.create(member, ip, device);
+        KeyStorageEntity keyStorageEntity = keyStorageRepo.create(AsymmetricEncryptions.ECIES.generate());
+
+        LoginEntity created = loginRepo.create(member, keyStorageEntity, ip, device);
         assertNotNull(created);
         assertNotNull(created.id());
         assertEquals(ip, created.ip());
@@ -43,8 +49,10 @@ public class LoginsTest {
     }
 
     @Test
-    void testCreateLoginWithLoginLink() throws DatabaseException {
-        LoginEntity baseLogin = loginRepo.create(member, "10.0.0.1", "Mac");
+    void testCreateLoginWithLoginLink() throws DatabaseException, CannotUseEncryption {
+        KeyStorageEntity keyStorageEntity = keyStorageRepo.create(AsymmetricEncryptions.ECIES.generate());
+
+        LoginEntity baseLogin = loginRepo.create(member, keyStorageEntity, "10.0.0.1", "Mac");
         LoginEntity linkedLogin = loginRepo.create(baseLogin, "10.0.0.2");
 
         assertNotNull(linkedLogin);
@@ -57,9 +65,11 @@ public class LoginsTest {
     }
 
     @Test
-    void testFindLoginsByDevice() throws DatabaseException {
-        loginRepo.create(member, "172.16.0.1", "Device-A");
-        loginRepo.create(member, "172.16.0.2", "Device-B");
+    void testFindLoginsByDevice() throws DatabaseException, CannotUseEncryption {
+        KeyStorageEntity keyStorageEntity = keyStorageRepo.create(AsymmetricEncryptions.ECIES.generate());
+
+        loginRepo.create(member, keyStorageEntity, "172.16.0.1", "Device-A");
+        loginRepo.create(member, keyStorageEntity, "172.16.0.2", "Device-B");
 
         List<LoginEntity> deviceLogins = loginRepo.byDevice(member);
         assertNotNull(deviceLogins);

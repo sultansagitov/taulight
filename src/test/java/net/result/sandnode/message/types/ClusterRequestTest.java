@@ -14,7 +14,7 @@ class ClusterRequestTest {
     @Test
     void testClusterMessageInitializationAndRetrieval() throws ExpectedMessageException {
         Collection<String> inputClusterNames = Set.of(
-                "cluster1", "GROUP2", "cluster_3", "invalid-name", "cluster_4", "cluster_5 ", "123Cluster", "_underscore",
+                "cluster1", "CLUSTER2", "cluster_3", "invalid-name", "cluster_4", "cluster_5 ", "123Cluster", "_underscore",
                 "cluster with spaces", "cluster$special", "UPPERCASE", "", "  ", "что_то_на_русском"
         );
 
