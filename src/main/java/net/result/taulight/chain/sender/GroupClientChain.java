@@ -16,7 +16,7 @@ import net.result.sandnode.serverclient.SandnodeClient;
 import net.result.taulight.dto.CodeDTO;
 import net.result.taulight.message.CodeListMessage;
 import net.result.taulight.message.TauMessageTypes;
-import net.result.taulight.message.types.ChannelRequest;
+import net.result.taulight.message.types.GroupRequest;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.Nullable;
@@ -30,17 +30,17 @@ import java.time.Duration;
 import java.util.Collection;
 import java.util.UUID;
 
-public class ChannelClientChain extends ClientChain {
-    private static final Logger LOGGER = LogManager.getLogger(ChannelClientChain.class);
+public class GroupClientChain extends ClientChain {
+    private static final Logger LOGGER = LogManager.getLogger(GroupClientChain.class);
 
-    public ChannelClientChain(SandnodeClient client) {
+    public GroupClientChain(SandnodeClient client) {
         super(client);
     }
 
-    public synchronized UUID sendNewChannelRequest(String title)
+    public synchronized UUID sendNewGroupRequest(String title)
             throws InterruptedException, UnknownSandnodeErrorException, SandnodeErrorException,
             DeserializationException, UnprocessedMessagesException {
-        send(ChannelRequest.newChannel(title));
+        send(GroupRequest.newGroup(title));
         RawMessage raw = queue.take();
 
         ServerErrorManager.instance().handleError(raw);
@@ -50,7 +50,7 @@ public class ChannelClientChain extends ClientChain {
 
     public synchronized void sendLeaveRequest(UUID chatID) throws InterruptedException, ExpectedMessageException,
             SandnodeErrorException, UnknownSandnodeErrorException, UnprocessedMessagesException {
-        send(ChannelRequest.leave(chatID));
+        send(GroupRequest.leave(chatID));
         RawMessage raw = queue.take();
 
         ServerErrorManager.instance().handleError(raw);
@@ -67,32 +67,32 @@ public class ChannelClientChain extends ClientChain {
     public synchronized String createInviteCode(UUID chatID, String otherNickname, String expirationTime)
             throws InterruptedException, SandnodeErrorException, UnknownSandnodeErrorException,
             UnprocessedMessagesException {
-        send(ChannelRequest.addMember(chatID, otherNickname, expirationTime));
+        send(GroupRequest.addMember(chatID, otherNickname, expirationTime));
         RawMessage raw = queue.take();
         ServerErrorManager.instance().handleError(raw);
 
         return new TextMessage(raw).content();
     }
 
-    public synchronized Collection<CodeDTO> getChannelCodes(UUID chatID)
+    public synchronized Collection<CodeDTO> getGroupCodes(UUID chatID)
             throws InterruptedException, UnknownSandnodeErrorException, SandnodeErrorException,
             UnprocessedMessagesException, DeserializationException, ExpectedMessageException {
-        send(ChannelRequest.channelCodes(chatID));
+        send(GroupRequest.groupCodes(chatID));
         RawMessage raw = queue.take();
         ServerErrorManager.instance().handleError(raw);
 
-        raw.expect(TauMessageTypes.CHANNEL);
+        raw.expect(TauMessageTypes.GROUP);
         return new CodeListMessage(raw).codes();
     }
 
     public synchronized Collection<CodeDTO> getMyCodes() throws InterruptedException,
             UnknownSandnodeErrorException, SandnodeErrorException, DeserializationException,
             UnprocessedMessagesException, ExpectedMessageException {
-        send(ChannelRequest.myCodes());
+        send(GroupRequest.myCodes());
         RawMessage raw = queue.take();
         ServerErrorManager.instance().handleError(raw);
 
-        raw.expect(TauMessageTypes.CHANNEL);
+        raw.expect(TauMessageTypes.GROUP);
         return new CodeListMessage(raw).codes();
     }
 
@@ -110,7 +110,7 @@ public class ChannelClientChain extends ClientChain {
             throw new FSException(e);
         }
 
-        IMessage request = ChannelRequest.setAvatar(chatID);
+        IMessage request = GroupRequest.setAvatar(chatID);
         FileMessage fileMessage = new FileMessage(new FileDTO(contentType, bytes));
 
         send(request);
@@ -124,7 +124,7 @@ public class ChannelClientChain extends ClientChain {
 
     public synchronized @Nullable FileDTO getAvatar(UUID chatID) throws UnprocessedMessagesException,
             InterruptedException, UnknownSandnodeErrorException, SandnodeErrorException, ExpectedMessageException {
-        send(ChannelRequest.getAvatar(chatID));
+        send(GroupRequest.getAvatar(chatID));
 
         RawMessage raw = queue.take();
         try {

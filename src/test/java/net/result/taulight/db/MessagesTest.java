@@ -19,7 +19,7 @@ public class MessagesTest {
     private static JPAUtil jpaUtil;
     private static TauMemberEntity member1;
     private static TauMemberEntity member2;
-    private static ChannelRepository channelRepo;
+    private static GroupRepository groupRepo;
     private static MessageRepository messageRepo;
 
     @BeforeAll
@@ -28,7 +28,7 @@ public class MessagesTest {
         jpaUtil = container.get(JPAUtil.class);
 
         MemberRepository memberRepo = container.get(MemberRepository.class);
-        channelRepo = container.get(ChannelRepository.class);
+        groupRepo = container.get(GroupRepository.class);
         messageRepo = container.get(MessageRepository.class);
 
         member1 = memberRepo.create("user1_messages", "hash").tauMember();
@@ -40,7 +40,7 @@ public class MessagesTest {
 
     @Test
     public void createMessage() throws DatabaseException, NotFoundException {
-        ChatEntity chat = channelRepo.create("Test Channel", member1);
+        ChatEntity chat = groupRepo.create("Test Group", member1);
 
         ChatMessageInputDTO messageInputDTO = new ChatMessageInputDTO()
                 .setContent("Hello!")
@@ -67,11 +67,11 @@ public class MessagesTest {
 
     @Test
     public void loadMessages() throws DatabaseException, NotFoundException {
-        ChannelEntity channel = channelRepo.create("Test Channel", member1);
+        GroupEntity group = groupRepo.create("Test Group", member1);
 
         ChatMessageInputDTO input1 = new ChatMessageInputDTO()
                 .setContent("Hello world")
-                .setChat(channel)
+                .setChat(group)
                 .setMember(member1.member())
                 .setSentDatetimeNow()
                 .setRepliedToMessages(new HashSet<>())
@@ -79,16 +79,16 @@ public class MessagesTest {
 
         ChatMessageInputDTO input2 = new ChatMessageInputDTO()
                 .setContent("Hello world")
-                .setChat(channel)
+                .setChat(group)
                 .setMember(member2.member())
                 .setSentDatetimeNow()
                 .setRepliedToMessages(new HashSet<>())
                 .setSys(true);
 
-        MessageEntity message1 = messageRepo.create(channel, input1, member1);
-        MessageEntity message2 = messageRepo.create(channel, input2, member2);
+        MessageEntity message1 = messageRepo.create(group, input1, member1);
+        MessageEntity message2 = messageRepo.create(group, input2, member2);
 
-        List<MessageEntity> messages = messageRepo.findMessagesByChat(channel, 0, 10);
+        List<MessageEntity> messages = messageRepo.findMessagesByChat(group, 0, 10);
         assertNotNull(messages);
         assertEquals(2, messages.size());
 
@@ -96,10 +96,10 @@ public class MessagesTest {
         assertTrue(messages.containsAll(List.of(message1, message2)), "Retrieved messages should contain both created messages");
 
         // Test pagination
-        List<MessageEntity> firstPage = messageRepo.findMessagesByChat(channel, 0, 1);
+        List<MessageEntity> firstPage = messageRepo.findMessagesByChat(group, 0, 1);
         assertEquals(1, firstPage.size(), "Should retrieve only one message when limit is 1");
 
-        List<MessageEntity> secondPage = messageRepo.findMessagesByChat(channel, 1, 1);
+        List<MessageEntity> secondPage = messageRepo.findMessagesByChat(group, 1, 1);
         assertEquals(1, secondPage.size(), "Should retrieve one message from second page");
 
         // The combination of both pages should contain all messages
@@ -114,17 +114,17 @@ public class MessagesTest {
 
     @Test
     public void findMessage() throws DatabaseException, NotFoundException {
-        ChannelEntity channel = channelRepo.create("FindMessageChannel", member1);
+        GroupEntity group = groupRepo.create("FindMessageGroup", member1);
 
         ChatMessageInputDTO input = new ChatMessageInputDTO()
                 .setContent("Find me")
-                .setChat(channel)
+                .setChat(group)
                 .setMember(member1.member())
                 .setSentDatetimeNow()
                 .setRepliedToMessages(new HashSet<>())
                 .setSys(false);
 
-        MessageEntity message = messageRepo.create(channel, input, member1);
+        MessageEntity message = messageRepo.create(group, input, member1);
 
         MessageEntity found = jpaUtil.refresh(message);
         assertEquals("Find me", found.content());
@@ -143,11 +143,11 @@ public class MessagesTest {
 
     @Test
     public void getMessageCount() throws DatabaseException, NotFoundException {
-        ChannelEntity channel = channelRepo.create("Test Channel", member1);
+        GroupEntity group = groupRepo.create("Test Group", member1);
 
         ChatMessageInputDTO input1 = new ChatMessageInputDTO()
                 .setContent("Hello world")
-                .setChat(channel)
+                .setChat(group)
                 .setMember(member1.member())
                 .setSentDatetimeNow()
                 .setRepliedToMessages(new HashSet<>())
@@ -155,36 +155,36 @@ public class MessagesTest {
 
         ChatMessageInputDTO input2 = new ChatMessageInputDTO()
                 .setContent("Hello world")
-                .setChat(channel)
+                .setChat(group)
                 .setMember(member2.member())
                 .setSentDatetimeNow()
                 .setRepliedToMessages(new HashSet<>())
                 .setSys(true);
 
-        messageRepo.create(channel, input1, member1);
-        messageRepo.create(channel, input2, member2);
+        messageRepo.create(group, input1, member1);
+        messageRepo.create(group, input2, member2);
 
-        long count = messageRepo.countMessagesByChat(channel);
+        long count = messageRepo.countMessagesByChat(group);
         assertEquals(2, count);
-        assertEquals(channel.messages().size(), count);
+        assertEquals(group.messages().size(), count);
 
         // Additional assertions
         // Add one more message and verify count increases
         ChatMessageInputDTO input3 = new ChatMessageInputDTO()
                 .setContent("Third message")
-                .setChat(channel)
+                .setChat(group)
                 .setMember(member1.member())
                 .setSentDatetimeNow()
                 .setRepliedToMessages(new HashSet<>())
                 .setSys(false);
 
-        messageRepo.create(channel, input3, member1);
-        long newCount = messageRepo.countMessagesByChat(channel);
+        messageRepo.create(group, input3, member1);
+        long newCount = messageRepo.countMessagesByChat(group);
         assertEquals(3, newCount, "Count should increase to 3 after adding a third message");
 
-        // Test with a new empty channel
-        ChannelEntity emptyChannel = channelRepo.create("Empty Channel", member1);
-        long emptyCount = messageRepo.countMessagesByChat(emptyChannel);
-        assertEquals(0, emptyCount, "Empty channel should have zero messages");
+        // Test with a new empty group
+        GroupEntity emptyGroup = groupRepo.create("Empty Group", member1);
+        long emptyCount = messageRepo.countMessagesByChat(emptyGroup);
+        assertEquals(0, emptyCount, "Empty group should have zero messages");
     }
 }

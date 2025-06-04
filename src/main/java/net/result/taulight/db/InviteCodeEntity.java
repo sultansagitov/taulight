@@ -21,7 +21,7 @@ public class InviteCodeEntity extends BaseEntity {
     private ZonedDateTime expiresDate;
 
     @ManyToOne
-    private ChannelEntity channel;
+    private GroupEntity group;
 
     @ManyToOne
     private TauMemberEntity receiver;
@@ -32,13 +32,13 @@ public class InviteCodeEntity extends BaseEntity {
     public InviteCodeEntity() {}
 
     public InviteCodeEntity(
-            ChannelEntity channel,
+            GroupEntity group,
             TauMemberEntity receiver,
             TauMemberEntity sender,
             ZonedDateTime expiresDate
     ) {
         setRandomCode();
-        this.channel = channel;
+        this.group = group;
         this.receiver = receiver;
         this.sender = sender;
         this.expiresDate = expiresDate;
@@ -68,12 +68,12 @@ public class InviteCodeEntity extends BaseEntity {
                 .collect(Collectors.joining());
     }
 
-    public ChannelEntity channel() {
-        return channel;
+    public GroupEntity group() {
+        return group;
     }
 
-    public void setChannel(ChannelEntity channel) {
-        this.channel = channel;
+    public void setGroup(GroupEntity group) {
+        this.group = group;
     }
 
     public TauMemberEntity receiver() {
@@ -106,9 +106,9 @@ public class InviteCodeEntity extends BaseEntity {
 
     @Override
     public String toString() {
-        return "<InviteCodeEntity code=%s, channel=%s, receiver=%s, sender=%s>".formatted(
+        return "<InviteCodeEntity code=%s, group=%s, receiver=%s, sender=%s>".formatted(
                 code,
-                channel.title(),
+                group.title(),
                 receiver.member().nickname(),
                 sender.member().nickname()
         );

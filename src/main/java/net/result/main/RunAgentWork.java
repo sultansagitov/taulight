@@ -262,7 +262,7 @@ public class RunAgentWork implements IWork {
             ChatInfoDTO chat = context.chat;
             String result = chat != null ? switch (chat.chatType) {
                 case DIALOG -> chat.otherNickname;
-                case CHANNEL -> chat.title;
+                case GROUP -> chat.title;
                 case NOT_FOUND -> "NOT_FOUND";
             } : null;
             if ((result == null || result.isEmpty()) && context.currentChat != null) {

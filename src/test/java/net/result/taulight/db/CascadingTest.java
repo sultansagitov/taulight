@@ -15,7 +15,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class CascadingTest {
     private static MemberRepository memberRepo;
-    private static ChannelRepository channelRepo;
+    private static GroupRepository groupRepo;
     private static MessageRepository messageRepo;
     private static InviteCodeRepository inviteCodeRepo;
     private static ReactionPackageRepository reactionPackageRepo;
@@ -26,7 +26,7 @@ public class CascadingTest {
     public static void setup() {
         Container container = GlobalTestState.container;
         memberRepo = container.get(MemberRepository.class);
-        channelRepo = container.get(ChannelRepository.class);
+        groupRepo = container.get(GroupRepository.class);
         messageRepo = container.get(MessageRepository.class);
         inviteCodeRepo = container.get(InviteCodeRepository.class);
         reactionPackageRepo = container.get(ReactionPackageRepository.class);
@@ -35,19 +35,19 @@ public class CascadingTest {
     }
 
     @Test
-    public void testLeaveFromChannel() throws Exception {
+    public void testLeaveFromGroup() throws Exception {
         MemberEntity m1 = memberRepo.create("new_user", "hash");
         TauMemberEntity tau = m1.tauMember();
 
-        ChannelEntity channel = channelRepo.create("news", tau);
+        GroupEntity group = groupRepo.create("news", tau);
 
-        boolean added = channelRepo.addMember(channel, tau);
+        boolean added = groupRepo.addMember(group, tau);
         assertFalse(added);
 
-        boolean left = channelRepo.removeMember(channel, tau);
+        boolean left = groupRepo.removeMember(group, tau);
         assertTrue(left);
 
-        boolean leftAgain = channelRepo.removeMember(channel, tau);
+        boolean leftAgain = groupRepo.removeMember(group, tau);
         assertFalse(leftAgain);
     }
 
@@ -59,7 +59,7 @@ public class CascadingTest {
         TauMemberEntity reacter = m1.tauMember();
         TauMemberEntity author = m2.tauMember();
 
-        ChatEntity chat = channelRepo.create("memes", author);
+        ChatEntity chat = groupRepo.create("memes", author);
         ChatMessageInputDTO input = new ChatMessageInputDTO()
                 .setContent("Hello world")
                 .setChat(chat)
@@ -88,7 +88,7 @@ public class CascadingTest {
         TauMemberEntity reacter = m1.tauMember();
         TauMemberEntity author = m2.tauMember();
 
-        ChatEntity chat = channelRepo.create("random", author);
+        ChatEntity chat = groupRepo.create("random", author);
         ChatMessageInputDTO input = new ChatMessageInputDTO()
                 .setContent("Hello world")
                 .setChat(chat)
@@ -116,8 +116,8 @@ public class CascadingTest {
         TauMemberEntity s = sender.tauMember();
         TauMemberEntity r = receiver.tauMember();
 
-        ChannelEntity channel = channelRepo.create("private", s);
-        InviteCodeEntity invite = inviteCodeRepo.create(channel, r, s, ZonedDateTime.now().plusDays(1));
+        GroupEntity group = groupRepo.create("private", s);
+        InviteCodeEntity invite = inviteCodeRepo.create(group, r, s, ZonedDateTime.now().plusDays(1));
 
         assertTrue(inviteCodeRepo.activate(invite));
         assertFalse(inviteCodeRepo.activate(invite));

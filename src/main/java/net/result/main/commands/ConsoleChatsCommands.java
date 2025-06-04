@@ -15,15 +15,15 @@ public class ConsoleChatsCommands {
         commands.put(":", ConsoleChatsCommands::setChat);
         commands.put("chats", ConsoleChatsCommands::chats);
         commands.put("dialogs", ConsoleChatsCommands::dialogs);
-        commands.put("channels", ConsoleChatsCommands::channels);
+        commands.put("groups", ConsoleChatsCommands::groups);
         commands.put("info", ConsoleChatsCommands::info);
-        commands.put("newChannel", ConsoleChatsCommands::newChannel);
+        commands.put("newGroup", ConsoleChatsCommands::newGroup);
         commands.put("addMember", ConsoleChatsCommands::addMember);
         commands.put("leave", ConsoleChatsCommands::leave);
         commands.put("dialog", ConsoleChatsCommands::dialog);
         commands.put("members", ConsoleChatsCommands::members);
-        commands.put("setChannelAvatar", ConsoleChatsCommands::setChannelAvatar);
-        commands.put("getChannelAvatar", ConsoleChatsCommands::getChannelAvatar);
+        commands.put("setGroupAvatar", ConsoleChatsCommands::setGroupAvatar);
+        commands.put("getGroupAvatar", ConsoleChatsCommands::getGroupAvatar);
         commands.put("getDialogAvatar", ConsoleChatsCommands::getDialogAvatar);
     }
 
@@ -33,9 +33,9 @@ public class ConsoleChatsCommands {
         ChatClientChain chain = new ChatClientChain(context.client);
         context.io.chainManager.linkChain(chain);
         List<ChatInfoPropDTO> props = List.of(
-                ChatInfoPropDTO.channelID,
+                ChatInfoPropDTO.groupID,
                 ChatInfoPropDTO.dialogID,
-                ChatInfoPropDTO.channelTitle,
+                ChatInfoPropDTO.groupTitle,
                 ChatInfoPropDTO.dialogOther
         );
         ChatInfoDTO chatInfoDTO = chain.getByID(List.of(currentChat), props).stream().findFirst().orElse(null);
@@ -53,8 +53,8 @@ public class ConsoleChatsCommands {
         ConsoleChatsRunner.chats(context, ChatInfoPropDTO.dialogAll());
     }
 
-    private static void channels(List<String> ignored, ConsoleContext context) throws Exception {
-        ConsoleChatsRunner.chats(context, ChatInfoPropDTO.channelAll());
+    private static void groups(List<String> ignored, ConsoleContext context) throws Exception {
+        ConsoleChatsRunner.chats(context, ChatInfoPropDTO.groupAll());
     }
 
     private static void info(@NotNull List<String> args, ConsoleContext context) throws Exception {
@@ -68,15 +68,15 @@ public class ConsoleChatsCommands {
         ConsoleChatsRunner.info(context, chatID);
     }
 
-    private static void newChannel(@NotNull List<String> args, ConsoleContext context) throws Exception {
+    private static void newGroup(@NotNull List<String> args, ConsoleContext context) throws Exception {
         if (args.isEmpty()) {
-            System.out.println("Usage: newChannel <title>");
+            System.out.println("Usage: newGroup <title>");
             return;
         }
 
         String title = args.get(0);
 
-        ConsoleChatsRunner.newChannel(context, title);
+        ConsoleChatsRunner.newGroup(context, title);
     }
 
     private static void addMember(@NotNull List<String> args, ConsoleContext context) throws Exception {
@@ -152,7 +152,7 @@ public class ConsoleChatsCommands {
         }
     }
 
-    private static void setChannelAvatar(@NotNull List<String> args, ConsoleContext context) throws Exception {
+    private static void setGroupAvatar(@NotNull List<String> args, ConsoleContext context) throws Exception {
         UUID chatID;
         String path;
         if (args.size() > 1) {
@@ -168,10 +168,10 @@ public class ConsoleChatsCommands {
             return;
         }
 
-        ConsoleChatsRunner.setChannelAvatar(context, chatID, path);
+        ConsoleChatsRunner.setGroupAvatar(context, chatID, path);
     }
 
-    private static void getChannelAvatar(@NotNull List<String> args, ConsoleContext context) throws Exception {
+    private static void getGroupAvatar(@NotNull List<String> args, ConsoleContext context) throws Exception {
         UUID chatID = args.stream().findFirst().map(UUID::fromString).orElse(context.currentChat);
 
         if (chatID == null) {
@@ -179,7 +179,7 @@ public class ConsoleChatsCommands {
             return;
         }
 
-        ConsoleChatsRunner.getChannelAvatar(context, chatID);
+        ConsoleChatsRunner.getGroupAvatar(context, chatID);
     }
 
     private static void getDialogAvatar(List<String> args, ConsoleContext context) throws Exception {

@@ -10,10 +10,10 @@ import java.util.List;
  * Enum representing possible properties that can be selected when querying chat info.
  */
 public enum ChatInfoPropDTO {
-    @JsonProperty("channel-id") channelID,
-    @JsonProperty("channel-title") channelTitle,
-    @JsonProperty("channel-owner") channelOwner,
-    @JsonProperty("channel-is-my") channelIsMy,
+    @JsonProperty("group-id") groupID,
+    @JsonProperty("group-title") groupTitle,
+    @JsonProperty("group-owner") groupOwner,
+    @JsonProperty("group-is-my") groupIsMy,
 
     @JsonProperty("dialog-id") dialogID,
     @JsonProperty("dialog-other") dialogOther,
@@ -22,25 +22,25 @@ public enum ChatInfoPropDTO {
     @JsonProperty("last-message") lastMessage,
     @JsonProperty("has-avatar") hasAvatar;
 
-    private static final Collection<ChatInfoPropDTO> channelAll =
-            List.of(channelID, channelTitle, channelOwner, channelIsMy, createdAt, lastMessage, hasAvatar);
+    private static final Collection<ChatInfoPropDTO> groupAll =
+            List.of(groupID, groupTitle, groupOwner, groupIsMy, createdAt, lastMessage, hasAvatar);
     private static final Collection<ChatInfoPropDTO> dialogAll =
             List.of(dialogID, dialogOther, createdAt, lastMessage, hasAvatar);
     private static final Collection<ChatInfoPropDTO> all = Arrays.stream(ChatInfoPropDTO.values()).toList();
-    private static final Collection<ChatInfoPropDTO> id = List.of(channelID, dialogID);
+    private static final Collection<ChatInfoPropDTO> id = List.of(groupID, dialogID);
 
     /**
-     * @return channel and dialog id
+     * @return group and dialog id
      */
     public static Collection<ChatInfoPropDTO> id() {
         return id;
     }
 
     /**
-     * @return all channel-related properties
+     * @return all group-related properties
      */
-    public static Collection<ChatInfoPropDTO> channelAll() {
-        return channelAll;
+    public static Collection<ChatInfoPropDTO> groupAll() {
+        return groupAll;
     }
 
     /**

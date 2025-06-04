@@ -5,7 +5,7 @@ import net.result.sandnode.exception.ExpectedMessageException;
 import net.result.sandnode.exception.UnknownSandnodeErrorException;
 import net.result.sandnode.exception.UnprocessedMessagesException;
 import net.result.sandnode.exception.error.SandnodeErrorException;
-import net.result.taulight.chain.sender.ChannelClientChain;
+import net.result.taulight.chain.sender.GroupClientChain;
 import net.result.taulight.chain.sender.CheckCodeClientChain;
 import net.result.taulight.chain.sender.UseCodeClientChain;
 import net.result.taulight.dto.CodeDTO;
@@ -22,12 +22,12 @@ public class ConsoleCodesRunner {
             throws UnprocessedMessagesException, InterruptedException, ExpectedMessageException, UnknownSandnodeErrorException, SandnodeErrorException, DeserializationException {
         var chain = new CheckCodeClientChain(context.client);
         context.io.chainManager.linkChain(chain);
-        CodeDTO c = chain.check(code);
+        CodeDTO dto = chain.check(code);
         context.io.chainManager.removeChain(chain);
-        if (c instanceof InviteCodeDTO invite) {
+        if (dto instanceof InviteCodeDTO invite) {
             System.out.println("Invite Details:");
             System.out.println(invite.code);
-            System.out.printf("Channel: %s%n", invite.title);
+            System.out.printf("Group: %s%n", invite.title);
             System.out.printf("Nickname: %s%n", invite.receiverNickname);
             System.out.printf("Sender Nickname: %s%n", invite.senderNickname);
             System.out.printf("Creation Date: %s%n", invite.creationDate);
@@ -46,10 +46,10 @@ public class ConsoleCodesRunner {
         System.out.println("Code used successfully.");
     }
 
-    public static void channelCodes(ConsoleContext context, UUID chatID) throws Exception {
-        var chain = new ChannelClientChain(context.client);
+    public static void groupCodes(ConsoleContext context, UUID chatID) throws Exception {
+        var chain = new GroupClientChain(context.client);
         context.io.chainManager.linkChain(chain);
-        Collection<CodeDTO> invites = chain.getChannelCodes(chatID);
+        Collection<CodeDTO> invites = chain.getGroupCodes(chatID);
         context.io.chainManager.removeChain(chain);
 
         if (invites.isEmpty()) {
@@ -61,7 +61,7 @@ public class ConsoleCodesRunner {
     }
 
     public static void myCodes(ConsoleContext context) throws Exception {
-        var chain = new ChannelClientChain(context.client);
+        var chain = new GroupClientChain(context.client);
         context.io.chainManager.linkChain(chain);
 
         Collection<CodeDTO> codes = chain.getMyCodes();

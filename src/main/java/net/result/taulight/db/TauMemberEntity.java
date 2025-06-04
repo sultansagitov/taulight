@@ -20,7 +20,7 @@ public class TauMemberEntity extends BaseEntity {
     private Set<ReactionEntryEntity> reactionEntries = new HashSet<>();
 
     @ManyToMany(mappedBy = "members", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
-    private Set<ChannelEntity> channels = new HashSet<>();
+    private Set<GroupEntity> groups = new HashSet<>();
 
     @OneToMany(mappedBy = "firstMember", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     private Set<DialogEntity> dialogsAsFirst = new HashSet<>();
@@ -67,12 +67,12 @@ public class TauMemberEntity extends BaseEntity {
         this.reactionEntries = reactionEntries;
     }
 
-    public Set<ChannelEntity> channels() {
-        return channels;
+    public Set<GroupEntity> groups() {
+        return groups;
     }
 
-    public void setChannels(Set<ChannelEntity> channels) {
-        this.channels = channels;
+    public void setGroups(Set<GroupEntity> groups) {
+        this.groups = groups;
     }
 
     public Set<DialogEntity> dialogs() {

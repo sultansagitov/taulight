@@ -11,7 +11,7 @@ public class ConsoleCodesCommands {
     public static void register(Map<String, LoopCondition> commands) {
         commands.put("checkCode", ConsoleCodesCommands::checkCode);
         commands.put("useCode", ConsoleCodesCommands::useCode);
-        commands.put("channelCodes", ConsoleCodesCommands::channelCodes);
+        commands.put("groupCodes", ConsoleCodesCommands::groupCodes);
         commands.put("myCodes", ConsoleCodesCommands::myCodes);
     }
 
@@ -37,7 +37,7 @@ public class ConsoleCodesCommands {
         ConsoleCodesRunner.useCode(context, code);
     }
 
-    private static void channelCodes(@NotNull List<String> args, ConsoleContext context) throws Exception {
+    private static void groupCodes(@NotNull List<String> args, ConsoleContext context) throws Exception {
         UUID chatID = args.stream().findFirst().map(UUID::fromString).orElse(context.currentChat);
 
         if (chatID == null) {
@@ -45,7 +45,7 @@ public class ConsoleCodesCommands {
             return;
         }
 
-        ConsoleCodesRunner.channelCodes(context, chatID);
+        ConsoleCodesRunner.groupCodes(context, chatID);
     }
 
     private static void myCodes(List<String> ignored, ConsoleContext context) throws Exception {

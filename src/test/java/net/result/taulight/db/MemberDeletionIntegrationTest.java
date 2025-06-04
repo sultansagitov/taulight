@@ -17,7 +17,7 @@ public class MemberDeletionIntegrationTest {
     private static JPAUtil jpaUtil;
     private static MemberRepository memberRepo;
     private static DialogRepository dialogRepo;
-    private static ChannelRepository channelRepo;
+    private static GroupRepository groupRepo;
     private static MessageRepository messageRepo;
     private static InviteCodeRepository inviteCodeRepo;
     private static ReactionPackageRepository reactionPackageRepo;
@@ -30,7 +30,7 @@ public class MemberDeletionIntegrationTest {
         jpaUtil = container.get(JPAUtil.class);
         memberRepo = container.get(MemberRepository.class);
         dialogRepo = container.get(DialogRepository.class);
-        channelRepo = container.get(ChannelRepository.class);
+        groupRepo = container.get(GroupRepository.class);
         messageRepo = container.get(MessageRepository.class);
         inviteCodeRepo = container.get(InviteCodeRepository.class);
         reactionPackageRepo = container.get(ReactionPackageRepository.class);
@@ -61,7 +61,7 @@ public class MemberDeletionIntegrationTest {
         MemberEntity member = memberRepo.create("charlie", "hash");
         TauMemberEntity tau = member.tauMember();
 
-        ChatEntity chat = channelRepo.create("general", tau);
+        ChatEntity chat = groupRepo.create("general", tau);
         ChatMessageInputDTO input = new ChatMessageInputDTO()
                 .setContent("Hello world")
                 .setChat(chat)
@@ -88,7 +88,7 @@ public class MemberDeletionIntegrationTest {
         TauMemberEntity tau1 = m1.tauMember();
         TauMemberEntity tau2 = m2.tauMember();
 
-        ChatEntity chat = channelRepo.create("fun", tau1);
+        ChatEntity chat = groupRepo.create("fun", tau1);
         ChatMessageInputDTO input = new ChatMessageInputDTO()
                 .setContent("Hello world")
                 .setChat(chat)
@@ -118,9 +118,9 @@ public class MemberDeletionIntegrationTest {
         TauMemberEntity tauOwner = owner.tauMember();
         TauMemberEntity tauInvited = invited.tauMember();
 
-        ChannelEntity channel = channelRepo.create("private", tauOwner);
+        GroupEntity group = groupRepo.create("private", tauOwner);
         ZonedDateTime expiresDate = ZonedDateTime.now().plusDays(1);
-        InviteCodeEntity invite = inviteCodeRepo.create(channel, tauInvited, tauOwner, expiresDate);
+        InviteCodeEntity invite = inviteCodeRepo.create(group, tauInvited, tauOwner, expiresDate);
 
         assertTrue(inviteCodeRepo.find(invite.code()).isPresent());
 

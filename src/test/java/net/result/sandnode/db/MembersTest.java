@@ -31,7 +31,7 @@ class MembersTest {
         assertNotNull(newMember.id());
         assertNotNull(newMember.tauMember());
         assertEquals(0, newMember.tauMember().dialogs().size(), "New member should have no dialogs");
-        assertEquals(0, newMember.tauMember().channels().size(), "New member should have no channels");
+        assertEquals(0, newMember.tauMember().groups().size(), "New member should have no groups");
 
         // Test duplicate nickname
         assertThrows(BusyNicknameException.class, () -> memberRepo.create("testuser123", "hash"));

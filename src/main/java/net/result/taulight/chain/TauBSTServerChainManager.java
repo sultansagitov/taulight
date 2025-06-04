@@ -28,7 +28,7 @@ public class TauBSTServerChainManager extends BSTServerChainManager {
         if (type instanceof TauMessageTypes tau) {
             return switch (tau) {
                 case CHAT -> new ChatServerChain(session);
-                case CHANNEL -> new ChannelServerChain(session);
+                case GROUP -> new GroupServerChain(session);
                 case DIALOG -> new DialogServerChain(session);
                 case FWD_REQ -> new ForwardRequestServerChain(session);
                 case FWD -> new UnhandledMessageTypeServerChain(session);

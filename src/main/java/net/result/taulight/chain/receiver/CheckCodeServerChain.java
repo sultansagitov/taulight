@@ -33,7 +33,7 @@ public class CheckCodeServerChain extends ServerChain implements ReceiverChain {
         InviteCodeEntity invite = inviteCodeRepo.find(request.content()).orElseThrow(NotFoundException::new);
 
         if (!invite.receiver().equals(tauMember)) {
-            //TODO add channel roles and use it
+            //TODO add group roles and use it
             if (!invite.sender().equals(tauMember)) {
                 throw new NotFoundException();
             }

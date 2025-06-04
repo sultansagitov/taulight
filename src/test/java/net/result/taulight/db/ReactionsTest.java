@@ -25,7 +25,7 @@ class ReactionsTest {
     private static EntityManager em;
     private static TauMemberEntity member1;
     private static TauMemberEntity member2;
-    private static ChannelRepository channelRepo;
+    private static GroupRepository groupRepo;
     private static MessageRepository messageRepo;
     private static ReactionPackageRepository reactionPackageRepo;
     private static ReactionTypeRepository reactionTypeRepo;
@@ -40,7 +40,7 @@ class ReactionsTest {
         em = container.get(JPAUtil.class).getEntityManager();
 
         MemberRepository memberRepo = container.get(MemberRepository.class);
-        channelRepo = container.get(ChannelRepository.class);
+        groupRepo = container.get(GroupRepository.class);
         messageRepo = container.get(MessageRepository.class);
         reactionPackageRepo = container.get(ReactionPackageRepository.class);
         reactionTypeRepo = container.get(ReactionTypeRepository.class);
@@ -161,21 +161,21 @@ class ReactionsTest {
         ReactionPackageEntity testPackage = reactionPackageRepo.create("test", "");
         ReactionTypeEntity reactionType = reactionTypeRepo.create("like", testPackage);
 
-        ChannelEntity channel = channelRepo.create("Test", member1);
+        GroupEntity group = groupRepo.create("Test", member1);
 
         ChatMessageInputDTO input = new ChatMessageInputDTO()
                 .setContent("Hello world")
-                .setChat(channel)
+                .setChat(group)
                 .setMember(member1.member())
                 .setSentDatetimeNow()
                 .setRepliedToMessages(new HashSet<>())
                 .setSys(true);
 
-        MessageEntity message = messageRepo.create(channel, input, member1);
+        MessageEntity message = messageRepo.create(group, input, member1);
 
         ReactionEntryEntity reactionEntry = reactionEntryRepo.create(member1, message, reactionType);
 
-        assertEquals("Test", ((ChannelEntity) reactionEntry.message().chat()).title());
+        assertEquals("Test", ((GroupEntity) reactionEntry.message().chat()).title());
 
         // Additional assertions
         assertNotNull(reactionEntry.id(), "Reaction entry ID should not be null");
@@ -201,17 +201,17 @@ class ReactionsTest {
         ReactionPackageEntity testPackage = reactionPackageRepo.create("test", "");
         ReactionTypeEntity reactionType = reactionTypeRepo.create("fire", testPackage);
 
-        ChannelEntity channel = channelRepo.create("Test", member1);
+        GroupEntity group = groupRepo.create("Test", member1);
 
         ChatMessageInputDTO input = new ChatMessageInputDTO()
                 .setContent("Hello world")
-                .setChat(channel)
+                .setChat(group)
                 .setMember(member1.member())
                 .setSentDatetimeNow()
                 .setRepliedToMessages(new HashSet<>())
                 .setSys(true);
 
-        MessageEntity message = messageRepo.create(channel, input, member1);
+        MessageEntity message = messageRepo.create(group, input, member1);
 
         ReactionEntryEntity reactionEntry = reactionEntryRepo.create(member1, message, reactionType);
 
@@ -274,11 +274,11 @@ class ReactionsTest {
         // Additional assertions - test with real entry that's already been removed
         ReactionPackageEntity testPackage = reactionPackageRepo.create("test_remove", "");
         ReactionTypeEntity testType = reactionTypeRepo.create("happy", testPackage);
-        ChannelEntity channel = channelRepo.create("RemoveChannel", member1);
+        GroupEntity group = groupRepo.create("RemoveGroup", member1);
 
         ChatMessageInputDTO input = new ChatMessageInputDTO()
                 .setContent("Test remove")
-                .setChat(channel)
+                .setChat(group)
                 .setMember(member1.member())
                 .setSentDatetimeNow()
                 .setRepliedToMessages(new HashSet<>())
@@ -286,7 +286,7 @@ class ReactionsTest {
 
         MessageEntity message;
         try {
-            message = messageRepo.create(channel, input, member1);
+            message = messageRepo.create(group, input, member1);
             ReactionEntryEntity entry = reactionEntryRepo.create(member1, message, testType);
 
             // Remove once

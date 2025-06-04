@@ -35,12 +35,12 @@ public class RoleRepository {
         }
     }
 
-    public RoleEntity create(ChannelEntity channel, String role) throws DatabaseException {
+    public RoleEntity create(GroupEntity group, String role) throws DatabaseException {
         EntityManager em = jpaUtil.getEntityManager();
-        RoleEntity managed = save(new RoleEntity(channel, role));
+        RoleEntity managed = save(new RoleEntity(group, role));
 
-        channel.roles().add(managed);
-        em.merge(channel);
+        group.roles().add(managed);
+        em.merge(group);
 
         return managed;
     }

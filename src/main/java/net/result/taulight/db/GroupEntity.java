@@ -8,7 +8,7 @@ import java.util.Set;
 
 @SuppressWarnings("unused")
 @Entity
-public class ChannelEntity extends ChatEntity {
+public class GroupEntity extends ChatEntity {
     private String title;
 
     @OneToOne
@@ -19,21 +19,21 @@ public class ChannelEntity extends ChatEntity {
 
     @ManyToMany
     @JoinTable(
-            name = "channel_members",
-            joinColumns = @JoinColumn(name = "channel_id", nullable = false),
+            name = "group_members",
+            joinColumns = @JoinColumn(name = "group_id", nullable = false),
             inverseJoinColumns = @JoinColumn(name = "member_id", nullable = false)
     )
     private Set<TauMemberEntity> members = new HashSet<>();
 
-    @OneToMany(mappedBy = "channel", cascade = {CascadeType.PERSIST, CascadeType.MERGE}, orphanRemoval = true)
+    @OneToMany(mappedBy = "group", cascade = {CascadeType.PERSIST, CascadeType.MERGE}, orphanRemoval = true)
     private Set<InviteCodeEntity> inviteCodes = new HashSet<>();
 
-    @OneToMany(mappedBy = "channel", cascade = {CascadeType.PERSIST, CascadeType.MERGE}, orphanRemoval = true)
+    @OneToMany(mappedBy = "group", cascade = {CascadeType.PERSIST, CascadeType.MERGE}, orphanRemoval = true)
     private Set<RoleEntity> roles = new HashSet<>();
 
-    public ChannelEntity() {}
+    public GroupEntity() {}
 
-    public ChannelEntity(String title, TauMemberEntity owner) {
+    public GroupEntity(String title, TauMemberEntity owner) {
         this.title = title;
         this.owner = owner;
     }
@@ -80,7 +80,7 @@ public class ChannelEntity extends ChatEntity {
 
     @Override
     public String toString() {
-        return "<ChannelEntity %s>".formatted(id());
+        return "<GroupEntity %s>".formatted(id());
     }
 
     public Set<RoleEntity> roles() {

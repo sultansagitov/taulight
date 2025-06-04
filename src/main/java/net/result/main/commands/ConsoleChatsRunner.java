@@ -3,7 +3,7 @@ package net.result.main.commands;
 import net.result.sandnode.dto.FileDTO;
 import net.result.sandnode.exception.SandnodeException;
 import net.result.sandnode.serverclient.SandnodeClient;
-import net.result.taulight.chain.sender.ChannelClientChain;
+import net.result.taulight.chain.sender.GroupClientChain;
 import net.result.taulight.chain.sender.ChatClientChain;
 import net.result.taulight.chain.sender.DialogClientChain;
 import net.result.taulight.chain.sender.MembersClientChain;
@@ -26,12 +26,12 @@ public class ConsoleChatsRunner {
         context.io.chainManager.removeChain(chain);
     }
 
-    public static void newChannel(@NotNull ConsoleContext context, String title) throws Exception {
-        var chain = new ChannelClientChain(context.client);
+    public static void newGroup(@NotNull ConsoleContext context, String title) throws Exception {
+        var chain = new GroupClientChain(context.client);
         context.io.chainManager.linkChain(chain);
-        UUID id = chain.sendNewChannelRequest(title);
+        UUID id = chain.sendNewGroupRequest(title);
         context.io.chainManager.removeChain(chain);
-        System.out.printf("New channel '%s' with with id '%s' created successfully%n", title, id);
+        System.out.printf("New group '%s' with with id '%s' created successfully%n", title, id);
     }
 
     public static void addMember(
@@ -40,7 +40,7 @@ public class ConsoleChatsRunner {
             String otherNickname,
             Duration expirationTime
     ) throws Exception {
-        var chain = new ChannelClientChain(context.client);
+        var chain = new GroupClientChain(context.client);
         context.io.chainManager.linkChain(chain);
         String code = chain.createInviteCode(chatID, otherNickname, expirationTime);
         context.io.chainManager.removeChain(chain);
@@ -49,7 +49,7 @@ public class ConsoleChatsRunner {
     }
 
     public static void leave(ConsoleContext context, UUID chatID) throws Exception {
-        ChannelClientChain chain = new ChannelClientChain(context.client);
+        GroupClientChain chain = new GroupClientChain(context.client);
         context.io.chainManager.linkChain(chain);
         chain.sendLeaveRequest(chatID);
         context.io.chainManager.removeChain(chain);
@@ -80,22 +80,22 @@ public class ConsoleChatsRunner {
         context.io.chainManager.removeChain(chain);
     }
 
-    public static void setChannelAvatar(@NotNull ConsoleContext context, UUID chatID, String path) throws Exception {
-        ChannelClientChain chain = new ChannelClientChain(context.client);
+    public static void setGroupAvatar(@NotNull ConsoleContext context, UUID chatID, String path) throws Exception {
+        GroupClientChain chain = new GroupClientChain(context.client);
         context.io.chainManager.linkChain(chain);
         chain.setAvatar(chatID, path);
         context.io.chainManager.removeChain(chain);
-        System.out.printf("Avatar set successfully for channel %s with path %s%n", chatID, path);
+        System.out.printf("Avatar set successfully for group %s with path %s%n", chatID, path);
     }
 
-    public static void getChannelAvatar(@NotNull ConsoleContext context, UUID chatID) throws Exception {
-        ChannelClientChain chain = new ChannelClientChain(context.client);
+    public static void getGroupAvatar(@NotNull ConsoleContext context, UUID chatID) throws Exception {
+        GroupClientChain chain = new GroupClientChain(context.client);
         context.io.chainManager.linkChain(chain);
         FileDTO avatar = chain.getAvatar(chatID);
         context.io.chainManager.removeChain(chain);
 
         if (avatar == null) {
-            System.out.println("Channel have no avatar");
+            System.out.println("Group have no avatar");
         } else {
             String mimeType = avatar.contentType();
             String base64 = Base64.getEncoder().encodeToString(avatar.body());
@@ -126,12 +126,12 @@ public class ConsoleChatsRunner {
             String lastMessageText = (decryptedMessage != null) ? decryptedMessage : "(no message)";
 
             String message = switch (info.chatType) {
-                case CHANNEL -> "%s from %s - Channel: %s, %s%s%s | Last message: %s".formatted(
+                case GROUP -> "%s from %s - Group: %s, %s%s%s | Last message: %s".formatted(
                         info.id,
                         info.creationDate,
                         info.title,
                         info.ownerID,
-                        info.channelIsMy ? " (you)" : "",
+                        info.groupIsMy ? " (you)" : "",
                         info.hasAvatar ? " | avatar" : "",
                         lastMessageText
                 );

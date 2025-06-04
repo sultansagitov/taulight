@@ -38,11 +38,11 @@ public class RoleServerChain extends ServerChain implements ReceiverChain {
 
         ChatEntity chat = chatUtil.getChat(chatID).orElseThrow(NotFoundException::new);
         if (!chatUtil.contains(chat, session.member.tauMember())) throw new NotFoundException();
-        if (!(chat instanceof ChannelEntity channel)) throw new WrongAddressException();
+        if (!(chat instanceof GroupEntity group)) throw new WrongAddressException();
 
-        if (!channel.owner().equals(session.member.tauMember())) throw new UnauthorizedException();
+        if (!group.owner().equals(session.member.tauMember())) throw new UnauthorizedException();
 
-        Set<RoleEntity> roles = channel.roles();
+        Set<RoleEntity> roles = group.roles();
         Set<String> allRoles = roles.stream()
                 .map(RoleEntity::name)
                 .collect(Collectors.toSet());
@@ -60,7 +60,7 @@ public class RoleServerChain extends ServerChain implements ReceiverChain {
 
             case CREATE:
                 if (roleName == null || roleName.trim().isEmpty()) throw new TooFewArgumentsException();
-                RoleEntity newRole = roleRepo.create(channel, roleName);
+                RoleEntity newRole = roleRepo.create(group, roleName);
                 allRoles.add(newRole.name());
                 sendFin(new RoleResponse(new RolesDTO(allRoles, memberRoles)));
                 return;

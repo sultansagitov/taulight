@@ -14,15 +14,15 @@ public class RoleEntity extends BaseEntity {
     private String name;
 
     @ManyToOne
-    private ChannelEntity channel;
+    private GroupEntity group;
 
     @ManyToMany
     private Set<TauMemberEntity> members = new HashSet<>();
 
     public RoleEntity() {}
 
-    public RoleEntity(ChannelEntity channel, String role) {
-        setChannel(channel);
+    public RoleEntity(GroupEntity group, String role) {
+        setGroup(group);
         setName(role);
     }
 
@@ -34,12 +34,12 @@ public class RoleEntity extends BaseEntity {
         this.name = name;
     }
 
-    public ChannelEntity channel() {
-        return channel;
+    public GroupEntity group() {
+        return group;
     }
 
-    public void setChannel(ChannelEntity channel) {
-        this.channel = channel;
+    public void setGroup(GroupEntity group) {
+        this.group = group;
     }
 
     public Set<TauMemberEntity> members() {

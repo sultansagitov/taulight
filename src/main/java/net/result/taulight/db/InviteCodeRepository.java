@@ -34,16 +34,16 @@ public class InviteCodeRepository {
     }
 
     public InviteCodeEntity create(
-            ChannelEntity channel,
+            GroupEntity group,
             TauMemberEntity receiver,
             TauMemberEntity sender,
             ZonedDateTime expiresDate
     ) throws DatabaseException {
         EntityManager em = jpaUtil.getEntityManager();
-        InviteCodeEntity managed = save(new InviteCodeEntity(channel, receiver, sender, expiresDate));
+        InviteCodeEntity managed = save(new InviteCodeEntity(group, receiver, sender, expiresDate));
 
-        channel.inviteCodes().add(managed);
-        em.merge(channel);
+        group.inviteCodes().add(managed);
+        em.merge(group);
 
         receiver.inviteCodesAsReceiver().add(managed);
         em.merge(receiver);
@@ -68,13 +68,13 @@ public class InviteCodeRepository {
         }
     }
 
-    public Collection<InviteCodeEntity> find(ChannelEntity channel, TauMemberEntity receiver)
+    public Collection<InviteCodeEntity> find(GroupEntity group, TauMemberEntity receiver)
             throws DatabaseException {
         EntityManager em = jpaUtil.getEntityManager();
         try {
-            String q = "FROM InviteCodeEntity WHERE channel = :channel AND receiver = :receiver";
+            String q = "FROM InviteCodeEntity WHERE group = :group AND receiver = :receiver";
             return em.createQuery(q, InviteCodeEntity.class)
-                    .setParameter("channel", channel)
+                    .setParameter("group", group)
                     .setParameter("receiver", receiver)
                     .getResultList();
         } catch (Exception e) {

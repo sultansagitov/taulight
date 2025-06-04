@@ -2,7 +2,7 @@ package net.result.taulight.util;
 
 import net.result.sandnode.exception.error.UnauthorizedException;
 import net.result.sandnode.serverclient.Session;
-import net.result.taulight.db.ChannelEntity;
+import net.result.taulight.db.GroupEntity;
 import net.result.taulight.db.DialogEntity;
 import net.result.taulight.db.TauMemberEntity;
 import net.result.taulight.cluster.TauClusterManager;
@@ -18,8 +18,8 @@ public class LoginUtil {
 
         TauMemberEntity tauMember = session.member.tauMember();
 
-        for (ChannelEntity channel : tauMember.channels()) {
-            TauAgentProtocol.addMemberToCluster(session, manager.getCluster(channel));
+        for (GroupEntity group : tauMember.groups()) {
+            TauAgentProtocol.addMemberToCluster(session, manager.getCluster(group));
         }
 
         for (DialogEntity dialog : tauMember.dialogs()) {

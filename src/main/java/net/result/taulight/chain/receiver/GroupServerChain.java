@@ -17,7 +17,7 @@ import net.result.sandnode.message.util.MessageTypes;
 import net.result.sandnode.serverclient.Session;
 import net.result.sandnode.util.DBFileUtil;
 import net.result.sandnode.util.JPAUtil;
-import net.result.taulight.dto.ChannelRequestDTO;
+import net.result.taulight.dto.GroupRequestDTO;
 import net.result.taulight.util.ChatUtil;
 import net.result.taulight.util.SysMessages;
 import net.result.taulight.util.TauAgentProtocol;
@@ -29,7 +29,7 @@ import net.result.taulight.dto.CodeDTO;
 import net.result.taulight.cluster.TauClusterManager;
 import net.result.taulight.message.CodeListMessage;
 import net.result.taulight.message.TauMessageTypes;
-import net.result.taulight.message.types.ChannelRequest;
+import net.result.taulight.message.types.GroupRequest;
 import net.result.sandnode.message.UUIDMessage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -41,16 +41,16 @@ import java.util.Collection;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-public class ChannelServerChain extends ServerChain implements ReceiverChain {
-    private static final Logger LOGGER = LogManager.getLogger(ChannelServerChain.class);
+public class GroupServerChain extends ServerChain implements ReceiverChain {
+    private static final Logger LOGGER = LogManager.getLogger(GroupServerChain.class);
     private ChatUtil chatUtil;
     private DBFileUtil dbFileUtil;
     private TauClusterManager manager;
-    private ChannelRepository channelRepo;
+    private GroupRepository groupRepo;
     private MemberRepository memberRepo;
     private InviteCodeRepository inviteCodeRepo;
 
-    public ChannelServerChain(Session session) {
+    public GroupServerChain(Session session) {
         super(session);
     }
 
@@ -62,13 +62,13 @@ public class ChannelServerChain extends ServerChain implements ReceiverChain {
 
         manager = session.server.container.get(TauClusterManager.class);
 
-        channelRepo = session.server.container.get(ChannelRepository.class);
+        groupRepo = session.server.container.get(GroupRepository.class);
         memberRepo = session.server.container.get(MemberRepository.class);
         inviteCodeRepo = session.server.container.get(InviteCodeRepository.class);
 
-        ChannelRequest request = new ChannelRequest(queue.take());
+        GroupRequest request = new GroupRequest(queue.take());
 
-        ChannelRequestDTO dto = request.dto();
+        GroupRequestDTO dto = request.dto();
 
         if (dto.type == null) {
             throw new TooFewArgumentsException();
@@ -83,7 +83,7 @@ public class ChannelServerChain extends ServerChain implements ReceiverChain {
             case CREATE -> create(dto, you);
             case INVITE -> invite(dto, you);
             case LEAVE -> leave(dto, you);
-            case CH_CODES -> channelCodes(dto, you);
+            case CH_CODES -> groupCodes(dto, you);
             case MY_CODES -> myCodes(you);
             case SET_AVATAR -> setAvatar(dto, you);
             case GET_AVATAR -> getAvatar(dto, you);
@@ -92,34 +92,34 @@ public class ChannelServerChain extends ServerChain implements ReceiverChain {
         session.member = jpaUtil.refresh(session.member);
     }
 
-    private void create(ChannelRequestDTO dto, TauMemberEntity you) throws Exception {
+    private void create(GroupRequestDTO dto, TauMemberEntity you) throws Exception {
         if (dto.title == null) {
             throw new TooFewArgumentsException();
         }
 
-        ChannelEntity channel = channelRepo.create(dto.title, you);
+        GroupEntity group = groupRepo.create(dto.title, you);
 
-        TauAgentProtocol.addMemberToCluster(session, manager.getCluster(channel));
-        ChatMessageInputDTO input = SysMessages.channelNew.toInput(channel, you);
+        TauAgentProtocol.addMemberToCluster(session, manager.getCluster(group));
+        ChatMessageInputDTO input = SysMessages.groupNew.toInput(group, you);
         try {
-            TauHubProtocol.send(session, channel, input);
+            TauHubProtocol.send(session, group, input);
         } catch (UnauthorizedException e) {
             throw new ImpossibleRuntimeException(e);
         } catch (DatabaseException | NoEffectException e) {
-            LOGGER.warn("Exception when sending system message of creating channel {}", e.getMessage());
+            LOGGER.warn("Exception when sending system message of creating group {}", e.getMessage());
         }
 
-        send(new UUIDMessage(new Headers().setType(MessageTypes.HAPPY), channel));
+        send(new UUIDMessage(new Headers().setType(MessageTypes.HAPPY), group));
     }
 
-    private void invite(ChannelRequestDTO dto, TauMemberEntity you) throws Exception {
+    private void invite(GroupRequestDTO dto, TauMemberEntity you) throws Exception {
         ChatEntity chat = chatUtil.getChat(dto.chatID).orElseThrow(NotFoundException::new);
 
-        // You not in channel
+        // You not in group
         if (!chatUtil.contains(chat, you)) throw new NotFoundException();
 
-        // This is not channel
-        if (!(chat instanceof ChannelEntity channel)) throw new WrongAddressException();
+        // This is not group
+        if (!(chat instanceof GroupEntity group)) throw new WrongAddressException();
 
         TauMemberEntity member = memberRepo
                 .findByNickname(dto.otherNickname)
@@ -128,13 +128,13 @@ public class ChannelServerChain extends ServerChain implements ReceiverChain {
 
         // You are not owner
         //TODO add settings for inviting by another members
-        if (!channel.owner().equals(you)) throw new UnauthorizedException();
+        if (!group.owner().equals(you)) throw new UnauthorizedException();
 
-        // Receiver already in channel
+        // Receiver already in group
         if (chatUtil.contains(chat, member)) throw new NoEffectException();
 
         // Receiver already have invite code
-        for (InviteCodeEntity inviteCodeEntity : inviteCodeRepo.find(channel, member)) {
+        for (InviteCodeEntity inviteCodeEntity : inviteCodeRepo.find(group, member)) {
             if (inviteCodeEntity.activationDate() == null
                     || !inviteCodeEntity.expiresDate().isAfter(ZonedDateTime.now())) {
                 throw new NoEffectException();
@@ -144,48 +144,48 @@ public class ChannelServerChain extends ServerChain implements ReceiverChain {
         String expirationString = dto.expirationTime;
         Duration duration = Duration.ofSeconds(Long.parseLong(expirationString));
         ZonedDateTime expiresDate = ZonedDateTime.now().plus(duration);
-        InviteCodeEntity code = inviteCodeRepo.create(channel, member, you, expiresDate);
+        InviteCodeEntity code = inviteCodeRepo.create(group, member, you, expiresDate);
 
-        sendFin(new TextMessage(new Headers().setType(TauMessageTypes.CHANNEL), code.code()));
+        sendFin(new TextMessage(new Headers().setType(TauMessageTypes.GROUP), code.code()));
     }
 
-    private void leave(ChannelRequestDTO dto, TauMemberEntity you) throws Exception {
+    private void leave(GroupRequestDTO dto, TauMemberEntity you) throws Exception {
         ChatEntity chat = chatUtil.getChat(dto.chatID).orElseThrow(NotFoundException::new);
 
-        // You not in channel
+        // You not in group
         if (!chatUtil.contains(chat, you)) throw new NotFoundException();
 
         // This is not chanel
-        if (!(chat instanceof ChannelEntity channel)) throw new WrongAddressException();
+        if (!(chat instanceof GroupEntity group)) throw new WrongAddressException();
 
         // You cannot leave, because you are owner
-        if (channel.owner().equals(you)) throw new UnauthorizedException();
+        if (group.owner().equals(you)) throw new UnauthorizedException();
 
-        // You are not in channel (impossible)
-        if (!channelRepo.removeMember(channel, you)) throw new NotFoundException();
+        // You are not in group (impossible)
+        if (!groupRepo.removeMember(group, you)) throw new NotFoundException();
 
-        ChatMessageInputDTO input = SysMessages.channelLeave.toInput(channel, you);
+        ChatMessageInputDTO input = SysMessages.groupLeave.toInput(group, you);
         try {
-            TauHubProtocol.send(session, channel, input);
+            TauHubProtocol.send(session, group, input);
         } catch (UnauthorizedException e) {
             throw new ImpossibleRuntimeException(e);
         } catch (DatabaseException | NoEffectException e) {
             LOGGER.warn("Exception when sending system message of leaving member: {}", e.getMessage());
         }
 
-        TauAgentProtocol.removeMemberFromCluster(session, manager.getCluster(channel));
+        TauAgentProtocol.removeMemberFromCluster(session, manager.getCluster(group));
 
         send(new HappyMessage());
     }
 
-    private void channelCodes(ChannelRequestDTO dto, TauMemberEntity you) throws Exception {
+    private void groupCodes(GroupRequestDTO dto, TauMemberEntity you) throws Exception {
         ChatEntity chat = chatUtil.getChat(dto.chatID).orElseThrow(NotFoundException::new);
         if (!chatUtil.contains(chat, you)) throw new UnauthorizedException();
-        if (!(chat instanceof ChannelEntity channel)) throw new WrongAddressException();
+        if (!(chat instanceof GroupEntity group)) throw new WrongAddressException();
 
-        Headers headers = new Headers().setType(TauMessageTypes.CHANNEL);
+        Headers headers = new Headers().setType(TauMessageTypes.GROUP);
 
-        Collection<CodeDTO> collected = channel.inviteCodes().stream()
+        Collection<CodeDTO> collected = group.inviteCodes().stream()
                 .map(InviteCodeDTO::new)
                 .collect(Collectors.toSet());
 
@@ -198,33 +198,33 @@ public class ChannelServerChain extends ServerChain implements ReceiverChain {
                 .map(InviteCodeDTO::new)
                 .collect(Collectors.toSet());
 
-        sendFin(new CodeListMessage(new Headers().setType(TauMessageTypes.CHANNEL), collected));
+        sendFin(new CodeListMessage(new Headers().setType(TauMessageTypes.GROUP), collected));
     }
 
-    private void setAvatar(ChannelRequestDTO dto, TauMemberEntity you) throws Exception {
+    private void setAvatar(GroupRequestDTO dto, TauMemberEntity you) throws Exception {
         UUID chatID = dto.chatID;
         FileMessage fileMessage = new FileMessage(queue.take());
 
         ChatEntity chat = chatUtil.getChat(chatID).orElseThrow(NotFoundException::new);
         if (!chatUtil.contains(chat, you)) throw new UnauthorizedException();
-        if (!(chat instanceof ChannelEntity channel)) throw new WrongAddressException();
+        if (!(chat instanceof GroupEntity group)) throw new WrongAddressException();
 
         FileDTO fileDTO = fileMessage.dto();
         FileEntity avatar = dbFileUtil.saveImage(fileDTO, chatID.toString());
 
-        channelRepo.setAvatar(channel, avatar);
+        groupRepo.setAvatar(group, avatar);
 
         send(new HappyMessage());
     }
 
-    private void getAvatar(ChannelRequestDTO dto, TauMemberEntity you) throws Exception {
+    private void getAvatar(GroupRequestDTO dto, TauMemberEntity you) throws Exception {
         UUID chatID = dto.chatID;
 
         ChatEntity chat = chatUtil.getChat(chatID).orElseThrow(NotFoundException::new);
         if (!chatUtil.contains(chat, you)) throw new UnauthorizedException();
-        if (!(chat instanceof ChannelEntity channel)) throw new WrongAddressException();
+        if (!(chat instanceof GroupEntity group)) throw new WrongAddressException();
 
-        FileEntity avatar = channel.avatar();
+        FileEntity avatar = group.avatar();
         if (avatar == null) throw new NoEffectException(); 
 
         send(new FileMessage(dbFileUtil.readImage(avatar)));

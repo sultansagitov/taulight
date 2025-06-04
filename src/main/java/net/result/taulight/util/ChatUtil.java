@@ -7,23 +7,23 @@ import net.result.taulight.db.*;
 import java.util.*;
 
 public class ChatUtil {
-    private final ChannelRepository channelRepo;
+    private final GroupRepository groupRepo;
     private final DialogRepository dialogRepo;
 
     public ChatUtil(Container container) {
         super();
-        channelRepo = container.get(ChannelRepository.class);
+        groupRepo = container.get(GroupRepository.class);
         dialogRepo = container.get(DialogRepository.class);
     }
 
     public Optional<ChatEntity> getChat(UUID id) throws DatabaseException {
-        Optional<ChannelEntity> channel = channelRepo.findById(id);
-        if (channel.isPresent()) return channel.map(c -> c);
+        Optional<GroupEntity> group = groupRepo.findById(id);
+        if (group.isPresent()) return group.map(c -> c);
         return dialogRepo.findById(id).map(d -> d);
     }
 
     public Collection<TauMemberEntity> getMembers(ChatEntity chat) {
-        if (chat instanceof ChannelEntity channel) return channel.members();
+        if (chat instanceof GroupEntity group) return group.members();
         if (chat instanceof DialogEntity dialog) {
             TauMemberEntity e1 = dialog.firstMember();
             TauMemberEntity e2 = dialog.secondMember();
@@ -37,8 +37,8 @@ public class ChatUtil {
     }
 
     public boolean contains(ChatEntity chat, TauMemberEntity member) throws DatabaseException {
-        if (chat instanceof ChannelEntity channel) {
-            return channelRepo.contains(channel, member);
+        if (chat instanceof GroupEntity group) {
+            return groupRepo.contains(group, member);
         }
 
         if (chat instanceof DialogEntity dialog) {

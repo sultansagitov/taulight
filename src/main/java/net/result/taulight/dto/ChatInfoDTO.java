@@ -11,7 +11,7 @@ import net.result.sandnode.exception.error.DecryptionException;
 import net.result.sandnode.exception.error.KeyStorageNotFoundException;
 import net.result.sandnode.hubagent.Agent;
 import net.result.sandnode.serverclient.SandnodeClient;
-import net.result.taulight.db.ChannelEntity;
+import net.result.taulight.db.GroupEntity;
 import net.result.taulight.db.DialogEntity;
 import net.result.taulight.db.TauMemberEntity;
 import org.jetbrains.annotations.NotNull;
@@ -23,24 +23,24 @@ import java.util.Collection;
 import java.util.UUID;
 
 /**
- * Data Transfer Object representing information about a chat (channel or dialog).
+ * Data Transfer Object representing information about a chat (group or dialog).
  */
 public class ChatInfoDTO implements Comparable<ChatInfoDTO> {
-    /** Type of the chat (Channel, Dialog, or Not Found). */
+    /** Type of the chat (Group, Dialog, or Not Found). */
     @JsonProperty("type")
     public ChatType chatType;
     /** Unique identifier of the chat. */
     @JsonProperty
     public UUID id;
-    /** Title of the channel (only applicable for channel chats). */
-    @JsonProperty("channel-title")
+    /** Title of the group (only applicable for group chats). */
+    @JsonProperty("group-title")
     public String title;
-    /** Nickname of the channel owner (only applicable for channel chats). */
-    @JsonProperty("channel-owner")
+    /** Nickname of the group owner (only applicable for group chats). */
+    @JsonProperty("group-owner")
     public String ownerID;
-    /** Indicates whether the channel is owned by the current member. */
-    @JsonProperty("channel-is-my")
-    public boolean channelIsMy;
+    /** Indicates whether the group is owned by the current member. */
+    @JsonProperty("group-is-my")
+    public boolean groupIsMy;
     /** Nickname of the other participant (only applicable for dialog chats). */
     @JsonProperty("dialog-other")
     public String otherNickname;
@@ -56,8 +56,8 @@ public class ChatInfoDTO implements Comparable<ChatInfoDTO> {
     public @Nullable String decryptedMessage;
 
     /**
-     * Indicates whether the chat (channel or dialog) has an associated avatar image.
-     * For channels, this is based on the presence of a channel avatar.
+     * Indicates whether the chat (group or dialog) has an associated avatar image.
+     * For groups, this is based on the presence of a group avatar.
      * For dialogs, this is based on whether the other participant has an avatar.
      */
     @JsonProperty("has-avatar")
@@ -94,8 +94,8 @@ public class ChatInfoDTO implements Comparable<ChatInfoDTO> {
      * Enum representing types of chats.
      */
     public enum ChatType {
-        /** A channel chat. */
-        @JsonProperty("cn") CHANNEL,
+        /** A group chat. */
+        @JsonProperty("gr") GROUP,
         /** A direct dialog between two users. */
         @JsonProperty("dl") DIALOG,
         /** A placeholder indicating the chat was not found. */
@@ -106,29 +106,29 @@ public class ChatInfoDTO implements Comparable<ChatInfoDTO> {
     private ChatInfoDTO() {}
 
     /**
-     * Creates a ChatInfoDTO for a channel.
+     * Creates a ChatInfoDTO for a group.
      *
-     * @param channel     the channel entity from the database
+     * @param group     the group entity from the database
      * @param member      the member requesting the data
      * @param infoProps   a collection of properties to include in the response
-     * @param lastMessage the last message in the channel (nullable)
-     * @return a populated ChatInfoDTO for a channel
+     * @param lastMessage the last message in the group (nullable)
+     * @return a populated ChatInfoDTO for a group
      */
-    public static ChatInfoDTO channel(
-            ChannelEntity channel,
+    public static ChatInfoDTO group(
+            GroupEntity group,
             TauMemberEntity member,
             Collection<ChatInfoPropDTO> infoProps,
             ChatMessageViewDTO lastMessage
     ) {
         ChatInfoDTO info = new ChatInfoDTO();
-        info.chatType = ChatType.CHANNEL;
-        if (infoProps.contains(ChatInfoPropDTO.channelID)) info.id = channel.id();
-        if (infoProps.contains(ChatInfoPropDTO.createdAt)) info.creationDate = channel.creationDate();
-        if (infoProps.contains(ChatInfoPropDTO.channelTitle)) info.title = channel.title();
-        if (infoProps.contains(ChatInfoPropDTO.channelOwner)) info.ownerID = channel.owner().member().nickname();
-        if (infoProps.contains(ChatInfoPropDTO.channelIsMy)) info.channelIsMy = channel.owner() == member;
+        info.chatType = ChatType.GROUP;
+        if (infoProps.contains(ChatInfoPropDTO.groupID)) info.id = group.id();
+        if (infoProps.contains(ChatInfoPropDTO.createdAt)) info.creationDate = group.creationDate();
+        if (infoProps.contains(ChatInfoPropDTO.groupTitle)) info.title = group.title();
+        if (infoProps.contains(ChatInfoPropDTO.groupOwner)) info.ownerID = group.owner().member().nickname();
+        if (infoProps.contains(ChatInfoPropDTO.groupIsMy)) info.groupIsMy = group.owner() == member;
         if (infoProps.contains(ChatInfoPropDTO.lastMessage)) info.lastMessage = lastMessage;
-        if (infoProps.contains(ChatInfoPropDTO.hasAvatar)) info.hasAvatar = channel.avatar() != null;
+        if (infoProps.contains(ChatInfoPropDTO.hasAvatar)) info.hasAvatar = group.avatar() != null;
         return info;
     }
 

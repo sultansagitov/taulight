@@ -74,10 +74,10 @@ public class ChatServerChain extends ServerChain implements ReceiverChain {
         Set<UUID> chatIdsForLastMsg = new HashSet<>();
         List<ChatEntity> relevantChats = new ArrayList<>();
 
-        for (var channel : tauMember.channels()) {
-            if (chatInfoProps.contains(ChatInfoPropDTO.channelID)) {
-                relevantChats.add(channel);
-                if (needLastMessage) chatIdsForLastMsg.add(channel.id());
+        for (var group : tauMember.groups()) {
+            if (chatInfoProps.contains(ChatInfoPropDTO.groupID)) {
+                relevantChats.add(group);
+                if (needLastMessage) chatIdsForLastMsg.add(group.id());
             }
         }
 
@@ -101,8 +101,8 @@ public class ChatServerChain extends ServerChain implements ReceiverChain {
         for (ChatEntity chat : relevantChats) {
             ChatMessageViewDTO lastMsg = lastMessages.get(chat.id());
 
-            if (chat instanceof ChannelEntity channel) {
-                infos.add(ChatInfoDTO.channel(channel, tauMember, chatInfoProps, lastMsg));
+            if (chat instanceof GroupEntity group) {
+                infos.add(ChatInfoDTO.group(group, tauMember, chatInfoProps, lastMsg));
             } else if (chat instanceof DialogEntity dialog) {
                 infos.add(ChatInfoDTO.dialog(dialog, tauMember, chatInfoProps, lastMsg));
             }
@@ -132,8 +132,8 @@ public class ChatServerChain extends ServerChain implements ReceiverChain {
 
             boolean accessible = false;
 
-            if (chat instanceof ChannelEntity channel) {
-                accessible = channel.members().contains(tauMember);
+            if (chat instanceof GroupEntity group) {
+                accessible = group.members().contains(tauMember);
             } else if (chat instanceof DialogEntity dialog) {
                 accessible = dialog.firstMember().equals(tauMember) || dialog.secondMember().equals(tauMember);
             }
@@ -161,8 +161,8 @@ public class ChatServerChain extends ServerChain implements ReceiverChain {
             ChatEntity chat = entry.getValue();
             ChatMessageViewDTO lastMsg = lastMessages.get(chatID);
 
-            if (chat instanceof ChannelEntity channel && chatInfoProps.contains(ChatInfoPropDTO.channelID)) {
-                infos.add(ChatInfoDTO.channel(channel, tauMember, chatInfoProps, lastMsg));
+            if (chat instanceof GroupEntity group && chatInfoProps.contains(ChatInfoPropDTO.groupID)) {
+                infos.add(ChatInfoDTO.group(group, tauMember, chatInfoProps, lastMsg));
             } else if (chat instanceof DialogEntity dialog && chatInfoProps.contains(ChatInfoPropDTO.dialogID)) {
                 infos.add(ChatInfoDTO.dialog(dialog, tauMember, chatInfoProps, lastMsg));
             }

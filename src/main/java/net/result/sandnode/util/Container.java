@@ -23,4 +23,3 @@ public class Container {
         instances.put(clazz, config);
     }
 }
-

@@ -63,10 +63,10 @@ public class MembersServerChain extends ServerChain implements ReceiverChain {
                 Map<TauMemberEntity, List<String>> memberRolesMap = new HashMap<>();
                 Set<RoleDTO> roleDTOs = null;
 
-                if (chat instanceof ChannelEntity channel) {
+                if (chat instanceof GroupEntity group) {
                     Set<RoleDTO> set = new HashSet<>();
 
-                    for (RoleEntity role : channel.roles()) {
+                    for (RoleEntity role : group.roles()) {
                         set.add(new RoleDTO(role));
 
                         for (TauMemberEntity member : role.members()) {

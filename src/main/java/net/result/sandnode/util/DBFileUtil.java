@@ -49,7 +49,7 @@ public class DBFileUtil {
             Path avatarPath = avatarDirectory.resolve(filename);
             Files.write(avatarPath, body);
         } catch (IOException e) {
-            LOGGER.error("Failed to save the avatar image for channel: {}", filename, e);
+            LOGGER.error("Failed to save the avatar image for group: {}", filename, e);
             throw new ServerSandnodeErrorException(e);
         }
 

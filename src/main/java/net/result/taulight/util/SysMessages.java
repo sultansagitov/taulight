@@ -7,9 +7,9 @@ import org.jetbrains.annotations.NotNull;
 
 public enum SysMessages {
     dialogNew("dialog.new"),
-    channelNew("channel.new"),
-    channelAdd("channel.add"),
-    channelLeave("channel.leave");
+    groupNew("group.new"),
+    groupAdd("group.add"),
+    groupLeave("group.leave");
 
     private final String message;
 

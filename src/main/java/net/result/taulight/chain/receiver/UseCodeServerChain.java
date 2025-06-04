@@ -35,17 +35,17 @@ public class UseCodeServerChain extends ServerChain  implements ReceiverChain {
         }
 
         JPAUtil jpaUtil = session.server.container.get(JPAUtil.class);
-        ChannelRepository channelRepo = session.server.container.get(ChannelRepository.class);
+        GroupRepository groupRepo = session.server.container.get(GroupRepository.class);
         InviteCodeRepository inviteCodeRepo = session.server.container.get(InviteCodeRepository.class);
         TauClusterManager tauClusterManager = session.server.container.get(TauClusterManager.class);
 
         InviteCodeEntity invite = inviteCodeRepo.find(code).orElseThrow(NotFoundException::new);
 
         TauMemberEntity member = invite.receiver();
-        ChannelEntity channel = invite.channel();
+        GroupEntity group = invite.group();
 
         if (!invite.receiver().equals(session.member.tauMember())) {
-            //TODO add channel roles and use it
+            //TODO add group roles and use it
             if (invite.sender().equals(session.member.tauMember())) {
                 throw new UnauthorizedException();
             } else {
@@ -57,13 +57,13 @@ public class UseCodeServerChain extends ServerChain  implements ReceiverChain {
             throw new NoEffectException("Invite already activated");
         }
 
-        if (!channelRepo.addMember(channel, member)) {
+        if (!groupRepo.addMember(group, member)) {
             throw new NoEffectException();
         }
 
         session.member = jpaUtil.refresh(session.member);
 
-        ChatCluster cluster = tauClusterManager.getCluster(channel);
+        ChatCluster cluster = tauClusterManager.getCluster(group);
 
         for (Session agent : session.server.node.getAgents()) {
             //noinspection DataFlowIssue
@@ -72,12 +72,12 @@ public class UseCodeServerChain extends ServerChain  implements ReceiverChain {
             }
         }
 
-        ChatMessageInputDTO input = SysMessages.channelAdd.toInput(channel, member);
+        ChatMessageInputDTO input = SysMessages.groupAdd.toInput(group, member);
 
         try {
-            TauHubProtocol.send(session, channel, input);
+            TauHubProtocol.send(session, group, input);
         } catch (NoEffectException e) {
-            LOGGER.warn("Exception when sending system message of creating channel {}", e.getMessage());
+            LOGGER.warn("Exception when sending system message of creating group {}", e.getMessage());
         }
 
         sendFin(new HappyMessage());

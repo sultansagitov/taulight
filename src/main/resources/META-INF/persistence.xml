@@ -8,7 +8,7 @@
         <class>net.result.sandnode.db.FileEntity</class>
         <class>net.result.taulight.db.TauMemberEntity</class>
         <class>net.result.taulight.db.ChatEntity</class>
-        <class>net.result.taulight.db.ChannelEntity</class>
+        <class>net.result.taulight.db.GroupEntity</class>
         <class>net.result.taulight.db.DialogEntity</class>
         <class>net.result.taulight.db.InviteCodeEntity</class>
         <class>net.result.taulight.db.MessageEntity</class>

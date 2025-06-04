@@ -12,23 +12,23 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
-public class ChannelRepository {
+public class GroupRepository {
     private final JPAUtil jpaUtil;
 
-    public ChannelRepository(Container container) {
+    public GroupRepository(Container container) {
         jpaUtil = container.get(JPAUtil.class);
     }
 
-    private ChannelEntity save(ChannelEntity channel) throws DatabaseException {
+    private GroupEntity save(GroupEntity group) throws DatabaseException {
         EntityManager em = jpaUtil.getEntityManager();
-        while (em.find(ChannelEntity.class, channel.id()) != null) {
-            channel.setRandomID();
+        while (em.find(GroupEntity.class, group.id()) != null) {
+            group.setRandomID();
         }
 
         EntityTransaction transaction = em.getTransaction();
         try {
             transaction.begin();
-            ChannelEntity managed = em.merge(channel);
+            GroupEntity managed = em.merge(group);
             transaction.commit();
             return managed;
         } catch (Exception e) {
@@ -37,9 +37,9 @@ public class ChannelRepository {
         }
     }
 
-    public ChannelEntity create(String title, TauMemberEntity owner) throws DatabaseException {
+    public GroupEntity create(String title, TauMemberEntity owner) throws DatabaseException {
         EntityManager em = jpaUtil.getEntityManager();
-        ChannelEntity managed = save(new ChannelEntity(title, owner));
+        GroupEntity managed = save(new GroupEntity(title, owner));
         EntityTransaction transaction = em.getTransaction();
         try {
             transaction.begin();
@@ -56,12 +56,12 @@ public class ChannelRepository {
         return managed;
     }
 
-    public void delete(ChannelEntity channel) throws DatabaseException {
+    public void delete(GroupEntity group) throws DatabaseException {
         EntityManager em = jpaUtil.getEntityManager();
         EntityTransaction transaction = em.getTransaction();
         try {
             transaction.begin();
-            em.remove(channel);
+            em.remove(group);
             transaction.commit();
         } catch (Exception e) {
             if (transaction.isActive()) transaction.rollback();
@@ -69,32 +69,32 @@ public class ChannelRepository {
         }
     }
 
-    public Optional<ChannelEntity> findById(UUID id) throws DatabaseException {
+    public Optional<GroupEntity> findById(UUID id) throws DatabaseException {
         EntityManager em = jpaUtil.getEntityManager();
         try {
-            return Optional.ofNullable(em.find(ChannelEntity.class, id));
+            return Optional.ofNullable(em.find(GroupEntity.class, id));
         } catch (Exception e) {
             throw new DatabaseException(e);
         }
     }
 
-    public boolean addMember(ChannelEntity channel, TauMemberEntity member) throws DatabaseException {
+    public boolean addMember(GroupEntity group, TauMemberEntity member) throws DatabaseException {
         EntityManager em = jpaUtil.getEntityManager();
         EntityTransaction transaction = em.getTransaction();
         try {
-            Set<TauMemberEntity> members = channel.members();
+            Set<TauMemberEntity> members = group.members();
             if (members == null) {
-                channel.setMembers(Set.of(member));
+                group.setMembers(Set.of(member));
             } else if (members.contains(member)) {
                 return false;
             } else {
-                channel.members().add(member);
+                group.members().add(member);
             }
 
-            member.channels().add(channel);
+            member.groups().add(group);
 
             transaction.begin();
-            em.merge(channel);
+            em.merge(group);
             transaction.commit();
         } catch (Exception e) {
             if (transaction.isActive()) transaction.rollback();
@@ -103,24 +103,24 @@ public class ChannelRepository {
         return true;
     }
 
-    public boolean removeMember(ChannelEntity channel, TauMemberEntity member) throws DatabaseException {
+    public boolean removeMember(GroupEntity group, TauMemberEntity member) throws DatabaseException {
         EntityManager em = jpaUtil.getEntityManager();
         EntityTransaction transaction = em.getTransaction();
         try {
-            Set<TauMemberEntity> members = channel.members();
+            Set<TauMemberEntity> members = group.members();
 
             if (members == null) {
-                channel.setMembers(Set.of());
+                group.setMembers(Set.of());
             } else if (!members.contains(member)) {
                 return false;
             } else {
-                channel.members().remove(member);
+                group.members().remove(member);
             }
 
-            member.channels().remove(channel);
+            member.groups().remove(group);
 
             transaction.begin();
-            em.merge(channel);
+            em.merge(group);
             transaction.commit();
         } catch (Exception e) {
             if (transaction.isActive()) transaction.rollback();
@@ -129,13 +129,13 @@ public class ChannelRepository {
         return true;
     }
 
-    public void setAvatar(ChannelEntity channel, FileEntity avatar) throws DatabaseException {
+    public void setAvatar(GroupEntity group, FileEntity avatar) throws DatabaseException {
         EntityManager em = jpaUtil.getEntityManager();
         EntityTransaction transaction = em.getTransaction();
         try {
             transaction.begin();
-            channel.setAvatar(avatar);
-            em.merge(channel);
+            group.setAvatar(avatar);
+            em.merge(group);
             transaction.commit();
         } catch (Exception e) {
             if (transaction.isActive()) transaction.rollback();
@@ -143,12 +143,12 @@ public class ChannelRepository {
         }
     }
 
-    public boolean contains(ChannelEntity channel, TauMemberEntity member) throws DatabaseException {
+    public boolean contains(GroupEntity group, TauMemberEntity member) throws DatabaseException {
         EntityManager em = jpaUtil.getEntityManager();
         try {
-            String q = "SELECT COUNT(c) FROM ChannelEntity c JOIN c.members m WHERE c = :channel AND m = :member";
+            String q = "SELECT COUNT(g) FROM GroupEntity g JOIN g.members m WHERE g = :group AND m = :member";
             Long count = em.createQuery(q, Long.class)
-                    .setParameter("channel", channel)
+                    .setParameter("group", group)
                     .setParameter("member", member)
                     .getSingleResult();
             return count > 0;

@@ -13,14 +13,14 @@ import static org.junit.jupiter.api.Assertions.*;
 public class RolesTest {
     private static TauMemberEntity member1;
     private static TauMemberEntity member2;
-    private static ChannelRepository channelRepo;
+    private static GroupRepository groupRepo;
     private static RoleRepository roleRepo;
 
     @BeforeAll
     public static void setup() throws DatabaseException, BusyNicknameException {
         Container container = GlobalTestState.container;
         MemberRepository memberRepo = container.get(MemberRepository.class);
-        channelRepo = container.get(ChannelRepository.class);
+        groupRepo = container.get(GroupRepository.class);
         roleRepo = container.get(RoleRepository.class);
 
         member1 = memberRepo.create("user1_roles", "hash").tauMember();
@@ -32,22 +32,22 @@ public class RolesTest {
 
     @Test
     void createRole() throws DatabaseException {
-        ChannelEntity channel = channelRepo.create("role_creation_channel", member1);
-        RoleEntity role = roleRepo.create(channel, "admin");
+        GroupEntity group = groupRepo.create("role_creation_group", member1);
+        RoleEntity role = roleRepo.create(group, "admin");
 
         assertNotNull(role, "Role should not be null after creation");
         assertEquals("admin", role.name(), "Role name should match the specified name");
-        assertEquals(channel, role.channel(), "Role should be associated with the correct channel");
+        assertEquals(group, role.group(), "Role should be associated with the correct group");
     }
 
     @Test
     void addMemberToRole() throws DatabaseException {
-        ChannelEntity channel = channelRepo.create("test_channel", member1);
-        RoleEntity role = roleRepo.create(channel, "moderator");
+        GroupEntity group = groupRepo.create("test_group", member1);
+        RoleEntity role = roleRepo.create(group, "moderator");
         boolean result = roleRepo.addMember(role, member2);
 
         assertTrue(result, "Member should be added to the role");
-        assertTrue(channel.roles().contains(role), "Channel should contain the newly created role");
-        assertEquals(channel, role.channel(), "Role should be linked to the correct channel");
+        assertTrue(group.roles().contains(role), "Group should contain the newly created role");
+        assertEquals(group, role.group(), "Role should be linked to the correct group");
     }
 }
