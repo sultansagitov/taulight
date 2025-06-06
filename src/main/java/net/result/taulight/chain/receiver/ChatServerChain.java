@@ -7,6 +7,7 @@ import net.result.sandnode.exception.DatabaseException;
 import net.result.sandnode.exception.DeserializationException;
 import net.result.sandnode.exception.UnprocessedMessagesException;
 import net.result.sandnode.serverclient.Session;
+import net.result.sandnode.util.JPAUtil;
 import net.result.taulight.db.*;
 import net.result.taulight.dto.ChatInfoDTO;
 import net.result.taulight.dto.ChatInfoPropDTO;
@@ -31,6 +32,7 @@ public class ChatServerChain extends ServerChain implements ReceiverChain {
     @Override
     public void sync() throws InterruptedException, DeserializationException, UnprocessedMessagesException {
         messageRepo = session.server.container.get(MessageRepository.class);
+        JPAUtil jpaUtil = session.server.container.get(JPAUtil.class);
 
         while (true) {
             ChatRequest request = new ChatRequest(queue.take());
@@ -39,6 +41,8 @@ public class ChatServerChain extends ServerChain implements ReceiverChain {
                 send(Errors.UNAUTHORIZED.createMessage());
                 continue;
             }
+
+            session.member = jpaUtil.refresh(session.member);
 
             TauMemberEntity tauMember = session.member.tauMember();
 
