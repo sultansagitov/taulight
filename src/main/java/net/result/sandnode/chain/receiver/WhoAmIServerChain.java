@@ -9,10 +9,12 @@ import net.result.sandnode.dto.FileDTO;
 import net.result.sandnode.exception.error.NoEffectException;
 import net.result.sandnode.exception.error.ServerSandnodeErrorException;
 import net.result.sandnode.exception.error.UnauthorizedException;
+import net.result.sandnode.message.UUIDMessage;
 import net.result.sandnode.message.types.FileMessage;
-import net.result.sandnode.message.types.HappyMessage;
 import net.result.sandnode.message.types.WhoAmIRequest;
 import net.result.sandnode.message.types.WhoAmIResponse;
+import net.result.sandnode.message.util.Headers;
+import net.result.sandnode.message.util.MessageTypes;
 import net.result.sandnode.serverclient.Session;
 import net.result.sandnode.util.DBFileUtil;
 import net.result.sandnode.util.JPAUtil;
@@ -50,7 +52,7 @@ public class WhoAmIServerChain extends ServerChain implements ReceiverChain {
         return new FileMessage(dbFileUtil.readImage(avatar));
     }
 
-    private HappyMessage setAvatar(MemberEntity you) throws Exception {
+    private UUIDMessage setAvatar(MemberEntity you) throws Exception {
         JPAUtil jpaUtil = session.server.container.get(JPAUtil.class);
 
         FileMessage fileMessage = new FileMessage(queue.take());
@@ -64,6 +66,6 @@ public class WhoAmIServerChain extends ServerChain implements ReceiverChain {
 
         session.member = jpaUtil.refresh(you);
 
-        return new HappyMessage();
+        return new UUIDMessage(new Headers().setType(MessageTypes.HAPPY), avatar);
     }
 }

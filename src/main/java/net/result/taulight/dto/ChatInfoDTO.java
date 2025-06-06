@@ -3,6 +3,7 @@ package net.result.taulight.dto;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import net.result.sandnode.db.FileEntity;
 import net.result.sandnode.encryption.interfaces.KeyStorage;
 import net.result.sandnode.exception.crypto.CannotUseEncryption;
 import net.result.sandnode.exception.crypto.PrivateKeyNotFoundException;
@@ -48,20 +49,15 @@ public class ChatInfoDTO implements Comparable<ChatInfoDTO> {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ssX", timezone = "UTC")
     @JsonProperty("creation-at")
     public ZonedDateTime creationDate;
+    /** Avatar ID of the chat. May be null. */
+    @JsonProperty("avatar")
+    public @Nullable UUID avatar;
     /** Information about the last message sent in the chat. May be null. */
     @JsonProperty("last-message")
     public @Nullable ChatMessageViewDTO lastMessage;
     /** Information about the last message sent in the chat. May be null. */
     @JsonIgnore
     public @Nullable String decryptedMessage;
-
-    /**
-     * Indicates whether the chat (group or dialog) has an associated avatar image.
-     * For groups, this is based on the presence of a group avatar.
-     * For dialogs, this is based on whether the other participant has an avatar.
-     */
-    @JsonProperty("has-avatar")
-    public boolean hasAvatar;
 
     /**
      * Compares this ChatInfoDTO with another based on creation date.
@@ -128,7 +124,8 @@ public class ChatInfoDTO implements Comparable<ChatInfoDTO> {
         if (infoProps.contains(ChatInfoPropDTO.groupOwner)) info.ownerID = group.owner().member().nickname();
         if (infoProps.contains(ChatInfoPropDTO.groupIsMy)) info.groupIsMy = group.owner() == member;
         if (infoProps.contains(ChatInfoPropDTO.lastMessage)) info.lastMessage = lastMessage;
-        if (infoProps.contains(ChatInfoPropDTO.hasAvatar)) info.hasAvatar = group.avatar() != null;
+        if (infoProps.contains(ChatInfoPropDTO.hasAvatar))
+            info.avatar = group.avatar() != null ? group.avatar().id() : null;
         return info;
     }
 
@@ -155,8 +152,10 @@ public class ChatInfoDTO implements Comparable<ChatInfoDTO> {
         if (infoProps.contains(ChatInfoPropDTO.dialogOther))
             info.otherNickname = dialog.otherMember(member).member().nickname();
         if (infoProps.contains(ChatInfoPropDTO.lastMessage)) info.lastMessage = lastMessage;
-        if (infoProps.contains(ChatInfoPropDTO.hasAvatar))
-            info.hasAvatar = dialog.otherMember(member).member().avatar() != null;
+        if (infoProps.contains(ChatInfoPropDTO.hasAvatar)) {
+            FileEntity avatar = dialog.otherMember(member).member().avatar();
+            info.avatar = avatar != null ? avatar.id() : null;
+        }
 
         return info;
     }

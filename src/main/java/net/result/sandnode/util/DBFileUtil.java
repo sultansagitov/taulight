@@ -61,7 +61,7 @@ public class DBFileUtil {
         Path filePath = avatarDirectory.resolve(file.filename());
 
         try {
-            return new FileDTO(file.contentType(), Files.readAllBytes(filePath));
+            return new FileDTO(file.id(), file.contentType(), Files.readAllBytes(filePath));
         } catch (IOException e) {
             throw new ServerSandnodeErrorException(e);
         }

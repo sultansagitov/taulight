@@ -83,9 +83,9 @@ public class ConsoleChatsRunner {
     public static void setGroupAvatar(@NotNull ConsoleContext context, UUID chatID, String path) throws Exception {
         GroupClientChain chain = new GroupClientChain(context.client);
         context.io.chainManager.linkChain(chain);
-        chain.setAvatar(chatID, path);
+        UUID uuid = chain.setAvatar(chatID, path);
         context.io.chainManager.removeChain(chain);
-        System.out.printf("Avatar set successfully for group %s with path %s%n", chatID, path);
+        System.out.printf("Avatar set successfully for group %s with path %s with id %s%n", chatID, path, uuid);
     }
 
     public static void getGroupAvatar(@NotNull ConsoleContext context, UUID chatID) throws Exception {
@@ -118,7 +118,8 @@ public class ConsoleChatsRunner {
         }
     }
 
-    public static void printInfo(@NotNull Collection<ChatInfoDTO> infos, SandnodeClient client) throws SandnodeException {
+    public static void printInfo(@NotNull Collection<ChatInfoDTO> infos, SandnodeClient client)
+            throws SandnodeException {
         for (ChatInfoDTO info : infos) {
             info.decrypt(client);
 
@@ -132,14 +133,14 @@ public class ConsoleChatsRunner {
                         info.title,
                         info.ownerID,
                         info.groupIsMy ? " (you)" : "",
-                        info.hasAvatar ? " | avatar" : "",
+                        info.avatar != null ? " | avatar " + info.avatar : "",
                         lastMessageText
                 );
                 case DIALOG -> "%s from %s - Dialog: %s%s | Last message: %s".formatted(
                         info.id,
                         info.creationDate,
                         info.otherNickname,
-                        info.hasAvatar ? " | avatar" : "",
+                        info.avatar != null ? " | avatar " + info.avatar : "",
                         lastMessageText
                 );
                 case NOT_FOUND -> "%s - Chat not found".formatted(info.id);

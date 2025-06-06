@@ -99,8 +99,10 @@ public class ConsoleSandnodeCommands {
 
         var chain = new WhoAmIClientChain(context.client);
         context.io.chainManager.linkChain(chain);
-        chain.setAvatar(path.get());
+        UUID uuid = chain.setAvatar(path.get());
         context.io.chainManager.removeChain(chain);
+
+        System.out.printf("Image uuid: %s%n", uuid);
     }
 
     private static void logout(List<String> ignored, ConsoleContext context) throws Exception {

@@ -214,7 +214,7 @@ public class GroupServerChain extends ServerChain implements ReceiverChain {
 
         groupRepo.setAvatar(group, avatar);
 
-        send(new HappyMessage());
+        send(new UUIDMessage(new Headers().setType(MessageTypes.HAPPY), avatar));
     }
 
     private void getAvatar(GroupRequestDTO dto, TauMemberEntity you) throws Exception {

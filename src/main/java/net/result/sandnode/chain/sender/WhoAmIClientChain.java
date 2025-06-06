@@ -3,18 +3,16 @@ package net.result.sandnode.chain.sender;
 import net.result.sandnode.chain.ClientChain;
 import net.result.sandnode.dto.FileDTO;
 import net.result.sandnode.error.ServerErrorManager;
-import net.result.sandnode.exception.ExpectedMessageException;
-import net.result.sandnode.exception.FSException;
-import net.result.sandnode.exception.UnknownSandnodeErrorException;
-import net.result.sandnode.exception.UnprocessedMessagesException;
+import net.result.sandnode.exception.*;
 import net.result.sandnode.exception.error.NoEffectException;
 import net.result.sandnode.exception.error.SandnodeErrorException;
 import net.result.sandnode.message.IMessage;
 import net.result.sandnode.message.RawMessage;
+import net.result.sandnode.message.UUIDMessage;
 import net.result.sandnode.message.types.FileMessage;
-import net.result.sandnode.message.types.HappyMessage;
 import net.result.sandnode.message.types.WhoAmIRequest;
 import net.result.sandnode.message.types.WhoAmIResponse;
+import net.result.sandnode.message.util.MessageTypes;
 import net.result.sandnode.serverclient.SandnodeClient;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -25,6 +23,7 @@ import java.net.URLConnection;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.UUID;
 
 public class WhoAmIClientChain extends ClientChain {
 
@@ -56,8 +55,8 @@ public class WhoAmIClientChain extends ClientChain {
         }
     }
 
-    public void setAvatar(String avatarPath) throws UnprocessedMessagesException, InterruptedException,
-            UnknownSandnodeErrorException, SandnodeErrorException, ExpectedMessageException, FSException {
+    public UUID setAvatar(String avatarPath) throws UnprocessedMessagesException, InterruptedException,
+            UnknownSandnodeErrorException, SandnodeErrorException, ExpectedMessageException, FSException, DeserializationException {
         Path path = Paths.get(avatarPath);
 
         String contentType = URLConnection.guessContentTypeFromName(path.getFileName().toString());
@@ -70,7 +69,7 @@ public class WhoAmIClientChain extends ClientChain {
         }
 
         IMessage request = WhoAmIRequest.byType(WhoAmIRequest.Type.SET_AVATAR);
-        FileMessage fileMessage = new FileMessage(new FileDTO(contentType, bytes));
+        FileMessage fileMessage = new FileMessage(new FileDTO(null, contentType, bytes));
 
         send(request);
         send(fileMessage);
@@ -78,6 +77,8 @@ public class WhoAmIClientChain extends ClientChain {
         RawMessage raw = queue.take();
         ServerErrorManager.instance().handleError(raw);
 
-        new HappyMessage(raw);
+        raw.expect(MessageTypes.HAPPY);
+        UUIDMessage response = new UUIDMessage(raw);
+        return response.uuid;
     }
 }

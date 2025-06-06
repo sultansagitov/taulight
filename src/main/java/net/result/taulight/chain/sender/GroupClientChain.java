@@ -12,6 +12,7 @@ import net.result.sandnode.message.TextMessage;
 import net.result.sandnode.message.UUIDMessage;
 import net.result.sandnode.message.types.FileMessage;
 import net.result.sandnode.message.types.HappyMessage;
+import net.result.sandnode.message.util.MessageTypes;
 import net.result.sandnode.serverclient.SandnodeClient;
 import net.result.taulight.dto.CodeDTO;
 import net.result.taulight.message.CodeListMessage;
@@ -96,8 +97,8 @@ public class GroupClientChain extends ClientChain {
         return new CodeListMessage(raw).codes();
     }
 
-    public synchronized void setAvatar(UUID chatID, String avatarPath) throws UnprocessedMessagesException, FSException,
-            InterruptedException, UnknownSandnodeErrorException, SandnodeErrorException, ExpectedMessageException {
+    public synchronized UUID setAvatar(UUID chatID, String avatarPath) throws UnprocessedMessagesException, FSException,
+            InterruptedException, UnknownSandnodeErrorException, SandnodeErrorException, ExpectedMessageException, DeserializationException {
 
         Path path = Paths.get(avatarPath);
 
@@ -111,7 +112,7 @@ public class GroupClientChain extends ClientChain {
         }
 
         IMessage request = GroupRequest.setAvatar(chatID);
-        FileMessage fileMessage = new FileMessage(new FileDTO(contentType, bytes));
+        FileMessage fileMessage = new FileMessage(new FileDTO(null, contentType, bytes));
 
         send(request);
         send(fileMessage);
@@ -119,7 +120,10 @@ public class GroupClientChain extends ClientChain {
         RawMessage raw = queue.take();
         ServerErrorManager.instance().handleError(raw);
 
-        new HappyMessage(raw);
+        raw.expect(MessageTypes.HAPPY);
+        UUIDMessage response = new UUIDMessage(raw);
+
+        return response.uuid;
     }
 
     public synchronized @Nullable FileDTO getAvatar(UUID chatID) throws UnprocessedMessagesException,
