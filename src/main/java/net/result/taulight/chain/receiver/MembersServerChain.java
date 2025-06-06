@@ -9,12 +9,15 @@ import net.result.sandnode.exception.DeserializationException;
 import net.result.sandnode.exception.UnprocessedMessagesException;
 import net.result.sandnode.message.UUIDMessage;
 import net.result.sandnode.serverclient.Session;
-import net.result.taulight.db.*;
+import net.result.taulight.cluster.ChatCluster;
+import net.result.taulight.cluster.TauClusterManager;
+import net.result.taulight.db.ChatEntity;
+import net.result.taulight.db.GroupEntity;
+import net.result.taulight.db.RoleEntity;
+import net.result.taulight.db.TauMemberEntity;
 import net.result.taulight.dto.ChatMemberDTO;
 import net.result.taulight.dto.MemberStatus;
 import net.result.taulight.dto.RoleDTO;
-import net.result.taulight.cluster.ChatCluster;
-import net.result.taulight.cluster.TauClusterManager;
 import net.result.taulight.message.types.MembersResponse;
 import net.result.taulight.util.ChatUtil;
 import org.apache.logging.log4j.LogManager;
@@ -86,8 +89,9 @@ public class MembersServerChain extends ServerChain implements ReceiverChain {
                 }
 
                 for (Session s : cluster.getSessions()) {
-                    if (s.member != null) {
-                        map.get(s.member).status = MemberStatus.ONLINE;
+                    ChatMemberDTO dto = map.get(s.member);
+                    if (s.member != null && dto.status != MemberStatus.HIDDEN) {
+                        dto.status = MemberStatus.ONLINE;
                     }
                 }
 

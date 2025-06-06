@@ -26,12 +26,19 @@ public class TauMemberRepository {
         EntityTransaction transaction = em.getTransaction();
         try {
             transaction.begin();
-            TauMemberEntity merge = em.merge(tauMember);
+
+            TauMemberSettingsEntity settings = em.merge(new TauMemberSettingsEntity());
+            tauMember.setSettings(settings);
+
+            TauMemberEntity managed = em.merge(tauMember);
+
             MemberEntity member = tauMember.member();
             member.setTauMember(tauMember);
+
             em.merge(member);
+
             transaction.commit();
-            return merge;
+            return managed;
         } catch (Exception e) {
             if (transaction.isActive()) transaction.rollback();
             throw new DatabaseException(e);

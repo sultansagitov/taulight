@@ -1,10 +1,8 @@
 package net.result.main;
 
 import net.result.main.chain.ConsoleClientChainManager;
-import net.result.main.config.AgentPropertiesConfig;
-import net.result.sandnode.hubagent.Agent;
-import net.result.taulight.chain.sender.ForwardRequestClientChain;
 import net.result.main.commands.*;
+import net.result.main.config.AgentPropertiesConfig;
 import net.result.main.config.ClientPropertiesConfig;
 import net.result.sandnode.config.KeyEntry;
 import net.result.sandnode.dto.LogPasswdResponseDTO;
@@ -16,12 +14,14 @@ import net.result.sandnode.exception.*;
 import net.result.sandnode.exception.crypto.CreatingKeyException;
 import net.result.sandnode.exception.crypto.CryptoException;
 import net.result.sandnode.exception.error.*;
+import net.result.sandnode.hubagent.Agent;
 import net.result.sandnode.hubagent.AgentProtocol;
 import net.result.sandnode.hubagent.ClientProtocol;
 import net.result.sandnode.link.Links;
 import net.result.sandnode.link.SandnodeLinkRecord;
 import net.result.sandnode.serverclient.SandnodeClient;
 import net.result.sandnode.util.EncryptionUtil;
+import net.result.taulight.chain.sender.ForwardRequestClientChain;
 import net.result.taulight.dto.ChatInfoDTO;
 import net.result.taulight.dto.ChatMessageInputDTO;
 import net.result.taulight.hubagent.TauAgent;
@@ -251,6 +251,7 @@ public class RunAgentWork implements IWork {
         Scanner scanner = new Scanner(System.in);
         Map<String, LoopCondition> commands = new HashMap<>();
         ConsoleSandnodeCommands.register(commands);
+        ConsoleSettingsCommands.register(commands);
         ConsoleChatsCommands.register(commands);
         ConsoleCodesCommands.register(commands);
         ConsoleReactionsCommands.register(commands);

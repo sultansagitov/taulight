@@ -16,7 +16,7 @@ public class ChatMemberDTO {
     public String nickname;
     /** Online status of the member. */
     @JsonProperty
-    public MemberStatus status = MemberStatus.OFFLINE;
+    public MemberStatus status;
     /** Roles of the member in current chat */
     @JsonProperty
     public @Nullable List<String> roles;
@@ -33,6 +33,7 @@ public class ChatMemberDTO {
      */
     public ChatMemberDTO(TauMemberEntity member, @Nullable List<String> roles) {
         nickname = member.member().nickname();
+        status = member.settings().isShowStatus() ? MemberStatus.OFFLINE : MemberStatus.HIDDEN;
         this.roles = roles;
     }
 
