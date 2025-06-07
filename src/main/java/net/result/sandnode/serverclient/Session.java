@@ -1,11 +1,13 @@
 package net.result.sandnode.serverclient;
 
-import net.result.sandnode.util.Logout;
-import net.result.sandnode.exception.*;
-import net.result.sandnode.util.IOController;
 import net.result.sandnode.chain.ServerChainManager;
-import net.result.sandnode.db.MemberEntity;
 import net.result.sandnode.cluster.Cluster;
+import net.result.sandnode.db.LoginEntity;
+import net.result.sandnode.db.MemberEntity;
+import net.result.sandnode.exception.SandnodeException;
+import net.result.sandnode.exception.UnexpectedSocketDisconnectException;
+import net.result.sandnode.util.IOController;
+import net.result.sandnode.util.Logout;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
@@ -20,6 +22,7 @@ public class Session {
     public final SandnodeServer server;
     public final IOController io;
     public @Nullable MemberEntity member;
+    public @Nullable LoginEntity login;
 
     public Session(@NotNull SandnodeServer server, @NotNull IOController io) {
         this.server = server;

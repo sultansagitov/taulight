@@ -128,7 +128,13 @@ public class ConsoleSandnodeCommands {
             String ip = personalKey.encryption().decrypt(Base64.getDecoder().decode(dto.ip), personalKey);
             String device = personalKey.encryption().decrypt(Base64.getDecoder().decode(dto.device), personalKey);
 
-            System.out.printf("Time: %s, IP: %s, Device: %s%n", dto.time.format(formatter), ip, device);
+            System.out.printf(
+                    "Time: %s, IP: %s, Device: %s, Active: %s%n",
+                    dto.time.format(formatter),
+                    ip,
+                    device,
+                    dto.isOnline
+            );
         }
     }
 

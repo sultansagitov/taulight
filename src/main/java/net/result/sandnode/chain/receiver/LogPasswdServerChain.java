@@ -40,8 +40,6 @@ public abstract class LogPasswdServerChain extends ServerChain implements Receiv
             throw new UnauthorizedException();
         }
 
-        session.member = member;
-
         String ip = session.io.socket.getInetAddress().getHostAddress();
 
         KeyStorageEntity keyEntity = member.publicKey();
@@ -52,6 +50,9 @@ public abstract class LogPasswdServerChain extends ServerChain implements Receiv
         String encryptedDevice = Base64.getEncoder().encodeToString(encryption.encrypt(request.getDevice(), keyStorage));
 
         LoginEntity login = loginRepo.create(member, keyEntity, encryptedIP, encryptedDevice);
+
+        session.member = member;
+        session.login = login;
 
         onLogin();
 

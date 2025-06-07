@@ -9,5 +9,6 @@ public class Logout {
         ClusterManager clusterManager = session.server.container.get(ClusterManager.class);
         clusterManager.removeSession(session);
         session.member = null;
+        session.login = null;
     }
 }
