@@ -23,8 +23,4 @@ public class LogPasswdResponse extends MSGPackMessage<LogPasswdResponseDTO> {
     public LogPasswdResponse(@NotNull RawMessage raw) throws ExpectedMessageException, DeserializationException {
         super(raw.expect(MessageTypes.LOG_PASSWD), LogPasswdResponseDTO.class);
     }
-
-    public LogPasswdResponseDTO dto() {
-        return object;
-    }
 }

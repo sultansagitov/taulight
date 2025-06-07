@@ -7,12 +7,12 @@ import net.result.sandnode.exception.error.NotFoundException;
 import net.result.sandnode.exception.error.UnauthorizedException;
 import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.serverclient.Session;
-import net.result.taulight.db.MessageRepository;
-import net.result.taulight.util.ChatUtil;
-import net.result.taulight.dto.ChatMessageViewDTO;
 import net.result.taulight.db.ChatEntity;
+import net.result.taulight.db.MessageRepository;
+import net.result.taulight.dto.ChatMessageViewDTO;
 import net.result.taulight.message.types.MessageRequest;
 import net.result.taulight.message.types.MessageResponse;
+import net.result.taulight.util.ChatUtil;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -37,7 +37,7 @@ public class MessageServerChain extends ServerChain implements ReceiverChain {
 
         MessageRequest request = new MessageRequest(raw);
 
-        ChatEntity chat = chatUtil.getChat(request.getChatID()).orElseThrow(NotFoundException::new);
+        ChatEntity chat = chatUtil.getChat(request.dto().chatID).orElseThrow(NotFoundException::new);
 
         if (!chatUtil.contains(chat, session.member.tauMember())) {
             throw new NotFoundException();
@@ -46,7 +46,7 @@ public class MessageServerChain extends ServerChain implements ReceiverChain {
         long count = messageRepo.countMessagesByChat(chat);
 
         List<ChatMessageViewDTO> messages = messageRepo
-                .findMessagesByChat(chat, request.getIndex(), request.getSize()).stream()
+                .findMessagesByChat(chat, request.dto().index, request.dto().size).stream()
                 .map(ChatMessageViewDTO::new)
                 .collect(Collectors.toList());
 

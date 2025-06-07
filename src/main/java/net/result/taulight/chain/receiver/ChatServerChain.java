@@ -46,8 +46,8 @@ public class ChatServerChain extends ServerChain implements ReceiverChain {
 
             TauMemberEntity tauMember = session.member.tauMember();
 
-            Collection<UUID> allChatID = request.getAllChatID();
-            Collection<ChatInfoPropDTO> chatInfoProps = request.getChatInfoProps();
+            Collection<UUID> allChatID = request.dto().allChatID;
+            Collection<ChatInfoPropDTO> chatInfoProps = request.dto().infoProps;
 
             try {
                 Collection<ChatInfoDTO> infos = new ArrayList<>();

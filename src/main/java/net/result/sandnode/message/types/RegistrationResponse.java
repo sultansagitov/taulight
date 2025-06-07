@@ -24,8 +24,4 @@ public class RegistrationResponse extends MSGPackMessage<RegistrationResponseDTO
     public RegistrationResponse(@NotNull String token, UUID keyID) {
         this(new Headers(), token, keyID);
     }
-
-    public RegistrationResponseDTO dto() {
-        return object;
-    }
 }

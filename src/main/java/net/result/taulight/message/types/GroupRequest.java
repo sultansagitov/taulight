@@ -68,8 +68,4 @@ public class GroupRequest extends MSGPackMessage<GroupRequestDTO> {
 
         return new GroupRequest(data);
     }
-
-    public GroupRequestDTO dto() {
-        return object;
-    }
 }

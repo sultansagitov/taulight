@@ -2,17 +2,17 @@ package net.result.taulight.chain.receiver;
 
 import net.result.sandnode.chain.ReceiverChain;
 import net.result.sandnode.chain.ServerChain;
-import net.result.sandnode.exception.error.NoEffectException;
-import net.result.sandnode.exception.error.UnauthorizedException;
-import net.result.sandnode.exception.error.UnhandledMessageTypeException;
 import net.result.sandnode.cluster.Cluster;
 import net.result.sandnode.cluster.ClusterManager;
+import net.result.sandnode.exception.error.NoEffectException;
+import net.result.sandnode.exception.error.NotFoundException;
+import net.result.sandnode.exception.error.UnauthorizedException;
+import net.result.sandnode.exception.error.UnhandledMessageTypeException;
+import net.result.sandnode.message.types.HappyMessage;
 import net.result.sandnode.serverclient.Session;
 import net.result.taulight.chain.sender.ReactionResponseServerChain;
-import net.result.sandnode.exception.error.NotFoundException;
 import net.result.taulight.db.*;
 import net.result.taulight.message.types.ReactionRequest;
-import net.result.sandnode.message.types.HappyMessage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -39,10 +39,10 @@ public class ReactionRequestServerChain extends ServerChain implements ReceiverC
         String nickname = session.member.nickname();
 
         MessageEntity message = messageRepo
-                .findById(request.getMessageID())
+                .findById(request.dto().messageID)
                 .orElseThrow(NotFoundException::new);
 
-        String[] packageParts = request.getReactionType().split(":");
+        String[] packageParts = request.dto().reaction.split(":");
         if (packageParts.length != 2) {
             throw new IllegalArgumentException("Invalid reaction type format. Expected format 'package:reaction'.");
         }
@@ -58,7 +58,7 @@ public class ReactionRequestServerChain extends ServerChain implements ReceiverC
 
         Cluster notReactionReceiver = clusterManager.get("#not_reaction_receiver");
 
-        if (request.isReact()) {
+        if (request.dto().react) {
             ReactionEntryEntity re = reactionEntryRepo.create(session.member.tauMember(), message, reactionType);
             LOGGER.info("Reaction added: {} to message {} by {}", reactionType.name(), message.id(), nickname);
             for (Session s : session.server.node.getAgents()) {

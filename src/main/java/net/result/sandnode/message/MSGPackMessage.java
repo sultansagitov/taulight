@@ -2,12 +2,12 @@ package net.result.sandnode.message;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import net.result.sandnode.exception.DeserializationException;
 import net.result.sandnode.message.util.Headers;
 import org.jetbrains.annotations.NotNull;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import com.fasterxml.jackson.databind.SerializationFeature;
 import org.msgpack.jackson.dataformat.MessagePackFactory;
 
 import java.io.IOException;
@@ -44,6 +44,10 @@ public abstract class MSGPackMessage<T> extends Message {
         } catch (IOException e) {
             throw new DeserializationException(e);
         }
+    }
+
+    public T dto() {
+        return object;
     }
 
     @Override

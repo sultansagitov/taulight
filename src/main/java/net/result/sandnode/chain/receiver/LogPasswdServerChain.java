@@ -32,10 +32,10 @@ public abstract class LogPasswdServerChain extends ServerChain implements Receiv
         PasswordHasher hasher = hub.config.hasher();
 
         MemberEntity member = memberRepo
-                .findByNickname(request.getNickname())
+                .findByNickname(request.dto().nickname)
                 .orElseThrow(UnauthorizedException::new);
 
-        boolean verified = hasher.verify(request.getPassword(), member.hashedPassword());
+        boolean verified = hasher.verify(request.dto().password, member.hashedPassword());
         if (!verified) {
             throw new UnauthorizedException();
         }
@@ -47,7 +47,7 @@ public abstract class LogPasswdServerChain extends ServerChain implements Receiv
         AsymmetricKeyStorage keyStorage = encryption.publicKeyConvertor().toKeyStorage(keyEntity.encodedKey());
 
         String encryptedIP = Base64.getEncoder().encodeToString(encryption.encrypt(ip, keyStorage));
-        String encryptedDevice = Base64.getEncoder().encodeToString(encryption.encrypt(request.getDevice(), keyStorage));
+        String encryptedDevice = Base64.getEncoder().encodeToString(encryption.encrypt(request.dto().device, keyStorage));
 
         LoginEntity login = loginRepo.create(member, keyEntity, encryptedIP, encryptedDevice);
 

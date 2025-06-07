@@ -6,6 +6,7 @@ import net.result.sandnode.db.MemberRepository;
 import net.result.sandnode.exception.error.*;
 import net.result.sandnode.serverclient.Session;
 import net.result.taulight.db.*;
+import net.result.taulight.dto.RoleRequestDTO;
 import net.result.taulight.dto.RolesDTO;
 import net.result.taulight.message.types.RoleRequest;
 import net.result.taulight.message.types.RoleResponse;
@@ -31,10 +32,10 @@ public class RoleServerChain extends ServerChain implements ReceiverChain {
 
         RoleRequest request = new RoleRequest(queue.take());
 
-        RoleRequest.DataType dataType = request.getDataType();
-        UUID chatID = request.getChatID();
-        String roleName = request.getRoleName();
-        String nickname = request.getNickname();
+        RoleRequestDTO.DataType dataType = request.dto().dataType;
+        UUID chatID = request.dto().chatID;
+        String roleName = request.dto().roleName;
+        String nickname = request.dto().nickname;
 
         ChatEntity chat = chatUtil.getChat(chatID).orElseThrow(NotFoundException::new);
         if (!chatUtil.contains(chat, session.member.tauMember())) throw new NotFoundException();

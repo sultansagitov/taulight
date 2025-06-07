@@ -18,8 +18,4 @@ public class RegistrationRequest extends MSGPackMessage<RegisterRequestDTO> {
     public RegistrationRequest(RegisterRequestDTO dto) {
         super(new Headers().setType(MessageTypes.REG), dto);
     }
-
-    public RegisterRequestDTO dto() {
-        return object;
-    }
 }

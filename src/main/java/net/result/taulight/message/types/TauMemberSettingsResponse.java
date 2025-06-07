@@ -16,8 +16,4 @@ public class TauMemberSettingsResponse extends MSGPackMessage<TauMemberSettingsR
     public TauMemberSettingsResponse(RawMessage raw) throws DeserializationException, ExpectedMessageException {
         super(raw.expect(TauMessageTypes.TAU_SETTINGS), TauMemberSettingsResponseDTO.class);
     }
-
-    public TauMemberSettingsResponseDTO dto() {
-        return object;
-    }
 }

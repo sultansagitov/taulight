@@ -26,8 +26,4 @@ public class MembersResponse extends MSGPackMessage<MembersResponseDTO> {
     public MembersResponse(@NotNull RawMessage message) throws DeserializationException, ExpectedMessageException {
         super(message.expect(TauMessageTypes.MEMBERS), MembersResponseDTO.class);
     }
-
-    public MembersResponseDTO dto() {
-        return object;
-    }
 }
