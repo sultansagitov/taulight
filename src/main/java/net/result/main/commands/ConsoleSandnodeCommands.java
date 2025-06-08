@@ -128,7 +128,7 @@ public class ConsoleSandnodeCommands {
 
 
         for (LoginHistoryDTO dto : h) {
-            KeyStorage personalKey = agent.config.loadPersonalKey(dto.encryptorID);
+            KeyStorage personalKey = agent.config.loadPersonalKey(context.client.address, dto.encryptorID);
 
             String ip = personalKey.encryption().decrypt(Base64.getDecoder().decode(dto.ip), personalKey);
             String device = personalKey.encryption().decrypt(Base64.getDecoder().decode(dto.device), personalKey);
@@ -150,8 +150,9 @@ public class ConsoleSandnodeCommands {
         context.io.chainManager.linkChain(chain);
 
         UUID encryptorID;
+        Agent agent = (Agent) context.client.node;
         try {
-            encryptorID = ((Agent) context.client.node).config.loadEncryptor(nickname).id();
+            encryptorID = agent.config.loadEncryptor(context.client.address, nickname).id();
         } catch (KeyStorageNotFoundException ignored) {
             encryptorID = chain.getKeyOf(nickname).keyID();
         }
@@ -160,7 +161,7 @@ public class ConsoleSandnodeCommands {
         UUID uuid = chain.sendDEK(nickname, encryptorID, key);
         context.io.chainManager.removeChain(chain);
 
-        ((Agent) context.client.node).config.saveDEK(nickname, uuid, key);
+        agent.config.saveDEK(context.client.address, nickname, uuid, key);
     }
 
     private static void DEK(List<String> ignoredArgs, ConsoleContext context) throws Exception {
@@ -170,9 +171,11 @@ public class ConsoleSandnodeCommands {
         context.io.chainManager.removeChain(chain);
 
         for (DEKDTO key : keys) {
-            KeyStorage decrypted = key.decrypt(((Agent) context.client.node).config.loadPersonalKey(key.encryptorID));
+            Agent agent = (Agent) context.client.node;
 
-            ((Agent) context.client.node).config.saveDEK(key.senderNickname, key.id, decrypted);
+            KeyStorage decrypted = key.decrypt(agent.config.loadPersonalKey(context.client.address, key.encryptorID));
+
+            agent.config.saveDEK(context.client.address, key.senderNickname, key.id, decrypted);
 
             System.out.println(decrypted);
         }

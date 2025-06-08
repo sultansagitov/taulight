@@ -3,6 +3,7 @@ package net.result.sandnode;
 import com.auth0.jwt.algorithms.Algorithm;
 import net.result.sandnode.chain.*;
 import net.result.sandnode.chain.receiver.UnhandledMessageTypeClientChain;
+import net.result.sandnode.cluster.HashSetClusterManager;
 import net.result.sandnode.config.*;
 import net.result.sandnode.encryption.AsymmetricEncryptions;
 import net.result.sandnode.encryption.EncryptionManager;
@@ -11,9 +12,11 @@ import net.result.sandnode.encryption.SymmetricEncryptions;
 import net.result.sandnode.encryption.interfaces.AsymmetricKeyStorage;
 import net.result.sandnode.encryption.interfaces.KeyStorage;
 import net.result.sandnode.encryption.interfaces.SymmetricEncryption;
-import net.result.sandnode.exception.*;
+import net.result.sandnode.exception.ImpossibleRuntimeException;
+import net.result.sandnode.exception.ServerStartException;
+import net.result.sandnode.exception.SocketAcceptException;
+import net.result.sandnode.exception.UnprocessedMessagesException;
 import net.result.sandnode.exception.error.KeyStorageNotFoundException;
-import net.result.sandnode.cluster.HashSetClusterManager;
 import net.result.sandnode.hubagent.Agent;
 import net.result.sandnode.hubagent.ClientProtocol;
 import net.result.sandnode.hubagent.Hub;
@@ -25,13 +28,12 @@ import net.result.sandnode.security.PasswordHasher;
 import net.result.sandnode.serverclient.SandnodeClient;
 import net.result.sandnode.serverclient.SandnodeServer;
 import net.result.sandnode.serverclient.Session;
-import net.result.sandnode.util.Container;
 import net.result.sandnode.util.Address;
+import net.result.sandnode.util.Container;
 import net.result.sandnode.util.IOController;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
@@ -52,6 +54,9 @@ public class ServerTest {
     private static final SymmetricEncryptions symmetricEncryption = SymmetricEncryptions.AES;
     private static final short CHAIN_ID = (short) ((0xAB << 8) + 0xCD);
     private static final int port = 52524;
+
+    private static final Lock serverStartLock = new ReentrantLock();
+    private static final Condition serverStarted = serverStartLock.newCondition();
 
     private enum Testing implements MessageType {
         TESTING {
@@ -84,9 +89,7 @@ public class ServerTest {
         AgentThread agentThread = new AgentThread();
         agentThread.start();
 
-        try {
-            assertTrue(TestServerChain.condition.await(10, TimeUnit.SECONDS));
-        } catch (IllegalMonitorStateException ignored) {}
+        assertTrue(TestServerChain.condition.await(10, TimeUnit.SECONDS));
 
         // Cleanup
         agentThread.client.close();
@@ -151,13 +154,19 @@ public class ServerTest {
 
         @Override
         public void run() {
+            serverStartLock.lock();
             try {
                 server.start(port);
-                Assertions.assertThrows(SocketAcceptException.class, server::acceptSessions);
+                serverStarted.signal();
             } catch (ServerStartException e) {
                 LOGGER.error("Server failed to start or accept sessions.", e);
+                fail(e);
                 throw new ImpossibleRuntimeException(e);
+            } finally {
+                serverStartLock.unlock();
             }
+
+            assertThrows(SocketAcceptException.class, server::acceptSessions);
         }
     }
 
@@ -224,11 +233,13 @@ public class ServerTest {
                 condition.signal();
             } catch (Exception e) {
                 LOGGER.error("condition.signal error", e);
+                fail(e);
             } finally {
                 try {
                     lock.unlock();
                 } catch (Exception e1) {
                     LOGGER.error("lock.unlock error", e1);
+                    fail(e1);
                 }
             }
         }
@@ -269,6 +280,7 @@ public class ServerTest {
                 io.chainManager.removeChain(testClientChain);
             } catch (Exception e) {
                 LOGGER.error("Client encountered an error.", e);
+                fail(e);
                 throw new RuntimeException(e);
             }
         }
@@ -288,33 +300,33 @@ public class ServerTest {
                 }
 
                 @Override
-                public void savePersonalKey(UUID keyID, KeyStorage keyStorage) {}
+                public void savePersonalKey(Address address, UUID keyID, KeyStorage keyStorage) {}
 
                 @Override
-                public KeyStorage loadPersonalKey(UUID keyID) throws KeyStorageNotFoundException {
+                public KeyStorage loadPersonalKey(Address address, UUID keyID) throws KeyStorageNotFoundException {
                     throw new KeyStorageNotFoundException(keyID);
                 }
 
                 @Override
-                public KeyEntry loadEncryptor(String nickname) throws KeyStorageNotFoundException {
+                public KeyEntry loadEncryptor(Address address, String nickname) throws KeyStorageNotFoundException {
                     throw new KeyStorageNotFoundException(nickname);
                 }
 
                 @Override
-                public KeyEntry loadDEK(String nickname) throws KeyStorageNotFoundException {
+                public KeyEntry loadDEK(Address address, String nickname) throws KeyStorageNotFoundException {
                     throw new KeyStorageNotFoundException(nickname);
                 }
 
                 @Override
-                public KeyStorage loadDEK(UUID keyID) throws KeyStorageNotFoundException {
+                public KeyStorage loadDEK(Address address, UUID keyID) throws KeyStorageNotFoundException {
                     throw new KeyStorageNotFoundException(keyID);
                 }
 
                 @Override
-                public void saveEncryptor(String nickname, UUID keyID, KeyStorage keyStorage) {}
+                public void saveEncryptor(Address address, String nickname, UUID keyID, KeyStorage keyStorage) {}
 
                 @Override
-                public void saveDEK(String nickname, UUID keyID, KeyStorage keyStorage) {
+                public void saveDEK(Address address, String nickname, UUID keyID, KeyStorage keyStorage) {
 
                 }
             });

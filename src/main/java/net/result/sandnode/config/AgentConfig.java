@@ -19,17 +19,17 @@ public interface AgentConfig {
 
     // TODO explain terminology
 
-    void savePersonalKey(UUID keyID, KeyStorage keyStorage) throws StorageException;
+    void savePersonalKey(Address address, UUID keyID, KeyStorage keyStorage) throws StorageException;
 
-    void saveEncryptor(String nickname, UUID keyID, KeyStorage keyStorage) throws StorageException;
+    void saveEncryptor(Address address, String nickname, UUID keyID, KeyStorage keyStorage) throws StorageException;
 
-    void saveDEK(String nickname, UUID keyID, KeyStorage keyStorage) throws StorageException;
+    void saveDEK(Address address, String nickname, UUID keyID, KeyStorage keyStorage) throws StorageException;
 
-    KeyStorage loadPersonalKey(UUID keyID) throws KeyStorageNotFoundException;
+    KeyStorage loadPersonalKey(Address address, UUID keyID) throws KeyStorageNotFoundException;
 
-    KeyEntry loadEncryptor(String nickname) throws KeyStorageNotFoundException;
+    KeyEntry loadEncryptor(Address address, String nickname) throws KeyStorageNotFoundException;
 
-    KeyEntry loadDEK(String nickname) throws KeyStorageNotFoundException;
+    KeyEntry loadDEK(Address address, String nickname) throws KeyStorageNotFoundException;
 
-    KeyStorage loadDEK(UUID keyID) throws KeyStorageNotFoundException;
+    KeyStorage loadDEK(Address address, UUID keyID) throws KeyStorageNotFoundException;
 }

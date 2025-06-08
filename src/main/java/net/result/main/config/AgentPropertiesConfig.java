@@ -32,14 +32,11 @@ public class AgentPropertiesConfig implements AgentConfig {
     private final Collection<MemberKeyRecord> memberKeys = new ArrayList<>();
     private final Collection<MemberKeyRecord> DEKs = new ArrayList<>();
 
-
-    public AgentPropertiesConfig()
-            throws ConfigurationException, StorageException {
+    public AgentPropertiesConfig() throws ConfigurationException, StorageException {
         this("taulight.properties");
     }
 
-    public AgentPropertiesConfig(@NotNull String fileName)
-            throws ConfigurationException, StorageException {
+    public AgentPropertiesConfig(@NotNull String fileName) throws ConfigurationException, StorageException {
         Properties properties = new Properties();
         try (InputStream input = getClass().getClassLoader().getResourceAsStream(fileName)) {
             properties.load(input);
@@ -63,8 +60,9 @@ public class AgentPropertiesConfig implements AgentConfig {
 
             FileUtil.checkNotDirectory(KEYS_JSON_PATH);
             String data = FileUtil.readString(KEYS_JSON_PATH);
+            JSONObject json = new JSONObject(data);
 
-            for (Object key : new JSONObject(data).getJSONArray("server-keys")) {
+            for (Object key : json.getJSONArray("server-keys")) {
                 JSONObject jsonObject = (JSONObject) key;
                 try {
                     KeyRecord keyRecord = KeyRecord.fromJSON(jsonObject);
@@ -75,7 +73,7 @@ public class AgentPropertiesConfig implements AgentConfig {
                 }
             }
 
-            for (Object key : new JSONObject(data).getJSONArray("member-keys")) {
+            for (Object key : json.getJSONArray("member-keys")) {
                 JSONObject jsonObject = (JSONObject) key;
                 try {
                     MemberKeyRecord keyRecord = MemberKeyRecord.fromJSON(jsonObject);
@@ -85,7 +83,7 @@ public class AgentPropertiesConfig implements AgentConfig {
                 }
             }
 
-            for (Object key : new JSONObject(data).getJSONArray("deks")) {
+            for (Object key : json.getJSONArray("deks")) {
                 JSONObject jsonObject = (JSONObject) key;
                 try {
                     MemberKeyRecord keyRecord = MemberKeyRecord.fromJSON(jsonObject);
@@ -180,58 +178,58 @@ public class AgentPropertiesConfig implements AgentConfig {
     }
 
     @Override
-    public synchronized void savePersonalKey(UUID keyID, KeyStorage keyStorage) throws StorageException {
-        memberKeys.add(new MemberKeyRecord(keyID, keyStorage));
+    public synchronized void savePersonalKey(Address address, UUID keyID, KeyStorage keyStorage) throws StorageException {
+        memberKeys.add(new MemberKeyRecord(address, keyID, keyStorage));
         saveKeysJSON();
     }
 
     @Override
-    public void saveEncryptor(String nickname, UUID keyID, KeyStorage keyStorage) throws StorageException {
+    public void saveEncryptor(Address address, String nickname, UUID keyID, KeyStorage keyStorage) throws StorageException {
         LOGGER.debug("{}, {}, {}", nickname, keyID, keyStorage);
-        memberKeys.add(new MemberKeyRecord(nickname, keyID, keyStorage));
+        memberKeys.add(new MemberKeyRecord(address, nickname, keyID, keyStorage));
         saveKeysJSON();
     }
 
     @Override
-    public void saveDEK(String nickname, UUID keyID, KeyStorage keyStorage) throws StorageException {
+    public void saveDEK(Address address, String nickname, UUID keyID, KeyStorage keyStorage) throws StorageException {
         LOGGER.debug("{}, {}, {}", nickname, keyID, keyStorage);
-        DEKs.add(new MemberKeyRecord(nickname, keyID, keyStorage));
+        DEKs.add(new MemberKeyRecord(address, nickname, keyID, keyStorage));
         saveKeysJSON();
     }
 
     @Override
-    public synchronized KeyStorage loadPersonalKey(UUID keyID) throws KeyStorageNotFoundException {
+    public synchronized KeyStorage loadPersonalKey(Address address, UUID keyID) throws KeyStorageNotFoundException {
         return memberKeys.stream()
-                .filter(k -> k.keyID.equals(keyID))
+                .filter(k -> k.keyID.equals(keyID) && k.address.equals(address))
                 .map(k -> k.keyStorage)
                 .findFirst()
-                .orElseThrow(() -> new KeyStorageNotFoundException(keyID));
+                .orElseThrow(() -> new KeyStorageNotFoundException("address: " + address + "; keyID: " + keyID));
     }
 
     @Override
-    public KeyEntry loadEncryptor(String nickname) throws KeyStorageNotFoundException {
+    public KeyEntry loadEncryptor(Address address, String nickname) throws KeyStorageNotFoundException {
         return memberKeys.stream()
-                .filter(k -> Objects.equals(k.nickname, nickname))
+                .filter(k -> Objects.equals(k.nickname, nickname) && k.address.equals(address))
                 .map(k -> new KeyEntry(k.keyID, k.keyStorage))
                 .findFirst()
-                .orElseThrow(() -> new KeyStorageNotFoundException(nickname));
+                .orElseThrow(() -> new KeyStorageNotFoundException("address: " + address + "; nickname: " + nickname));
     }
 
     @Override
-    public KeyEntry loadDEK(String nickname) throws KeyStorageNotFoundException {
+    public KeyEntry loadDEK(Address address, String nickname) throws KeyStorageNotFoundException {
         return DEKs.stream()
-                .filter(k -> Objects.equals(k.nickname, nickname))
+                .filter(k -> Objects.equals(k.nickname, nickname) && k.address.equals(address))
                 .map(k -> new KeyEntry(k.keyID, k.keyStorage))
                 .findFirst()
-                .orElseThrow(() -> new KeyStorageNotFoundException(nickname));
+                .orElseThrow(() -> new KeyStorageNotFoundException("address: " + address + "; nickname: " + nickname));
     }
 
     @Override
-    public KeyStorage loadDEK(UUID keyID) throws KeyStorageNotFoundException {
+    public KeyStorage loadDEK(Address address, UUID keyID) throws KeyStorageNotFoundException {
         return DEKs.stream()
-                .filter(k -> Objects.equals(k.keyID, keyID))
+                .filter(k -> k.keyID.equals(keyID) && k.address.equals(address))
                 .map(k -> k.keyStorage)
                 .findFirst()
-                .orElseThrow(() -> new KeyStorageNotFoundException(keyID));
+                .orElseThrow(() -> new KeyStorageNotFoundException("address: " + address + "; keyID: " + keyID));
     }
 }

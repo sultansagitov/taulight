@@ -39,7 +39,7 @@ public class ConsoleMessagesRunner {
 
         ChatInfoDTO chat = context.chat;
         if (chat.chatType == ChatInfoDTO.ChatType.DIALOG) {
-            var entry = ((Agent) context.client.node).config.loadDEK(chat.otherNickname);
+            var entry = ((Agent) context.client.node).config.loadDEK(context.client.address, chat.otherNickname);
 
             message.setEncryptedContent(entry.id(), entry.keyStorage(), input);
         } else {
@@ -54,7 +54,7 @@ public class ConsoleMessagesRunner {
         ChatMessageInputDTO input = dto.message;
         String decrypted;
         if (input.keyID != null) {
-            KeyStorage keyStorage = ((Agent) context.client.node).config.loadDEK(input.keyID);
+            KeyStorage keyStorage = ((Agent) context.client.node).config.loadDEK(context.client.address, input.keyID);
             decrypted = keyStorage.encryption().decrypt(Base64.getDecoder().decode(input.content), keyStorage);
         } else {
             decrypted = input.content;

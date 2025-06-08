@@ -141,7 +141,7 @@ public class RunAgentWork implements IWork {
             var result = AgentProtocol.register(client, nickname, password, device, keyStorage);
             System.out.printf("Token for \"%s\":%n%s%n", nickname, result.token);
 
-            ((Agent) client.node).config.savePersonalKey(result.keyID, keyStorage);
+            ((Agent) client.node).config.savePersonalKey(client.address, result.keyID, keyStorage);
             context = new ConsoleContext(client, nickname, result.keyID);
         } catch (BusyNicknameException e) {
             System.out.println("Nickname is busy");
@@ -206,7 +206,7 @@ public class RunAgentWork implements IWork {
         if (context.chat.chatType == ChatInfoDTO.ChatType.DIALOG) {
             try {
                 String otherNickname = context.chat.otherNickname;
-                KeyEntry dek = ((Agent) client.node).config.loadDEK(otherNickname);
+                KeyEntry dek = ((Agent) client.node).config.loadDEK(client.address, otherNickname);
 
                 LOGGER.debug("Using {} {}", dek.id(), dek.keyStorage());
 
