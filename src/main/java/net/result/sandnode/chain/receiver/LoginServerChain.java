@@ -58,10 +58,10 @@ public class LoginServerChain extends ServerChain implements ReceiverChain {
         LOGGER.debug(onlineLogins);
 
         List<LoginHistoryDTO> list = new ArrayList<>();
-        for (LoginEntity e : logins) {
-            boolean isOnline = onlineLogins.contains(e) ||
-                    (e.login() != null && onlineLogins.contains(e.login()));
-            LoginHistoryDTO loginHistoryDTO = new LoginHistoryDTO(e, isOnline);
+        for (LoginEntity login : logins) {
+            boolean isOnline = onlineLogins.contains(login) ||
+                    (login.login() != null && onlineLogins.contains(login.login()));
+            LoginHistoryDTO loginHistoryDTO = new LoginHistoryDTO(login, isOnline);
             list.add(loginHistoryDTO);
         }
 

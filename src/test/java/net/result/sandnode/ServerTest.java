@@ -26,7 +26,7 @@ import net.result.sandnode.serverclient.SandnodeClient;
 import net.result.sandnode.serverclient.SandnodeServer;
 import net.result.sandnode.serverclient.Session;
 import net.result.sandnode.util.Container;
-import net.result.sandnode.util.Endpoint;
+import net.result.sandnode.util.Address;
 import net.result.sandnode.util.IOController;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -139,7 +139,7 @@ public class ServerTest {
             Container container = GlobalTestState.container;
             ServerConfig serverConfig = new ServerConfigRecord(
                     container,
-                    new Endpoint("localhost", port),
+                    new Address("localhost", port),
                     null,
                     null,
                     asymmetricEncryption,
@@ -245,10 +245,10 @@ public class ServerTest {
         public void run() {
             try {
                 Agent agent = new TestAgent();
-                Endpoint endpoint = new Endpoint("localhost", port);
+                Address address = new Address("localhost", port);
 
                 TestClientConfig clientConfig = new TestClientConfig();
-                client = new SandnodeClient(endpoint, agent, NodeType.HUB, clientConfig);
+                client = new SandnodeClient(address, agent, NodeType.HUB, clientConfig);
                 ClientChainManager chainManager = new BSTClientChainManager(client) {
                     @Override
                     public ReceiverChain createChain(MessageType type) {
@@ -279,10 +279,10 @@ public class ServerTest {
             super(new KeyStorageRegistry(), new AgentConfig() {
 
                 @Override
-                public void saveKey(@NotNull Endpoint endpoint, @NotNull AsymmetricKeyStorage keyStorage) {}
+                public void saveKey(@NotNull Address address, @NotNull AsymmetricKeyStorage keyStorage) {}
 
                 @Override
-                public AsymmetricKeyStorage getPublicKey(@NotNull Endpoint endpoint)
+                public AsymmetricKeyStorage getPublicKey(@NotNull Address address)
                         throws KeyStorageNotFoundException {
                     throw new KeyStorageNotFoundException();
                 }

@@ -17,7 +17,7 @@ import net.result.sandnode.hubagent.Hub;
 import net.result.sandnode.security.PasswordHasher;
 import net.result.sandnode.serverclient.SandnodeServer;
 import net.result.sandnode.util.Container;
-import net.result.sandnode.util.Endpoint;
+import net.result.sandnode.util.Address;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -57,8 +57,8 @@ public class LinksTest {
         SandnodeLinkRecord record = Links.parse(validLink);
 
         assertNotNull(record);
-        assertEquals("localhost", record.endpoint().host());
-        assertEquals(52525, record.endpoint().port());
+        assertEquals("localhost", record.address().host());
+        assertEquals(52525, record.address().port());
         assertNotNull(record.keyStorage());
     }
 
@@ -90,8 +90,8 @@ public class LinksTest {
         }
 
         @Override
-        public Endpoint endpoint() {
-            return new Endpoint("localhost", 52525);
+        public Address address() {
+            return new Address("localhost", 52525);
         }
 
         @Override

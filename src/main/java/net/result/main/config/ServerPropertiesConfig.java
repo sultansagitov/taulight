@@ -11,7 +11,7 @@ import net.result.sandnode.exception.FSException;
 import net.result.sandnode.exception.ImpossibleRuntimeException;
 import net.result.sandnode.exception.crypto.*;
 import net.result.sandnode.util.Container;
-import net.result.sandnode.util.Endpoint;
+import net.result.sandnode.util.Address;
 import net.result.sandnode.util.FileUtil;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -28,7 +28,7 @@ import java.util.Properties;
 public class ServerPropertiesConfig implements ServerConfig {
     private static final Logger LOGGER = LogManager.getLogger(ServerPropertiesConfig.class);
     private final Container container;
-    private final Endpoint endpoint;
+    private final Address address;
     private final Path PUBLIC_KEY_PATH;
     private final Path PRIVATE_KEY_PATH;
     private final AsymmetricEncryption MAIN_ENCRYPTION;
@@ -38,7 +38,7 @@ public class ServerPropertiesConfig implements ServerConfig {
         this(container, "taulight.properties", null);
     }
 
-    public ServerPropertiesConfig(Container container, String fileName, @Nullable Endpoint endpoint)
+    public ServerPropertiesConfig(Container container, String fileName, @Nullable Address address)
             throws ConfigurationException, FSException, NoSuchEncryptionException, EncryptionTypeException {
         this.container = container;
 
@@ -56,14 +56,14 @@ public class ServerPropertiesConfig implements ServerConfig {
         String defaultHost = "127.0.0.1";
         int defaultPort = 52525;
 
-        if (endpoint != null) {
-            this.endpoint = endpoint;
+        if (address != null) {
+            this.address = address;
         } else {
             String host = properties.getProperty("server.host", defaultHost);
             int port = properties.containsKey("server.port")
                     ? Integer.parseInt(properties.getProperty("server.port"))
                     : defaultPort;
-            this.endpoint = new Endpoint(host, port);
+            this.address = new Address(host, port);
         }
 
 
@@ -88,8 +88,8 @@ public class ServerPropertiesConfig implements ServerConfig {
     }
 
     @Override
-    public Endpoint endpoint() {
-        return endpoint;
+    public Address address() {
+        return address;
     }
 
     @Override

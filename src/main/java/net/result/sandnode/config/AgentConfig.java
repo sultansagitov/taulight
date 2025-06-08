@@ -5,17 +5,17 @@ import net.result.sandnode.encryption.interfaces.KeyStorage;
 import net.result.sandnode.exception.StorageException;
 import net.result.sandnode.exception.crypto.KeyAlreadySaved;
 import net.result.sandnode.exception.error.KeyStorageNotFoundException;
-import net.result.sandnode.util.Endpoint;
+import net.result.sandnode.util.Address;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.UUID;
 
 public interface AgentConfig {
 
-    void saveKey(@NotNull Endpoint endpoint, @NotNull AsymmetricKeyStorage keyStorage)
+    void saveKey(@NotNull Address address, @NotNull AsymmetricKeyStorage keyStorage)
             throws KeyAlreadySaved, StorageException;
 
-    AsymmetricKeyStorage getPublicKey(@NotNull Endpoint endpoint) throws KeyStorageNotFoundException;
+    AsymmetricKeyStorage getPublicKey(@NotNull Address address) throws KeyStorageNotFoundException;
 
     // TODO explain terminology
 

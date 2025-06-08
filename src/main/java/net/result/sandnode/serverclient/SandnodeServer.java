@@ -34,12 +34,12 @@ public class SandnodeServer {
     }
 
     public void start() throws ServerStartException {
-        start(serverConfig.endpoint().port());
+        start(serverConfig.address().port());
     }
 
     public void start(int port) throws ServerStartException {
         try {
-            InetAddress host = Inet4Address.getByName(serverConfig.endpoint().host());
+            InetAddress host = Inet4Address.getByName(serverConfig.address().host());
             serverSocket = new ServerSocket(port, Integer.MAX_VALUE, host);
         } catch (IOException e) {
             throw new ServerStartException("Failed to start server on port " + port, e);

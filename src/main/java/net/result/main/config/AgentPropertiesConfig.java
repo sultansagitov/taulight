@@ -8,7 +8,7 @@ import net.result.sandnode.encryption.interfaces.KeyStorage;
 import net.result.sandnode.exception.*;
 import net.result.sandnode.exception.crypto.*;
 import net.result.sandnode.exception.error.KeyStorageNotFoundException;
-import net.result.sandnode.util.Endpoint;
+import net.result.sandnode.util.Address;
 import net.result.sandnode.util.FileUtil;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -70,7 +70,7 @@ public class AgentPropertiesConfig implements AgentConfig {
                     KeyRecord keyRecord = KeyRecord.fromJSON(jsonObject);
                     serverKeys.add(keyRecord);
                 } catch (NoSuchEncryptionException | CreatingKeyException | FSException | NoSuchHasherException |
-                         EncryptionTypeException | InvalidEndpointSyntax | KeyHashCheckingException e) {
+                         EncryptionTypeException | InvalidAddressSyntax | KeyHashCheckingException e) {
                     LOGGER.error("Error while validating \"{}\"", KEYS_JSON_PATH, e);
                 }
             }
@@ -115,8 +115,8 @@ public class AgentPropertiesConfig implements AgentConfig {
                 .put("deks", DEKArray);
     }
 
-    private boolean isHaveKey(@NotNull Endpoint endpoint) {
-        return serverKeys.stream().anyMatch(record -> endpoint.equals(record.endpoint));
+    private boolean isHaveKey(@NotNull Address address) {
+        return serverKeys.stream().anyMatch(record -> address.equals(record.address));
     }
 
     public synchronized void saveKeysJSON() throws StorageException {
@@ -129,13 +129,13 @@ public class AgentPropertiesConfig implements AgentConfig {
     }
 
     @Override
-    public synchronized void saveKey(@NotNull Endpoint endpoint, @NotNull AsymmetricKeyStorage keyStorage)
+    public synchronized void saveKey(@NotNull Address address, @NotNull AsymmetricKeyStorage keyStorage)
             throws KeyAlreadySaved, StorageException {
-        String sanitizedEndpoint = endpoint.toString().replaceAll("[.:\\\\/*?\"<>|]", "_");
-        String filename = "%s_%s_public.key".formatted(sanitizedEndpoint, UUID.randomUUID());
+        String sanitizedAddress = address.toString().replaceAll("[.:\\\\/*?\"<>|]", "_");
+        String filename = "%s_%s_public.key".formatted(sanitizedAddress, UUID.randomUUID());
 
-        if (isHaveKey(endpoint))
-            throw new KeyAlreadySaved("JSON already have this endpoint");
+        if (isHaveKey(address))
+            throw new KeyAlreadySaved("JSON already have this address");
 
         Path publicKeyPath = Paths.get(KEYS_PATH.toString(), filename);
 
@@ -165,18 +165,18 @@ public class AgentPropertiesConfig implements AgentConfig {
             throw new StorageException("Error writing public key to file", e);
         }
 
-        KeyRecord keyRecord = new KeyRecord(publicKeyPath, keyStorage, endpoint, publicKeyString);
+        KeyRecord keyRecord = new KeyRecord(publicKeyPath, keyStorage, address, publicKeyString);
         serverKeys.add(keyRecord);
         saveKeysJSON();
     }
 
     @Override
-    public AsymmetricKeyStorage getPublicKey(@NotNull Endpoint endpoint) throws KeyStorageNotFoundException {
+    public AsymmetricKeyStorage getPublicKey(@NotNull Address address) throws KeyStorageNotFoundException {
         return serverKeys.stream()
-                .filter(keyRecord -> keyRecord.endpoint.equals(endpoint))
+                .filter(keyRecord -> keyRecord.address.equals(address))
                 .findFirst()
                 .map(keyRecord -> keyRecord.keyStorage.asymmetric())
-                .orElseThrow(() -> new KeyStorageNotFoundException(endpoint.toString()));
+                .orElseThrow(() -> new KeyStorageNotFoundException(address.toString()));
     }
 
     @Override

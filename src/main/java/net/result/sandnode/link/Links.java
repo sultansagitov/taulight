@@ -8,7 +8,7 @@ import net.result.sandnode.exception.crypto.CreatingKeyException;
 import net.result.sandnode.exception.crypto.EncryptionTypeException;
 import net.result.sandnode.exception.crypto.NoSuchEncryptionException;
 import net.result.sandnode.message.util.NodeType;
-import net.result.sandnode.util.Endpoint;
+import net.result.sandnode.util.Address;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -24,7 +24,7 @@ public class Links {
             throw new InvalidSandnodeLinkException(e);
         }
 
-        Endpoint endpoint = new Endpoint(uri.getHost(), uri.getPort() == -1 ? 52525 : uri.getPort());
+        Address address = new Address(uri.getHost(), uri.getPort() == -1 ? 52525 : uri.getPort());
 
         if (!Objects.equals(uri.getScheme(), "sandnode")) {
             throw new InvalidSandnodeLinkException("Invalid scheme: " + uri.getScheme());
@@ -74,6 +74,6 @@ public class Links {
 
         AsymmetricKeyStorage keyStorage = encryption.publicKeyConvertor().toKeyStorage(encodedKey);
 
-        return new SandnodeLinkRecord(type, endpoint, keyStorage);
+        return new SandnodeLinkRecord(type, address, keyStorage);
     }
 }

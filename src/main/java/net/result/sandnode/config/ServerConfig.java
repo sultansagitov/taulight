@@ -7,13 +7,13 @@ import net.result.sandnode.exception.crypto.SavingKeyException;
 import net.result.sandnode.exception.crypto.CreatingKeyException;
 import net.result.sandnode.exception.crypto.ReadingKeyException;
 import net.result.sandnode.util.Container;
-import net.result.sandnode.util.Endpoint;
+import net.result.sandnode.util.Address;
 import org.jetbrains.annotations.NotNull;
 
 public interface ServerConfig {
     Container container();
 
-    Endpoint endpoint();
+    Address address();
 
     @NotNull AsymmetricEncryption mainEncryption();
 

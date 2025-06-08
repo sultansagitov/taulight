@@ -10,7 +10,7 @@ import net.result.sandnode.exception.crypto.*;
 import net.result.sandnode.hasher.HasherManager;
 import net.result.sandnode.hasher.Hasher;
 import net.result.sandnode.hasher.Hashers;
-import net.result.sandnode.util.Endpoint;
+import net.result.sandnode.util.Address;
 import net.result.sandnode.util.FileUtil;
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONObject;
@@ -22,18 +22,18 @@ public final class KeyRecord {
     public final AsymmetricKeyStorage keyStorage;
     public final Hasher hasher = Hashers.SHA256;
     public final String hash;
-    public final Endpoint endpoint;
+    public final Address address;
 
-    public KeyRecord(Path publicKeyPath, AsymmetricKeyStorage keyStorage, Endpoint endpoint, String encodedKey) {
+    public KeyRecord(Path publicKeyPath, AsymmetricKeyStorage keyStorage, Address address, String encodedKey) {
         this.publicKeyPath = publicKeyPath;
         this.keyStorage = keyStorage;
-        this.endpoint = endpoint;
+        this.address = address;
         this.hash = hasher.hash(encodedKey);
     }
 
     public static @NotNull KeyRecord fromJSON(@NotNull JSONObject json)
             throws NoSuchEncryptionException, CreatingKeyException, FSException, NoSuchHasherException,
-            KeyHashCheckingException, EncryptionTypeException, InvalidEndpointSyntax {
+            KeyHashCheckingException, EncryptionTypeException, InvalidAddressSyntax {
         Path path = Path.of(json.getString("path"));
         AsymmetricEncryption encryption = EncryptionManager.find(json.getString("encryption")).asymmetric();
         AsymmetricConvertor convertor = encryption.publicKeyConvertor();
@@ -54,7 +54,7 @@ public final class KeyRecord {
             throw new KeyHashCheckingException(hash1, hash2);
         }
 
-        Endpoint fromString = Endpoint.getFromString(json.getString("endpoint"), 52525);
+        Address fromString = Address.getFromString(json.getString("address"), 52525);
         return new KeyRecord(path, keyStorage, fromString, "");
     }
 
@@ -66,6 +66,6 @@ public final class KeyRecord {
                         .put("algorithm", hasher.name())
                         .put("content", hash)
                 )
-                .put("endpoint", endpoint.toString());
+                .put("address", address.toString());
     }
 }
