@@ -10,6 +10,7 @@ import net.result.sandnode.exception.error.KeyStorageNotFoundException;
 import net.result.sandnode.hubagent.Agent;
 import net.result.sandnode.hubagent.ClientProtocol;
 import net.result.sandnode.dto.DEKDTO;
+import org.jetbrains.annotations.Nullable;
 
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -75,14 +76,18 @@ public class ConsoleSandnodeCommands {
         context.io.chainManager.removeChain(chain);
     }
 
-    private static void getAvatar(List<String> ignored, ConsoleContext context) throws Exception {
-        var chain = new WhoAmIClientChain(context.client);
+    private static void getAvatar(List<String> args, ConsoleContext context) throws Exception {
+        Optional<String> nickname = args.stream().findFirst();
+
+        var chain = new AvatarClientChain(context.client);
         context.io.chainManager.linkChain(chain);
-        FileDTO avatar = chain.getAvatar();
+        @Nullable FileDTO avatar = nickname.isPresent()
+                ? chain.getOf(nickname.get())
+                : chain.getMy();
         context.io.chainManager.removeChain(chain);
 
         if (avatar == null) {
-            System.out.println("You have no avatar");
+            System.out.println("Have no avatar");
         } else {
             String mimeType = avatar.contentType();
             String base64 = Base64.getEncoder().encodeToString(avatar.body());
@@ -97,9 +102,9 @@ public class ConsoleSandnodeCommands {
             return;
         }
 
-        var chain = new WhoAmIClientChain(context.client);
+        var chain = new AvatarClientChain(context.client);
         context.io.chainManager.linkChain(chain);
-        UUID uuid = chain.setAvatar(path.get());
+        UUID uuid = chain.set(path.get());
         context.io.chainManager.removeChain(chain);
 
         System.out.printf("Image uuid: %s%n", uuid);

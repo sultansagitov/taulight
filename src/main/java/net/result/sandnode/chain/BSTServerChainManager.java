@@ -25,6 +25,7 @@ public abstract class BSTServerChainManager extends BSTChainManager implements S
             case WHOAMI -> new WhoAmIServerChain(session);
             case NAME -> new NameServerChain(session);
             case DEK -> new DEKServerChain(session);
+            case AVATAR -> new AvatarServerChain(session);
             default -> new UnhandledMessageTypeServerChain(session);
         } : new UnhandledMessageTypeServerChain(session);
     }
