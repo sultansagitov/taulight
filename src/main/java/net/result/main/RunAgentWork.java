@@ -77,7 +77,7 @@ public class RunAgentWork implements IWork {
 
         Optional<AsymmetricKeyStorage> filePublicKey;
         try {
-            filePublicKey = Optional.of(((Agent) client.node).config.getPublicKey(link.address()));
+            filePublicKey = Optional.of(((Agent) client.node).config.loadServerKey(link.address()));
         } catch (KeyStorageNotFoundException e) {
             filePublicKey = Optional.empty();
         }
@@ -93,7 +93,7 @@ public class RunAgentWork implements IWork {
                 LOGGER.info("Key already saved and matches");
                 return fileKey;
             } else {
-                ((Agent) client.node).config.saveKey(link.address(), linkKeyStorage);
+                ((Agent) client.node).config.saveServerKey(link.address(), linkKeyStorage);
                 return linkKeyStorage;
             }
         } else if (filePublicKey.isPresent()) {
@@ -103,7 +103,7 @@ public class RunAgentWork implements IWork {
             AsymmetricEncryption encryption = client.io.serverEncryption().asymmetric();
             AsymmetricKeyStorage serverKey = agent.keyStorageRegistry.asymmetricNonNull(encryption);
 
-            ((Agent) client.node).config.saveKey(link.address(), serverKey);
+            ((Agent) client.node).config.saveServerKey(link.address(), serverKey);
             return serverKey;
         }
     }

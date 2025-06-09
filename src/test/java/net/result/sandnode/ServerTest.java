@@ -291,10 +291,10 @@ public class ServerTest {
             super(new KeyStorageRegistry(), new AgentConfig() {
 
                 @Override
-                public void saveKey(@NotNull Address address, @NotNull AsymmetricKeyStorage keyStorage) {}
+                public void saveServerKey(@NotNull Address address, @NotNull AsymmetricKeyStorage keyStorage) {}
 
                 @Override
-                public AsymmetricKeyStorage getPublicKey(@NotNull Address address)
+                public AsymmetricKeyStorage loadServerKey(@NotNull Address address)
                         throws KeyStorageNotFoundException {
                     throw new KeyStorageNotFoundException();
                 }

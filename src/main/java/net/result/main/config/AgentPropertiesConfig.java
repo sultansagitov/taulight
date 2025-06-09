@@ -127,7 +127,7 @@ public class AgentPropertiesConfig implements AgentConfig {
     }
 
     @Override
-    public synchronized void saveKey(@NotNull Address address, @NotNull AsymmetricKeyStorage keyStorage)
+    public synchronized void saveServerKey(@NotNull Address address, @NotNull AsymmetricKeyStorage keyStorage)
             throws KeyAlreadySaved, StorageException {
         String sanitizedAddress = address.toString().replaceAll("[.:\\\\/*?\"<>|]", "_");
         String filename = "%s_%s_public.key".formatted(sanitizedAddress, UUID.randomUUID());
@@ -169,7 +169,7 @@ public class AgentPropertiesConfig implements AgentConfig {
     }
 
     @Override
-    public AsymmetricKeyStorage getPublicKey(@NotNull Address address) throws KeyStorageNotFoundException {
+    public AsymmetricKeyStorage loadServerKey(@NotNull Address address) throws KeyStorageNotFoundException {
         return serverKeys.stream()
                 .filter(keyRecord -> keyRecord.address.equals(address))
                 .findFirst()
