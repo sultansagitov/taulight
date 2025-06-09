@@ -25,7 +25,7 @@ public class ChatMessageInputDTO {
     @JsonProperty("chat-id")
     public UUID chatID = null;
     /** ID of key that was encrypted. */
-    @JsonProperty
+    @JsonProperty("key-id")
     public UUID keyID = null;
     /** Encrypted content of the message. */
     @JsonProperty
@@ -41,7 +41,7 @@ public class ChatMessageInputDTO {
     @JsonProperty
     public boolean sys = false;
     /** List of IDs of messages that this message replies to. */
-    @JsonProperty
+    @JsonProperty("replied-to-messages")
     public Set<UUID> repliedToMessages = null;
 
     /** Default constructor. */

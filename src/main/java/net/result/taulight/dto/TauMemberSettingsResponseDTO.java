@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import net.result.taulight.db.TauMemberSettingsEntity;
 
 public class TauMemberSettingsResponseDTO {
-    @JsonProperty
+    @JsonProperty("show-status")
     public boolean showStatus;
 
     @SuppressWarnings("unused")

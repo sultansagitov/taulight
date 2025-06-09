@@ -11,11 +11,11 @@ public class GroupRequestDTO {
     public DataType type;
     @JsonProperty
     public String title;
-    @JsonProperty
+    @JsonProperty("chat-id")
     public UUID chatID;
-    @JsonProperty
+    @JsonProperty("other-nickname")
     public String otherNickname;
-    @JsonProperty
+    @JsonProperty("expiration-time")
     public String expirationTime;
 
     @SuppressWarnings("unused")

@@ -11,7 +11,7 @@ import java.util.UUID;
  */
 public class ReactionDTO {
     /** Indicates whether this is a reaction (true) or an unreaction (false). */
-    @JsonProperty
+    @JsonProperty("is-react")
     public boolean isReact;
     /** Nickname of the reacting member. */
     @JsonProperty
@@ -20,7 +20,7 @@ public class ReactionDTO {
     @JsonProperty
     public UUID chatID;
     /** ID of the message that was reacted to. */
-    @JsonProperty
+    @JsonProperty("message-id")
     public UUID messageID;
     /** Package name of the reaction type. */
     @JsonProperty("package-name")
