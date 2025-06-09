@@ -9,7 +9,7 @@ public class RegisterRequestDTO {
     public String password;
     @JsonProperty
     public String device;
-    @JsonProperty
+    @JsonProperty("key-storage")
     public PublicKeyDTO keyStorage;
 
     @SuppressWarnings("unused")

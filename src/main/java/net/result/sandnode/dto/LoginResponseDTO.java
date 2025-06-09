@@ -8,7 +8,7 @@ public class LoginResponseDTO {
     @JsonProperty
     public String nickname;
 
-    @JsonProperty
+    @JsonProperty("key-id")
     public UUID keyID;
 
     @SuppressWarnings("unused")

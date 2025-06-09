@@ -16,16 +16,16 @@ public class DEKDTO {
     @JsonProperty
     public UUID id;
 
-    @JsonProperty
+    @JsonProperty("sender")
     public String senderNickname;
 
-    @JsonProperty
+    @JsonProperty("receiver")
     public String receiverNickname;
 
-    @JsonProperty
+    @JsonProperty("encryptor-id")
     public UUID encryptorID;
 
-    @JsonProperty
+    @JsonProperty("encrypted-key")
     public String encryptedKey;
 
     public DEKDTO() {

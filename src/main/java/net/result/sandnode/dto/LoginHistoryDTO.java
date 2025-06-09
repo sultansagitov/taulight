@@ -10,7 +10,7 @@ import java.util.UUID;
 public class LoginHistoryDTO {
     @JsonProperty
     public ZonedDateTime time;
-    @JsonProperty
+    @JsonProperty("encryptor-id")
     public UUID encryptorID;
     @JsonProperty
     public String ip;

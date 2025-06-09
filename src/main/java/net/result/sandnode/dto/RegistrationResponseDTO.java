@@ -7,7 +7,7 @@ import java.util.UUID;
 public class RegistrationResponseDTO {
     @JsonProperty
     public String token;
-    @JsonProperty
+    @JsonProperty("key-id")
     public UUID keyID;
 
     @SuppressWarnings("unused")

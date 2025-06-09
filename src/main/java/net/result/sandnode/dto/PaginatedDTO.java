@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.List;
 
 public class PaginatedDTO<T> {
-    @JsonProperty
+    @JsonProperty("total-count")
     public long totalCount;
     @JsonProperty
     public List<T> objects;
