@@ -2,9 +2,11 @@ package net.result.main.commands;
 
 import net.result.sandnode.dto.PaginatedDTO;
 import net.result.sandnode.encryption.interfaces.KeyStorage;
-import net.result.sandnode.exception.SandnodeException;
+import net.result.sandnode.exception.*;
+import net.result.sandnode.exception.error.SandnodeErrorException;
 import net.result.sandnode.hubagent.Agent;
 import net.result.taulight.chain.sender.MessageClientChain;
+import net.result.taulight.chain.sender.MessageFileClientChain;
 import net.result.taulight.dto.ChatInfoDTO;
 import net.result.taulight.dto.ChatMessageInputDTO;
 import net.result.taulight.dto.ChatMessageViewDTO;
@@ -78,5 +80,15 @@ public class ConsoleMessagesRunner {
                     .collect(Collectors.joining("; "));
             System.out.printf("Reactions: %s%n", collect);
         }
+    }
+
+    static UUID loadFile(ConsoleContext context, UUID chatID, String path)
+            throws FSException, UnprocessedMessagesException, InterruptedException, UnknownSandnodeErrorException,
+            SandnodeErrorException, DeserializationException, ExpectedMessageException {
+        MessageFileClientChain chain = new MessageFileClientChain(context.client);
+        context.io.chainManager.linkChain(chain);
+        UUID fileID = chain.loadFile(chatID, path);
+        context.io.chainManager.removeChain(chain);
+        return fileID;
     }
 }

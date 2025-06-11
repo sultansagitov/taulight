@@ -1,9 +1,11 @@
 package net.result.sandnode.db;
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.Inheritance;
+import jakarta.persistence.InheritanceType;
 
-@SuppressWarnings("unused")
 @Entity
+@Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
 public class FileEntity extends BaseEntity {
     private String contentType;
     private String filename;

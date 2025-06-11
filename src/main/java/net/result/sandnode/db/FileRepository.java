@@ -52,7 +52,7 @@ public class FileRepository {
 
     public Optional<FileEntity> find(UUID id) throws DatabaseException {
         EntityManager em = jpaUtil.getEntityManager();
-        try    {
+        try {
             return Optional.ofNullable(em.find(FileEntity.class, id));
         } catch (Exception e) {
             throw new DatabaseException(e);

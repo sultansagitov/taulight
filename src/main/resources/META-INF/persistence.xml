@@ -9,6 +9,7 @@
         <class>net.result.taulight.db.TauMemberEntity</class>
         <class>net.result.taulight.db.TauMemberSettingsEntity</class>
         <class>net.result.taulight.db.ChatEntity</class>
+        <class>net.result.taulight.db.MessageFileEntity</class>
         <class>net.result.taulight.db.GroupEntity</class>
         <class>net.result.taulight.db.DialogEntity</class>
         <class>net.result.taulight.db.InviteCodeEntity</class>
