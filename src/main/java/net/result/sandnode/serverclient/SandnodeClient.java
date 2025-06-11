@@ -1,9 +1,9 @@
 package net.result.sandnode.serverclient;
 
-import net.result.sandnode.hubagent.Node;
 import net.result.sandnode.chain.ClientChainManager;
 import net.result.sandnode.config.ClientConfig;
 import net.result.sandnode.exception.*;
+import net.result.sandnode.hubagent.Node;
 import net.result.sandnode.link.SandnodeLinkRecord;
 import net.result.sandnode.message.util.Connection;
 import net.result.sandnode.message.util.NodeType;
@@ -86,7 +86,7 @@ public class SandnodeClient {
                     }
                     Thread.currentThread().interrupt();
                 }
-            }, "Client/%s/Sending".formatted(IOController.ipString(socket))).start();
+            }, "Client/%s/Sending".formatted(IOController.addressFromSocket(socket))).start();
 
             new Thread(() -> {
                 try {
@@ -98,7 +98,7 @@ public class SandnodeClient {
                     close();
                     Thread.currentThread().interrupt();
                 }
-            }, "Client/%s/Receiving".formatted(IOController.ipString(socket))).start();
+            }, "Client/%s/Receiving".formatted(IOController.addressFromSocket(socket))).start();
 
         } catch (InputStreamException | OutputStreamException e) {
             LOGGER.error("Error connecting to server", e);

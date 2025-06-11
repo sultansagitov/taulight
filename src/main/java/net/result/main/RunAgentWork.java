@@ -8,11 +8,9 @@ import net.result.sandnode.config.KeyEntry;
 import net.result.sandnode.dto.LogPasswdResponseDTO;
 import net.result.sandnode.dto.LoginResponseDTO;
 import net.result.sandnode.encryption.AsymmetricEncryptions;
-import net.result.sandnode.encryption.interfaces.AsymmetricEncryption;
 import net.result.sandnode.encryption.interfaces.AsymmetricKeyStorage;
 import net.result.sandnode.exception.*;
 import net.result.sandnode.exception.crypto.CreatingKeyException;
-import net.result.sandnode.exception.crypto.CryptoException;
 import net.result.sandnode.exception.error.*;
 import net.result.sandnode.hubagent.Agent;
 import net.result.sandnode.hubagent.AgentProtocol;
@@ -20,7 +18,6 @@ import net.result.sandnode.hubagent.ClientProtocol;
 import net.result.sandnode.link.Links;
 import net.result.sandnode.link.SandnodeLinkRecord;
 import net.result.sandnode.serverclient.SandnodeClient;
-import net.result.sandnode.util.EncryptionUtil;
 import net.result.taulight.chain.sender.ForwardRequestClientChain;
 import net.result.taulight.dto.ChatInfoDTO;
 import net.result.taulight.dto.ChatMessageInputDTO;
@@ -59,53 +56,22 @@ public class RunAgentWork implements IWork {
         client = SandnodeClient.fromLink(link, agent, clientConfig);
         ConsoleClientChainManager chainManager = new ConsoleClientChainManager(client);
 
-        client.start(chainManager);                         // Starting client
-        client.io.setServerKey(loadServerPublicKey(link));  // get key from fs or sending PUB if key not found
-        ClientProtocol.sendSYM(client);                     // sending symmetric key
-        authenticateUser();                                 // registration or login
+        // Starting client
+        client.start(chainManager);
+
+        // get key from fs or sending PUB if key not found
+        final var serverKey = AgentProtocol.loadOrFetchServerKey(client, link);
+        client.io.setServerKey(serverKey);
+
+        // sending symmetric key
+        ClientProtocol.sendSYM(client);
+
+        // registration or login
+        authenticateUser();
         processUserCommands();
 
         LOGGER.info("Exiting...");
         client.close();
-    }
-
-    private AsymmetricKeyStorage loadServerPublicKey(@NotNull SandnodeLinkRecord link)
-            throws CryptoException, LinkDoesNotMatchException, InterruptedException, SandnodeErrorException,
-            ExpectedMessageException, UnknownSandnodeErrorException, UnprocessedMessagesException, StorageException {
-
-        TauAgent agent = (TauAgent) client.node;
-
-        Optional<AsymmetricKeyStorage> filePublicKey;
-        try {
-            filePublicKey = Optional.of(((Agent) client.node).config.loadServerKey(link.address()));
-        } catch (KeyStorageNotFoundException e) {
-            filePublicKey = Optional.empty();
-        }
-        AsymmetricKeyStorage linkKeyStorage = link.keyStorage();
-
-        if (linkKeyStorage != null) {
-            if (filePublicKey.isPresent()) {
-                AsymmetricKeyStorage fileKey = filePublicKey.get();
-
-                if (!EncryptionUtil.isPublicKeysEquals(fileKey, linkKeyStorage))
-                    throw new LinkDoesNotMatchException("Key mismatch with saved configuration");
-
-                LOGGER.info("Key already saved and matches");
-                return fileKey;
-            } else {
-                ((Agent) client.node).config.saveServerKey(link.address(), linkKeyStorage);
-                return linkKeyStorage;
-            }
-        } else if (filePublicKey.isPresent()) {
-            return filePublicKey.get();
-        } else {
-            ClientProtocol.PUB(client);
-            AsymmetricEncryption encryption = client.io.serverEncryption().asymmetric();
-            AsymmetricKeyStorage serverKey = agent.keyStorageRegistry.asymmetricNonNull(encryption);
-
-            ((Agent) client.node).config.saveServerKey(link.address(), serverKey);
-            return serverKey;
-        }
     }
 
     private void authenticateUser() throws Exception {

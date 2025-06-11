@@ -40,7 +40,7 @@ public class Session {
 
                 Thread.currentThread().interrupt();
             }
-        }, "%s/Sending".formatted(io.ipString())).start();
+        }, "%s/Sending".formatted(io.addressFromSocket())).start();
 
         new Thread(() -> {
             try {
@@ -53,7 +53,7 @@ public class Session {
             Logout.logout(this);
 
             server.node.removeSession(this);
-        }, "%s/Receiving".formatted(io.ipString())).start();
+        }, "%s/Receiving".formatted(io.addressFromSocket())).start();
     }
 
     public void addToCluster(Cluster cluster) {
@@ -90,6 +90,6 @@ public class Session {
 
     @Override
     public String toString() {
-        return "<%s %s %s>".formatted(getClass().getSimpleName(), io.ipString(), member != null ? member.nickname() : "");
+        return "<%s %s %s>".formatted(getClass().getSimpleName(), io.addressFromSocket(), member != null ? member.nickname() : "");
     }
 }

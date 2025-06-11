@@ -14,7 +14,7 @@ public interface ReceiverChain extends IChain {
     default void async(@NotNull ChainManager chainManager) {
         Logger LOGGER = LogManager.getLogger(ReceiverChain.class);
         chainManager.getExecutorService().submit(() -> {
-            String threadName = "%s/%s/%04X".formatted(io().ipString(), getClass().getSimpleName(), getID());
+            String threadName = "%s/%s/%04X".formatted(io().addressFromSocket(), getClass().getSimpleName(), getID());
             Thread.currentThread().setName(threadName);
 
             try {

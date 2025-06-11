@@ -1,20 +1,25 @@
 package net.result.sandnode.serverclient;
 
-import net.result.sandnode.util.JPAUtil;
-import net.result.sandnode.hubagent.Node;
 import net.result.sandnode.config.ServerConfig;
 import net.result.sandnode.exception.*;
-import net.result.sandnode.message.*;
+import net.result.sandnode.hubagent.Node;
+import net.result.sandnode.message.EncryptedMessage;
+import net.result.sandnode.message.Message;
+import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.message.util.Connection;
 import net.result.sandnode.util.Container;
 import net.result.sandnode.util.IOController;
+import net.result.sandnode.util.JPAUtil;
 import net.result.sandnode.util.StreamReader;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.*;
+import java.net.Inet4Address;
+import java.net.InetAddress;
+import java.net.ServerSocket;
+import java.net.Socket;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -55,7 +60,7 @@ public class SandnodeServer {
                 throw new SocketAcceptException("Error accepting client socket connection", e);
             }
 
-            String ip = IOController.ipString(clientSocket);
+            String ip = IOController.addressFromSocket(clientSocket).toString();
             LOGGER.info("Client connected {}", ip);
 
             sessionExecutor.submit(() -> {

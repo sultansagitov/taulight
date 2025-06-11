@@ -5,10 +5,16 @@ import net.result.sandnode.encryption.EncryptionManager;
 import net.result.sandnode.encryption.interfaces.AsymmetricConvertor;
 import net.result.sandnode.encryption.interfaces.AsymmetricEncryption;
 import net.result.sandnode.encryption.interfaces.AsymmetricKeyStorage;
-import net.result.sandnode.exception.*;
-import net.result.sandnode.exception.crypto.*;
-import net.result.sandnode.hasher.HasherManager;
+import net.result.sandnode.exception.FSException;
+import net.result.sandnode.exception.ImpossibleRuntimeException;
+import net.result.sandnode.exception.InvalidAddressSyntax;
+import net.result.sandnode.exception.NoSuchHasherException;
+import net.result.sandnode.exception.crypto.CannotUseEncryption;
+import net.result.sandnode.exception.crypto.CreatingKeyException;
+import net.result.sandnode.exception.crypto.EncryptionTypeException;
+import net.result.sandnode.exception.crypto.NoSuchEncryptionException;
 import net.result.sandnode.hasher.Hasher;
+import net.result.sandnode.hasher.HasherManager;
 import net.result.sandnode.hasher.Hashers;
 import net.result.sandnode.util.Address;
 import net.result.sandnode.util.FileUtil;
@@ -28,7 +34,7 @@ public final class KeyRecord {
         this.publicKeyPath = publicKeyPath;
         this.keyStorage = keyStorage;
         this.address = address;
-        this.hash = hasher.hash(encodedKey);
+        hash = hasher.hash(encodedKey);
     }
 
     public static @NotNull KeyRecord fromJSON(@NotNull JSONObject json)
@@ -40,6 +46,7 @@ public final class KeyRecord {
         AsymmetricKeyStorage keyStorage = convertor.toKeyStorage(FileUtil.readString(path));
 
         JSONObject hashObject = json.getJSONObject("hash");
+        Hasher hasher = HasherManager.find(hashObject.getString("algorithm"));
         String hash1 = hashObject.getString("content");
         String encodedString;
         try {
@@ -47,7 +54,6 @@ public final class KeyRecord {
         } catch (CannotUseEncryption e) {
             throw new ImpossibleRuntimeException(e);
         }
-        Hasher hasher = HasherManager.find(hashObject.getString("algorithm"));
         String hash2 = hasher.hash(encodedString);
 
         if (!hash1.equals(hash2)) {
@@ -55,7 +61,7 @@ public final class KeyRecord {
         }
 
         Address fromString = Address.getFromString(json.getString("address"), 52525);
-        return new KeyRecord(path, keyStorage, fromString, "");
+        return new KeyRecord(path, keyStorage, fromString, encodedString);
     }
 
     public JSONObject toJSON() {
