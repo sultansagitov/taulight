@@ -4,6 +4,7 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityTransaction;
 import jakarta.persistence.TypedQuery;
 import net.result.sandnode.exception.DatabaseException;
+import net.result.sandnode.exception.error.UnauthorizedException;
 import net.result.sandnode.util.Container;
 import net.result.sandnode.util.JPAUtil;
 
@@ -63,22 +64,6 @@ public class MessageFileRepository {
         }
     }
 
-    public void setMessage(MessageFileEntity file, MessageEntity message) throws DatabaseException {
-        EntityManager em = jpaUtil.getEntityManager();
-        EntityTransaction transaction = em.getTransaction();
-        try {
-            transaction.begin();
-
-            file.setMessage(message);
-            em.merge(file);
-
-            transaction.commit();
-        } catch (Exception e) {
-            if (transaction.isActive()) transaction.rollback();
-            throw new DatabaseException(e);
-        }
-    }
-
     public Collection<MessageFileEntity> getFiles(MessageEntity message) throws DatabaseException {
         EntityManager em = jpaUtil.getEntityManager();
         try {
@@ -91,7 +76,7 @@ public class MessageFileRepository {
         }
     }
 
-    public void setMessage(MessageEntity message, Set<UUID> fileIDs) throws DatabaseException {
+    public void setMessage(MessageEntity message, Set<UUID> fileIDs) throws DatabaseException, UnauthorizedException {
         if (fileIDs == null || fileIDs.isEmpty()) return;
 
         EntityManager em = jpaUtil.getEntityManager();
@@ -103,10 +88,17 @@ public class MessageFileRepository {
             TypedQuery<MessageFileEntity> query = em.createQuery(q, MessageFileEntity.class);
             query.setParameter("ids", fileIDs);
             for (MessageFileEntity file : query.getResultList()) {
+                if (!file.member().equals(message.member()) || file.message() != null) {
+                    throw new UnauthorizedException();
+                }
+
                 file.setMessage(message);
             }
 
             transaction.commit();
+        } catch (UnauthorizedException e) {
+            if (transaction.isActive()) transaction.rollback();
+            throw e;
         } catch (Exception e) {
             if (transaction.isActive()) transaction.rollback();
             throw new DatabaseException(e);

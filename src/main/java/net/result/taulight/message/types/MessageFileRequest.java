@@ -10,18 +10,32 @@ import org.jetbrains.annotations.NotNull;
 import java.util.UUID;
 
 public class MessageFileRequest extends EmptyMessage {
-    public final UUID chatID;
+    public UUID chatID = null;
 
-    public MessageFileRequest(@NotNull UUID chatID) {
-        super(new Headers().setType(TauMessageTypes.MESSAGE_FILE).setValue("chat-id", chatID.toString()));
-        this.chatID = chatID;
+    public MessageFileRequest(Headers headers) {
+        super(headers.setType(TauMessageTypes.MESSAGE_FILE));
+    }
+
+    public static MessageFileRequest uploadTo(@NotNull UUID chatID) {
+        Headers headers = new Headers().setValue("chat-id", chatID.toString());
+        MessageFileRequest request = new MessageFileRequest(headers);
+        request.chatID = chatID;
+        return request;
     }
 
     public MessageFileRequest(RawMessage raw) throws DeserializationException {
         super(raw.headers());
+        String chatIDString = null;
         try {
-            chatID = UUID.fromString(raw.headers().getValue("chat-id"));
-        } catch (IllegalArgumentException e) {
+            chatIDString = raw.headers().getValue("chat-id");
+        } catch (IllegalArgumentException ignored) {
+        }
+
+        try {
+            if (chatIDString != null) {
+                chatID = UUID.fromString(chatIDString);
+            }
+        } catch (Exception e) {
             throw new DeserializationException(e);
         }
     }

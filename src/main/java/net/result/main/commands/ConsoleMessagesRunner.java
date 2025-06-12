@@ -52,12 +52,12 @@ public class ConsoleMessagesRunner {
         System.out.printf("Sent message UUID: %s%n", uuid);
     }
 
-    static UUID loadFile(ConsoleContext context, UUID chatID, String path)
+    static UUID uploadFile(ConsoleContext context, UUID chatID, String path)
             throws FSException, UnprocessedMessagesException, InterruptedException, UnknownSandnodeErrorException,
             SandnodeErrorException, DeserializationException, ExpectedMessageException {
         MessageFileClientChain chain = new MessageFileClientChain(context.client);
         context.io.chainManager.linkChain(chain);
-        UUID fileID = chain.loadFile(chatID, path);
+        UUID fileID = chain.uploadFile(chatID, path);
         context.io.chainManager.removeChain(chain);
         return fileID;
     }

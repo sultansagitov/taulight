@@ -3,7 +3,12 @@ package net.result.taulight.chain.receiver;
 import net.result.sandnode.chain.ReceiverChain;
 import net.result.sandnode.chain.ServerChain;
 import net.result.sandnode.dto.FileDTO;
+import net.result.sandnode.exception.DatabaseException;
+import net.result.sandnode.exception.ExpectedMessageException;
+import net.result.sandnode.exception.UnprocessedMessagesException;
+import net.result.sandnode.exception.error.InvalidArgumentException;
 import net.result.sandnode.exception.error.NotFoundException;
+import net.result.sandnode.exception.error.ServerSandnodeErrorException;
 import net.result.sandnode.exception.error.UnauthorizedException;
 import net.result.sandnode.message.UUIDMessage;
 import net.result.sandnode.message.types.FileMessage;
@@ -32,6 +37,14 @@ public class MessageFileServerChain extends ServerChain implements ReceiverChain
         MessageFileRequest request = new MessageFileRequest(queue.take());
         UUID chatID = request.chatID;
 
+        if (chatID != null) {
+            uploadFile(chatID, session.member.tauMember());
+        }
+    }
+
+    private void uploadFile(UUID chatID, TauMemberEntity you)
+            throws ExpectedMessageException, InterruptedException, NotFoundException, DatabaseException,
+            InvalidArgumentException, ServerSandnodeErrorException, UnprocessedMessagesException {
         FileMessage fileMessage = new FileMessage(queue.take());
 
         FileDTO dto = fileMessage.dto();
@@ -45,8 +58,7 @@ public class MessageFileServerChain extends ServerChain implements ReceiverChain
         String filename = "%s%s".formatted(chatID, UUID.randomUUID());
         dbFileUtil.saveImage(dto, filename);
 
-        TauMemberEntity member = session.member.tauMember();
-        MessageFileEntity entity = messageFileRepo.create(member, chat, dto.contentType(), filename);
+        MessageFileEntity entity = messageFileRepo.create(you, chat, dto.contentType(), filename);
 
         send(new UUIDMessage(new Headers().setType(MessageTypes.HAPPY), entity));
     }

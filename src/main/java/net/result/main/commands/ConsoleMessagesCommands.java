@@ -11,7 +11,7 @@ public class ConsoleMessagesCommands {
     public static void register(Map<String, LoopCondition> commands) {
         commands.put("messages", ConsoleMessagesCommands::messages);
         commands.put("reply", ConsoleMessagesCommands::reply);
-        commands.put("loadFile", ConsoleMessagesCommands::loadFile);
+        commands.put("uploadFile", ConsoleMessagesCommands::uploadFile);
         commands.put("fileAttached", ConsoleMessagesCommands::fileAttached);
     }
 
@@ -55,7 +55,7 @@ public class ConsoleMessagesCommands {
         ConsoleMessagesRunner.reply(context, input, replies);
     }
 
-    private static void loadFile(List<String> args, ConsoleContext context)
+    private static void uploadFile(List<String> args, ConsoleContext context)
             throws FSException, UnprocessedMessagesException, InterruptedException, UnknownSandnodeErrorException,
             SandnodeErrorException, DeserializationException, ExpectedMessageException {
         UUID chatID = context.currentChat;
@@ -68,7 +68,7 @@ public class ConsoleMessagesCommands {
             path = args.get(0);
         }
 
-        UUID fileID = ConsoleMessagesRunner.loadFile(context, chatID, path);
+        UUID fileID = ConsoleMessagesRunner.uploadFile(context, chatID, path);
 
         System.out.printf("File ID: %s%n", fileID);
     }

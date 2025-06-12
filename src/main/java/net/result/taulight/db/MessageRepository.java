@@ -5,6 +5,7 @@ import jakarta.persistence.EntityTransaction;
 import net.result.sandnode.db.EncryptedKeyEntity;
 import net.result.sandnode.exception.DatabaseException;
 import net.result.sandnode.exception.error.NotFoundException;
+import net.result.sandnode.exception.error.UnauthorizedException;
 import net.result.sandnode.util.Container;
 import net.result.sandnode.util.JPAUtil;
 import net.result.taulight.dto.ChatMessageInputDTO;
@@ -39,7 +40,7 @@ public class MessageRepository {
     }
 
     public MessageEntity create(ChatEntity chat, ChatMessageInputDTO input, TauMemberEntity member)
-            throws DatabaseException, NotFoundException {
+            throws DatabaseException, NotFoundException, UnauthorizedException {
         return create(chat, input, member, null);
     }
 
@@ -48,7 +49,7 @@ public class MessageRepository {
             ChatMessageInputDTO input,
             TauMemberEntity member,
             EncryptedKeyEntity key
-    ) throws DatabaseException, NotFoundException {
+    ) throws DatabaseException, NotFoundException, UnauthorizedException {
         EntityManager em = jpaUtil.getEntityManager();
         MessageEntity managed = save(new MessageEntity(chat, input, member, key));
         EntityTransaction transaction = em.getTransaction();
@@ -70,6 +71,9 @@ public class MessageRepository {
             messageFileRepo.setMessage(managed, input.fileIDs);
 
             return managed;
+        } catch (UnauthorizedException e) {
+            transaction.rollback();
+            throw e;
         } catch (Exception e) {
             transaction.rollback();
             throw new DatabaseException(e);
