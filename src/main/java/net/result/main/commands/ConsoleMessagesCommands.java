@@ -12,6 +12,7 @@ public class ConsoleMessagesCommands {
         commands.put("messages", ConsoleMessagesCommands::messages);
         commands.put("reply", ConsoleMessagesCommands::reply);
         commands.put("loadFile", ConsoleMessagesCommands::loadFile);
+        commands.put("fileAttached", ConsoleMessagesCommands::fileAttached);
     }
 
     private static void messages(@NotNull List<String> args, ConsoleContext context) throws Exception {
@@ -70,5 +71,38 @@ public class ConsoleMessagesCommands {
         UUID fileID = ConsoleMessagesRunner.loadFile(context, chatID, path);
 
         System.out.printf("File ID: %s%n", fileID);
+    }
+
+
+    private static void fileAttached(List<String> args, ConsoleContext context) throws Exception {
+        if (context.currentChat == null) {
+            System.out.println("chat not selected");
+            return;
+        }
+
+        if (args.size() < 2) {
+            System.out.println("Usage: fileAttached <file count> <file UUIDs...> <text input>");
+            return;
+        }
+
+        int fileCount = Integer.parseInt(args.get(0));
+        if (fileCount <= 0 || fileCount >= args.size()) {
+            System.out.println("Invalid file count or arguments");
+            return;
+        }
+
+        Set<UUID> fileIDs = new HashSet<>();
+        for (int i = 1; i <= fileCount && i < args.size(); i++) {
+            fileIDs.add(UUID.fromString(args.get(i)));
+        }
+
+        String input = String.join(" ", args.subList(fileCount + 1, args.size()));
+
+        if (input.isEmpty()) {
+            System.out.println("Message content is empty");
+            return;
+        }
+
+        ConsoleMessagesRunner.fileAttached(context, input, fileIDs);
     }
 }

@@ -2,7 +2,9 @@ package net.result.taulight.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import net.result.sandnode.exception.DatabaseException;
 import net.result.taulight.db.MessageEntity;
+import net.result.taulight.db.MessageFileRepository;
 import net.result.taulight.db.ReactionTypeEntity;
 import net.result.taulight.db.TauMemberEntity;
 
@@ -41,9 +43,11 @@ public class ChatMessageViewDTO {
     /**
      * Constructs a DTO based on a given {@link MessageEntity}.
      *
-     * @param message the message entity to initialize from
+     * @param messageFileRepo the repository to fetch file attachments
+     * @param message         the message entity
+     * @throws DatabaseException if file loading fails
      */
-    public ChatMessageViewDTO(MessageEntity message) {
+    public ChatMessageViewDTO(MessageFileRepository messageFileRepo, MessageEntity message) throws DatabaseException {
         setID(message.id());
         setCreationDate(message.creationDate());
 
@@ -58,7 +62,7 @@ public class ChatMessageViewDTO {
         });
         setReactions(result);
 
-        setMessage(new ChatMessageInputDTO(message));
+        setMessage(new ChatMessageInputDTO(messageFileRepo, message));
     }
 
     /**

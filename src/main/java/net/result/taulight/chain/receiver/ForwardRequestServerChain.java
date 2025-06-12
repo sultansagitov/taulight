@@ -18,6 +18,7 @@ import net.result.sandnode.message.util.MessageTypes;
 import net.result.sandnode.serverclient.Session;
 import net.result.taulight.db.ChatEntity;
 import net.result.taulight.db.MessageEntity;
+import net.result.taulight.db.MessageFileRepository;
 import net.result.taulight.db.MessageRepository;
 import net.result.taulight.dto.ChatMessageInputDTO;
 import net.result.taulight.dto.ChatMessageViewDTO;
@@ -42,6 +43,7 @@ public class ForwardRequestServerChain extends ServerChain implements ReceiverCh
         ChatUtil chatUtil = session.server.container.get(ChatUtil.class);
         MessageRepository messageRepo = session.server.container.get(MessageRepository.class);
         EncryptedKeyRepository encryptedKeyRepo = session.server.container.get(EncryptedKeyRepository.class);
+        MessageFileRepository messageFileRepo = session.server.container.get(MessageFileRepository.class);
 
         while (true) {
             RawMessage raw = queue.take();
@@ -77,11 +79,11 @@ public class ForwardRequestServerChain extends ServerChain implements ReceiverCh
                 EncryptedKeyEntity key = encryptedKeyRepo.find(input.keyID).orElseThrow(() -> new KeyStorageNotFoundException(input.keyID.toString()));
                 message = messageRepo.create(chat, input, session.member.tauMember(), key);
             }
-            ChatMessageViewDTO serverMessage = new ChatMessageViewDTO(message);
+            ChatMessageViewDTO viewDTO = new ChatMessageViewDTO(messageFileRepo, message);
 
-            send(new UUIDMessage(new Headers().setType(MessageTypes.HAPPY), serverMessage.id));
+            send(new UUIDMessage(new Headers().setType(MessageTypes.HAPPY), viewDTO.id));
 
-            TauHubProtocol.send(session, chat, serverMessage);
+            TauHubProtocol.send(session, chat, viewDTO);
 
             send(new HappyMessage());
         }

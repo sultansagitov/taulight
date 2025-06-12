@@ -13,9 +13,11 @@ import java.util.*;
 
 public class MessageRepository {
     private final JPAUtil jpaUtil;
+    private final MessageFileRepository messageFileRepo;
 
     public MessageRepository(Container container) {
         jpaUtil = container.get(JPAUtil.class);
+        messageFileRepo = container.get(MessageFileRepository.class);
     }
 
     private MessageEntity save(MessageEntity m) throws DatabaseException {
@@ -49,19 +51,29 @@ public class MessageRepository {
     ) throws DatabaseException, NotFoundException {
         EntityManager em = jpaUtil.getEntityManager();
         MessageEntity managed = save(new MessageEntity(chat, input, member, key));
-        Set<MessageEntity> messageEntities = new HashSet<>();
-        Set<UUID> replies = input.repliedToMessages;
-        if (replies != null) {
-            for (UUID r : replies) {
-                messageEntities.add(findById(r).orElseThrow(NotFoundException::new));
+        EntityTransaction transaction = em.getTransaction();
+        try {
+            transaction.begin();
+            Set<MessageEntity> messageEntities = new HashSet<>();
+            Set<UUID> replies = input.repliedToMessages;
+            if (replies != null) {
+                for (UUID r : replies) {
+                    messageEntities.add(findById(r).orElseThrow(NotFoundException::new));
+                }
             }
+            managed.setRepliedToMessages(messageEntities);
+
+            chat.messages().add(managed);
+            em.merge(chat);
+            transaction.commit();
+
+            messageFileRepo.setMessage(managed, input.fileIDs);
+
+            return managed;
+        } catch (Exception e) {
+            transaction.rollback();
+            throw new DatabaseException(e);
         }
-        managed.setRepliedToMessages(messageEntities);
-
-        chat.messages().add(managed);
-        em.merge(chat);
-
-        return managed;
     }
 
     public Optional<MessageEntity> findById(UUID id) throws DatabaseException {

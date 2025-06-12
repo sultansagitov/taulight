@@ -52,6 +52,36 @@ public class ConsoleMessagesRunner {
         System.out.printf("Sent message UUID: %s%n", uuid);
     }
 
+    static UUID loadFile(ConsoleContext context, UUID chatID, String path)
+            throws FSException, UnprocessedMessagesException, InterruptedException, UnknownSandnodeErrorException,
+            SandnodeErrorException, DeserializationException, ExpectedMessageException {
+        MessageFileClientChain chain = new MessageFileClientChain(context.client);
+        context.io.chainManager.linkChain(chain);
+        UUID fileID = chain.loadFile(chatID, path);
+        context.io.chainManager.removeChain(chain);
+        return fileID;
+    }
+
+    public static void fileAttached(ConsoleContext context, String input, Set<UUID> fileIDs) throws Exception {
+        ChatMessageInputDTO message = new ChatMessageInputDTO()
+                .setChatID(context.currentChat)
+                .setFileIDs(fileIDs)
+                .setNickname(context.nickname)
+                .setSentDatetimeNow();
+
+        ChatInfoDTO chat = context.chat;
+        if (chat.chatType == ChatInfoDTO.ChatType.DIALOG) {
+            var entry = ((Agent) context.client.node).config.loadDEK(context.client.address, chat.otherNickname);
+            message.setEncryptedContent(entry.id(), entry.keyStorage(), input);
+        } else {
+            message.setContent(input);
+        }
+
+        UUID uuid = context.chain.message(message);
+        System.out.printf("Sent message UUID with attachments: %s%n", uuid);
+    }
+
+
     public static void printMessage(ConsoleContext context, ChatMessageViewDTO dto) throws SandnodeException {
         ChatMessageInputDTO input = dto.message;
         String decrypted;
@@ -72,6 +102,14 @@ public class ConsoleMessagesRunner {
             System.out.printf("Replied to: %s%n", collect);
         }
 
+        Set<UUID> fileIDs = input.fileIDs;
+        if (!fileIDs.isEmpty()) {
+            String collect = fileIDs.stream()
+                    .map(UUID::toString)
+                    .collect(Collectors.joining("; "));
+            System.out.printf("Files: %s%n", collect);
+        }
+
         Map<String, List<String>> reactions = dto.reactions;
         if (!reactions.isEmpty()) {
             String collect = reactions
@@ -80,15 +118,5 @@ public class ConsoleMessagesRunner {
                     .collect(Collectors.joining("; "));
             System.out.printf("Reactions: %s%n", collect);
         }
-    }
-
-    static UUID loadFile(ConsoleContext context, UUID chatID, String path)
-            throws FSException, UnprocessedMessagesException, InterruptedException, UnknownSandnodeErrorException,
-            SandnodeErrorException, DeserializationException, ExpectedMessageException {
-        MessageFileClientChain chain = new MessageFileClientChain(context.client);
-        context.io.chainManager.linkChain(chain);
-        UUID fileID = chain.loadFile(chatID, path);
-        context.io.chainManager.removeChain(chain);
-        return fileID;
     }
 }

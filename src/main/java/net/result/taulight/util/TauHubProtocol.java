@@ -9,6 +9,7 @@ import net.result.sandnode.serverclient.Session;
 import net.result.taulight.chain.sender.ForwardServerChain;
 import net.result.taulight.db.ChatEntity;
 import net.result.taulight.db.MessageEntity;
+import net.result.taulight.db.MessageFileRepository;
 import net.result.taulight.db.MessageRepository;
 import net.result.taulight.dto.ChatMessageInputDTO;
 import net.result.taulight.dto.ChatMessageViewDTO;
@@ -34,10 +35,11 @@ public class TauHubProtocol {
         if (session.member == null) throw new UnauthorizedException();
 
         MessageRepository messageRepo = session.server.container.get(MessageRepository.class);
+        MessageFileRepository messageFileRepo = session.server.container.get(MessageFileRepository.class);
 
         MessageEntity message = messageRepo.create(chat, input, session.member.tauMember());
         LOGGER.info("Saved message with id {} content: {}", message.id(), message.content());
-        ChatMessageViewDTO serverMessage = new ChatMessageViewDTO(message);
+        ChatMessageViewDTO serverMessage = new ChatMessageViewDTO(messageFileRepo, message);
 
         send(session, chat, serverMessage);
     }

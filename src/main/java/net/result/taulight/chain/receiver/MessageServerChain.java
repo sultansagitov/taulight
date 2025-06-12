@@ -8,14 +8,16 @@ import net.result.sandnode.exception.error.UnauthorizedException;
 import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.serverclient.Session;
 import net.result.taulight.db.ChatEntity;
+import net.result.taulight.db.MessageEntity;
+import net.result.taulight.db.MessageFileRepository;
 import net.result.taulight.db.MessageRepository;
 import net.result.taulight.dto.ChatMessageViewDTO;
 import net.result.taulight.message.types.MessageRequest;
 import net.result.taulight.message.types.MessageResponse;
 import net.result.taulight.util.ChatUtil;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class MessageServerChain extends ServerChain implements ReceiverChain {
     public MessageServerChain(Session session) {
@@ -26,6 +28,7 @@ public class MessageServerChain extends ServerChain implements ReceiverChain {
     public void sync() throws Exception {
         ChatUtil chatUtil = session.server.container.get(ChatUtil.class);
         MessageRepository messageRepo = session.server.container.get(MessageRepository.class);
+        MessageFileRepository messageFileRepo = session.server.container.get(MessageFileRepository.class);
 
         if (session.member == null) {
             throw new UnauthorizedException();
@@ -45,10 +48,12 @@ public class MessageServerChain extends ServerChain implements ReceiverChain {
 
         long count = messageRepo.countMessagesByChat(chat);
 
-        List<ChatMessageViewDTO> messages = messageRepo
-                .findMessagesByChat(chat, request.dto().index, request.dto().size).stream()
-                .map(ChatMessageViewDTO::new)
-                .collect(Collectors.toList());
+        List<ChatMessageViewDTO> messages = new ArrayList<>();
+        List<MessageEntity> entities = messageRepo.findMessagesByChat(chat, request.dto().index, request.dto().size);
+        for (MessageEntity message : entities) {
+            ChatMessageViewDTO chatMessageViewDTO = new ChatMessageViewDTO(messageFileRepo, message);
+            messages.add(chatMessageViewDTO);
+        }
 
         sendFin(new MessageResponse(count, messages));
     }

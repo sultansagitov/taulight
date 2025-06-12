@@ -9,6 +9,7 @@ import net.result.sandnode.util.JPAUtil;
 
 import java.util.Collection;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 
 public class MessageFileRepository {
@@ -86,6 +87,28 @@ public class MessageFileRepository {
             query.setParameter("message", message);
             return query.getResultList();
         } catch (Exception e) {
+            throw new DatabaseException(e);
+        }
+    }
+
+    public void setMessage(MessageEntity message, Set<UUID> fileIDs) throws DatabaseException {
+        if (fileIDs == null || fileIDs.isEmpty()) return;
+
+        EntityManager em = jpaUtil.getEntityManager();
+        EntityTransaction transaction = em.getTransaction();
+        try {
+            transaction.begin();
+
+            String q = "SELECT f FROM MessageFileEntity f WHERE f.id IN :ids";
+            TypedQuery<MessageFileEntity> query = em.createQuery(q, MessageFileEntity.class);
+            query.setParameter("ids", fileIDs);
+            for (MessageFileEntity file : query.getResultList()) {
+                file.setMessage(message);
+            }
+
+            transaction.commit();
+        } catch (Exception e) {
+            if (transaction.isActive()) transaction.rollback();
             throw new DatabaseException(e);
         }
     }

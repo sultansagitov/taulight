@@ -5,14 +5,18 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import net.result.sandnode.db.BaseEntity;
 import net.result.sandnode.db.MemberEntity;
 import net.result.sandnode.encryption.interfaces.KeyStorage;
+import net.result.sandnode.exception.DatabaseException;
 import net.result.sandnode.exception.crypto.CryptoException;
 import net.result.sandnode.exception.error.EncryptionException;
 import net.result.taulight.db.ChatEntity;
 import net.result.taulight.db.MessageEntity;
+import net.result.taulight.db.MessageFileEntity;
+import net.result.taulight.db.MessageFileRepository;
 
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Base64;
+import java.util.Collection;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -43,16 +47,23 @@ public class ChatMessageInputDTO {
     /** List of IDs of messages that this message replies to. */
     @JsonProperty("replied-to-messages")
     public Set<UUID> repliedToMessages = null;
+    /** List of IDs of files attached to this message. */
+    @JsonProperty("file-ids")
+    public Set<UUID> fileIDs = null;
 
     /** Default constructor. */
     public ChatMessageInputDTO() {}
 
     /**
-     * Constructs a ChatMessageInputDTO from a {@link MessageEntity}.
+     * Constructs a ChatMessageInputDTO from a {@link MessageEntity}, loading file attachments from the repository.
      *
-     * @param message the message entity
+     * @param messageFileRepo the repository to fetch file attachments
+     * @param message         the message entity
+     * @throws DatabaseException if file loading fails
      */
-    public ChatMessageInputDTO(MessageEntity message) {
+    public ChatMessageInputDTO(MessageFileRepository messageFileRepo, MessageEntity message) throws DatabaseException {
+        Collection<MessageFileEntity> files = messageFileRepo.getFiles(message);
+
         setChat(message.chat());
         setContent(message.content());
         setKeyID(message.key() != null ? message.key().id() : null);
@@ -60,6 +71,7 @@ public class ChatMessageInputDTO {
         setMember(message.member().member());
         setSys(message.sys());
         setRepliedToMessages(message.repliedToMessages().stream().map(BaseEntity::id).collect(Collectors.toSet()));
+        setFileIDs(files.stream().map(BaseEntity::id).collect(Collectors.toSet()));
     }
 
     public ChatMessageInputDTO setChatID(UUID chatID) {
@@ -76,6 +88,7 @@ public class ChatMessageInputDTO {
         return setChatID(chat.id());
     }
 
+    @SuppressWarnings("UnusedReturnValue")
     public ChatMessageInputDTO setEncryptedContent(UUID keyID, KeyStorage keyStorage, String input)
             throws EncryptionException, CryptoException {
         setKeyID(keyID);
@@ -119,9 +132,14 @@ public class ChatMessageInputDTO {
         return this;
     }
 
+    public ChatMessageInputDTO setFileIDs(Set<UUID> fileIDs) {
+        this.fileIDs = fileIDs;
+        return this;
+    }
+
     @Override
     public String toString() {
-        return "<ChatMessageInputDTO content=%s chatID=%s ztd=%s sys=%s nickname=%s repliedToMessages=%s>"
-                .formatted(content, chatID, sentDatetime, sys, nickname, repliedToMessages);
+        return "<ChatMessageInputDTO content=%s chatID=%s ztd=%s sys=%s nickname=%s repliedToMessages=%s fileIDs=%s>"
+                .formatted(content, chatID, sentDatetime, sys, nickname, repliedToMessages, fileIDs);
     }
 }

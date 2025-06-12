@@ -19,11 +19,11 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class ChatServerChain extends ServerChain implements ReceiverChain {
     private static final Logger LOGGER = LogManager.getLogger(ChatServerChain.class);
     private MessageRepository messageRepo;
+    private MessageFileRepository messageFileRepo;
 
     public ChatServerChain(Session session) {
         super(session);
@@ -32,6 +32,7 @@ public class ChatServerChain extends ServerChain implements ReceiverChain {
     @Override
     public void sync() throws InterruptedException, DeserializationException, UnprocessedMessagesException {
         messageRepo = session.server.container.get(MessageRepository.class);
+        messageFileRepo = session.server.container.get(MessageFileRepository.class);
         JPAUtil jpaUtil = session.server.container.get(JPAUtil.class);
 
         while (true) {
@@ -92,15 +93,16 @@ public class ChatServerChain extends ServerChain implements ReceiverChain {
             }
         }
 
-        Map<UUID, ChatMessageViewDTO> lastMessages = needLastMessage
-                ? messageRepo.findLastMessagesByChats(chatIdsForLastMsg)
-                    .stream()
-                    .collect(Collectors.toMap(
-                            m -> m.chat().id(),
-                            ChatMessageViewDTO::new,
-                            (a, b) -> a
-                    ))
-                : Collections.emptyMap();
+        Map<UUID, ChatMessageViewDTO> lastMessages;
+        if (needLastMessage) {
+            Map<UUID, ChatMessageViewDTO> map = new HashMap<>();
+            for (MessageEntity m : messageRepo.findLastMessagesByChats(chatIdsForLastMsg)) {
+                map.putIfAbsent(m.chat().id(), new ChatMessageViewDTO(messageFileRepo, m));
+            }
+            lastMessages = map;
+        } else {
+            lastMessages = Collections.emptyMap();
+        }
 
         for (ChatEntity chat : relevantChats) {
             ChatMessageViewDTO lastMsg = lastMessages.get(chat.id());
@@ -150,15 +152,16 @@ public class ChatServerChain extends ServerChain implements ReceiverChain {
             }
         }
 
-        Map<UUID, ChatMessageViewDTO> lastMessages = needLastMessage
-                ? messageRepo.findLastMessagesByChats(accessibleChatIds)
-                .stream()
-                .collect(Collectors.toMap(
-                        m -> m.chat().id(),
-                        ChatMessageViewDTO::new,
-                        (a, b) -> a
-                ))
-                : Collections.emptyMap();
+        Map<UUID, ChatMessageViewDTO> lastMessages;
+        if (needLastMessage) {
+            Map<UUID, ChatMessageViewDTO> map = new HashMap<>();
+            for (MessageEntity m : messageRepo.findLastMessagesByChats(accessibleChatIds)) {
+                map.putIfAbsent(m.chat().id(), new ChatMessageViewDTO(messageFileRepo, m));
+            }
+            lastMessages = map;
+        } else {
+            lastMessages = Collections.emptyMap();
+        }
 
         for (Map.Entry<UUID, ChatEntity> entry : validChats.entrySet()) {
             UUID chatID = entry.getKey();
