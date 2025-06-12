@@ -4,6 +4,7 @@ import jakarta.persistence.EntityManager;
 import net.result.sandnode.GlobalTestState;
 import net.result.sandnode.db.MemberRepository;
 import net.result.sandnode.exception.DatabaseException;
+import net.result.sandnode.exception.SandnodeException;
 import net.result.sandnode.exception.error.BusyNicknameException;
 import net.result.sandnode.exception.error.NotFoundException;
 import net.result.sandnode.util.Container;
@@ -157,7 +158,7 @@ class ReactionsTest {
     }
 
     @Test
-    public void createReactionEntry() throws DatabaseException, NotFoundException {
+    public void createReactionEntry() throws SandnodeException {
         ReactionPackageEntity testPackage = reactionPackageRepo.create("test", "");
         ReactionTypeEntity reactionType = reactionTypeRepo.create("like", testPackage);
 
@@ -197,7 +198,7 @@ class ReactionsTest {
     }
 
     @Test
-    public void removeReactionEntry() throws DatabaseException, NotFoundException {
+    public void removeReactionEntry() throws SandnodeException {
         ReactionPackageEntity testPackage = reactionPackageRepo.create("test", "");
         ReactionTypeEntity reactionType = reactionTypeRepo.create("fire", testPackage);
 
@@ -266,7 +267,7 @@ class ReactionsTest {
     }
 
     @Test
-    public void testRemoveReactionEntry() throws DatabaseException {
+    public void testRemoveReactionEntry() throws SandnodeException {
         ReactionEntryEntity fakeEntry = new ReactionEntryEntity();
         boolean result = reactionEntryRepo.delete(fakeEntry);
         assertFalse(result);

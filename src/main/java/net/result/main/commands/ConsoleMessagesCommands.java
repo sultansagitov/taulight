@@ -13,6 +13,7 @@ public class ConsoleMessagesCommands {
         commands.put("reply", ConsoleMessagesCommands::reply);
         commands.put("uploadFile", ConsoleMessagesCommands::uploadFile);
         commands.put("fileAttached", ConsoleMessagesCommands::fileAttached);
+        commands.put("downloadFile", ConsoleMessagesCommands::downloadFile);
     }
 
     private static void messages(@NotNull List<String> args, ConsoleContext context) throws Exception {
@@ -104,5 +105,13 @@ public class ConsoleMessagesCommands {
         }
 
         ConsoleMessagesRunner.fileAttached(context, input, fileIDs);
+    }
+
+    private static void downloadFile(List<String> args, ConsoleContext context)
+            throws UnprocessedMessagesException, ExpectedMessageException, UnknownSandnodeErrorException,
+            SandnodeErrorException, InterruptedException {
+        UUID fileID = UUID.fromString(args.get(0));
+
+        ConsoleMessagesRunner.downloadFile(context, fileID);
     }
 }

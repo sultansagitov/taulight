@@ -1,5 +1,6 @@
 package net.result.main.commands;
 
+import net.result.sandnode.dto.FileDTO;
 import net.result.sandnode.dto.PaginatedDTO;
 import net.result.sandnode.encryption.interfaces.KeyStorage;
 import net.result.sandnode.exception.*;
@@ -81,6 +82,18 @@ public class ConsoleMessagesRunner {
         System.out.printf("Sent message UUID with attachments: %s%n", uuid);
     }
 
+    public static void downloadFile(ConsoleContext context, UUID fileID)
+            throws UnprocessedMessagesException, ExpectedMessageException, UnknownSandnodeErrorException,
+            SandnodeErrorException, InterruptedException {
+        MessageFileClientChain chain = new MessageFileClientChain(context.client);
+        context.io.chainManager.linkChain(chain);
+        FileDTO avatar = chain.download(fileID);
+        context.io.chainManager.removeChain(chain);
+
+        String mimeType = avatar.contentType();
+        String base64 = Base64.getEncoder().encodeToString(avatar.body());
+        System.out.printf("data:%s;base64,%s%n", mimeType, base64);
+    }
 
     public static void printMessage(ConsoleContext context, ChatMessageViewDTO dto) throws SandnodeException {
         ChatMessageInputDTO input = dto.message;

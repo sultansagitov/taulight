@@ -68,7 +68,9 @@ public class MessageRepository {
             em.merge(chat);
             transaction.commit();
 
-            messageFileRepo.setMessage(managed, input.fileIDs);
+            if (input.fileIDs != null && !input.fileIDs.isEmpty()) {
+                messageFileRepo.setMessage(managed, input.fileIDs);
+            }
 
             return managed;
         } catch (UnauthorizedException e) {

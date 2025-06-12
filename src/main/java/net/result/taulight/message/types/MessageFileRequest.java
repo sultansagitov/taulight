@@ -11,6 +11,7 @@ import java.util.UUID;
 
 public class MessageFileRequest extends EmptyMessage {
     public UUID chatID = null;
+    public UUID fileID = null;
 
     public MessageFileRequest(Headers headers) {
         super(headers.setType(TauMessageTypes.MESSAGE_FILE));
@@ -20,6 +21,13 @@ public class MessageFileRequest extends EmptyMessage {
         Headers headers = new Headers().setValue("chat-id", chatID.toString());
         MessageFileRequest request = new MessageFileRequest(headers);
         request.chatID = chatID;
+        return request;
+    }
+
+    public static MessageFileRequest download(UUID fileID) {
+        Headers headers = new Headers().setValue("file-id", fileID.toString());
+        MessageFileRequest request = new MessageFileRequest(headers);
+        request.fileID = fileID;
         return request;
     }
 
@@ -34,6 +42,20 @@ public class MessageFileRequest extends EmptyMessage {
         try {
             if (chatIDString != null) {
                 chatID = UUID.fromString(chatIDString);
+            }
+        } catch (Exception e) {
+            throw new DeserializationException(e);
+        }
+
+        String fileIDString = null;
+        try {
+            fileIDString = raw.headers().getValue("file-id");
+        } catch (IllegalArgumentException ignored) {
+        }
+
+        try {
+            if (fileIDString != null) {
+                fileID = UUID.fromString(fileIDString);
             }
         } catch (Exception e) {
             throw new DeserializationException(e);

@@ -51,4 +51,21 @@ public class MessageFileClientChain extends ClientChain {
         raw.expect(MessageTypes.HAPPY);
         return new UUIDMessage(raw).uuid;
     }
+
+    public FileDTO download(UUID fileID) throws InterruptedException, UnknownSandnodeErrorException,
+            SandnodeErrorException, ExpectedMessageException, UnprocessedMessagesException {
+        MessageFileRequest request = MessageFileRequest.download(fileID);
+        send(request);
+
+        RawMessage raw = queue.take();
+        ServerErrorManager.instance().handleError(raw);
+
+
+        ServerErrorManager.instance().handleError(raw);
+        raw.expect(MessageTypes.FILE);
+
+        FileMessage fileMessage = new FileMessage(raw);
+        System.out.println("File downloaded successfully.");
+        return fileMessage.dto();
+    }
 }

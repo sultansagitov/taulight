@@ -3,8 +3,10 @@ package net.result.taulight.db;
 import net.result.sandnode.GlobalTestState;
 import net.result.sandnode.db.MemberRepository;
 import net.result.sandnode.exception.DatabaseException;
+import net.result.sandnode.exception.SandnodeException;
 import net.result.sandnode.exception.error.BusyNicknameException;
 import net.result.sandnode.exception.error.NotFoundException;
+import net.result.sandnode.exception.error.UnauthorizedException;
 import net.result.sandnode.util.Container;
 import net.result.sandnode.util.JPAUtil;
 import net.result.taulight.dto.ChatMessageInputDTO;
@@ -39,7 +41,7 @@ public class MessagesTest {
     }
 
     @Test
-    public void createMessage() throws DatabaseException, NotFoundException {
+    public void createMessage() throws SandnodeException {
         ChatEntity chat = groupRepo.create("Test Group", member1);
 
         ChatMessageInputDTO messageInputDTO = new ChatMessageInputDTO()
@@ -66,7 +68,7 @@ public class MessagesTest {
     }
 
     @Test
-    public void loadMessages() throws DatabaseException, NotFoundException {
+    public void loadMessages() throws DatabaseException, NotFoundException, UnauthorizedException {
         GroupEntity group = groupRepo.create("Test Group", member1);
 
         ChatMessageInputDTO input1 = new ChatMessageInputDTO()
@@ -113,7 +115,7 @@ public class MessagesTest {
     }
 
     @Test
-    public void findMessage() throws DatabaseException, NotFoundException {
+    public void findMessage() throws SandnodeException {
         GroupEntity group = groupRepo.create("FindMessageGroup", member1);
 
         ChatMessageInputDTO input = new ChatMessageInputDTO()
@@ -142,7 +144,7 @@ public class MessagesTest {
     }
 
     @Test
-    public void getMessageCount() throws DatabaseException, NotFoundException {
+    public void getMessageCount() throws SandnodeException {
         GroupEntity group = groupRepo.create("Test Group", member1);
 
         ChatMessageInputDTO input1 = new ChatMessageInputDTO()
