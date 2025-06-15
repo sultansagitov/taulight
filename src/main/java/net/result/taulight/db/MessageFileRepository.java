@@ -39,10 +39,10 @@ public class MessageFileRepository {
         }
     }
 
-    public MessageFileEntity create(TauMemberEntity member, ChatEntity chat, FileEntity file)
+    public MessageFileEntity create(TauMemberEntity member, ChatEntity chat, String originalName, FileEntity file)
             throws DatabaseException {
         EntityManager em = jpaUtil.getEntityManager();
-        MessageFileEntity managed = save(new MessageFileEntity(member, chat, file));
+        MessageFileEntity managed = save(new MessageFileEntity(member, chat, originalName, file));
         EntityTransaction transaction = em.getTransaction();
         try {
             transaction.begin();

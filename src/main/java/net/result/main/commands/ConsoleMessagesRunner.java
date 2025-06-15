@@ -11,7 +11,9 @@ import net.result.taulight.chain.sender.MessageFileClientChain;
 import net.result.taulight.dto.ChatInfoDTO;
 import net.result.taulight.dto.ChatMessageInputDTO;
 import net.result.taulight.dto.ChatMessageViewDTO;
+import net.result.taulight.dto.NamedFileDTO;
 
+import java.io.File;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -58,7 +60,7 @@ public class ConsoleMessagesRunner {
             SandnodeErrorException, DeserializationException, ExpectedMessageException {
         MessageFileClientChain chain = new MessageFileClientChain(context.client);
         context.io.chainManager.linkChain(chain);
-        UUID fileID = chain.uploadFile(chatID, path);
+        UUID fileID = chain.upload(chatID, path, new File(path).getName());
         context.io.chainManager.removeChain(chain);
         return fileID;
     }
@@ -115,12 +117,13 @@ public class ConsoleMessagesRunner {
             System.out.printf("Replied to: %s%n", collect);
         }
 
-        Set<UUID> fileIDs = input.fileIDs;
-        if (!fileIDs.isEmpty()) {
-            String collect = fileIDs.stream()
-                    .map(UUID::toString)
-                    .collect(Collectors.joining("; "));
-            System.out.printf("Files: %s%n", collect);
+        var files = dto.files;
+        if (!files.isEmpty()) {
+            System.out.println("Files:");
+
+            for (NamedFileDTO file : files) {
+                System.out.printf("%s ID: %s Content-Type: %s\n", file.filename, file.id, file.contentType);
+            }
         }
 
         Map<String, List<String>> reactions = dto.reactions;

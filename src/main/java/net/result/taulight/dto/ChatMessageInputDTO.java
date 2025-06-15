@@ -10,13 +10,10 @@ import net.result.sandnode.exception.crypto.CryptoException;
 import net.result.sandnode.exception.error.EncryptionException;
 import net.result.taulight.db.ChatEntity;
 import net.result.taulight.db.MessageEntity;
-import net.result.taulight.db.MessageFileEntity;
-import net.result.taulight.db.MessageFileRepository;
 
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Base64;
-import java.util.Collection;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -57,13 +54,11 @@ public class ChatMessageInputDTO {
     /**
      * Constructs a ChatMessageInputDTO from a {@link MessageEntity}, loading file attachments from the repository.
      *
-     * @param messageFileRepo the repository to fetch file attachments
-     * @param message         the message entity
+     * @param message  the message entity to convert
+     * @param fileIDs  a list of file identifiers associated with the message
      * @throws DatabaseException if file loading fails
      */
-    public ChatMessageInputDTO(MessageFileRepository messageFileRepo, MessageEntity message) throws DatabaseException {
-        Collection<MessageFileEntity> files = messageFileRepo.getFiles(message);
-
+    public ChatMessageInputDTO(MessageEntity message, Set<UUID> fileIDs) throws DatabaseException {
         setChat(message.chat());
         setContent(message.content());
         setKeyID(message.key() != null ? message.key().id() : null);
@@ -71,7 +66,7 @@ public class ChatMessageInputDTO {
         setMember(message.member().member());
         setSys(message.sys());
         setRepliedToMessages(message.repliedToMessages().stream().map(BaseEntity::id).collect(Collectors.toSet()));
-        setFileIDs(files.stream().map(BaseEntity::id).collect(Collectors.toSet()));
+        setFileIDs(fileIDs);
     }
 
     public ChatMessageInputDTO setChatID(UUID chatID) {

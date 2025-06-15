@@ -24,7 +24,7 @@ public class MessageFileClientChain extends ClientChain {
         super(client);
     }
 
-    public UUID uploadFile(UUID chatID, String pathString)
+    public UUID upload(UUID chatID, String pathString, String name)
             throws FSException, UnprocessedMessagesException, InterruptedException, UnknownSandnodeErrorException,
             SandnodeErrorException, DeserializationException, ExpectedMessageException {
         Path path = Paths.get(pathString);
@@ -39,7 +39,7 @@ public class MessageFileClientChain extends ClientChain {
 
         FileDTO dto = new FileDTO(null, contentType, bytes);
 
-        MessageFileRequest request = MessageFileRequest.uploadTo(chatID);
+        MessageFileRequest request = MessageFileRequest.uploadTo(chatID, name);
         FileMessage fileMessage = new FileMessage(dto);
 
         send(request);

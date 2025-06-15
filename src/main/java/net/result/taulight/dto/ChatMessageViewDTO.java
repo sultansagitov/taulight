@@ -3,10 +3,7 @@ package net.result.taulight.dto;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import net.result.sandnode.exception.DatabaseException;
-import net.result.taulight.db.MessageEntity;
-import net.result.taulight.db.MessageFileRepository;
-import net.result.taulight.db.ReactionTypeEntity;
-import net.result.taulight.db.TauMemberEntity;
+import net.result.taulight.db.*;
 
 import java.time.ZonedDateTime;
 import java.util.*;
@@ -36,6 +33,12 @@ public class ChatMessageViewDTO {
     @JsonProperty
     public Map<String, List<String>> reactions = new HashMap<>();
 
+    /**
+     * A list of files associated with the message, each represented as a {@link NamedFileDTO}.
+     */
+    @JsonProperty
+    public List<NamedFileDTO> files;
+
     /** Default constructor. */
     public ChatMessageViewDTO() {
     }
@@ -62,7 +65,18 @@ public class ChatMessageViewDTO {
         });
         setReactions(result);
 
-        setMessage(new ChatMessageInputDTO(messageFileRepo, message));
+        Collection<MessageFileEntity> files = messageFileRepo.getFiles(message);
+
+        List<NamedFileDTO> namedFiles = new ArrayList<>(files.size());
+        Set<UUID> fileIDs = new HashSet<>(files.size());
+
+        for (MessageFileEntity file : files) {
+            namedFiles.add(new NamedFileDTO(file));
+            fileIDs.add(file.id());
+        }
+
+        setFiles(namedFiles);
+        setMessage(new ChatMessageInputDTO(message, fileIDs));
     }
 
     /**
@@ -99,6 +113,10 @@ public class ChatMessageViewDTO {
      */
     public void setReactions(Map<String, List<String>> reactions) {
         this.reactions = reactions;
+    }
+
+    public void setFiles(List<NamedFileDTO> files) {
+        this.files = files;
     }
 
     @Override

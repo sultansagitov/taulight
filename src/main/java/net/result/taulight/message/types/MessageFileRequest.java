@@ -10,6 +10,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.UUID;
 
 public class MessageFileRequest extends EmptyMessage {
+    public String filename = null;
     public UUID chatID = null;
     public UUID fileID = null;
 
@@ -17,8 +18,10 @@ public class MessageFileRequest extends EmptyMessage {
         super(headers.setType(TauMessageTypes.MESSAGE_FILE));
     }
 
-    public static MessageFileRequest uploadTo(@NotNull UUID chatID) {
-        Headers headers = new Headers().setValue("chat-id", chatID.toString());
+    public static MessageFileRequest uploadTo(@NotNull UUID chatID, String name) {
+        Headers headers = new Headers()
+                .setValue("filename", name)
+                .setValue("chat-id", chatID.toString());
         MessageFileRequest request = new MessageFileRequest(headers);
         request.chatID = chatID;
         return request;
@@ -36,6 +39,7 @@ public class MessageFileRequest extends EmptyMessage {
         String chatIDString = null;
         try {
             chatIDString = raw.headers().getValue("chat-id");
+            filename = raw.headers().getValue("filename");
         } catch (IllegalArgumentException ignored) {
         }
 

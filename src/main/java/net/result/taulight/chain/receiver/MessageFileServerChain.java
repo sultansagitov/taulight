@@ -37,7 +37,9 @@ public class MessageFileServerChain extends ServerChain implements ReceiverChain
         UUID fileID = request.fileID;
 
         if (chatID != null) {
-            uploadFile(chatID, session.member.tauMember());
+            String filename = request.filename;
+            if (filename == null) throw new TooFewArgumentsException();
+            uploadFile(chatID, filename, session.member.tauMember());
         } else if (fileID != null) {
             downloadFile(fileID);
         } else {
@@ -45,7 +47,7 @@ public class MessageFileServerChain extends ServerChain implements ReceiverChain
         }
     }
 
-    private void uploadFile(UUID chatID, TauMemberEntity you)
+    private void uploadFile(UUID chatID, String originalName, TauMemberEntity you)
             throws ExpectedMessageException, InterruptedException, NotFoundException, DatabaseException,
             InvalidArgumentException, ServerSandnodeErrorException, UnprocessedMessagesException {
         FileMessage fileMessage = new FileMessage(queue.take());
@@ -61,7 +63,7 @@ public class MessageFileServerChain extends ServerChain implements ReceiverChain
         String filename = "%s%s".formatted(chatID, UUID.randomUUID());
         FileEntity fileEntity = dbFileUtil.saveImage(dto, filename);
 
-        MessageFileEntity entity = messageFileRepo.create(you, chat, fileEntity);
+        MessageFileEntity entity = messageFileRepo.create(you, chat, originalName, fileEntity);
 
         send(new UUIDMessage(new Headers().setType(MessageTypes.HAPPY), entity));
     }

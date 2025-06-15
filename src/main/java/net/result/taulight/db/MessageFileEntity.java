@@ -8,6 +8,8 @@ import net.result.sandnode.db.FileEntity;
 
 @Entity
 public class MessageFileEntity extends BaseEntity {
+    private String originalName;
+
     @ManyToOne
     private TauMemberEntity member;
     @ManyToOne
@@ -22,18 +24,19 @@ public class MessageFileEntity extends BaseEntity {
         super();
     }
 
-    public MessageFileEntity(TauMemberEntity member, ChatEntity chat, FileEntity file) {
+    public MessageFileEntity(TauMemberEntity member, ChatEntity chat, String originalName, FileEntity file) {
+        setOriginalName(originalName);
         setFile(file);
         setMember(member);
         setChat(chat);
     }
 
-    public FileEntity file() {
-        return file;
+    public String originalName() {
+        return originalName;
     }
 
-    public void setFile(FileEntity file) {
-        this.file = file;
+    public void setOriginalName(String originalName) {
+        this.originalName = originalName;
     }
 
     public TauMemberEntity member() {
@@ -58,5 +61,13 @@ public class MessageFileEntity extends BaseEntity {
 
     public void setMessage(MessageEntity message) {
         this.message = message;
+    }
+
+    public FileEntity file() {
+        return file;
+    }
+
+    public void setFile(FileEntity file) {
+        this.file = file;
     }
 }
