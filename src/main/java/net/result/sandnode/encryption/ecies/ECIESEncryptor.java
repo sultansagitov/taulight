@@ -25,7 +25,7 @@ public class ECIESEncryptor {
 
     public static byte[] encrypt(@NotNull String data, @NotNull KeyStorage keyStorage)
             throws EncryptionException, CryptoException {
-        return encryptBytes(data.getBytes(StandardCharsets.US_ASCII), keyStorage);
+        return encryptBytes(data.getBytes(StandardCharsets.UTF_8), keyStorage);
     }
 
     public static byte[] encryptBytes(byte @NotNull [] data, @NotNull KeyStorage keyStorage)

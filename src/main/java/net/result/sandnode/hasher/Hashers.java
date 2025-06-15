@@ -13,7 +13,7 @@ public enum Hashers implements Hasher {
     SHA256 {
         @Override
         public @NotNull String hash(@NotNull String data) {
-            return hash(data.getBytes(StandardCharsets.US_ASCII));
+            return hash(data.getBytes(StandardCharsets.UTF_8));
         }
 
         @Override
@@ -40,7 +40,7 @@ public enum Hashers implements Hasher {
     MD5 {
         @Override
         public @NotNull String hash(@NotNull String data) {
-            return hash(data.getBytes(StandardCharsets.US_ASCII));
+            return hash(data.getBytes(StandardCharsets.UTF_8));
         }
 
         @Override

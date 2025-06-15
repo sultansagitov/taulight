@@ -43,7 +43,7 @@ public class PublicKeyResponse extends Message {
     @Override
     public byte[] getBody() {
         try {
-            return keyStorage.encodedPublicKey().getBytes(StandardCharsets.US_ASCII);
+            return keyStorage.encodedPublicKey().getBytes(StandardCharsets.UTF_8);
         } catch (CannotUseEncryption e) {
             throw new ImpossibleRuntimeException(e);
         }

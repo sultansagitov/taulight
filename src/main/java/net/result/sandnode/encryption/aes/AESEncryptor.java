@@ -19,7 +19,7 @@ public class AESEncryptor {
     private static final Logger LOGGER = LogManager.getLogger(AESEncryptor.class);
 
     public static byte[] encrypt(@NotNull String data, @NotNull KeyStorage keyStorage) throws EncryptionException {
-        byte[] bytes = data.trim().getBytes(StandardCharsets.US_ASCII);
+        byte[] bytes = data.trim().getBytes(StandardCharsets.UTF_8);
         return encryptBytes(bytes, keyStorage);
     }
 
