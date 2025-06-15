@@ -4,10 +4,9 @@ import net.result.sandnode.chain.ReceiverChain;
 import net.result.sandnode.chain.ServerChain;
 import net.result.sandnode.db.FileEntity;
 import net.result.sandnode.dto.FileDTO;
-import net.result.sandnode.exception.DatabaseException;
-import net.result.sandnode.exception.ExpectedMessageException;
-import net.result.sandnode.exception.UnprocessedMessagesException;
-import net.result.sandnode.exception.error.*;
+import net.result.sandnode.exception.error.NotFoundException;
+import net.result.sandnode.exception.error.TooFewArgumentsException;
+import net.result.sandnode.exception.error.UnauthorizedException;
 import net.result.sandnode.message.UUIDMessage;
 import net.result.sandnode.message.types.FileMessage;
 import net.result.sandnode.message.util.Headers;
@@ -47,9 +46,7 @@ public class MessageFileServerChain extends ServerChain implements ReceiverChain
         }
     }
 
-    private void uploadFile(UUID chatID, String originalName, TauMemberEntity you)
-            throws ExpectedMessageException, InterruptedException, NotFoundException, DatabaseException,
-            InvalidArgumentException, ServerSandnodeErrorException, UnprocessedMessagesException {
+    private void uploadFile(UUID chatID, String originalName, TauMemberEntity you) throws Exception {
         FileMessage fileMessage = new FileMessage(queue.take());
 
         FileDTO dto = fileMessage.dto();
@@ -61,15 +58,14 @@ public class MessageFileServerChain extends ServerChain implements ReceiverChain
         ChatEntity chat = chatUtil.getChat(chatID).orElseThrow(NotFoundException::new);
 
         String filename = "%s%s".formatted(chatID, UUID.randomUUID());
-        FileEntity fileEntity = dbFileUtil.saveImage(dto, filename);
+        FileEntity fileEntity = dbFileUtil.saveFile(dto, filename);
 
         MessageFileEntity entity = messageFileRepo.create(you, chat, originalName, fileEntity);
 
         send(new UUIDMessage(new Headers().setType(MessageTypes.HAPPY), entity));
     }
 
-    private void downloadFile(UUID fileID) throws NotFoundException, DatabaseException, ServerSandnodeErrorException,
-            NoEffectException, UnprocessedMessagesException, InterruptedException {
+    private void downloadFile(UUID fileID) throws Exception {
         MessageFileRepository messageFileRepo = session.server.container.get(MessageFileRepository.class);
         DBFileUtil dbFileUtil = session.server.container.get(DBFileUtil.class);
 

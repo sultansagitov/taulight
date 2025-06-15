@@ -5,7 +5,6 @@ import net.result.sandnode.db.FileEntity;
 import net.result.sandnode.db.FileRepository;
 import net.result.sandnode.dto.FileDTO;
 import net.result.sandnode.exception.DatabaseException;
-import net.result.sandnode.exception.error.InvalidArgumentException;
 import net.result.sandnode.exception.error.NoEffectException;
 import net.result.sandnode.exception.error.ServerSandnodeErrorException;
 import org.apache.logging.log4j.LogManager;
@@ -27,14 +26,9 @@ public class DBFileUtil {
         avatarDirectory = container.get(HubConfig.class).imagePath();
     }
 
-    public @NotNull FileEntity saveImage(FileDTO dto, String filename)
-            throws InvalidArgumentException, ServerSandnodeErrorException, DatabaseException {
-        String mime = dto.contentType();
+    public @NotNull FileEntity saveFile(FileDTO dto, String filename)
+            throws ServerSandnodeErrorException, DatabaseException {
         byte[] body = dto.body();
-
-        if (!mime.startsWith("image/")) {
-            throw new InvalidArgumentException();
-        }
 
         try {
             if (!Files.exists(avatarDirectory)) {

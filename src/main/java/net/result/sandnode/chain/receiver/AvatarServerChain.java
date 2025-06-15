@@ -6,10 +6,7 @@ import net.result.sandnode.db.FileEntity;
 import net.result.sandnode.db.MemberEntity;
 import net.result.sandnode.db.MemberRepository;
 import net.result.sandnode.dto.FileDTO;
-import net.result.sandnode.exception.error.NoEffectException;
-import net.result.sandnode.exception.error.NotFoundException;
-import net.result.sandnode.exception.error.ServerSandnodeErrorException;
-import net.result.sandnode.exception.error.UnauthorizedException;
+import net.result.sandnode.exception.error.*;
 import net.result.sandnode.message.UUIDMessage;
 import net.result.sandnode.message.types.AvatarRequest;
 import net.result.sandnode.message.types.FileMessage;
@@ -48,7 +45,12 @@ public class AvatarServerChain extends ServerChain implements ReceiverChain {
         FileMessage fileMessage = new FileMessage(queue.take());
 
         FileDTO dto = fileMessage.dto();
-        FileEntity avatar = dbFileUtil.saveImage(dto, you.id().toString());
+
+        if (!dto.contentType().startsWith("image/")) {
+            throw new InvalidArgumentException();
+        }
+
+        FileEntity avatar = dbFileUtil.saveFile(dto, you.id().toString());
 
         if (!memberRepo.setAvatar(you, avatar)) {
             throw new ServerSandnodeErrorException();

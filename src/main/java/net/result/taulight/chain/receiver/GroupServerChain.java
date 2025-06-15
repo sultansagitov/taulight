@@ -201,16 +201,21 @@ public class GroupServerChain extends ServerChain implements ReceiverChain {
         sendFin(new CodeListMessage(new Headers().setType(TauMessageTypes.GROUP), collected));
     }
 
-    private void setAvatar(GroupRequestDTO dto, TauMemberEntity you) throws Exception {
-        UUID chatID = dto.chatID;
+    private void setAvatar(GroupRequestDTO request, TauMemberEntity you) throws Exception {
+        UUID chatID = request.chatID;
         FileMessage fileMessage = new FileMessage(queue.take());
 
         ChatEntity chat = chatUtil.getChat(chatID).orElseThrow(NotFoundException::new);
         if (!chatUtil.contains(chat, you)) throw new UnauthorizedException();
         if (!(chat instanceof GroupEntity group)) throw new WrongAddressException();
 
-        FileDTO fileDTO = fileMessage.dto();
-        FileEntity avatar = dbFileUtil.saveImage(fileDTO, chatID.toString());
+        FileDTO dto = fileMessage.dto();
+
+        if (!dto.contentType().startsWith("image/")) {
+            throw new InvalidArgumentException();
+        }
+
+        FileEntity avatar = dbFileUtil.saveFile(dto, chatID.toString());
 
         groupRepo.setAvatar(group, avatar);
 
