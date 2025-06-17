@@ -27,9 +27,6 @@ public class TauMemberRepository {
         try {
             transaction.begin();
 
-            TauMemberSettingsEntity settings = em.merge(new TauMemberSettingsEntity());
-            tauMember.setSettings(settings);
-
             TauMemberEntity managed = em.merge(tauMember);
 
             MemberEntity member = tauMember.member();
@@ -61,6 +58,21 @@ public class TauMemberRepository {
         try {
             return query.getResultList().stream().findFirst();
         } catch (Exception e) {
+            throw new DatabaseException(e);
+        }
+    }
+    public void setShowStatus(TauMemberEntity entity, boolean value) throws DatabaseException {
+        EntityManager em = jpaUtil.getEntityManager();
+        EntityTransaction transaction = em.getTransaction();
+        try {
+            transaction.begin();
+
+            entity.setShowStatus(value);
+            em.merge(entity);
+
+            transaction.commit();
+        } catch (Exception e) {
+            transaction.rollback();
             throw new DatabaseException(e);
         }
     }

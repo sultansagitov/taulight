@@ -6,8 +6,8 @@ import net.result.sandnode.exception.error.UnauthorizedException;
 import net.result.sandnode.message.util.Headers;
 import net.result.sandnode.serverclient.Session;
 import net.result.sandnode.util.JPAUtil;
-import net.result.taulight.db.TauMemberSettingsEntity;
-import net.result.taulight.db.TauMemberSettingsRepository;
+import net.result.taulight.db.TauMemberEntity;
+import net.result.taulight.db.TauMemberRepository;
 import net.result.taulight.dto.TauMemberSettingsResponseDTO;
 import net.result.taulight.message.types.TauMemberSettingsRequest;
 import net.result.taulight.message.types.TauMemberSettingsResponse;
@@ -26,13 +26,13 @@ public class TauMemberSettingsServerChain extends ServerChain implements Receive
         if (session.member == null) throw new UnauthorizedException();
 
         JPAUtil jpaUtil = session.server.container.get(JPAUtil.class);
-        TauMemberSettingsRepository repo = session.server.container.get(TauMemberSettingsRepository.class);
+        TauMemberRepository repo = session.server.container.get(TauMemberRepository.class);
 
         session.member = jpaUtil.refresh(session.member);
 
         Headers headers = request.headers();
 
-        TauMemberSettingsEntity entity = session.member.tauMember().settings();
+        TauMemberEntity entity = session.member.tauMember();
 
         Optional<String> showStatus = headers.getOptionalValue(TauMemberSettingsRequest.SHOW_STATUS);
         if (showStatus.isPresent()) {

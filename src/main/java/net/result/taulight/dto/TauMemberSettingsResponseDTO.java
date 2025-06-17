@@ -1,7 +1,7 @@
 package net.result.taulight.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import net.result.taulight.db.TauMemberSettingsEntity;
+import net.result.taulight.db.TauMemberEntity;
 
 public class TauMemberSettingsResponseDTO {
     @JsonProperty("show-status")
@@ -15,7 +15,7 @@ public class TauMemberSettingsResponseDTO {
         this.showStatus = showStatus;
     }
 
-    public TauMemberSettingsResponseDTO(TauMemberSettingsEntity entity) {
+    public TauMemberSettingsResponseDTO(TauMemberEntity entity) {
         this(entity.isShowStatus());
     }
 }

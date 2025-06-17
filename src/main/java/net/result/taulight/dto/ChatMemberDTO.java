@@ -33,7 +33,7 @@ public class ChatMemberDTO {
      */
     public ChatMemberDTO(TauMemberEntity member, @Nullable List<String> roles) {
         nickname = member.member().nickname();
-        status = member.settings().isShowStatus() ? MemberStatus.OFFLINE : MemberStatus.HIDDEN;
+        status = member.isShowStatus() ? MemberStatus.OFFLINE : MemberStatus.HIDDEN;
         this.roles = roles;
     }
 

@@ -10,11 +10,10 @@ import java.util.Set;
 @SuppressWarnings("unused")
 @Entity
 public class TauMemberEntity extends BaseEntity {
-    @OneToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
-    private MemberEntity member;
+    private boolean showStatus;
 
     @OneToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
-    private TauMemberSettingsEntity settings;
+    private MemberEntity member;
 
     @OneToMany(mappedBy = "author", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     private Set<ReactionPackageEntity> reactionPackages = new HashSet<>();
@@ -44,6 +43,15 @@ public class TauMemberEntity extends BaseEntity {
 
     public TauMemberEntity(MemberEntity member) {
         setMember(member);
+        setShowStatus(false);
+    }
+
+    public boolean isShowStatus() {
+        return showStatus;
+    }
+
+    public void setShowStatus(boolean showStatus) {
+        this.showStatus = showStatus;
     }
 
     public MemberEntity member() {
@@ -52,14 +60,6 @@ public class TauMemberEntity extends BaseEntity {
 
     public void setMember(MemberEntity member) {
         this.member = member;
-    }
-
-    public TauMemberSettingsEntity settings() {
-        return settings;
-    }
-
-    public void setSettings(TauMemberSettingsEntity settings) {
-        this.settings = settings;
     }
 
     public Set<ReactionPackageEntity> reactionPackages() {

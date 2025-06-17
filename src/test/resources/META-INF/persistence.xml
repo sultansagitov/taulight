@@ -7,7 +7,6 @@
         <class>net.result.sandnode.db.EncryptedKeyEntity</class>
         <class>net.result.sandnode.db.FileEntity</class>
         <class>net.result.taulight.db.TauMemberEntity</class>
-        <class>net.result.taulight.db.TauMemberSettingsEntity</class>
         <class>net.result.taulight.db.ChatEntity</class>
         <class>net.result.taulight.db.MessageFileEntity</class>
         <class>net.result.taulight.db.GroupEntity</class>
