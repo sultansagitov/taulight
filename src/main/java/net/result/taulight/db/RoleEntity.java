@@ -1,8 +1,6 @@
 package net.result.taulight.db;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.ManyToMany;
-import jakarta.persistence.ManyToOne;
+import jakarta.persistence.*;
 import net.result.sandnode.db.BaseEntity;
 
 import java.util.HashSet;
@@ -18,6 +16,10 @@ public class RoleEntity extends BaseEntity {
 
     @ManyToMany
     private Set<TauMemberEntity> members = new HashSet<>();
+
+    @ElementCollection(targetClass = Permission.class)
+    @Enumerated(EnumType.STRING)
+    private Set<Permission> permissions = new HashSet<>();
 
     public RoleEntity() {}
 
@@ -48,5 +50,13 @@ public class RoleEntity extends BaseEntity {
 
     public void setMembers(Set<TauMemberEntity> members) {
         this.members = members;
+    }
+
+    public Set<Permission> permissions() {
+        return permissions;
+    }
+
+    public void setPermissions(Set<Permission> permissions) {
+        this.permissions = permissions;
     }
 }

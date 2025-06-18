@@ -31,6 +31,10 @@ public class GroupEntity extends ChatEntity {
     @OneToMany(mappedBy = "group", cascade = {CascadeType.PERSIST, CascadeType.MERGE}, orphanRemoval = true)
     private Set<RoleEntity> roles = new HashSet<>();
 
+    @ElementCollection(targetClass = Permission.class)
+    @Enumerated(EnumType.STRING)
+    private Set<Permission> permissions = new HashSet<>();
+
     public GroupEntity() {}
 
     public GroupEntity(String title, TauMemberEntity owner) {
@@ -89,5 +93,13 @@ public class GroupEntity extends ChatEntity {
 
     public void setRoles(Set<RoleEntity> roles) {
         this.roles = roles;
+    }
+
+    public Set<Permission> permissions() {
+        return permissions;
+    }
+
+    public void setPermissions(Set<Permission> permissions) {
+        this.permissions = permissions;
     }
 }
