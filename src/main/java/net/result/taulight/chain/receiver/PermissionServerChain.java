@@ -6,13 +6,12 @@ import net.result.sandnode.exception.DatabaseException;
 import net.result.sandnode.exception.SandnodeException;
 import net.result.sandnode.exception.error.NoEffectException;
 import net.result.sandnode.exception.error.NotFoundException;
+import net.result.sandnode.exception.error.UnauthorizedException;
 import net.result.sandnode.message.types.HappyMessage;
 import net.result.sandnode.serverclient.Session;
 import net.result.sandnode.util.Container;
 import net.result.taulight.db.*;
 import net.result.taulight.message.types.PermissionRequest;
-
-import java.util.UUID;
 
 public class PermissionServerChain extends ServerChain implements ReceiverChain {
 
@@ -28,57 +27,73 @@ public class PermissionServerChain extends ServerChain implements ReceiverChain 
         PermissionRequest request = new PermissionRequest(queue.take());
 
         Container container = session.server.container;
-
         roleRepo = container.get(RoleRepository.class);
         groupRepo = container.get(GroupRepository.class);
 
-        boolean b;
+        boolean success;
         if (request.mode.equals("-")) {
-            b = revokePermission(request);
+            success = revokePermission(request);
         } else {
-            b = grantPermission(request);
+            success = grantPermission(request);
         }
 
-        if (!b) {
+        if (!success) {
             throw new NoEffectException();
         }
 
         send(new HappyMessage());
     }
 
+    private GroupEntity getGroup(PermissionRequest request) throws SandnodeException {
+        GroupEntity group = groupRepo.findById(request.chatID).orElseThrow(NotFoundException::new);
+        if (session.member == null && !group.owner().equals(session.member.tauMember())) {
+            throw new UnauthorizedException();
+        }
+        return group;
+    }
+
+    private RoleEntity getRole(PermissionRequest request) throws SandnodeException {
+        RoleEntity role = roleRepo.findById(request.roleID).orElseThrow(NotFoundException::new);
+        GroupEntity group = role.group();
+        if (session.member == null && !group.owner().equals(session.member.tauMember())) {
+            throw new UnauthorizedException();
+        }
+        return role;
+    }
+
     private boolean grantPermission(PermissionRequest request) throws SandnodeException {
-        if (request.roleID == null) {
-            return grantChatPermission(request.chatID, request.perm);
-        } else {
-            return grantRolePermission(request.roleID, request.perm);
-        }
-    }
-
-    private boolean revokePermission(PermissionRequest request) throws NotFoundException, DatabaseException {
         if (request.roleID != null) {
-            return revokeRolePermission(request.roleID, request.perm);
+            RoleEntity role = getRole(request);
+            return grantRolePermission(role, request.perm);
         } else {
-            return revokeChatPermission(request.chatID, request.perm);
+            GroupEntity group = getGroup(request);
+            return grantChatPermission(group, request.perm);
         }
     }
 
-    private boolean grantRolePermission(UUID roleID, Permission perm) throws DatabaseException, NotFoundException {
-        RoleEntity role = roleRepo.findById(roleID).orElseThrow(NotFoundException::new);
+    private boolean revokePermission(PermissionRequest request) throws SandnodeException {
+        if (request.roleID != null) {
+            RoleEntity role = getRole(request);
+            return revokeRolePermission(role, request.perm);
+        } else {
+            GroupEntity group = getGroup(request);
+            return revokeChatPermission(group, request.perm);
+        }
+    }
+
+    private boolean grantRolePermission(RoleEntity role, Permission perm) throws DatabaseException {
         return roleRepo.grantPermission(role, perm);
     }
 
-    private boolean revokeRolePermission(UUID roleID, Permission perm) throws DatabaseException, NotFoundException {
-        RoleEntity role = roleRepo.findById(roleID).orElseThrow(NotFoundException::new);
+    private boolean revokeRolePermission(RoleEntity role, Permission perm) throws DatabaseException {
         return roleRepo.revokePermission(role, perm);
     }
 
-    private boolean grantChatPermission(UUID chatID, Permission perm) throws DatabaseException, NotFoundException {
-        GroupEntity group = groupRepo.findById(chatID).orElseThrow(NotFoundException::new);
+    private boolean grantChatPermission(GroupEntity group, Permission perm) throws DatabaseException {
         return groupRepo.grantPermission(group, perm);
     }
 
-    private boolean revokeChatPermission(UUID chatID, Permission perm) throws DatabaseException, NotFoundException {
-        GroupEntity group = groupRepo.findById(chatID).orElseThrow(NotFoundException::new);
+    private boolean revokeChatPermission(GroupEntity group, Permission perm) throws DatabaseException {
         return groupRepo.revokePermission(group, perm);
     }
 }

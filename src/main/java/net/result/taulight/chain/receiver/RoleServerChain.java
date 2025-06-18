@@ -49,9 +49,9 @@ public class RoleServerChain extends ServerChain implements ReceiverChain {
                 .map(RoleDTO::new)
                 .collect(Collectors.toSet());
 
-        Set<String> memberRoles = roles.stream()
+        Set<UUID> memberRoles = roles.stream()
                 .filter(role -> role.members().contains(session.member.tauMember()))
-                .map(RoleEntity::name)
+                .map(RoleEntity::id)
                 .collect(Collectors.toSet());
 
         Set<Permission> permissions = group.permissions();
