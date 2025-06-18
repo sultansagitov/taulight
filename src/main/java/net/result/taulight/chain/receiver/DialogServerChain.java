@@ -4,7 +4,6 @@ import net.result.sandnode.chain.ReceiverChain;
 import net.result.sandnode.chain.ServerChain;
 import net.result.sandnode.db.FileEntity;
 import net.result.sandnode.db.MemberEntity;
-import net.result.sandnode.exception.DatabaseException;
 import net.result.sandnode.exception.ImpossibleRuntimeException;
 import net.result.sandnode.exception.error.*;
 import net.result.sandnode.message.UUIDMessage;
@@ -13,9 +12,9 @@ import net.result.sandnode.message.util.Headers;
 import net.result.sandnode.message.util.MessageTypes;
 import net.result.sandnode.serverclient.Session;
 import net.result.sandnode.util.DBFileUtil;
+import net.result.taulight.cluster.TauClusterManager;
 import net.result.taulight.db.*;
 import net.result.taulight.dto.ChatMessageInputDTO;
-import net.result.taulight.cluster.TauClusterManager;
 import net.result.taulight.message.types.DialogRequest;
 import net.result.taulight.util.ChatUtil;
 import net.result.taulight.util.SysMessages;
@@ -63,11 +62,11 @@ public class DialogServerChain extends ServerChain implements ReceiverChain {
                 .orElseThrow(AddressedMemberNotFoundException::new);
 
         Optional<DialogEntity> dialogOpt = dialogRepo.findByMembers(you.tauMember(), anotherMember);
-        if (dialogOpt.isPresent()) {
-            dialog = dialogOpt.get();
-        } else {
-            dialog = dialogRepo.create(you.tauMember(), anotherMember);
 
+        dialog = dialogOpt.isPresent() ? dialogOpt.get() : dialogRepo.create(you.tauMember(), anotherMember);
+        sendFin(new UUIDMessage(new Headers().setType(MessageTypes.HAPPY), dialog));
+
+        if (dialogOpt.isEmpty()) {
             Collection<MemberEntity> members = new ArrayList<>(List.of(you, anotherMember.member()));
             TauAgentProtocol.addMembersToCluster(session, members, manager.getCluster(dialog));
 
@@ -77,12 +76,10 @@ public class DialogServerChain extends ServerChain implements ReceiverChain {
                 TauHubProtocol.send(session, dialog, input);
             } catch (UnauthorizedException e) {
                 throw new ImpossibleRuntimeException(e);
-            } catch (DatabaseException | NoEffectException e) {
+            } catch (Exception e) {
                 LOGGER.warn("Ignored exception: {}", e.getMessage());
             }
         }
-
-        sendFin(new UUIDMessage(new Headers().setType(MessageTypes.HAPPY), dialog));
     }
 
     private void avatar(DialogRequest request, MemberEntity you) throws Exception {
