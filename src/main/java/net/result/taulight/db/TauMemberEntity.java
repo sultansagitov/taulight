@@ -10,6 +10,7 @@ import java.util.Set;
 @SuppressWarnings("unused")
 @Entity
 public class TauMemberEntity extends BaseEntity {
+    @Column()
     private boolean showStatus;
 
     @OneToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE})

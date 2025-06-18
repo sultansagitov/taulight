@@ -1,13 +1,16 @@
 package net.result.sandnode.db;
 
 import net.result.sandnode.GlobalTestState;
+import net.result.sandnode.encryption.AsymmetricEncryptions;
+import net.result.sandnode.encryption.EncryptionManager;
+import net.result.sandnode.encryption.interfaces.AsymmetricKeyStorage;
 import net.result.sandnode.exception.DatabaseException;
 import net.result.sandnode.exception.error.BusyNicknameException;
 import net.result.sandnode.util.Container;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-import java.util.*;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -19,6 +22,8 @@ class MembersTest {
     public static void setup() {
         Container container = GlobalTestState.container;
         memberRepo = container.get(MemberRepository.class);
+
+        EncryptionManager.registerAll();
     }
 
     @Test
@@ -26,6 +31,23 @@ class MembersTest {
         MemberEntity newMember = memberRepo.create("testuser123", "hash");
         assertNotNull(newMember);
         assertEquals("testuser123", newMember.nickname());
+
+        // Additional assertions
+        assertNotNull(newMember.id());
+        assertNotNull(newMember.tauMember());
+        assertEquals(0, newMember.tauMember().dialogs().size(), "New member should have no dialogs");
+        assertEquals(0, newMember.tauMember().groups().size(), "New member should have no groups");
+
+        // Test duplicate nickname
+        assertThrows(BusyNicknameException.class, () -> memberRepo.create("testuser123", "hash"));
+    }
+
+    @Test
+    public void registerMemberWithKeyStorage() throws DatabaseException, BusyNicknameException {
+        AsymmetricKeyStorage keyStorage = AsymmetricEncryptions.ECIES.generate();
+        MemberEntity newMember = memberRepo.create("testuser123_with_key", "hash", keyStorage);
+        assertNotNull(newMember);
+        assertEquals("testuser123_with_key", newMember.nickname());
 
         // Additional assertions
         assertNotNull(newMember.id());

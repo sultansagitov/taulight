@@ -28,18 +28,19 @@ public class MemberRepository {
         }
 
         EntityTransaction transaction = em.getTransaction();
+        MemberEntity managed;
         try {
             transaction.begin();
-            MemberEntity merge = em.merge(member);
+            managed = em.merge(member);
             transaction.commit();
-
-            tauMemberRepo.create(merge);
-
-            return merge;
         } catch (Exception e) {
             if (transaction.isActive()) transaction.rollback();
             throw new DatabaseException(e);
         }
+
+        tauMemberRepo.create(managed);
+
+        return managed;
     }
 
     private MemberEntity save(MemberEntity member, AsymmetricKeyStorage keyStorage) throws DatabaseException {
@@ -48,25 +49,25 @@ public class MemberRepository {
             member.setRandomID();
         }
 
+        MemberEntity managed;
+
         EntityTransaction transaction = em.getTransaction();
         try {
             transaction.begin();
 
-            KeyStorageEntity keyStorageEntity =
-                    em.merge(new KeyStorageEntity(keyStorage.encryption(), keyStorage.encodedPublicKey()));
-            member.setPublicKey(keyStorageEntity);
-
-            MemberEntity managed = em.merge(member);
+            var key = em.merge(new KeyStorageEntity(keyStorage.encryption(), keyStorage.encodedPublicKey()));
+            member.setPublicKey(key);
+            managed = em.merge(member);
 
             transaction.commit();
-
-            tauMemberRepo.create(managed);
-
-            return managed;
         } catch (Exception e) {
             if (transaction.isActive()) transaction.rollback();
             throw new DatabaseException(e);
         }
+
+        tauMemberRepo.create(managed);
+
+        return managed;
     }
 
     public MemberEntity create(String nickname, String hashedPassword) throws DatabaseException, BusyNicknameException {
