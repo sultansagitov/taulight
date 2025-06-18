@@ -8,7 +8,9 @@ import net.result.sandnode.util.JPAUtil;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
 
 public class RoleRepository {
     private final JPAUtil jpaUtil;
@@ -66,6 +68,53 @@ public class RoleRepository {
             return true;
         } catch (Exception e) {
             transaction.rollback();
+            throw new DatabaseException(e);
+        }
+    }
+
+    public boolean grantPermission(@NotNull RoleEntity role, @NotNull Permission permission) throws DatabaseException {
+        EntityManager em = jpaUtil.getEntityManager();
+        EntityTransaction transaction = em.getTransaction();
+
+        try {
+            if (role.permissions().contains(permission)) return false;
+
+            role.permissions().add(permission);
+
+            transaction.begin();
+            em.merge(role);
+            transaction.commit();
+            return true;
+        } catch (Exception e) {
+            if (transaction.isActive()) transaction.rollback();
+            throw new DatabaseException(e);
+        }
+    }
+
+    public boolean revokePermission(@NotNull RoleEntity role, @NotNull Permission permission) throws DatabaseException {
+        EntityManager em = jpaUtil.getEntityManager();
+        EntityTransaction transaction = em.getTransaction();
+
+        try {
+            if (!role.permissions().contains(permission)) return false;
+
+            role.permissions().remove(permission);
+
+            transaction.begin();
+            em.merge(role);
+            transaction.commit();
+            return true;
+        } catch (Exception e) {
+            if (transaction.isActive()) transaction.rollback();
+            throw new DatabaseException(e);
+        }
+    }
+
+    public Optional<RoleEntity> findById(UUID id) throws DatabaseException {
+        EntityManager em = jpaUtil.getEntityManager();
+        try {
+            return Optional.ofNullable(em.find(RoleEntity.class, id));
+        } catch (Exception e) {
             throw new DatabaseException(e);
         }
     }

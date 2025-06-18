@@ -6,6 +6,7 @@ import net.result.taulight.dto.RolesDTO;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.UUID;
+import java.util.stream.Stream;
 
 public class ConsoleRolesRunner {
 
@@ -16,8 +17,10 @@ public class ConsoleRolesRunner {
         RolesDTO roles = chain.getRoles(chatID);
         io.chainManager.removeChain(chain);
 
-        System.out.printf("Roles in chat %s: Member Roles: %s, All Roles: %s%n",
-                chatID, roles.memberRoles, roles.allRoles);
+        System.out.printf("Permissions: %s%n", roles.permissions);
+        System.out.printf("Member Roles: %s%n", roles.memberRoles);
+        Stream<String> s = roles.allRoles.stream().map(r -> "%s / %s - %s".formatted(r.id, r.name, r.permissions));
+        System.out.printf("All Roles: %s%n", s.toList());
     }
 
     public static void addRole(ConsoleContext context, UUID chatID, String roleName) throws Exception {

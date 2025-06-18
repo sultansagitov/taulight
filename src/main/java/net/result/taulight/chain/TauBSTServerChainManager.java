@@ -40,6 +40,7 @@ public class TauBSTServerChainManager extends BSTServerChainManager {
                 case ROLES -> new RoleServerChain(session);
                 case TAU_SETTINGS -> new TauMemberSettingsServerChain(session);
                 case MESSAGE_FILE -> new MessageFileServerChain(session);
+                case PERMISSION -> new PermissionServerChain(session);
             };
         }
 

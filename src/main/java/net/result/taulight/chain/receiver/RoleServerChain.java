@@ -6,6 +6,7 @@ import net.result.sandnode.db.MemberRepository;
 import net.result.sandnode.exception.error.*;
 import net.result.sandnode.serverclient.Session;
 import net.result.taulight.db.*;
+import net.result.taulight.dto.RoleDTO;
 import net.result.taulight.dto.RoleRequestDTO;
 import net.result.taulight.dto.RolesDTO;
 import net.result.taulight.message.types.RoleRequest;
@@ -44,8 +45,8 @@ public class RoleServerChain extends ServerChain implements ReceiverChain {
         if (!group.owner().equals(session.member.tauMember())) throw new UnauthorizedException();
 
         Set<RoleEntity> roles = group.roles();
-        Set<String> allRoles = roles.stream()
-                .map(RoleEntity::name)
+        Set<RoleDTO> allRoles = roles.stream()
+                .map(RoleDTO::new)
                 .collect(Collectors.toSet());
 
         Set<String> memberRoles = roles.stream()
@@ -53,17 +54,19 @@ public class RoleServerChain extends ServerChain implements ReceiverChain {
                 .map(RoleEntity::name)
                 .collect(Collectors.toSet());
 
+        Set<Permission> permissions = group.permissions();
+
         switch (dataType) {
             case GET:
-                RolesDTO dto = new RolesDTO(allRoles, memberRoles);
+                RolesDTO dto = new RolesDTO(allRoles, memberRoles, permissions);
                 sendFin(new RoleResponse(dto));
                 return;
 
             case CREATE:
                 if (roleName == null || roleName.trim().isEmpty()) throw new TooFewArgumentsException();
                 RoleEntity newRole = roleRepo.create(group, roleName);
-                allRoles.add(newRole.name());
-                sendFin(new RoleResponse(new RolesDTO(allRoles, memberRoles)));
+                allRoles.add(new RoleDTO(newRole));
+                sendFin(new RoleResponse(new RolesDTO(allRoles, memberRoles, permissions)));
                 return;
 
             case ADD:
@@ -79,7 +82,7 @@ public class RoleServerChain extends ServerChain implements ReceiverChain {
                         .tauMember();
 
                 if (!roleRepo.addMember(roleToAdd, member)) throw new NoEffectException();
-                sendFin(new RoleResponse(new RolesDTO(allRoles, memberRoles)));
+                sendFin(new RoleResponse(new RolesDTO(allRoles, memberRoles, permissions)));
         }
     }
 }

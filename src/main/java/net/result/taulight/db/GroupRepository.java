@@ -69,15 +69,6 @@ public class GroupRepository {
         }
     }
 
-    public Optional<GroupEntity> findById(UUID id) throws DatabaseException {
-        EntityManager em = jpaUtil.getEntityManager();
-        try {
-            return Optional.ofNullable(em.find(GroupEntity.class, id));
-        } catch (Exception e) {
-            throw new DatabaseException(e);
-        }
-    }
-
     public boolean addMember(GroupEntity group, TauMemberEntity member) throws DatabaseException {
         EntityManager em = jpaUtil.getEntityManager();
         EntityTransaction transaction = em.getTransaction();
@@ -139,6 +130,57 @@ public class GroupRepository {
             transaction.commit();
         } catch (Exception e) {
             if (transaction.isActive()) transaction.rollback();
+            throw new DatabaseException(e);
+        }
+    }
+
+    public boolean grantPermission(GroupEntity group, Permission permission) throws DatabaseException {
+        EntityManager em = jpaUtil.getEntityManager();
+        EntityTransaction transaction = em.getTransaction();
+
+        try {
+            if (group.permissions().contains(permission)) {
+                return false;
+            }
+
+            group.permissions().add(permission);
+
+            transaction.begin();
+            em.merge(group);
+            transaction.commit();
+            return true;
+        } catch (Exception e) {
+            if (transaction.isActive()) transaction.rollback();
+            throw new DatabaseException(e);
+        }
+    }
+
+    public boolean revokePermission(GroupEntity group, Permission permission) throws DatabaseException {
+        EntityManager em = jpaUtil.getEntityManager();
+        EntityTransaction transaction = em.getTransaction();
+
+        try {
+            if (!group.permissions().contains(permission)) {
+                return false;
+            }
+
+            group.permissions().remove(permission);
+
+            transaction.begin();
+            em.merge(group);
+            transaction.commit();
+            return true;
+        } catch (Exception e) {
+            if (transaction.isActive()) transaction.rollback();
+            throw new DatabaseException(e);
+        }
+    }
+
+    public Optional<GroupEntity> findById(UUID id) throws DatabaseException {
+        EntityManager em = jpaUtil.getEntityManager();
+        try {
+            return Optional.ofNullable(em.find(GroupEntity.class, id));
+        } catch (Exception e) {
             throw new DatabaseException(e);
         }
     }

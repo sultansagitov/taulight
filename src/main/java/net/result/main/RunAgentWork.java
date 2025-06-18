@@ -223,9 +223,9 @@ public class RunAgentWork implements IWork {
         ConsoleReactionsCommands.register(commands);
         ConsoleMessagesCommands.register(commands);
         ConsoleRolesCommands.register(commands);
+        ConsoleGroupPermissionsCommands.register(commands);
 
         while (true) {
-
             ChatInfoDTO chat = context.chat;
             String result = chat != null ? switch (chat.chatType) {
                 case DIALOG -> chat.otherNickname;
