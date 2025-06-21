@@ -1,13 +1,13 @@
 package net.result.sandnode.serverclient;
 
-import net.result.sandnode.hubagent.Node;
 import net.result.sandnode.chain.ClientChainManager;
 import net.result.sandnode.config.ClientConfig;
 import net.result.sandnode.exception.*;
+import net.result.sandnode.hubagent.Node;
 import net.result.sandnode.link.SandnodeLinkRecord;
 import net.result.sandnode.message.util.Connection;
 import net.result.sandnode.message.util.NodeType;
-import net.result.sandnode.util.Endpoint;
+import net.result.sandnode.util.Address;
 import net.result.sandnode.util.IOController;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -20,7 +20,7 @@ import java.net.Socket;
 /**
  * Represents a client that connects to a Sandnode server.
  * <p>
- * This client establishes a connection to a specified endpoint,
+ * This client establishes a connection to a specified address,
  * manages communication with the server, and handles sending
  * and receiving messages using an {@link IOController}.
  * </p>
@@ -41,10 +41,10 @@ import java.net.Socket;
 public class SandnodeClient {
     private static final Logger LOGGER = LogManager.getLogger(SandnodeClient.class);
 
-    public final Endpoint endpoint;
+    public final Address address;
     public final Node node;
     public final NodeType nodeType;
-    public final ClientConfig clientConfig;
+    public final ClientConfig config;
 
     public IOController io;
     public Socket socket;
@@ -56,27 +56,26 @@ public class SandnodeClient {
      * to create an instance instead of calling this constructor directly.
      * </p>
      */
-    public SandnodeClient(Endpoint endpoint, Node node, NodeType nodeType, ClientConfig clientConfig) {
-        this.endpoint = endpoint;
+    public SandnodeClient(Address address, Node node, NodeType nodeType, ClientConfig config) {
+        this.address = address;
         this.node = node;
         this.nodeType = nodeType;
-        this.clientConfig = clientConfig;
+        this.config = config;
     }
 
     @Contract("_, _, _ -> new")
     public static @NotNull SandnodeClient fromLink(SandnodeLinkRecord link, Node node, ClientConfig clientConfig) {
-        return new SandnodeClient(link.endpoint(), node, link.nodeType(), clientConfig);
+        return new SandnodeClient(link.address(), node, link.nodeType(), clientConfig);
     }
 
     public void start(ClientChainManager chainManager)
             throws InputStreamException, OutputStreamException, ConnectionException {
         try {
-            LOGGER.info("Connecting to {}", endpoint.toString());
-            socket = new Socket(endpoint.host(), endpoint.port());
+            LOGGER.info("Connecting to {}", address);
+            socket = new Socket(address.host(), address.port());
             LOGGER.info("Connection established.");
             Connection connection = Connection.fromType(node.type(), nodeType);
             io = new IOController(socket, connection, node.keyStorageRegistry, chainManager);
-            chainManager.setIOController(io);
 
             new Thread(() -> {
                 try {
@@ -87,7 +86,7 @@ public class SandnodeClient {
                     }
                     Thread.currentThread().interrupt();
                 }
-            }, "Client/%s/Sending".formatted(IOController.ipString(socket))).start();
+            }, "Client/%s/Sending".formatted(IOController.addressFromSocket(socket))).start();
 
             new Thread(() -> {
                 try {
@@ -99,7 +98,7 @@ public class SandnodeClient {
                     close();
                     Thread.currentThread().interrupt();
                 }
-            }, "Client/%s/Receiving".formatted(IOController.ipString(socket))).start();
+            }, "Client/%s/Receiving".formatted(IOController.addressFromSocket(socket))).start();
 
         } catch (InputStreamException | OutputStreamException e) {
             LOGGER.error("Error connecting to server", e);

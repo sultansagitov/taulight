@@ -9,22 +9,20 @@ import net.result.sandnode.exception.error.SandnodeErrorException;
 import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.message.types.WhoAmIRequest;
 import net.result.sandnode.message.types.WhoAmIResponse;
-import net.result.sandnode.util.IOController;
+import net.result.sandnode.serverclient.SandnodeClient;
 
 public class WhoAmIClientChain extends ClientChain {
-
-    public WhoAmIClientChain(IOController io) {
-        super(io);
+    public WhoAmIClientChain(SandnodeClient client) {
+        super(client);
     }
 
-    public synchronized String getUserID() throws InterruptedException, ExpectedMessageException,
+    public synchronized String getNickname() throws InterruptedException, ExpectedMessageException,
             UnknownSandnodeErrorException, SandnodeErrorException, UnprocessedMessagesException {
         send(new WhoAmIRequest());
-        RawMessage raw = queue.take();
 
+        RawMessage raw = queue.take();
         ServerErrorManager.instance().handleError(raw);
 
         return new WhoAmIResponse(raw).getID();
     }
-
 }

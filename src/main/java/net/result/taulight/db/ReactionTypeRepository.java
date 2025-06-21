@@ -1,19 +1,25 @@
 package net.result.taulight.db;
 
-import net.result.sandnode.db.JPAUtil;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityTransaction;
 import net.result.sandnode.exception.DatabaseException;
+import net.result.sandnode.util.Container;
+import net.result.sandnode.util.JPAUtil;
 import org.jetbrains.annotations.NotNull;
 
-import javax.persistence.EntityManager;
-import javax.persistence.EntityTransaction;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
 public class ReactionTypeRepository {
-    private final EntityManager em = JPAUtil.getEntityManager();
+    private final JPAUtil jpaUtil;
+
+    public ReactionTypeRepository(Container container) {
+        jpaUtil = container.get(JPAUtil.class);
+    }
 
     private ReactionTypeEntity save(@NotNull ReactionTypeEntity reactionType) throws DatabaseException {
+        EntityManager em = jpaUtil.getEntityManager();
         while (em.find(ReactionTypeEntity.class, reactionType.id()) != null) {
             reactionType.setRandomID();
         }
@@ -26,11 +32,12 @@ public class ReactionTypeRepository {
             return managed;
         } catch (Exception e) {
             if (transaction.isActive()) transaction.rollback();
-            throw new DatabaseException("Failed to save reaction type", e);
+            throw new DatabaseException(e);
         }
     }
 
     public ReactionTypeEntity create(String name, ReactionPackageEntity reactionPackage) throws DatabaseException {
+        EntityManager em = jpaUtil.getEntityManager();
         ReactionTypeEntity managed = save(new ReactionTypeEntity(name, reactionPackage));
 
         reactionPackage.reactionTypes().add(managed);
@@ -41,6 +48,7 @@ public class ReactionTypeRepository {
 
     public Collection<ReactionTypeEntity> create(ReactionPackageEntity rp, Collection<String> types)
             throws DatabaseException {
+        EntityManager em = jpaUtil.getEntityManager();
         if (types == null || types.isEmpty()) {
             return List.of();
         }
@@ -70,16 +78,17 @@ public class ReactionTypeRepository {
             return createdEntities;
         } catch (Exception e) {
             if (transaction.isActive()) transaction.rollback();
-            throw new DatabaseException("Failed to save reaction types", e);
+            throw new DatabaseException(e);
         }
     }
 
     public List<ReactionTypeEntity> findByPackageName(String packageName) throws DatabaseException {
+        EntityManager em = jpaUtil.getEntityManager();
         try {
             String q = "FROM ReactionTypeEntity WHERE reactionPackage.name = :packageName";
             return em.createQuery(q, ReactionTypeEntity.class).setParameter("packageName", packageName).getResultList();
         } catch (Exception e) {
-            throw new DatabaseException("Failed to find reaction types by package name", e);
+            throw new DatabaseException(e);
         }
     }
 }

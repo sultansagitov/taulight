@@ -7,6 +7,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -75,6 +76,10 @@ public class FileUtil {
 
         LOGGER.error("Failed to delete file \"{}\".", filePath);
         return false;
+    }
+
+    public static boolean isPosixSupported() {
+        return FileSystems.getDefault().supportedFileAttributeViews().contains("posix");
     }
 
     public static void makeOwnerOnlyRead(@NotNull Path filePath) throws FSException {

@@ -18,9 +18,7 @@ public class MessageTypeManager extends Manager<MessageType> {
     }
 
     @Override
-    protected void handleOverflow(MessageType messageType) {
-
-    }
+    protected void handleOverflow(MessageType messageType) {}
 
     public static @NotNull MessageType getMessageType(byte type) throws NoSuchMessageTypeException {
         for (MessageType m : instance().list) {

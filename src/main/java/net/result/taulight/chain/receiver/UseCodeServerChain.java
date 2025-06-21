@@ -6,12 +6,12 @@ import net.result.sandnode.exception.error.NotFoundException;
 import net.result.sandnode.exception.error.UnauthorizedException;
 import net.result.sandnode.message.types.HappyMessage;
 import net.result.sandnode.serverclient.Session;
-import net.result.taulight.SysMessages;
-import net.result.taulight.TauHubProtocol;
-import net.result.taulight.db.ChannelEntity;
-import net.result.taulight.db.InviteCodeEntity;
-import net.result.taulight.db.TauDatabase;
-import net.result.taulight.db.TauMemberEntity;
+import net.result.sandnode.util.JPAUtil;
+import net.result.taulight.db.*;
+import net.result.taulight.cluster.ChatCluster;
+import net.result.taulight.cluster.TauClusterManager;
+import net.result.taulight.util.SysMessages;
+import net.result.taulight.util.TauHubProtocol;
 import net.result.taulight.dto.ChatMessageInputDTO;
 import net.result.sandnode.exception.error.NoEffectException;
 import net.result.taulight.message.types.UseCodeRequest;
@@ -34,36 +34,50 @@ public class UseCodeServerChain extends ServerChain  implements ReceiverChain {
             throw new UnauthorizedException();
         }
 
-        TauDatabase database = (TauDatabase) session.server.serverConfig.database();
+        JPAUtil jpaUtil = session.server.container.get(JPAUtil.class);
+        GroupRepository groupRepo = session.server.container.get(GroupRepository.class);
+        InviteCodeRepository inviteCodeRepo = session.server.container.get(InviteCodeRepository.class);
+        TauClusterManager tauClusterManager = session.server.container.get(TauClusterManager.class);
 
-        InviteCodeEntity invite = database.findInviteCode(code).orElseThrow(NotFoundException::new);
+        InviteCodeEntity invite = inviteCodeRepo.find(code).orElseThrow(NotFoundException::new);
 
         TauMemberEntity member = invite.receiver();
-        ChannelEntity channel = invite.channel();
+        GroupEntity group = invite.group();
 
-        if (invite.receiver() != session.member.tauMember()) {
-            //TODO add channel roles and use it
-            if (invite.sender() == session.member.tauMember()) {
+        if (!invite.receiver().equals(session.member.tauMember())) {
+            //TODO add group roles and use it
+            if (invite.sender().equals(session.member.tauMember())) {
                 throw new UnauthorizedException();
             } else {
                 throw new NotFoundException();
             }
         }
 
-        if (!database.activateInviteCode(invite)) {
+        if (!inviteCodeRepo.activate(invite)) {
             throw new NoEffectException("Invite already activated");
         }
 
-        if (!database.addMemberToChannel(channel, member)) {
+        if (!groupRepo.addMember(group, member)) {
             throw new NoEffectException();
         }
 
-        ChatMessageInputDTO input = SysMessages.channelAdd.chatMessageInputDTO(channel, member);
+        session.member = jpaUtil.refresh(session.member);
+
+        ChatCluster cluster = tauClusterManager.getCluster(group);
+
+        for (Session agent : session.server.node.getAgents()) {
+            //noinspection DataFlowIssue
+            if (session.member.equals(agent.member)) {
+                agent.addToCluster(cluster);
+            }
+        }
+
+        ChatMessageInputDTO input = SysMessages.groupAdd.toInput(group, member);
 
         try {
-            TauHubProtocol.send(session, channel, input);
+            TauHubProtocol.send(session, group, input);
         } catch (NoEffectException e) {
-            LOGGER.warn("Exception when sending system message of creating channel {}", e.getMessage());
+            LOGGER.warn("Exception when sending system message of creating group {}", e.getMessage());
         }
 
         sendFin(new HappyMessage());

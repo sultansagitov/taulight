@@ -5,7 +5,6 @@ import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
 
 public class WorkFactory {
-
     private static final Logger LOGGER = LogManager.getLogger(WorkFactory.class);
 
     public static @NotNull IWork getWork(@NotNull String workName) {
@@ -17,5 +16,4 @@ public class WorkFactory {
             default -> throw new UnknownError();
         };
     }
-
 }

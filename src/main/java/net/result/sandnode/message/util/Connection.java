@@ -50,6 +50,5 @@ public enum Connection {
     public @NotNull String toString() {
         return from.name() + "2" + to.name();
     }
-
 }
 

@@ -1,8 +1,8 @@
 package net.result.taulight.db;
 
-import javax.persistence.Entity;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
+import jakarta.persistence.Entity;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 
 @Entity
 public class DialogEntity extends ChatEntity {
@@ -30,8 +30,8 @@ public class DialogEntity extends ChatEntity {
     }
 
     public TauMemberEntity otherMember(TauMemberEntity member) {
-        if (member == firstMember) return secondMember;
-        if (member == secondMember) return firstMember;
+        if (member.equals(firstMember)) return secondMember;
+        if (member.equals(secondMember)) return firstMember;
         throw new IllegalArgumentException("Member not part of this dialog");
     }
 

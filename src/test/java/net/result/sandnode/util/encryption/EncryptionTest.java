@@ -28,7 +28,7 @@ public class EncryptionTest {
         KeyStorage keyStorage = encryption.generate();
 
         String originalString = "Hello, World!";
-        byte[] originalData = originalString.getBytes(StandardCharsets.US_ASCII);
+        byte[] originalData = originalString.getBytes(StandardCharsets.UTF_8);
 
         byte[] encryptedString = encryption.encrypt(originalString, keyStorage);
         String decryptedString = encryption.decrypt(encryptedString, keyStorage);

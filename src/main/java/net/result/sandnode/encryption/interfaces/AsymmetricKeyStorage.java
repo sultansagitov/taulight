@@ -2,7 +2,6 @@ package net.result.sandnode.encryption.interfaces;
 
 import net.result.sandnode.exception.crypto.CannotUseEncryption;
 import net.result.sandnode.exception.crypto.EncryptionTypeException;
-import org.jetbrains.annotations.CheckReturnValue;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
@@ -10,7 +9,6 @@ public interface AsymmetricKeyStorage extends KeyStorage {
     @Override
     @NotNull AsymmetricEncryption encryption();
 
-    @CheckReturnValue
     @Contract(value = " -> this", pure = true)
     default AsymmetricKeyStorage asymmetric() {
         return this;

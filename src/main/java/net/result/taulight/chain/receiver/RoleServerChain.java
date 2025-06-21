@@ -2,12 +2,16 @@ package net.result.taulight.chain.receiver;
 
 import net.result.sandnode.chain.ReceiverChain;
 import net.result.sandnode.chain.ServerChain;
+import net.result.sandnode.db.MemberRepository;
 import net.result.sandnode.exception.error.*;
 import net.result.sandnode.serverclient.Session;
 import net.result.taulight.db.*;
+import net.result.taulight.dto.RoleDTO;
+import net.result.taulight.dto.RoleRequestDTO;
 import net.result.taulight.dto.RolesDTO;
 import net.result.taulight.message.types.RoleRequest;
 import net.result.taulight.message.types.RoleResponse;
+import net.result.taulight.util.ChatUtil;
 
 import java.util.Set;
 import java.util.UUID;
@@ -23,42 +27,46 @@ public class RoleServerChain extends ServerChain implements ReceiverChain {
     public void sync() throws Exception {
         if (session.member == null) throw new UnauthorizedException();
 
-        TauDatabase database = (TauDatabase) session.server.serverConfig.database();
+        ChatUtil chatUtil = session.server.container.get(ChatUtil.class);
+        MemberRepository memberRepo = session.server.container.get(MemberRepository.class);
+        RoleRepository roleRepo = session.server.container.get(RoleRepository.class);
 
         RoleRequest request = new RoleRequest(queue.take());
 
-        RoleRequest.DataType dataType = request.getDataType();
-        UUID chatID = request.getChatID();
-        String roleName = request.getRoleName();
-        String nickname = request.getNickname();
+        RoleRequestDTO.DataType dataType = request.dto().dataType;
+        UUID chatID = request.dto().chatID;
+        String roleName = request.dto().roleName;
+        String nickname = request.dto().nickname;
 
-        ChatEntity chat = database.getChat(chatID).orElseThrow(NotFoundException::new);
-        if (!database.getMembers(chat).contains(session.member.tauMember())) throw new NotFoundException();
-        if (!(chat instanceof ChannelEntity channel)) throw new WrongAddressException();
+        ChatEntity chat = chatUtil.getChat(chatID).orElseThrow(NotFoundException::new);
+        if (!chatUtil.contains(chat, session.member.tauMember())) throw new NotFoundException();
+        if (!(chat instanceof GroupEntity group)) throw new WrongAddressException();
 
-        if (!channel.owner().equals(session.member.tauMember())) throw new UnauthorizedException();
+        if (!group.owner().equals(session.member.tauMember())) throw new UnauthorizedException();
 
-        Set<RoleEntity> roles = channel.roles();
-        Set<String> allRoles = roles.stream()
-                .map(RoleEntity::name)
+        Set<RoleEntity> roles = group.roles();
+        Set<RoleDTO> allRoles = roles.stream()
+                .map(RoleDTO::new)
                 .collect(Collectors.toSet());
 
-        Set<String> memberRoles = roles.stream()
+        Set<UUID> memberRoles = roles.stream()
                 .filter(role -> role.members().contains(session.member.tauMember()))
-                .map(RoleEntity::name)
+                .map(RoleEntity::id)
                 .collect(Collectors.toSet());
+
+        Set<Permission> permissions = group.permissions();
 
         switch (dataType) {
             case GET:
-                RolesDTO dto = new RolesDTO(allRoles, memberRoles);
+                RolesDTO dto = new RolesDTO(allRoles, memberRoles, permissions);
                 sendFin(new RoleResponse(dto));
                 return;
 
             case CREATE:
                 if (roleName == null || roleName.trim().isEmpty()) throw new TooFewArgumentsException();
-                RoleEntity newRole = database.createRole(channel, roleName);
-                allRoles.add(newRole.name());
-                sendFin(new RoleResponse(new RolesDTO(allRoles, memberRoles)));
+                RoleEntity newRole = roleRepo.create(group, roleName);
+                allRoles.add(new RoleDTO(newRole));
+                sendFin(new RoleResponse(new RolesDTO(allRoles, memberRoles, permissions)));
                 return;
 
             case ADD:
@@ -68,13 +76,13 @@ public class RoleServerChain extends ServerChain implements ReceiverChain {
                         .filter(role -> role.name().equals(roleName))
                         .findFirst().orElseThrow(NotFoundException::new);
 
-                TauMemberEntity member = database
-                        .findMemberByNickname(nickname)
+                TauMemberEntity member = memberRepo
+                        .findByNickname(nickname)
                         .orElseThrow(NotFoundException::new)
                         .tauMember();
 
-                if (!database.addMemberToRole(roleToAdd, member)) throw new NoEffectException();
-                sendFin(new RoleResponse(new RolesDTO(allRoles, memberRoles)));
+                if (!roleRepo.addMember(roleToAdd, member)) throw new NoEffectException();
+                sendFin(new RoleResponse(new RolesDTO(allRoles, memberRoles, permissions)));
         }
     }
 }

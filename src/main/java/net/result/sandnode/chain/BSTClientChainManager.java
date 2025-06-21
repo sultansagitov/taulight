@@ -1,16 +1,12 @@
 package net.result.sandnode.chain;
 
-import net.result.sandnode.util.IOController;
+import net.result.sandnode.serverclient.SandnodeClient;
 
 public abstract class BSTClientChainManager extends BSTChainManager implements ClientChainManager {
-    protected IOController io;
+    protected final SandnodeClient client;
 
-    public BSTClientChainManager() {
+    public BSTClientChainManager(SandnodeClient client) {
         super();
-    }
-
-    @Override
-    public void setIOController(IOController io) {
-        this.io = io;
+        this.client = client;
     }
 }

@@ -1,10 +1,13 @@
 package net.result.taulight.db;
 
-import net.result.sandnode.db.JPAUtil;
+import net.result.sandnode.GlobalTestState;
+import net.result.sandnode.db.MemberRepository;
 import net.result.sandnode.exception.DatabaseException;
 import net.result.sandnode.exception.error.BusyNicknameException;
-import net.result.sandnode.security.PasswordHashers;
-import net.result.taulight.exception.AlreadyExistingRecordException;
+import net.result.sandnode.util.Container;
+import net.result.sandnode.util.JPAUtil;
+import net.result.sandnode.exception.AlreadyExistingRecordException;
+import net.result.taulight.util.ChatUtil;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
@@ -12,35 +15,37 @@ import java.util.Collection;
 import java.util.Optional;
 import java.util.UUID;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertSame;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class ChatsTest {
-
-    private static TauDatabase database;
+    private static JPAUtil jpaUtil;
+    private static ChatUtil chatUtil;
     private static TauMemberEntity member1;
     private static TauMemberEntity member2;
     private static TauMemberEntity member3;
     private static TauMemberEntity member4;
     private static TauMemberEntity member5;
     private static TauMemberEntity member6;
+    private static DialogRepository dialogRepo;
+    private static GroupRepository groupRepo;
 
     @BeforeAll
     public static void setup() throws DatabaseException, BusyNicknameException {
-        JPAUtil.buildEntityManagerFactory();
+        Container container = GlobalTestState.container;
 
-        database = new TauJPADatabase(PasswordHashers.BCRYPT);
+        jpaUtil = container.get(JPAUtil.class);
 
-        member1 = database.registerMember("user1_chats", "password123").tauMember();
-        member2 = database.registerMember("user2_chats", "password123").tauMember();
-        member3 = database.registerMember("user3_chats", "password123").tauMember();
-        member4 = database.registerMember("user4_chats", "password123").tauMember();
-        member5 = database.registerMember("user5_chats", "password123").tauMember();
-        member6 = database.registerMember("user6_chats", "password123").tauMember();
+        MemberRepository memberRepo = container.get(MemberRepository.class);
+        dialogRepo = container.get(DialogRepository.class);
+        groupRepo = container.get(GroupRepository.class);
+        chatUtil = container.get(ChatUtil.class);
+
+        member1 = memberRepo.create("user1_chats", "hash").tauMember();
+        member2 = memberRepo.create("user2_chats", "hash").tauMember();
+        member3 = memberRepo.create("user3_chats", "hash").tauMember();
+        member4 = memberRepo.create("user4_chats", "hash").tauMember();
+        member5 = memberRepo.create("user5_chats", "hash").tauMember();
+        member6 = memberRepo.create("user6_chats", "hash").tauMember();
 
         // Assert that all members are properly created
         assertNotNull(member1.id());
@@ -53,9 +58,9 @@ public class ChatsTest {
 
     @Test
     public void createDialog() throws DatabaseException, AlreadyExistingRecordException {
-        DialogEntity dialog = database.createDialog(member3, member4);
+        DialogEntity dialog = dialogRepo.create(member3, member4);
         assertNotNull(dialog);
-        if (member3 == dialog.firstMember()) {
+        if (member3.equals(dialog.firstMember())) {
             assertEquals(member3, dialog.firstMember());
             assertEquals(member4, dialog.secondMember());
         } else {
@@ -70,144 +75,145 @@ public class ChatsTest {
         assertEquals(0, dialog.messages().size(), "New dialog should have no messages");
 
         // Test creating duplicate dialog
-        assertThrows(AlreadyExistingRecordException.class, () -> database.createDialog(member3, member4),
+        assertThrows(AlreadyExistingRecordException.class, () -> dialogRepo.create(member3, member4),
                 "Should not be able to create duplicate dialog");
     }
 
     @Test
     public void findDialog() throws DatabaseException, AlreadyExistingRecordException {
-        DialogEntity createdDialog = database.createDialog(member5, member6);
-        Optional<DialogEntity> foundDialog = database.findDialog(member5, member6);
+        DialogEntity createdDialog = dialogRepo.create(member5, member6);
+        Optional<DialogEntity> foundDialog = dialogRepo.findByMembers(member5, member6);
 
         assertTrue(foundDialog.isPresent());
         assertEquals(createdDialog.id(), foundDialog.get().id(), "Dialog IDs should match");
 
         // Test find in reverse order
-        Optional<DialogEntity> reverseFindDialog = database.findDialog(member6, member5);
+        Optional<DialogEntity> reverseFindDialog = dialogRepo.findByMembers(member6, member5);
         assertTrue(reverseFindDialog.isPresent());
         assertEquals(createdDialog.id(), reverseFindDialog.get().id(), "Should find same dialog regardless of member order");
 
         // Test with non-existent dialog
-        Optional<DialogEntity> nonExistentDialog = database.findDialog(member1, member5);
+        Optional<DialogEntity> nonExistentDialog = dialogRepo.findByMembers(member1, member5);
         assertFalse(nonExistentDialog.isPresent(), "Should not find dialog between unrelated members");
     }
 
     @Test
-    public void createChannel() throws DatabaseException {
-        ChannelEntity channel = database.createChannel("General Chat", member1);
+    public void createGroup() throws DatabaseException {
+        GroupEntity group = groupRepo.create("General Chat", member1);
 
-        Optional<ChatEntity> foundChannel = database.getChat(channel.id());
-        assertTrue(foundChannel.isPresent());
-        assertEquals("General Chat", ((ChannelEntity) foundChannel.get()).title());
+        Optional<ChatEntity> foundGroup = chatUtil.getChat(group.id());
+        assertTrue(foundGroup.isPresent());
+        assertEquals("General Chat", ((GroupEntity) foundGroup.get()).title());
+
+        member1 = jpaUtil.refresh(member1);
 
         // Additional assertions
-        assertNotNull(channel.id(), "Channel ID should not be null");
-        assertEquals(1, database.getMembers(channel).size(), "Channel should have exactly one member (creator)");
-        assertTrue(database.getMembers(channel).contains(member1), "Channel should contain creator as member");
-        assertTrue(member1.channels().contains(channel), "Member should have channel in their channels list");
-        assertEquals(0, channel.messages().size(), "New channel should have no messages");
-        assertEquals(member1, channel.owner(), "Channel owner should be the creator");
+        assertNotNull(group.id(), "Group ID should not be null");
+        assertEquals(1, chatUtil.getMembers(group).size(), "Group should have exactly one member (creator)");
+        assertTrue(chatUtil.getMembers(group).contains(member1), "Group should contain creator as member");
+        assertTrue(member1.groups().contains(group), "Member should have group in their groups list");
+        assertEquals(0, group.messages().size(), "New group should have no messages");
+        assertEquals(member1, group.owner(), "Group owner should be the creator");
     }
 
     @Test
     public void getChat() throws DatabaseException {
-        ChannelEntity channel = database.createChannel("Test Channel", member1);
+        GroupEntity group = groupRepo.create("Test Group", member1);
 
-        Optional<ChatEntity> foundChannel = database.getChat(channel.id());
-        assertTrue(foundChannel.isPresent());
+        Optional<ChatEntity> foundGroup = chatUtil.getChat(group.id());
+        assertTrue(foundGroup.isPresent());
 
         // Additional assertions
-        assertSame(channel, foundChannel.get(), "Retrieved channel should be the same object");
-        assertEquals(channel.id(), foundChannel.get().id(), "IDs should match");
-        assertEquals("Test Channel", ((ChannelEntity) foundChannel.get()).title(), "Titles should match");
+        assertEquals(group, foundGroup.get(), "Retrieved group should be the same object");
+        assertEquals(group.id(), foundGroup.get().id(), "IDs should match");
+        assertEquals("Test Group", ((GroupEntity) foundGroup.get()).title(), "Titles should match");
 
         // Test with non-existent chat ID
         UUID nonExistentID = UUID.randomUUID();
-        Optional<ChatEntity> nonExistentChat = database.getChat(nonExistentID);
+        Optional<ChatEntity> nonExistentChat = chatUtil.getChat(nonExistentID);
         assertFalse(nonExistentChat.isPresent(), "Should not find non-existent chat");
     }
 
     @Test
-    public void addMemberToChannel() throws DatabaseException {
-        ChannelEntity channel = database.createChannel("Test Channel", member1);
+    public void addMemberToGroup() throws DatabaseException {
+        GroupEntity group = groupRepo.create("Test Group", member1);
 
-        boolean added = database.addMemberToChannel(channel, member2);
+        boolean added = groupRepo.addMember(group, member2);
         assertTrue(added);
 
-        Collection<TauMemberEntity> members = database.getMembers(channel);
+        Collection<TauMemberEntity> members = chatUtil.getMembers(group);
         assertTrue(members.contains(member2));
         assertFalse(members.contains(member5));
 
-        assertTrue(member2.channels().contains(channel));
-        assertFalse(member5.channels().contains(channel));
+        assertTrue(member2.groups().contains(group));
+        assertFalse(member5.groups().contains(group));
 
         // Additional assertions
-        assertEquals(2, members.size(), "Channel should have exactly two members");
-        assertTrue(members.contains(member1), "Channel should still contain the owner");
+        assertEquals(2, members.size(), "Group should have exactly two members");
+        assertTrue(members.contains(member1), "Group should still contain the owner");
 
         // Test adding the same member again
-        boolean addedAgain = database.addMemberToChannel(channel, member2);
+        boolean addedAgain = groupRepo.addMember(group, member2);
         assertFalse(addedAgain, "Should not add the same member twice");
-        assertEquals(2, database.getMembers(channel).size(), "Member count should not change");
+        assertEquals(2, chatUtil.getMembers(group).size(), "Member count should not change");
 
         // Add a third member and verify
-        boolean added3 = database.addMemberToChannel(channel, member3);
+        boolean added3 = groupRepo.addMember(group, member3);
         assertTrue(added3, "Should add third member successfully");
-        assertEquals(3, database.getMembers(channel).size(), "Channel should now have three members");
-        assertTrue(member3.channels().contains(channel), "Channel should be in member3's channels");
+        assertEquals(3, chatUtil.getMembers(group).size(), "Group should now have three members");
+        assertTrue(member3.groups().contains(group), "Group should be in member3's groups");
     }
 
     @Test
-    public void leaveFromChannel() throws DatabaseException {
-        ChannelEntity channel = database.createChannel("Test Channel", member1);
+    public void leaveFromGroup() throws DatabaseException {
+        GroupEntity group = groupRepo.create("Test Group", member1);
 
-        database.addMemberToChannel(channel, member2);
-        boolean removed = database.leaveFromChannel(channel, member2);
+        groupRepo.addMember(group, member2);
+        boolean removed = groupRepo.removeMember(group, member2);
         assertTrue(removed);
 
-        Collection<TauMemberEntity> members = database.getMembers(channel);
+        Collection<TauMemberEntity> members = chatUtil.getMembers(group);
         assertFalse(members.contains(member2));
 
         // Additional assertions
-        assertEquals(1, members.size(), "Channel should have only one member left");
-        assertTrue(members.contains(member1), "Owner should still be in the channel");
-        assertFalse(member2.channels().contains(channel), "Channel should be removed from member2's channels");
+        assertEquals(1, members.size(), "Group should have only one member left");
+        assertTrue(members.contains(member1), "Owner should still be in the group");
+        assertFalse(member2.groups().contains(group), "Group should be removed from member2's groups");
 
-        // Test removing a member who's not in the channel
-        boolean removedAgain = database.leaveFromChannel(channel, member2);
-        assertFalse(removedAgain, "Should not be able to remove a member who's not in the channel");
+        // Test removing a member who's not in the group
+        boolean removedAgain = groupRepo.removeMember(group, member2);
+        assertFalse(removedAgain, "Should not be able to remove a member who's not in the group");
 
         // Test removing the owner
-        boolean ownerRemoved = database.leaveFromChannel(channel, member1);
-        assertTrue(ownerRemoved, "Owner should be able to leave the channel");
-        assertEquals(0, database.getMembers(channel).size(), "Channel should have no members after owner leaves");
-        assertFalse(member1.channels().contains(channel), "Channel should be removed from owner's channels");
+        boolean ownerRemoved = groupRepo.removeMember(group, member1);
+        assertTrue(ownerRemoved, "Owner should be able to leave the group");
+        assertEquals(0, chatUtil.getMembers(group).size(), "Group should have no members after owner leaves");
+        assertFalse(member1.groups().contains(group), "Group should be removed from owner's groups");
     }
 
     @Test
     public void getMembers() throws DatabaseException {
-        ChannelEntity channel = database.createChannel("GetMembersChannel", member1);
-        database.addMemberToChannel(channel, member2);
+        GroupEntity group = groupRepo.create("GetMembersGroup", member1);
+        groupRepo.addMember(group, member2);
 
-        Collection<TauMemberEntity> members = database.getMembers(channel);
+        Collection<TauMemberEntity> members = chatUtil.getMembers(group);
         assertTrue(members.contains(member2));
         assertFalse(members.contains(member6));
 
         // Additional assertions
-        assertEquals(2, members.size(), "Channel should have exactly two members");
-        assertTrue(members.contains(member1), "Channel should contain its creator");
+        assertEquals(2, members.size(), "Group should have exactly two members");
+        assertTrue(members.contains(member1), "Group should contain its creator");
 
         // Add another member and check again
-        database.addMemberToChannel(channel, member3);
-        Collection<TauMemberEntity> updatedMembers = database.getMembers(channel);
-        assertEquals(3, updatedMembers.size(), "Channel should now have three members");
-        assertTrue(updatedMembers.contains(member3), "New member should be in the channel");
+        groupRepo.addMember(group, member3);
+        Collection<TauMemberEntity> updatedMembers = chatUtil.getMembers(group);
+        assertEquals(3, updatedMembers.size(), "Group should now have three members");
+        assertTrue(updatedMembers.contains(member3), "New member should be in the group");
 
-        // Test with empty channel (except owner)
-        ChannelEntity emptyChannel = database.createChannel("EmptyChannel", member4);
-        Collection<TauMemberEntity> singleMember = database.getMembers(emptyChannel);
-        assertEquals(1, singleMember.size(), "Empty channel should have just the owner");
+        // Test with empty group (except owner)
+        GroupEntity emptyGroup = groupRepo.create("EmptyGroup", member4);
+        Collection<TauMemberEntity> singleMember = chatUtil.getMembers(emptyGroup);
+        assertEquals(1, singleMember.size(), "Empty group should have just the owner");
         assertTrue(singleMember.contains(member4), "Owner should be in the member list");
     }
-
 }

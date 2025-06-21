@@ -1,11 +1,11 @@
 package net.result.taulight.db;
 
-import net.result.sandnode.db.SandnodeEntity;
+import jakarta.persistence.Convert;
+import jakarta.persistence.Entity;
+import jakarta.persistence.ManyToOne;
+import net.result.sandnode.db.BaseEntity;
 import net.result.sandnode.db.ZonedDateTimeConverter;
 
-import javax.persistence.Convert;
-import javax.persistence.Entity;
-import javax.persistence.ManyToOne;
 import java.security.SecureRandom;
 import java.time.ZonedDateTime;
 import java.util.stream.Collectors;
@@ -13,7 +13,7 @@ import java.util.stream.IntStream;
 
 @SuppressWarnings("unused")
 @Entity
-public class InviteCodeEntity extends SandnodeEntity {
+public class InviteCodeEntity extends BaseEntity {
     private String code;
     @Convert(converter = ZonedDateTimeConverter.class)
     private ZonedDateTime activatedAt;
@@ -21,7 +21,7 @@ public class InviteCodeEntity extends SandnodeEntity {
     private ZonedDateTime expiresDate;
 
     @ManyToOne
-    private ChannelEntity channel;
+    private GroupEntity group;
 
     @ManyToOne
     private TauMemberEntity receiver;
@@ -32,13 +32,13 @@ public class InviteCodeEntity extends SandnodeEntity {
     public InviteCodeEntity() {}
 
     public InviteCodeEntity(
-            ChannelEntity channel,
+            GroupEntity group,
             TauMemberEntity receiver,
             TauMemberEntity sender,
             ZonedDateTime expiresDate
     ) {
         setRandomCode();
-        this.channel = channel;
+        this.group = group;
         this.receiver = receiver;
         this.sender = sender;
         this.expiresDate = expiresDate;
@@ -68,12 +68,12 @@ public class InviteCodeEntity extends SandnodeEntity {
                 .collect(Collectors.joining());
     }
 
-    public ChannelEntity channel() {
-        return channel;
+    public GroupEntity group() {
+        return group;
     }
 
-    public void setChannel(ChannelEntity channel) {
-        this.channel = channel;
+    public void setGroup(GroupEntity group) {
+        this.group = group;
     }
 
     public TauMemberEntity receiver() {
@@ -106,12 +106,11 @@ public class InviteCodeEntity extends SandnodeEntity {
 
     @Override
     public String toString() {
-        return "<InviteCodeEntity code=%s, channel=%s, receiver=%s, sender=%s>".formatted(
+        return "<InviteCodeEntity code=%s, group=%s, receiver=%s, sender=%s>".formatted(
                 code,
-                channel.title(),
+                group.title(),
                 receiver.member().nickname(),
                 sender.member().nickname()
         );
     }
-
 }

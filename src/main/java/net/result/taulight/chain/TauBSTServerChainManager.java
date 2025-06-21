@@ -1,11 +1,11 @@
 package net.result.taulight.chain;
 
+import net.result.sandnode.chain.BSTServerChainManager;
 import net.result.sandnode.chain.ReceiverChain;
 import net.result.sandnode.chain.receiver.UnhandledMessageTypeServerChain;
-import net.result.sandnode.chain.BSTServerChainManager;
-import net.result.taulight.chain.receiver.*;
 import net.result.sandnode.message.util.MessageType;
 import net.result.sandnode.message.util.MessageTypes;
+import net.result.taulight.chain.receiver.*;
 import net.result.taulight.message.TauMessageTypes;
 
 public class TauBSTServerChainManager extends BSTServerChainManager {
@@ -28,7 +28,7 @@ public class TauBSTServerChainManager extends BSTServerChainManager {
         if (type instanceof TauMessageTypes tau) {
             return switch (tau) {
                 case CHAT -> new ChatServerChain(session);
-                case CHANNEL -> new ChannelServerChain(session);
+                case GROUP -> new GroupServerChain(session);
                 case DIALOG -> new DialogServerChain(session);
                 case FWD_REQ -> new ForwardRequestServerChain(session);
                 case FWD -> new UnhandledMessageTypeServerChain(session);
@@ -38,6 +38,9 @@ public class TauBSTServerChainManager extends BSTServerChainManager {
                 case USE_CODE -> new UseCodeServerChain(session);
                 case REACTION -> new ReactionRequestServerChain(session);
                 case ROLES -> new RoleServerChain(session);
+                case TAU_SETTINGS -> new TauMemberSettingsServerChain(session);
+                case MESSAGE_FILE -> new MessageFileServerChain(session);
+                case PERMISSION -> new PermissionServerChain(session);
             };
         }
 

@@ -34,7 +34,6 @@ public enum Encryptions implements Encryption {
         public byte[] decryptBytes(byte[] encryptedBytes, KeyStorage keyStorage) {
             return encryptedBytes;
         }
-
     };
 
     @Override

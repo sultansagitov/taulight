@@ -1,35 +1,30 @@
 package net.result.taulight.message.types;
 
 import net.result.sandnode.exception.ExpectedMessageException;
-import net.result.sandnode.message.Message;
 import net.result.sandnode.message.RawMessage;
+import net.result.sandnode.message.TextMessage;
 import net.result.sandnode.message.util.Headers;
 import net.result.taulight.message.TauMessageTypes;
 import org.jetbrains.annotations.NotNull;
 
-public class DialogRequest extends Message {
-    private final String nickname;
+import java.util.UUID;
 
-    public DialogRequest(@NotNull Headers headers, @NotNull String nickname) {
-        super(headers.setType(TauMessageTypes.DIALOG));
-        this.nickname = nickname;
+public class DialogRequest extends TextMessage {
+    public enum Type {ID, AVATAR}
+
+    private DialogRequest(Type type, String string) {
+        super(new Headers().setType(TauMessageTypes.DIALOG).setValue("type", type.name()), string);
     }
 
-    public DialogRequest(@NotNull String nickname) {
-        this(new Headers(), nickname);
+    public static @NotNull DialogRequest getDialogID(String nickname) {
+        return new DialogRequest(Type.ID, nickname);
+    }
+
+    public static @NotNull DialogRequest getAvatar(UUID chatID) {
+        return new DialogRequest(Type.AVATAR, chatID.toString());
     }
 
     public DialogRequest(@NotNull RawMessage raw) throws ExpectedMessageException {
-        super(raw.expect(TauMessageTypes.DIALOG).headers());
-        nickname = new String(raw.getBody());
-    }
-
-    @Override
-    public byte[] getBody() {
-        return nickname.getBytes();
-    }
-
-    public String nickname() {
-        return nickname;
+        super(raw.expect(TauMessageTypes.DIALOG));
     }
 }

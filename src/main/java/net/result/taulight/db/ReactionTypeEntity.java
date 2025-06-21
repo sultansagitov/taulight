@@ -1,16 +1,16 @@
 package net.result.taulight.db;
 
-import net.result.sandnode.db.SandnodeEntity;
+import jakarta.persistence.Entity;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import net.result.sandnode.db.BaseEntity;
 
-import javax.persistence.Entity;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
 import java.util.HashSet;
 import java.util.Set;
 
 @SuppressWarnings("unused")
 @Entity
-public class ReactionTypeEntity extends SandnodeEntity {
+public class ReactionTypeEntity extends BaseEntity {
     private String name;
 
     @ManyToOne

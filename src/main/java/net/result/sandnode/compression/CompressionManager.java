@@ -28,11 +28,8 @@ public class CompressionManager extends Manager<Compression> {
     }
 
     public Optional<Compression> getFromHeaders(Headers headers) {
-        return headers.getOptionalValue(HEADER_NAME)
-                .map(
-                        s -> CompressionManager.instance()
-                                .find(s)
-                                .orElse(Compressions.NONE)
-                );
+        return headers
+                .getOptionalValue(HEADER_NAME)
+                .map(s -> CompressionManager.instance().find(s).orElse(Compressions.NONE));
     }
 }

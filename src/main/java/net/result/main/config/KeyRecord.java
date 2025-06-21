@@ -5,12 +5,18 @@ import net.result.sandnode.encryption.EncryptionManager;
 import net.result.sandnode.encryption.interfaces.AsymmetricConvertor;
 import net.result.sandnode.encryption.interfaces.AsymmetricEncryption;
 import net.result.sandnode.encryption.interfaces.AsymmetricKeyStorage;
-import net.result.sandnode.exception.*;
-import net.result.sandnode.exception.crypto.*;
-import net.result.sandnode.hasher.HasherManager;
+import net.result.sandnode.exception.FSException;
+import net.result.sandnode.exception.ImpossibleRuntimeException;
+import net.result.sandnode.exception.InvalidAddressSyntax;
+import net.result.sandnode.exception.NoSuchHasherException;
+import net.result.sandnode.exception.crypto.CannotUseEncryption;
+import net.result.sandnode.exception.crypto.CreatingKeyException;
+import net.result.sandnode.exception.crypto.EncryptionTypeException;
+import net.result.sandnode.exception.crypto.NoSuchEncryptionException;
 import net.result.sandnode.hasher.Hasher;
+import net.result.sandnode.hasher.HasherManager;
 import net.result.sandnode.hasher.Hashers;
-import net.result.sandnode.util.Endpoint;
+import net.result.sandnode.util.Address;
 import net.result.sandnode.util.FileUtil;
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONObject;
@@ -22,24 +28,25 @@ public final class KeyRecord {
     public final AsymmetricKeyStorage keyStorage;
     public final Hasher hasher = Hashers.SHA256;
     public final String hash;
-    public final Endpoint endpoint;
+    public final Address address;
 
-    public KeyRecord(Path publicKeyPath, AsymmetricKeyStorage keyStorage, Endpoint endpoint, String encodedKey) {
+    public KeyRecord(Path publicKeyPath, AsymmetricKeyStorage keyStorage, Address address, String encodedKey) {
         this.publicKeyPath = publicKeyPath;
         this.keyStorage = keyStorage;
-        this.endpoint = endpoint;
-        this.hash = hasher.hash(encodedKey);
+        this.address = address;
+        hash = hasher.hash(encodedKey);
     }
 
     public static @NotNull KeyRecord fromJSON(@NotNull JSONObject json)
             throws NoSuchEncryptionException, CreatingKeyException, FSException, NoSuchHasherException,
-            KeyHashCheckingException, EncryptionTypeException, InvalidEndpointSyntax {
+            KeyHashCheckingException, EncryptionTypeException, InvalidAddressSyntax {
         Path path = Path.of(json.getString("path"));
         AsymmetricEncryption encryption = EncryptionManager.find(json.getString("encryption")).asymmetric();
         AsymmetricConvertor convertor = encryption.publicKeyConvertor();
         AsymmetricKeyStorage keyStorage = convertor.toKeyStorage(FileUtil.readString(path));
 
         JSONObject hashObject = json.getJSONObject("hash");
+        Hasher hasher = HasherManager.find(hashObject.getString("algorithm"));
         String hash1 = hashObject.getString("content");
         String encodedString;
         try {
@@ -47,15 +54,14 @@ public final class KeyRecord {
         } catch (CannotUseEncryption e) {
             throw new ImpossibleRuntimeException(e);
         }
-        Hasher hasher = HasherManager.find(hashObject.getString("algorithm"));
         String hash2 = hasher.hash(encodedString);
 
         if (!hash1.equals(hash2)) {
             throw new KeyHashCheckingException(hash1, hash2);
         }
 
-        Endpoint fromString = Endpoint.getFromString(json.getString("endpoint"), 52525);
-        return new KeyRecord(path, keyStorage, fromString, "");
+        Address fromString = Address.getFromString(json.getString("address"), 52525);
+        return new KeyRecord(path, keyStorage, fromString, encodedString);
     }
 
     public JSONObject toJSON() {
@@ -66,6 +72,6 @@ public final class KeyRecord {
                         .put("algorithm", hasher.name())
                         .put("content", hash)
                 )
-                .put("endpoint", endpoint.toString());
+                .put("address", address.toString());
     }
 }

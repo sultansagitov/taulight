@@ -1,5 +1,6 @@
 package net.result.taulight.hubagent;
 
+import net.result.sandnode.config.AgentConfig;
 import net.result.sandnode.hubagent.Agent;
 
 import net.result.sandnode.message.util.Connection;
@@ -12,8 +13,8 @@ import java.net.Socket;
 
 public class TauAgent extends Agent {
 
-    public TauAgent() {
-        this(new KeyStorageRegistry());
+    public TauAgent(AgentConfig config) {
+        this(new KeyStorageRegistry(), config);
     }
 
     //TODO:
@@ -25,8 +26,7 @@ public class TauAgent extends Agent {
         return null;
     }
 
-    public TauAgent(@NotNull KeyStorageRegistry keyStorageRegistry) {
-        super(keyStorageRegistry);
+    public TauAgent(@NotNull KeyStorageRegistry keyStorageRegistry, AgentConfig config) {
+        super(keyStorageRegistry, config);
     }
-
 }

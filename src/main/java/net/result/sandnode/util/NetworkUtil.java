@@ -11,10 +11,10 @@ import java.util.Enumeration;
 import java.util.List;
 
 public class NetworkUtil {
-    public static @NotNull String replaceZeroes(@NotNull Endpoint endpoint, int defaultPort) {
-        String host = endpoint.host();
+    public static @NotNull String replaceZeroes(@NotNull Address address, int defaultPort) {
+        String host = address.host();
         try {
-            if (endpoint.host().equals("0.0.0.0")) {
+            if (address.host().equals("0.0.0.0")) {
                 String localIP = getLocalIP();
                 host = localIP.contains(":")
                         ? "[%s]".formatted(localIP)
@@ -22,7 +22,7 @@ public class NetworkUtil {
             }
         } catch (SocketException ignored) {
         }
-        return new Endpoint(host, endpoint.port()).toString(defaultPort);
+        return new Address(host, address.port()).toString(defaultPort);
     }
 
     public static String getLocalIP() throws SocketException {

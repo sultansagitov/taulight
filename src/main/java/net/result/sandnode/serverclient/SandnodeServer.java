@@ -1,18 +1,25 @@
 package net.result.sandnode.serverclient;
 
-import net.result.sandnode.hubagent.Node;
 import net.result.sandnode.config.ServerConfig;
 import net.result.sandnode.exception.*;
-import net.result.sandnode.message.*;
+import net.result.sandnode.hubagent.Node;
+import net.result.sandnode.message.EncryptedMessage;
+import net.result.sandnode.message.Message;
+import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.message.util.Connection;
+import net.result.sandnode.util.Container;
 import net.result.sandnode.util.IOController;
+import net.result.sandnode.util.JPAUtil;
 import net.result.sandnode.util.StreamReader;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.*;
+import java.net.Inet4Address;
+import java.net.InetAddress;
+import java.net.ServerSocket;
+import java.net.Socket;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -20,21 +27,24 @@ public class SandnodeServer {
     private static final Logger LOGGER = LogManager.getLogger(SandnodeServer.class);
     public final Node node;
     public final ServerConfig serverConfig;
+    public final Container container;
     public ServerSocket serverSocket;
+
     private final ExecutorService sessionExecutor = Executors.newCachedThreadPool();
 
     public SandnodeServer(Node node, ServerConfig serverConfig) {
         this.node = node;
         this.serverConfig = serverConfig;
+        container = serverConfig.container();
     }
 
     public void start() throws ServerStartException {
-        start(serverConfig.endpoint().port());
+        start(serverConfig.address().port());
     }
 
     public void start(int port) throws ServerStartException {
         try {
-            InetAddress host = Inet4Address.getByName(serverConfig.endpoint().host());
+            InetAddress host = Inet4Address.getByName(serverConfig.address().host());
             serverSocket = new ServerSocket(port, Integer.MAX_VALUE, host);
         } catch (IOException e) {
             throw new ServerStartException("Failed to start server on port " + port, e);
@@ -50,7 +60,7 @@ public class SandnodeServer {
                 throw new SocketAcceptException("Error accepting client socket connection", e);
             }
 
-            String ip = IOController.ipString(clientSocket);
+            String ip = IOController.addressFromSocket(clientSocket).toString();
             LOGGER.info("Client connected {}", ip);
 
             sessionExecutor.submit(() -> {
@@ -107,6 +117,16 @@ public class SandnodeServer {
 
         node.close();
 
-        serverConfig.database().shutdown();
+        container.get(JPAUtil.class).shutdown();
+    }
+
+    public synchronized void closeWithoutDBShutdown() throws ServerClosingException {
+        try {
+            serverSocket.close();
+        } catch (IOException e) {
+            throw new ServerClosingException("Failed to close the server socket", e);
+        }
+
+        node.close();
     }
 }

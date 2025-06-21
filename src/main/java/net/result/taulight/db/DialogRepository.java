@@ -1,20 +1,26 @@
 package net.result.taulight.db;
 
-import net.result.sandnode.db.JPAUtil;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityTransaction;
+import jakarta.persistence.TypedQuery;
+import net.result.sandnode.exception.AlreadyExistingRecordException;
 import net.result.sandnode.exception.DatabaseException;
-import net.result.taulight.exception.AlreadyExistingRecordException;
+import net.result.sandnode.util.Container;
+import net.result.sandnode.util.JPAUtil;
 import org.jetbrains.annotations.NotNull;
 
-import javax.persistence.EntityManager;
-import javax.persistence.EntityTransaction;
-import javax.persistence.TypedQuery;
 import java.util.Optional;
 import java.util.UUID;
 
 public class DialogRepository {
-    private final EntityManager em = JPAUtil.getEntityManager();
+    private final JPAUtil jpaUtil;
+
+    public DialogRepository(Container container) {
+        jpaUtil = container.get(JPAUtil.class);
+    }
 
     private DialogEntity save(@NotNull DialogEntity dialog) throws AlreadyExistingRecordException, DatabaseException {
+        EntityManager em = jpaUtil.getEntityManager();
         while (em.find(DialogEntity.class, dialog.id()) != null) {
             dialog.setRandomID();
         }
@@ -48,6 +54,7 @@ public class DialogRepository {
     }
 
     public Optional<DialogEntity> findById(UUID id) throws DatabaseException {
+        EntityManager em = jpaUtil.getEntityManager();
         try {
             return Optional.ofNullable(em.find(DialogEntity.class, id));
         } catch (Exception e) {
@@ -55,20 +62,9 @@ public class DialogRepository {
         }
     }
 
-    public void remove(DialogEntity dialog) throws DatabaseException {
-        EntityTransaction transaction = em.getTransaction();
-        try {
-            transaction.begin();
-            em.remove(dialog);
-            transaction.commit();
-        } catch (Exception e) {
-            if (transaction.isActive()) transaction.rollback();
-            throw new DatabaseException(e);
-        }
-    }
-
     public Optional<DialogEntity> findByMembers(TauMemberEntity firstMember, TauMemberEntity secondMember)
             throws DatabaseException {
+        EntityManager em = jpaUtil.getEntityManager();
         String q = """
             FROM DialogEntity
             WHERE

@@ -2,17 +2,19 @@ package net.result.sandnode.chain.sender;
 
 import net.result.sandnode.chain.ClientChain;
 import net.result.sandnode.error.ServerErrorManager;
-import net.result.sandnode.exception.*;
+import net.result.sandnode.exception.ExpectedMessageException;
+import net.result.sandnode.exception.UnknownSandnodeErrorException;
+import net.result.sandnode.exception.UnprocessedMessagesException;
 import net.result.sandnode.exception.crypto.CryptoException;
 import net.result.sandnode.exception.error.SandnodeErrorException;
 import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.message.types.PublicKeyRequest;
 import net.result.sandnode.message.types.PublicKeyResponse;
-import net.result.sandnode.util.IOController;
+import net.result.sandnode.serverclient.SandnodeClient;
 
 public class PublicKeyClientChain extends ClientChain {
-    public PublicKeyClientChain(IOController io) {
-        super(io);
+    public PublicKeyClientChain(SandnodeClient client) {
+        super(client);
     }
 
     public void getPublicKey() throws InterruptedException, ExpectedMessageException, SandnodeErrorException,

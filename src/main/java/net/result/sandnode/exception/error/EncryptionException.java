@@ -20,5 +20,4 @@ public class EncryptionException extends SandnodeErrorException {
     public SandnodeError getSandnodeError() {
         return Errors.ENCRYPT;
     }
-
 }

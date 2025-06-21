@@ -7,7 +7,7 @@ import net.result.taulight.db.InviteCodeEntity;
  * Data Transfer Object representing an invite code along with metadata about sender, receiver, and validity.
  */
 public class InviteCodeDTO extends CodeDTO {
-    /** Title of the associated channel. */
+    /** Title of the associated group. */
     @JsonProperty
     public String title;
     /** Nickname of the invited user. */
@@ -30,7 +30,7 @@ public class InviteCodeDTO extends CodeDTO {
      */
     public InviteCodeDTO(InviteCodeEntity invite) {
         super(invite.code());
-        title = invite.channel().title();
+        title = invite.group().title();
         receiverNickname = invite.receiver().member().nickname();
         senderNickname = invite.sender().member().nickname();
         creationDate = invite.creationDate();

@@ -119,12 +119,12 @@ public class IOController {
         }
     }
 
-    public static @NotNull String ipString(@NotNull Socket socket) {
-        return "%s:%d".formatted(socket.getInetAddress().getHostAddress(), socket.getPort());
+    public static @NotNull Address addressFromSocket(@NotNull Socket socket) {
+        return new Address(socket.getInetAddress().getHostAddress(), socket.getPort());
     }
 
-    public @NotNull String ipString() {
-        return ipString(socket);
+    public @NotNull Address addressFromSocket() {
+        return addressFromSocket(socket);
     }
 
     public @NotNull Encryption serverEncryption() {
@@ -163,7 +163,7 @@ public class IOController {
         connected = false;
         LOGGER.info("Sending exit message");
         sendMessage(new ExitMessage());
-        LOGGER.info("Disconnecting from {}", ipString(socket));
+        LOGGER.info("Disconnecting from {}", addressFromSocket(socket));
 
         chainManager.interruptAll();
 

@@ -1,21 +1,29 @@
 package net.result.taulight.db;
 
-import net.result.sandnode.db.SandnodeEntity;
+import jakarta.persistence.*;
+import net.result.sandnode.db.BaseEntity;
+import net.result.sandnode.db.EncryptedKeyEntity;
 import net.result.sandnode.db.ZonedDateTimeConverter;
 import net.result.taulight.dto.ChatMessageInputDTO;
+import org.jetbrains.annotations.Nullable;
 
-import javax.persistence.*;
 import java.time.ZonedDateTime;
-import java.util.*;
+import java.util.HashSet;
+import java.util.Set;
 
 @SuppressWarnings("unused")
 @Entity
-public class MessageEntity extends SandnodeEntity {
-    private String content;
+public class MessageEntity extends BaseEntity {
     private boolean sys;
+
+    @Lob
+    private String content;
 
     @Convert(converter = ZonedDateTimeConverter.class)
     private ZonedDateTime sentDatetime;
+
+    @ManyToOne
+    private EncryptedKeyEntity key;
 
     @ManyToOne
     private ChatEntity chat;
@@ -39,12 +47,27 @@ public class MessageEntity extends SandnodeEntity {
 
     public MessageEntity() {}
 
-    public MessageEntity(ChatEntity chat, ChatMessageInputDTO input, TauMemberEntity member) {
+    public MessageEntity(
+            ChatEntity chat,
+            ChatMessageInputDTO input,
+            TauMemberEntity member,
+            @Nullable EncryptedKeyEntity key
+    ) {
         setChat(chat);
+        setMember(member);
+        if (key != null) setKey(key);
+
         setSentDatetime(input.sentDatetime);
         setContent(input.content);
-        setMember(member);
         setSys(input.sys);
+    }
+
+    public EncryptedKeyEntity key() {
+        return key;
+    }
+
+    public void setKey(EncryptedKeyEntity key) {
+        this.key = key;
     }
 
     public ChatEntity chat() {
@@ -115,6 +138,5 @@ public class MessageEntity extends SandnodeEntity {
     public String toString() {
         return "<MessageEntity content='%s' sys=%s chat=%s member=%s repliedToMessages=%s>"
                 .formatted(content, sys, chat, member, repliedToMessages);
-
     }
 }

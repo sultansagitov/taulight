@@ -12,11 +12,15 @@ public class LoginRequest extends TextMessage {
         super(headers.setType(MessageTypes.LOGIN), token);
     }
 
-    public LoginRequest(String token) {
-        this(new Headers(), token);
+    public LoginRequest(@NotNull RawMessage raw) throws ExpectedMessageException {
+        super(raw.expect(MessageTypes.LOGIN));
     }
 
-    public LoginRequest(@NotNull RawMessage request) throws ExpectedMessageException {
-        super(request.expect(MessageTypes.LOGIN));
+    public static LoginRequest byToken(Headers headers, String token) {
+        return new LoginRequest(headers, token);
+    }
+
+    public static LoginRequest history(Headers headers) {
+        return new LoginRequest(headers.setValue("history", "true"), "");
     }
 }

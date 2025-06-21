@@ -7,22 +7,23 @@ import net.result.sandnode.error.Errors;
 import net.result.sandnode.exception.DatabaseException;
 import net.result.sandnode.exception.DeserializationException;
 import net.result.sandnode.exception.UnprocessedMessagesException;
-import net.result.sandnode.serverclient.Session;
-import net.result.taulight.db.ChatEntity;
-import net.result.taulight.db.TauDatabase;
-import net.result.taulight.db.TauMemberEntity;
-import net.result.taulight.group.ChatGroup;
-import net.result.taulight.group.TauGroupManager;
-import net.result.taulight.dto.ChatMemberDTO;
-import net.result.taulight.message.types.MembersResponse;
 import net.result.sandnode.message.UUIDMessage;
+import net.result.sandnode.serverclient.Session;
+import net.result.taulight.cluster.ChatCluster;
+import net.result.taulight.cluster.TauClusterManager;
+import net.result.taulight.db.ChatEntity;
+import net.result.taulight.db.GroupEntity;
+import net.result.taulight.db.RoleEntity;
+import net.result.taulight.db.TauMemberEntity;
+import net.result.taulight.dto.ChatMemberDTO;
+import net.result.taulight.dto.MemberStatus;
+import net.result.taulight.dto.RoleDTO;
+import net.result.taulight.message.types.MembersResponse;
+import net.result.taulight.util.ChatUtil;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.util.Collection;
-import java.util.Map;
-import java.util.Optional;
-import java.util.stream.Collectors;
+import java.util.*;
 
 public class MembersServerChain extends ServerChain implements ReceiverChain {
     private static final Logger LOGGER = LogManager.getLogger(MembersServerChain.class);
@@ -33,8 +34,8 @@ public class MembersServerChain extends ServerChain implements ReceiverChain {
 
     @Override
     public void sync() throws InterruptedException, DeserializationException, UnprocessedMessagesException {
-        TauDatabase database = (TauDatabase) session.server.serverConfig.database();
-        TauGroupManager groupManager = (TauGroupManager) session.server.serverConfig.groupManager();
+        ChatUtil chatUtil = session.server.container.get(ChatUtil.class);
+        TauClusterManager clusterManager = session.server.container.get(TauClusterManager.class);
 
         while (true) {
             UUIDMessage request = new UUIDMessage(queue.take());
@@ -45,7 +46,7 @@ public class MembersServerChain extends ServerChain implements ReceiverChain {
             }
 
             try {
-                Optional<ChatEntity> optChat = database.getChat(request.uuid);
+                Optional<ChatEntity> optChat = chatUtil.getChat(request.uuid);
 
                 if (optChat.isEmpty()) {
                     send(Errors.NOT_FOUND.createMessage());
@@ -53,28 +54,49 @@ public class MembersServerChain extends ServerChain implements ReceiverChain {
                 }
 
                 ChatEntity chat = optChat.get();
-                ChatGroup group = groupManager.getGroup(chat);
-                Collection<TauMemberEntity> members = database.getMembers(chat);
+                ChatCluster cluster = clusterManager.getCluster(chat);
 
-                if (!members.contains(session.member.tauMember())) {
+                if (!chatUtil.contains(chat, session.member.tauMember())) {
                     send(Errors.NOT_FOUND.createMessage());
-                    continue;
+                    return;
                 }
 
-                Map<String, ChatMemberDTO> map = members.stream()
-                        .map(TauMemberEntity::member)
-                        .collect(Collectors.toMap(MemberEntity::nickname, ChatMemberDTO::new));
+                Collection<TauMemberEntity> tauMembers = chatUtil.getMembers(chat);
 
-                for (Session s : group.getSessions()) {
-                    if (s.member != null) {
-                        map.computeIfPresent(s.member.nickname(), (nickname, record) -> {
-                            record.status = ChatMemberDTO.Status.ONLINE;
-                            return record;
-                        });
+                Map<TauMemberEntity, List<String>> memberRolesMap = new HashMap<>();
+                Set<RoleDTO> roleDTOs = null;
+
+                if (chat instanceof GroupEntity group) {
+                    Set<RoleDTO> set = new HashSet<>();
+
+                    for (RoleEntity role : group.roles()) {
+                        set.add(new RoleDTO(role));
+
+                        for (TauMemberEntity member : role.members()) {
+                            memberRolesMap
+                                    .computeIfAbsent(member, k -> new ArrayList<>())
+                                    .add(role.id().toString());
+                        }
+                    }
+
+                    roleDTOs = set;
+                }
+
+                Map<MemberEntity, ChatMemberDTO> map = new HashMap<>();
+                for (TauMemberEntity m : tauMembers) {
+                    List<String> roleIds = memberRolesMap.getOrDefault(m, null);
+                    map.put(m.member(), new ChatMemberDTO(m, roleIds));
+                }
+
+                for (Session s : cluster.getSessions()) {
+                    ChatMemberDTO dto = map.get(s.member);
+                    if (s.member != null && dto.status != MemberStatus.HIDDEN) {
+                        dto.status = MemberStatus.ONLINE;
                     }
                 }
 
-                send(new MembersResponse(map.values()));
+                send(new MembersResponse(map.values(), roleDTOs));
+
 
             } catch (DatabaseException e) {
                 LOGGER.error(e);

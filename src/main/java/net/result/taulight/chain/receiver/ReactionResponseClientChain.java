@@ -1,15 +1,15 @@
 package net.result.taulight.chain.receiver;
 
-import net.result.sandnode.chain.ReceiverChain;
 import net.result.sandnode.chain.ClientChain;
+import net.result.sandnode.chain.ReceiverChain;
 import net.result.sandnode.message.types.HappyMessage;
-import net.result.sandnode.util.IOController;
+import net.result.sandnode.serverclient.SandnodeClient;
 import net.result.taulight.dto.ReactionDTO;
 import net.result.taulight.message.types.ReactionResponse;
 
 public abstract class ReactionResponseClientChain extends ClientChain implements ReceiverChain {
-    public ReactionResponseClientChain(IOController io) {
-        super(io);
+    public ReactionResponseClientChain(SandnodeClient client) {
+        super(client);
     }
 
     @Override

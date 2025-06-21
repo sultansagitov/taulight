@@ -1,18 +1,26 @@
 package net.result.taulight.db;
 
-import net.result.sandnode.db.JPAUtil;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityTransaction;
 import net.result.sandnode.exception.DatabaseException;
+import net.result.sandnode.util.Container;
+import net.result.sandnode.util.JPAUtil;
 import org.jetbrains.annotations.NotNull;
 
-import javax.persistence.EntityManager;
-import javax.persistence.EntityTransaction;
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
 
 public class RoleRepository {
-    private final EntityManager em = JPAUtil.getEntityManager();
+    private final JPAUtil jpaUtil;
+
+    public RoleRepository(Container container) {
+        jpaUtil = container.get(JPAUtil.class);
+    }
 
     private RoleEntity save(@NotNull RoleEntity reactionType) throws DatabaseException {
+        EntityManager em = jpaUtil.getEntityManager();
         while (em.find(RoleEntity.class, reactionType.id()) != null) {
             reactionType.setRandomID();
         }
@@ -25,20 +33,22 @@ public class RoleRepository {
             return managed;
         } catch (Exception e) {
             if (transaction.isActive()) transaction.rollback();
-            throw new DatabaseException("Failed to save role", e);
+            throw new DatabaseException(e);
         }
     }
 
-    public RoleEntity create(ChannelEntity channel, String role) throws DatabaseException {
-        RoleEntity managed = save(new RoleEntity(channel, role));
+    public RoleEntity create(GroupEntity group, String role) throws DatabaseException {
+        EntityManager em = jpaUtil.getEntityManager();
+        RoleEntity managed = save(new RoleEntity(group, role));
 
-        channel.roles().add(managed);
-        em.merge(channel);
+        group.roles().add(managed);
+        em.merge(group);
 
         return managed;
     }
 
     public boolean addMember(RoleEntity role, TauMemberEntity member) throws DatabaseException {
+        EntityManager em = jpaUtil.getEntityManager();
         EntityTransaction transaction = em.getTransaction();
         transaction.begin();
         try {
@@ -58,7 +68,54 @@ public class RoleRepository {
             return true;
         } catch (Exception e) {
             transaction.rollback();
-            throw new DatabaseException("Failed to add member to role", e);
+            throw new DatabaseException(e);
+        }
+    }
+
+    public boolean grantPermission(@NotNull RoleEntity role, @NotNull Permission permission) throws DatabaseException {
+        EntityManager em = jpaUtil.getEntityManager();
+        EntityTransaction transaction = em.getTransaction();
+
+        try {
+            if (role.permissions().contains(permission)) return false;
+
+            role.permissions().add(permission);
+
+            transaction.begin();
+            em.merge(role);
+            transaction.commit();
+            return true;
+        } catch (Exception e) {
+            if (transaction.isActive()) transaction.rollback();
+            throw new DatabaseException(e);
+        }
+    }
+
+    public boolean revokePermission(@NotNull RoleEntity role, @NotNull Permission permission) throws DatabaseException {
+        EntityManager em = jpaUtil.getEntityManager();
+        EntityTransaction transaction = em.getTransaction();
+
+        try {
+            if (!role.permissions().contains(permission)) return false;
+
+            role.permissions().remove(permission);
+
+            transaction.begin();
+            em.merge(role);
+            transaction.commit();
+            return true;
+        } catch (Exception e) {
+            if (transaction.isActive()) transaction.rollback();
+            throw new DatabaseException(e);
+        }
+    }
+
+    public Optional<RoleEntity> findById(UUID id) throws DatabaseException {
+        EntityManager em = jpaUtil.getEntityManager();
+        try {
+            return Optional.ofNullable(em.find(RoleEntity.class, id));
+        } catch (Exception e) {
+            throw new DatabaseException(e);
         }
     }
 }

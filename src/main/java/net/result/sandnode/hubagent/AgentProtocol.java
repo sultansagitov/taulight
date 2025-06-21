@@ -2,40 +2,97 @@ package net.result.sandnode.hubagent;
 
 import net.result.sandnode.chain.sender.LogPasswdClientChain;
 import net.result.sandnode.chain.sender.LoginClientChain;
-import net.result.sandnode.exception.*;
 import net.result.sandnode.chain.sender.RegistrationClientChain;
+import net.result.sandnode.dto.LogPasswdResponseDTO;
+import net.result.sandnode.dto.LoginResponseDTO;
+import net.result.sandnode.dto.RegistrationResponseDTO;
+import net.result.sandnode.encryption.interfaces.AsymmetricEncryption;
+import net.result.sandnode.encryption.interfaces.AsymmetricKeyStorage;
+import net.result.sandnode.exception.*;
+import net.result.sandnode.exception.crypto.CannotUseEncryption;
+import net.result.sandnode.exception.crypto.CryptoException;
+import net.result.sandnode.exception.error.KeyStorageNotFoundException;
 import net.result.sandnode.exception.error.SandnodeErrorException;
-import net.result.sandnode.util.IOController;
+import net.result.sandnode.link.SandnodeLinkRecord;
+import net.result.sandnode.serverclient.SandnodeClient;
+import net.result.sandnode.util.EncryptionUtil;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.jetbrains.annotations.NotNull;
 
 public class AgentProtocol {
-    public static String getTokenFromRegistration(IOController io, String nickname, String password)
-            throws ExpectedMessageException, InterruptedException, SandnodeErrorException,
-            UnknownSandnodeErrorException, UnprocessedMessagesException {
-        RegistrationClientChain chain = new RegistrationClientChain(io);
-        io.chainManager.linkChain(chain);
-        String token = chain.getTokenFromRegistration(nickname, password);
-        io.chainManager.removeChain(chain);
-        return token;
+    public static final Logger LOGGER = LogManager.getLogger(AgentProtocol.class);
+
+    public static RegistrationResponseDTO register(
+            @NotNull SandnodeClient client,
+            @NotNull String nickname,
+            @NotNull String password,
+            @NotNull String device,
+            @NotNull AsymmetricKeyStorage keyStorage
+    ) throws ExpectedMessageException, InterruptedException, SandnodeErrorException, UnknownSandnodeErrorException,
+            UnprocessedMessagesException, DeserializationException, CannotUseEncryption {
+
+        RegistrationClientChain chain = new RegistrationClientChain(client);
+        client.io.chainManager.linkChain(chain);
+        RegistrationResponseDTO dto = chain.register(nickname, password, device, keyStorage);
+        client.io.chainManager.removeChain(chain);
+        return dto;
     }
 
-    public static String getMemberFromToken(IOController io, String token)
+    public static LoginResponseDTO byToken(SandnodeClient client, String token)
             throws InterruptedException, SandnodeErrorException, DeserializationException,
             UnknownSandnodeErrorException, UnprocessedMessagesException {
-        LoginClientChain chain = new LoginClientChain(io);
-        io.chainManager.linkChain(chain);
-        String nickname = chain.getNickname(token);
-        io.chainManager.removeChain(chain);
+        LoginClientChain chain = new LoginClientChain(client);
+        client.io.chainManager.linkChain(chain);
+        LoginResponseDTO dto = chain.login(token);
+        client.io.chainManager.removeChain(chain);
 
-        return nickname;
+        return dto;
     }
 
-    public static String getTokenByNicknameAndPassword(IOController io, String nickname, String password)
+    public static LogPasswdResponseDTO byPassword(SandnodeClient client, String nickname, String password, String device)
             throws InterruptedException, SandnodeErrorException, ExpectedMessageException,
-            UnknownSandnodeErrorException, UnprocessedMessagesException {
-        LogPasswdClientChain chain = new LogPasswdClientChain(io);
-        io.chainManager.linkChain(chain);
-        String token = chain.getToken(nickname, password);
-        io.chainManager.removeChain(chain);
+            UnknownSandnodeErrorException, UnprocessedMessagesException, DeserializationException {
+        LogPasswdClientChain chain = new LogPasswdClientChain(client);
+        client.io.chainManager.linkChain(chain);
+        LogPasswdResponseDTO token = chain.getToken(nickname, password, device);
+        client.io.chainManager.removeChain(chain);
         return token;
+    }
+
+    public static AsymmetricKeyStorage loadOrFetchServerKey(SandnodeClient client, @NotNull SandnodeLinkRecord link)
+            throws CryptoException, LinkDoesNotMatchException, InterruptedException, SandnodeErrorException,
+            ExpectedMessageException, UnknownSandnodeErrorException, UnprocessedMessagesException, StorageException {
+
+        Agent agent = (Agent) client.node;
+
+        AsymmetricKeyStorage filePublicKey = null;
+        try {
+            filePublicKey = agent.config.loadServerKey(link.address());
+        } catch (KeyStorageNotFoundException ignored) {
+        }
+        AsymmetricKeyStorage linkKeyStorage = link.keyStorage();
+
+        if (linkKeyStorage != null) {
+            if (filePublicKey != null) {
+                if (!EncryptionUtil.isPublicKeysEquals(filePublicKey, linkKeyStorage))
+                    throw new LinkDoesNotMatchException("Key mismatch with saved configuration");
+
+                LOGGER.info("Key already saved and matches");
+                return filePublicKey;
+            }
+
+            agent.config.saveServerKey(link.address(), linkKeyStorage);
+            return linkKeyStorage;
+        }
+
+        if (filePublicKey != null) return filePublicKey;
+
+        ClientProtocol.PUB(client);
+        AsymmetricEncryption encryption = client.io.serverEncryption().asymmetric();
+        AsymmetricKeyStorage serverKey = agent.keyStorageRegistry.asymmetricNonNull(encryption);
+
+        agent.config.saveServerKey(link.address(), serverKey);
+        return serverKey;
     }
 }

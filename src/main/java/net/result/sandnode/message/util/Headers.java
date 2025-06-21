@@ -119,7 +119,6 @@ public class Headers {
                     headers.setValue(key, value);
                 }
             }
-
         }
 
         return headers;

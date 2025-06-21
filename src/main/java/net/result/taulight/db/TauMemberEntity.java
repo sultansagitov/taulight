@@ -1,15 +1,18 @@
 package net.result.taulight.db;
 
+import jakarta.persistence.*;
+import net.result.sandnode.db.BaseEntity;
 import net.result.sandnode.db.MemberEntity;
-import net.result.sandnode.db.SandnodeEntity;
 
-import javax.persistence.*;
 import java.util.HashSet;
 import java.util.Set;
 
 @SuppressWarnings("unused")
 @Entity
-public class TauMemberEntity extends SandnodeEntity {
+public class TauMemberEntity extends BaseEntity {
+    @Column()
+    private boolean showStatus;
+
     @OneToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     private MemberEntity member;
 
@@ -20,7 +23,7 @@ public class TauMemberEntity extends SandnodeEntity {
     private Set<ReactionEntryEntity> reactionEntries = new HashSet<>();
 
     @ManyToMany(mappedBy = "members", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
-    private Set<ChannelEntity> channels = new HashSet<>();
+    private Set<GroupEntity> groups = new HashSet<>();
 
     @OneToMany(mappedBy = "firstMember", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     private Set<DialogEntity> dialogsAsFirst = new HashSet<>();
@@ -41,6 +44,15 @@ public class TauMemberEntity extends SandnodeEntity {
 
     public TauMemberEntity(MemberEntity member) {
         setMember(member);
+        setShowStatus(false);
+    }
+
+    public boolean isShowStatus() {
+        return showStatus;
+    }
+
+    public void setShowStatus(boolean showStatus) {
+        this.showStatus = showStatus;
     }
 
     public MemberEntity member() {
@@ -67,12 +79,12 @@ public class TauMemberEntity extends SandnodeEntity {
         this.reactionEntries = reactionEntries;
     }
 
-    public Set<ChannelEntity> channels() {
-        return channels;
+    public Set<GroupEntity> groups() {
+        return groups;
     }
 
-    public void setChannels(Set<ChannelEntity> channels) {
-        this.channels = channels;
+    public void setGroups(Set<GroupEntity> groups) {
+        this.groups = groups;
     }
 
     public Set<DialogEntity> dialogs() {

@@ -9,9 +9,10 @@
         </File>
     </Appenders>
     <Loggers>
-        <Root level="all">
+        <Root level="info">
             <AppenderRef ref="Console"/>
             <AppenderRef ref="File"/>
         </Root>
+        <Logger name="net.result" level="all" />
     </Loggers>
 </Configuration>

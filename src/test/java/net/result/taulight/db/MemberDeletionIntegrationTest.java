@@ -1,8 +1,10 @@
 package net.result.taulight.db;
 
-import net.result.sandnode.db.JPAUtil;
+import net.result.sandnode.GlobalTestState;
 import net.result.sandnode.db.MemberEntity;
-import net.result.sandnode.security.PasswordHashers;
+import net.result.sandnode.db.MemberRepository;
+import net.result.sandnode.util.Container;
+import net.result.sandnode.util.JPAUtil;
 import net.result.taulight.dto.ChatMessageInputDTO;
 import org.junit.jupiter.api.*;
 
@@ -12,38 +14,54 @@ import java.util.HashSet;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class MemberDeletionIntegrationTest {
-
-    private static TauDatabase database;
+    private static JPAUtil jpaUtil;
+    private static MemberRepository memberRepo;
+    private static DialogRepository dialogRepo;
+    private static GroupRepository groupRepo;
+    private static MessageRepository messageRepo;
+    private static InviteCodeRepository inviteCodeRepo;
+    private static ReactionPackageRepository reactionPackageRepo;
+    private static ReactionTypeRepository reactionTypeRepo;
+    private static ReactionEntryRepository reactionEntryRepo;
 
     @BeforeAll
     public static void setup() {
-        JPAUtil.buildEntityManagerFactory();
-        database = new TauJPADatabase(PasswordHashers.BCRYPT);
+        Container container = GlobalTestState.container;
+        jpaUtil = container.get(JPAUtil.class);
+        memberRepo = container.get(MemberRepository.class);
+        dialogRepo = container.get(DialogRepository.class);
+        groupRepo = container.get(GroupRepository.class);
+        messageRepo = container.get(MessageRepository.class);
+        inviteCodeRepo = container.get(InviteCodeRepository.class);
+        reactionPackageRepo = container.get(ReactionPackageRepository.class);
+        reactionTypeRepo = container.get(ReactionTypeRepository.class);
+        reactionEntryRepo = container.get(ReactionEntryRepository.class);
     }
 
     @Test
     public void testDeleteMemberAndCheckDialogCleanup() throws Exception {
-        MemberEntity m1 = database.registerMember("alice", "pass1");
-        MemberEntity m2 = database.registerMember("bob", "pass2");
+        MemberEntity m1 = memberRepo.create("alice", "hash");
+        MemberEntity m2 = memberRepo.create("bob", "hash");
 
         TauMemberEntity tau1 = m1.tauMember();
         TauMemberEntity tau2 = m2.tauMember();
 
-        database.createDialog(tau1, tau2);
+        dialogRepo.create(tau1, tau2);
 
-        assertTrue(database.findDialog(tau1, tau2).isPresent());
+        assertTrue(dialogRepo.findByMembers(tau1, tau2).isPresent());
 
-        database.deleteMember(m1);
+        boolean deleted = memberRepo.delete(m1);
 
-        assertTrue(database.findDialog(tau1, tau2).isPresent());
+        assertTrue(deleted);
+        assertTrue(dialogRepo.findByMembers(tau1, tau2).isPresent());
     }
 
     @Test
     public void testDeleteMemberAndCheckMessageCleanup() throws Exception {
-        MemberEntity member = database.registerMember("charlie", "123");
+        MemberEntity member = memberRepo.create("charlie", "hash");
         TauMemberEntity tau = member.tauMember();
 
-        ChatEntity chat = database.createChannel("general", tau);
+        ChatEntity chat = groupRepo.create("general", tau);
         ChatMessageInputDTO input = new ChatMessageInputDTO()
                 .setContent("Hello world")
                 .setChat(chat)
@@ -51,23 +69,26 @@ public class MemberDeletionIntegrationTest {
                 .setSentDatetimeNow()
                 .setRepliedToMessages(new HashSet<>())
                 .setSys(true);
-        database.createMessage(chat, input, tau);
+        messageRepo.create(chat, input, tau);
 
-        assertEquals(1, database.getMessageCount(chat));
+        assertEquals(1, messageRepo.countMessagesByChat(chat));
 
-        database.deleteMember(member);
+        member = jpaUtil.refresh(member);
 
-        assertEquals(1, database.getMessageCount(chat));
+        boolean deleted = memberRepo.delete(member);
+
+        assertTrue(deleted);
+        assertEquals(1, messageRepo.countMessagesByChat(chat));
     }
 
     @Test
     public void testDeleteMemberAndCheckReactionCleanup() throws Exception {
-        MemberEntity m1 = database.registerMember("eva", "123");
-        MemberEntity m2 = database.registerMember("oliver", "456");
+        MemberEntity m1 = memberRepo.create("eva", "hash");
+        MemberEntity m2 = memberRepo.create("oliver", "hash");
         TauMemberEntity tau1 = m1.tauMember();
         TauMemberEntity tau2 = m2.tauMember();
 
-        ChatEntity chat = database.createChannel("fun", tau1);
+        ChatEntity chat = groupRepo.create("fun", tau1);
         ChatMessageInputDTO input = new ChatMessageInputDTO()
                 .setContent("Hello world")
                 .setChat(chat)
@@ -75,35 +96,37 @@ public class MemberDeletionIntegrationTest {
                 .setSentDatetimeNow()
                 .setRepliedToMessages(new HashSet<>())
                 .setSys(true);
-        MessageEntity msg = database.createMessage(chat, input, tau1);
+        MessageEntity msg = messageRepo.create(chat, input, tau1);
 
-        ReactionPackageEntity emoji = database.createReactionPackage("emoji", "");
-        ReactionTypeEntity like = database.createReactionType("Like", emoji);
-        database.createReactionEntry(tau2, msg, like);
+        ReactionPackageEntity emoji = reactionPackageRepo.create("emoji", "");
+        ReactionTypeEntity like = reactionTypeRepo.create("Like", emoji);
+        reactionEntryRepo.create(tau2, msg, like);
 
-        assertTrue(database.removeReactionEntry(msg, tau2, like));
+        assertTrue(reactionEntryRepo.delete(msg, tau2, like));
 
-        database.createReactionEntry(tau2, msg, like);
-        database.deleteMember(m2);
+        reactionEntryRepo.create(tau2, msg, like);
+        boolean deleted = memberRepo.delete(m2);
 
-        assertTrue(database.removeReactionEntry(msg, tau2, like));
+        assertTrue(deleted);
+        assertTrue(reactionEntryRepo.delete(msg, tau2, like));
     }
 
     @Test
     public void testDeleteMemberAndCheckInviteCleanup() throws Exception {
-        MemberEntity owner = database.registerMember("sam", "123");
-        MemberEntity invited = database.registerMember("jack", "456");
+        MemberEntity owner = memberRepo.create("sam", "hash");
+        MemberEntity invited = memberRepo.create("jack", "hash");
         TauMemberEntity tauOwner = owner.tauMember();
         TauMemberEntity tauInvited = invited.tauMember();
 
-        ChannelEntity channel = database.createChannel("private", tauOwner);
+        GroupEntity group = groupRepo.create("private", tauOwner);
         ZonedDateTime expiresDate = ZonedDateTime.now().plusDays(1);
-        InviteCodeEntity invite = database.createInviteCode(channel, tauInvited, tauOwner, expiresDate);
+        InviteCodeEntity invite = inviteCodeRepo.create(group, tauInvited, tauOwner, expiresDate);
 
-        assertTrue(database.findInviteCode(invite.code()).isPresent());
+        assertTrue(inviteCodeRepo.find(invite.code()).isPresent());
 
-        database.deleteMember(invited);
+        boolean deleted = memberRepo.delete(invited);
 
-        assertTrue(database.findInviteCode(invite.code()).isPresent());
+        assertTrue(deleted);
+        assertTrue(inviteCodeRepo.find(invite.code()).isPresent());
     }
 }

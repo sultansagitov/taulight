@@ -1,28 +1,30 @@
 package net.result.taulight.db;
 
-import net.result.sandnode.db.SandnodeEntity;
+import jakarta.persistence.*;
+import net.result.sandnode.db.BaseEntity;
 
-import javax.persistence.Entity;
-import javax.persistence.ManyToMany;
-import javax.persistence.ManyToOne;
 import java.util.HashSet;
 import java.util.Set;
 
 @SuppressWarnings("unused")
 @Entity
-public class RoleEntity extends SandnodeEntity {
+public class RoleEntity extends BaseEntity {
     private String name;
 
     @ManyToOne
-    private ChannelEntity channel;
+    private GroupEntity group;
 
     @ManyToMany
     private Set<TauMemberEntity> members = new HashSet<>();
 
+    @ElementCollection(targetClass = Permission.class)
+    @Enumerated(EnumType.STRING)
+    private Set<Permission> permissions = new HashSet<>();
+
     public RoleEntity() {}
 
-    public RoleEntity(ChannelEntity channel, String role) {
-        setChannel(channel);
+    public RoleEntity(GroupEntity group, String role) {
+        setGroup(group);
         setName(role);
     }
 
@@ -34,12 +36,12 @@ public class RoleEntity extends SandnodeEntity {
         this.name = name;
     }
 
-    public ChannelEntity channel() {
-        return channel;
+    public GroupEntity group() {
+        return group;
     }
 
-    public void setChannel(ChannelEntity channel) {
-        this.channel = channel;
+    public void setGroup(GroupEntity group) {
+        this.group = group;
     }
 
     public Set<TauMemberEntity> members() {
@@ -48,5 +50,13 @@ public class RoleEntity extends SandnodeEntity {
 
     public void setMembers(Set<TauMemberEntity> members) {
         this.members = members;
+    }
+
+    public Set<Permission> permissions() {
+        return permissions;
+    }
+
+    public void setPermissions(Set<Permission> permissions) {
+        this.permissions = permissions;
     }
 }

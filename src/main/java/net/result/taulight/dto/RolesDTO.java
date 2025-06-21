@@ -1,8 +1,10 @@
 package net.result.taulight.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import net.result.taulight.db.Permission;
 
 import java.util.Set;
+import java.util.UUID;
 
 /**
  * Data Transfer Object representing a set of all available roles and the roles of a specific member.
@@ -10,10 +12,13 @@ import java.util.Set;
 public class RolesDTO {
     /** Set of all available roles in the system. */
     @JsonProperty("all-roles")
-    public Set<String> allRoles;
+    public Set<RoleDTO> allRoles;
     /** Set of roles assigned to the member. */
     @JsonProperty("member-roles")
-    public Set<String> memberRoles;
+    public Set<UUID> memberRoles;
+    /** Set of default permissions . */
+    @JsonProperty
+    public Set<Permission> permissions;
 
     /** Default constructor. */
     @SuppressWarnings("unused")
@@ -22,11 +27,14 @@ public class RolesDTO {
     /**
      * Constructs a RolesDTO.
      *
-     * @param allRoles all available roles
-     * @param memberRoles the member's roles
+     * @param allRoles     all available roles
+     * @param memberRoles  roles assigned to the member
+     * @param permissions  granted permissions
      */
-    public RolesDTO(Set<String> allRoles, Set<String> memberRoles) {
+    public RolesDTO(Set<RoleDTO> allRoles, Set<UUID> memberRoles, Set<Permission> permissions) {
         this.allRoles = allRoles;
         this.memberRoles = memberRoles;
+        this.permissions = permissions;
     }
+
 }

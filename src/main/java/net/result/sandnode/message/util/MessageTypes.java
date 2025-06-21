@@ -11,10 +11,12 @@ public enum MessageTypes implements MessageType {
     LOG_PASSWD(7),
     LOGIN(8),
     LOGOUT(9),
-    GROUP(10),
+    CLUSTER(10),
     WHOAMI(11),
     NAME(12),
-    FILE(13);
+    FILE(13),
+    DEK(14),
+    AVATAR(15);
 
     private final byte type;
 

@@ -1,19 +1,24 @@
 package net.result.taulight.db;
 
-import net.result.sandnode.db.JPAUtil;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityTransaction;
 import net.result.sandnode.exception.DatabaseException;
-import org.jetbrains.annotations.NotNull;
+import net.result.sandnode.util.Container;
+import net.result.sandnode.util.JPAUtil;
 
-import javax.persistence.EntityManager;
-import javax.persistence.EntityTransaction;
 import java.time.ZonedDateTime;
 import java.util.Collection;
 import java.util.Optional;
 
 public class InviteCodeRepository {
-    private final EntityManager em = JPAUtil.getEntityManager();
+    private final JPAUtil jpaUtil;
+
+    public InviteCodeRepository(Container container) {
+        jpaUtil = container.get(JPAUtil.class);
+    }
 
     private InviteCodeEntity save(InviteCodeEntity code) throws DatabaseException {
+        EntityManager em = jpaUtil.getEntityManager();
         while (em.find(InviteCodeEntity.class, code.id()) != null) code.setRandomID();
 
         EntityTransaction transaction = em.getTransaction();
@@ -29,15 +34,16 @@ public class InviteCodeRepository {
     }
 
     public InviteCodeEntity create(
-            ChannelEntity channel,
+            GroupEntity group,
             TauMemberEntity receiver,
             TauMemberEntity sender,
             ZonedDateTime expiresDate
     ) throws DatabaseException {
-        InviteCodeEntity managed = save(new InviteCodeEntity(channel, receiver, sender, expiresDate));
+        EntityManager em = jpaUtil.getEntityManager();
+        InviteCodeEntity managed = save(new InviteCodeEntity(group, receiver, sender, expiresDate));
 
-        channel.inviteCodes().add(managed);
-        em.merge(channel);
+        group.inviteCodes().add(managed);
+        em.merge(group);
 
         receiver.inviteCodesAsReceiver().add(managed);
         em.merge(receiver);
@@ -49,6 +55,7 @@ public class InviteCodeRepository {
     }
 
     public Optional<InviteCodeEntity> find(String code) throws DatabaseException {
+        EntityManager em = jpaUtil.getEntityManager();
         try {
             String q = "FROM InviteCodeEntity WHERE code = :code";
             return em.createQuery(q, InviteCodeEntity.class)
@@ -61,12 +68,13 @@ public class InviteCodeRepository {
         }
     }
 
-    public Collection<InviteCodeEntity> find(ChannelEntity channel, TauMemberEntity receiver)
+    public Collection<InviteCodeEntity> find(GroupEntity group, TauMemberEntity receiver)
             throws DatabaseException {
+        EntityManager em = jpaUtil.getEntityManager();
         try {
-            String q = "FROM InviteCodeEntity WHERE channel = :channel AND receiver = :receiver";
+            String q = "FROM InviteCodeEntity WHERE group = :group AND receiver = :receiver";
             return em.createQuery(q, InviteCodeEntity.class)
-                    .setParameter("channel", channel)
+                    .setParameter("group", group)
                     .setParameter("receiver", receiver)
                     .getResultList();
         } catch (Exception e) {
@@ -74,24 +82,8 @@ public class InviteCodeRepository {
         }
     }
 
-    public boolean delete(@NotNull InviteCodeEntity inviteCodeEntity) throws DatabaseException {
-        EntityTransaction transaction = em.getTransaction();
-        try {
-            if (em.find(InviteCodeEntity.class, inviteCodeEntity.id()) != null) {
-                transaction.begin();
-                em.remove(inviteCodeEntity);
-                transaction.commit();
-                return true;
-            }
-
-            return false;
-        } catch (Exception e) {
-            if (transaction.isActive()) transaction.rollback();
-            throw new DatabaseException("Failed to delete invite code", e);
-        }
-    }
-
     public boolean activate(InviteCodeEntity code) throws DatabaseException {
+        EntityManager em = jpaUtil.getEntityManager();
         EntityTransaction transaction = em.getTransaction();
         try {
             if (code.activationDate() != null || !code.expiresDate().isAfter(ZonedDateTime.now())) {
@@ -104,7 +96,7 @@ public class InviteCodeRepository {
             return true;
         } catch (Exception e) {
             if (transaction.isActive()) transaction.rollback();
-            throw new DatabaseException("Failed to activate invite code", e);
+            throw new DatabaseException(e);
         }
     }
 }

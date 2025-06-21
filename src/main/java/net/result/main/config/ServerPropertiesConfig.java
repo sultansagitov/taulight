@@ -10,13 +10,9 @@ import net.result.sandnode.exception.ConfigurationException;
 import net.result.sandnode.exception.FSException;
 import net.result.sandnode.exception.ImpossibleRuntimeException;
 import net.result.sandnode.exception.crypto.*;
-import net.result.sandnode.security.PasswordHashers;
-import net.result.sandnode.util.Endpoint;
+import net.result.sandnode.util.Container;
+import net.result.sandnode.util.Address;
 import net.result.sandnode.util.FileUtil;
-import net.result.sandnode.db.Database;
-import net.result.sandnode.group.GroupManager;
-import net.result.sandnode.security.Tokenizer;
-import net.result.taulight.db.TauJPADatabase;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
@@ -31,26 +27,27 @@ import java.util.Properties;
 
 public class ServerPropertiesConfig implements ServerConfig {
     private static final Logger LOGGER = LogManager.getLogger(ServerPropertiesConfig.class);
-    private final Endpoint endpoint;
+    private final Container container;
+    private final Address address;
     private final Path PUBLIC_KEY_PATH;
     private final Path PRIVATE_KEY_PATH;
     private final AsymmetricEncryption MAIN_ENCRYPTION;
-    private GroupManager groupManager;
-    private Database database;
-    private Tokenizer tokenizer;
 
-    public ServerPropertiesConfig()
+    public ServerPropertiesConfig(Container container)
             throws ConfigurationException, FSException, NoSuchEncryptionException, EncryptionTypeException {
-        this("taulight.properties", null);
+        this(container, "taulight.properties", null);
     }
 
-    public ServerPropertiesConfig(String fileName, @Nullable Endpoint endpoint)
+    public ServerPropertiesConfig(Container container, String fileName, @Nullable Address address)
             throws ConfigurationException, FSException, NoSuchEncryptionException, EncryptionTypeException {
+        this.container = container;
+
         Properties properties = new Properties();
 
         try (InputStream input = getClass().getClassLoader().getResourceAsStream(fileName)) {
-            if (input == null)
+            if (input == null) {
                 throw new ImpossibleRuntimeException("Unable to find %s".formatted(fileName));
+            }
             properties.load(input);
         } catch (IOException e) {
             throw new ConfigurationException("Failed to load configuration file", fileName);
@@ -59,14 +56,14 @@ public class ServerPropertiesConfig implements ServerConfig {
         String defaultHost = "127.0.0.1";
         int defaultPort = 52525;
 
-        if (endpoint != null) {
-            this.endpoint = endpoint;
+        if (address != null) {
+            this.address = address;
         } else {
             String host = properties.getProperty("server.host", defaultHost);
             int port = properties.containsKey("server.port")
                     ? Integer.parseInt(properties.getProperty("server.port"))
                     : defaultPort;
-            this.endpoint = new Endpoint(host, port);
+            this.address = new Address(host, port);
         }
 
 
@@ -83,50 +80,21 @@ public class ServerPropertiesConfig implements ServerConfig {
             LOGGER.info("KEYS_DIR does not exist, creating it: \"{}\"", KEYS_DIR);
             FileUtil.createDir(KEYS_DIR);
         }
-
-        try {
-            setDatabase(new TauJPADatabase(PasswordHashers.BCRYPT));
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-
     }
 
     @Override
-    public Endpoint endpoint() {
-        return endpoint;
+    public Container container() {
+        return container;
+    }
+
+    @Override
+    public Address address() {
+        return address;
     }
 
     @Override
     public @NotNull AsymmetricEncryption mainEncryption() {
         return MAIN_ENCRYPTION;
-    }
-
-    public void setGroupManager(GroupManager groupManager) {
-        this.groupManager = groupManager;
-    }
-
-    @Override
-    public GroupManager groupManager() {
-        return groupManager;
-    }
-
-    public void setDatabase(Database database) {
-        this.database = database;
-    }
-
-    @Override
-    public Database database() {
-        return database;
-    }
-
-    public void setTokenizer(Tokenizer tokenizer) {
-        this.tokenizer = tokenizer;
-    }
-
-    @Override
-    public Tokenizer tokenizer() {
-        return tokenizer;
     }
 
     @Override
@@ -153,11 +121,15 @@ public class ServerPropertiesConfig implements ServerConfig {
                 privateKeyWriter.write(privateString);
 
                 LOGGER.info("Setting key file permissions.");
-                FileUtil.makeOwnerOnlyRead(PUBLIC_KEY_PATH);
-                FileUtil.makeOwnerOnlyRead(PRIVATE_KEY_PATH);
+                if (FileUtil.isPosixSupported()) {
+                    FileUtil.makeOwnerOnlyRead(PUBLIC_KEY_PATH);
+                    FileUtil.makeOwnerOnlyRead(PRIVATE_KEY_PATH);
+                } else {
+                    LOGGER.warn("POSIX unsupported here");
+                }
             } catch (IOException | FSException e) {
                 throw new SavingKeyException("Error writing keys to files", e);
-            }
+        }
         }
     }
 
