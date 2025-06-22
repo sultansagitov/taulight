@@ -1,7 +1,11 @@
 package net.result.sandnode.chain;
 
+import net.result.sandnode.error.Errors;
+import net.result.sandnode.exception.error.SandnodeErrorException;
+import net.result.sandnode.message.IMessage;
 import net.result.sandnode.message.util.MessageType;
 import net.result.sandnode.message.util.MessageTypes;
+import net.result.sandnode.util.Address;
 import net.result.sandnode.util.bst.AVLTree;
 import net.result.sandnode.exception.BSTBusyPosition;
 import net.result.sandnode.exception.BusyChainID;
@@ -22,12 +26,10 @@ import java.util.stream.Collectors;
 public abstract class BSTChainManager implements ChainManager {
     private static final Logger LOGGER = LogManager.getLogger(BSTChainManager.class);
     protected final BinarySearchTree<IChain, Short> bst = new AVLTree<>();
-    protected final Map<String, IChain> chainMap;
+    protected final Map<String, IChain> chainMap = new ConcurrentHashMap<>();
     private final ExecutorService executorService = Executors.newCachedThreadPool();
 
-    protected BSTChainManager() {
-        this.chainMap = new ConcurrentHashMap<>();
-    }
+    protected BSTChainManager() {}
 
     private Optional<IChain> getByID(short id) {
         return bst.find(id);
@@ -84,9 +86,14 @@ public abstract class BSTChainManager implements ChainManager {
                 Optional<IChain> retriedChainOpt = getByID(headers.chainID());
                 if (retriedChainOpt.isEmpty()) {
                     try {
-                        ReceiverChain aNew = createNew(message);
-                        aNew.async(this);
-                        chain = aNew;
+                        ReceiverChain newChain = createNew(message);
+
+                        if (headers.type() == MessageTypes.CHAIN_NAME) {
+                            headers.getOptionalValue("chain-name").ifPresent(s -> setName(newChain, s));
+                        }
+
+                        execute(newChain, message);
+                        return;
                     } catch (BusyChainID e) {
                         throw new RuntimeException(e);
                     }
@@ -98,10 +105,39 @@ public abstract class BSTChainManager implements ChainManager {
 
         if (headers.type() == MessageTypes.CHAIN_NAME) {
             headers.getOptionalValue("chain-name").ifPresent(s -> setName(chain, s));
-            return;
+        } else {
+            chain.put(message);
         }
+    }
 
-        chain.put(message);
+    public void execute(ReceiverChain chain, RawMessage message) {
+        executorService.submit(() -> {
+            Address address = chain.io().addressFromSocket();
+            String simpleName = chain.getClass().getSimpleName();
+            short chainID = chain.getID();
+            String threadName = "%s/%s/%04X".formatted(address, simpleName, chainID);
+            Thread.currentThread().setName(threadName);
+
+            try {
+                try {
+                    LOGGER.info("{} started in new thread", chain);
+                    IMessage response = chain.handle(message);
+                    if (response != null) chain.sendFin(response);
+                } catch (SandnodeErrorException e) {
+                    LOGGER.error("Error in {}", chain, e);
+                    chain.sendFinIgnoreQueue(e.getSandnodeError().createMessage());
+                } catch (Exception e) {
+                    LOGGER.error("Error in {}", chain, e);
+                    chain.sendFinIgnoreQueue(Errors.SERVER_ERROR.createMessage());
+                } finally {
+                    LOGGER.info("Removing {}", chain);
+                    removeChain(chain);
+                }
+            } catch (Exception e) {
+                LOGGER.error("Error in {}", chain, e);
+                throw new ImpossibleRuntimeException(e);
+            }
+        });
     }
 
     @Override
@@ -127,11 +163,6 @@ public abstract class BSTChainManager implements ChainManager {
     @Override
     public synchronized void setName(IChain chain, String chainName) {
         chainMap.put(chainName, chain);
-    }
-
-    @Override
-    public ExecutorService getExecutorService() {
-        return executorService;
     }
 
     @Override

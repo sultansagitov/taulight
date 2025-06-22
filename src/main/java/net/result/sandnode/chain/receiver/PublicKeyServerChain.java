@@ -8,8 +8,8 @@ import net.result.sandnode.exception.crypto.EncryptionTypeException;
 import net.result.sandnode.exception.error.IncorrectEncryptionException;
 import net.result.sandnode.exception.error.KeyStorageNotFoundException;
 import net.result.sandnode.exception.error.ServerSandnodeErrorException;
+import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.message.types.PublicKeyResponse;
-import net.result.sandnode.message.util.Headers;
 import net.result.sandnode.serverclient.Session;
 
 public class PublicKeyServerChain extends ServerChain implements ReceiverChain {
@@ -18,8 +18,7 @@ public class PublicKeyServerChain extends ServerChain implements ReceiverChain {
     }
 
     @Override
-    public void sync() throws Exception {
-        queue.take();
+    public PublicKeyResponse handle(RawMessage ignored) throws Exception {
         AsymmetricEncryption encryption = session.server.serverConfig.mainEncryption();
         AsymmetricKeyStorage asymmetricKeyStorage;
         try {
@@ -30,8 +29,6 @@ public class PublicKeyServerChain extends ServerChain implements ReceiverChain {
             throw new IncorrectEncryptionException();
         }
 
-        Headers headers = new Headers().setFin(true);
-        PublicKeyResponse request = new PublicKeyResponse(headers, asymmetricKeyStorage);
-        send(request);
+        return new PublicKeyResponse(asymmetricKeyStorage);
     }
 }

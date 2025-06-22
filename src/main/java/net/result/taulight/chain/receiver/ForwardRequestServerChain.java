@@ -9,6 +9,7 @@ import net.result.sandnode.exception.error.KeyStorageNotFoundException;
 import net.result.sandnode.exception.error.NotFoundException;
 import net.result.sandnode.exception.error.TooFewArgumentsException;
 import net.result.sandnode.exception.error.UnauthorizedException;
+import net.result.sandnode.message.IMessage;
 import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.message.UUIDMessage;
 import net.result.sandnode.message.types.ErrorMessage;
@@ -39,15 +40,15 @@ public class ForwardRequestServerChain extends ServerChain implements ReceiverCh
 
     @SuppressWarnings("InfiniteLoopStatement")
     @Override
-    public void sync() throws InterruptedException, SandnodeException {
+    public IMessage handle(RawMessage raw1) throws InterruptedException, SandnodeException {
         ChatUtil chatUtil = session.server.container.get(ChatUtil.class);
         MessageRepository messageRepo = session.server.container.get(MessageRepository.class);
         EncryptedKeyRepository encryptedKeyRepo = session.server.container.get(EncryptedKeyRepository.class);
         MessageFileRepository messageFileRepo = session.server.container.get(MessageFileRepository.class);
 
-        while (true) {
-            RawMessage raw = queue.take();
+        RawMessage raw = raw1;
 
+        while (true) {
             if (raw.headers().type() == MessageTypes.ERR) {
                 LOGGER.error("Error {}", new ErrorMessage(raw).error);
                 continue;
@@ -86,6 +87,8 @@ public class ForwardRequestServerChain extends ServerChain implements ReceiverCh
             TauHubProtocol.send(session, chat, viewDTO);
 
             send(new HappyMessage());
+
+            raw = queue.take();
         }
     }
 }

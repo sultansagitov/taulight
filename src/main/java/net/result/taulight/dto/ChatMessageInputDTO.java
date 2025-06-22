@@ -5,7 +5,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import net.result.sandnode.db.BaseEntity;
 import net.result.sandnode.db.MemberEntity;
 import net.result.sandnode.encryption.interfaces.KeyStorage;
-import net.result.sandnode.exception.DatabaseException;
 import net.result.sandnode.exception.crypto.CryptoException;
 import net.result.sandnode.exception.error.EncryptionException;
 import net.result.taulight.db.ChatEntity;
@@ -56,9 +55,8 @@ public class ChatMessageInputDTO {
      *
      * @param message  the message entity to convert
      * @param fileIDs  a list of file identifiers associated with the message
-     * @throws DatabaseException if file loading fails
      */
-    public ChatMessageInputDTO(MessageEntity message, Set<UUID> fileIDs) throws DatabaseException {
+    public ChatMessageInputDTO(MessageEntity message, Set<UUID> fileIDs) {
         setChat(message.chat());
         setContent(message.content());
         setKeyID(message.key() != null ? message.key().id() : null);

@@ -14,13 +14,12 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
 public abstract class Chain implements IChain {
-    public final BlockingQueue<RawMessage> queue;
+    public final BlockingQueue<RawMessage> queue = new LinkedBlockingQueue<>();
     protected final IOController io;
     private short id;
 
     public Chain(IOController io) {
         this.io = io;
-        queue = new LinkedBlockingQueue<>();
     }
 
     @Override
@@ -62,7 +61,8 @@ public abstract class Chain implements IChain {
         io.sendMessage(request);
     }
 
-    protected void sendFin(@NotNull IMessage message) throws UnprocessedMessagesException, InterruptedException {
+    @Override
+    public void sendFin(@NotNull IMessage message) throws UnprocessedMessagesException, InterruptedException {
         message.headers().setFin(true);
         send(message);
     }

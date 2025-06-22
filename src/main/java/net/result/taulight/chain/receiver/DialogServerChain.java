@@ -6,6 +6,8 @@ import net.result.sandnode.db.FileEntity;
 import net.result.sandnode.db.MemberEntity;
 import net.result.sandnode.exception.ImpossibleRuntimeException;
 import net.result.sandnode.exception.error.*;
+import net.result.sandnode.message.IMessage;
+import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.message.UUIDMessage;
 import net.result.sandnode.message.types.FileMessage;
 import net.result.sandnode.message.util.Headers;
@@ -22,6 +24,7 @@ import net.result.taulight.util.TauAgentProtocol;
 import net.result.taulight.util.TauHubProtocol;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
@@ -33,8 +36,8 @@ public class DialogServerChain extends ServerChain implements ReceiverChain {
     }
 
     @Override
-    public void sync() throws Exception {
-        DialogRequest request = new DialogRequest(queue.take());
+    public IMessage handle(RawMessage raw) throws Exception {
+        DialogRequest request = new DialogRequest(raw);
 
         if (session.member == null) {
             throw new UnauthorizedException();
@@ -45,25 +48,24 @@ public class DialogServerChain extends ServerChain implements ReceiverChain {
                 .map(name -> DialogRequest.Type.valueOf(name.toUpperCase()))
                 .orElse(DialogRequest.Type.ID);
 
-        switch (type) {
+        return switch (type) {
             case ID -> id(request, session.member);
             case AVATAR -> avatar(request, session.member);
-        }
+        };
     }
 
-    private void id(DialogRequest request, MemberEntity you) throws Exception {
+    private @Nullable IMessage id(DialogRequest request, MemberEntity you) throws Exception {
         TauClusterManager manager = session.server.container.get(TauClusterManager.class);
         TauMemberRepository tauMemberRepo = session.server.container.get(TauMemberRepository.class);
         DialogRepository dialogRepo = session.server.container.get(DialogRepository.class);
 
-        DialogEntity dialog;
         TauMemberEntity anotherMember = tauMemberRepo
                 .findByNickname(request.content())
                 .orElseThrow(AddressedMemberNotFoundException::new);
 
         Optional<DialogEntity> dialogOpt = dialogRepo.findByMembers(you.tauMember(), anotherMember);
 
-        dialog = dialogOpt.isPresent() ? dialogOpt.get() : dialogRepo.create(you.tauMember(), anotherMember);
+        DialogEntity dialog = dialogOpt.isPresent() ? dialogOpt.get() : dialogRepo.create(you.tauMember(), anotherMember);
         sendFin(new UUIDMessage(new Headers().setType(MessageTypes.HAPPY), dialog));
 
         if (dialogOpt.isEmpty()) {
@@ -80,9 +82,11 @@ public class DialogServerChain extends ServerChain implements ReceiverChain {
                 LOGGER.warn("Ignored exception: {}", e.getMessage());
             }
         }
+
+        return null;
     }
 
-    private void avatar(DialogRequest request, MemberEntity you) throws Exception {
+    private FileMessage avatar(DialogRequest request, MemberEntity you) throws Exception {
         ChatUtil chatUtil = session.server.container.get(ChatUtil.class);
         DBFileUtil dbFileUtil = session.server.container.get(DBFileUtil.class);
 
@@ -95,6 +99,6 @@ public class DialogServerChain extends ServerChain implements ReceiverChain {
         FileEntity avatar = dialog.otherMember(you.tauMember()).member().avatar();
         if (avatar == null) throw new NoEffectException();
 
-        sendFin(new FileMessage(dbFileUtil.readImage(avatar)));
+        return new FileMessage(dbFileUtil.readImage(avatar));
     }
 }

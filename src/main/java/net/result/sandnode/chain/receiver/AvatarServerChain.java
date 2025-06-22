@@ -7,6 +7,8 @@ import net.result.sandnode.db.MemberEntity;
 import net.result.sandnode.db.MemberRepository;
 import net.result.sandnode.dto.FileDTO;
 import net.result.sandnode.exception.error.*;
+import net.result.sandnode.message.IMessage;
+import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.message.UUIDMessage;
 import net.result.sandnode.message.types.AvatarRequest;
 import net.result.sandnode.message.types.FileMessage;
@@ -25,18 +27,18 @@ public class AvatarServerChain extends ServerChain implements ReceiverChain {
     }
 
     @Override
-    public void sync() throws Exception {
-        AvatarRequest request = new AvatarRequest(queue.take());
+    public IMessage handle(RawMessage raw) throws Exception {
+        AvatarRequest request = new AvatarRequest(raw);
 
         if (session.member == null) throw new UnauthorizedException();
 
         AvatarRequest.Type type = request.getType();
 
-        sendFin(switch (type) {
+        return switch (type) {
             case SET -> set(session.member);
             case GET_MY -> getMy(session.member);
             case GET_OF -> getOf(request.getNickname());
-        });
+        };
     }
 
     private UUIDMessage set(MemberEntity you) throws Exception {

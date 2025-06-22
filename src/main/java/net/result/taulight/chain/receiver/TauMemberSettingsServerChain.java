@@ -3,6 +3,7 @@ package net.result.taulight.chain.receiver;
 import net.result.sandnode.chain.ReceiverChain;
 import net.result.sandnode.chain.ServerChain;
 import net.result.sandnode.exception.error.UnauthorizedException;
+import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.message.util.Headers;
 import net.result.sandnode.serverclient.Session;
 import net.result.sandnode.util.JPAUtil;
@@ -20,8 +21,8 @@ public class TauMemberSettingsServerChain extends ServerChain implements Receive
     }
 
     @Override
-    public void sync() throws Exception {
-        TauMemberSettingsRequest request = new TauMemberSettingsRequest(queue.take());
+    public TauMemberSettingsResponse handle(RawMessage raw) throws Exception {
+        TauMemberSettingsRequest request = new TauMemberSettingsRequest(raw);
 
         if (session.member == null) throw new UnauthorizedException();
 
@@ -41,6 +42,6 @@ public class TauMemberSettingsServerChain extends ServerChain implements Receive
 
         TauMemberSettingsResponseDTO dto = new TauMemberSettingsResponseDTO(entity);
 
-        sendFin(new TauMemberSettingsResponse(dto));
+        return new TauMemberSettingsResponse(dto);
     }
 }

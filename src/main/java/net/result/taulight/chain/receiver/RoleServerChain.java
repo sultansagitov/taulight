@@ -4,6 +4,7 @@ import net.result.sandnode.chain.ReceiverChain;
 import net.result.sandnode.chain.ServerChain;
 import net.result.sandnode.db.MemberRepository;
 import net.result.sandnode.exception.error.*;
+import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.serverclient.Session;
 import net.result.taulight.db.*;
 import net.result.taulight.dto.RoleDTO;
@@ -24,14 +25,14 @@ public class RoleServerChain extends ServerChain implements ReceiverChain {
     }
 
     @Override
-    public void sync() throws Exception {
+    public RoleResponse handle(RawMessage raw) throws Exception {
         if (session.member == null) throw new UnauthorizedException();
 
         ChatUtil chatUtil = session.server.container.get(ChatUtil.class);
         MemberRepository memberRepo = session.server.container.get(MemberRepository.class);
         RoleRepository roleRepo = session.server.container.get(RoleRepository.class);
 
-        RoleRequest request = new RoleRequest(queue.take());
+        RoleRequest request = new RoleRequest(raw);
 
         RoleRequestDTO.DataType dataType = request.dto().dataType;
         UUID chatID = request.dto().chatID;
@@ -56,20 +57,18 @@ public class RoleServerChain extends ServerChain implements ReceiverChain {
 
         Set<Permission> permissions = group.permissions();
 
-        switch (dataType) {
-            case GET:
+        return switch (dataType) {
+            case GET -> {
                 RolesDTO dto = new RolesDTO(allRoles, memberRoles, permissions);
-                sendFin(new RoleResponse(dto));
-                return;
-
-            case CREATE:
+                yield new RoleResponse(dto);
+            }
+            case CREATE -> {
                 if (roleName == null || roleName.trim().isEmpty()) throw new TooFewArgumentsException();
                 RoleEntity newRole = roleRepo.create(group, roleName);
                 allRoles.add(new RoleDTO(newRole));
-                sendFin(new RoleResponse(new RolesDTO(allRoles, memberRoles, permissions)));
-                return;
-
-            case ADD:
+                yield new RoleResponse(new RolesDTO(allRoles, memberRoles, permissions));
+            }
+            case ADD -> {
                 if (roleName == null || nickname == null) throw new TooFewArgumentsException();
 
                 RoleEntity roleToAdd = roles.stream()
@@ -82,7 +81,8 @@ public class RoleServerChain extends ServerChain implements ReceiverChain {
                         .tauMember();
 
                 if (!roleRepo.addMember(roleToAdd, member)) throw new NoEffectException();
-                sendFin(new RoleResponse(new RolesDTO(allRoles, memberRoles, permissions)));
-        }
+                yield new RoleResponse(new RolesDTO(allRoles, memberRoles, permissions));
+            }
+        };
     }
 }

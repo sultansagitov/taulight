@@ -9,24 +9,24 @@ import net.result.sandnode.message.util.MessageTypes;
 import org.jetbrains.annotations.NotNull;
 
 public class WhoAmIResponse extends Message {
-    private final String id;
+    private final String nickname;
 
     public WhoAmIResponse(@NotNull RawMessage raw) throws ExpectedMessageException {
         super(raw.expect(MessageTypes.WHOAMI).headers());
-        id = new String(raw.getBody());
+        nickname = new String(raw.getBody());
     }
 
     public WhoAmIResponse(@NotNull MemberEntity member) {
         super(new Headers().setType(MessageTypes.WHOAMI));
-        id = member.nickname();
+        nickname = member.nickname();
     }
 
-    public String getID() {
-        return id;
+    public String getNickname() {
+        return nickname;
     }
 
     @Override
     public byte[] getBody() {
-        return id.getBytes();
+        return nickname.getBytes();
     }
 }

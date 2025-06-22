@@ -9,6 +9,8 @@ import net.result.sandnode.dto.FileDTO;
 import net.result.sandnode.exception.DatabaseException;
 import net.result.sandnode.exception.ImpossibleRuntimeException;
 import net.result.sandnode.exception.error.*;
+import net.result.sandnode.message.IMessage;
+import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.message.TextMessage;
 import net.result.sandnode.message.types.FileMessage;
 import net.result.sandnode.message.types.HappyMessage;
@@ -34,6 +36,7 @@ import net.result.sandnode.message.UUIDMessage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.time.Duration;
 import java.time.ZonedDateTime;
@@ -55,7 +58,7 @@ public class GroupServerChain extends ServerChain implements ReceiverChain {
     }
 
     @Override
-    public void sync() throws Exception {
+    public @Nullable IMessage handle(RawMessage raw) throws Exception {
         JPAUtil jpaUtil = session.server.container.get(JPAUtil.class);
         chatUtil = session.server.container.get(ChatUtil.class);
         dbFileUtil = session.server.container.get(DBFileUtil.class);
@@ -66,7 +69,7 @@ public class GroupServerChain extends ServerChain implements ReceiverChain {
         memberRepo = session.server.container.get(MemberRepository.class);
         inviteCodeRepo = session.server.container.get(InviteCodeRepository.class);
 
-        GroupRequest request = new GroupRequest(queue.take());
+        GroupRequest request = new GroupRequest(raw);
 
         GroupRequestDTO dto = request.dto();
 
@@ -79,7 +82,8 @@ public class GroupServerChain extends ServerChain implements ReceiverChain {
         }
 
         final TauMemberEntity you = session.member.tauMember();
-        switch (dto.type) {
+
+        IMessage response = switch (dto.type) {
             case CREATE -> create(dto, you);
             case INVITE -> invite(dto, you);
             case LEAVE -> leave(dto, you);
@@ -87,12 +91,14 @@ public class GroupServerChain extends ServerChain implements ReceiverChain {
             case MY_CODES -> myCodes(you);
             case SET_AVATAR -> setAvatar(dto, you);
             case GET_AVATAR -> getAvatar(dto, you);
-        }
+        };
 
         session.member = jpaUtil.refresh(session.member);
+
+        return response;
     }
 
-    private void create(GroupRequestDTO dto, TauMemberEntity you) throws Exception {
+    private UUIDMessage create(GroupRequestDTO dto, TauMemberEntity you) throws Exception {
         if (dto.title == null) {
             throw new TooFewArgumentsException();
         }
@@ -109,10 +115,10 @@ public class GroupServerChain extends ServerChain implements ReceiverChain {
             LOGGER.warn("Exception when sending system message of creating group {}", e.getMessage());
         }
 
-        send(new UUIDMessage(new Headers().setType(MessageTypes.HAPPY), group));
+        return new UUIDMessage(new Headers().setType(MessageTypes.HAPPY), group);
     }
 
-    private void invite(GroupRequestDTO dto, TauMemberEntity you) throws Exception {
+    private TextMessage invite(GroupRequestDTO dto, TauMemberEntity you) throws Exception {
         ChatEntity chat = chatUtil.getChat(dto.chatID).orElseThrow(NotFoundException::new);
 
         // You not in group
@@ -146,10 +152,10 @@ public class GroupServerChain extends ServerChain implements ReceiverChain {
         ZonedDateTime expiresDate = ZonedDateTime.now().plus(duration);
         InviteCodeEntity code = inviteCodeRepo.create(group, member, you, expiresDate);
 
-        sendFin(new TextMessage(new Headers().setType(TauMessageTypes.GROUP), code.code()));
+        return new TextMessage(new Headers().setType(TauMessageTypes.GROUP), code.code());
     }
 
-    private void leave(GroupRequestDTO dto, TauMemberEntity you) throws Exception {
+    private HappyMessage leave(GroupRequestDTO dto, TauMemberEntity you) throws Exception {
         ChatEntity chat = chatUtil.getChat(dto.chatID).orElseThrow(NotFoundException::new);
 
         // You not in group
@@ -175,10 +181,10 @@ public class GroupServerChain extends ServerChain implements ReceiverChain {
 
         TauAgentProtocol.removeMemberFromCluster(session, manager.getCluster(group));
 
-        send(new HappyMessage());
+        return new HappyMessage();
     }
 
-    private void groupCodes(GroupRequestDTO dto, TauMemberEntity you) throws Exception {
+    private CodeListMessage groupCodes(GroupRequestDTO dto, TauMemberEntity you) throws Exception {
         ChatEntity chat = chatUtil.getChat(dto.chatID).orElseThrow(NotFoundException::new);
         if (!chatUtil.contains(chat, you)) throw new UnauthorizedException();
         if (!(chat instanceof GroupEntity group)) throw new WrongAddressException();
@@ -189,19 +195,19 @@ public class GroupServerChain extends ServerChain implements ReceiverChain {
                 .map(InviteCodeDTO::new)
                 .collect(Collectors.toSet());
 
-        sendFin(new CodeListMessage(headers, collected));
+        return new CodeListMessage(headers, collected);
     }
 
-    private void myCodes(@NotNull TauMemberEntity you) throws Exception {
+    private CodeListMessage myCodes(@NotNull TauMemberEntity you) {
         Collection<CodeDTO> collected = you
                 .inviteCodesAsReceiver().stream()
                 .map(InviteCodeDTO::new)
                 .collect(Collectors.toSet());
 
-        sendFin(new CodeListMessage(new Headers().setType(TauMessageTypes.GROUP), collected));
+        return new CodeListMessage(new Headers().setType(TauMessageTypes.GROUP), collected);
     }
 
-    private void setAvatar(GroupRequestDTO request, TauMemberEntity you) throws Exception {
+    private UUIDMessage setAvatar(GroupRequestDTO request, TauMemberEntity you) throws Exception {
         UUID chatID = request.chatID;
         FileMessage fileMessage = new FileMessage(queue.take());
 
@@ -219,10 +225,10 @@ public class GroupServerChain extends ServerChain implements ReceiverChain {
 
         groupRepo.setAvatar(group, avatar);
 
-        send(new UUIDMessage(new Headers().setType(MessageTypes.HAPPY), avatar));
+        return new UUIDMessage(new Headers().setType(MessageTypes.HAPPY), avatar);
     }
 
-    private void getAvatar(GroupRequestDTO dto, TauMemberEntity you) throws Exception {
+    private FileMessage getAvatar(GroupRequestDTO dto, TauMemberEntity you) throws Exception {
         UUID chatID = dto.chatID;
 
         ChatEntity chat = chatUtil.getChat(chatID).orElseThrow(NotFoundException::new);
@@ -232,6 +238,6 @@ public class GroupServerChain extends ServerChain implements ReceiverChain {
         FileEntity avatar = group.avatar();
         if (avatar == null) throw new NoEffectException(); 
 
-        send(new FileMessage(dbFileUtil.readImage(avatar)));
+        return new FileMessage(dbFileUtil.readImage(avatar));
     }
 }

@@ -2,7 +2,6 @@ package net.result.taulight.chain.receiver;
 
 import net.result.sandnode.chain.ReceiverChain;
 import net.result.sandnode.chain.ServerChain;
-import net.result.sandnode.error.ServerErrorManager;
 import net.result.sandnode.exception.error.NotFoundException;
 import net.result.sandnode.exception.error.UnauthorizedException;
 import net.result.sandnode.message.RawMessage;
@@ -25,7 +24,7 @@ public class MessageServerChain extends ServerChain implements ReceiverChain {
     }
 
     @Override
-    public void sync() throws Exception {
+    public MessageResponse handle(RawMessage raw) throws Exception {
         ChatUtil chatUtil = session.server.container.get(ChatUtil.class);
         MessageRepository messageRepo = session.server.container.get(MessageRepository.class);
         MessageFileRepository messageFileRepo = session.server.container.get(MessageFileRepository.class);
@@ -33,10 +32,6 @@ public class MessageServerChain extends ServerChain implements ReceiverChain {
         if (session.member == null) {
             throw new UnauthorizedException();
         }
-
-        RawMessage raw = queue.take();
-
-        ServerErrorManager.instance().handleError(raw);
 
         MessageRequest request = new MessageRequest(raw);
 
@@ -55,6 +50,6 @@ public class MessageServerChain extends ServerChain implements ReceiverChain {
             messages.add(chatMessageViewDTO);
         }
 
-        sendFin(new MessageResponse(count, messages));
+        return new MessageResponse(count, messages);
     }
 }

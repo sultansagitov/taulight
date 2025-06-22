@@ -2,14 +2,14 @@ package net.result.taulight.chain.receiver;
 
 import net.result.sandnode.chain.ReceiverChain;
 import net.result.sandnode.chain.ServerChain;
-import net.result.sandnode.exception.SandnodeException;
 import net.result.sandnode.exception.error.NotFoundException;
 import net.result.sandnode.exception.error.UnauthorizedException;
+import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.serverclient.Session;
+import net.result.taulight.db.InviteCodeEntity;
 import net.result.taulight.db.InviteCodeRepository;
 import net.result.taulight.db.TauMemberEntity;
 import net.result.taulight.dto.InviteCodeDTO;
-import net.result.taulight.db.InviteCodeEntity;
 import net.result.taulight.message.types.CheckCodeRequest;
 import net.result.taulight.message.types.CheckCodeResponse;
 
@@ -19,8 +19,8 @@ public class CheckCodeServerChain extends ServerChain implements ReceiverChain {
     }
 
     @Override
-    public void sync() throws InterruptedException, SandnodeException {
-        CheckCodeRequest request = new CheckCodeRequest(queue.take());
+    public CheckCodeResponse handle(RawMessage raw) throws Exception {
+        CheckCodeRequest request = new CheckCodeRequest(raw);
 
         if (session.member == null) {
             throw new UnauthorizedException();
@@ -40,6 +40,6 @@ public class CheckCodeServerChain extends ServerChain implements ReceiverChain {
         }
 
         var code = new InviteCodeDTO(invite);
-        sendFin(new CheckCodeResponse(code));
+        return new CheckCodeResponse(code);
     }
 }

@@ -7,6 +7,8 @@ import net.result.sandnode.dto.FileDTO;
 import net.result.sandnode.exception.error.NotFoundException;
 import net.result.sandnode.exception.error.TooFewArgumentsException;
 import net.result.sandnode.exception.error.UnauthorizedException;
+import net.result.sandnode.message.IMessage;
+import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.message.UUIDMessage;
 import net.result.sandnode.message.types.FileMessage;
 import net.result.sandnode.message.util.Headers;
@@ -28,25 +30,25 @@ public class MessageFileServerChain extends ServerChain implements ReceiverChain
     }
 
     @Override
-    public void sync() throws Exception {
+    public IMessage handle(RawMessage raw) throws Exception {
         if (session.member == null) throw new UnauthorizedException();
 
-        MessageFileRequest request = new MessageFileRequest(queue.take());
+        MessageFileRequest request = new MessageFileRequest(raw);
         UUID chatID = request.chatID;
         UUID fileID = request.fileID;
 
         if (chatID != null) {
             String filename = request.filename;
             if (filename == null) throw new TooFewArgumentsException();
-            uploadFile(chatID, filename, session.member.tauMember());
+            return uploadFile(chatID, filename, session.member.tauMember());
         } else if (fileID != null) {
-            downloadFile(fileID);
+            return downloadFile(fileID);
         } else {
             throw new TooFewArgumentsException();
         }
     }
 
-    private void uploadFile(UUID chatID, String originalName, TauMemberEntity you) throws Exception {
+    private UUIDMessage uploadFile(UUID chatID, String originalName, TauMemberEntity you) throws Exception {
         FileMessage fileMessage = new FileMessage(queue.take());
 
         FileDTO dto = fileMessage.dto();
@@ -62,10 +64,10 @@ public class MessageFileServerChain extends ServerChain implements ReceiverChain
 
         MessageFileEntity entity = messageFileRepo.create(you, chat, originalName, fileEntity);
 
-        send(new UUIDMessage(new Headers().setType(MessageTypes.HAPPY), entity));
+        return new UUIDMessage(new Headers().setType(MessageTypes.HAPPY), entity);
     }
 
-    private void downloadFile(UUID fileID) throws Exception {
+    private FileMessage downloadFile(UUID fileID) throws Exception {
         MessageFileRepository messageFileRepo = session.server.container.get(MessageFileRepository.class);
         DBFileUtil dbFileUtil = session.server.container.get(DBFileUtil.class);
 
@@ -73,7 +75,7 @@ public class MessageFileServerChain extends ServerChain implements ReceiverChain
 
         FileDTO fileDTO = dbFileUtil.readImage(fileEntity.file());
 
-        send(new FileMessage(new Headers().setType(MessageTypes.FILE), fileDTO));
+        return new FileMessage(new Headers().setType(MessageTypes.FILE), fileDTO);
     }
 
 }
