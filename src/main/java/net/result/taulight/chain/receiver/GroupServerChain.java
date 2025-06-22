@@ -12,27 +12,27 @@ import net.result.sandnode.exception.error.*;
 import net.result.sandnode.message.IMessage;
 import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.message.TextMessage;
-import net.result.sandnode.message.types.FileMessage;
+import net.result.sandnode.message.UUIDMessage;
 import net.result.sandnode.message.types.HappyMessage;
 import net.result.sandnode.message.util.Headers;
 import net.result.sandnode.message.util.MessageTypes;
 import net.result.sandnode.serverclient.Session;
 import net.result.sandnode.util.DBFileUtil;
+import net.result.sandnode.util.FileIOUtil;
 import net.result.sandnode.util.JPAUtil;
+import net.result.taulight.cluster.TauClusterManager;
+import net.result.taulight.db.*;
+import net.result.taulight.dto.ChatMessageInputDTO;
+import net.result.taulight.dto.CodeDTO;
 import net.result.taulight.dto.GroupRequestDTO;
+import net.result.taulight.dto.InviteCodeDTO;
+import net.result.taulight.message.CodeListMessage;
+import net.result.taulight.message.TauMessageTypes;
+import net.result.taulight.message.types.GroupRequest;
 import net.result.taulight.util.ChatUtil;
 import net.result.taulight.util.SysMessages;
 import net.result.taulight.util.TauAgentProtocol;
 import net.result.taulight.util.TauHubProtocol;
-import net.result.taulight.db.*;
-import net.result.taulight.dto.ChatMessageInputDTO;
-import net.result.taulight.dto.InviteCodeDTO;
-import net.result.taulight.dto.CodeDTO;
-import net.result.taulight.cluster.TauClusterManager;
-import net.result.taulight.message.CodeListMessage;
-import net.result.taulight.message.TauMessageTypes;
-import net.result.taulight.message.types.GroupRequest;
-import net.result.sandnode.message.UUIDMessage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
@@ -209,13 +209,12 @@ public class GroupServerChain extends ServerChain implements ReceiverChain {
 
     private UUIDMessage setAvatar(GroupRequestDTO request, TauMemberEntity you) throws Exception {
         UUID chatID = request.chatID;
-        FileMessage fileMessage = new FileMessage(queue.take());
 
         ChatEntity chat = chatUtil.getChat(chatID).orElseThrow(NotFoundException::new);
         if (!chatUtil.contains(chat, you)) throw new UnauthorizedException();
         if (!(chat instanceof GroupEntity group)) throw new WrongAddressException();
 
-        FileDTO dto = fileMessage.dto();
+        FileDTO dto = FileIOUtil.receive(queue::take);
 
         if (!dto.contentType().startsWith("image/")) {
             throw new InvalidArgumentException();
@@ -228,7 +227,7 @@ public class GroupServerChain extends ServerChain implements ReceiverChain {
         return new UUIDMessage(new Headers().setType(MessageTypes.HAPPY), avatar);
     }
 
-    private FileMessage getAvatar(GroupRequestDTO dto, TauMemberEntity you) throws Exception {
+    private IMessage getAvatar(GroupRequestDTO dto, TauMemberEntity you) throws Exception {
         UUID chatID = dto.chatID;
 
         ChatEntity chat = chatUtil.getChat(chatID).orElseThrow(NotFoundException::new);
@@ -238,6 +237,7 @@ public class GroupServerChain extends ServerChain implements ReceiverChain {
         FileEntity avatar = group.avatar();
         if (avatar == null) throw new NoEffectException(); 
 
-        return new FileMessage(dbFileUtil.readImage(avatar));
+        FileIOUtil.send(dbFileUtil.readImage(avatar), this::send);
+        return null;
     }
 }

@@ -10,11 +10,11 @@ import net.result.sandnode.exception.error.UnauthorizedException;
 import net.result.sandnode.message.IMessage;
 import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.message.UUIDMessage;
-import net.result.sandnode.message.types.FileMessage;
 import net.result.sandnode.message.util.Headers;
 import net.result.sandnode.message.util.MessageTypes;
 import net.result.sandnode.serverclient.Session;
 import net.result.sandnode.util.DBFileUtil;
+import net.result.sandnode.util.FileIOUtil;
 import net.result.taulight.db.ChatEntity;
 import net.result.taulight.db.MessageFileEntity;
 import net.result.taulight.db.MessageFileRepository;
@@ -42,16 +42,16 @@ public class MessageFileServerChain extends ServerChain implements ReceiverChain
             if (filename == null) throw new TooFewArgumentsException();
             return uploadFile(chatID, filename, session.member.tauMember());
         } else if (fileID != null) {
-            return downloadFile(fileID);
+            downloadFile(fileID);
         } else {
             throw new TooFewArgumentsException();
         }
+
+        return null;
     }
 
     private UUIDMessage uploadFile(UUID chatID, String originalName, TauMemberEntity you) throws Exception {
-        FileMessage fileMessage = new FileMessage(queue.take());
-
-        FileDTO dto = fileMessage.dto();
+        FileDTO dto = FileIOUtil.receive(queue::take);
 
         MessageFileRepository messageFileRepo = session.server.container.get(MessageFileRepository.class);
         ChatUtil chatUtil = session.server.container.get(ChatUtil.class);
@@ -67,15 +67,15 @@ public class MessageFileServerChain extends ServerChain implements ReceiverChain
         return new UUIDMessage(new Headers().setType(MessageTypes.HAPPY), entity);
     }
 
-    private FileMessage downloadFile(UUID fileID) throws Exception {
+    private void downloadFile(UUID fileID) throws Exception {
         MessageFileRepository messageFileRepo = session.server.container.get(MessageFileRepository.class);
         DBFileUtil dbFileUtil = session.server.container.get(DBFileUtil.class);
 
         MessageFileEntity fileEntity = messageFileRepo.find(fileID).orElseThrow(NotFoundException::new);
 
-        FileDTO fileDTO = dbFileUtil.readImage(fileEntity.file());
+        FileDTO dto = dbFileUtil.readImage(fileEntity.file());
 
-        return new FileMessage(new Headers().setType(MessageTypes.FILE), fileDTO);
+        FileIOUtil.send(dto, this::send);
     }
 
 }

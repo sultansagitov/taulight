@@ -9,11 +9,11 @@ import net.result.sandnode.exception.error.*;
 import net.result.sandnode.message.IMessage;
 import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.message.UUIDMessage;
-import net.result.sandnode.message.types.FileMessage;
 import net.result.sandnode.message.util.Headers;
 import net.result.sandnode.message.util.MessageTypes;
 import net.result.sandnode.serverclient.Session;
 import net.result.sandnode.util.DBFileUtil;
+import net.result.sandnode.util.FileIOUtil;
 import net.result.taulight.cluster.TauClusterManager;
 import net.result.taulight.db.*;
 import net.result.taulight.dto.ChatMessageInputDTO;
@@ -86,7 +86,7 @@ public class DialogServerChain extends ServerChain implements ReceiverChain {
         return null;
     }
 
-    private FileMessage avatar(DialogRequest request, MemberEntity you) throws Exception {
+    private @Nullable IMessage avatar(DialogRequest request, MemberEntity you) throws Exception {
         ChatUtil chatUtil = session.server.container.get(ChatUtil.class);
         DBFileUtil dbFileUtil = session.server.container.get(DBFileUtil.class);
 
@@ -99,6 +99,7 @@ public class DialogServerChain extends ServerChain implements ReceiverChain {
         FileEntity avatar = dialog.otherMember(you.tauMember()).member().avatar();
         if (avatar == null) throw new NoEffectException();
 
-        return new FileMessage(dbFileUtil.readImage(avatar));
+        FileIOUtil.send(dbFileUtil.readImage(avatar), this::send);
+        return null;
     }
 }

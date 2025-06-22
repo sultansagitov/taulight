@@ -11,8 +11,8 @@ import net.result.sandnode.exception.error.NoEffectException;
 import net.result.sandnode.exception.error.SandnodeErrorException;
 import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.message.UUIDMessage;
-import net.result.sandnode.message.types.FileMessage;
 import net.result.sandnode.serverclient.SandnodeClient;
+import net.result.sandnode.util.FileIOUtil;
 import net.result.taulight.message.types.DialogRequest;
 import org.jetbrains.annotations.Nullable;
 
@@ -38,10 +38,7 @@ public class DialogClientChain extends ClientChain {
             UnknownSandnodeErrorException, UnprocessedMessagesException, ExpectedMessageException {
         send(DialogRequest.getAvatar(chatID));
         try {
-            RawMessage raw = queue.take();
-            ServerErrorManager.instance().handleError(raw);
-
-            return new FileMessage(raw).dto();
+            return FileIOUtil.receive(queue::take);
         } catch (NoEffectException e) {
             return null;
         }
