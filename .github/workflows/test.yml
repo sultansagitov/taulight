@@ -18,5 +18,11 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
+      - name: Clone simplesix64 dependency
+        run: |
+          git clone https://github.com/sultansagitov/simplesix64.git
+          cd simplesix64
+          mvn install
+
       - name: Build and run tests
         run: mvn test
