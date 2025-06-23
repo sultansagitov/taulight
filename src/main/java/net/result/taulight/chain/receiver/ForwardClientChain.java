@@ -8,6 +8,7 @@ import net.result.sandnode.error.ServerErrorManager;
 import net.result.sandnode.exception.SandnodeException;
 import net.result.sandnode.exception.error.KeyStorageNotFoundException;
 import net.result.sandnode.hubagent.Agent;
+import net.result.sandnode.message.IMessage;
 import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.message.types.DEKListMessage;
 import net.result.sandnode.message.types.HappyMessage;
@@ -25,11 +26,8 @@ public abstract class ForwardClientChain extends ClientChain implements Receiver
     }
 
     @Override
-    public void sync() throws SandnodeException, InterruptedException {
-        RawMessage res = queue.take();
-        ServerErrorManager.instance().handleError(res);
-
-        ForwardResponse response = new ForwardResponse(res);
+    public IMessage handle(RawMessage request) throws SandnodeException, InterruptedException {
+        ForwardResponse response = new ForwardResponse(request);
         ChatMessageViewDTO view = response.getServerMessage();
         ChatMessageInputDTO input = view.message;
 
@@ -54,6 +52,7 @@ public abstract class ForwardClientChain extends ClientChain implements Receiver
         sendFin(new HappyMessage());
 
         onMessage(view, decrypted, response.isYourSession());
+        return null;
     }
 
     public abstract void onMessage(ChatMessageViewDTO serverMessage, String decrypted, boolean yourSession);

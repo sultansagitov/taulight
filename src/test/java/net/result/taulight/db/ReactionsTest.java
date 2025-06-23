@@ -6,7 +6,6 @@ import net.result.sandnode.db.MemberRepository;
 import net.result.sandnode.exception.DatabaseException;
 import net.result.sandnode.exception.SandnodeException;
 import net.result.sandnode.exception.error.BusyNicknameException;
-import net.result.sandnode.exception.error.NotFoundException;
 import net.result.sandnode.util.Container;
 import net.result.sandnode.util.JPAUtil;
 import net.result.taulight.dto.ChatMessageInputDTO;
@@ -286,20 +285,15 @@ class ReactionsTest {
                 .setSys(false);
 
         MessageEntity message;
-        try {
-            message = messageRepo.create(group, input, member1);
-            ReactionEntryEntity entry = reactionEntryRepo.create(member1, message, testType);
+        message = messageRepo.create(group, input, member1);
+        ReactionEntryEntity entry = reactionEntryRepo.create(member1, message, testType);
 
-            // Remove once
-            boolean firstRemove = reactionEntryRepo.delete(entry);
-            assertTrue(firstRemove, "First removal should succeed");
+        // Remove once
+        boolean firstRemove = reactionEntryRepo.delete(entry);
+        assertTrue(firstRemove, "First removal should succeed");
 
-            // Try to remove again - should fail
-            boolean secondRemove = reactionEntryRepo.delete(entry);
-            assertFalse(secondRemove, "Second removal of same entry should fail");
-
-        } catch (NotFoundException e) {
-            fail("Should not throw NotFoundException: " + e.getMessage());
-        }
+        // Try to remove again - should fail
+        boolean secondRemove = reactionEntryRepo.delete(entry);
+        assertFalse(secondRemove, "Second removal of same entry should fail");
     }
 }

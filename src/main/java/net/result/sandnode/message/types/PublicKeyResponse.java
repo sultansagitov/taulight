@@ -32,6 +32,10 @@ public class PublicKeyResponse extends Message {
         this.keyStorage = keyStorage;
     }
 
+    public PublicKeyResponse(@NotNull AsymmetricKeyStorage keyStorage) {
+        this(new Headers(), keyStorage);
+    }
+
     public PublicKeyResponse(@NotNull RawMessage response) throws NoSuchEncryptionException, CreatingKeyException,
             EncryptionTypeException, ExpectedMessageException {
         super(response.expect(MessageTypes.PUB).headers());

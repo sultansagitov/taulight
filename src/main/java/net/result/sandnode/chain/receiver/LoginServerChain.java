@@ -6,6 +6,7 @@ import net.result.sandnode.db.LoginEntity;
 import net.result.sandnode.db.LoginRepository;
 import net.result.sandnode.dto.LoginHistoryDTO;
 import net.result.sandnode.exception.error.UnauthorizedException;
+import net.result.sandnode.message.IMessage;
 import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.message.types.LoginHistoryResponse;
 import net.result.sandnode.message.types.LoginRequest;
@@ -30,21 +31,19 @@ public class LoginServerChain extends ServerChain implements ReceiverChain {
     }
 
     @Override
-    public void sync() throws Exception {
+    public IMessage handle(RawMessage raw) throws Exception {
         loginRepo = session.server.container.get(LoginRepository.class);
-
-        RawMessage raw = queue.take();
 
         var request = new LoginRequest(raw);
 
         if (request.headers().getOptionalValue("history").map(h -> h.equals("true")).orElse(false)) {
-            history();
+            return history();
         } else {
-            loginByToken(request);
+            return loginByToken(request);
         }
     }
 
-    private void history() throws Exception {
+    private LoginHistoryResponse history() throws Exception {
         if (session.member == null) {
             throw new UnauthorizedException();
         }
@@ -65,10 +64,10 @@ public class LoginServerChain extends ServerChain implements ReceiverChain {
             list.add(loginHistoryDTO);
         }
 
-        send(new LoginHistoryResponse(new Headers(), list));
+        return new LoginHistoryResponse(new Headers(), list);
     }
 
-    private void loginByToken(LoginRequest request) throws Exception {
+    private LoginResponse loginByToken(LoginRequest request) throws Exception {
         Tokenizer tokenizer = session.server.container.get(Tokenizer.class);
 
         String token = request.content();
@@ -82,7 +81,7 @@ public class LoginServerChain extends ServerChain implements ReceiverChain {
 
         onLogin();
 
-        sendFin(new LoginResponse(session.member));
+        return new LoginResponse(session.member);
     }
 
     protected void onLogin() throws Exception {}

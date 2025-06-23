@@ -34,6 +34,7 @@ import net.result.sandnode.util.IOController;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
@@ -217,9 +218,7 @@ public class ServerTest {
         }
 
         @Override
-        public void sync() throws InterruptedException {
-            IMessage receivedMessage = queue.take();
-
+        public @Nullable IMessage handle(RawMessage receivedMessage) {
             // Client sends message via chain
             IMessage sentMessage = prepareMessage();
             sentMessage.headers().setChainID(getID());
@@ -242,6 +241,7 @@ public class ServerTest {
                     fail(e1);
                 }
             }
+            return null;
         }
     }
 
@@ -274,10 +274,10 @@ public class ServerTest {
 
                 IOController io = client.io;
 
-                TestClientChain testClientChain = new TestClientChain(client, sentMessage);
-                io.chainManager.linkChain(testClientChain);
-                testClientChain.sync();
-                io.chainManager.removeChain(testClientChain);
+                TestClientChain chain = new TestClientChain(client);
+                io.chainManager.linkChain(chain);
+                chain.sendTestMessage(sentMessage);
+                io.chainManager.removeChain(chain);
             } catch (Exception e) {
                 LOGGER.error("Client encountered an error.", e);
                 fail(e);
@@ -346,16 +346,12 @@ public class ServerTest {
         }
     }
 
-    private static class TestClientChain extends ClientChain implements ReceiverChain {
-        private final IMessage message;
-
-        public TestClientChain(SandnodeClient client, IMessage message) {
+    private static class TestClientChain extends ClientChain {
+        public TestClientChain(SandnodeClient client) {
             super(client);
-            this.message = message;
         }
 
-        @Override
-        public void sync() throws InterruptedException, UnprocessedMessagesException {
+        public void sendTestMessage(IMessage message) throws InterruptedException, UnprocessedMessagesException {
             sendFin(message);
         }
     }

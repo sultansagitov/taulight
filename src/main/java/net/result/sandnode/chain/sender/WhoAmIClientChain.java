@@ -23,6 +23,6 @@ public class WhoAmIClientChain extends ClientChain {
         RawMessage raw = queue.take();
         ServerErrorManager.instance().handleError(raw);
 
-        return new WhoAmIResponse(raw).getID();
+        return new WhoAmIResponse(raw).getNickname();
     }
 }

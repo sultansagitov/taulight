@@ -7,9 +7,9 @@ import net.result.sandnode.exception.*;
 import net.result.sandnode.exception.error.SandnodeErrorException;
 import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.message.UUIDMessage;
-import net.result.sandnode.message.types.FileMessage;
 import net.result.sandnode.message.util.MessageTypes;
 import net.result.sandnode.serverclient.SandnodeClient;
+import net.result.sandnode.util.FileIOUtil;
 import net.result.taulight.message.types.MessageFileRequest;
 
 import java.io.IOException;
@@ -40,10 +40,9 @@ public class MessageFileClientChain extends ClientChain {
         FileDTO dto = new FileDTO(null, contentType, bytes);
 
         MessageFileRequest request = MessageFileRequest.uploadTo(chatID, name);
-        FileMessage fileMessage = new FileMessage(dto);
 
         send(request);
-        send(fileMessage);
+        FileIOUtil.send(dto, this::send);
 
         RawMessage raw = queue.take();
         ServerErrorManager.instance().handleError(raw);
@@ -57,15 +56,9 @@ public class MessageFileClientChain extends ClientChain {
         MessageFileRequest request = MessageFileRequest.download(fileID);
         send(request);
 
-        RawMessage raw = queue.take();
-        ServerErrorManager.instance().handleError(raw);
-
-
-        ServerErrorManager.instance().handleError(raw);
-        raw.expect(MessageTypes.FILE);
-
-        FileMessage fileMessage = new FileMessage(raw);
+        FileDTO dto = FileIOUtil.receive(queue::take);
         System.out.println("File downloaded successfully.");
-        return fileMessage.dto();
+
+        return dto;
     }
 }

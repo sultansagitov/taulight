@@ -9,10 +9,10 @@ import net.result.sandnode.exception.error.SandnodeErrorException;
 import net.result.sandnode.message.IMessage;
 import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.message.UUIDMessage;
-import net.result.sandnode.message.types.FileMessage;
 import net.result.sandnode.message.types.AvatarRequest;
 import net.result.sandnode.message.util.MessageTypes;
 import net.result.sandnode.serverclient.SandnodeClient;
+import net.result.sandnode.util.FileIOUtil;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.Nullable;
@@ -46,10 +46,10 @@ public class AvatarClientChain extends ClientChain {
         }
 
         IMessage request = AvatarRequest.byType(AvatarRequest.Type.SET);
-        FileMessage fileMessage = new FileMessage(new FileDTO(null, contentType, bytes));
+        FileDTO dto = new FileDTO(null, contentType, bytes);
 
         send(request);
-        send(fileMessage);
+        FileIOUtil.send(dto, this::send);
 
         RawMessage raw = queue.take();
         ServerErrorManager.instance().handleError(raw);
@@ -63,9 +63,7 @@ public class AvatarClientChain extends ClientChain {
             UnknownSandnodeErrorException, SandnodeErrorException, UnprocessedMessagesException {
         send(AvatarRequest.byType(AvatarRequest.Type.GET_MY));
         try {
-            RawMessage raw = queue.take();
-            ServerErrorManager.instance().handleError(raw);
-            return new FileMessage(raw).dto();
+            return FileIOUtil.receive(queue::take);
         } catch (NoEffectException e) {
             return null;
         }
@@ -77,9 +75,7 @@ public class AvatarClientChain extends ClientChain {
         request.headers().setValue("nickname", nickname);
         send(request);
         try {
-            RawMessage raw = queue.take();
-            ServerErrorManager.instance().handleError(raw);
-            return new FileMessage(raw).dto();
+            return FileIOUtil.receive(queue::take);
         } catch (NoEffectException e) {
             return null;
         }

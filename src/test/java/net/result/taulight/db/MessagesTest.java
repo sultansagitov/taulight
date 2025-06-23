@@ -5,7 +5,6 @@ import net.result.sandnode.db.MemberRepository;
 import net.result.sandnode.exception.DatabaseException;
 import net.result.sandnode.exception.SandnodeException;
 import net.result.sandnode.exception.error.BusyNicknameException;
-import net.result.sandnode.exception.error.NotFoundException;
 import net.result.sandnode.exception.error.UnauthorizedException;
 import net.result.sandnode.util.Container;
 import net.result.sandnode.util.JPAUtil;
@@ -68,7 +67,7 @@ public class MessagesTest {
     }
 
     @Test
-    public void loadMessages() throws DatabaseException, NotFoundException, UnauthorizedException {
+    public void loadMessages() throws DatabaseException, UnauthorizedException {
         GroupEntity group = groupRepo.create("Test Group", member1);
 
         ChatMessageInputDTO input1 = new ChatMessageInputDTO()

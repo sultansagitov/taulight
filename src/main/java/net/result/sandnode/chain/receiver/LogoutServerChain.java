@@ -1,5 +1,6 @@
 package net.result.sandnode.chain.receiver;
 
+import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.util.Logout;
 import net.result.sandnode.chain.ReceiverChain;
 import net.result.sandnode.chain.ServerChain;
@@ -13,13 +14,9 @@ public class LogoutServerChain extends ServerChain implements ReceiverChain {
     }
 
     @Override
-    public void sync() throws Exception {
-        queue.take();
-
+    public HappyMessage handle(RawMessage ignored) throws Exception {
         if (session.member == null) throw new UnauthorizedException();
-
         Logout.logout(session);
-
-        send(new HappyMessage());
+        return new HappyMessage();
     }
 }

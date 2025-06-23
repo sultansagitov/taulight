@@ -4,6 +4,7 @@ import net.result.sandnode.chain.ReceiverChain;
 import net.result.sandnode.chain.ServerChain;
 import net.result.sandnode.exception.error.NotFoundException;
 import net.result.sandnode.exception.error.UnauthorizedException;
+import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.message.types.HappyMessage;
 import net.result.sandnode.serverclient.Session;
 import net.result.sandnode.util.JPAUtil;
@@ -26,8 +27,8 @@ public class UseCodeServerChain extends ServerChain  implements ReceiverChain {
     }
 
     @Override
-    public void sync() throws Exception {
-        var request = new UseCodeRequest(queue.take());
+    public HappyMessage handle(RawMessage raw) throws Exception {
+        var request = new UseCodeRequest(raw);
         String code = request.content();
 
         if (session.member == null) {
@@ -80,6 +81,6 @@ public class UseCodeServerChain extends ServerChain  implements ReceiverChain {
             LOGGER.warn("Exception when sending system message of creating group {}", e.getMessage());
         }
 
-        sendFin(new HappyMessage());
+        return new HappyMessage();
     }
 }

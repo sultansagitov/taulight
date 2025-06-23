@@ -8,6 +8,7 @@ import net.result.sandnode.exception.error.NoEffectException;
 import net.result.sandnode.exception.error.NotFoundException;
 import net.result.sandnode.exception.error.UnauthorizedException;
 import net.result.sandnode.exception.error.UnhandledMessageTypeException;
+import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.message.types.HappyMessage;
 import net.result.sandnode.serverclient.Session;
 import net.result.taulight.chain.sender.ReactionResponseServerChain;
@@ -24,13 +25,13 @@ public class ReactionRequestServerChain extends ServerChain implements ReceiverC
     }
 
     @Override
-    public void sync() throws Exception {
+    public HappyMessage handle(RawMessage raw) throws Exception {
         ClusterManager clusterManager = session.server.container.get(ClusterManager.class);
         MessageRepository messageRepo = session.server.container.get(MessageRepository.class);
         ReactionTypeRepository reactionTypeRepo = session.server.container.get(ReactionTypeRepository.class);
         ReactionEntryRepository reactionEntryRepo = session.server.container.get(ReactionEntryRepository.class);
 
-        ReactionRequest request = new ReactionRequest(queue.take());
+        ReactionRequest request = new ReactionRequest(raw);
 
         if (session.member == null) {
             throw new UnauthorizedException();
@@ -94,6 +95,6 @@ public class ReactionRequestServerChain extends ServerChain implements ReceiverC
             }
         }
 
-        sendFin(new HappyMessage());
+        return new HappyMessage();
     }
 }

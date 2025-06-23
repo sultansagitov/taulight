@@ -7,6 +7,7 @@ import net.result.sandnode.encryption.interfaces.AsymmetricEncryption;
 import net.result.sandnode.encryption.interfaces.AsymmetricKeyStorage;
 import net.result.sandnode.exception.error.UnauthorizedException;
 import net.result.sandnode.hubagent.Hub;
+import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.message.types.LogPasswdRequest;
 import net.result.sandnode.message.types.LogPasswdResponse;
 import net.result.sandnode.security.PasswordHasher;
@@ -22,8 +23,8 @@ public abstract class LogPasswdServerChain extends ServerChain implements Receiv
     }
 
     @Override
-    public void sync() throws Exception {
-        LogPasswdRequest request = new LogPasswdRequest(queue.take());
+    public LogPasswdResponse handle(RawMessage raw) throws Exception {
+        LogPasswdRequest request = new LogPasswdRequest(raw);
 
         Tokenizer tokenizer = session.server.container.get(Tokenizer.class);
         LoginRepository loginRepo = session.server.container.get(LoginRepository.class);
@@ -57,7 +58,7 @@ public abstract class LogPasswdServerChain extends ServerChain implements Receiv
         onLogin();
 
         String token = tokenizer.tokenizeLogin(login);
-        sendFin(new LogPasswdResponse(token, member.publicKey().id()));
+        return new LogPasswdResponse(token, member.publicKey().id());
     }
 
     protected abstract void onLogin() throws Exception;

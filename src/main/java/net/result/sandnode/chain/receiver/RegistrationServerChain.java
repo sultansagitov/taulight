@@ -26,9 +26,7 @@ public class RegistrationServerChain extends ServerChain implements ReceiverChai
     }
 
     @Override
-    public void sync() throws InterruptedException, SandnodeException {
-        RawMessage request = queue.take();
-
+    public RegistrationResponse handle(RawMessage raw) throws SandnodeException {
         MemberRepository memberRepo = session.server.container.get(MemberRepository.class);
         LoginRepository loginRepo = session.server.container.get(LoginRepository.class);
         Tokenizer tokenizer = session.server.container.get(Tokenizer.class);
@@ -36,7 +34,7 @@ public class RegistrationServerChain extends ServerChain implements ReceiverChai
 
         PasswordHasher hasher = hubConfig.hasher();
 
-        RegistrationRequest regMsg = new RegistrationRequest(request);
+        RegistrationRequest regMsg = new RegistrationRequest(raw);
 
         RegisterRequestDTO dto = regMsg.dto();
         String nickname = dto.nickname;
@@ -63,6 +61,6 @@ public class RegistrationServerChain extends ServerChain implements ReceiverChai
         LoginEntity login = loginRepo.create(member, keyEntity, encryptedIP, encryptedDevice);
 
         String token = tokenizer.tokenizeLogin(login);
-        sendFin(new RegistrationResponse(token, keyEntity.id()));
+        return new RegistrationResponse(token, keyEntity.id());
     }
 }

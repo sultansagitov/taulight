@@ -10,10 +10,10 @@ import net.result.sandnode.message.IMessage;
 import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.message.TextMessage;
 import net.result.sandnode.message.UUIDMessage;
-import net.result.sandnode.message.types.FileMessage;
 import net.result.sandnode.message.types.HappyMessage;
 import net.result.sandnode.message.util.MessageTypes;
 import net.result.sandnode.serverclient.SandnodeClient;
+import net.result.sandnode.util.FileIOUtil;
 import net.result.taulight.dto.CodeDTO;
 import net.result.taulight.message.CodeListMessage;
 import net.result.taulight.message.TauMessageTypes;
@@ -112,10 +112,10 @@ public class GroupClientChain extends ClientChain {
         }
 
         IMessage request = GroupRequest.setAvatar(chatID);
-        FileMessage fileMessage = new FileMessage(new FileDTO(null, contentType, bytes));
+        FileDTO dto = new FileDTO(null, contentType, bytes);
 
         send(request);
-        send(fileMessage);
+        FileIOUtil.send(dto, this::send);
 
         RawMessage raw = queue.take();
         ServerErrorManager.instance().handleError(raw);
@@ -130,13 +130,10 @@ public class GroupClientChain extends ClientChain {
             InterruptedException, UnknownSandnodeErrorException, SandnodeErrorException, ExpectedMessageException {
         send(GroupRequest.getAvatar(chatID));
 
-        RawMessage raw = queue.take();
         try {
-            ServerErrorManager.instance().handleError(raw);
+            return FileIOUtil.receive(queue::take);
         } catch (NoEffectException e) {
             return null;
         }
-
-        return new FileMessage(raw).dto();
     }
 }

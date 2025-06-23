@@ -40,7 +40,7 @@ public class MessageRepository {
     }
 
     public MessageEntity create(ChatEntity chat, ChatMessageInputDTO input, TauMemberEntity member)
-            throws DatabaseException, NotFoundException, UnauthorizedException {
+            throws DatabaseException, UnauthorizedException {
         return create(chat, input, member, null);
     }
 
@@ -49,7 +49,7 @@ public class MessageRepository {
             ChatMessageInputDTO input,
             TauMemberEntity member,
             EncryptedKeyEntity key
-    ) throws DatabaseException, NotFoundException, UnauthorizedException {
+    ) throws DatabaseException, UnauthorizedException {
         EntityManager em = jpaUtil.getEntityManager();
         MessageEntity managed = save(new MessageEntity(chat, input, member, key));
         EntityTransaction transaction = em.getTransaction();

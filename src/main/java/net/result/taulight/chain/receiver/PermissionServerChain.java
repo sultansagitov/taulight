@@ -7,6 +7,7 @@ import net.result.sandnode.exception.SandnodeException;
 import net.result.sandnode.exception.error.NoEffectException;
 import net.result.sandnode.exception.error.NotFoundException;
 import net.result.sandnode.exception.error.UnauthorizedException;
+import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.message.types.HappyMessage;
 import net.result.sandnode.serverclient.Session;
 import net.result.sandnode.util.Container;
@@ -23,8 +24,8 @@ public class PermissionServerChain extends ServerChain implements ReceiverChain 
     }
 
     @Override
-    public void sync() throws Exception {
-        PermissionRequest request = new PermissionRequest(queue.take());
+    public HappyMessage handle(RawMessage raw) throws Exception {
+        PermissionRequest request = new PermissionRequest(raw);
 
         Container container = session.server.container;
         roleRepo = container.get(RoleRepository.class);
@@ -41,7 +42,7 @@ public class PermissionServerChain extends ServerChain implements ReceiverChain 
             throw new NoEffectException();
         }
 
-        send(new HappyMessage());
+        return new HappyMessage();
     }
 
     private GroupEntity getGroup(PermissionRequest request) throws SandnodeException {

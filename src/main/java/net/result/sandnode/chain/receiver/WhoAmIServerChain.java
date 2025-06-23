@@ -3,6 +3,7 @@ package net.result.sandnode.chain.receiver;
 import net.result.sandnode.chain.ReceiverChain;
 import net.result.sandnode.chain.ServerChain;
 import net.result.sandnode.exception.error.UnauthorizedException;
+import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.message.types.WhoAmIRequest;
 import net.result.sandnode.message.types.WhoAmIResponse;
 import net.result.sandnode.serverclient.Session;
@@ -13,11 +14,11 @@ public class WhoAmIServerChain extends ServerChain implements ReceiverChain {
     }
 
     @Override
-    public void sync() throws Exception {
-        new WhoAmIRequest(queue.take());
+    public WhoAmIResponse handle(RawMessage raw) throws Exception {
+        new WhoAmIRequest(raw);
 
         if (session.member == null) throw new UnauthorizedException();
 
-        sendFin(new WhoAmIResponse(session.member));
+        return new WhoAmIResponse(session.member);
     }
 }
