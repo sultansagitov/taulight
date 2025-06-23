@@ -18,6 +18,10 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
+      - name: Add Bouncy Castle security provider
+        run: |
+          echo "security.provider.1=org.bouncycastle.jce.provider.BouncyCastleProvider" | sudo tee -a $JAVA_HOME/lib/security/java.security
+
       - name: Clone simplesix64 dependency
         run: |
           git clone https://github.com/sultansagitov/simplesix64.git
