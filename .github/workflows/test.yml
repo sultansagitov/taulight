@@ -1,0 +1,32 @@
+name: Java CI with Maven
+
+on:
+  pull_request:
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Add Bouncy Castle security provider
+        run: |
+          echo "security.provider.1=org.bouncycastle.jce.provider.BouncyCastleProvider" | sudo tee -a $JAVA_HOME/lib/security/java.security
+
+      - name: Clone simplesix64 dependency
+        run: |
+          git clone https://github.com/sultansagitov/simplesix64.git
+          cd simplesix64
+          mvn install
+
+      - name: Build and run tests
+        run: mvn test
