@@ -2,6 +2,7 @@ package net.result.sandnode.db;
 
 import net.result.sandnode.GlobalTestState;
 import net.result.sandnode.encryption.AsymmetricEncryptions;
+import net.result.sandnode.encryption.EncryptionManager;
 import net.result.sandnode.exception.DatabaseException;
 import net.result.sandnode.exception.crypto.CannotUseEncryption;
 import net.result.sandnode.exception.error.BusyNicknameException;
@@ -22,6 +23,8 @@ public class LoginsTest {
 
     @BeforeAll
     static void setup() throws BusyNicknameException, DatabaseException {
+        EncryptionManager.registerAll();
+
         Container container = GlobalTestState.container;
         loginRepo = container.get(LoginRepository.class);
         keyStorageRepo = container.get(KeyStorageRepository.class);
