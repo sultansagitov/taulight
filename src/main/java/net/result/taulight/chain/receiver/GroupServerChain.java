@@ -227,6 +227,7 @@ public class GroupServerChain extends ServerChain implements ReceiverChain {
         return new UUIDMessage(new Headers().setType(MessageTypes.HAPPY), avatar);
     }
 
+    @SuppressWarnings("SameReturnValue")
     private IMessage getAvatar(GroupRequestDTO dto, TauMemberEntity you) throws Exception {
         UUID chatID = dto.chatID;
 

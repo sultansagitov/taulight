@@ -1,20 +1,18 @@
 package net.result.taulight.hubagent;
 
+import net.result.sandnode.chain.ServerChainManager;
 import net.result.sandnode.config.AgentConfig;
-import net.result.sandnode.hubagent.Agent;
-
-import net.result.sandnode.message.util.Connection;
-import net.result.sandnode.serverclient.SandnodeServer;
-import net.result.sandnode.serverclient.Session;
 import net.result.sandnode.encryption.KeyStorageRegistry;
+import net.result.sandnode.hubagent.Agent;
 import org.jetbrains.annotations.NotNull;
 
-import java.net.Socket;
-
 public class TauAgent extends Agent {
-
     public TauAgent(AgentConfig config) {
         this(new KeyStorageRegistry(), config);
+    }
+
+    public TauAgent(@NotNull KeyStorageRegistry keyStorageRegistry, AgentConfig config) {
+        super(keyStorageRegistry, config);
     }
 
     //TODO:
@@ -22,11 +20,7 @@ public class TauAgent extends Agent {
     // realize it when add agent as server
     @SuppressWarnings("DataFlowIssue")
     @Override
-    public @NotNull Session createSession(SandnodeServer server, Socket socket, Connection connection) {
+    protected @NotNull ServerChainManager createChainManager() {
         return null;
-    }
-
-    public TauAgent(@NotNull KeyStorageRegistry keyStorageRegistry, AgentConfig config) {
-        super(keyStorageRegistry, config);
     }
 }

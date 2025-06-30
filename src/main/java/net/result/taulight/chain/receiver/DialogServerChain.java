@@ -24,7 +24,6 @@ import net.result.taulight.util.TauAgentProtocol;
 import net.result.taulight.util.TauHubProtocol;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
@@ -48,13 +47,15 @@ public class DialogServerChain extends ServerChain implements ReceiverChain {
                 .map(name -> DialogRequest.Type.valueOf(name.toUpperCase()))
                 .orElse(DialogRequest.Type.ID);
 
-        return switch (type) {
+        switch (type) {
             case ID -> id(request, session.member);
             case AVATAR -> avatar(request, session.member);
-        };
+        }
+
+        return null;
     }
 
-    private @Nullable IMessage id(DialogRequest request, MemberEntity you) throws Exception {
+    private void id(DialogRequest request, MemberEntity you) throws Exception {
         TauClusterManager manager = session.server.container.get(TauClusterManager.class);
         TauMemberRepository tauMemberRepo = session.server.container.get(TauMemberRepository.class);
         DialogRepository dialogRepo = session.server.container.get(DialogRepository.class);
@@ -82,11 +83,9 @@ public class DialogServerChain extends ServerChain implements ReceiverChain {
                 LOGGER.warn("Ignored exception: {}", e.getMessage());
             }
         }
-
-        return null;
     }
 
-    private @Nullable IMessage avatar(DialogRequest request, MemberEntity you) throws Exception {
+    private void avatar(DialogRequest request, MemberEntity you) throws Exception {
         ChatUtil chatUtil = session.server.container.get(ChatUtil.class);
         DBFileUtil dbFileUtil = session.server.container.get(DBFileUtil.class);
 
@@ -100,6 +99,5 @@ public class DialogServerChain extends ServerChain implements ReceiverChain {
         if (avatar == null) throw new NoEffectException();
 
         FileIOUtil.send(dbFileUtil.readImage(avatar), this::send);
-        return null;
     }
 }

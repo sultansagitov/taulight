@@ -86,8 +86,7 @@ public class SandnodeServer {
                         }
                     }
 
-                    node.removeHub(session);
-                    node.removeAgent(session);
+                    node.removeSession(session);
 
                     session.close();
 

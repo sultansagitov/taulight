@@ -128,8 +128,9 @@ public class LinksTest {
             });
         }
 
+        @SuppressWarnings("DataFlowIssue")
         @Override
-        protected ServerChainManager createChainManager() {
+        protected @NotNull ServerChainManager createChainManager() {
             return null;
         }
     }

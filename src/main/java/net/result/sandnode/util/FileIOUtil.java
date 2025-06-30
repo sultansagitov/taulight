@@ -54,7 +54,7 @@ public class FileIOUtil {
         String contentType = null;
         int totalChunks = -1;
 
-        while (true) {
+        do {
             RawMessage raw = method.receive();
             ServerErrorManager.instance().handleError(raw);
 
@@ -66,9 +66,7 @@ public class FileIOUtil {
             if (totalChunks == -1) totalChunks = chunk.totalChunks();
 
             chunks.put(chunk.sequence(), chunk.body());
-
-            if (chunks.size() == totalChunks) break;
-        }
+        } while (chunks.size() != totalChunks);
 
         ByteArrayOutputStream output = new ByteArrayOutputStream();
         for (byte[] chunk : chunks.values()) {

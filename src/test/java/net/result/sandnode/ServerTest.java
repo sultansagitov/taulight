@@ -38,7 +38,6 @@ import org.jetbrains.annotations.Nullable;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-import java.net.Socket;
 import java.nio.file.Path;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
@@ -288,55 +287,53 @@ public class ServerTest {
 
     public static class TestAgent extends Agent {
         public TestAgent() {
-            super(new KeyStorageRegistry(), new AgentConfig() {
-
-                @Override
-                public void saveServerKey(@NotNull Address address, @NotNull AsymmetricKeyStorage keyStorage) {}
-
-                @Override
-                public AsymmetricKeyStorage loadServerKey(@NotNull Address address)
-                        throws KeyStorageNotFoundException {
-                    throw new KeyStorageNotFoundException();
-                }
-
-                @Override
-                public void savePersonalKey(Address address, UUID keyID, KeyStorage keyStorage) {}
-
-                @Override
-                public KeyStorage loadPersonalKey(Address address, UUID keyID) throws KeyStorageNotFoundException {
-                    throw new KeyStorageNotFoundException(keyID);
-                }
-
-                @Override
-                public KeyEntry loadEncryptor(Address address, String nickname) throws KeyStorageNotFoundException {
-                    throw new KeyStorageNotFoundException(nickname);
-                }
-
-                @Override
-                public KeyEntry loadDEK(Address address, String nickname) throws KeyStorageNotFoundException {
-                    throw new KeyStorageNotFoundException(nickname);
-                }
-
-                @Override
-                public KeyStorage loadDEK(Address address, UUID keyID) throws KeyStorageNotFoundException {
-                    throw new KeyStorageNotFoundException(keyID);
-                }
-
-                @Override
-                public void saveEncryptor(Address address, String nickname, UUID keyID, KeyStorage keyStorage) {}
-
-                @Override
-                public void saveDEK(Address address, String nickname, UUID keyID, KeyStorage keyStorage) {
-
-                }
-            });
+            super(new KeyStorageRegistry(), new TestAgentConfig());
         }
 
         @SuppressWarnings("DataFlowIssue")
         @Override
-        public @NotNull Session createSession(SandnodeServer server, Socket socket, Connection connection) {
+        protected @NotNull ServerChainManager createChainManager() {
             return null;
         }
+    }
+
+    private static class TestAgentConfig implements AgentConfig {
+        @Override
+        public void saveServerKey(@NotNull Address address, @NotNull AsymmetricKeyStorage keyStorage) {}
+
+        @Override
+        public AsymmetricKeyStorage loadServerKey(@NotNull Address address) throws KeyStorageNotFoundException {
+            throw new KeyStorageNotFoundException();
+        }
+
+        @Override
+        public void savePersonalKey(Address address, UUID keyID, KeyStorage keyStorage) {}
+
+        @Override
+        public KeyStorage loadPersonalKey(Address address, UUID keyID) throws KeyStorageNotFoundException {
+            throw new KeyStorageNotFoundException(keyID);
+        }
+
+        @Override
+        public KeyEntry loadEncryptor(Address address, String nickname) throws KeyStorageNotFoundException {
+            throw new KeyStorageNotFoundException(nickname);
+        }
+
+        @Override
+        public KeyEntry loadDEK(Address address, String nickname) throws KeyStorageNotFoundException {
+            throw new KeyStorageNotFoundException(nickname);
+        }
+
+        @Override
+        public KeyStorage loadDEK(Address address, UUID keyID) throws KeyStorageNotFoundException {
+            throw new KeyStorageNotFoundException(keyID);
+        }
+
+        @Override
+        public void saveEncryptor(Address address, String nickname, UUID keyID, KeyStorage keyStorage) {}
+
+        @Override
+        public void saveDEK(Address address, String nickname, UUID keyID, KeyStorage keyStorage) {}
     }
 
     public static class TestClientConfig implements ClientConfig {
