@@ -9,7 +9,7 @@ import net.result.sandnode.exception.error.KeyStorageNotFoundException;
 import net.result.sandnode.exception.error.NotFoundException;
 import net.result.sandnode.exception.error.TooFewArgumentsException;
 import net.result.sandnode.exception.error.UnauthorizedException;
-import net.result.sandnode.message.IMessage;
+import net.result.sandnode.message.Message;
 import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.message.UUIDMessage;
 import net.result.sandnode.message.types.ErrorMessage;
@@ -40,7 +40,7 @@ public class ForwardRequestServerChain extends ServerChain implements ReceiverCh
 
     @SuppressWarnings("InfiniteLoopStatement")
     @Override
-    public IMessage handle(RawMessage raw1) throws InterruptedException, SandnodeException {
+    public Message handle(RawMessage raw1) throws InterruptedException, SandnodeException {
         ChatUtil chatUtil = session.server.container.get(ChatUtil.class);
         MessageRepository messageRepo = session.server.container.get(MessageRepository.class);
         EncryptedKeyRepository encryptedKeyRepo = session.server.container.get(EncryptedKeyRepository.class);

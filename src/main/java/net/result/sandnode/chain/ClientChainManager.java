@@ -1,5 +1,3 @@
 package net.result.sandnode.chain;
 
-public interface ClientChainManager extends ChainManager {
-
-}
+public interface ClientChainManager extends ChainManager {}

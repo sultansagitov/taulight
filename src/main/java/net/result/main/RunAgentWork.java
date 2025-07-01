@@ -28,7 +28,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 
-public class RunAgentWork implements IWork {
+public class RunAgentWork implements Work {
     private static final Logger LOGGER = LogManager.getLogger(RunAgentWork.class);
     private SandnodeClient client;
     private Scanner scanner;

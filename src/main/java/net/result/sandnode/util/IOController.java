@@ -6,8 +6,8 @@ import net.result.sandnode.encryption.interfaces.*;
 import net.result.sandnode.exception.*;
 import net.result.sandnode.exception.error.*;
 import net.result.sandnode.message.EncryptedMessage;
-import net.result.sandnode.message.IMessage;
 import net.result.sandnode.message.Message;
+import net.result.sandnode.message.BaseMessage;
 import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.message.types.ErrorMessage;
 import net.result.sandnode.message.types.ExitMessage;
@@ -36,7 +36,7 @@ public class IOController {
     private final InputStream in;
     private final OutputStream out;
     public final Socket socket;
-    private final BlockingQueue<IMessage> sendingQueue = new LinkedBlockingQueue<>();
+    private final BlockingQueue<Message> sendingQueue = new LinkedBlockingQueue<>();
     public final ChainManager chainManager;
 
     private Encryption serverEncryption = Encryptions.NONE;
@@ -53,7 +53,7 @@ public class IOController {
         this.chainManager = chainManager;
     }
 
-    private void beforeSending(IMessage message) {
+    private void beforeSending(Message message) {
         Headers headers = message.headers();
         headers.setConnection(connection);
         if (message.headersEncryption() == Encryptions.NONE) {
@@ -67,10 +67,10 @@ public class IOController {
 
     public void sendingLoop() throws InterruptedException, SandnodeException {
         while (connected) {
-            IMessage message = sendingQueue.take();
+            Message message = sendingQueue.take();
             beforeSending(message);
 
-            IMessage sent = null;
+            Message sent = null;
             byte[] byteArray = null;
             SandnodeError error = null;
             try {
@@ -114,7 +114,7 @@ public class IOController {
     public void receivingLoop() throws InterruptedException, SandnodeException {
         while (connected) {
             EncryptedMessage encrypted = EncryptedMessage.readMessage(in);
-            RawMessage message = Message.decryptMessage(encrypted, keyStorageRegistry);
+            RawMessage message = BaseMessage.decryptMessage(encrypted, keyStorageRegistry);
             chainManager.distributeMessage(message);
         }
     }
@@ -153,7 +153,7 @@ public class IOController {
         return symKeyEncryption() != Encryptions.NONE ? symKeyEncryption() : serverEncryption();
     }
 
-    public void sendMessage(@NotNull IMessage message) throws InterruptedException {
+    public void sendMessage(@NotNull Message message) throws InterruptedException {
         if (message.headersEncryption() == Encryptions.NONE)
             message.setHeadersEncryption(currentEncryption());
         sendingQueue.put(message);

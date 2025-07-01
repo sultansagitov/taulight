@@ -4,7 +4,7 @@ import net.result.sandnode.config.ServerConfig;
 import net.result.sandnode.exception.*;
 import net.result.sandnode.hubagent.Node;
 import net.result.sandnode.message.EncryptedMessage;
-import net.result.sandnode.message.Message;
+import net.result.sandnode.message.BaseMessage;
 import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.message.util.Connection;
 import net.result.sandnode.util.Container;
@@ -69,7 +69,7 @@ public class SandnodeServer {
                 try {
                     InputStream inputStream = StreamReader.inputStream(clientSocket);
                     EncryptedMessage encrypted = EncryptedMessage.readMessage(inputStream);
-                    RawMessage request = Message.decryptMessage(encrypted, node.keyStorageRegistry);
+                    RawMessage request = BaseMessage.decryptMessage(encrypted, node.keyStorageRegistry);
                     Connection conn = request.headers().connection();
                     Session session = node.createSession(this, clientSocket, conn.getOpposite());
                     session.io.chainManager.distributeMessage(request);

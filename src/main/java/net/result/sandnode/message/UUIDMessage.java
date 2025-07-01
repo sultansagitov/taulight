@@ -8,7 +8,7 @@ import org.jetbrains.annotations.NotNull;
 import java.nio.ByteBuffer;
 import java.util.UUID;
 
-public class UUIDMessage extends Message {
+public class UUIDMessage extends BaseMessage {
     public final UUID uuid;
 
     public UUIDMessage(@NotNull Headers headers, @NotNull UUID uuid) {

@@ -6,7 +6,7 @@ import net.result.sandnode.db.FileEntity;
 import net.result.sandnode.db.MemberEntity;
 import net.result.sandnode.exception.ImpossibleRuntimeException;
 import net.result.sandnode.exception.error.*;
-import net.result.sandnode.message.IMessage;
+import net.result.sandnode.message.Message;
 import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.message.UUIDMessage;
 import net.result.sandnode.message.util.Headers;
@@ -35,7 +35,7 @@ public class DialogServerChain extends ServerChain implements ReceiverChain {
     }
 
     @Override
-    public IMessage handle(RawMessage raw) throws Exception {
+    public Message handle(RawMessage raw) throws Exception {
         DialogRequest request = new DialogRequest(raw);
 
         if (session.member == null) {

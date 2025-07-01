@@ -20,7 +20,7 @@ import net.result.sandnode.exception.error.KeyStorageNotFoundException;
 import net.result.sandnode.hubagent.Agent;
 import net.result.sandnode.hubagent.ClientProtocol;
 import net.result.sandnode.hubagent.Hub;
-import net.result.sandnode.message.IMessage;
+import net.result.sandnode.message.Message;
 import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.message.util.*;
 import net.result.sandnode.security.JWTTokenizer;
@@ -111,14 +111,14 @@ public class ServerTest {
                 .setChainID(CHAIN_ID);
     }
 
-    private static @NotNull IMessage prepareMessage() {
+    private static @NotNull Message prepareMessage() {
         Headers headers = prepareHeaders();
-        IMessage sentMessage = new RawMessage(headers);
+        Message sentMessage = new RawMessage(headers);
         sentMessage.setHeadersEncryption(SymmetricEncryptions.AES);
         return sentMessage;
     }
 
-    private static void validateMessage(IMessage sentMessage, IMessage receivedMessage) {
+    private static void validateMessage(Message sentMessage, Message receivedMessage) {
         // Validate headers
         assertEquals(sentMessage.headers().connection(), receivedMessage.headers().connection());
         assertEquals(sentMessage.headers().type(), receivedMessage.headers().type());
@@ -192,7 +192,7 @@ public class ServerTest {
 
         @Override
         public @NotNull ServerChainManager createChainManager() {
-            return new TestingBSTServerChainManager();
+            return new TestHubServerChainManager();
         }
 
         @Override
@@ -201,7 +201,7 @@ public class ServerTest {
         }
     }
 
-    private static class TestingBSTServerChainManager extends BSTServerChainManager {
+    private static class TestHubServerChainManager extends HubServerChainManager {
         @Override
         public ReceiverChain createChain(MessageType type) {
             return type == Testing.TESTING ? new TestServerChain(session) : super.createChain(type);
@@ -217,9 +217,9 @@ public class ServerTest {
         }
 
         @Override
-        public @Nullable IMessage handle(RawMessage receivedMessage) {
+        public @Nullable Message handle(RawMessage receivedMessage) {
             // Client sends message via chain
-            IMessage sentMessage = prepareMessage();
+            Message sentMessage = prepareMessage();
             sentMessage.headers().setChainID(getID());
 
             // Validate the message on the server side
@@ -259,7 +259,7 @@ public class ServerTest {
 
                 TestClientConfig clientConfig = new TestClientConfig();
                 client = new SandnodeClient(address, agent, NodeType.HUB, clientConfig);
-                ClientChainManager chainManager = new BSTClientChainManager(client) {
+                ClientChainManager chainManager = new BaseClientChainManager(client) {
                     @Override
                     public ReceiverChain createChain(MessageType type) {
                         return new UnhandledMessageTypeClientChain(client);
@@ -269,7 +269,7 @@ public class ServerTest {
                 ClientProtocol.PUB(client);
                 ClientProtocol.sendSYM(client);
 
-                IMessage sentMessage = prepareMessage();
+                Message sentMessage = prepareMessage();
 
                 IOController io = client.io;
 
@@ -348,7 +348,7 @@ public class ServerTest {
             super(client);
         }
 
-        public void sendTestMessage(IMessage message) throws InterruptedException, UnprocessedMessagesException {
+        public void sendTestMessage(Message message) throws InterruptedException, UnprocessedMessagesException {
             sendFin(message);
         }
     }

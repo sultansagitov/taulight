@@ -7,7 +7,7 @@ import org.jetbrains.annotations.NotNull;
 public class WorkFactory {
     private static final Logger LOGGER = LogManager.getLogger(WorkFactory.class);
 
-    public static @NotNull IWork getWork(@NotNull String workName) {
+    public static @NotNull Work getWork(@NotNull String workName) {
         LOGGER.info("Argument: {}", workName);
         return switch (workName) {
             case "run-hub" -> new RunHubWork();

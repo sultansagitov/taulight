@@ -9,7 +9,7 @@ import net.result.sandnode.dto.FileDTO;
 import net.result.sandnode.exception.DatabaseException;
 import net.result.sandnode.exception.ImpossibleRuntimeException;
 import net.result.sandnode.exception.error.*;
-import net.result.sandnode.message.IMessage;
+import net.result.sandnode.message.Message;
 import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.message.TextMessage;
 import net.result.sandnode.message.UUIDMessage;
@@ -58,7 +58,7 @@ public class GroupServerChain extends ServerChain implements ReceiverChain {
     }
 
     @Override
-    public @Nullable IMessage handle(RawMessage raw) throws Exception {
+    public @Nullable Message handle(RawMessage raw) throws Exception {
         JPAUtil jpaUtil = session.server.container.get(JPAUtil.class);
         chatUtil = session.server.container.get(ChatUtil.class);
         dbFileUtil = session.server.container.get(DBFileUtil.class);
@@ -83,7 +83,7 @@ public class GroupServerChain extends ServerChain implements ReceiverChain {
 
         final TauMemberEntity you = session.member.tauMember();
 
-        IMessage response = switch (dto.type) {
+        Message response = switch (dto.type) {
             case CREATE -> create(dto, you);
             case INVITE -> invite(dto, you);
             case LEAVE -> leave(dto, you);
@@ -228,7 +228,7 @@ public class GroupServerChain extends ServerChain implements ReceiverChain {
     }
 
     @SuppressWarnings("SameReturnValue")
-    private IMessage getAvatar(GroupRequestDTO dto, TauMemberEntity you) throws Exception {
+    private Message getAvatar(GroupRequestDTO dto, TauMemberEntity you) throws Exception {
         UUID chatID = dto.chatID;
 
         ChatEntity chat = chatUtil.getChat(chatID).orElseThrow(NotFoundException::new);

@@ -6,7 +6,7 @@ import net.result.sandnode.error.ServerErrorManager;
 import net.result.sandnode.exception.*;
 import net.result.sandnode.exception.error.NoEffectException;
 import net.result.sandnode.exception.error.SandnodeErrorException;
-import net.result.sandnode.message.IMessage;
+import net.result.sandnode.message.Message;
 import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.message.UUIDMessage;
 import net.result.sandnode.message.types.AvatarRequest;
@@ -45,7 +45,7 @@ public class AvatarClientChain extends ClientChain {
             throw new FSException(e);
         }
 
-        IMessage request = AvatarRequest.byType(AvatarRequest.Type.SET);
+        Message request = AvatarRequest.byType(AvatarRequest.Type.SET);
         FileDTO dto = new FileDTO(null, contentType, bytes);
 
         send(request);

@@ -34,7 +34,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.List;
 import java.net.URI;
 
-public class RunHubWork implements IWork {
+public class RunHubWork implements Work {
 
     private static final Logger LOGGER = LogManager.getLogger(RunHubWork.class);
 

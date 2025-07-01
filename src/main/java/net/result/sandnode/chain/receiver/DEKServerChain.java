@@ -7,7 +7,7 @@ import net.result.sandnode.dto.DEKDTO;
 import net.result.sandnode.exception.error.AddressedMemberNotFoundException;
 import net.result.sandnode.exception.error.NotFoundException;
 import net.result.sandnode.exception.error.UnauthorizedException;
-import net.result.sandnode.message.IMessage;
+import net.result.sandnode.message.Message;
 import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.message.UUIDMessage;
 import net.result.sandnode.message.types.DEKListMessage;
@@ -26,7 +26,7 @@ public class DEKServerChain extends ServerChain implements ReceiverChain {
     }
 
     @Override
-    public IMessage handle(RawMessage raw) throws Exception {
+    public Message handle(RawMessage raw) throws Exception {
         if (session.member == null) throw new UnauthorizedException();
 
         JPAUtil jpaUtil = session.server.container.get(JPAUtil.class);

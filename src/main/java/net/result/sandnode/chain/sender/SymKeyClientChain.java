@@ -5,7 +5,7 @@ import net.result.sandnode.encryption.interfaces.SymmetricKeyStorage;
 import net.result.sandnode.exception.ExpectedMessageException;
 import net.result.sandnode.exception.UnprocessedMessagesException;
 import net.result.sandnode.exception.crypto.KeyNotCreatedException;
-import net.result.sandnode.message.IMessage;
+import net.result.sandnode.message.Message;
 import net.result.sandnode.message.types.HappyMessage;
 import net.result.sandnode.message.types.SymMessage;
 import net.result.sandnode.message.util.Headers;
@@ -23,7 +23,7 @@ public class SymKeyClientChain extends ClientChain {
         if (!io.keyStorageRegistry.has(io.serverEncryption()))
             throw new KeyNotCreatedException(io.serverEncryption());
 
-        IMessage symMessage = new SymMessage(new Headers().setBodyEncryption(io.serverEncryption()), keyStorage);
+        Message symMessage = new SymMessage(new Headers().setBodyEncryption(io.serverEncryption()), keyStorage);
 
         send(symMessage);
 

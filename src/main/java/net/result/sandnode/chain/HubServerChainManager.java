@@ -5,7 +5,7 @@ import net.result.sandnode.message.util.MessageType;
 import net.result.sandnode.message.util.MessageTypes;
 import net.result.sandnode.serverclient.Session;
 
-public abstract class BSTServerChainManager extends BSTChainManager implements ServerChainManager {
+public abstract class HubServerChainManager extends BaseChainManager implements ServerChainManager {
     protected Session session;
 
     @Override
@@ -15,7 +15,7 @@ public abstract class BSTServerChainManager extends BSTChainManager implements S
 
     @Override
     public ReceiverChain createChain(MessageType type) {
-        return (type instanceof MessageTypes sysType) ? switch (sysType) {
+        return type instanceof MessageTypes sysType ? switch (sysType) {
             case PUB -> new PublicKeyServerChain(session);
             case SYM -> new SymKeyServerChain(session);
             case CLUSTER -> new ClusterServerChain(session);

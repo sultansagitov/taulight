@@ -5,8 +5,8 @@ import net.result.sandnode.exception.crypto.DataNotEncryptedException;
 import net.result.sandnode.exception.crypto.EncryptionTypeException;
 import net.result.sandnode.exception.ExpectedMessageException;
 import net.result.sandnode.exception.crypto.NoSuchEncryptionException;
-import net.result.sandnode.message.IMessage;
 import net.result.sandnode.message.Message;
+import net.result.sandnode.message.BaseMessage;
 import net.result.sandnode.message.util.Headers;
 import net.result.sandnode.encryption.EncryptionManager;
 import net.result.sandnode.encryption.interfaces.SymmetricEncryption;
@@ -14,10 +14,10 @@ import net.result.sandnode.encryption.interfaces.SymmetricKeyStorage;
 import net.result.sandnode.message.util.MessageTypes;
 import org.jetbrains.annotations.NotNull;
 
-public class SymMessage extends Message {
+public class SymMessage extends BaseMessage {
     public final SymmetricKeyStorage symmetricKeyStorage;
 
-    public SymMessage(@NotNull IMessage message) throws ExpectedMessageException, NoSuchEncryptionException,
+    public SymMessage(@NotNull Message message) throws ExpectedMessageException, NoSuchEncryptionException,
             EncryptionTypeException, DataNotEncryptedException {
         super(message.expect(MessageTypes.SYM).headers());
 

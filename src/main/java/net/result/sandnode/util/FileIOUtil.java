@@ -7,7 +7,7 @@ import net.result.sandnode.exception.ExpectedMessageException;
 import net.result.sandnode.exception.UnknownSandnodeErrorException;
 import net.result.sandnode.exception.UnprocessedMessagesException;
 import net.result.sandnode.exception.error.SandnodeErrorException;
-import net.result.sandnode.message.IMessage;
+import net.result.sandnode.message.Message;
 import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.message.types.FileMessage;
 import org.jetbrains.annotations.NotNull;
@@ -21,7 +21,7 @@ import java.util.UUID;
 public class FileIOUtil {
     @FunctionalInterface
     public interface SendMethod {
-        void send(@NotNull IMessage request) throws UnprocessedMessagesException, InterruptedException;
+        void send(@NotNull Message request) throws UnprocessedMessagesException, InterruptedException;
     }
 
     @FunctionalInterface

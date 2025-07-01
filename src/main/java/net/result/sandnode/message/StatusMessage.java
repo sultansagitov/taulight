@@ -5,7 +5,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.nio.ByteBuffer;
 
-public abstract class StatusMessage extends Message {
+public abstract class StatusMessage extends BaseMessage {
     private final int code;
 
     public StatusMessage(@NotNull Headers headers, int code) {
@@ -13,7 +13,7 @@ public abstract class StatusMessage extends Message {
         this.code = code;
     }
 
-    public StatusMessage(@NotNull IMessage response) {
+    public StatusMessage(@NotNull Message response) {
         super(response.headers());
         code = ByteBuffer.wrap(response.getBody()).getInt();
     }

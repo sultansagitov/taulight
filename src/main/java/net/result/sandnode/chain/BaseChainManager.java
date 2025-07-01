@@ -1,38 +1,39 @@
 package net.result.sandnode.chain;
 
 import net.result.sandnode.error.Errors;
+import net.result.sandnode.exception.BusyChainID;
+import net.result.sandnode.exception.ImpossibleRuntimeException;
 import net.result.sandnode.exception.error.SandnodeErrorException;
-import net.result.sandnode.message.IMessage;
+import net.result.sandnode.message.Message;
+import net.result.sandnode.message.RawMessage;
+import net.result.sandnode.message.util.Headers;
 import net.result.sandnode.message.util.MessageType;
 import net.result.sandnode.message.util.MessageTypes;
 import net.result.sandnode.util.Address;
 import net.result.sandnode.util.bst.AVLTree;
-import net.result.sandnode.exception.BSTBusyPosition;
-import net.result.sandnode.exception.BusyChainID;
-import net.result.sandnode.exception.ImpossibleRuntimeException;
-import net.result.sandnode.message.RawMessage;
-import net.result.sandnode.util.bst.BinarySearchTree;
-import net.result.sandnode.message.util.Headers;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.security.SecureRandom;
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
-public abstract class BSTChainManager implements ChainManager {
-    private static final Logger LOGGER = LogManager.getLogger(BSTChainManager.class);
-    protected final BinarySearchTree<IChain, Short> bst = new AVLTree<>();
-    protected final Map<String, IChain> chainMap = new ConcurrentHashMap<>();
+public abstract class BaseChainManager implements ChainManager {
+    private static final Logger LOGGER = LogManager.getLogger(BaseChainManager.class);
+    protected final ChainStorage storage = new BSTChainStorage(new AVLTree<>());
     private final ExecutorService executorService = Executors.newCachedThreadPool();
 
-    protected BSTChainManager() {}
+    protected BaseChainManager() {}
 
-    private Optional<IChain> getByID(short id) {
-        return bst.find(id);
+    @Override
+    public ChainStorage storage() {
+        return storage;
+    }
+
+    private Optional<Chain> getByID(short id) {
+        return storage.find(id);
     }
 
     private ReceiverChain createNew(RawMessage message) throws BusyChainID {
@@ -42,17 +43,13 @@ public abstract class BSTChainManager implements ChainManager {
 
         chain.setID(headers.chainID());
         LOGGER.info("Adding new chain {}", chain);
-        try {
-            bst.add(chain);
-        } catch (BSTBusyPosition e) {
-            throw new BusyChainID(e);
-        }
+        storage.add(chain);
         return chain;
     }
 
     @Override
-    public void linkChain(IChain chain) {
-        List<Short> list = bst.getOrdered().stream().map(IChain::getID).toList();
+    public void linkChain(Chain chain) {
+        List<Short> list = storage.getAll().stream().map(Chain::getID).toList();
 
         Random random = new SecureRandom();
         short chainID;
@@ -62,28 +59,27 @@ public abstract class BSTChainManager implements ChainManager {
         chain.setID(chainID);
         LOGGER.info("Linking new chain {}", chain);
         try {
-            bst.add(chain);
-        } catch (BSTBusyPosition e) {
+            storage.add(chain);
+        } catch (BusyChainID e) {
             throw new ImpossibleRuntimeException(e);
         }
     }
 
     @Override
-    public void removeChain(IChain chain) {
-        chainMap.entrySet().removeIf(entry -> entry.getValue() == chain);
-        bst.remove(chain);
+    public void removeChain(Chain chain) {
+        storage.remove(chain);
     }
 
     @Override
     public void distributeMessage(RawMessage message) throws InterruptedException {
         Headers headers = message.headers();
-        Optional<IChain> initialChainOpt = getByID(headers.chainID());
-        IChain chain;
+        Optional<Chain> initialChainOpt = getByID(headers.chainID());
+        Chain chain;
         if (initialChainOpt.isPresent()) {
             chain = initialChainOpt.get();
         } else {
             synchronized (this) {
-                Optional<IChain> retriedChainOpt = getByID(headers.chainID());
+                Optional<Chain> retriedChainOpt = getByID(headers.chainID());
                 if (retriedChainOpt.isEmpty()) {
                     try {
                         ReceiverChain newChain = createNew(message);
@@ -121,7 +117,7 @@ public abstract class BSTChainManager implements ChainManager {
             try {
                 try {
                     LOGGER.info("{} started in new thread", chain);
-                    IMessage response = chain.handle(message);
+                    Message response = chain.handle(message);
                     if (response != null) chain.sendFin(response);
                 } catch (SandnodeErrorException e) {
                     LOGGER.error("Error in {}", chain, e);
@@ -141,18 +137,8 @@ public abstract class BSTChainManager implements ChainManager {
     }
 
     @Override
-    public Collection<IChain> getAllChains() {
-        return new HashSet<>(bst.getOrdered());
-    }
-
-    @Override
-    public Map<String, IChain> getChainsMap() {
-        return chainMap;
-    }
-
-    @Override
-    public Optional<IChain> getChain(String chainName) {
-        return Optional.ofNullable(chainMap.get(chainName));
+    public Optional<Chain> getChain(String chainName) {
+        return storage.find(chainName);
     }
 
     @Override
@@ -161,16 +147,16 @@ public abstract class BSTChainManager implements ChainManager {
     }
 
     @Override
-    public synchronized void setName(IChain chain, String chainName) {
-        chainMap.put(chainName, chain);
+    public synchronized void setName(Chain chain, String chainName) {
+        storage.addNamed(chainName, chain);
     }
 
     @Override
     public String toString() {
         String start = "<%s chains=".formatted(getClass().getSimpleName());
-        return bst
-                .getOrdered().stream()
-                .map(IChain::getID)
+        return storage
+                .getAll().stream()
+                .map(Chain::getID)
                 .map("%04X"::formatted)
                 .collect(Collectors.joining(",", start, ">"));
     }

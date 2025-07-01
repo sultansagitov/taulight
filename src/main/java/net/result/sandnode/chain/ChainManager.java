@@ -3,26 +3,22 @@ package net.result.sandnode.chain;
 import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.message.util.MessageType;
 
-import java.util.Collection;
-import java.util.Map;
 import java.util.Optional;
 
 public interface ChainManager {
     void interruptAll();
 
-    void linkChain(IChain chain);
+    ChainStorage storage();
+
+    void linkChain(Chain chain);
 
     ReceiverChain createChain(MessageType type);
 
-    void removeChain(IChain chain);
+    void removeChain(Chain chain);
 
     void distributeMessage(RawMessage message) throws InterruptedException;
 
-    Collection<IChain> getAllChains();
+    Optional<Chain> getChain(String chainName);
 
-    Map<String, IChain> getChainsMap();
-
-    Optional<IChain> getChain(String chainName);
-
-    void setName(IChain chain, String chainName);
+    void setName(Chain chain, String chainName);
 }

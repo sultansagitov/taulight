@@ -3,7 +3,7 @@ package net.result.sandnode.message;
 import net.result.sandnode.message.util.Headers;
 import org.jetbrains.annotations.NotNull;
 
-public class RawMessage extends Message {
+public class RawMessage extends BaseMessage {
     private byte[] body;
 
     public RawMessage(@NotNull Headers headers) {

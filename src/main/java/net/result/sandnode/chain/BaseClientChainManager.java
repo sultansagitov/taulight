@@ -2,10 +2,10 @@ package net.result.sandnode.chain;
 
 import net.result.sandnode.serverclient.SandnodeClient;
 
-public abstract class BSTClientChainManager extends BSTChainManager implements ClientChainManager {
+public abstract class BaseClientChainManager extends BaseChainManager implements ClientChainManager {
     protected final SandnodeClient client;
 
-    public BSTClientChainManager(SandnodeClient client) {
+    public BaseClientChainManager(SandnodeClient client) {
         super();
         this.client = client;
     }

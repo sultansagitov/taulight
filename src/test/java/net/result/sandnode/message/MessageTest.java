@@ -38,7 +38,7 @@ class MessageTest {
         ByteArrayInputStream in = new ByteArrayInputStream(byteArray);
 
         EncryptedMessage encrypted = EncryptedMessage.readMessage(in);
-        IMessage node2Message = Message.decryptMessage(encrypted, keyStorageRegistry);
+        Message node2Message = BaseMessage.decryptMessage(encrypted, keyStorageRegistry);
 
         // headers
         assertEquals(node1Message.headers().connection(), node2Message.headers().connection());

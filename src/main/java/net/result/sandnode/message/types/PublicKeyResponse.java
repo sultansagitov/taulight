@@ -9,7 +9,7 @@ import net.result.sandnode.exception.crypto.CannotUseEncryption;
 import net.result.sandnode.exception.crypto.CreatingKeyException;
 import net.result.sandnode.exception.crypto.EncryptionTypeException;
 import net.result.sandnode.exception.crypto.NoSuchEncryptionException;
-import net.result.sandnode.message.Message;
+import net.result.sandnode.message.BaseMessage;
 import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.message.util.Headers;
 import net.result.sandnode.encryption.EncryptionManager;
@@ -21,7 +21,7 @@ import org.jetbrains.annotations.NotNull;
 import java.nio.charset.StandardCharsets;
 import java.util.UUID;
 
-public class PublicKeyResponse extends Message {
+public class PublicKeyResponse extends BaseMessage {
     public final AsymmetricKeyStorage keyStorage;
 
     public PublicKeyResponse(@NotNull Headers headers, @NotNull AsymmetricKeyStorage keyStorage) {

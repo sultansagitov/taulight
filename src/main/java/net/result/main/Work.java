@@ -1,5 +1,5 @@
 package net.result.main;
 
-public interface IWork {
+public interface Work {
     void run() throws Exception;
 }

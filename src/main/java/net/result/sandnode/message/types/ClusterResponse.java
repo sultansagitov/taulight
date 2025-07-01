@@ -1,7 +1,7 @@
 package net.result.sandnode.message.types;
 
 import net.result.sandnode.exception.ExpectedMessageException;
-import net.result.sandnode.message.Message;
+import net.result.sandnode.message.BaseMessage;
 import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.message.util.Headers;
 import net.result.sandnode.message.util.MessageTypes;
@@ -9,7 +9,7 @@ import net.result.sandnode.message.util.MessageTypes;
 import java.util.Collection;
 import java.util.Set;
 
-public class ClusterResponse extends Message {
+public class ClusterResponse extends BaseMessage {
     private final Collection<String> clustersID;
 
     public ClusterResponse(RawMessage raw) throws ExpectedMessageException {

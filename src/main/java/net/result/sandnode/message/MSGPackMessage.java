@@ -12,7 +12,7 @@ import org.msgpack.jackson.dataformat.MessagePackFactory;
 
 import java.io.IOException;
 
-public abstract class MSGPackMessage<T> extends Message {
+public abstract class MSGPackMessage<T> extends BaseMessage {
     private static final ObjectMapper objectMapper;
 
     static  {
@@ -28,7 +28,7 @@ public abstract class MSGPackMessage<T> extends Message {
         this.object = object;
     }
 
-    public MSGPackMessage(@NotNull IMessage message, Class<T> clazz) throws DeserializationException {
+    public MSGPackMessage(@NotNull Message message, Class<T> clazz) throws DeserializationException {
         super(message.headers());
         try {
             object = objectMapper.readValue(message.getBody(), clazz);
@@ -37,7 +37,7 @@ public abstract class MSGPackMessage<T> extends Message {
         }
     }
 
-    public MSGPackMessage(@NotNull IMessage message, TypeReference<T> typeReference) throws DeserializationException {
+    public MSGPackMessage(@NotNull Message message, TypeReference<T> typeReference) throws DeserializationException {
         super(message.headers());
         try {
             object = objectMapper.readValue(message.getBody(), typeReference);

@@ -6,7 +6,7 @@ import net.result.sandnode.error.ServerErrorManager;
 import net.result.sandnode.exception.*;
 import net.result.sandnode.exception.error.NoEffectException;
 import net.result.sandnode.exception.error.SandnodeErrorException;
-import net.result.sandnode.message.IMessage;
+import net.result.sandnode.message.Message;
 import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.message.TextMessage;
 import net.result.sandnode.message.UUIDMessage;
@@ -111,7 +111,7 @@ public class GroupClientChain extends ClientChain {
             throw new FSException(e);
         }
 
-        IMessage request = GroupRequest.setAvatar(chatID);
+        Message request = GroupRequest.setAvatar(chatID);
         FileDTO dto = new FileDTO(null, contentType, bytes);
 
         send(request);
