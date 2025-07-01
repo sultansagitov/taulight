@@ -7,6 +7,7 @@ import net.result.sandnode.message.util.Headers;
 import net.result.sandnode.encryption.KeyStorageRegistry;
 import net.result.sandnode.encryption.interfaces.KeyStorage;
 import net.result.sandnode.message.util.MessageTypes;
+import net.result.sandnode.util.MessageUtil;
 import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayInputStream;
@@ -38,7 +39,7 @@ class MessageTest {
         ByteArrayInputStream in = new ByteArrayInputStream(byteArray);
 
         EncryptedMessage encrypted = EncryptedMessage.readMessage(in);
-        Message node2Message = BaseMessage.decryptMessage(encrypted, keyStorageRegistry);
+        Message node2Message = MessageUtil.decryptMessage(encrypted, keyStorageRegistry);
 
         // headers
         assertEquals(node1Message.headers().connection(), node2Message.headers().connection());

@@ -1,37 +1,40 @@
 package net.result.sandnode.link;
 
 import net.result.sandnode.chain.ServerChainManager;
-import net.result.sandnode.config.HubConfig;
+import net.result.sandnode.config.HubConfigRecord;
 import net.result.sandnode.config.ServerConfig;
 import net.result.sandnode.encryption.AsymmetricEncryptions;
 import net.result.sandnode.encryption.EncryptionManager;
 import net.result.sandnode.encryption.KeyStorageRegistry;
 import net.result.sandnode.encryption.interfaces.AsymmetricEncryption;
 import net.result.sandnode.encryption.interfaces.AsymmetricKeyStorage;
-import net.result.sandnode.exception.*;
+import net.result.sandnode.exception.InvalidSandnodeLinkException;
 import net.result.sandnode.exception.crypto.CannotUseEncryption;
 import net.result.sandnode.exception.crypto.CreatingKeyException;
 import net.result.sandnode.exception.crypto.EncryptionTypeException;
 import net.result.sandnode.exception.error.KeyStorageNotFoundException;
 import net.result.sandnode.hubagent.Hub;
-import net.result.sandnode.security.PasswordHasher;
 import net.result.sandnode.serverclient.SandnodeServer;
-import net.result.sandnode.util.Container;
 import net.result.sandnode.util.Address;
+import net.result.sandnode.util.Container;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import java.net.URI;
-import java.nio.file.Path;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 public class LinksTest {
+    private static KeyStorageRegistry hubKeyStorage;
+    private static HubConfigRecord config;
 
     @BeforeAll
     static void setup() {
         EncryptionManager.registerAll();
+        AsymmetricKeyStorage generated = AsymmetricEncryptions.ECIES.generate();
+        hubKeyStorage = new KeyStorageRegistry(generated);
+        config = new HubConfigRecord("Test Hub", null, null);
     }
 
     @Test
@@ -43,8 +46,8 @@ public class LinksTest {
         assertNotNull(serverLink);
         assertEquals("sandnode", serverLink.getScheme());
         assertTrue(serverLink.getHost().contains("localhost"));
-        assertTrue(serverLink.getQuery().contains("encryption"));
-        assertTrue(serverLink.getQuery().contains("key"));
+        assertTrue(serverLink.getQuery().contains("encryption=ECIES"));
+        assertTrue(serverLink.getQuery().contains("key="));
     }
 
     @Test
@@ -83,6 +86,13 @@ public class LinksTest {
         assertThrows(InvalidSandnodeLinkException.class, () -> Links.parse(invalidLink));
     }
 
+    @Test
+    public void testParseInvalidPublicKey() {
+        String invalidLink = "sandnode://test@localhost:52525?encryption=ECIES&key=INVALID_BASE64";
+
+        assertThrows(InvalidSandnodeLinkException.class, () -> Links.parse(invalidLink));
+    }
+
     static class TestServerConfig implements ServerConfig {
         @Override
         public Container container() {
@@ -110,22 +120,7 @@ public class LinksTest {
 
     private static class TestHub extends Hub {
         public TestHub() {
-            super(new KeyStorageRegistry(AsymmetricEncryptions.ECIES.generate()), new HubConfig() {
-                @Override
-                public String name() {
-                    return "Test Hub";
-                }
-
-                @Override
-                public PasswordHasher hasher() {
-                    return null;
-                }
-
-                @Override
-                public Path imagePath() {
-                    return null;
-                }
-            });
+            super(hubKeyStorage, LinksTest.config);
         }
 
         @SuppressWarnings("DataFlowIssue")

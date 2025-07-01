@@ -18,7 +18,7 @@ public abstract class BaseChain implements Chain {
     protected final IOController io;
     private short id;
 
-    public BaseChain(IOController io) {
+    protected BaseChain(IOController io) {
         this.io = io;
     }
 

@@ -3,6 +3,7 @@ package net.result.sandnode;
 import com.auth0.jwt.algorithms.Algorithm;
 import net.result.sandnode.chain.*;
 import net.result.sandnode.chain.receiver.UnhandledMessageTypeClientChain;
+import net.result.sandnode.cluster.ClusterManager;
 import net.result.sandnode.cluster.HashSetClusterManager;
 import net.result.sandnode.config.*;
 import net.result.sandnode.encryption.AsymmetricEncryptions;
@@ -24,7 +25,6 @@ import net.result.sandnode.message.Message;
 import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.message.util.*;
 import net.result.sandnode.security.JWTTokenizer;
-import net.result.sandnode.security.PasswordHasher;
 import net.result.sandnode.serverclient.SandnodeClient;
 import net.result.sandnode.serverclient.SandnodeServer;
 import net.result.sandnode.serverclient.Session;
@@ -38,7 +38,6 @@ import org.jetbrains.annotations.Nullable;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-import java.nio.file.Path;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Condition;
@@ -57,6 +56,13 @@ public class ServerTest {
 
     private static final Lock serverStartLock = new ReentrantLock();
     private static final Condition serverStarted = serverStartLock.newCondition();
+    private static HubThread hubThread;
+    private static AgentThread agentThread;
+
+    public static SandnodeServer server;
+    public static Hub hub;
+
+    public static SandnodeClient client;
 
     private enum Testing implements MessageType {
         TESTING {
@@ -70,31 +76,46 @@ public class ServerTest {
     @BeforeAll
     public static void setup() {
         EncryptionManager.registerAll();
-
         MessageTypeManager.instance().add(Testing.TESTING);
+
+        Container container = GlobalTestState.container;
+
+        container.addInstance(ClusterManager.class, new HashSetClusterManager());
+
+        ServerConfig serverConfig = new ServerConfigRecord(
+                container,
+                new Address("localhost", port),
+                null,
+                null,
+                asymmetricEncryption,
+                new HashSetClusterManager(),
+                new JWTTokenizer(container, () -> Algorithm.HMAC256("test"))
+        );
+
+        KeyStorageRegistry serverKeyStorage = new KeyStorageRegistry(asymmetricEncryption.generate());
+
+        hub = new TestHub(serverKeyStorage);
+        server = new SandnodeServer(hub, serverConfig);
+
+        hubThread = new HubThread();
+        agentThread = new AgentThread();
     }
 
     @Test
     public void testMessageTransmission() throws Exception {
-        // Server setup
-        KeyStorage rsaKeyStorage = asymmetricEncryption.generate();
-        KeyStorageRegistry serverKeyStorage = new KeyStorageRegistry(rsaKeyStorage);
-        HubThread hubThread = new HubThread(serverKeyStorage);
         hubThread.start();
 
         TestServerChain.lock.lock();
         TestServerChain.condition = TestServerChain.lock.newCondition();
 
-        // Client setup
-        AgentThread agentThread = new AgentThread();
         agentThread.start();
 
         assertTrue(TestServerChain.condition.await(10, TimeUnit.SECONDS));
 
         // Cleanup
-        agentThread.client.close();
+        client.close();
         LOGGER.info("Client closed.");
-        hubThread.server.closeWithoutDBShutdown();
+        server.closeWithoutDBShutdown();
         LOGGER.info("Server closed.");
     }
 
@@ -132,24 +153,8 @@ public class ServerTest {
     }
 
     public static class HubThread extends Thread {
-        public final SandnodeServer server;
-        public final Hub hub;
-
-        public HubThread(KeyStorageRegistry serverKeyStorage) {
+        public HubThread() {
             setName("HubThread");
-            hub = new TestHub(serverKeyStorage);
-
-            Container container = GlobalTestState.container;
-            ServerConfig serverConfig = new ServerConfigRecord(
-                    container,
-                    new Address("localhost", port),
-                    null,
-                    null,
-                    asymmetricEncryption,
-                    new HashSetClusterManager(),
-                    new JWTTokenizer(container, () -> Algorithm.HMAC256("test"))
-            );
-            server = new SandnodeServer(hub, serverConfig);
         }
 
         @Override
@@ -172,22 +177,7 @@ public class ServerTest {
 
     private static class TestHub extends Hub {
         public TestHub(KeyStorageRegistry serverKeyStorage) {
-            super(serverKeyStorage, new HubConfig() {
-                @Override
-                public String name() {
-                    return "Test Hub";
-                }
-
-                @Override
-                public PasswordHasher hasher() {
-                    return null;
-                }
-
-                @Override
-                public Path imagePath() {
-                    return null;
-                }
-            });
+            super(serverKeyStorage, new HubConfigRecord("Test Hub", null, null));
         }
 
         @Override
@@ -245,8 +235,6 @@ public class ServerTest {
     }
 
     public static class AgentThread extends Thread {
-        public SandnodeClient client;
-
         public AgentThread() {
             setName("AgentThread");
         }
@@ -259,12 +247,7 @@ public class ServerTest {
 
                 TestClientConfig clientConfig = new TestClientConfig();
                 client = new SandnodeClient(address, agent, NodeType.HUB, clientConfig);
-                ClientChainManager chainManager = new BaseClientChainManager(client) {
-                    @Override
-                    public ReceiverChain createChain(MessageType type) {
-                        return new UnhandledMessageTypeClientChain(client);
-                    }
-                };
+                ClientChainManager chainManager = new TestClientChainManager(client);
                 client.start(chainManager);
                 ClientProtocol.PUB(client);
                 ClientProtocol.sendSYM(client);
@@ -282,6 +265,17 @@ public class ServerTest {
                 fail(e);
                 throw new RuntimeException(e);
             }
+        }
+    }
+
+    private static class TestClientChainManager extends BaseClientChainManager {
+        public TestClientChainManager(SandnodeClient client) {
+            super(client);
+        }
+
+        @Override
+        public ReceiverChain createChain(MessageType type) {
+            return new UnhandledMessageTypeClientChain(client);
         }
     }
 

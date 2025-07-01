@@ -3,30 +3,25 @@ package net.result.sandnode.chain;
 import net.result.sandnode.chain.receiver.*;
 import net.result.sandnode.message.util.MessageType;
 import net.result.sandnode.message.util.MessageTypes;
-import net.result.sandnode.serverclient.Session;
 
-public abstract class HubServerChainManager extends BaseChainManager implements ServerChainManager {
-    protected Session session;
-
-    @Override
-    public void setSession(Session session) {
-        this.session = session;
-    }
-
+public abstract class HubServerChainManager extends BaseServerChainManager {
     @Override
     public ReceiverChain createChain(MessageType type) {
-        return type instanceof MessageTypes sysType ? switch (sysType) {
-            case PUB -> new PublicKeyServerChain(session);
-            case SYM -> new SymKeyServerChain(session);
-            case CLUSTER -> new ClusterServerChain(session);
-            case LOGIN -> new LoginServerChain(session);
-            case REG -> new RegistrationServerChain(session);
-            case LOGOUT -> new LogoutServerChain(session);
-            case WHOAMI -> new WhoAmIServerChain(session);
-            case NAME -> new NameServerChain(session);
-            case DEK -> new DEKServerChain(session);
-            case AVATAR -> new AvatarServerChain(session);
-            default -> new UnhandledMessageTypeServerChain(session);
-        } : new UnhandledMessageTypeServerChain(session);
+        if (type instanceof MessageTypes sysType) {
+            ReceiverChain chain = switch (sysType) {
+                case CLUSTER -> new ClusterServerChain(session);
+                case LOGIN -> new LoginServerChain(session);
+                case REG -> new RegistrationServerChain(session);
+                case LOGOUT -> new LogoutServerChain(session);
+                case WHOAMI -> new WhoAmIServerChain(session);
+                case NAME -> new NameServerChain(session);
+                case DEK -> new DEKServerChain(session);
+                case AVATAR -> new AvatarServerChain(session);
+                default -> null;
+            };
+            if (chain != null) return chain;
+        }
+
+        return super.createChain(type);
     }
 }

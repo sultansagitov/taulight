@@ -7,7 +7,6 @@ import net.result.sandnode.exception.*;
 import net.result.sandnode.exception.error.*;
 import net.result.sandnode.message.EncryptedMessage;
 import net.result.sandnode.message.Message;
-import net.result.sandnode.message.BaseMessage;
 import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.message.types.ErrorMessage;
 import net.result.sandnode.message.types.ExitMessage;
@@ -114,7 +113,7 @@ public class IOController {
     public void receivingLoop() throws InterruptedException, SandnodeException {
         while (connected) {
             EncryptedMessage encrypted = EncryptedMessage.readMessage(in);
-            RawMessage message = BaseMessage.decryptMessage(encrypted, keyStorageRegistry);
+            RawMessage message = MessageUtil.decryptMessage(encrypted, keyStorageRegistry);
             chainManager.distributeMessage(message);
         }
     }

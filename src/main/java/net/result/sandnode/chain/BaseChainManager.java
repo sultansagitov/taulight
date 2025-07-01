@@ -15,15 +15,17 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.security.SecureRandom;
-import java.util.*;
+import java.util.List;
+import java.util.Optional;
+import java.util.Random;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
 public abstract class BaseChainManager implements ChainManager {
     private static final Logger LOGGER = LogManager.getLogger(BaseChainManager.class);
-    protected final ChainStorage storage = new BSTChainStorage(new AVLTree<>());
     private final ExecutorService executorService = Executors.newCachedThreadPool();
+    protected final ChainStorage storage = new BSTChainStorage(new AVLTree<>());
 
     protected BaseChainManager() {}
 
