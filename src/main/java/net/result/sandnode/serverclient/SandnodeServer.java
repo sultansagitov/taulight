@@ -26,7 +26,7 @@ public class SandnodeServer {
     public final Container container;
     public ServerSocket serverSocket;
 
-    private final ExecutorService sessionExecutor = Executors.newCachedThreadPool();
+    private final ExecutorService sessionExecutor = Executors.newCachedThreadPool(new DaemonFactory());
 
     public SandnodeServer(Node node, ServerConfig serverConfig) {
         this.node = node;

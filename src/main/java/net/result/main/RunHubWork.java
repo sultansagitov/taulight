@@ -2,40 +2,36 @@ package net.result.main;
 
 import net.result.main.config.HubPropertiesConfig;
 import net.result.main.config.JWTPropertiesConfig;
+import net.result.main.config.ServerPropertiesConfig;
+import net.result.sandnode.cluster.ClusterManager;
 import net.result.sandnode.config.HubConfig;
 import net.result.sandnode.config.ServerConfig;
-import net.result.sandnode.cluster.ClusterManager;
-import net.result.sandnode.security.Tokenizer;
-import net.result.sandnode.util.JPAUtil;
+import net.result.sandnode.encryption.KeyStorageRegistry;
+import net.result.sandnode.encryption.interfaces.AsymmetricEncryption;
 import net.result.sandnode.exception.ConfigurationException;
 import net.result.sandnode.exception.FSException;
 import net.result.sandnode.exception.SandnodeException;
 import net.result.sandnode.exception.SocketAcceptException;
 import net.result.sandnode.exception.crypto.EncryptionTypeException;
 import net.result.sandnode.exception.crypto.NoSuchEncryptionException;
-import net.result.sandnode.link.SandnodeLinkRecord;
+import net.result.sandnode.security.JWTTokenizer;
+import net.result.sandnode.security.Tokenizer;
+import net.result.sandnode.serverclient.SandnodeServer;
 import net.result.sandnode.util.Container;
+import net.result.sandnode.util.JPAUtil;
+import net.result.taulight.cluster.HashSetTauClusterManager;
+import net.result.taulight.cluster.TauClusterManager;
 import net.result.taulight.db.ReactionPackageEntity;
 import net.result.taulight.db.ReactionPackageRepository;
 import net.result.taulight.db.ReactionTypeRepository;
-import net.result.taulight.cluster.HashSetTauClusterManager;
-import net.result.sandnode.security.JWTTokenizer;
-import net.result.taulight.cluster.TauClusterManager;
 import net.result.taulight.hubagent.TauHub;
-import net.result.main.config.ServerPropertiesConfig;
-import net.result.sandnode.serverclient.SandnodeServer;
-import net.result.sandnode.encryption.KeyStorageRegistry;
-import net.result.sandnode.encryption.interfaces.AsymmetricEncryption;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
-import java.net.URI;
 
 public class RunHubWork implements Work {
-
     private static final Logger LOGGER = LogManager.getLogger(RunHubWork.class);
 
     @Override
@@ -44,9 +40,7 @@ public class RunHubWork implements Work {
         container.get(JPAUtil.class);
 
         ServerConfig serverConfig = getServerConfig(container);
-
         AsymmetricEncryption mainEncryption = serverConfig.mainEncryption();
-
         KeyStorageRegistry keyStorageRegistry = serverConfig.readKey(mainEncryption);
 
         HubConfig hubConfig = new HubPropertiesConfig();
@@ -59,16 +53,20 @@ public class RunHubWork implements Work {
 
         server.start();
 
-        URI link = SandnodeLinkRecord.fromServer(server).getURI();
-        System.out.println("Link for server:");
-        System.out.println();
-        System.out.println(link);
-        System.out.println();
+        HubConsole console = new HubConsole(server);
 
-        try {
-            server.acceptSessions();
-        } catch (SocketAcceptException ignored) {
-        }
+        Thread thread = new Thread(() -> {
+            try {
+                server.acceptSessions();
+            } catch (SocketAcceptException e) {
+                if (!console.running) return;
+                throw new RuntimeException(e);
+            }
+        });
+        thread.setDaemon(true);
+        thread.start();
+
+        console.start();
     }
 
     private static void createReactions(SandnodeServer server) {
@@ -86,9 +84,9 @@ public class RunHubWork implements Work {
         }
     }
 
-    private static @NotNull ServerPropertiesConfig getServerConfig(Container container)
+    private static @NotNull ServerConfig getServerConfig(Container container)
             throws ConfigurationException, FSException, NoSuchEncryptionException, EncryptionTypeException {
-        ServerPropertiesConfig serverConfig = new ServerPropertiesConfig(container);
+        ServerConfig serverConfig = new ServerPropertiesConfig(container);
         container.addInstance(ServerConfig.class, serverConfig);
 
         HashSetTauClusterManager clusterManager = new HashSetTauClusterManager();

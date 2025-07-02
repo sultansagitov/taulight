@@ -9,6 +9,7 @@ import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.message.util.Headers;
 import net.result.sandnode.message.util.MessageType;
 import net.result.sandnode.message.util.MessageTypes;
+import net.result.sandnode.util.DaemonFactory;
 import net.result.sandnode.util.Address;
 import net.result.sandnode.util.bst.AVLTree;
 import org.apache.logging.log4j.LogManager;
@@ -24,7 +25,7 @@ import java.util.stream.Collectors;
 
 public abstract class BaseChainManager implements ChainManager {
     private static final Logger LOGGER = LogManager.getLogger(BaseChainManager.class);
-    private final ExecutorService executorService = Executors.newCachedThreadPool();
+    private final ExecutorService executorService = Executors.newCachedThreadPool(new DaemonFactory());
     protected final ChainStorage storage = new BSTChainStorage(new AVLTree<>());
 
     protected BaseChainManager() {}
