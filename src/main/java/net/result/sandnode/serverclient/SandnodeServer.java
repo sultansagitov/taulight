@@ -124,4 +124,9 @@ public class SandnodeServer {
 
         node.close();
     }
+
+    @Override
+    public String toString() {
+        return "<%s %s>".formatted(getClass().getSimpleName(), serverSocket);
+    }
 }

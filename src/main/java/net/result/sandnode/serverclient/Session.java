@@ -6,6 +6,7 @@ import net.result.sandnode.db.LoginEntity;
 import net.result.sandnode.db.MemberEntity;
 import net.result.sandnode.exception.SandnodeException;
 import net.result.sandnode.exception.UnexpectedSocketDisconnectException;
+import net.result.sandnode.util.Address;
 import net.result.sandnode.util.IOController;
 import net.result.sandnode.util.Logout;
 import org.apache.logging.log4j.LogManager;
@@ -90,6 +91,9 @@ public class Session {
 
     @Override
     public String toString() {
-        return "<%s %s %s>".formatted(getClass().getSimpleName(), io.addressFromSocket(), member != null ? member.nickname() : "");
+        String simpleName = getClass().getSimpleName();
+        Address address = io.addressFromSocket();
+        if (member == null) return "<%s %s>".formatted(simpleName, address);
+        return "<%s %s %s>".formatted(simpleName, address, member.nickname());
     }
 }

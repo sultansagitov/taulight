@@ -17,5 +17,4 @@ public abstract class Hub extends Node {
     public @NotNull NodeType type() {
         return NodeType.HUB;
     }
-
 }

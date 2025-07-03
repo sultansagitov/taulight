@@ -69,4 +69,9 @@ public abstract class Node {
 
     @SuppressWarnings("EmptyMethod")
     public void close() {}
+
+    @Override
+    public String toString() {
+        return "<%s %s>".formatted(getClass().getSimpleName(), keyStorageRegistry);
+    }
 }

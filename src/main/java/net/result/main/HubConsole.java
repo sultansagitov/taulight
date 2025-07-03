@@ -5,6 +5,7 @@ import net.result.sandnode.exception.crypto.EncryptionTypeException;
 import net.result.sandnode.exception.error.KeyStorageNotFoundException;
 import net.result.sandnode.link.SandnodeLinkRecord;
 import net.result.sandnode.serverclient.SandnodeServer;
+import net.result.sandnode.serverclient.Session;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -14,12 +15,12 @@ import java.util.Map;
 import java.util.Scanner;
 
 public class HubConsole {
-    private static final Logger LOGGER = LogManager.getLogger(HubConsole.class);
-
     @FunctionalInterface
     interface F {
         void run() throws Exception;
     }
+
+    private static final Logger LOGGER = LogManager.getLogger(HubConsole.class);
 
     private final SandnodeServer server;
     private final Map<String, F> commands = new HashMap<>();
@@ -27,13 +28,15 @@ public class HubConsole {
 
     public HubConsole(SandnodeServer server) {
         this.server = server;
+
+        commands.put("exit", this::exit);
+        commands.put("getlink", this::getLink);
+        commands.put("info", this::info);
+        commands.put("sessions", this::sessions);
     }
 
     public void start() {
-        commands.put("getlink", this::getLink);
-        commands.put("exit", this::exit);
-
-        System.out.println("Terminal started.");
+        System.out.println("Console started.");
         printAvailable();
 
         Scanner scanner = new Scanner(System.in);
@@ -64,6 +67,12 @@ public class HubConsole {
     }
 
 
+    private void exit() throws ServerClosingException {
+        System.out.println("Shutting down...");
+        running = false;
+        server.close();
+    }
+
     private void getLink() throws EncryptionTypeException, KeyStorageNotFoundException {
         URI link = SandnodeLinkRecord.fromServer(server).getURI();
         System.out.println("Link for server:");
@@ -72,9 +81,17 @@ public class HubConsole {
         System.out.println();
     }
 
-    private void exit() throws ServerClosingException {
-        System.out.println("Shutting down...");
-        running = false;
-        server.close();
+    private void info() {
+        System.out.printf("Server: %s%n", server);
+        System.out.printf("Node: %s%n", server.node);
+    }
+
+    private void sessions() {
+        for (Session session : server.node.getHubs()) {
+            System.out.println(session);
+        }
+        for (Session session : server.node.getAgents()) {
+            System.out.println(session);
+        }
     }
 }
