@@ -1,5 +1,6 @@
 package net.result.main;
 
+import net.result.sandnode.chain.Chain;
 import net.result.sandnode.exception.ServerClosingException;
 import net.result.sandnode.exception.crypto.EncryptionTypeException;
 import net.result.sandnode.exception.error.KeyStorageNotFoundException;
@@ -13,6 +14,7 @@ import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Scanner;
+import java.util.stream.Stream;
 
 public class HubConsole {
     @FunctionalInterface
@@ -33,6 +35,7 @@ public class HubConsole {
         commands.put("getlink", this::getLink);
         commands.put("info", this::info);
         commands.put("sessions", this::sessions);
+        commands.put("chains", this::chains);
     }
 
     public void start() {
@@ -93,5 +96,15 @@ public class HubConsole {
         for (Session session : server.node.getAgents()) {
             System.out.println(session);
         }
+    }
+
+    private void chains() {
+        for (Session session : Stream.concat(server.node.getHubs().stream(), server.node.getAgents().stream()).toList()) {
+            System.out.println(session);
+            for (Chain chain : session.io.chainManager.storage().getAll()) {
+                System.out.println(chain);
+            }
+        }
+
     }
 }
