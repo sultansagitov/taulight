@@ -2,7 +2,10 @@ package net.result.sandnode.serverclient;
 
 import net.result.sandnode.chain.ClientChainManager;
 import net.result.sandnode.config.ClientConfig;
-import net.result.sandnode.exception.*;
+import net.result.sandnode.exception.ConnectionException;
+import net.result.sandnode.exception.InputStreamException;
+import net.result.sandnode.exception.OutputStreamException;
+import net.result.sandnode.exception.SandnodeException;
 import net.result.sandnode.hubagent.Node;
 import net.result.sandnode.link.SandnodeLinkRecord;
 import net.result.sandnode.message.util.Connection;
@@ -72,7 +75,17 @@ public class SandnodeClient {
             throws InputStreamException, OutputStreamException, ConnectionException {
         try {
             LOGGER.info("Connecting to {}", address);
-            socket = new Socket(address.host(), address.port());
+            start(chainManager, new Socket(address.host(), address.port()));
+        } catch (IOException e) {
+            close();
+            throw new ConnectionException("Error connecting to server", e);
+        }
+    }
+
+    public void start(ClientChainManager chainManager, Socket socket)
+            throws InputStreamException, OutputStreamException, ConnectionException {
+        this.socket = socket;
+        try {
             LOGGER.info("Connection established.");
             Connection connection = Connection.fromType(node.type(), nodeType);
             io = new IOController(socket, connection, node.keyStorageRegistry, chainManager);
@@ -104,9 +117,6 @@ public class SandnodeClient {
             LOGGER.error("Error connecting to server", e);
             close();
             throw e;
-        } catch (IOException e) {
-            close();
-            throw new ConnectionException("Error connecting to server", e);
         }
     }
 

@@ -1,30 +1,28 @@
 package net.result.sandnode;
 
-import com.auth0.jwt.algorithms.Algorithm;
 import net.result.sandnode.chain.*;
 import net.result.sandnode.chain.receiver.UnhandledMessageTypeClientChain;
 import net.result.sandnode.cluster.ClusterManager;
 import net.result.sandnode.cluster.HashSetClusterManager;
-import net.result.sandnode.config.*;
+import net.result.sandnode.config.ClientConfig;
+import net.result.sandnode.config.HubConfigRecord;
+import net.result.sandnode.config.ServerConfig;
+import net.result.sandnode.config.ServerConfigRecord;
 import net.result.sandnode.encryption.AsymmetricEncryptions;
 import net.result.sandnode.encryption.EncryptionManager;
 import net.result.sandnode.encryption.KeyStorageRegistry;
 import net.result.sandnode.encryption.SymmetricEncryptions;
-import net.result.sandnode.encryption.interfaces.AsymmetricKeyStorage;
-import net.result.sandnode.encryption.interfaces.KeyStorage;
 import net.result.sandnode.encryption.interfaces.SymmetricEncryption;
 import net.result.sandnode.exception.ImpossibleRuntimeException;
 import net.result.sandnode.exception.ServerStartException;
 import net.result.sandnode.exception.SocketAcceptException;
 import net.result.sandnode.exception.UnprocessedMessagesException;
-import net.result.sandnode.exception.error.KeyStorageNotFoundException;
 import net.result.sandnode.hubagent.Agent;
 import net.result.sandnode.hubagent.ClientProtocol;
 import net.result.sandnode.hubagent.Hub;
 import net.result.sandnode.message.Message;
 import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.message.util.*;
-import net.result.sandnode.security.JWTTokenizer;
 import net.result.sandnode.serverclient.SandnodeClient;
 import net.result.sandnode.serverclient.SandnodeServer;
 import net.result.sandnode.serverclient.Session;
@@ -38,7 +36,6 @@ import org.jetbrains.annotations.Nullable;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
@@ -85,11 +82,7 @@ public class ServerTest {
         ServerConfig serverConfig = new ServerConfigRecord(
                 container,
                 new Address("localhost", port),
-                null,
-                null,
-                asymmetricEncryption,
-                new HashSetClusterManager(),
-                new JWTTokenizer(container, () -> Algorithm.HMAC256("test"))
+                asymmetricEncryption
         );
 
         KeyStorageRegistry serverKeyStorage = new KeyStorageRegistry(asymmetricEncryption.generate());
@@ -289,45 +282,6 @@ public class ServerTest {
         protected @NotNull ServerChainManager createChainManager() {
             return null;
         }
-    }
-
-    private static class TestAgentConfig implements AgentConfig {
-        @Override
-        public void saveServerKey(@NotNull Address address, @NotNull AsymmetricKeyStorage keyStorage) {}
-
-        @Override
-        public AsymmetricKeyStorage loadServerKey(@NotNull Address address) throws KeyStorageNotFoundException {
-            throw new KeyStorageNotFoundException();
-        }
-
-        @Override
-        public void savePersonalKey(Address address, UUID keyID, KeyStorage keyStorage) {}
-
-        @Override
-        public KeyStorage loadPersonalKey(Address address, UUID keyID) throws KeyStorageNotFoundException {
-            throw new KeyStorageNotFoundException(keyID);
-        }
-
-        @Override
-        public KeyEntry loadEncryptor(Address address, String nickname) throws KeyStorageNotFoundException {
-            throw new KeyStorageNotFoundException(nickname);
-        }
-
-        @Override
-        public KeyEntry loadDEK(Address address, String nickname) throws KeyStorageNotFoundException {
-            throw new KeyStorageNotFoundException(nickname);
-        }
-
-        @Override
-        public KeyStorage loadDEK(Address address, UUID keyID) throws KeyStorageNotFoundException {
-            throw new KeyStorageNotFoundException(keyID);
-        }
-
-        @Override
-        public void saveEncryptor(Address address, String nickname, UUID keyID, KeyStorage keyStorage) {}
-
-        @Override
-        public void saveDEK(Address address, String nickname, UUID keyID, KeyStorage keyStorage) {}
     }
 
     public static class TestClientConfig implements ClientConfig {
