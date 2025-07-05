@@ -21,7 +21,7 @@ public class LogoutClientChain extends ClientChain {
     public synchronized void logout() throws UnprocessedMessagesException, InterruptedException,
             ExpectedMessageException, UnknownSandnodeErrorException, SandnodeErrorException {
         send(new EmptyMessage(new Headers().setType(MessageTypes.LOGOUT)));
-        RawMessage raw = queue.take();
+        RawMessage raw = receive();
         ServerErrorManager.instance().handleError(raw);
         new HappyMessage(raw);
     }

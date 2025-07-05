@@ -23,7 +23,7 @@ public class ReactionResponseServerChain extends ServerChain {
             throws UnprocessedMessagesException, InterruptedException, ExpectedMessageException,
             UnknownSandnodeErrorException, SandnodeErrorException {
         send(new ReactionResponse(true, reactionEntry, yourSession));
-        RawMessage raw = queue.take();
+        RawMessage raw = receive();
         ServerErrorManager.instance().handleError(raw);
         new HappyMessage(raw);
     }
@@ -44,7 +44,7 @@ public class ReactionResponseServerChain extends ServerChain {
                 reactionType.name(),
                 yourSession
         ));
-        RawMessage raw = queue.take();
+        RawMessage raw = receive();
         ServerErrorManager.instance().handleError(raw);
         new HappyMessage(raw);
     }

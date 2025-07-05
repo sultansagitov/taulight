@@ -28,7 +28,7 @@ public class DialogClientChain extends ClientChain {
             UnknownSandnodeErrorException, UnprocessedMessagesException {
         send(DialogRequest.getDialogID(nickname));
 
-        RawMessage raw = queue.take();
+        RawMessage raw = receive();
         ServerErrorManager.instance().handleError(raw);
 
         return new UUIDMessage(raw).uuid;
@@ -38,7 +38,7 @@ public class DialogClientChain extends ClientChain {
             UnknownSandnodeErrorException, UnprocessedMessagesException, ExpectedMessageException {
         send(DialogRequest.getAvatar(chatID));
         try {
-            return FileIOUtil.receive(queue::take);
+            return FileIOUtil.receive(this::receive);
         } catch (NoEffectException e) {
             return null;
         }

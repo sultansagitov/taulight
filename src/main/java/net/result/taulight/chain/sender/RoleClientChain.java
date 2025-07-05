@@ -24,7 +24,7 @@ public class RoleClientChain extends ClientChain {
             UnknownSandnodeErrorException, SandnodeErrorException, DeserializationException, ExpectedMessageException {
         send(RoleRequest.getRoles(chatID));
 
-        RawMessage raw = queue.take();
+        RawMessage raw = receive();
         ServerErrorManager.instance().handleError(raw);
 
         return new RoleResponse(raw).roles();
@@ -34,7 +34,7 @@ public class RoleClientChain extends ClientChain {
             InterruptedException, UnknownSandnodeErrorException, SandnodeErrorException {
         send(RoleRequest.addRole(chatID, roleName));
 
-        RawMessage raw = queue.take();
+        RawMessage raw = receive();
         ServerErrorManager.instance().handleError(raw);
     }
 
@@ -43,7 +43,7 @@ public class RoleClientChain extends ClientChain {
             SandnodeErrorException {
         send(RoleRequest.assignRole(chatID, roleName, nickname));
 
-        RawMessage raw = queue.take();
+        RawMessage raw = receive();
         ServerErrorManager.instance().handleError(raw);
     }
 }

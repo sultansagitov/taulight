@@ -51,7 +51,7 @@ public class AvatarClientChain extends ClientChain {
         send(request);
         FileIOUtil.send(dto, this::send);
 
-        RawMessage raw = queue.take();
+        RawMessage raw = receive();
         ServerErrorManager.instance().handleError(raw);
 
         raw.expect(MessageTypes.HAPPY);
@@ -63,7 +63,7 @@ public class AvatarClientChain extends ClientChain {
             UnknownSandnodeErrorException, SandnodeErrorException, UnprocessedMessagesException {
         send(AvatarRequest.byType(AvatarRequest.Type.GET_MY));
         try {
-            return FileIOUtil.receive(queue::take);
+            return FileIOUtil.receive(this::receive);
         } catch (NoEffectException e) {
             return null;
         }
@@ -75,7 +75,7 @@ public class AvatarClientChain extends ClientChain {
         request.headers().setValue("nickname", nickname);
         send(request);
         try {
-            return FileIOUtil.receive(queue::take);
+            return FileIOUtil.receive(this::receive);
         } catch (NoEffectException e) {
             return null;
         }

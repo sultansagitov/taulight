@@ -21,7 +21,7 @@ public class PublicKeyClientChain extends ClientChain {
             UnknownSandnodeErrorException, CryptoException, UnprocessedMessagesException {
         send(new PublicKeyRequest());
 
-        RawMessage response = queue.take();
+        RawMessage response = receive();
 
         ServerErrorManager.instance().handleError(response);
 

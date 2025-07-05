@@ -14,6 +14,6 @@ public class NameClientChain extends ClientChain {
 
     public String getName() throws UnprocessedMessagesException, InterruptedException, ExpectedMessageException {
         send(new NameRequest());
-        return new NameResponse(queue.take()).content();
+        return new NameResponse(receive()).content();
     }
 }

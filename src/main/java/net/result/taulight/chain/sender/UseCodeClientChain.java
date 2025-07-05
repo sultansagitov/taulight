@@ -21,7 +21,7 @@ public class UseCodeClientChain extends ClientChain {
         UseCodeRequest request = new UseCodeRequest(code);
         send(request);
 
-        RawMessage raw = queue.take();
+        RawMessage raw = receive();
         ServerErrorManager.instance().handleError(raw);
 
         new HappyMessage(raw);

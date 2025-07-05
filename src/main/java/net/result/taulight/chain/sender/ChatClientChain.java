@@ -26,7 +26,7 @@ public class ChatClientChain extends ClientChain {
             throws InterruptedException, DeserializationException, ExpectedMessageException, SandnodeErrorException,
             UnknownSandnodeErrorException, UnprocessedMessagesException {
         send(ChatRequest.getByMember(infoProps));
-        RawMessage raw = queue.take();
+        RawMessage raw = receive();
 
         ServerErrorManager.instance().handleError(raw);
 
@@ -37,7 +37,7 @@ public class ChatClientChain extends ClientChain {
             throws InterruptedException, ExpectedMessageException, UnknownSandnodeErrorException,
             SandnodeErrorException, DeserializationException, UnprocessedMessagesException {
         send(ChatRequest.getByID(chatID, infoProps));
-        RawMessage raw = queue.take();
+        RawMessage raw = receive();
 
         ServerErrorManager.instance().handleError(raw);
 

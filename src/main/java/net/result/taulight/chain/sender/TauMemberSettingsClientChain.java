@@ -22,7 +22,7 @@ public class TauMemberSettingsClientChain extends ClientChain {
             DeserializationException, UnknownSandnodeErrorException, SandnodeErrorException, ExpectedMessageException {
         send(new TauMemberSettingsRequest());
 
-        RawMessage raw = queue.take();
+        RawMessage raw = receive();
         ServerErrorManager.instance().handleError(raw);
 
         return new TauMemberSettingsResponse(raw).dto();
@@ -32,7 +32,7 @@ public class TauMemberSettingsClientChain extends ClientChain {
             UnknownSandnodeErrorException, SandnodeErrorException, ExpectedMessageException, DeserializationException {
         send(new TauMemberSettingsRequest(TauMemberSettingsRequest.SHOW_STATUS, String.valueOf(b)));
 
-        RawMessage raw = queue.take();
+        RawMessage raw = receive();
         ServerErrorManager.instance().handleError(raw);
 
         return new TauMemberSettingsResponse(raw).dto();

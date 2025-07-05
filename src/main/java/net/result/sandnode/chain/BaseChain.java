@@ -47,6 +47,10 @@ public abstract class BaseChain implements Chain {
         send(new ChainNameRequest(chainName));
     }
 
+    protected RawMessage receive() throws InterruptedException {
+        return queue.take();
+    }
+
     protected void send(@NotNull Message request) throws UnprocessedMessagesException, InterruptedException {
         if (!queue.isEmpty()) {
             throw new UnprocessedMessagesException(queue.peek());

@@ -26,7 +26,7 @@ public class MessageClientChain extends ClientChain {
             UnknownSandnodeErrorException, UnprocessedMessagesException {
         send(new MessageRequest(chatID, index, size));
 
-        RawMessage raw = queue.take();
+        RawMessage raw = receive();
         ServerErrorManager.instance().handleError(raw);
 
         return new MessageResponse(raw).getPaginated();

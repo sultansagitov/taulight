@@ -45,7 +45,7 @@ public class AvatarServerChain extends ServerChain implements ReceiverChain {
     private UUIDMessage set(MemberEntity you) throws Exception {
         JPAUtil jpaUtil = session.server.container.get(JPAUtil.class);
 
-        FileDTO dto = FileIOUtil.receive(queue::take);
+        FileDTO dto = FileIOUtil.receive(this::receive);
 
         if (!dto.contentType().startsWith("image/")) {
             throw new InvalidArgumentException();

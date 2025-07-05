@@ -24,12 +24,12 @@ public class ForwardRequestClientChain extends ClientChain {
             UnknownSandnodeErrorException, UnprocessedMessagesException, SandnodeErrorException {
         send(new ForwardRequest(input));
 
-        RawMessage uuidRaw = queue.take();
+        RawMessage uuidRaw = receive();
         ServerErrorManager.instance().handleError(uuidRaw);
         uuidRaw.expect(MessageTypes.HAPPY);
         UUID uuid = new UUIDMessage(uuidRaw).uuid;
 
-        RawMessage happyRaw = queue.take();
+        RawMessage happyRaw = receive();
         ServerErrorManager.instance().handleError(happyRaw);
         new HappyMessage(happyRaw);
 

@@ -27,7 +27,7 @@ public class MembersClientChain extends ClientChain {
             UnknownSandnodeErrorException, UnprocessedMessagesException {
         send(new UUIDMessage(new Headers().setType(TauMessageTypes.MEMBERS), chatID));
 
-        RawMessage raw = queue.take();
+        RawMessage raw = receive();
 
         ServerErrorManager.instance().handleError(raw);
 

@@ -1,20 +1,23 @@
 package net.result.sandnode.util;
 
+import net.result.sandnode.chain.ChainManager;
+import net.result.sandnode.chain.sender.ExitChain;
 import net.result.sandnode.encryption.Encryptions;
 import net.result.sandnode.encryption.KeyStorageRegistry;
-import net.result.sandnode.encryption.interfaces.*;
+import net.result.sandnode.encryption.interfaces.AsymmetricKeyStorage;
+import net.result.sandnode.encryption.interfaces.Encryption;
+import net.result.sandnode.encryption.interfaces.SymmetricKeyStorage;
+import net.result.sandnode.error.Errors;
+import net.result.sandnode.error.SandnodeError;
 import net.result.sandnode.exception.*;
-import net.result.sandnode.exception.error.*;
+import net.result.sandnode.exception.error.EncryptionException;
+import net.result.sandnode.exception.error.KeyStorageNotFoundException;
 import net.result.sandnode.message.EncryptedMessage;
 import net.result.sandnode.message.Message;
 import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.message.types.ErrorMessage;
-import net.result.sandnode.message.types.ExitMessage;
 import net.result.sandnode.message.util.Connection;
-import net.result.sandnode.chain.ChainManager;
 import net.result.sandnode.message.util.Headers;
-import net.result.sandnode.error.Errors;
-import net.result.sandnode.error.SandnodeError;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
@@ -158,11 +161,16 @@ public class IOController {
         sendingQueue.put(message);
     }
 
-    public synchronized void disconnect() throws SocketClosingException, InterruptedException {
+    public synchronized void disconnect()
+            throws SocketClosingException, InterruptedException, UnprocessedMessagesException {
+        LOGGER.info("Disconnecting from {}", addressFromSocket(socket));
         connected = false;
         LOGGER.info("Sending exit message");
-        sendMessage(new ExitMessage());
-        LOGGER.info("Disconnecting from {}", addressFromSocket(socket));
+
+        ExitChain chain = new ExitChain(this);
+        chainManager.linkChain(chain);
+        chain.exit();
+        chainManager.removeChain(chain);
 
         chainManager.interruptAll();
 

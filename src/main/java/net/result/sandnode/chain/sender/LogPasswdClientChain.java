@@ -20,7 +20,7 @@ public class LogPasswdClientChain extends ClientChain {
         LogPasswdRequest loginRequest = new LogPasswdRequest(nickname, password, device);
         send(loginRequest);
 
-        RawMessage message = queue.take();
+        RawMessage message = receive();
         ServerErrorManager.instance().handleError(message);
 
         LogPasswdResponse loginResponse = new LogPasswdResponse(message);

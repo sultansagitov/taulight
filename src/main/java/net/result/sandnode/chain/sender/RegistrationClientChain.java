@@ -34,7 +34,7 @@ public class RegistrationClientChain extends ClientChain {
         RegistrationRequest request = new RegistrationRequest(regDTO);
         send(request);
 
-        RawMessage response = queue.take();
+        RawMessage response = receive();
         ServerErrorManager.instance().handleError(response);
 
         return new RegistrationResponse(response).dto();

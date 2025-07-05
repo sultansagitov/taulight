@@ -51,7 +51,7 @@ public class MessageFileServerChain extends ServerChain implements ReceiverChain
     }
 
     private UUIDMessage uploadFile(UUID chatID, String originalName, TauMemberEntity you) throws Exception {
-        FileDTO dto = FileIOUtil.receive(queue::take);
+        FileDTO dto = FileIOUtil.receive(this::receive);
 
         MessageFileRepository messageFileRepo = session.server.container.get(MessageFileRepository.class);
         ChatUtil chatUtil = session.server.container.get(ChatUtil.class);

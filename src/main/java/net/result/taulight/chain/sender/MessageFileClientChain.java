@@ -44,7 +44,7 @@ public class MessageFileClientChain extends ClientChain {
         send(request);
         FileIOUtil.send(dto, this::send);
 
-        RawMessage raw = queue.take();
+        RawMessage raw = receive();
         ServerErrorManager.instance().handleError(raw);
 
         raw.expect(MessageTypes.HAPPY);
@@ -56,7 +56,7 @@ public class MessageFileClientChain extends ClientChain {
         MessageFileRequest request = MessageFileRequest.download(fileID);
         send(request);
 
-        FileDTO dto = FileIOUtil.receive(queue::take);
+        FileDTO dto = FileIOUtil.receive(this::receive);
         System.out.println("File downloaded successfully.");
 
         return dto;

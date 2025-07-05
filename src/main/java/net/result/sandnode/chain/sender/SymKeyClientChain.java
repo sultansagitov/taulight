@@ -29,6 +29,6 @@ public class SymKeyClientChain extends ClientChain {
 
         io.setClientKey(keyStorage);
 
-        new HappyMessage(queue.take());
+        new HappyMessage(receive());
     }
 }

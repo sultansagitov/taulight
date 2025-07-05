@@ -32,7 +32,7 @@ public class DEKClientChain extends ClientChain {
             UnprocessedMessagesException, CryptoException, DeserializationException {
         send(DEKRequest.send(nickname, encryptor, keyStorage));
 
-        RawMessage raw = queue.take();
+        RawMessage raw = receive();
         ServerErrorManager.instance().handleError(raw);
 
         return new UUIDMessage(raw).uuid;
@@ -49,7 +49,7 @@ public class DEKClientChain extends ClientChain {
             UnknownSandnodeErrorException, SandnodeErrorException, ExpectedMessageException, DeserializationException {
         send(DEKRequest.get());
 
-        RawMessage raw = queue.take();
+        RawMessage raw = receive();
         ServerErrorManager.instance().handleError(raw);
 
         return new DEKListMessage(raw).list();
@@ -60,7 +60,7 @@ public class DEKClientChain extends ClientChain {
             EncryptionTypeException, NoSuchEncryptionException, CreatingKeyException, StorageException {
         send(DEKRequest.getPersonalKeyOf(nickname));
 
-        RawMessage raw = queue.take();
+        RawMessage raw = receive();
         ServerErrorManager.instance().handleError(raw);
 
         KeyDTO key = PublicKeyResponse.getKeyDTO(raw);

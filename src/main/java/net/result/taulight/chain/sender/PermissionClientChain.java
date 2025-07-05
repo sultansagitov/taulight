@@ -43,7 +43,7 @@ public class PermissionClientChain extends ClientChain {
             UnknownSandnodeErrorException, SandnodeErrorException, ExpectedMessageException {
         send(request);
 
-        RawMessage raw = queue.take();
+        RawMessage raw = receive();
         ServerErrorManager.instance().handleError(raw);
 
         new HappyMessage(raw);

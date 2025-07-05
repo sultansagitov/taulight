@@ -88,7 +88,7 @@ public class ForwardRequestServerChain extends ServerChain implements ReceiverCh
 
             send(new HappyMessage());
 
-            raw = queue.take();
+            raw = receive();
         }
     }
 }

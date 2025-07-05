@@ -19,7 +19,7 @@ public class ClusterClientChain extends ClientChain {
         ClusterRequest request = new ClusterRequest(clusters);
         request.headers().setValue("mode", "remove");
         send(request);
-        return new ClusterResponse(queue.take()).getClustersID();
+        return new ClusterResponse(receive()).getClustersID();
     }
 
     public Collection<String> add(Collection<String> clusters)
@@ -27,6 +27,6 @@ public class ClusterClientChain extends ClientChain {
         ClusterRequest request = new ClusterRequest(clusters);
         request.headers().setValue("mode", "add");
         send(request);
-        return new ClusterResponse(queue.take()).getClustersID();
+        return new ClusterResponse(receive()).getClustersID();
     }
 }

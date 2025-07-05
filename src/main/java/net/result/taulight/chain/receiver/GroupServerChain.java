@@ -214,7 +214,7 @@ public class GroupServerChain extends ServerChain implements ReceiverChain {
         if (!chatUtil.contains(chat, you)) throw new UnauthorizedException();
         if (!(chat instanceof GroupEntity group)) throw new WrongAddressException();
 
-        FileDTO dto = FileIOUtil.receive(queue::take);
+        FileDTO dto = FileIOUtil.receive(this::receive);
 
         if (!dto.contentType().startsWith("image/")) {
             throw new InvalidArgumentException();

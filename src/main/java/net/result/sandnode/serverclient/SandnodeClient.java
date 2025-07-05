@@ -117,7 +117,7 @@ public class SandnodeClient {
                 io.disconnect();
                 LOGGER.info("Connection closed.");
             }
-        } catch (SocketClosingException | InterruptedException e) {
+        } catch (Exception e) {
             LOGGER.error("Error closing connection", e);
         }
     }

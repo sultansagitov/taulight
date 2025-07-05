@@ -29,7 +29,7 @@ public class LoginClientChain extends ClientChain {
         LoginRequest loginRequest = LoginRequest.byToken(new Headers(), token);
         send(loginRequest);
 
-        RawMessage raw = queue.take();
+        RawMessage raw = receive();
 
         ServerErrorManager.instance().handleError(raw);
 
@@ -43,7 +43,7 @@ public class LoginClientChain extends ClientChain {
         LoginRequest loginRequest = LoginRequest.history(new Headers());
         send(loginRequest);
 
-        RawMessage raw = queue.take();
+        RawMessage raw = receive();
 
         ServerErrorManager.instance().handleError(raw);
 

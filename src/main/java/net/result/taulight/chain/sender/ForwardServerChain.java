@@ -31,7 +31,7 @@ public class ForwardServerChain extends ServerChain {
             ExpectedMessageException, UnknownSandnodeErrorException, SandnodeErrorException, DatabaseException {
         send(res);
 
-        RawMessage raw = queue.take();
+        RawMessage raw = receive();
         try {
             ServerErrorManager.instance().handleError(raw);
             new HappyMessage(raw);
@@ -43,7 +43,7 @@ public class ForwardServerChain extends ServerChain {
             EncryptedKeyEntity entity = opt.orElseThrow(ServerSandnodeErrorException::new);
             send(new DEKListMessage(List.of(new DEKDTO(entity))));
 
-            RawMessage lastRaw = queue.take();
+            RawMessage lastRaw = receive();
             ServerErrorManager.instance().handleError(lastRaw);
             new HappyMessage(lastRaw);
         }

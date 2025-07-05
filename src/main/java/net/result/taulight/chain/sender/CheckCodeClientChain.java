@@ -21,7 +21,7 @@ public class CheckCodeClientChain extends ClientChain {
     public CodeDTO check(String code) throws UnprocessedMessagesException, InterruptedException,
             ExpectedMessageException, UnknownSandnodeErrorException, SandnodeErrorException, DeserializationException {
         send(new CheckCodeRequest(code));
-        RawMessage raw = queue.take();
+        RawMessage raw = receive();
 
         ServerErrorManager.instance().handleError(raw);
 

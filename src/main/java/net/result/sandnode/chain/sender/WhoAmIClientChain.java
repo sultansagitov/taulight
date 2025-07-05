@@ -20,7 +20,7 @@ public class WhoAmIClientChain extends ClientChain {
             UnknownSandnodeErrorException, SandnodeErrorException, UnprocessedMessagesException {
         send(new WhoAmIRequest());
 
-        RawMessage raw = queue.take();
+        RawMessage raw = receive();
         ServerErrorManager.instance().handleError(raw);
 
         return new WhoAmIResponse(raw).getNickname();

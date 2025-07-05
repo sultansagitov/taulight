@@ -42,7 +42,7 @@ public class GroupClientChain extends ClientChain {
             throws InterruptedException, UnknownSandnodeErrorException, SandnodeErrorException,
             DeserializationException, UnprocessedMessagesException {
         send(GroupRequest.newGroup(title));
-        RawMessage raw = queue.take();
+        RawMessage raw = receive();
 
         ServerErrorManager.instance().handleError(raw);
 
@@ -52,7 +52,7 @@ public class GroupClientChain extends ClientChain {
     public synchronized void sendLeaveRequest(UUID chatID) throws InterruptedException, ExpectedMessageException,
             SandnodeErrorException, UnknownSandnodeErrorException, UnprocessedMessagesException {
         send(GroupRequest.leave(chatID));
-        RawMessage raw = queue.take();
+        RawMessage raw = receive();
 
         ServerErrorManager.instance().handleError(raw);
 
@@ -69,7 +69,7 @@ public class GroupClientChain extends ClientChain {
             throws InterruptedException, SandnodeErrorException, UnknownSandnodeErrorException,
             UnprocessedMessagesException {
         send(GroupRequest.addMember(chatID, otherNickname, expirationTime));
-        RawMessage raw = queue.take();
+        RawMessage raw = receive();
         ServerErrorManager.instance().handleError(raw);
 
         return new TextMessage(raw).content();
@@ -79,7 +79,7 @@ public class GroupClientChain extends ClientChain {
             throws InterruptedException, UnknownSandnodeErrorException, SandnodeErrorException,
             UnprocessedMessagesException, DeserializationException, ExpectedMessageException {
         send(GroupRequest.groupCodes(chatID));
-        RawMessage raw = queue.take();
+        RawMessage raw = receive();
         ServerErrorManager.instance().handleError(raw);
 
         raw.expect(TauMessageTypes.GROUP);
@@ -90,7 +90,7 @@ public class GroupClientChain extends ClientChain {
             UnknownSandnodeErrorException, SandnodeErrorException, DeserializationException,
             UnprocessedMessagesException, ExpectedMessageException {
         send(GroupRequest.myCodes());
-        RawMessage raw = queue.take();
+        RawMessage raw = receive();
         ServerErrorManager.instance().handleError(raw);
 
         raw.expect(TauMessageTypes.GROUP);
@@ -117,7 +117,7 @@ public class GroupClientChain extends ClientChain {
         send(request);
         FileIOUtil.send(dto, this::send);
 
-        RawMessage raw = queue.take();
+        RawMessage raw = receive();
         ServerErrorManager.instance().handleError(raw);
 
         raw.expect(MessageTypes.HAPPY);
@@ -131,7 +131,7 @@ public class GroupClientChain extends ClientChain {
         send(GroupRequest.getAvatar(chatID));
 
         try {
-            return FileIOUtil.receive(queue::take);
+            return FileIOUtil.receive(this::receive);
         } catch (NoEffectException e) {
             return null;
         }
