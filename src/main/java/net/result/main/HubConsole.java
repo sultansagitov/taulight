@@ -1,6 +1,7 @@
 package net.result.main;
 
 import net.result.sandnode.chain.Chain;
+import net.result.sandnode.chain.sender.ExitChain;
 import net.result.sandnode.exception.ServerClosingException;
 import net.result.sandnode.exception.crypto.EncryptionTypeException;
 import net.result.sandnode.exception.error.KeyStorageNotFoundException;
@@ -71,6 +72,21 @@ public class HubConsole {
 
 
     private void exit() throws ServerClosingException {
+        Stream
+                .concat(server.node.getHubs().stream(), server.node.getAgents().stream())
+                .parallel()
+                .forEach(session -> {
+                    try {
+                        System.out.println("Sending exit message");
+                        ExitChain chain = new ExitChain(session.io);
+                        session.io.chainManager.linkChain(chain);
+                        chain.exit();
+                        session.io.chainManager.removeChain(chain);
+                    } catch (Exception e) {
+                        LOGGER.warn("Error while closing connection", e);
+                    }
+                });
+
         System.out.println("Shutting down...");
         running = false;
         server.close();
@@ -99,7 +115,8 @@ public class HubConsole {
     }
 
     private void chains() {
-        for (Session session : Stream.concat(server.node.getHubs().stream(), server.node.getAgents().stream()).toList()) {
+        Stream<Session> concat = Stream.concat(server.node.getHubs().stream(), server.node.getAgents().stream());
+        for (Session session : concat.toList()) {
             System.out.println(session);
             for (Chain chain : session.io.chainManager.storage().getAll()) {
                 System.out.println(chain);

@@ -161,16 +161,18 @@ public class IOController {
         sendingQueue.put(message);
     }
 
-    public synchronized void disconnect()
+    public synchronized void disconnect(boolean sendMessage)
             throws SocketClosingException, InterruptedException, UnprocessedMessagesException {
         LOGGER.info("Disconnecting from {}", addressFromSocket(socket));
         connected = false;
         LOGGER.info("Sending exit message");
 
-        ExitChain chain = new ExitChain(this);
-        chainManager.linkChain(chain);
-        chain.exit();
-        chainManager.removeChain(chain);
+        if (sendMessage) {
+            ExitChain chain = new ExitChain(this);
+            chainManager.linkChain(chain);
+            chain.exit();
+            chainManager.removeChain(chain);
+        }
 
         chainManager.interruptAll();
 

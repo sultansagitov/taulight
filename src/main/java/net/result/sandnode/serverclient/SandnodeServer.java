@@ -3,15 +3,11 @@ package net.result.sandnode.serverclient;
 import net.result.sandnode.config.ServerConfig;
 import net.result.sandnode.exception.*;
 import net.result.sandnode.hubagent.Node;
-import net.result.sandnode.message.EncryptedMessage;
-import net.result.sandnode.message.RawMessage;
-import net.result.sandnode.message.util.Connection;
 import net.result.sandnode.util.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.ServerSocket;
@@ -59,45 +55,7 @@ public class SandnodeServer {
             String ip = IOController.addressFromSocket(clientSocket).toString();
             LOGGER.info("Client connected {}", ip);
 
-            sessionExecutor.submit(() -> {
-                Thread.currentThread().setName(ip);
-
-                try {
-                    InputStream inputStream = StreamReader.inputStream(clientSocket);
-                    EncryptedMessage encrypted = EncryptedMessage.readMessage(inputStream);
-                    RawMessage request = MessageUtil.decryptMessage(encrypted, node.keyStorageRegistry);
-                    Connection conn = request.headers().connection();
-                    Session session = node.createSession(this, clientSocket, conn.getOpposite());
-                    session.io.chainManager.distributeMessage(request);
-
-                    while (session.io.socket.isConnected()) {
-                        Thread.onSpinWait();
-                    }
-
-                    if (session.io.socket.isConnected()) {
-                        try {
-                            session.io.disconnect();
-                        } catch (SocketClosingException e) {
-                            LOGGER.error("Error while closing socket", e);
-                        }
-                    }
-
-                    node.removeSession(session);
-
-                    session.close();
-
-                    LOGGER.info("Client disconnected");
-
-                } catch (SandnodeException | InterruptedException e) {
-                    LOGGER.error("Error handling session for client {}: {}", ip, e.getMessage(), e);
-                }
-
-                try {
-                    clientSocket.close();
-                } catch (IOException ex) {
-                    LOGGER.error("Error closing socket for client {}: {}", ip, ex.getMessage(), ex);
-                }
-            });
+            sessionExecutor.submit(() -> SessionHandler.handle(this, ip, clientSocket));
         }
 
         sessionExecutor.shutdown();

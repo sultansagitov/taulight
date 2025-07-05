@@ -16,6 +16,7 @@ public abstract class BaseServerChainManager extends BaseChainManager implements
     @Override
     public ReceiverChain createChain(MessageType type) {
         return type instanceof MessageTypes sysType ? switch (sysType) {
+            case EXIT -> new ExitServerChain(session);
             case PUB -> new PublicKeyServerChain(session);
             case SYM -> new SymKeyServerChain(session);
             default -> new UnhandledMessageTypeServerChain(session);

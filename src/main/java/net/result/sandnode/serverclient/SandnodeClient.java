@@ -114,7 +114,7 @@ public class SandnodeClient {
         try {
             if (socket != null) {
                 node.close();
-                io.disconnect();
+                io.disconnect(true);
                 LOGGER.info("Connection closed.");
             }
         } catch (Exception e) {

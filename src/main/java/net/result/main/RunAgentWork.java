@@ -18,7 +18,6 @@ import net.result.sandnode.hubagent.ClientProtocol;
 import net.result.sandnode.link.Links;
 import net.result.sandnode.link.SandnodeLinkRecord;
 import net.result.sandnode.serverclient.SandnodeClient;
-import net.result.taulight.chain.sender.ForwardRequestClientChain;
 import net.result.taulight.dto.ChatInfoDTO;
 import net.result.taulight.dto.ChatMessageInputDTO;
 import net.result.taulight.hubagent.TauAgent;
@@ -187,12 +186,7 @@ public class RunAgentWork implements Work {
 
 
         try {
-            if (context.chain == null) {
-                ForwardRequestClientChain chain = new ForwardRequestClientChain(client);
-                client.io.chainManager.linkChain(chain);
-                context.chain = chain;
-            }
-            UUID messageID = context.chain.message(message);
+            UUID messageID = context.chain().message(message);
             System.out.printf("Sent message uuid: %s %n", messageID);
         } catch (DeserializationException e) {
             System.out.println("Sent message with unknown uuid due deserialization");
@@ -245,7 +239,7 @@ public class RunAgentWork implements Work {
 
             try {
                 if (command.equals("exit")) {
-                    context.io.disconnect();
+                    context.io.disconnect(true);
                     break;
                 } else if (commands.containsKey(command)) {
                     List<String> args = Arrays.stream(com_arg).skip(1).toList();
@@ -262,6 +256,9 @@ public class RunAgentWork implements Work {
             }
         }
 
-        client.io.chainManager.removeChain(context.chain);
+        if (context.chain != null) {
+            client.io.chainManager.removeChain(context.chain);
+            context.chain = null;
+        }
     }
 }

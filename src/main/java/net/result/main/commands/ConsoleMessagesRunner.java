@@ -51,7 +51,7 @@ public class ConsoleMessagesRunner {
             message.setContent(input);
         }
 
-        UUID uuid = context.chain.message(message);
+        UUID uuid = context.chain().message(message);
         System.out.printf("Sent message UUID: %s%n", uuid);
     }
 
@@ -80,7 +80,7 @@ public class ConsoleMessagesRunner {
             message.setContent(input);
         }
 
-        UUID uuid = context.chain.message(message);
+        UUID uuid = context.chain().message(message);
         System.out.printf("Sent message UUID with attachments: %s%n", uuid);
     }
 
