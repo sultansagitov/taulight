@@ -65,14 +65,14 @@ public class DEKDTO {
         }
 
         String orig = stringBuilder.toString();
-        byte[] encrypted = encryptor.keyStorage().encryption().encrypt(orig, encryptor.keyStorage());
+        byte[] encrypted = encryptor.keyStorage().encrypt(orig);
         this.encryptedKey = Base64.getEncoder().encodeToString(encrypted);
     }
 
     public KeyStorage decrypt(KeyStorage personalKey) throws WrongKeyException, CannotUseEncryption,
             PrivateKeyNotFoundException, DecryptionException, NoSuchEncryptionException, EncryptionTypeException,
             CreatingKeyException {
-        String decrypted = personalKey.encryption().decrypt(Base64.getDecoder().decode(encryptedKey), personalKey);
+        String decrypted = personalKey.decrypt(Base64.getDecoder().decode(encryptedKey));
         String[] s = decrypted.split(":");
         String encryptionString = s[0];
         String encoded = s[1];

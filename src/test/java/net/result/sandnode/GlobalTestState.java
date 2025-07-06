@@ -5,6 +5,7 @@ import net.result.sandnode.config.ServerConfigRecord;
 import net.result.sandnode.encryption.AsymmetricEncryptions;
 import net.result.sandnode.encryption.EncryptionManager;
 import net.result.sandnode.encryption.KeyStorageRegistry;
+import net.result.sandnode.encryption.SymmetricEncryptions;
 import net.result.sandnode.message.util.Connection;
 import net.result.sandnode.message.util.NodeType;
 import net.result.sandnode.serverclient.SandnodeClient;
@@ -31,23 +32,23 @@ public class GlobalTestState {
 
         EncryptionManager.registerAll();
 
-        FakeSocketPair pair = new FakeSocketPair();
+        var pair = new FakeSocketPair();
 
-        HubServerChainManager serverCM = new HubServerChainManager() {};
         hubKeyStorage = new KeyStorageRegistry(AsymmetricEncryptions.ECIES.generate());
-        TestHub node = new TestHub(name, serverCM, hubKeyStorage);
-        Address serverAddress = new Address("127.0.0.1", 52524);
-        ServerConfigRecord serverConfig = new ServerConfigRecord(container, serverAddress, AsymmetricEncryptions.ECIES);
-        SandnodeServer server = new SandnodeServer(node, serverConfig);
-        KeyStorageRegistry ksr = new KeyStorageRegistry(AsymmetricEncryptions.ECIES.generate());
-        IOController io = new IOController(pair.socket1, Connection.HUB2AGENT, ksr, serverCM);
-        Session session = new Session(server, io);
-        serverCM.setSession(session);
+
+        var serverCM = new HubServerChainManager() {};
+        var node = new TestHub(name, serverCM, hubKeyStorage);
+        var serverAddress = new Address("127.0.0.1", 52524);
+        var serverConfig = new ServerConfigRecord(container, serverAddress, AsymmetricEncryptions.ECIES);
+        var server = new SandnodeServer(node, serverConfig);
+        var ksr = new KeyStorageRegistry(AsymmetricEncryptions.ECIES.generate());
+        var io = new IOController(pair.socket1, Connection.HUB2AGENT, ksr, serverCM);
+        var session = new Session(server, io);
+        session.start();
 
         Address clientAddress = new Address("127.0.0.1", 5252);
-        //noinspection DataFlowIssue
-        client = new SandnodeClient(clientAddress, new TestAgent(), NodeType.HUB, () -> null);
-        BaseClientChainManager clientChainManager = new BaseClientChainManager(client) {};
+        client = new SandnodeClient(clientAddress, new TestAgent(), NodeType.HUB, () -> SymmetricEncryptions.AES);
+        var clientChainManager = new BaseClientChainManager(client) {};
         client.start(clientChainManager, pair.socket2);
     }
 }

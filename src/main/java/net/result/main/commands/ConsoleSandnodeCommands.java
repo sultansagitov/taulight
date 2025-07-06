@@ -132,8 +132,8 @@ public class ConsoleSandnodeCommands {
         for (LoginHistoryDTO dto : h) {
             KeyStorage personalKey = agent.config.loadPersonalKey(context.client.address, dto.encryptorID);
 
-            String ip = personalKey.encryption().decrypt(Base64.getDecoder().decode(dto.ip), personalKey);
-            String device = personalKey.encryption().decrypt(Base64.getDecoder().decode(dto.device), personalKey);
+            String ip = personalKey.decrypt(Base64.getDecoder().decode(dto.ip));
+            String device = personalKey.decrypt(Base64.getDecoder().decode(dto.device));
 
             System.out.printf(
                     "Time: %s, IP: %s, Device: %s, Active: %s%n",

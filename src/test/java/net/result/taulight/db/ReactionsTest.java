@@ -103,7 +103,9 @@ class ReactionsTest {
         assertEquals("laugh", reactionType.name());
         assertEquals("standard", reactionType.reactionPackage().name());
 
-        ReactionTypeEntity found = container.get(JPAUtil.class).getEntityManager().find(ReactionTypeEntity.class, reactionType.id());
+        ReactionTypeEntity found = container.get(JPAUtil.class)
+                .getEntityManager()
+                .find(ReactionTypeEntity.class, reactionType.id());
         assertNotNull(found);
         assertEquals("laugh", found.name());
 
@@ -139,7 +141,9 @@ class ReactionsTest {
             assertTrue(typeNames.contains(type.name()));
             assertEquals(reactionPackage.id(), type.reactionPackage().id());
 
-            ReactionTypeEntity found = container.get(JPAUtil.class).getEntityManager().find(ReactionTypeEntity.class, type.id());
+            ReactionTypeEntity found = container.get(JPAUtil.class)
+                    .getEntityManager()
+                    .find(ReactionTypeEntity.class, type.id());
             assertNotNull(found);
             assertEquals(type, found);
         }

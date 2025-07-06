@@ -97,8 +97,9 @@ public class GroupClientChain extends ClientChain {
         return new CodeListMessage(raw).codes();
     }
 
-    public synchronized UUID setAvatar(UUID chatID, String avatarPath) throws UnprocessedMessagesException, FSException,
-            InterruptedException, UnknownSandnodeErrorException, SandnodeErrorException, ExpectedMessageException, DeserializationException {
+    public synchronized UUID setAvatar(UUID chatID, String avatarPath)
+            throws UnprocessedMessagesException, FSException, InterruptedException, UnknownSandnodeErrorException,
+            SandnodeErrorException, ExpectedMessageException, DeserializationException {
 
         Path path = Paths.get(avatarPath);
 

@@ -19,7 +19,11 @@ public class TauAgentProtocol {
                 .forEach(s -> s.addToCluster(cluster));
     }
 
-    public static void addMembersToCluster(@NotNull Session session, Collection<MemberEntity> members, ChatCluster cluster) {
+    public static void addMembersToCluster(
+            @NotNull Session session,
+            Collection<MemberEntity> members,
+            ChatCluster cluster
+    ) {
         session.server.node
                 .getAgents().stream()
                 .filter(s -> members.contains(s.member))

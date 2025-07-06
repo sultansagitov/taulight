@@ -25,6 +25,7 @@ public class SessionHandler {
             Connection conn = request.headers().connection();
             Session session = server.node.createSession(server, clientSocket, conn.getOpposite());
             session.io.chainManager.distributeMessage(request);
+            session.start();
         } catch (SandnodeException | InterruptedException e) {
             LOGGER.error("Error handling session for client {}: {}", ip, e.getMessage(), e);
         }

@@ -94,7 +94,8 @@ public class MessagesTest {
         assertEquals(2, messages.size());
 
         // Additional assertions
-        assertTrue(messages.containsAll(List.of(message1, message2)), "Retrieved messages should contain both created messages");
+        assertTrue(messages.containsAll(List.of(message1, message2)),
+                "Retrieved messages should contain both created messages");
 
         // Test pagination
         List<MessageEntity> firstPage = messageRepo.findMessagesByChat(group, 0, 1);

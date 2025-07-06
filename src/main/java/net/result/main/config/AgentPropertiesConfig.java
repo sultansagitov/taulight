@@ -178,13 +178,15 @@ public class AgentPropertiesConfig implements AgentConfig {
     }
 
     @Override
-    public synchronized void savePersonalKey(Address address, UUID keyID, KeyStorage keyStorage) throws StorageException {
+    public synchronized void savePersonalKey(Address address, UUID keyID, KeyStorage keyStorage)
+            throws StorageException {
         memberKeys.add(new MemberKeyRecord(address, keyID, keyStorage));
         saveKeysJSON();
     }
 
     @Override
-    public void saveEncryptor(Address address, String nickname, UUID keyID, KeyStorage keyStorage) throws StorageException {
+    public void saveEncryptor(Address address, String nickname, UUID keyID, KeyStorage keyStorage)
+            throws StorageException {
         LOGGER.debug("{}, {}, {}", nickname, keyID, keyStorage);
         memberKeys.add(new MemberKeyRecord(address, nickname, keyID, keyStorage));
         saveKeysJSON();

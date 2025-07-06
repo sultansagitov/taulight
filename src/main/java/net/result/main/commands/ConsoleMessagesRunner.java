@@ -102,7 +102,7 @@ public class ConsoleMessagesRunner {
         String decrypted;
         if (input.keyID != null) {
             KeyStorage keyStorage = ((Agent) context.client.node).config.loadDEK(context.client.address, input.keyID);
-            decrypted = keyStorage.encryption().decrypt(Base64.getDecoder().decode(input.content), keyStorage);
+            decrypted = keyStorage.decrypt(Base64.getDecoder().decode(input.content));
         } else {
             decrypted = input.content;
         }

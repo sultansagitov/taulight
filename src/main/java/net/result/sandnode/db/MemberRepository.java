@@ -70,7 +70,8 @@ public class MemberRepository {
         return managed;
     }
 
-    public MemberEntity create(String nickname, String hashedPassword) throws DatabaseException, BusyNicknameException {
+    public MemberEntity create(String nickname, String hashedPassword)
+            throws DatabaseException, BusyNicknameException {
         if (findByNickname(nickname).isPresent()) throw new BusyNicknameException();
         return save(new MemberEntity(nickname, hashedPassword));
     }

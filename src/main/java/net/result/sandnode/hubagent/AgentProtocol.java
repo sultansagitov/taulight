@@ -50,9 +50,13 @@ public class AgentProtocol {
         return dto;
     }
 
-    public static LogPasswdResponseDTO byPassword(SandnodeClient client, String nickname, String password, String device)
-            throws InterruptedException, SandnodeErrorException, ExpectedMessageException,
-            UnknownSandnodeErrorException, UnprocessedMessagesException, DeserializationException {
+    public static LogPasswdResponseDTO byPassword(
+            SandnodeClient client,
+            String nickname,
+            String password,
+            String device
+    ) throws InterruptedException, SandnodeErrorException, ExpectedMessageException, UnknownSandnodeErrorException,
+            UnprocessedMessagesException, DeserializationException {
         LogPasswdClientChain chain = new LogPasswdClientChain(client);
         client.io.chainManager.linkChain(chain);
         LogPasswdResponseDTO token = chain.getToken(nickname, password, device);

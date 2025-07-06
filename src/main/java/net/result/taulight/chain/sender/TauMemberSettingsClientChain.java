@@ -28,8 +28,9 @@ public class TauMemberSettingsClientChain extends ClientChain {
         return new TauMemberSettingsResponse(raw).dto();
     }
 
-    public TauMemberSettingsResponseDTO setShowStatus(boolean b) throws UnprocessedMessagesException, InterruptedException,
-            UnknownSandnodeErrorException, SandnodeErrorException, ExpectedMessageException, DeserializationException {
+    public TauMemberSettingsResponseDTO setShowStatus(boolean b)
+            throws UnprocessedMessagesException, InterruptedException, UnknownSandnodeErrorException,
+            SandnodeErrorException, ExpectedMessageException, DeserializationException {
         send(new TauMemberSettingsRequest(TauMemberSettingsRequest.SHOW_STATUS, String.valueOf(b)));
 
         RawMessage raw = receive();

@@ -15,7 +15,11 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Collection;
 
 public class MembersResponse extends MSGPackMessage<MembersResponseDTO> {
-    public MembersResponse(@NotNull Headers headers, @NotNull Collection<ChatMemberDTO> records, @Nullable Collection<RoleDTO> roles) {
+    public MembersResponse(
+            @NotNull Headers headers,
+            @NotNull Collection<ChatMemberDTO> records,
+            @Nullable Collection<RoleDTO> roles
+    ) {
         super(headers.setType(TauMessageTypes.MEMBERS), new MembersResponseDTO(records, roles));
     }
 

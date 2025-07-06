@@ -77,7 +77,9 @@ public class ForwardRequestServerChain extends ServerChain implements ReceiverCh
             if (input.keyID == null) {
                 message = messageRepo.create(chat, input, session.member.tauMember());
             } else {
-                EncryptedKeyEntity key = encryptedKeyRepo.find(input.keyID).orElseThrow(() -> new KeyStorageNotFoundException(input.keyID.toString()));
+                EncryptedKeyEntity key = encryptedKeyRepo
+                        .find(input.keyID)
+                        .orElseThrow(() -> new KeyStorageNotFoundException(input.keyID.toString()));
                 message = messageRepo.create(chat, input, session.member.tauMember(), key);
             }
             ChatMessageViewDTO viewDTO = new ChatMessageViewDTO(messageFileRepo, message);

@@ -54,8 +54,8 @@ public class RegistrationServerChain extends ServerChain implements ReceiverChai
 
         String ip = session.io.socket.getInetAddress().getHostAddress();
 
-        String encryptedIP = Base64.getEncoder().encodeToString(encryption.encrypt(ip, keyStorage));
-        String encryptedDevice = Base64.getEncoder().encodeToString(encryption.encrypt(device, keyStorage));
+        String encryptedIP = Base64.getEncoder().encodeToString(keyStorage.encrypt(ip));
+        String encryptedDevice = Base64.getEncoder().encodeToString(keyStorage.encrypt(device));
 
         KeyStorageEntity keyEntity = member.publicKey();
         LoginEntity login = loginRepo.create(member, keyEntity, encryptedIP, encryptedDevice);

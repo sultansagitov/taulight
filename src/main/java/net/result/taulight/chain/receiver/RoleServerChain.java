@@ -69,7 +69,13 @@ public class RoleServerChain extends ServerChain implements ReceiverChain {
         return new RoleResponse(dto);
     }
 
-    private @NotNull RoleResponse create(GroupEntity group, String roleName, Set<RoleDTO> allRoles, Set<UUID> memberRoles, Set<Permission> permissions) throws TooFewArgumentsException, DatabaseException {
+    private @NotNull RoleResponse create(
+            GroupEntity group,
+            String roleName,
+            Set<RoleDTO> allRoles,
+            Set<UUID> memberRoles,
+            Set<Permission> permissions
+    ) throws TooFewArgumentsException, DatabaseException {
         RoleRepository roleRepo = session.server.container.get(RoleRepository.class);
 
         if (roleName == null || roleName.trim().isEmpty()) throw new TooFewArgumentsException();
@@ -78,7 +84,14 @@ public class RoleServerChain extends ServerChain implements ReceiverChain {
         return new RoleResponse(new RolesDTO(allRoles, memberRoles, permissions));
     }
 
-    private @NotNull RoleResponse add(String roleName, String nickname, Set<RoleEntity> roles, Set<RoleDTO> allRoles, Set<UUID> memberRoles, Set<Permission> permissions) throws TooFewArgumentsException, NotFoundException, DatabaseException, NoEffectException {
+    private @NotNull RoleResponse add(
+            String roleName,
+            String nickname,
+            Set<RoleEntity> roles,
+            Set<RoleDTO> allRoles,
+            Set<UUID> memberRoles,
+            Set<Permission> permissions
+    ) throws TooFewArgumentsException, NotFoundException, DatabaseException, NoEffectException {
         RoleRepository roleRepo = session.server.container.get(RoleRepository.class);
         MemberRepository memberRepo = session.server.container.get(MemberRepository.class);
 

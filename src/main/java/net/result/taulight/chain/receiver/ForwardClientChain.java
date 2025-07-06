@@ -44,7 +44,7 @@ public abstract class ForwardClientChain extends ClientChain implements Receiver
                 keyStorage = dto.decrypt(((Agent) client.node).config.loadPersonalKey(client.address, dto.encryptorID));
                 ((Agent) client.node).config.saveDEK(client.address, input.nickname, dto.id, keyStorage);
             }
-            decrypted = keyStorage.encryption().decrypt(Base64.getDecoder().decode(input.content), keyStorage);
+            decrypted = keyStorage.decrypt(Base64.getDecoder().decode(input.content));
         } else {
             decrypted = input.content;
         }

@@ -30,7 +30,9 @@ public class Session {
         this.io = io;
 
         ((ServerChainManager) io.chainManager).setSession(this);
+    }
 
+    public void start() {
         new Thread(() -> {
             try {
                 io.sendingLoop();
