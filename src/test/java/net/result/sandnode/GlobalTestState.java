@@ -13,7 +13,6 @@ import net.result.sandnode.serverclient.SandnodeServer;
 import net.result.sandnode.serverclient.Session;
 import net.result.sandnode.util.Address;
 import net.result.sandnode.util.Container;
-import net.result.sandnode.util.IOController;
 import org.junit.jupiter.api.TestInstance;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -21,8 +20,9 @@ public class GlobalTestState {
     public static final Container container = new Container();
 
     public static final String name = "Hub";
-    public static SandnodeClient client;
     public static KeyStorageRegistry hubKeyStorage;
+    public static Session session;
+    public static SandnodeClient client;
 
     private static boolean init = false;
 
@@ -41,9 +41,7 @@ public class GlobalTestState {
         var serverAddress = new Address("127.0.0.1", 52524);
         var serverConfig = new ServerConfigRecord(container, serverAddress, AsymmetricEncryptions.ECIES);
         var server = new SandnodeServer(node, serverConfig);
-        var ksr = new KeyStorageRegistry(AsymmetricEncryptions.ECIES.generate());
-        var io = new IOController(pair.socket1, Connection.HUB2AGENT, ksr, serverCM);
-        var session = new Session(server, io);
+        session = node.createSession(server, pair.socket1, Connection.HUB2AGENT);
         session.start();
 
         Address clientAddress = new Address("127.0.0.1", 5252);

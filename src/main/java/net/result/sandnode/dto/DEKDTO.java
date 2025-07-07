@@ -59,7 +59,7 @@ public class DEKDTO {
         stringBuilder.append(":");
 
         if (encryption.isAsymmetric()) {
-            stringBuilder.append(encryption.asymmetric().publicKeyConvertor().toEncodedString(keyStorage));
+            stringBuilder.append(keyStorage.asymmetric().encodedPublicKey());
         } else {
             stringBuilder.append(keyStorage.symmetric().encoded());
         }
