@@ -2,7 +2,6 @@ package net.result.taulight.chain.sender;
 
 import net.result.sandnode.chain.ClientChain;
 import net.result.sandnode.dto.FileDTO;
-import net.result.sandnode.error.ServerErrorManager;
 import net.result.sandnode.exception.DeserializationException;
 import net.result.sandnode.exception.ExpectedMessageException;
 import net.result.sandnode.exception.UnknownSandnodeErrorException;
@@ -29,7 +28,6 @@ public class DialogClientChain extends ClientChain {
         send(DialogRequest.getDialogID(nickname));
 
         RawMessage raw = receive();
-        ServerErrorManager.instance().handleError(raw);
 
         return new UUIDMessage(raw).uuid;
     }

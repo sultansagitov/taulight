@@ -5,8 +5,10 @@ import net.result.sandnode.dto.PublicKeyDTO;
 import net.result.sandnode.dto.RegisterRequestDTO;
 import net.result.sandnode.dto.RegistrationResponseDTO;
 import net.result.sandnode.encryption.interfaces.AsymmetricKeyStorage;
-import net.result.sandnode.error.ServerErrorManager;
-import net.result.sandnode.exception.*;
+import net.result.sandnode.exception.DeserializationException;
+import net.result.sandnode.exception.ExpectedMessageException;
+import net.result.sandnode.exception.UnknownSandnodeErrorException;
+import net.result.sandnode.exception.UnprocessedMessagesException;
 import net.result.sandnode.exception.crypto.CannotUseEncryption;
 import net.result.sandnode.exception.error.SandnodeErrorException;
 import net.result.sandnode.message.RawMessage;
@@ -35,7 +37,6 @@ public class RegistrationClientChain extends ClientChain {
         send(request);
 
         RawMessage response = receive();
-        ServerErrorManager.instance().handleError(response);
 
         return new RegistrationResponse(response).dto();
     }

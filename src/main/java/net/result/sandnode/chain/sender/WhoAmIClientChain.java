@@ -1,7 +1,6 @@
 package net.result.sandnode.chain.sender;
 
 import net.result.sandnode.chain.ClientChain;
-import net.result.sandnode.error.ServerErrorManager;
 import net.result.sandnode.exception.ExpectedMessageException;
 import net.result.sandnode.exception.UnknownSandnodeErrorException;
 import net.result.sandnode.exception.UnprocessedMessagesException;
@@ -21,7 +20,6 @@ public class WhoAmIClientChain extends ClientChain {
         send(new WhoAmIRequest());
 
         RawMessage raw = receive();
-        ServerErrorManager.instance().handleError(raw);
 
         return new WhoAmIResponse(raw).getNickname();
     }

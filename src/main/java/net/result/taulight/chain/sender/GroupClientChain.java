@@ -2,7 +2,6 @@ package net.result.taulight.chain.sender;
 
 import net.result.sandnode.chain.ClientChain;
 import net.result.sandnode.dto.FileDTO;
-import net.result.sandnode.error.ServerErrorManager;
 import net.result.sandnode.exception.*;
 import net.result.sandnode.exception.error.NoEffectException;
 import net.result.sandnode.exception.error.SandnodeErrorException;
@@ -42,21 +41,13 @@ public class GroupClientChain extends ClientChain {
             throws InterruptedException, UnknownSandnodeErrorException, SandnodeErrorException,
             DeserializationException, UnprocessedMessagesException {
         send(GroupRequest.newGroup(title));
-        RawMessage raw = receive();
-
-        ServerErrorManager.instance().handleError(raw);
-
-        return new UUIDMessage(raw).uuid;
+        return new UUIDMessage(receive()).uuid;
     }
 
     public synchronized void sendLeaveRequest(UUID chatID) throws InterruptedException, ExpectedMessageException,
             SandnodeErrorException, UnknownSandnodeErrorException, UnprocessedMessagesException {
         send(GroupRequest.leave(chatID));
-        RawMessage raw = receive();
-
-        ServerErrorManager.instance().handleError(raw);
-
-        new HappyMessage(raw);
+        new HappyMessage(receive());
     }
 
     public synchronized String createInviteCode(UUID chatID, String otherNickname, Duration expirationTime)
@@ -69,20 +60,17 @@ public class GroupClientChain extends ClientChain {
             throws InterruptedException, SandnodeErrorException, UnknownSandnodeErrorException,
             UnprocessedMessagesException {
         send(GroupRequest.addMember(chatID, otherNickname, expirationTime));
-        RawMessage raw = receive();
-        ServerErrorManager.instance().handleError(raw);
-
-        return new TextMessage(raw).content();
+        return new TextMessage(receive()).content();
     }
 
     public synchronized Collection<CodeDTO> getGroupCodes(UUID chatID)
             throws InterruptedException, UnknownSandnodeErrorException, SandnodeErrorException,
             UnprocessedMessagesException, DeserializationException, ExpectedMessageException {
         send(GroupRequest.groupCodes(chatID));
-        RawMessage raw = receive();
-        ServerErrorManager.instance().handleError(raw);
 
+        RawMessage raw = receive();
         raw.expect(TauMessageTypes.GROUP);
+
         return new CodeListMessage(raw).codes();
     }
 
@@ -90,10 +78,10 @@ public class GroupClientChain extends ClientChain {
             UnknownSandnodeErrorException, SandnodeErrorException, DeserializationException,
             UnprocessedMessagesException, ExpectedMessageException {
         send(GroupRequest.myCodes());
-        RawMessage raw = receive();
-        ServerErrorManager.instance().handleError(raw);
 
+        RawMessage raw = receive();
         raw.expect(TauMessageTypes.GROUP);
+
         return new CodeListMessage(raw).codes();
     }
 
@@ -119,9 +107,8 @@ public class GroupClientChain extends ClientChain {
         FileIOUtil.send(dto, this::send);
 
         RawMessage raw = receive();
-        ServerErrorManager.instance().handleError(raw);
-
         raw.expect(MessageTypes.HAPPY);
+
         UUIDMessage response = new UUIDMessage(raw);
 
         return response.uuid;

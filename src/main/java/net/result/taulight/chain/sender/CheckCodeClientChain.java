@@ -1,7 +1,6 @@
 package net.result.taulight.chain.sender;
 
 import net.result.sandnode.chain.ClientChain;
-import net.result.sandnode.error.ServerErrorManager;
 import net.result.sandnode.exception.DeserializationException;
 import net.result.sandnode.exception.ExpectedMessageException;
 import net.result.sandnode.exception.UnknownSandnodeErrorException;
@@ -22,8 +21,6 @@ public class CheckCodeClientChain extends ClientChain {
             ExpectedMessageException, UnknownSandnodeErrorException, SandnodeErrorException, DeserializationException {
         send(new CheckCodeRequest(code));
         RawMessage raw = receive();
-
-        ServerErrorManager.instance().handleError(raw);
 
         return new CheckCodeResponse(raw).getCode();
     }

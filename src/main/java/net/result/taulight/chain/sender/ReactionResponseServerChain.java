@@ -1,12 +1,10 @@
 package net.result.taulight.chain.sender;
 
 import net.result.sandnode.chain.ServerChain;
-import net.result.sandnode.error.ServerErrorManager;
 import net.result.sandnode.exception.ExpectedMessageException;
 import net.result.sandnode.exception.UnknownSandnodeErrorException;
 import net.result.sandnode.exception.UnprocessedMessagesException;
 import net.result.sandnode.exception.error.SandnodeErrorException;
-import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.message.types.HappyMessage;
 import net.result.sandnode.serverclient.Session;
 import net.result.taulight.db.MessageEntity;
@@ -23,9 +21,7 @@ public class ReactionResponseServerChain extends ServerChain {
             throws UnprocessedMessagesException, InterruptedException, ExpectedMessageException,
             UnknownSandnodeErrorException, SandnodeErrorException {
         send(new ReactionResponse(true, reactionEntry, yourSession));
-        RawMessage raw = receive();
-        ServerErrorManager.instance().handleError(raw);
-        new HappyMessage(raw);
+        new HappyMessage(receive());
     }
 
     public synchronized void unreaction(
@@ -44,8 +40,6 @@ public class ReactionResponseServerChain extends ServerChain {
                 reactionType.name(),
                 yourSession
         ));
-        RawMessage raw = receive();
-        ServerErrorManager.instance().handleError(raw);
-        new HappyMessage(raw);
+        new HappyMessage(receive());
     }
 }

@@ -1,5 +1,7 @@
 package net.result.sandnode.chain;
 
+import net.result.sandnode.error.ServerErrorManager;
+import net.result.sandnode.exception.error.SandnodeErrorException;
 import net.result.sandnode.message.types.ErrorMessage;
 import net.result.sandnode.message.util.Headers;
 import net.result.sandnode.message.util.MessageTypes;
@@ -47,8 +49,10 @@ public abstract class BaseChain implements Chain {
         send(new ChainNameRequest(chainName));
     }
 
-    protected RawMessage receive() throws InterruptedException {
-        return queue.take();
+    protected RawMessage receive() throws InterruptedException, UnknownSandnodeErrorException, SandnodeErrorException {
+        RawMessage raw = queue.take();
+        ServerErrorManager.instance().handleError(raw);
+        return raw;
     }
 
     protected void send(@NotNull Message request) throws UnprocessedMessagesException, InterruptedException {

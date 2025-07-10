@@ -1,8 +1,7 @@
 package net.result.sandnode.util;
 
-import net.result.sandnode.dto.FileDTO;
 import net.result.sandnode.dto.FileChunkDTO;
-import net.result.sandnode.error.ServerErrorManager;
+import net.result.sandnode.dto.FileDTO;
 import net.result.sandnode.exception.ExpectedMessageException;
 import net.result.sandnode.exception.UnknownSandnodeErrorException;
 import net.result.sandnode.exception.UnprocessedMessagesException;
@@ -26,7 +25,7 @@ public class FileIOUtil {
 
     @FunctionalInterface
     public interface ReceiveMethod {
-        RawMessage receive() throws InterruptedException;
+        RawMessage receive() throws InterruptedException, UnknownSandnodeErrorException, SandnodeErrorException;
     }
 
     public static void send(FileDTO dto, SendMethod method) throws UnprocessedMessagesException, InterruptedException {
@@ -56,7 +55,6 @@ public class FileIOUtil {
 
         do {
             RawMessage raw = method.receive();
-            ServerErrorManager.instance().handleError(raw);
 
             FileMessage fileMessage = new FileMessage(raw);
             FileChunkDTO chunk = fileMessage.chunk();

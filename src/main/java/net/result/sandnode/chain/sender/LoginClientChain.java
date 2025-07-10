@@ -3,7 +3,6 @@ package net.result.sandnode.chain.sender;
 import net.result.sandnode.chain.ClientChain;
 import net.result.sandnode.dto.LoginHistoryDTO;
 import net.result.sandnode.dto.LoginResponseDTO;
-import net.result.sandnode.error.ServerErrorManager;
 import net.result.sandnode.exception.DeserializationException;
 import net.result.sandnode.exception.ExpectedMessageException;
 import net.result.sandnode.exception.UnknownSandnodeErrorException;
@@ -31,8 +30,6 @@ public class LoginClientChain extends ClientChain {
 
         RawMessage raw = receive();
 
-        ServerErrorManager.instance().handleError(raw);
-
         LoginResponse loginResponse = new LoginResponse(raw);
 
         return loginResponse.dto();
@@ -44,8 +41,6 @@ public class LoginClientChain extends ClientChain {
         send(loginRequest);
 
         RawMessage raw = receive();
-
-        ServerErrorManager.instance().handleError(raw);
 
         LoginHistoryResponse loginResponse = new LoginHistoryResponse(raw);
 

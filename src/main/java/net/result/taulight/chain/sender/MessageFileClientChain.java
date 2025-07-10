@@ -2,7 +2,6 @@ package net.result.taulight.chain.sender;
 
 import net.result.sandnode.chain.ClientChain;
 import net.result.sandnode.dto.FileDTO;
-import net.result.sandnode.error.ServerErrorManager;
 import net.result.sandnode.exception.*;
 import net.result.sandnode.exception.error.SandnodeErrorException;
 import net.result.sandnode.message.RawMessage;
@@ -45,7 +44,6 @@ public class MessageFileClientChain extends ClientChain {
         FileIOUtil.send(dto, this::send);
 
         RawMessage raw = receive();
-        ServerErrorManager.instance().handleError(raw);
 
         raw.expect(MessageTypes.HAPPY);
         return new UUIDMessage(raw).uuid;

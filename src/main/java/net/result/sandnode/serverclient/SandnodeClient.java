@@ -83,7 +83,7 @@ public class SandnodeClient {
     }
 
     public void start(ClientChainManager chainManager, Socket socket)
-            throws InputStreamException, OutputStreamException, ConnectionException {
+            throws InputStreamException, OutputStreamException {
         this.socket = socket;
         try {
             LOGGER.info("Connection established.");
