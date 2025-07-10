@@ -5,7 +5,7 @@ import net.result.sandnode.message.types.ErrorMessage;
 import org.jetbrains.annotations.Contract;
 
 public interface SandnodeError {
-    int code();
+    String code();
 
     String description();
 

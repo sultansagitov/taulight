@@ -1,19 +1,17 @@
 package net.result.sandnode.message.types;
 
+import net.result.sandnode.error.Errors;
 import net.result.sandnode.exception.ExpectedMessageException;
 import net.result.sandnode.exception.UnknownSandnodeErrorException;
 import net.result.sandnode.message.RawMessage;
-import net.result.sandnode.error.Errors;
 import net.result.sandnode.message.util.Headers;
 import net.result.sandnode.message.util.MessageTypes;
 import org.junit.jupiter.api.Test;
 
-import java.nio.ByteBuffer;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 class ErrorMessageTest {
-    private final Errors error = Errors.SERVER_ERROR;
+    private final Errors error = Errors.SERVER;
 
     @Test
     void testConstructor_WithValidSandnodeError() {
@@ -21,14 +19,14 @@ class ErrorMessageTest {
 
         assertNotNull(errorMessage);
         assertEquals(error, errorMessage.error);
-        assertEquals(1000, errorMessage.code());
+        assertEquals("sandnode:server", errorMessage.code());
     }
 
     @Test
     void testConstructor_WithRawMessage() throws ExpectedMessageException, UnknownSandnodeErrorException {
         Headers headers = new Headers().setType(MessageTypes.ERR);
-        int code = error.code();
-        byte[] body = ByteBuffer.allocate(4).putInt(code).array();
+        String code = error.code();
+        byte[] body = code.getBytes();
         RawMessage rawMessage = new RawMessage(headers, body);
         ErrorMessage errorMessage = new ErrorMessage(rawMessage);
 

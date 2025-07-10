@@ -14,6 +14,6 @@ public class ServerSandnodeErrorException extends SandnodeErrorException {
 
     @Override
     public SandnodeError getSandnodeError() {
-        return Errors.SERVER_ERROR;
+        return Errors.SERVER;
     }
 }

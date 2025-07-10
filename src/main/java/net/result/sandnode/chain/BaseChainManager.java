@@ -127,7 +127,7 @@ public abstract class BaseChainManager implements ChainManager {
                     chain.sendFinIgnoreQueue(e.getSandnodeError().createMessage());
                 } catch (Exception e) {
                     LOGGER.error("Error in {}", chain, e);
-                    chain.sendFinIgnoreQueue(Errors.SERVER_ERROR.createMessage());
+                    chain.sendFinIgnoreQueue(Errors.SERVER.createMessage());
                 } finally {
                     LOGGER.info("Removing {}", chain);
                     removeChain(chain);

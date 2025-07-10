@@ -80,7 +80,7 @@ public class IOController {
                 sent = message;
             } catch (MessageSerializationException | IllegalMessageLengthException e) {
                 LOGGER.error("Serialization or message length issue", e);
-                error = Errors.SERVER_ERROR;
+                error = Errors.SERVER;
             } catch (KeyStorageNotFoundException e) {
                 LOGGER.error("Key storage not found", e);
                 error = Errors.KEY_NOT_FOUND;
