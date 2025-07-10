@@ -7,7 +7,7 @@ import net.result.sandnode.encryption.interfaces.AsymmetricKeyStorage;
 import net.result.sandnode.exception.crypto.EncryptionTypeException;
 import net.result.sandnode.exception.error.IncorrectEncryptionException;
 import net.result.sandnode.exception.error.KeyStorageNotFoundException;
-import net.result.sandnode.exception.error.ServerSandnodeErrorException;
+import net.result.sandnode.exception.error.ServerErrorException;
 import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.message.types.PublicKeyResponse;
 import net.result.sandnode.serverclient.Session;
@@ -24,7 +24,7 @@ public class PublicKeyServerChain extends ServerChain implements ReceiverChain {
         try {
             asymmetricKeyStorage = session.server.node.keyStorageRegistry.asymmetricNonNull(encryption);
         } catch (KeyStorageNotFoundException e) {
-            throw new ServerSandnodeErrorException(e);
+            throw new ServerErrorException(e);
         } catch (EncryptionTypeException e) {
             throw new IncorrectEncryptionException();
         }

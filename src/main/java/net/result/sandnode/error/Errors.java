@@ -9,7 +9,8 @@ import java.util.function.Supplier;
 
 public enum Errors implements SandnodeError {
     // General server errors
-    SERVER("Server", ServerSandnodeErrorException::new),
+    SPECIAL("Special", null),
+    SERVER("Server", ServerErrorException::new),
     DECODE("Decode", DecodingErrorException::new),
     TOO_FEW_ARGS("Too few arguments", TooFewArgumentsException::new),
     INVALID_ARG("Invalid argument", InvalidArgumentException::new),

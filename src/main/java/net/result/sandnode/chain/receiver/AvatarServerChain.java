@@ -54,7 +54,7 @@ public class AvatarServerChain extends ServerChain implements ReceiverChain {
         FileEntity avatar = dbFileUtil.saveFile(dto, you.id().toString());
 
         if (!memberRepo.setAvatar(you, avatar)) {
-            throw new ServerSandnodeErrorException();
+            throw new ServerErrorException();
         }
 
         session.member = jpaUtil.refresh(you);

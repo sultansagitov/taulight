@@ -10,7 +10,7 @@ import net.result.sandnode.exception.UnknownSandnodeErrorException;
 import net.result.sandnode.exception.UnprocessedMessagesException;
 import net.result.sandnode.exception.error.KeyStorageNotFoundException;
 import net.result.sandnode.exception.error.SandnodeErrorException;
-import net.result.sandnode.exception.error.ServerSandnodeErrorException;
+import net.result.sandnode.exception.error.ServerErrorException;
 import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.message.types.DEKListMessage;
 import net.result.sandnode.message.types.HappyMessage;
@@ -40,7 +40,7 @@ public class ForwardServerChain extends ServerChain {
 
             UUID keyID = res.getServerMessage().message.keyID;
             Optional<EncryptedKeyEntity> opt = encryptedKeyRepo.find(keyID);
-            EncryptedKeyEntity entity = opt.orElseThrow(ServerSandnodeErrorException::new);
+            EncryptedKeyEntity entity = opt.orElseThrow(ServerErrorException::new);
             send(new DEKListMessage(List.of(new DEKDTO(entity))));
 
             RawMessage lastRaw = receive();
