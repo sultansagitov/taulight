@@ -7,6 +7,7 @@ import net.result.sandnode.exception.DeserializationException;
 import net.result.sandnode.exception.ExpectedMessageException;
 import net.result.sandnode.exception.UnknownSandnodeErrorException;
 import net.result.sandnode.exception.UnprocessedMessagesException;
+import net.result.sandnode.exception.error.ExpiredTokenException;
 import net.result.sandnode.exception.error.SandnodeErrorException;
 import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.message.types.LoginHistoryResponse;
@@ -28,7 +29,7 @@ public class LoginClientChain extends ClientChain {
         LoginRequest loginRequest = LoginRequest.byToken(new Headers(), token);
         send(loginRequest);
 
-        RawMessage raw = receive();
+        RawMessage raw = receiveWithSpecifics(ExpiredTokenException.class);
 
         LoginResponse loginResponse = new LoginResponse(raw);
 

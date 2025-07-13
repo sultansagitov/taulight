@@ -11,6 +11,7 @@ import net.result.sandnode.hubagent.Agent;
 import net.result.sandnode.message.Message;
 import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.message.types.DEKListMessage;
+import net.result.sandnode.message.types.ErrorMessage;
 import net.result.sandnode.message.types.HappyMessage;
 import net.result.sandnode.serverclient.SandnodeClient;
 import net.result.taulight.dto.ChatMessageInputDTO;
@@ -36,7 +37,7 @@ public abstract class ForwardClientChain extends ClientChain implements Receiver
             try {
                 keyStorage = ((Agent) client.node).config.loadDEK(client.address, input.keyID);
             } catch (KeyStorageNotFoundException e) {
-                send(Errors.KEY_NOT_FOUND.createMessage());
+                send(new ErrorMessage(Errors.KEY_NOT_FOUND));
                 DEKDTO dto = new DEKListMessage(receive()).list().get(0);
                 keyStorage = dto.decrypt(((Agent) client.node).config.loadPersonalKey(client.address, dto.encryptorID));
                 ((Agent) client.node).config.saveDEK(client.address, input.nickname, dto.id, keyStorage);

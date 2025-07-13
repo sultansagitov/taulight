@@ -3,7 +3,6 @@ package net.result.taulight.error;
 import net.result.sandnode.error.SandnodeError;
 import net.result.sandnode.error.ServerErrorManager;
 import net.result.sandnode.exception.error.SandnodeErrorException;
-import net.result.sandnode.message.types.ErrorMessage;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
@@ -38,12 +37,6 @@ public enum TauErrors implements SandnodeError {
     @Contract(" -> new")
     public SandnodeErrorException exception() {
         return exceptionSupplier.get();
-    }
-
-    @Override
-    @Contract(" -> new")
-    public @NotNull ErrorMessage createMessage() {
-        return new ErrorMessage(this);
     }
 
     public static void registerAll() {

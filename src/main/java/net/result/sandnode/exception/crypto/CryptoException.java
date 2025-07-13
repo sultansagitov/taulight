@@ -1,9 +1,9 @@
 package net.result.sandnode.exception.crypto;
 
 import net.result.sandnode.encryption.interfaces.Encryption;
-import net.result.sandnode.exception.SandnodeException;
+import net.result.sandnode.exception.SandnodeSecurityException;
 
-public class CryptoException extends SandnodeException {
+public class CryptoException extends SandnodeSecurityException {
     public CryptoException(String message) {
         super(message);
     }

@@ -90,7 +90,7 @@ public class IOController {
             }
 
             if (error != null) {
-                ErrorMessage errorMessage = error.createMessage();
+                ErrorMessage errorMessage = new ErrorMessage(error);
                 Headers headers = errorMessage.headers();
                 errorMessage
                         .setHeadersEncryption(message.headersEncryption());

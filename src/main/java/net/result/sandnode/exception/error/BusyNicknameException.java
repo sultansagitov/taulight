@@ -1,11 +1,21 @@
 package net.result.sandnode.exception.error;
 
-import net.result.sandnode.error.Errors;
-import net.result.sandnode.error.SandnodeError;
+public class BusyNicknameException extends SpecialErrorException {
+    public static final String SPECIAL = "busy";
 
-public class BusyNicknameException extends SandnodeErrorException {
-    @Override
-    public SandnodeError getSandnodeError() {
-        return Errors.BUSY_NICKNAME;
+    public BusyNicknameException() {
+        super(SPECIAL);
+    }
+
+    public BusyNicknameException(String message) {
+        super(SPECIAL, message);
+    }
+
+    public BusyNicknameException(String message, Throwable e) {
+        super(SPECIAL, message, e);
+    }
+
+    public BusyNicknameException(Throwable e) {
+        super(SPECIAL, e);
     }
 }

@@ -11,8 +11,28 @@ public class SpecialErrorException extends SandnodeErrorException {
         this.special = special;
     }
 
+    public SpecialErrorException(String special, String message) {
+        super(message);
+        this.special = special;
+    }
+
+    public SpecialErrorException(String special, String message, Throwable e) {
+        super(message, e);
+        this.special = special;
+    }
+
+    public SpecialErrorException(String special, Throwable e) {
+        super(e);
+        this.special = special;
+    }
+
     @Override
     public SandnodeError getSandnodeError() {
         return Errors.SPECIAL;
+    }
+
+    @Override
+    public String toString() {
+        return "%s %s".formatted(super.toString(), special);
     }
 }

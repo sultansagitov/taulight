@@ -2,6 +2,7 @@ package net.result.sandnode.chain;
 
 import net.result.sandnode.error.ServerErrorManager;
 import net.result.sandnode.exception.error.SandnodeErrorException;
+import net.result.sandnode.exception.error.SpecialErrorException;
 import net.result.sandnode.message.types.ErrorMessage;
 import net.result.sandnode.message.util.Headers;
 import net.result.sandnode.message.util.MessageTypes;
@@ -12,6 +13,7 @@ import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.util.IOController;
 import org.jetbrains.annotations.NotNull;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
@@ -53,6 +55,27 @@ public abstract class BaseChain implements Chain {
         RawMessage raw = queue.take();
         ServerErrorManager.instance().handleError(raw);
         return raw;
+    }
+
+    @SafeVarargs
+    protected final RawMessage receiveWithSpecifics(Class<? extends SpecialErrorException>... list)
+            throws UnknownSandnodeErrorException, SandnodeErrorException, InterruptedException {
+        try {
+            try {
+                return receive();
+            } catch (SpecialErrorException e) {
+                for (Class<? extends SpecialErrorException> exception : list) {
+                    String value = (String) exception.getField("SPECIAL").get(exception);
+                    if (!e.special.equals(value)) continue;
+                    throw exception.getDeclaredConstructor(Throwable.class).newInstance(e);
+                }
+
+                throw e;
+            }
+        } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException |
+                 NoSuchFieldException ex) {
+            throw new RuntimeException(ex);
+        }
     }
 
     protected void send(@NotNull Message request) throws UnprocessedMessagesException, InterruptedException {

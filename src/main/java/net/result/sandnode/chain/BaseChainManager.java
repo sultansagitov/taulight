@@ -4,13 +4,16 @@ import net.result.sandnode.error.Errors;
 import net.result.sandnode.exception.BusyChainID;
 import net.result.sandnode.exception.ImpossibleRuntimeException;
 import net.result.sandnode.exception.error.SandnodeErrorException;
+import net.result.sandnode.exception.error.SpecialErrorException;
 import net.result.sandnode.message.Message;
 import net.result.sandnode.message.RawMessage;
+import net.result.sandnode.message.SpecialErrorMessage;
+import net.result.sandnode.message.types.ErrorMessage;
 import net.result.sandnode.message.util.Headers;
 import net.result.sandnode.message.util.MessageType;
 import net.result.sandnode.message.util.MessageTypes;
-import net.result.sandnode.util.DaemonFactory;
 import net.result.sandnode.util.Address;
+import net.result.sandnode.util.DaemonFactory;
 import net.result.sandnode.util.bst.AVLTree;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -122,12 +125,15 @@ public abstract class BaseChainManager implements ChainManager {
                     LOGGER.info("{} started in new thread", chain);
                     Message response = chain.handle(message);
                     if (response != null) chain.sendFin(response);
+                } catch (SpecialErrorException e) {
+                    LOGGER.error("Error in {}", chain, e);
+                    chain.sendFinIgnoreQueue(new SpecialErrorMessage(e.special));
                 } catch (SandnodeErrorException e) {
                     LOGGER.error("Error in {}", chain, e);
-                    chain.sendFinIgnoreQueue(e.getSandnodeError().createMessage());
+                    chain.sendFinIgnoreQueue(new ErrorMessage(e.getSandnodeError()));
                 } catch (Exception e) {
                     LOGGER.error("Error in {}", chain, e);
-                    chain.sendFinIgnoreQueue(Errors.SERVER.createMessage());
+                    chain.sendFinIgnoreQueue(new ErrorMessage(Errors.SERVER));
                 } finally {
                     LOGGER.info("Removing {}", chain);
                     removeChain(chain);

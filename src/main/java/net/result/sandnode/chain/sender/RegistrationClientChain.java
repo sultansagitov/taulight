@@ -10,6 +10,8 @@ import net.result.sandnode.exception.ExpectedMessageException;
 import net.result.sandnode.exception.UnknownSandnodeErrorException;
 import net.result.sandnode.exception.UnprocessedMessagesException;
 import net.result.sandnode.exception.crypto.CannotUseEncryption;
+import net.result.sandnode.exception.error.BusyNicknameException;
+import net.result.sandnode.exception.error.InvalidNicknamePassword;
 import net.result.sandnode.exception.error.SandnodeErrorException;
 import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.message.types.RegistrationRequest;
@@ -35,8 +37,7 @@ public class RegistrationClientChain extends ClientChain {
 
         RegistrationRequest request = new RegistrationRequest(regDTO);
         send(request);
-
-        RawMessage response = receive();
+        RawMessage response = receiveWithSpecifics(BusyNicknameException.class, InvalidNicknamePassword.class);
 
         return new RegistrationResponse(response).dto();
     }

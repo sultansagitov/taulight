@@ -17,6 +17,7 @@ public class SpecialErrorMessage extends ErrorMessage {
 
     public SpecialErrorMessage(String special) {
         super(Errors.SPECIAL);
+        headers().setValue("special", special);
         this.special = special;
     }
 }

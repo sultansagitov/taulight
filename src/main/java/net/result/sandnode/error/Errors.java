@@ -1,7 +1,6 @@
 package net.result.sandnode.error;
 
 import net.result.sandnode.exception.error.*;
-import net.result.sandnode.message.types.ErrorMessage;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
@@ -27,9 +26,6 @@ public enum Errors implements SandnodeError {
     KEY_NOT_FOUND("Key not found", KeyStorageNotFoundException::new),
 
     // Member-related errors,
-    EXPIRED_TOKEN("Expired token", ExpiredTokenException::new),
-    INVALID_NICKNAME_OR_PASSWORD("Invalid nickname or password", InvalidNicknamePassword::new),
-    BUSY_NICKNAME("Nickname is already in use", BusyNicknameException::new),
     UNAUTHORIZED("Member unauthorized", UnauthorizedException::new),
     ADDRESSED_MEMBER_NOT_FOUND("Addressed member not found", AddressedMemberNotFoundException::new);
 
@@ -57,11 +53,5 @@ public enum Errors implements SandnodeError {
     @Contract(" -> new")
     public SandnodeErrorException exception() {
         return exceptionSupplier.get();
-    }
-
-    @Override
-    @Contract(" -> new")
-    public @NotNull ErrorMessage createMessage() {
-        return new ErrorMessage(this);
     }
 }
