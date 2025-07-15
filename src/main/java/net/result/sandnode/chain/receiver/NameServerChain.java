@@ -16,7 +16,7 @@ public class NameServerChain extends ServerChain implements ReceiverChain {
     @Override
     public NameResponse handle(RawMessage raw) throws Exception {
         new NameRequest(raw);
-        Hub hub = (Hub) session.server.node;
+        Hub hub = session.server.node.hub();
         return new NameResponse(hub.config.name());
     }
 }

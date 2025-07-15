@@ -17,7 +17,7 @@ public class TestHub extends Hub {
     }
 
     @Override
-    protected @NotNull ServerChainManager createChainManager() {
+    public @NotNull ServerChainManager createChainManager() {
         return serverCM;
     }
 }

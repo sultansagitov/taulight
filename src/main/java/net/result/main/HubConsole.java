@@ -73,7 +73,7 @@ public class HubConsole {
 
     private void exit() throws ServerClosingException {
         Stream
-                .concat(server.node.getHubs().stream(), server.node.getAgents().stream())
+                .concat(server.getHubs().stream(), server.getAgents().stream())
                 .parallel()
                 .forEach(session -> {
                     try {
@@ -106,16 +106,16 @@ public class HubConsole {
     }
 
     private void sessions() {
-        for (Session session : server.node.getHubs()) {
+        for (Session session : server.getHubs()) {
             System.out.println(session);
         }
-        for (Session session : server.node.getAgents()) {
+        for (Session session : server.getAgents()) {
             System.out.println(session);
         }
     }
 
     private void chains() {
-        Stream<Session> concat = Stream.concat(server.node.getHubs().stream(), server.node.getAgents().stream());
+        Stream<Session> concat = Stream.concat(server.getHubs().stream(), server.getAgents().stream());
         for (Session session : concat.toList()) {
             System.out.println(session);
             for (Chain chain : session.io.chainManager.storage().getAll()) {

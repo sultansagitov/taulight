@@ -12,7 +12,6 @@ import net.result.sandnode.encryption.interfaces.AsymmetricKeyStorage;
 import net.result.sandnode.exception.*;
 import net.result.sandnode.exception.crypto.CreatingKeyException;
 import net.result.sandnode.exception.error.*;
-import net.result.sandnode.hubagent.Agent;
 import net.result.sandnode.hubagent.AgentProtocol;
 import net.result.sandnode.hubagent.ClientProtocol;
 import net.result.sandnode.link.Links;
@@ -106,7 +105,7 @@ public class RunAgentWork implements Work {
             var result = AgentProtocol.register(client, nickname, password, device, keyStorage);
             System.out.printf("Token for \"%s\":%n%s%n", nickname, result.token);
 
-            ((Agent) client.node).config.savePersonalKey(client.address, result.keyID, keyStorage);
+            client.node.agent().config.savePersonalKey(client.address, result.keyID, keyStorage);
             context = new ConsoleContext(client, nickname, result.keyID);
         } catch (BusyNicknameException e) {
             System.out.println("Nickname is busy");
@@ -171,7 +170,7 @@ public class RunAgentWork implements Work {
         if (context.chat.chatType == ChatInfoDTO.ChatType.DIALOG) {
             try {
                 String otherNickname = context.chat.otherNickname;
-                KeyEntry dek = ((Agent) client.node).config.loadDEK(client.address, otherNickname);
+                KeyEntry dek = client.node.agent().config.loadDEK(client.address, otherNickname);
 
                 LOGGER.debug("Using {} {}", dek.id(), dek.keyStorage());
 

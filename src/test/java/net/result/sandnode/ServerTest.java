@@ -177,11 +177,6 @@ public class ServerTest {
         public @NotNull ServerChainManager createChainManager() {
             return new TestHubServerChainManager();
         }
-
-        @Override
-        protected void addAsAgent(Session session) {
-            super.addAsAgent(session);
-        }
     }
 
     private static class TestHubServerChainManager extends HubServerChainManager {
@@ -279,7 +274,7 @@ public class ServerTest {
 
         @SuppressWarnings("DataFlowIssue")
         @Override
-        protected @NotNull ServerChainManager createChainManager() {
+        public @NotNull ServerChainManager createChainManager() {
             return null;
         }
     }

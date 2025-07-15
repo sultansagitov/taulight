@@ -1,17 +1,22 @@
 package net.result.sandnode.serverclient;
 
+import net.result.sandnode.chain.ServerChainManager;
 import net.result.sandnode.config.ServerConfig;
 import net.result.sandnode.exception.*;
 import net.result.sandnode.hubagent.Node;
+import net.result.sandnode.message.util.Connection;
 import net.result.sandnode.util.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.Collection;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -21,6 +26,9 @@ public class SandnodeServer {
     public final ServerConfig serverConfig;
     public final Container container;
     public ServerSocket serverSocket;
+
+    private final Collection<Session> agentSessions = ConcurrentHashMap.newKeySet();
+    private final Collection<Session> hubSessions = ConcurrentHashMap.newKeySet();
 
     private final ExecutorService sessionExecutor = Executors.newCachedThreadPool(new DaemonFactory());
 
@@ -86,5 +94,41 @@ public class SandnodeServer {
     @Override
     public String toString() {
         return "<%s %s>".formatted(getClass().getSimpleName(), serverSocket);
+    }
+
+    public Collection<Session> getAgents() {
+        return agentSessions;
+    }
+
+    public Collection<Session> getHubs() {
+        return hubSessions;
+    }
+
+    protected void addAsAgent(Session session) {
+        agentSessions.add(session);
+    }
+
+    protected void addAsHub(Session session) {
+        hubSessions.add(session);
+    }
+
+    public void removeSession(Session session) {
+        hubSessions.remove(session);
+        agentSessions.remove(session);
+    }
+
+    public Session createSession(Socket socket, @NotNull Connection connection)
+            throws WrongNodeUsedException, OutputStreamException, InputStreamException {
+        if (connection.getFrom() != node.type()) throw new WrongNodeUsedException(connection);
+
+        ServerChainManager chainManager = node.createChainManager();
+        IOController io = new IOController(socket, connection, node.keyStorageRegistry, chainManager);
+        Session session = new Session(this, io);
+        switch (connection.getTo()) {
+            case AGENT -> addAsAgent(session);
+            case HUB -> addAsHub(session);
+        }
+
+        return session;
     }
 }

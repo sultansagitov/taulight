@@ -62,7 +62,7 @@ public class ReactionRequestServerChain extends ServerChain implements ReceiverC
         if (request.dto().react) {
             ReactionEntryEntity re = reactionEntryRepo.create(session.member.tauMember(), message, reactionType);
             LOGGER.info("Reaction added: {} to message {} by {}", reactionType.name(), message.id(), nickname);
-            for (Session s : session.server.node.getAgents()) {
+            for (Session s : session.server.getAgents()) {
                 if (!notReactionReceiver.contains(s)) {
                     var chain = new ReactionResponseServerChain(s);
                     s.io.chainManager.linkChain(chain);
@@ -76,7 +76,7 @@ public class ReactionRequestServerChain extends ServerChain implements ReceiverC
             }
         } else {
             if (reactionEntryRepo.delete(message, session.member.tauMember(), reactionType)) {
-                for (Session s : session.server.node.getAgents()) {
+                for (Session s : session.server.getAgents()) {
                     if (!notReactionReceiver.contains(s)) {
                         var chain = new ReactionResponseServerChain(s);
                         s.io.chainManager.linkChain(chain);

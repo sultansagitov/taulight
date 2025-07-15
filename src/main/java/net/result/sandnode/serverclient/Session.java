@@ -55,7 +55,7 @@ public class Session {
 
             Logout.logout(this);
 
-            server.node.removeSession(this);
+            server.removeSession(this);
         }, "%s/Receiving".formatted(io.addressFromSocket())).start();
     }
 

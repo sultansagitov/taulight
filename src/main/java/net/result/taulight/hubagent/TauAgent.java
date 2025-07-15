@@ -17,7 +17,8 @@ public class TauAgent extends Agent {
     }
 
     @Override
-    protected @NotNull ServerChainManager createChainManager() {
+    @NotNull
+    public ServerChainManager createChainManager() {
         return new TauAgentServerChainManager();
     }
 }

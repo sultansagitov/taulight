@@ -5,10 +5,7 @@ import net.result.sandnode.dto.PublicKeyDTO;
 import net.result.sandnode.dto.RegisterRequestDTO;
 import net.result.sandnode.dto.RegistrationResponseDTO;
 import net.result.sandnode.encryption.interfaces.AsymmetricKeyStorage;
-import net.result.sandnode.exception.DeserializationException;
-import net.result.sandnode.exception.ExpectedMessageException;
-import net.result.sandnode.exception.UnknownSandnodeErrorException;
-import net.result.sandnode.exception.UnprocessedMessagesException;
+import net.result.sandnode.exception.*;
 import net.result.sandnode.exception.crypto.CannotUseEncryption;
 import net.result.sandnode.exception.error.BusyNicknameException;
 import net.result.sandnode.exception.error.InvalidNicknamePassword;
@@ -29,8 +26,8 @@ public class RegistrationClientChain extends ClientChain {
             @NotNull String password,
             @NotNull String device,
             @NotNull AsymmetricKeyStorage keyStorage
-    ) throws InterruptedException, ExpectedMessageException, SandnodeErrorException, UnknownSandnodeErrorException,
-            UnprocessedMessagesException, DeserializationException, CannotUseEncryption {
+    ) throws InterruptedException, SandnodeErrorException, DeserializationException, CannotUseEncryption,
+            ProtocolException {
 
         var pubDTO = new PublicKeyDTO(keyStorage);
         var regDTO = new RegisterRequestDTO(nickname, password, device, pubDTO);

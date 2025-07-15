@@ -29,7 +29,7 @@ public abstract class LogPasswdServerChain extends ServerChain implements Receiv
         Tokenizer tokenizer = session.server.container.get(Tokenizer.class);
         LoginRepository loginRepo = session.server.container.get(LoginRepository.class);
         MemberRepository memberRepo = session.server.container.get(MemberRepository.class);
-        Hub hub = (Hub) session.server.node;
+        Hub hub = session.server.node.hub();
         PasswordHasher hasher = hub.config.hasher();
 
         MemberEntity member = memberRepo

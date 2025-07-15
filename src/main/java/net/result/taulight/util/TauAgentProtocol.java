@@ -13,7 +13,7 @@ public class TauAgentProtocol {
     }
 
     public static void addMemberToCluster(@NotNull Session session, MemberEntity member, ChatCluster cluster) {
-        session.server.node
+        session.server
                 .getAgents().stream()
                 .filter(s -> member.equals(s.member))
                 .forEach(s -> s.addToCluster(cluster));
@@ -24,7 +24,7 @@ public class TauAgentProtocol {
             Collection<MemberEntity> members,
             ChatCluster cluster
     ) {
-        session.server.node
+        session.server
                 .getAgents().stream()
                 .filter(s -> members.contains(s.member))
                 .forEach(s -> s.addToCluster(cluster));
@@ -35,7 +35,7 @@ public class TauAgentProtocol {
     }
 
     public static void removeMemberFromCluster(@NotNull Session session, MemberEntity member, ChatCluster cluster) {
-        session.server.node
+        session.server
                 .getAgents().stream()
                 .filter(s -> member.equals(s.member))
                 .forEach(s -> s.removeFromCluster(cluster));

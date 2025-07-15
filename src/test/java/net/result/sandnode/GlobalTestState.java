@@ -41,7 +41,7 @@ public class GlobalTestState {
         var serverAddress = new Address("127.0.0.1", 52524);
         var serverConfig = new ServerConfigRecord(container, serverAddress, AsymmetricEncryptions.ECIES);
         var server = new SandnodeServer(node, serverConfig);
-        session = node.createSession(server, pair.socket1, Connection.HUB2AGENT);
+        session = server.createSession(pair.socket1, Connection.HUB2AGENT);
         session.start();
 
         Address clientAddress = new Address("127.0.0.1", 5252);

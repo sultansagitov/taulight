@@ -50,7 +50,7 @@ public class LoginServerChain extends ServerChain implements ReceiverChain {
 
         List<LoginEntity> logins = loginRepo.byDevice(session.member);
 
-        Set<LoginEntity> onlineLogins = session.server.node.getAgents().stream()
+        Set<LoginEntity> onlineLogins = session.server.getAgents().stream()
                 .map(agent -> agent.login)
                 .collect(Collectors.toSet());
 

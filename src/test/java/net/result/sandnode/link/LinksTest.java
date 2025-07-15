@@ -125,7 +125,7 @@ public class LinksTest {
 
         @SuppressWarnings("DataFlowIssue")
         @Override
-        protected @NotNull ServerChainManager createChainManager() {
+        public @NotNull ServerChainManager createChainManager() {
             return null;
         }
     }

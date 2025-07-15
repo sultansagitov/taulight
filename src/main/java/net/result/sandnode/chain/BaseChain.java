@@ -59,7 +59,7 @@ public abstract class BaseChain implements Chain {
 
     @SafeVarargs
     protected final RawMessage receiveWithSpecifics(Class<? extends SpecialErrorException>... list)
-            throws UnknownSandnodeErrorException, SandnodeErrorException, InterruptedException {
+            throws SandnodeErrorException, InterruptedException, ProtocolException {
         try {
             try {
                 return receive();
@@ -70,7 +70,7 @@ public abstract class BaseChain implements Chain {
                     throw exception.getDeclaredConstructor(Throwable.class).newInstance(e);
                 }
 
-                throw e;
+                throw new ProtocolException("Unhandled special error type encountered", e);
             }
         } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException |
                  NoSuchFieldException ex) {

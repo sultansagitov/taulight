@@ -13,7 +13,7 @@ public class TestAgent extends Agent {
 
         @SuppressWarnings("DataFlowIssue")
         @Override
-        protected @NotNull ServerChainManager createChainManager() {
+        public @NotNull ServerChainManager createChainManager() {
             return null;
         }
     }

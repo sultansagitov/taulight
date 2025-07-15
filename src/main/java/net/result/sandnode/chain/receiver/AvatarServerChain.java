@@ -62,6 +62,7 @@ public class AvatarServerChain extends ServerChain implements ReceiverChain {
         return new UUIDMessage(new Headers().setType(MessageTypes.HAPPY), avatar);
     }
 
+    @SuppressWarnings("SameReturnValue")
     private Message getMy(MemberEntity you) throws Exception {
         FileEntity avatar = you.avatar();
         if (avatar == null) throw new NoEffectException();
@@ -69,6 +70,7 @@ public class AvatarServerChain extends ServerChain implements ReceiverChain {
         return null;
     }
 
+    @SuppressWarnings("SameReturnValue")
     private Message getOf(String nickname) throws Exception {
         MemberEntity member = memberRepo.findByNickname(nickname).orElseThrow(NotFoundException::new);
         FileEntity avatar = member.avatar();

@@ -3,10 +3,7 @@ package net.result.sandnode.chain.sender;
 import net.result.sandnode.chain.ClientChain;
 import net.result.sandnode.dto.LoginHistoryDTO;
 import net.result.sandnode.dto.LoginResponseDTO;
-import net.result.sandnode.exception.DeserializationException;
-import net.result.sandnode.exception.ExpectedMessageException;
-import net.result.sandnode.exception.UnknownSandnodeErrorException;
-import net.result.sandnode.exception.UnprocessedMessagesException;
+import net.result.sandnode.exception.*;
 import net.result.sandnode.exception.error.ExpiredTokenException;
 import net.result.sandnode.exception.error.SandnodeErrorException;
 import net.result.sandnode.message.RawMessage;
@@ -24,8 +21,7 @@ public class LoginClientChain extends ClientChain {
     }
 
     public synchronized LoginResponseDTO login(String token)
-            throws InterruptedException, DeserializationException, SandnodeErrorException,
-            UnknownSandnodeErrorException, UnprocessedMessagesException {
+            throws InterruptedException, DeserializationException, SandnodeErrorException, ProtocolException {
         LoginRequest loginRequest = LoginRequest.byToken(new Headers(), token);
         send(loginRequest);
 

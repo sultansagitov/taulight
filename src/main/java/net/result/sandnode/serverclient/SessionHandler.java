@@ -23,7 +23,7 @@ public class SessionHandler {
             EncryptedMessage encrypted = EncryptedMessage.readMessage(inputStream);
             RawMessage request = MessageUtil.decryptMessage(encrypted, server.node.keyStorageRegistry);
             Connection conn = request.headers().connection();
-            Session session = server.node.createSession(server, clientSocket, conn.getOpposite());
+            Session session = server.createSession(clientSocket, conn.getOpposite());
             session.io.chainManager.distributeMessage(request);
             session.start();
         } catch (SandnodeException | InterruptedException e) {

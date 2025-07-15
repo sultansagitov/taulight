@@ -23,8 +23,8 @@ public class ClientProtocol {
         io.chainManager.removeChain(pubkeyChain);
     }
 
-    public static void sendSYM(@NotNull SandnodeClient client) throws InterruptedException, ExpectedMessageException,
-            KeyNotCreatedException, UnprocessedMessagesException, UnknownSandnodeErrorException, SandnodeErrorException {
+    public static void sendSYM(@NotNull SandnodeClient client)
+            throws InterruptedException, ProtocolException, KeyNotCreatedException, SandnodeErrorException {
         IOController io = client.io;
         SymKeyClientChain symKeyChain = new SymKeyClientChain(client);
         io.chainManager.linkChain(symKeyChain);
