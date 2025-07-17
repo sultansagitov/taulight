@@ -26,8 +26,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingQueue;
+import java.util.Comparator;
+import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicLong;
+
+record SequencedRawMessage(long sequence, RawMessage message) { }
 
 public class IOController {
     private static final Logger LOGGER = LogManager.getLogger(IOController.class);
@@ -113,11 +116,64 @@ public class IOController {
         }
     }
 
-    public void receivingLoop() throws InterruptedException, SandnodeException {
-        while (connected) {
-            EncryptedMessage encrypted = EncryptedMessage.readMessage(in);
-            RawMessage message = MessageUtil.decryptMessage(encrypted, keyStorageRegistry);
-            chainManager.distributeMessage(message);
+    public void receivingLoop() throws InterruptedException {
+        BlockingQueue<SequencedRawMessage> decryptedQueue;
+        decryptedQueue = new PriorityBlockingQueue<>(100, Comparator.comparingLong(SequencedRawMessage::sequence));
+
+        AtomicLong sequenceCounter = new AtomicLong(0);
+        AtomicLong nextExpected = new AtomicLong(0);
+
+        try (ExecutorServiceResource poolResource = new ExecutorServiceResource()) {
+            ExecutorService decryptorPool = poolResource.executor();
+
+            LOGGER.info("Receiving loop started");
+
+            Thread readerThread = new Thread(() -> {
+                try {
+                    while (connected) {
+                        EncryptedMessage encrypted;
+                        synchronized (in) {
+                            encrypted = EncryptedMessage.readMessage(in);
+                        }
+
+                        long seq = sequenceCounter.getAndIncrement();
+
+                        decryptorPool.submit(() -> {
+                            try {
+                                RawMessage raw = MessageUtil.decryptMessage(encrypted, keyStorageRegistry);
+                                decryptedQueue.put(new SequencedRawMessage(seq, raw));
+                            } catch (Exception e) {
+                                LOGGER.warn("Failed to decrypt message seq={}", seq, e);
+                            }
+                        });
+                    }
+                } catch (Exception e) {
+                    LOGGER.error("Reader thread encountered an error", e);
+                }
+            });
+
+            Thread distributorThread = new Thread(() -> {
+                try {
+                    while (connected || !decryptorPool.isTerminated() || !decryptedQueue.isEmpty()) {
+                        SequencedRawMessage next = decryptedQueue.peek();
+                        if (next != null && next.sequence() == nextExpected.get()) {
+                            decryptedQueue.poll();
+                            chainManager.distributeMessage(next.message());
+                            nextExpected.incrementAndGet();
+                        }
+                    }
+                } catch (Exception e) {
+                    LOGGER.error("Distributor thread encountered an error", e);
+                }
+            });
+
+            readerThread.start();
+            distributorThread.start();
+
+            readerThread.join();
+            distributorThread.join();
+
+            LOGGER.info("Receiving loop stopped");
         }
     }
 

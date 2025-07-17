@@ -104,7 +104,7 @@ public class SandnodeClient {
             new Thread(() -> {
                 try {
                     io.receivingLoop();
-                } catch (InterruptedException | SandnodeException e) {
+                } catch (Exception e) {
                     if (io.isConnected()) {
                         LOGGER.error("Error receiving message", e);
                     }

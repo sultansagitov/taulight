@@ -5,7 +5,6 @@ import net.result.sandnode.cluster.Cluster;
 import net.result.sandnode.db.LoginEntity;
 import net.result.sandnode.db.MemberEntity;
 import net.result.sandnode.exception.SandnodeException;
-import net.result.sandnode.exception.UnexpectedSocketDisconnectException;
 import net.result.sandnode.util.Address;
 import net.result.sandnode.util.IOController;
 import net.result.sandnode.util.Logout;
@@ -48,8 +47,7 @@ public class Session {
         new Thread(() -> {
             try {
                 io.receivingLoop();
-            } catch (UnexpectedSocketDisconnectException ignored) {
-            } catch (InterruptedException | SandnodeException e) {
+            } catch (Exception e) {
                 LOGGER.error("Error receiving message", e);
             }
 

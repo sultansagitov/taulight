@@ -30,11 +30,11 @@ public class MessageUtil {
     public static @NotNull RawMessage decryptMessage(EncryptedMessage encrypted, KeyStorageRegistry keyStorageRegistry)
             throws DecryptionException, NoSuchMessageTypeException, NoSuchEncryptionException,
             KeyStorageNotFoundException, WrongKeyException, PrivateKeyNotFoundException {
-        Encryption headersEncryption = EncryptionManager.find(encrypted.encryptionByte);
+        Encryption headersEncryption = EncryptionManager.find(encrypted.encryptionByte());
         byte[] decryptedHeaders;
         KeyStorage headersKeyStorage = keyStorageRegistry.getNonNull(headersEncryption);
         try {
-            decryptedHeaders = headersEncryption.decryptBytes(encrypted.headersBytes, headersKeyStorage);
+            decryptedHeaders = headersEncryption.decryptBytes(encrypted.headersBytes(), headersKeyStorage);
         } catch (CannotUseEncryption e) {
             throw new ImpossibleRuntimeException(e);
         }
@@ -45,7 +45,7 @@ public class MessageUtil {
         byte[] decryptedBody;
         KeyStorage bodyKeyStorage = keyStorageRegistry.getNonNull(bodyEncryption);
         try {
-            decryptedBody = bodyEncryption.decryptBytes(encrypted.bodyBytes, bodyKeyStorage);
+            decryptedBody = bodyEncryption.decryptBytes(encrypted.bodyBytes(), bodyKeyStorage);
         } catch (CannotUseEncryption e) {
             throw new ImpossibleRuntimeException(e);
         }

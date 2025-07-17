@@ -8,19 +8,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.InputStream;
 
-public class EncryptedMessage {
-    public final int version;
-    public final byte encryptionByte;
-    public final byte[] headersBytes;
-    public final byte[] bodyBytes;
-
-    private EncryptedMessage(int version, byte encryptionByte, byte[] headersBytes, byte[] bodyBytes) {
-        this.version = version;
-        this.encryptionByte = encryptionByte;
-        this.headersBytes = headersBytes;
-        this.bodyBytes = bodyBytes;
-    }
-
+public record EncryptedMessage(int version, byte encryptionByte, byte[] headersBytes, byte[] bodyBytes) {
     public static @NotNull EncryptedMessage readMessage(@NotNull InputStream in)
             throws UnexpectedSocketDisconnectException {
         int version = StreamReader.readByte(in, "version");
@@ -33,19 +21,16 @@ public class EncryptedMessage {
     }
 
     @Override
-    public String toString() {
+    public @NotNull String toString() {
         String encStr;
         try {
             encStr = EncryptionManager.find(encryptionByte).name();
         } catch (NoSuchEncryptionException e) {
             encStr = "%02X".formatted(encryptionByte);
         }
-        return "<%s v%d %s(headers %d) (body %d)>".formatted(
-            getClass().getSimpleName(),
-            version,
-            encStr,
-            headersBytes.length,
-            bodyBytes.length
-        );
+        String simpleName = getClass().getSimpleName();
+        int headersLength = headersBytes.length;
+        int bodyLength = bodyBytes.length;
+        return "<%s v%d %s(headers %d) (body %d)>".formatted(simpleName, version, encStr, headersLength, bodyLength);
     }
 }
