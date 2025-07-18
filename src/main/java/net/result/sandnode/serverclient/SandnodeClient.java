@@ -90,7 +90,8 @@ public class SandnodeClient {
             Connection connection = Connection.fromType(node.type(), nodeType);
             io = new IOController(socket, connection, node.keyStorageRegistry, chainManager);
 
-            new Thread(() -> {
+            String sendingThreadName = "Client/%s/Sending".formatted(IOController.addressFromSocket(socket));
+            Thread sendingThread = new Thread(() -> {
                 try {
                     Sender.sendingLoop(io);
                 } catch (InterruptedException | SandnodeException e) {
@@ -99,9 +100,12 @@ public class SandnodeClient {
                     }
                     Thread.currentThread().interrupt();
                 }
-            }, "Client/%s/Sending".formatted(IOController.addressFromSocket(socket))).start();
+            }, sendingThreadName);
+            sendingThread.setDaemon(true);
+            sendingThread.start();
 
-            new Thread(() -> {
+            String receivingThreadName = "Client/%s/Receiving".formatted(IOController.addressFromSocket(socket));
+            Thread receivingThread = new Thread(() -> {
                 try {
                     Receiver.receivingLoop(io);
                 } catch (Exception e) {
@@ -111,7 +115,9 @@ public class SandnodeClient {
                     close();
                     Thread.currentThread().interrupt();
                 }
-            }, "Client/%s/Receiving".formatted(IOController.addressFromSocket(socket))).start();
+            }, receivingThreadName);
+            receivingThread.setDaemon(true);
+            receivingThread.start();
 
         } catch (InputStreamException | OutputStreamException e) {
             LOGGER.error("Error connecting to server", e);

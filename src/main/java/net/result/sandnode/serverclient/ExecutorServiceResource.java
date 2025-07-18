@@ -1,16 +1,30 @@
 package net.result.sandnode.serverclient;
 
-import net.result.sandnode.util.DaemonFactory;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public final class ExecutorServiceResource implements AutoCloseable {
+    ThreadFactory decryptorThreadFactory = new ThreadFactory() {
+        private final AtomicInteger count = new AtomicInteger(1);
+
+        @Override
+        public Thread newThread(@NotNull Runnable r) {
+            Thread thread = new Thread(r);
+            thread.setName("Decryptor-Worker-" + count.getAndIncrement());
+            thread.setDaemon(true);
+            return thread;
+        }
+    };
+
     private final ExecutorService executor;
 
     public ExecutorServiceResource() {
-        executor = Executors.newCachedThreadPool(new DaemonFactory());
+        executor = Executors.newCachedThreadPool(decryptorThreadFactory);
     }
 
     public ExecutorService executor() {

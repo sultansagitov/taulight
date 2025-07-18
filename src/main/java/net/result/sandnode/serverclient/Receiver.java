@@ -48,6 +48,7 @@ public class Receiver {
                     LOGGER.error("Reader thread encountered an error", e);
                 }
             });
+            readerThread.setName("Receiver-Reader");
 
             Thread distributorThread = new Thread(() -> {
                 try {
@@ -63,9 +64,9 @@ public class Receiver {
                     LOGGER.error("Distributor thread encountered an error", e);
                 }
             });
-
-            readerThread.start();
+            distributorThread.setName("Receiver-Distributor");
             distributorThread.setDaemon(true);
+            readerThread.start();
             distributorThread.start();
 
             readerThread.join();
