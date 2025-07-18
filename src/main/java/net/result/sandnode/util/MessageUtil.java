@@ -20,7 +20,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.Optional;
 
@@ -66,18 +65,11 @@ public class MessageUtil {
         return request;
     }
 
-    public static byte[] toByteArray(Message message, @NotNull KeyStorageRegistry keyStorageRegistry)
+    public static EncryptedMessage encryptMessage(Message message, KeyStorageRegistry keyStorageRegistry)
             throws KeyStorageNotFoundException, EncryptionException, CryptoException, IllegalMessageLengthException,
             MessageSerializationException {
-        ByteArrayOutputStream result = new ByteArrayOutputStream();
-        result.write(1); // Version
-        result.write(message.headersEncryption().asByte()); // Headers encryption
-
         byte[] encryptedHeaders;
         byte[] encryptedBody;
-
-        short headersLength;
-        int bodyLength;
 
         byte[] bodyBytes = message.getBody();
         Encryption bodyEncryption = message.headers().bodyEncryption();
@@ -112,9 +104,6 @@ public class MessageUtil {
             throw new ImpossibleRuntimeException(e);
         }
 
-        bodyLength = encryptedBody.length;
-
-
         try {
             byte[] headersBytes = message.headers().toByteArray();
             KeyStorage headersKeyStorage = keyStorageRegistry.getNonNull(message.headersEncryption());
@@ -126,25 +115,10 @@ public class MessageUtil {
 
             int lengthInt = encryptedHeaders.length;
             if (lengthInt > 65535) throw new IllegalMessageLengthException(message, lengthInt);
-            headersLength = (short) lengthInt;
         } catch (HeadersSerializationException | NullPointerException e) {
-            throw new MessageSerializationException(message, e);
+            throw new MessageSerializationException(e);
         }
 
-        try {
-            result.write((headersLength >> 8) & 0xFF);
-            result.write(headersLength & 0xFF);
-            result.write(encryptedHeaders);
-
-            result.write((bodyLength >> 24) & 0xFF);
-            result.write((bodyLength >> 16) & 0xFF);
-            result.write((bodyLength >> 8) & 0xFF);
-            result.write(bodyLength & 0xFF);
-            result.write(encryptedBody);
-        } catch (IOException e) {
-            throw new MessageSerializationException(message, "Failed to serialize message", e);
-        }
-
-        return result.toByteArray();
+        return new EncryptedMessage(1, message.headersEncryption().asByte(), encryptedHeaders, encryptedBody);
     }
 }

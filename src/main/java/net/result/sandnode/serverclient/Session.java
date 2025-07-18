@@ -34,7 +34,7 @@ public class Session {
     public void start() {
         new Thread(() -> {
             try {
-                io.sendingLoop();
+                Sender.sendingLoop(io);
             } catch (InterruptedException | SandnodeException e) {
                 if (io.isConnected()) {
                     LOGGER.error("Error sending message", e);
@@ -46,7 +46,7 @@ public class Session {
 
         new Thread(() -> {
             try {
-                io.receivingLoop();
+                Receiver.receivingLoop(io);
             } catch (Exception e) {
                 LOGGER.error("Error receiving message", e);
             }

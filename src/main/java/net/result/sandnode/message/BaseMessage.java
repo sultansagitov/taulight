@@ -1,15 +1,8 @@
 package net.result.sandnode.message;
 
 import net.result.sandnode.encryption.Encryptions;
-import net.result.sandnode.encryption.KeyStorageRegistry;
 import net.result.sandnode.encryption.interfaces.Encryption;
-import net.result.sandnode.exception.IllegalMessageLengthException;
-import net.result.sandnode.exception.MessageSerializationException;
-import net.result.sandnode.exception.crypto.CryptoException;
-import net.result.sandnode.exception.error.EncryptionException;
-import net.result.sandnode.exception.error.KeyStorageNotFoundException;
 import net.result.sandnode.message.util.Headers;
-import net.result.sandnode.util.MessageUtil;
 import org.jetbrains.annotations.NotNull;
 
 public abstract class BaseMessage implements Message {
@@ -28,13 +21,6 @@ public abstract class BaseMessage implements Message {
     @Override
     public @NotNull Encryption headersEncryption() {
         return headersEncryption;
-    }
-
-    @Override
-    public byte[] toByteArray(@NotNull KeyStorageRegistry keyStorageRegistry)
-            throws EncryptionException, MessageSerializationException, IllegalMessageLengthException,
-            KeyStorageNotFoundException, CryptoException {
-        return MessageUtil.toByteArray(this, keyStorageRegistry);
     }
 
     @Override

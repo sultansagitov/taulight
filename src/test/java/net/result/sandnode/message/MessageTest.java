@@ -35,7 +35,7 @@ class MessageTest {
         KeyStorage keyStorage = AsymmetricEncryptions.ECIES.generate();
         KeyStorageRegistry keyStorageRegistry = new KeyStorageRegistry(keyStorage);
 
-        byte[] byteArray = node1Message.toByteArray(keyStorageRegistry);
+        byte[] byteArray = MessageUtil.encryptMessage(node1Message, keyStorageRegistry).toByteArray();
         ByteArrayInputStream in = new ByteArrayInputStream(byteArray);
 
         EncryptedMessage encrypted = EncryptedMessage.readMessage(in);

@@ -1,4 +1,6 @@
-package net.result.sandnode.util;
+package net.result.sandnode.serverclient;
+
+import net.result.sandnode.util.DaemonFactory;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;

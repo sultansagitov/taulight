@@ -1,11 +1,14 @@
 package net.result.sandnode.message;
 
+import net.result.sandnode.encryption.EncryptionManager;
+import net.result.sandnode.exception.MessageSerializationException;
 import net.result.sandnode.exception.UnexpectedSocketDisconnectException;
 import net.result.sandnode.exception.crypto.NoSuchEncryptionException;
 import net.result.sandnode.util.StreamReader;
-import net.result.sandnode.encryption.EncryptionManager;
 import org.jetbrains.annotations.NotNull;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 
 public record EncryptedMessage(int version, byte encryptionByte, byte[] headersBytes, byte[] bodyBytes) {
@@ -18,6 +21,33 @@ public record EncryptedMessage(int version, byte encryptionByte, byte[] headersB
         int bodyLength = StreamReader.readInt(in, "body length");
         byte[] bodyBytes = StreamReader.readN(in, bodyLength, "body");
         return new EncryptedMessage(version, encryptionByte, headersBytes, bodyBytes);
+    }
+
+    public byte @NotNull [] toByteArray() throws MessageSerializationException {
+        try {
+            ByteArrayOutputStream result = new ByteArrayOutputStream();
+
+            result.write(version);
+            result.write(encryptionByte);
+
+            int headersLength = headersBytes.length;
+
+            result.write((headersLength >> 8) & 0xFF);
+            result.write(headersLength & 0xFF);
+            result.write(headersBytes);
+
+            int bodyLength = bodyBytes.length;
+
+            result.write((bodyLength >> 24) & 0xFF);
+            result.write((bodyLength >> 16) & 0xFF);
+            result.write((bodyLength >> 8) & 0xFF);
+            result.write(bodyLength & 0xFF);
+            result.write(bodyBytes);
+
+            return result.toByteArray();
+        } catch (IOException e) {
+            throw new MessageSerializationException("Failed to serialize message", e);
+        }
     }
 
     @Override
