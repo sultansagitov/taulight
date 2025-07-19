@@ -4,7 +4,9 @@ import net.result.sandnode.exception.ExpectedMessageException;
 import net.result.sandnode.exception.ImpossibleRuntimeException;
 import net.result.sandnode.exception.UnknownSandnodeErrorException;
 import net.result.sandnode.exception.error.SandnodeErrorException;
+import net.result.sandnode.exception.error.SpecialErrorException;
 import net.result.sandnode.message.RawMessage;
+import net.result.sandnode.message.SpecialErrorMessage;
 import net.result.sandnode.message.types.ErrorMessage;
 import net.result.sandnode.message.util.MessageTypes;
 import net.result.sandnode.util.Manager;
@@ -26,14 +28,20 @@ public class ServerErrorManager extends Manager<SandnodeError> {
 
     @Override
     protected void handleOverflow(SandnodeError error) {
-        list.removeIf(e -> e.code() == error.code());
+        list.removeIf(e -> e.code().equals(error.code()));
     }
 
     public void handleError(@NotNull RawMessage response) throws UnknownSandnodeErrorException, SandnodeErrorException {
         if (response.headers().type() == MessageTypes.ERR) {
             try {
-                ErrorMessage errorMessage = new ErrorMessage(response);
-                throw errorMessage.error.exception();
+                var errorMessage = new ErrorMessage(response);
+                SandnodeError error = errorMessage.error;
+                if (error == Errors.SPECIAL) {
+                    String special = new SpecialErrorMessage(response).special;
+                    throw new SpecialErrorException(special);
+                } else {
+                    throw error.exception();
+                }
             } catch (ExpectedMessageException e) {
                 throw new ImpossibleRuntimeException(e);
             }

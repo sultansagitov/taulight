@@ -2,7 +2,7 @@ package net.result.sandnode.message.types;
 
 import net.result.sandnode.dto.FileChunkDTO;
 import net.result.sandnode.exception.ExpectedMessageException;
-import net.result.sandnode.message.Message;
+import net.result.sandnode.message.BaseMessage;
 import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.message.util.Headers;
 import net.result.sandnode.message.util.MessageTypes;
@@ -10,7 +10,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.UUID;
 
-public class FileMessage extends Message {
+public class FileMessage extends BaseMessage {
     private final FileChunkDTO chunk;
 
     public FileMessage(@NotNull FileChunkDTO chunk) {

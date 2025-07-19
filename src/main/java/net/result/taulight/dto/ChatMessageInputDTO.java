@@ -86,7 +86,7 @@ public class ChatMessageInputDTO {
             throws EncryptionException, CryptoException {
         setKeyID(keyID);
 
-        String content = Base64.getEncoder().encodeToString(keyStorage.encryption().encrypt(input, keyStorage));
+        String content = Base64.getEncoder().encodeToString(keyStorage.encrypt(input));
         setContent(content);
 
         return this;

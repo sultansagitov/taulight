@@ -2,7 +2,7 @@ package net.result.sandnode.message.types;
 
 import net.result.sandnode.exception.ExpectedMessageException;
 import net.result.sandnode.message.RawMessage;
-import net.result.sandnode.message.Message;
+import net.result.sandnode.message.BaseMessage;
 import net.result.sandnode.message.util.Headers;
 import net.result.sandnode.message.util.MessageTypes;
 import org.apache.logging.log4j.LogManager;
@@ -16,7 +16,7 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public class ClusterRequest extends Message {
+public class ClusterRequest extends BaseMessage {
     private static final Logger LOGGER = LogManager.getLogger(ClusterRequest.class);
 
     @Unmodifiable

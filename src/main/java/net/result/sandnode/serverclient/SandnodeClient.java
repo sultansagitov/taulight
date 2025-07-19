@@ -2,7 +2,10 @@ package net.result.sandnode.serverclient;
 
 import net.result.sandnode.chain.ClientChainManager;
 import net.result.sandnode.config.ClientConfig;
-import net.result.sandnode.exception.*;
+import net.result.sandnode.exception.ConnectionException;
+import net.result.sandnode.exception.InputStreamException;
+import net.result.sandnode.exception.OutputStreamException;
+import net.result.sandnode.exception.SandnodeException;
 import net.result.sandnode.hubagent.Node;
 import net.result.sandnode.link.SandnodeLinkRecord;
 import net.result.sandnode.message.util.Connection;
@@ -72,41 +75,54 @@ public class SandnodeClient {
             throws InputStreamException, OutputStreamException, ConnectionException {
         try {
             LOGGER.info("Connecting to {}", address);
-            socket = new Socket(address.host(), address.port());
+            start(chainManager, new Socket(address.host(), address.port()));
+        } catch (IOException e) {
+            close();
+            throw new ConnectionException("Error connecting to server", e);
+        }
+    }
+
+    public void start(ClientChainManager chainManager, Socket socket)
+            throws InputStreamException, OutputStreamException {
+        this.socket = socket;
+        try {
             LOGGER.info("Connection established.");
             Connection connection = Connection.fromType(node.type(), nodeType);
             io = new IOController(socket, connection, node.keyStorageRegistry, chainManager);
 
-            new Thread(() -> {
+            String sendingThreadName = "Client/%s/Sending".formatted(IOController.addressFromSocket(socket));
+            Thread sendingThread = new Thread(() -> {
                 try {
-                    io.sendingLoop();
+                    Sender.sendingLoop(io);
                 } catch (InterruptedException | SandnodeException e) {
                     if (io.isConnected()) {
                         LOGGER.error("Error sending message", e);
                     }
                     Thread.currentThread().interrupt();
                 }
-            }, "Client/%s/Sending".formatted(IOController.addressFromSocket(socket))).start();
+            }, sendingThreadName);
+            sendingThread.setDaemon(true);
+            sendingThread.start();
 
-            new Thread(() -> {
+            String receivingThreadName = "Client/%s/Receiving".formatted(IOController.addressFromSocket(socket));
+            Thread receivingThread = new Thread(() -> {
                 try {
-                    io.receivingLoop();
-                } catch (InterruptedException | SandnodeException e) {
+                    Receiver.receivingLoop(io);
+                } catch (Exception e) {
                     if (io.isConnected()) {
                         LOGGER.error("Error receiving message", e);
                     }
                     close();
                     Thread.currentThread().interrupt();
                 }
-            }, "Client/%s/Receiving".formatted(IOController.addressFromSocket(socket))).start();
+            }, receivingThreadName);
+            receivingThread.setDaemon(true);
+            receivingThread.start();
 
         } catch (InputStreamException | OutputStreamException e) {
             LOGGER.error("Error connecting to server", e);
             close();
             throw e;
-        } catch (IOException e) {
-            close();
-            throw new ConnectionException("Error connecting to server", e);
         }
     }
 
@@ -114,10 +130,10 @@ public class SandnodeClient {
         try {
             if (socket != null) {
                 node.close();
-                io.disconnect();
+                io.disconnect(true);
                 LOGGER.info("Connection closed.");
             }
-        } catch (SocketClosingException | InterruptedException e) {
+        } catch (Exception e) {
             LOGGER.error("Error closing connection", e);
         }
     }

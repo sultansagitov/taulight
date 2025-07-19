@@ -2,7 +2,6 @@ package net.result.taulight.chain.sender;
 
 import net.result.sandnode.chain.ClientChain;
 import net.result.sandnode.dto.FileDTO;
-import net.result.sandnode.error.ServerErrorManager;
 import net.result.sandnode.exception.*;
 import net.result.sandnode.exception.error.SandnodeErrorException;
 import net.result.sandnode.message.RawMessage;
@@ -44,8 +43,7 @@ public class MessageFileClientChain extends ClientChain {
         send(request);
         FileIOUtil.send(dto, this::send);
 
-        RawMessage raw = queue.take();
-        ServerErrorManager.instance().handleError(raw);
+        RawMessage raw = receive();
 
         raw.expect(MessageTypes.HAPPY);
         return new UUIDMessage(raw).uuid;
@@ -56,7 +54,7 @@ public class MessageFileClientChain extends ClientChain {
         MessageFileRequest request = MessageFileRequest.download(fileID);
         send(request);
 
-        FileDTO dto = FileIOUtil.receive(queue::take);
+        FileDTO dto = FileIOUtil.receive(this::receive);
         System.out.println("File downloaded successfully.");
 
         return dto;

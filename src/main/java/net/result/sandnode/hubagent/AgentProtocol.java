@@ -29,8 +29,8 @@ public class AgentProtocol {
             @NotNull String password,
             @NotNull String device,
             @NotNull AsymmetricKeyStorage keyStorage
-    ) throws ExpectedMessageException, InterruptedException, SandnodeErrorException, UnknownSandnodeErrorException,
-            UnprocessedMessagesException, DeserializationException, CannotUseEncryption {
+    ) throws InterruptedException, SandnodeErrorException, DeserializationException, CannotUseEncryption,
+            ProtocolException {
 
         RegistrationClientChain chain = new RegistrationClientChain(client);
         client.io.chainManager.linkChain(chain);
@@ -40,8 +40,7 @@ public class AgentProtocol {
     }
 
     public static LoginResponseDTO byToken(SandnodeClient client, String token)
-            throws InterruptedException, SandnodeErrorException, DeserializationException,
-            UnknownSandnodeErrorException, UnprocessedMessagesException {
+            throws InterruptedException, SandnodeErrorException, DeserializationException, ProtocolException {
         LoginClientChain chain = new LoginClientChain(client);
         client.io.chainManager.linkChain(chain);
         LoginResponseDTO dto = chain.login(token);
@@ -50,9 +49,12 @@ public class AgentProtocol {
         return dto;
     }
 
-    public static LogPasswdResponseDTO byPassword(SandnodeClient client, String nickname, String password, String device)
-            throws InterruptedException, SandnodeErrorException, ExpectedMessageException,
-            UnknownSandnodeErrorException, UnprocessedMessagesException, DeserializationException {
+    public static LogPasswdResponseDTO byPassword(
+            SandnodeClient client,
+            String nickname,
+            String password,
+            String device
+    ) throws InterruptedException, SandnodeErrorException, ProtocolException, DeserializationException {
         LogPasswdClientChain chain = new LogPasswdClientChain(client);
         client.io.chainManager.linkChain(chain);
         LogPasswdResponseDTO token = chain.getToken(nickname, password, device);
@@ -64,7 +66,7 @@ public class AgentProtocol {
             throws CryptoException, LinkDoesNotMatchException, InterruptedException, SandnodeErrorException,
             ExpectedMessageException, UnknownSandnodeErrorException, UnprocessedMessagesException, StorageException {
 
-        Agent agent = (Agent) client.node;
+        Agent agent = client.node.agent();
 
         AsymmetricKeyStorage filePublicKey = null;
         try {

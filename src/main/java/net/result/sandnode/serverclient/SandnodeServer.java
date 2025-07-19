@@ -1,25 +1,22 @@
 package net.result.sandnode.serverclient;
 
+import net.result.sandnode.chain.ServerChainManager;
 import net.result.sandnode.config.ServerConfig;
 import net.result.sandnode.exception.*;
 import net.result.sandnode.hubagent.Node;
-import net.result.sandnode.message.EncryptedMessage;
-import net.result.sandnode.message.Message;
-import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.message.util.Connection;
-import net.result.sandnode.util.Container;
-import net.result.sandnode.util.IOController;
-import net.result.sandnode.util.JPAUtil;
-import net.result.sandnode.util.StreamReader;
+import net.result.sandnode.util.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.Collection;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -30,7 +27,10 @@ public class SandnodeServer {
     public final Container container;
     public ServerSocket serverSocket;
 
-    private final ExecutorService sessionExecutor = Executors.newCachedThreadPool();
+    private final Collection<Session> agentSessions = ConcurrentHashMap.newKeySet();
+    private final Collection<Session> hubSessions = ConcurrentHashMap.newKeySet();
+
+    private final ExecutorService sessionExecutor = Executors.newCachedThreadPool(new DaemonFactory());
 
     public SandnodeServer(Node node, ServerConfig serverConfig) {
         this.node = node;
@@ -63,45 +63,7 @@ public class SandnodeServer {
             String ip = IOController.addressFromSocket(clientSocket).toString();
             LOGGER.info("Client connected {}", ip);
 
-            sessionExecutor.submit(() -> {
-                Thread.currentThread().setName(ip);
-
-                try {
-                    InputStream inputStream = StreamReader.inputStream(clientSocket);
-                    EncryptedMessage encrypted = EncryptedMessage.readMessage(inputStream);
-                    RawMessage request = Message.decryptMessage(encrypted, node.keyStorageRegistry);
-                    Connection conn = request.headers().connection();
-                    Session session = node.createSession(this, clientSocket, conn.getOpposite());
-                    session.io.chainManager.distributeMessage(request);
-
-                    while (session.io.socket.isConnected()) {
-                        Thread.onSpinWait();
-                    }
-
-                    if (session.io.socket.isConnected()) {
-                        try {
-                            session.io.disconnect();
-                        } catch (SocketClosingException e) {
-                            LOGGER.error("Error while closing socket", e);
-                        }
-                    }
-
-                    node.removeSession(session);
-
-                    session.close();
-
-                    LOGGER.info("Client disconnected");
-
-                } catch (SandnodeException | InterruptedException e) {
-                    LOGGER.error("Error handling session for client {}: {}", ip, e.getMessage(), e);
-                }
-
-                try {
-                    clientSocket.close();
-                } catch (IOException ex) {
-                    LOGGER.error("Error closing socket for client {}: {}", ip, ex.getMessage(), ex);
-                }
-            });
+            sessionExecutor.submit(() -> SessionHandler.handle(this, ip, clientSocket));
         }
 
         sessionExecutor.shutdown();
@@ -127,5 +89,46 @@ public class SandnodeServer {
         }
 
         node.close();
+    }
+
+    @Override
+    public String toString() {
+        return "<%s %s>".formatted(getClass().getSimpleName(), serverSocket);
+    }
+
+    public Collection<Session> getAgents() {
+        return agentSessions;
+    }
+
+    public Collection<Session> getHubs() {
+        return hubSessions;
+    }
+
+    protected void addAsAgent(Session session) {
+        agentSessions.add(session);
+    }
+
+    protected void addAsHub(Session session) {
+        hubSessions.add(session);
+    }
+
+    public void removeSession(Session session) {
+        hubSessions.remove(session);
+        agentSessions.remove(session);
+    }
+
+    public Session createSession(Socket socket, @NotNull Connection connection)
+            throws WrongNodeUsedException, OutputStreamException, InputStreamException {
+        if (connection.getFrom() != node.type()) throw new WrongNodeUsedException(connection);
+
+        ServerChainManager chainManager = node.createChainManager();
+        IOController io = new IOController(socket, connection, node.keyStorageRegistry, chainManager);
+        Session session = new Session(this, io);
+        switch (connection.getTo()) {
+            case AGENT -> addAsAgent(session);
+            case HUB -> addAsHub(session);
+        }
+
+        return session;
     }
 }

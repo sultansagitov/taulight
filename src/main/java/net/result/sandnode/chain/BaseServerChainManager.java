@@ -5,7 +5,7 @@ import net.result.sandnode.message.util.MessageType;
 import net.result.sandnode.message.util.MessageTypes;
 import net.result.sandnode.serverclient.Session;
 
-public abstract class BSTServerChainManager extends BSTChainManager implements ServerChainManager {
+public abstract class BaseServerChainManager extends BaseChainManager implements ServerChainManager {
     protected Session session;
 
     @Override
@@ -15,17 +15,10 @@ public abstract class BSTServerChainManager extends BSTChainManager implements S
 
     @Override
     public ReceiverChain createChain(MessageType type) {
-        return (type instanceof MessageTypes sysType) ? switch (sysType) {
+        return type instanceof MessageTypes sysType ? switch (sysType) {
+            case EXIT -> new ExitServerChain(session);
             case PUB -> new PublicKeyServerChain(session);
             case SYM -> new SymKeyServerChain(session);
-            case CLUSTER -> new ClusterServerChain(session);
-            case LOGIN -> new LoginServerChain(session);
-            case REG -> new RegistrationServerChain(session);
-            case LOGOUT -> new LogoutServerChain(session);
-            case WHOAMI -> new WhoAmIServerChain(session);
-            case NAME -> new NameServerChain(session);
-            case DEK -> new DEKServerChain(session);
-            case AVATAR -> new AvatarServerChain(session);
             default -> new UnhandledMessageTypeServerChain(session);
         } : new UnhandledMessageTypeServerChain(session);
     }

@@ -7,7 +7,7 @@ import net.result.sandnode.db.MemberEntity;
 import net.result.sandnode.db.MemberRepository;
 import net.result.sandnode.dto.FileDTO;
 import net.result.sandnode.exception.error.*;
-import net.result.sandnode.message.IMessage;
+import net.result.sandnode.message.Message;
 import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.message.UUIDMessage;
 import net.result.sandnode.message.types.AvatarRequest;
@@ -28,27 +28,24 @@ public class AvatarServerChain extends ServerChain implements ReceiverChain {
     }
 
     @Override
-    public @Nullable IMessage handle(RawMessage raw) throws Exception {
+    public @Nullable Message handle(RawMessage raw) throws Exception {
         AvatarRequest request = new AvatarRequest(raw);
 
         if (session.member == null) throw new UnauthorizedException();
 
         AvatarRequest.Type type = request.getType();
 
-        switch (type) {
-            case SET -> {
-                return set(session.member);
-            }
+        return switch (type) {
+            case SET -> set(session.member);
             case GET_MY -> getMy(session.member);
             case GET_OF -> getOf(request.getNickname());
-        }
-        return null;
+        };
     }
 
     private UUIDMessage set(MemberEntity you) throws Exception {
         JPAUtil jpaUtil = session.server.container.get(JPAUtil.class);
 
-        FileDTO dto = FileIOUtil.receive(queue::take);
+        FileDTO dto = FileIOUtil.receive(this::receive);
 
         if (!dto.contentType().startsWith("image/")) {
             throw new InvalidArgumentException();
@@ -57,7 +54,7 @@ public class AvatarServerChain extends ServerChain implements ReceiverChain {
         FileEntity avatar = dbFileUtil.saveFile(dto, you.id().toString());
 
         if (!memberRepo.setAvatar(you, avatar)) {
-            throw new ServerSandnodeErrorException();
+            throw new ServerErrorException();
         }
 
         session.member = jpaUtil.refresh(you);
@@ -65,16 +62,20 @@ public class AvatarServerChain extends ServerChain implements ReceiverChain {
         return new UUIDMessage(new Headers().setType(MessageTypes.HAPPY), avatar);
     }
 
-    private void getMy(MemberEntity you) throws Exception {
+    @SuppressWarnings("SameReturnValue")
+    private Message getMy(MemberEntity you) throws Exception {
         FileEntity avatar = you.avatar();
         if (avatar == null) throw new NoEffectException();
         FileIOUtil.send(dbFileUtil.readImage(avatar), this::send);
+        return null;
     }
 
-    private void getOf(String nickname) throws Exception {
+    @SuppressWarnings("SameReturnValue")
+    private Message getOf(String nickname) throws Exception {
         MemberEntity member = memberRepo.findByNickname(nickname).orElseThrow(NotFoundException::new);
         FileEntity avatar = member.avatar();
         if (avatar == null) throw new NoEffectException();
         FileIOUtil.send(dbFileUtil.readImage(avatar), this::send);
+        return null;
     }
 }

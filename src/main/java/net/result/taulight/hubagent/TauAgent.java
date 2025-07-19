@@ -4,6 +4,7 @@ import net.result.sandnode.chain.ServerChainManager;
 import net.result.sandnode.config.AgentConfig;
 import net.result.sandnode.encryption.KeyStorageRegistry;
 import net.result.sandnode.hubagent.Agent;
+import net.result.taulight.chain.TauAgentServerChainManager;
 import org.jetbrains.annotations.NotNull;
 
 public class TauAgent extends Agent {
@@ -15,12 +16,9 @@ public class TauAgent extends Agent {
         super(keyStorageRegistry, config);
     }
 
-    //TODO:
-    // remove SuppressWarnings
-    // realize it when add agent as server
-    @SuppressWarnings("DataFlowIssue")
     @Override
-    protected @NotNull ServerChainManager createChainManager() {
-        return null;
+    @NotNull
+    public ServerChainManager createChainManager() {
+        return new TauAgentServerChainManager();
     }
 }

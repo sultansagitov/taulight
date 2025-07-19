@@ -2,7 +2,7 @@ package net.result.taulight.message.types;
 
 import net.result.sandnode.exception.DeserializationException;
 import net.result.sandnode.exception.ExpectedMessageException;
-import net.result.sandnode.message.IMessage;
+import net.result.sandnode.message.Message;
 import net.result.sandnode.message.MSGPackMessage;
 import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.message.util.Headers;
@@ -55,14 +55,14 @@ public class GroupRequest extends MSGPackMessage<GroupRequestDTO> {
         return new GroupRequest(new GroupRequestDTO(GroupRequestDTO.DataType.MY_CODES));
     }
 
-    public static @NotNull IMessage setAvatar(UUID chatID) {
+    public static @NotNull Message setAvatar(UUID chatID) {
         GroupRequestDTO data = new GroupRequestDTO(GroupRequestDTO.DataType.SET_AVATAR);
         data.chatID = chatID;
 
         return new GroupRequest(data);
     }
 
-    public static @NotNull IMessage getAvatar(UUID chatID) {
+    public static @NotNull Message getAvatar(UUID chatID) {
         GroupRequestDTO data = new GroupRequestDTO(GroupRequestDTO.DataType.GET_AVATAR);
         data.chatID = chatID;
 

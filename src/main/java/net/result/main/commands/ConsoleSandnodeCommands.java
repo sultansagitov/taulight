@@ -1,6 +1,7 @@
 package net.result.main.commands;
 
-import net.result.sandnode.chain.IChain;
+import net.result.sandnode.chain.ChainStorage;
+import net.result.sandnode.chain.Chain;
 import net.result.sandnode.chain.sender.*;
 import net.result.sandnode.dto.FileDTO;
 import net.result.sandnode.dto.LoginHistoryDTO;
@@ -38,8 +39,9 @@ public class ConsoleSandnodeCommands {
     }
 
     private static void chains(List<String> ignored, ConsoleContext context) {
-        Collection<IChain> chains = context.io.chainManager.getAllChains();
-        Map<String, IChain> map = context.io.chainManager.getChainsMap();
+        ChainStorage storage = context.io.chainManager.storage();
+        Collection<Chain> chains = storage.getAll();
+        Map<String, Chain> map = storage.getNamed();
 
         System.out.printf("All client chains: %s%n", chains);
         System.out.printf("All named client chains: %s%n", map);
@@ -124,14 +126,14 @@ public class ConsoleSandnodeCommands {
         context.io.chainManager.removeChain(chain);
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss z");
 
-        Agent agent = (Agent) context.client.node;
+        Agent agent = context.client.node.agent();
 
 
         for (LoginHistoryDTO dto : h) {
             KeyStorage personalKey = agent.config.loadPersonalKey(context.client.address, dto.encryptorID);
 
-            String ip = personalKey.encryption().decrypt(Base64.getDecoder().decode(dto.ip), personalKey);
-            String device = personalKey.encryption().decrypt(Base64.getDecoder().decode(dto.device), personalKey);
+            String ip = personalKey.decrypt(Base64.getDecoder().decode(dto.ip));
+            String device = personalKey.decrypt(Base64.getDecoder().decode(dto.device));
 
             System.out.printf(
                     "Time: %s, IP: %s, Device: %s, Active: %s%n",
@@ -150,7 +152,7 @@ public class ConsoleSandnodeCommands {
         context.io.chainManager.linkChain(chain);
 
         UUID encryptorID;
-        Agent agent = (Agent) context.client.node;
+        Agent agent = context.client.node.agent();
         try {
             encryptorID = agent.config.loadEncryptor(context.client.address, nickname).id();
         } catch (KeyStorageNotFoundException ignored) {
@@ -171,7 +173,7 @@ public class ConsoleSandnodeCommands {
         context.io.chainManager.removeChain(chain);
 
         for (DEKDTO key : keys) {
-            Agent agent = (Agent) context.client.node;
+            Agent agent = context.client.node.agent();
 
             KeyStorage decrypted = key.decrypt(agent.config.loadPersonalKey(context.client.address, key.encryptorID));
 

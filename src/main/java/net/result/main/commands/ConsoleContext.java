@@ -22,4 +22,12 @@ public class ConsoleContext {
         this.nickname = nickname;
         this.keyID = keyID;
     }
+
+    public ForwardRequestClientChain chain() {
+        if (chain == null) {
+            chain = new ForwardRequestClientChain(client);
+            client.io.chainManager.linkChain(chain);
+        }
+        return chain;
+    }
 }

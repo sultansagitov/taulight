@@ -2,7 +2,6 @@ package net.result.taulight.chain.sender;
 
 import net.result.sandnode.chain.ClientChain;
 import net.result.sandnode.dto.FileDTO;
-import net.result.sandnode.error.ServerErrorManager;
 import net.result.sandnode.exception.DeserializationException;
 import net.result.sandnode.exception.ExpectedMessageException;
 import net.result.sandnode.exception.UnknownSandnodeErrorException;
@@ -28,8 +27,7 @@ public class DialogClientChain extends ClientChain {
             UnknownSandnodeErrorException, UnprocessedMessagesException {
         send(DialogRequest.getDialogID(nickname));
 
-        RawMessage raw = queue.take();
-        ServerErrorManager.instance().handleError(raw);
+        RawMessage raw = receive();
 
         return new UUIDMessage(raw).uuid;
     }
@@ -38,7 +36,7 @@ public class DialogClientChain extends ClientChain {
             UnknownSandnodeErrorException, UnprocessedMessagesException, ExpectedMessageException {
         send(DialogRequest.getAvatar(chatID));
         try {
-            return FileIOUtil.receive(queue::take);
+            return FileIOUtil.receive(this::receive);
         } catch (NoEffectException e) {
             return null;
         }

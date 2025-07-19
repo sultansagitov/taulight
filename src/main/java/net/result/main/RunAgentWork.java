@@ -12,13 +12,11 @@ import net.result.sandnode.encryption.interfaces.AsymmetricKeyStorage;
 import net.result.sandnode.exception.*;
 import net.result.sandnode.exception.crypto.CreatingKeyException;
 import net.result.sandnode.exception.error.*;
-import net.result.sandnode.hubagent.Agent;
 import net.result.sandnode.hubagent.AgentProtocol;
 import net.result.sandnode.hubagent.ClientProtocol;
 import net.result.sandnode.link.Links;
 import net.result.sandnode.link.SandnodeLinkRecord;
 import net.result.sandnode.serverclient.SandnodeClient;
-import net.result.taulight.chain.sender.ForwardRequestClientChain;
 import net.result.taulight.dto.ChatInfoDTO;
 import net.result.taulight.dto.ChatMessageInputDTO;
 import net.result.taulight.hubagent.TauAgent;
@@ -28,7 +26,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 
-public class RunAgentWork implements IWork {
+public class RunAgentWork implements Work {
     private static final Logger LOGGER = LogManager.getLogger(RunAgentWork.class);
     private SandnodeClient client;
     private Scanner scanner;
@@ -107,7 +105,7 @@ public class RunAgentWork implements IWork {
             var result = AgentProtocol.register(client, nickname, password, device, keyStorage);
             System.out.printf("Token for \"%s\":%n%s%n", nickname, result.token);
 
-            ((Agent) client.node).config.savePersonalKey(client.address, result.keyID, keyStorage);
+            client.node.agent().config.savePersonalKey(client.address, result.keyID, keyStorage);
             context = new ConsoleContext(client, nickname, result.keyID);
         } catch (BusyNicknameException e) {
             System.out.println("Nickname is busy");
@@ -172,7 +170,7 @@ public class RunAgentWork implements IWork {
         if (context.chat.chatType == ChatInfoDTO.ChatType.DIALOG) {
             try {
                 String otherNickname = context.chat.otherNickname;
-                KeyEntry dek = ((Agent) client.node).config.loadDEK(client.address, otherNickname);
+                KeyEntry dek = client.node.agent().config.loadDEK(client.address, otherNickname);
 
                 LOGGER.debug("Using {} {}", dek.id(), dek.keyStorage());
 
@@ -187,12 +185,7 @@ public class RunAgentWork implements IWork {
 
 
         try {
-            if (context.chain == null) {
-                ForwardRequestClientChain chain = new ForwardRequestClientChain(client);
-                client.io.chainManager.linkChain(chain);
-                context.chain = chain;
-            }
-            UUID messageID = context.chain.message(message);
+            UUID messageID = context.chain().message(message);
             System.out.printf("Sent message uuid: %s %n", messageID);
         } catch (DeserializationException e) {
             System.out.println("Sent message with unknown uuid due deserialization");
@@ -245,7 +238,7 @@ public class RunAgentWork implements IWork {
 
             try {
                 if (command.equals("exit")) {
-                    context.io.disconnect();
+                    context.io.disconnect(true);
                     break;
                 } else if (commands.containsKey(command)) {
                     List<String> args = Arrays.stream(com_arg).skip(1).toList();
@@ -262,6 +255,9 @@ public class RunAgentWork implements IWork {
             }
         }
 
-        client.io.chainManager.removeChain(context.chain);
+        if (context.chain != null) {
+            client.io.chainManager.removeChain(context.chain);
+            context.chain = null;
+        }
     }
 }

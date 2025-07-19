@@ -1,12 +1,7 @@
 package net.result.main.commands;
 
-import net.result.sandnode.exception.DeserializationException;
-import net.result.sandnode.exception.ExpectedMessageException;
-import net.result.sandnode.exception.UnknownSandnodeErrorException;
-import net.result.sandnode.exception.UnprocessedMessagesException;
-import net.result.sandnode.exception.error.SandnodeErrorException;
-import net.result.taulight.chain.sender.GroupClientChain;
 import net.result.taulight.chain.sender.CheckCodeClientChain;
+import net.result.taulight.chain.sender.GroupClientChain;
 import net.result.taulight.chain.sender.UseCodeClientChain;
 import net.result.taulight.dto.CodeDTO;
 import net.result.taulight.dto.InviteCodeDTO;
@@ -18,8 +13,7 @@ import java.util.UUID;
 
 public class ConsoleCodesRunner {
 
-    public static void checkCode(@NotNull ConsoleContext context, String code)
-            throws UnprocessedMessagesException, InterruptedException, ExpectedMessageException, UnknownSandnodeErrorException, SandnodeErrorException, DeserializationException {
+    public static void checkCode(@NotNull ConsoleContext context, String code) throws Exception {
         var chain = new CheckCodeClientChain(context.client);
         context.io.chainManager.linkChain(chain);
         CodeDTO dto = chain.check(code);

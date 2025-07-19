@@ -1,13 +1,11 @@
 package net.result.taulight.chain.sender;
 
 import net.result.sandnode.chain.ClientChain;
-import net.result.sandnode.error.ServerErrorManager;
 import net.result.sandnode.exception.DeserializationException;
 import net.result.sandnode.exception.ExpectedMessageException;
 import net.result.sandnode.exception.UnknownSandnodeErrorException;
 import net.result.sandnode.exception.UnprocessedMessagesException;
 import net.result.sandnode.exception.error.SandnodeErrorException;
-import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.message.UUIDMessage;
 import net.result.sandnode.message.util.Headers;
 import net.result.sandnode.serverclient.SandnodeClient;
@@ -26,11 +24,6 @@ public class MembersClientChain extends ClientChain {
             throws InterruptedException, ExpectedMessageException, DeserializationException, SandnodeErrorException,
             UnknownSandnodeErrorException, UnprocessedMessagesException {
         send(new UUIDMessage(new Headers().setType(TauMessageTypes.MEMBERS), chatID));
-
-        RawMessage raw = queue.take();
-
-        ServerErrorManager.instance().handleError(raw);
-
-        return new MembersResponse(raw).dto();
+        return new MembersResponse(receive()).dto();
     }
 }

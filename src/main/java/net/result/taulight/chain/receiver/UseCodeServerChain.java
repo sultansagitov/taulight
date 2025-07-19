@@ -66,7 +66,7 @@ public class UseCodeServerChain extends ServerChain  implements ReceiverChain {
 
         ChatCluster cluster = tauClusterManager.getCluster(group);
 
-        for (Session agent : session.server.node.getAgents()) {
+        for (Session agent : session.server.getAgents()) {
             //noinspection DataFlowIssue
             if (session.member.equals(agent.member)) {
                 agent.addToCluster(cluster);

@@ -66,7 +66,8 @@ class BinarySearchTreeTest {
 
     @ParameterizedTest
     @MethodSource("treesProvider")
-    void testAddAndFindMultipleElements(@NotNull BinarySearchTree<TestSearchable, Integer> tree) throws BSTBusyPosition {
+    void testAddAndFindMultipleElements(@NotNull BinarySearchTree<TestSearchable, Integer> tree)
+            throws BSTBusyPosition {
         TestSearchable item1 = new TestSearchable(10);
         TestSearchable item2 = new TestSearchable(5);
         TestSearchable item3 = new TestSearchable(15);

@@ -10,7 +10,7 @@ import net.result.sandnode.exception.crypto.NoSuchEncryptionException;
 import net.result.sandnode.exception.crypto.SavingKeyException;
 import net.result.sandnode.util.Container;
 
-public class GenerateKeysWork implements IWork {
+public class GenerateKeysWork implements Work {
     @Override
     public void run() throws NoSuchEncryptionException, ConfigurationException, FSException, EncryptionTypeException,
             SavingKeyException {

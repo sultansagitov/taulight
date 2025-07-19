@@ -5,7 +5,7 @@ import net.result.sandnode.cluster.Cluster;
 import net.result.sandnode.db.LoginEntity;
 import net.result.sandnode.db.MemberEntity;
 import net.result.sandnode.exception.SandnodeException;
-import net.result.sandnode.exception.UnexpectedSocketDisconnectException;
+import net.result.sandnode.util.Address;
 import net.result.sandnode.util.IOController;
 import net.result.sandnode.util.Logout;
 import org.apache.logging.log4j.LogManager;
@@ -29,10 +29,12 @@ public class Session {
         this.io = io;
 
         ((ServerChainManager) io.chainManager).setSession(this);
+    }
 
+    public void start() {
         new Thread(() -> {
             try {
-                io.sendingLoop();
+                Sender.sendingLoop(io);
             } catch (InterruptedException | SandnodeException e) {
                 if (io.isConnected()) {
                     LOGGER.error("Error sending message", e);
@@ -44,15 +46,14 @@ public class Session {
 
         new Thread(() -> {
             try {
-                io.receivingLoop();
-            } catch (UnexpectedSocketDisconnectException ignored) {
-            } catch (InterruptedException | SandnodeException e) {
+                Receiver.receivingLoop(io);
+            } catch (Exception e) {
                 LOGGER.error("Error receiving message", e);
             }
 
             Logout.logout(this);
 
-            server.node.removeSession(this);
+            server.removeSession(this);
         }, "%s/Receiving".formatted(io.addressFromSocket())).start();
     }
 
@@ -90,6 +91,9 @@ public class Session {
 
     @Override
     public String toString() {
-        return "<%s %s %s>".formatted(getClass().getSimpleName(), io.addressFromSocket(), member != null ? member.nickname() : "");
+        String simpleName = getClass().getSimpleName();
+        Address address = io.addressFromSocket();
+        if (member == null) return "<%s %s>".formatted(simpleName, address);
+        return "<%s %s %s>".formatted(simpleName, address, member.nickname());
     }
 }

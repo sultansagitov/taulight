@@ -3,7 +3,7 @@ package net.result.sandnode.message;
 import net.result.sandnode.message.util.Headers;
 import org.jetbrains.annotations.NotNull;
 
-public class TextMessage extends Message {
+public class TextMessage extends BaseMessage {
     private final String content;
 
     public TextMessage(@NotNull Headers headers, String content) {
@@ -11,7 +11,7 @@ public class TextMessage extends Message {
         this.content = content;
     }
 
-    public TextMessage(@NotNull IMessage raw) {
+    public TextMessage(@NotNull Message raw) {
         super(raw.headers());
         this.content = new String(raw.getBody());
     }

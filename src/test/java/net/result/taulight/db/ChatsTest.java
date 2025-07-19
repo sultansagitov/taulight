@@ -85,12 +85,12 @@ public class ChatsTest {
         Optional<DialogEntity> foundDialog = dialogRepo.findByMembers(member5, member6);
 
         assertTrue(foundDialog.isPresent());
-        assertEquals(createdDialog.id(), foundDialog.get().id(), "Dialog IDs should match");
+        assertEquals(createdDialog, foundDialog.get(), "Dialogs should match");
 
         // Test find in reverse order
         Optional<DialogEntity> reverseFindDialog = dialogRepo.findByMembers(member6, member5);
         assertTrue(reverseFindDialog.isPresent());
-        assertEquals(createdDialog.id(), reverseFindDialog.get().id(), "Should find same dialog regardless of member order");
+        assertEquals(createdDialog, reverseFindDialog.get(), "Should find same dialog regardless of member order");
 
         // Test with non-existent dialog
         Optional<DialogEntity> nonExistentDialog = dialogRepo.findByMembers(member1, member5);

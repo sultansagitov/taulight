@@ -3,7 +3,7 @@ package net.result.sandnode.chain.receiver;
 import net.result.sandnode.chain.ReceiverChain;
 import net.result.sandnode.chain.ServerChain;
 import net.result.sandnode.exception.error.UnhandledMessageTypeException;
-import net.result.sandnode.message.IMessage;
+import net.result.sandnode.message.Message;
 import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.message.types.ErrorMessage;
 import net.result.sandnode.message.util.MessageTypes;
@@ -19,7 +19,7 @@ public class UnhandledMessageTypeServerChain extends ServerChain implements Rece
     }
 
     @Override
-    public IMessage handle(RawMessage raw) throws Exception {
+    public Message handle(RawMessage raw) throws Exception {
         if (raw.headers().type() != MessageTypes.ERR) {
             throw new UnhandledMessageTypeException();
         }

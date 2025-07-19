@@ -4,12 +4,11 @@ import net.result.sandnode.chain.ReceiverChain;
 import net.result.sandnode.chain.ServerChain;
 import net.result.sandnode.db.EncryptedKeyEntity;
 import net.result.sandnode.db.EncryptedKeyRepository;
-import net.result.sandnode.exception.SandnodeException;
 import net.result.sandnode.exception.error.KeyStorageNotFoundException;
 import net.result.sandnode.exception.error.NotFoundException;
 import net.result.sandnode.exception.error.TooFewArgumentsException;
 import net.result.sandnode.exception.error.UnauthorizedException;
-import net.result.sandnode.message.IMessage;
+import net.result.sandnode.message.Message;
 import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.message.UUIDMessage;
 import net.result.sandnode.message.types.ErrorMessage;
@@ -40,7 +39,7 @@ public class ForwardRequestServerChain extends ServerChain implements ReceiverCh
 
     @SuppressWarnings("InfiniteLoopStatement")
     @Override
-    public IMessage handle(RawMessage raw1) throws InterruptedException, SandnodeException {
+    public Message handle(RawMessage raw1) throws Exception {
         ChatUtil chatUtil = session.server.container.get(ChatUtil.class);
         MessageRepository messageRepo = session.server.container.get(MessageRepository.class);
         EncryptedKeyRepository encryptedKeyRepo = session.server.container.get(EncryptedKeyRepository.class);
@@ -77,7 +76,9 @@ public class ForwardRequestServerChain extends ServerChain implements ReceiverCh
             if (input.keyID == null) {
                 message = messageRepo.create(chat, input, session.member.tauMember());
             } else {
-                EncryptedKeyEntity key = encryptedKeyRepo.find(input.keyID).orElseThrow(() -> new KeyStorageNotFoundException(input.keyID.toString()));
+                EncryptedKeyEntity key = encryptedKeyRepo
+                        .find(input.keyID)
+                        .orElseThrow(() -> new KeyStorageNotFoundException(input.keyID.toString()));
                 message = messageRepo.create(chat, input, session.member.tauMember(), key);
             }
             ChatMessageViewDTO viewDTO = new ChatMessageViewDTO(messageFileRepo, message);
@@ -88,7 +89,7 @@ public class ForwardRequestServerChain extends ServerChain implements ReceiverCh
 
             send(new HappyMessage());
 
-            raw = queue.take();
+            raw = receive();
         }
     }
 }

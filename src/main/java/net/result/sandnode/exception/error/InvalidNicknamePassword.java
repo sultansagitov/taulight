@@ -1,11 +1,14 @@
 package net.result.sandnode.exception.error;
 
-import net.result.sandnode.error.Errors;
-import net.result.sandnode.error.SandnodeError;
+public class InvalidNicknamePassword extends SpecialErrorException {
+    public static final String SPECIAL = "invalid.nick.pass";
 
-public class InvalidNicknamePassword extends SandnodeErrorException {
-    @Override
-    public SandnodeError getSandnodeError() {
-        return Errors.INVALID_NICKNAME_OR_PASSWORD;
+    public InvalidNicknamePassword() {
+        super(SPECIAL);
+    }
+
+    @SuppressWarnings("unused")
+    public InvalidNicknamePassword(Throwable e) {
+        super(SPECIAL, e);
     }
 }

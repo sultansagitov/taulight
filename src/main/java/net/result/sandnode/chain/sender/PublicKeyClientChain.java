@@ -1,7 +1,6 @@
 package net.result.sandnode.chain.sender;
 
 import net.result.sandnode.chain.ClientChain;
-import net.result.sandnode.error.ServerErrorManager;
 import net.result.sandnode.exception.ExpectedMessageException;
 import net.result.sandnode.exception.UnknownSandnodeErrorException;
 import net.result.sandnode.exception.UnprocessedMessagesException;
@@ -21,9 +20,7 @@ public class PublicKeyClientChain extends ClientChain {
             UnknownSandnodeErrorException, CryptoException, UnprocessedMessagesException {
         send(new PublicKeyRequest());
 
-        RawMessage response = queue.take();
-
-        ServerErrorManager.instance().handleError(response);
+        RawMessage response = receive();
 
         PublicKeyResponse publicKeyResponse = new PublicKeyResponse(response);
         io.setServerKey(publicKeyResponse.keyStorage);

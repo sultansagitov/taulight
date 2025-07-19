@@ -55,7 +55,7 @@ public class ECIESDecryptor {
         try {
             result = cipher.doFinal(data);
         } catch (IllegalBlockSizeException | BadPaddingException e) {
-            throw new DecryptionException("An error occurred during encryption", e);
+            throw new DecryptionException("An error occurred during decryption", e);
         }
         return result;
     }

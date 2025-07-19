@@ -4,7 +4,7 @@ import net.result.sandnode.chain.ServerChainManager;
 import net.result.sandnode.config.HubConfig;
 import net.result.sandnode.hubagent.Hub;
 import net.result.sandnode.encryption.KeyStorageRegistry;
-import net.result.taulight.chain.TauBSTServerChainManager;
+import net.result.taulight.chain.TauHubServerChainManager;
 import org.jetbrains.annotations.NotNull;
 
 public class TauHub extends Hub {
@@ -14,6 +14,6 @@ public class TauHub extends Hub {
 
     @Override
     public @NotNull ServerChainManager createChainManager() {
-        return new TauBSTServerChainManager();
+        return new TauHubServerChainManager();
     }
 }

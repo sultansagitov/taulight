@@ -2,11 +2,10 @@ package net.result.sandnode.chain.sender;
 
 import net.result.sandnode.chain.ClientChain;
 import net.result.sandnode.dto.FileDTO;
-import net.result.sandnode.error.ServerErrorManager;
 import net.result.sandnode.exception.*;
 import net.result.sandnode.exception.error.NoEffectException;
 import net.result.sandnode.exception.error.SandnodeErrorException;
-import net.result.sandnode.message.IMessage;
+import net.result.sandnode.message.Message;
 import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.message.UUIDMessage;
 import net.result.sandnode.message.types.AvatarRequest;
@@ -45,14 +44,13 @@ public class AvatarClientChain extends ClientChain {
             throw new FSException(e);
         }
 
-        IMessage request = AvatarRequest.byType(AvatarRequest.Type.SET);
+        Message request = AvatarRequest.byType(AvatarRequest.Type.SET);
         FileDTO dto = new FileDTO(null, contentType, bytes);
 
         send(request);
         FileIOUtil.send(dto, this::send);
 
-        RawMessage raw = queue.take();
-        ServerErrorManager.instance().handleError(raw);
+        RawMessage raw = receive();
 
         raw.expect(MessageTypes.HAPPY);
         UUIDMessage response = new UUIDMessage(raw);
@@ -63,7 +61,7 @@ public class AvatarClientChain extends ClientChain {
             UnknownSandnodeErrorException, SandnodeErrorException, UnprocessedMessagesException {
         send(AvatarRequest.byType(AvatarRequest.Type.GET_MY));
         try {
-            return FileIOUtil.receive(queue::take);
+            return FileIOUtil.receive(this::receive);
         } catch (NoEffectException e) {
             return null;
         }
@@ -75,7 +73,7 @@ public class AvatarClientChain extends ClientChain {
         request.headers().setValue("nickname", nickname);
         send(request);
         try {
-            return FileIOUtil.receive(queue::take);
+            return FileIOUtil.receive(this::receive);
         } catch (NoEffectException e) {
             return null;
         }

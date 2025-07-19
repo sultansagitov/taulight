@@ -44,14 +44,15 @@ public class ConsoleMessagesRunner {
 
         ChatInfoDTO chat = context.chat;
         if (chat.chatType == ChatInfoDTO.ChatType.DIALOG) {
-            var entry = ((Agent) context.client.node).config.loadDEK(context.client.address, chat.otherNickname);
+            Agent agent = context.client.node.agent();
+            var entry = agent.config.loadDEK(context.client.address, chat.otherNickname);
 
             message.setEncryptedContent(entry.id(), entry.keyStorage(), input);
         } else {
             message.setContent(input);
         }
 
-        UUID uuid = context.chain.message(message);
+        UUID uuid = context.chain().message(message);
         System.out.printf("Sent message UUID: %s%n", uuid);
     }
 
@@ -74,13 +75,14 @@ public class ConsoleMessagesRunner {
 
         ChatInfoDTO chat = context.chat;
         if (chat.chatType == ChatInfoDTO.ChatType.DIALOG) {
-            var entry = ((Agent) context.client.node).config.loadDEK(context.client.address, chat.otherNickname);
+            Agent agent = context.client.node.agent();
+            var entry = agent.config.loadDEK(context.client.address, chat.otherNickname);
             message.setEncryptedContent(entry.id(), entry.keyStorage(), input);
         } else {
             message.setContent(input);
         }
 
-        UUID uuid = context.chain.message(message);
+        UUID uuid = context.chain().message(message);
         System.out.printf("Sent message UUID with attachments: %s%n", uuid);
     }
 
@@ -101,8 +103,9 @@ public class ConsoleMessagesRunner {
         ChatMessageInputDTO input = dto.message;
         String decrypted;
         if (input.keyID != null) {
-            KeyStorage keyStorage = ((Agent) context.client.node).config.loadDEK(context.client.address, input.keyID);
-            decrypted = keyStorage.encryption().decrypt(Base64.getDecoder().decode(input.content), keyStorage);
+            Agent agent = context.client.node.agent();
+            KeyStorage keyStorage = agent.config.loadDEK(context.client.address, input.keyID);
+            decrypted = keyStorage.decrypt(Base64.getDecoder().decode(input.content));
         } else {
             decrypted = input.content;
         }

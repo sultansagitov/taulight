@@ -38,10 +38,8 @@ public class DEKDTOTest {
         Assertions.assertEquals(keyStorage.encryption().name(), decrypted.encryption().name());
 
         if (decrypted.encryption().isAsymmetric()) {
-            String originalEncoded = keyStorage.encryption().asymmetric()
-                    .publicKeyConvertor().toEncodedString(keyStorage);
-            String decryptedEncoded = decrypted.encryption().asymmetric()
-                    .publicKeyConvertor().toEncodedString(decrypted);
+            String originalEncoded = keyStorage.asymmetric().encodedPublicKey();
+            String decryptedEncoded = decrypted.asymmetric().encodedPublicKey();
             assertEquals(originalEncoded, decryptedEncoded);
         } else {
             Assertions.assertEquals(keyStorage.symmetric().encoded(), decrypted.symmetric().encoded());

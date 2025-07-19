@@ -7,7 +7,7 @@ import net.result.sandnode.dto.FileDTO;
 import net.result.sandnode.exception.error.NotFoundException;
 import net.result.sandnode.exception.error.TooFewArgumentsException;
 import net.result.sandnode.exception.error.UnauthorizedException;
-import net.result.sandnode.message.IMessage;
+import net.result.sandnode.message.Message;
 import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.message.UUIDMessage;
 import net.result.sandnode.message.util.Headers;
@@ -30,7 +30,7 @@ public class MessageFileServerChain extends ServerChain implements ReceiverChain
     }
 
     @Override
-    public IMessage handle(RawMessage raw) throws Exception {
+    public Message handle(RawMessage raw) throws Exception {
         if (session.member == null) throw new UnauthorizedException();
 
         MessageFileRequest request = new MessageFileRequest(raw);
@@ -51,7 +51,7 @@ public class MessageFileServerChain extends ServerChain implements ReceiverChain
     }
 
     private UUIDMessage uploadFile(UUID chatID, String originalName, TauMemberEntity you) throws Exception {
-        FileDTO dto = FileIOUtil.receive(queue::take);
+        FileDTO dto = FileIOUtil.receive(this::receive);
 
         MessageFileRepository messageFileRepo = session.server.container.get(MessageFileRepository.class);
         ChatUtil chatUtil = session.server.container.get(ChatUtil.class);

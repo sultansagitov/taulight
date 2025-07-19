@@ -1,13 +1,12 @@
 package net.result.sandnode.util;
 
-import net.result.sandnode.dto.FileDTO;
 import net.result.sandnode.dto.FileChunkDTO;
-import net.result.sandnode.error.ServerErrorManager;
+import net.result.sandnode.dto.FileDTO;
 import net.result.sandnode.exception.ExpectedMessageException;
 import net.result.sandnode.exception.UnknownSandnodeErrorException;
 import net.result.sandnode.exception.UnprocessedMessagesException;
 import net.result.sandnode.exception.error.SandnodeErrorException;
-import net.result.sandnode.message.IMessage;
+import net.result.sandnode.message.Message;
 import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.message.types.FileMessage;
 import org.jetbrains.annotations.NotNull;
@@ -21,12 +20,12 @@ import java.util.UUID;
 public class FileIOUtil {
     @FunctionalInterface
     public interface SendMethod {
-        void send(@NotNull IMessage request) throws UnprocessedMessagesException, InterruptedException;
+        void send(@NotNull Message request) throws UnprocessedMessagesException, InterruptedException;
     }
 
     @FunctionalInterface
     public interface ReceiveMethod {
-        RawMessage receive() throws InterruptedException;
+        RawMessage receive() throws InterruptedException, UnknownSandnodeErrorException, SandnodeErrorException;
     }
 
     public static void send(FileDTO dto, SendMethod method) throws UnprocessedMessagesException, InterruptedException {
@@ -56,7 +55,6 @@ public class FileIOUtil {
 
         do {
             RawMessage raw = method.receive();
-            ServerErrorManager.instance().handleError(raw);
 
             FileMessage fileMessage = new FileMessage(raw);
             FileChunkDTO chunk = fileMessage.chunk();

@@ -16,7 +16,8 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 
 public record SandnodeLinkRecord(NodeType nodeType, Address address, AsymmetricKeyStorage keyStorage) {
-    public static SandnodeLinkRecord fromServer(SandnodeServer server) throws EncryptionTypeException, KeyStorageNotFoundException {
+    public static SandnodeLinkRecord fromServer(SandnodeServer server)
+            throws EncryptionTypeException, KeyStorageNotFoundException {
         NodeType type = server.node.type();
         Address address = server.serverConfig.address();
         AsymmetricEncryption encryption = server.serverConfig.mainEncryption();

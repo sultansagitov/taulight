@@ -23,8 +23,8 @@ public class ClientProtocol {
         io.chainManager.removeChain(pubkeyChain);
     }
 
-    public static void sendSYM(@NotNull SandnodeClient client) throws InterruptedException, ExpectedMessageException,
-            KeyNotCreatedException, UnprocessedMessagesException {
+    public static void sendSYM(@NotNull SandnodeClient client)
+            throws InterruptedException, ProtocolException, KeyNotCreatedException, SandnodeErrorException {
         IOController io = client.io;
         SymKeyClientChain symKeyChain = new SymKeyClientChain(client);
         io.chainManager.linkChain(symKeyChain);
@@ -33,7 +33,8 @@ public class ClientProtocol {
     }
 
     public static Collection<String> addToClusters(@NotNull SandnodeClient client, Collection<String> clusters)
-            throws InterruptedException, ExpectedMessageException, UnprocessedMessagesException {
+            throws InterruptedException, ExpectedMessageException, UnprocessedMessagesException,
+            UnknownSandnodeErrorException, SandnodeErrorException {
         IOController io = client.io;
         ClusterClientChain chain = new ClusterClientChain(client);
         io.chainManager.linkChain(chain);
@@ -43,12 +44,14 @@ public class ClientProtocol {
     }
 
     public static Collection<String> getClusters(@NotNull SandnodeClient client)
-            throws ExpectedMessageException, InterruptedException, UnprocessedMessagesException {
+            throws ExpectedMessageException, InterruptedException, UnprocessedMessagesException,
+            UnknownSandnodeErrorException, SandnodeErrorException {
         return addToClusters(client, Set.of());
     }
 
     public static Collection<String> removeFromClusters(@NotNull SandnodeClient client, Collection<String> clusters)
-            throws InterruptedException, ExpectedMessageException, UnprocessedMessagesException {
+            throws InterruptedException, ExpectedMessageException, UnprocessedMessagesException,
+            UnknownSandnodeErrorException, SandnodeErrorException {
         IOController io = client.io;
         ClusterClientChain chain = new ClusterClientChain(client);
         io.chainManager.linkChain(chain);

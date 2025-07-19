@@ -65,7 +65,8 @@ public class InviteCodesTest {
         assertEquals(group, inviteCode.group(), "Invite should be for the correct group");
         assertEquals(member1, inviteCode.sender(), "Sender should be member1");
         assertEquals(member2, inviteCode.receiver(), "Receiver should be member2");
-        assertEquals(expiresDate.toEpochSecond(), inviteCode.expiresDate().toEpochSecond(), "Expiration date should match");
+        assertEquals(expiresDate.toEpochSecond(), inviteCode.expiresDate().toEpochSecond(),
+                "Expiration date should match");
         assertNull(inviteCode.activationDate(), "New invite code should not be activated");
     }
 

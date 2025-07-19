@@ -29,7 +29,7 @@ public abstract class LogPasswdServerChain extends ServerChain implements Receiv
         Tokenizer tokenizer = session.server.container.get(Tokenizer.class);
         LoginRepository loginRepo = session.server.container.get(LoginRepository.class);
         MemberRepository memberRepo = session.server.container.get(MemberRepository.class);
-        Hub hub = (Hub) session.server.node;
+        Hub hub = session.server.node.hub();
         PasswordHasher hasher = hub.config.hasher();
 
         MemberEntity member = memberRepo
@@ -47,8 +47,8 @@ public abstract class LogPasswdServerChain extends ServerChain implements Receiv
         AsymmetricEncryption encryption = keyEntity.encryption().asymmetric();
         AsymmetricKeyStorage keyStorage = encryption.publicKeyConvertor().toKeyStorage(keyEntity.encodedKey());
 
-        String encryptedIP = Base64.getEncoder().encodeToString(encryption.encrypt(ip, keyStorage));
-        String encryptedDevice = Base64.getEncoder().encodeToString(encryption.encrypt(request.dto().device, keyStorage));
+        String encryptedIP = Base64.getEncoder().encodeToString(keyStorage.encrypt(ip));
+        String encryptedDevice = Base64.getEncoder().encodeToString(keyStorage.encrypt(request.dto().device));
 
         LoginEntity login = loginRepo.create(member, keyEntity, encryptedIP, encryptedDevice);
 

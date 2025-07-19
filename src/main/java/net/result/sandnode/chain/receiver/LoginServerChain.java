@@ -6,7 +6,7 @@ import net.result.sandnode.db.LoginEntity;
 import net.result.sandnode.db.LoginRepository;
 import net.result.sandnode.dto.LoginHistoryDTO;
 import net.result.sandnode.exception.error.UnauthorizedException;
-import net.result.sandnode.message.IMessage;
+import net.result.sandnode.message.Message;
 import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.message.types.LoginHistoryResponse;
 import net.result.sandnode.message.types.LoginRequest;
@@ -31,7 +31,7 @@ public class LoginServerChain extends ServerChain implements ReceiverChain {
     }
 
     @Override
-    public IMessage handle(RawMessage raw) throws Exception {
+    public Message handle(RawMessage raw) throws Exception {
         loginRepo = session.server.container.get(LoginRepository.class);
 
         var request = new LoginRequest(raw);
@@ -50,7 +50,7 @@ public class LoginServerChain extends ServerChain implements ReceiverChain {
 
         List<LoginEntity> logins = loginRepo.byDevice(session.member);
 
-        Set<LoginEntity> onlineLogins = session.server.node.getAgents().stream()
+        Set<LoginEntity> onlineLogins = session.server.getAgents().stream()
                 .map(agent -> agent.login)
                 .collect(Collectors.toSet());
 
