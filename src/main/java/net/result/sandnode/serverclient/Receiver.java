@@ -7,24 +7,19 @@ import net.result.sandnode.util.MessageUtil;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.util.Comparator;
-import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.PriorityBlockingQueue;
 import java.util.concurrent.atomic.AtomicLong;
 
 public class Receiver {
+    private static final int POOL_SIZE = 10;
     private static final Logger LOGGER = LogManager.getLogger(Receiver.class);
 
     public static void receivingLoop(IOController io) throws InterruptedException {
-        BlockingQueue<SequencedRawMessage> decryptedQueue;
-        decryptedQueue = new PriorityBlockingQueue<>(100, Comparator.comparingLong(SequencedRawMessage::sequence));
-
         AtomicLong sequenceCounter = new AtomicLong(0);
         AtomicLong nextExpected = new AtomicLong(0);
 
-        try (ExecutorServiceResource poolResource = new ExecutorServiceResource()) {
-            ExecutorService decryptorPool = poolResource.executor();
+        try (var pool = new ExecutorServiceResource<>(io, "Decryptor", POOL_SIZE, SequencedRawMessage::sequence)) {
+            ExecutorService decryptorPool = pool.executor();
 
             LOGGER.info("Receiving loop started");
 
@@ -35,27 +30,22 @@ public class Receiver {
 
                         long seq = sequenceCounter.getAndIncrement();
 
-                        decryptorPool.submit(() -> {
-                            try {
-                                RawMessage raw = MessageUtil.decryptMessage(encrypted, io.keyStorageRegistry);
-                                decryptedQueue.put(new SequencedRawMessage(seq, raw));
-                            } catch (Exception e) {
-                                LOGGER.warn("Failed to decrypt message seq={}", seq, e);
-                            }
+                        pool.submit(() -> {
+                            RawMessage raw = MessageUtil.decryptMessage(encrypted, io.keyStorageRegistry);
+                            return new SequencedRawMessage(seq, raw);
                         });
                     }
                 } catch (Exception e) {
-                    LOGGER.error("Reader thread encountered an error", e);
+                    throw new RuntimeException("Reader thread encountered an error", e);
                 }
-            });
-            readerThread.setName("Receiver-Reader");
+            }, "%s/Receiver-Reader".formatted(io.addressFromSocket()));
 
             Thread distributorThread = new Thread(() -> {
                 try {
-                    while (io.connected || !decryptorPool.isTerminated() || !decryptedQueue.isEmpty()) {
-                        SequencedRawMessage next = decryptedQueue.peek();
+                    while (io.connected || !decryptorPool.isTerminated() || !pool.queue.isEmpty()) {
+                        SequencedRawMessage next = pool.queue.peek();
                         if (next != null && next.sequence() == nextExpected.get()) {
-                            decryptedQueue.poll();
+                            pool.queue.poll();
                             io.chainManager.distributeMessage(next.message());
                             nextExpected.incrementAndGet();
                         }
@@ -63,8 +53,7 @@ public class Receiver {
                 } catch (Exception e) {
                     LOGGER.error("Distributor thread encountered an error", e);
                 }
-            });
-            distributorThread.setName("Receiver-Distributor");
+            }, "%s/Receiver-Distributor".formatted(io.addressFromSocket()));
             distributorThread.setDaemon(true);
             readerThread.start();
             distributorThread.start();

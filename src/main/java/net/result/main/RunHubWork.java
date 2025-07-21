@@ -62,7 +62,7 @@ public class RunHubWork implements Work {
                 if (!console.running) return;
                 throw new RuntimeException(e);
             }
-        });
+        }, "Socket-Accepting");
         thread.setDaemon(true);
         thread.start();
 

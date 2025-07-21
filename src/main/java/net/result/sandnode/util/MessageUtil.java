@@ -59,10 +59,10 @@ public class MessageUtil {
             decompressed = decryptedBody;
         }
 
-        RawMessage request = new RawMessage(headers, decompressed);
-        request.setHeadersEncryption(headersEncryption);
-        LOGGER.info("Requested by {}", request);
-        return request;
+        RawMessage message = new RawMessage(headers, decompressed);
+        message.setHeadersEncryption(headersEncryption);
+        LOGGER.info("Received {}", message);
+        return message;
     }
 
     public static EncryptedMessage encryptMessage(Message message, KeyStorageRegistry keyStorageRegistry)

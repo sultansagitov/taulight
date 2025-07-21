@@ -17,10 +17,7 @@ public class WhoAmIClientChain extends ClientChain {
 
     public synchronized String getNickname() throws InterruptedException, ExpectedMessageException,
             UnknownSandnodeErrorException, SandnodeErrorException, UnprocessedMessagesException {
-        send(new WhoAmIRequest());
-
-        RawMessage raw = receive();
-
+        RawMessage raw = sendAndReceive(new WhoAmIRequest());
         return new WhoAmIResponse(raw).getNickname();
     }
 }

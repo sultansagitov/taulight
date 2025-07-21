@@ -18,14 +18,15 @@ public class TauMemberSettingsClientChain extends ClientChain {
 
     public TauMemberSettingsResponseDTO get() throws UnprocessedMessagesException, InterruptedException,
             DeserializationException, UnknownSandnodeErrorException, SandnodeErrorException, ExpectedMessageException {
-        send(new TauMemberSettingsRequest());
-        return new TauMemberSettingsResponse(receive()).dto();
+        var raw = sendAndReceive(new TauMemberSettingsRequest());
+        return new TauMemberSettingsResponse(raw).dto();
     }
 
     public TauMemberSettingsResponseDTO setShowStatus(boolean b)
             throws UnprocessedMessagesException, InterruptedException, UnknownSandnodeErrorException,
             SandnodeErrorException, ExpectedMessageException, DeserializationException {
-        send(new TauMemberSettingsRequest(TauMemberSettingsRequest.SHOW_STATUS, String.valueOf(b)));
-        return new TauMemberSettingsResponse(receive()).dto();
+        var message = new TauMemberSettingsRequest(TauMemberSettingsRequest.SHOW_STATUS, String.valueOf(b));
+        var raw = sendAndReceive(message);
+        return new TauMemberSettingsResponse(raw).dto();
     }
 }

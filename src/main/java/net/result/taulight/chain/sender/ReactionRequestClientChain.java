@@ -5,7 +5,7 @@ import net.result.sandnode.exception.ExpectedMessageException;
 import net.result.sandnode.exception.UnknownSandnodeErrorException;
 import net.result.sandnode.exception.UnprocessedMessagesException;
 import net.result.sandnode.exception.error.SandnodeErrorException;
-import net.result.sandnode.message.types.HappyMessage;
+import net.result.sandnode.message.util.MessageTypes;
 import net.result.sandnode.serverclient.SandnodeClient;
 import net.result.taulight.message.types.ReactionRequest;
 
@@ -20,14 +20,12 @@ public class ReactionRequestClientChain extends ClientChain {
     public synchronized void react(UUID messageID, String reaction)
             throws InterruptedException, ExpectedMessageException, SandnodeErrorException,
             UnknownSandnodeErrorException, UnprocessedMessagesException {
-        send(ReactionRequest.react(messageID, reaction));
-        new HappyMessage(receive());
+        sendAndReceive(ReactionRequest.react(messageID, reaction)).expect(MessageTypes.HAPPY);
     }
 
     public synchronized void unreact(UUID messageID, String reaction)
             throws InterruptedException, ExpectedMessageException, SandnodeErrorException,
             UnknownSandnodeErrorException, UnprocessedMessagesException {
-        send(ReactionRequest.unreact(messageID, reaction));
-        new HappyMessage(receive());
+        sendAndReceive(ReactionRequest.unreact(messageID, reaction)).expect(MessageTypes.HAPPY);
     }
 }

@@ -9,7 +9,6 @@ import net.result.sandnode.message.Message;
 import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.message.TextMessage;
 import net.result.sandnode.message.UUIDMessage;
-import net.result.sandnode.message.types.HappyMessage;
 import net.result.sandnode.message.util.MessageTypes;
 import net.result.sandnode.serverclient.SandnodeClient;
 import net.result.sandnode.util.FileIOUtil;
@@ -40,14 +39,13 @@ public class GroupClientChain extends ClientChain {
     public synchronized UUID sendNewGroupRequest(String title)
             throws InterruptedException, UnknownSandnodeErrorException, SandnodeErrorException,
             DeserializationException, UnprocessedMessagesException {
-        send(GroupRequest.newGroup(title));
-        return new UUIDMessage(receive()).uuid;
+        var raw = sendAndReceive(GroupRequest.newGroup(title));
+        return new UUIDMessage(raw).uuid;
     }
 
     public synchronized void sendLeaveRequest(UUID chatID) throws InterruptedException, ExpectedMessageException,
             SandnodeErrorException, UnknownSandnodeErrorException, UnprocessedMessagesException {
-        send(GroupRequest.leave(chatID));
-        new HappyMessage(receive());
+        sendAndReceive(GroupRequest.leave(chatID)).expect(MessageTypes.HAPPY);
     }
 
     public synchronized String createInviteCode(UUID chatID, String otherNickname, Duration expirationTime)
@@ -59,29 +57,23 @@ public class GroupClientChain extends ClientChain {
     public synchronized String createInviteCode(UUID chatID, String otherNickname, String expirationTime)
             throws InterruptedException, SandnodeErrorException, UnknownSandnodeErrorException,
             UnprocessedMessagesException {
-        send(GroupRequest.addMember(chatID, otherNickname, expirationTime));
-        return new TextMessage(receive()).content();
+        var raw = sendAndReceive(GroupRequest.addMember(chatID, otherNickname, expirationTime));
+        return new TextMessage(raw).content();
     }
 
     public synchronized Collection<CodeDTO> getGroupCodes(UUID chatID)
             throws InterruptedException, UnknownSandnodeErrorException, SandnodeErrorException,
             UnprocessedMessagesException, DeserializationException, ExpectedMessageException {
-        send(GroupRequest.groupCodes(chatID));
-
-        RawMessage raw = receive();
+        var raw = sendAndReceive(GroupRequest.groupCodes(chatID));
         raw.expect(TauMessageTypes.GROUP);
-
         return new CodeListMessage(raw).codes();
     }
 
     public synchronized Collection<CodeDTO> getMyCodes() throws InterruptedException,
             UnknownSandnodeErrorException, SandnodeErrorException, DeserializationException,
             UnprocessedMessagesException, ExpectedMessageException {
-        send(GroupRequest.myCodes());
-
-        RawMessage raw = receive();
+        var raw = sendAndReceive(GroupRequest.myCodes());
         raw.expect(TauMessageTypes.GROUP);
-
         return new CodeListMessage(raw).codes();
     }
 
@@ -109,9 +101,7 @@ public class GroupClientChain extends ClientChain {
         RawMessage raw = receive();
         raw.expect(MessageTypes.HAPPY);
 
-        UUIDMessage response = new UUIDMessage(raw);
-
-        return response.uuid;
+        return new UUIDMessage(raw).uuid;
     }
 
     public synchronized @Nullable FileDTO getAvatar(UUID chatID) throws UnprocessedMessagesException,

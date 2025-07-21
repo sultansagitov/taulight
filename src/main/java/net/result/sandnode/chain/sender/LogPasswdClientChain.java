@@ -7,7 +7,6 @@ import net.result.sandnode.exception.ExpectedMessageException;
 import net.result.sandnode.exception.UnknownSandnodeErrorException;
 import net.result.sandnode.exception.UnprocessedMessagesException;
 import net.result.sandnode.exception.error.SandnodeErrorException;
-import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.message.types.LogPasswdRequest;
 import net.result.sandnode.message.types.LogPasswdResponse;
 import net.result.sandnode.serverclient.SandnodeClient;
@@ -20,13 +19,7 @@ public class LogPasswdClientChain extends ClientChain {
     public LogPasswdResponseDTO getToken(String nickname, String password, String device)
             throws InterruptedException, SandnodeErrorException, ExpectedMessageException,
             UnknownSandnodeErrorException, UnprocessedMessagesException, DeserializationException {
-        LogPasswdRequest loginRequest = new LogPasswdRequest(nickname, password, device);
-        send(loginRequest);
-
-        RawMessage message = receive();
-
-        LogPasswdResponse loginResponse = new LogPasswdResponse(message);
-
-        return loginResponse.dto();
+        var raw = sendAndReceive(new LogPasswdRequest(nickname, password, device));
+        return new LogPasswdResponse(raw).dto();
     }
 }

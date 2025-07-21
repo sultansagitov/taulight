@@ -6,7 +6,6 @@ import net.result.sandnode.exception.UnknownSandnodeErrorException;
 import net.result.sandnode.exception.UnprocessedMessagesException;
 import net.result.sandnode.exception.error.SandnodeErrorException;
 import net.result.sandnode.message.EmptyMessage;
-import net.result.sandnode.message.types.HappyMessage;
 import net.result.sandnode.message.util.Headers;
 import net.result.sandnode.message.util.MessageTypes;
 import net.result.sandnode.serverclient.SandnodeClient;
@@ -18,7 +17,6 @@ public class LogoutClientChain extends ClientChain {
 
     public synchronized void logout() throws UnprocessedMessagesException, InterruptedException,
             ExpectedMessageException, UnknownSandnodeErrorException, SandnodeErrorException {
-        send(new EmptyMessage(new Headers().setType(MessageTypes.LOGOUT)));
-        new HappyMessage(receive());
+        sendAndReceive(new EmptyMessage(new Headers().setType(MessageTypes.LOGOUT))).expect(MessageTypes.HAPPY);
     }
 }

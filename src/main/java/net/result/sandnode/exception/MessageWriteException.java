@@ -1,9 +1,7 @@
 package net.result.sandnode.exception;
 
-import net.result.sandnode.message.Message;
-
-public class MessageWriteException extends SandnodeMessageException {
-    public MessageWriteException(Message snMessage, String message, Throwable e) {
-        super(snMessage, message, e);
+public class MessageWriteException extends SandnodeException {
+    public MessageWriteException(String message, Throwable e) {
+        super(message, e);
     }
 }

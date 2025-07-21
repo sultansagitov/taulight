@@ -20,7 +20,7 @@ import java.util.UUID;
 public class FileIOUtil {
     @FunctionalInterface
     public interface SendMethod {
-        void send(@NotNull Message request) throws UnprocessedMessagesException, InterruptedException;
+        void send(@NotNull Message ignored) throws UnprocessedMessagesException, InterruptedException;
     }
 
     @FunctionalInterface

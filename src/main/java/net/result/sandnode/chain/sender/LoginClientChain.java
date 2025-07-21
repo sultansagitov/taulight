@@ -34,13 +34,7 @@ public class LoginClientChain extends ClientChain {
 
     public synchronized List<LoginHistoryDTO> getHistory() throws UnprocessedMessagesException, InterruptedException,
             UnknownSandnodeErrorException, SandnodeErrorException, DeserializationException, ExpectedMessageException {
-        LoginRequest loginRequest = LoginRequest.history(new Headers());
-        send(loginRequest);
-
-        RawMessage raw = receive();
-
-        LoginHistoryResponse loginResponse = new LoginHistoryResponse(raw);
-
-        return loginResponse.history();
+        RawMessage raw = sendAndReceive(LoginRequest.history(new Headers()));
+        return new LoginHistoryResponse(raw).history();
     }
 }

@@ -16,7 +16,7 @@ public class UseCodeClientChain extends ClientChain {
 
     public void use(String code) throws InterruptedException, UnprocessedMessagesException, ExpectedMessageException,
             UnknownSandnodeErrorException, SandnodeErrorException {
-        send(new UseCodeRequest(code));
-        new HappyMessage(receive());
+        var raw = sendAndReceive(new UseCodeRequest(code));
+        new HappyMessage(raw);
     }
 }

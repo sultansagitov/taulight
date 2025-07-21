@@ -24,14 +24,11 @@ public class ForwardRequestClientChain extends ClientChain {
     public synchronized UUID message(ChatMessageInputDTO input)
             throws InterruptedException, DeserializationException, ExpectedMessageException,
             UnknownSandnodeErrorException, UnprocessedMessagesException, SandnodeErrorException {
-        send(new ForwardRequest(input));
-
-        RawMessage uuidRaw = receive();
+        RawMessage uuidRaw = sendAndReceive(new ForwardRequest(input));
         uuidRaw.expect(MessageTypes.HAPPY);
         UUID uuid = new UUIDMessage(uuidRaw).uuid;
 
-        RawMessage happyRaw = receive();
-        new HappyMessage(happyRaw);
+        new HappyMessage(receive());
 
         return uuid;
     }

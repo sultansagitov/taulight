@@ -23,14 +23,14 @@ public class ChatClientChain extends ClientChain {
     public synchronized Collection<ChatInfoDTO> getByMember(Collection<ChatInfoPropDTO> infoProps)
             throws InterruptedException, DeserializationException, ExpectedMessageException, SandnodeErrorException,
             UnknownSandnodeErrorException, UnprocessedMessagesException {
-        send(ChatRequest.getByMember(infoProps));
-        return new ChatResponse(receive()).getInfos();
+        var raw = sendAndReceive(ChatRequest.getByMember(infoProps));
+        return new ChatResponse(raw).getInfos();
     }
 
     public synchronized Collection<ChatInfoDTO> getByID(Collection<UUID> chatID, Collection<ChatInfoPropDTO> infoProps)
             throws InterruptedException, ExpectedMessageException, UnknownSandnodeErrorException,
             SandnodeErrorException, DeserializationException, UnprocessedMessagesException {
-        send(ChatRequest.getByID(chatID, infoProps));
-        return new ChatResponse(receive()).getInfos();
+        var raw = sendAndReceive(ChatRequest.getByID(chatID, infoProps));
+        return new ChatResponse(raw).getInfos();
     }
 }

@@ -1,30 +1,35 @@
 package net.result.sandnode.serverclient;
 
+import net.result.sandnode.util.IOController;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadFactory;
-import java.util.concurrent.TimeUnit;
+import java.util.Comparator;
+import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.ToLongFunction;
 
-public final class ExecutorServiceResource implements AutoCloseable {
-    ThreadFactory decryptorThreadFactory = new ThreadFactory() {
-        private final AtomicInteger count = new AtomicInteger(1);
-
-        @Override
-        public Thread newThread(@NotNull Runnable r) {
-            Thread thread = new Thread(r);
-            thread.setName("Decryptor-Worker-" + count.getAndIncrement());
-            thread.setDaemon(true);
-            return thread;
-        }
-    };
-
+public class ExecutorServiceResource<T> implements AutoCloseable {
+    private static final Logger LOGGER = LogManager.getLogger(ExecutorServiceResource.class);
+    public final BlockingQueue<T> queue;
     private final ExecutorService executor;
 
-    public ExecutorServiceResource() {
-        executor = Executors.newCachedThreadPool(decryptorThreadFactory);
+    public ExecutorServiceResource(IOController io, final String thrName, int nThreads, ToLongFunction<T> sequence) {
+        queue = new PriorityBlockingQueue<>(10, Comparator.comparingLong(sequence));
+
+        ThreadFactory factory = new ThreadFactory() {
+            private final AtomicInteger count = new AtomicInteger(1);
+
+            @Override
+            public Thread newThread(@NotNull Runnable r) {
+                Thread thread = new Thread(r);
+                thread.setName("%s/%s-Worker-%d".formatted(io.addressFromSocket(), thrName, count.getAndIncrement()));
+                thread.setDaemon(true);
+                return thread;
+            }
+        };
+        executor = Executors.newFixedThreadPool(nThreads, factory);
     }
 
     public ExecutorService executor() {
@@ -45,5 +50,16 @@ public final class ExecutorServiceResource implements AutoCloseable {
             executor.shutdownNow();
             Thread.currentThread().interrupt();
         }
+    }
+
+    public void submit(Callable<T> callable) {
+        executor.submit(() -> {
+            try {
+                T t = callable.call();
+                queue.add(t);
+            } catch (Exception e) {
+                LOGGER.error("Result not added to queue", e);
+            }
+        });
     }
 }
