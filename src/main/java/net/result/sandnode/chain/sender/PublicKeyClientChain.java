@@ -18,10 +18,7 @@ public class PublicKeyClientChain extends ClientChain {
 
     public void getPublicKey() throws InterruptedException, ExpectedMessageException, SandnodeErrorException,
             UnknownSandnodeErrorException, CryptoException, UnprocessedMessagesException {
-        send(new PublicKeyRequest());
-
-        RawMessage response = receive();
-
+        RawMessage response = sendAndReceive(new PublicKeyRequest());
         PublicKeyResponse publicKeyResponse = new PublicKeyResponse(response);
         io.setServerKey(publicKeyResponse.keyStorage);
     }

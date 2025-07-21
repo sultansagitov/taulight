@@ -87,9 +87,7 @@ public class ForwardRequestServerChain extends ServerChain implements ReceiverCh
 
             TauHubProtocol.send(session, chat, viewDTO);
 
-            send(new HappyMessage());
-
-            raw = receive();
+            raw = sendAndReceive(new HappyMessage());
         }
     }
 }

@@ -5,7 +5,6 @@ import net.result.sandnode.chain.ReceiverChain;
 import net.result.sandnode.dto.DEKDTO;
 import net.result.sandnode.encryption.interfaces.KeyStorage;
 import net.result.sandnode.error.Errors;
-import net.result.sandnode.exception.SandnodeException;
 import net.result.sandnode.exception.error.KeyStorageNotFoundException;
 import net.result.sandnode.hubagent.Agent;
 import net.result.sandnode.message.Message;
@@ -26,7 +25,7 @@ public abstract class ForwardClientChain extends ClientChain implements Receiver
     }
 
     @Override
-    public Message handle(RawMessage request) throws SandnodeException, InterruptedException {
+    public Message handle(RawMessage request) throws Exception {
         ForwardResponse response = new ForwardResponse(request);
         ChatMessageViewDTO view = response.getServerMessage();
         ChatMessageInputDTO input = view.message;
@@ -38,8 +37,8 @@ public abstract class ForwardClientChain extends ClientChain implements Receiver
             try {
                 keyStorage = agent.config.loadDEK(client.address, input.keyID);
             } catch (KeyStorageNotFoundException e) {
-                send(new ErrorMessage(Errors.KEY_NOT_FOUND));
-                DEKDTO dto = new DEKListMessage(receive()).list().get(0);
+                RawMessage raw = sendAndReceive(new ErrorMessage(Errors.KEY_NOT_FOUND));
+                DEKDTO dto = new DEKListMessage(raw).list().get(0);
                 keyStorage = dto.decrypt(agent.config.loadPersonalKey(client.address, dto.encryptorID));
                 agent.config.saveDEK(client.address, input.nickname, dto.id, keyStorage);
             }

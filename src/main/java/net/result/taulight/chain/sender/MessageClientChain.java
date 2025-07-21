@@ -7,6 +7,7 @@ import net.result.sandnode.exception.ExpectedMessageException;
 import net.result.sandnode.exception.UnknownSandnodeErrorException;
 import net.result.sandnode.exception.UnprocessedMessagesException;
 import net.result.sandnode.exception.error.SandnodeErrorException;
+import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.serverclient.SandnodeClient;
 import net.result.taulight.dto.ChatMessageViewDTO;
 import net.result.taulight.message.types.MessageRequest;
@@ -22,7 +23,7 @@ public class MessageClientChain extends ClientChain {
     public synchronized PaginatedDTO<ChatMessageViewDTO> getMessages(UUID chatID, int index, int size)
             throws InterruptedException, DeserializationException, ExpectedMessageException, SandnodeErrorException,
             UnknownSandnodeErrorException, UnprocessedMessagesException {
-        send(new MessageRequest(chatID, index, size));
-        return new MessageResponse(receive()).getPaginated();
+        RawMessage raw = sendAndReceive(new MessageRequest(chatID, index, size));
+        return new MessageResponse(raw).getPaginated();
     }
 }

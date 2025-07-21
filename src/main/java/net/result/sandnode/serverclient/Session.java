@@ -4,7 +4,6 @@ import net.result.sandnode.chain.ServerChainManager;
 import net.result.sandnode.cluster.Cluster;
 import net.result.sandnode.db.LoginEntity;
 import net.result.sandnode.db.MemberEntity;
-import net.result.sandnode.exception.SandnodeException;
 import net.result.sandnode.util.Address;
 import net.result.sandnode.util.IOController;
 import net.result.sandnode.util.Logout;
@@ -35,7 +34,7 @@ public class Session {
         new Thread(() -> {
             try {
                 Sender.sendingLoop(io);
-            } catch (InterruptedException | SandnodeException e) {
+            } catch (Exception e) {
                 if (io.isConnected()) {
                     LOGGER.error("Error sending message", e);
                 }

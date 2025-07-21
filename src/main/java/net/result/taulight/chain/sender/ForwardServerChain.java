@@ -13,6 +13,7 @@ import net.result.sandnode.exception.error.SandnodeErrorException;
 import net.result.sandnode.exception.error.ServerErrorException;
 import net.result.sandnode.message.types.DEKListMessage;
 import net.result.sandnode.message.types.HappyMessage;
+import net.result.sandnode.message.util.MessageTypes;
 import net.result.sandnode.serverclient.Session;
 import net.result.taulight.message.types.ForwardResponse;
 
@@ -37,9 +38,7 @@ public class ForwardServerChain extends ServerChain {
             UUID keyID = res.getServerMessage().message.keyID;
             Optional<EncryptedKeyEntity> opt = encryptedKeyRepo.find(keyID);
             EncryptedKeyEntity entity = opt.orElseThrow(ServerErrorException::new);
-            send(new DEKListMessage(List.of(new DEKDTO(entity))));
-
-            new HappyMessage(receive());
+            sendAndReceive(new DEKListMessage(List.of(new DEKDTO(entity)))).expect(MessageTypes.HAPPY);
         }
     }
 }

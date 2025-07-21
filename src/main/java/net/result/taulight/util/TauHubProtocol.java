@@ -56,7 +56,6 @@ public class TauHubProtocol {
 
         ExecutorService executorService = null;
         try {
-            //noinspection resource
             executorService = Executors.newFixedThreadPool(10);
             List<Future<?>> futures = new ArrayList<>();
 

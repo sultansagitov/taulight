@@ -5,7 +5,6 @@ import net.result.sandnode.config.ClientConfig;
 import net.result.sandnode.exception.ConnectionException;
 import net.result.sandnode.exception.InputStreamException;
 import net.result.sandnode.exception.OutputStreamException;
-import net.result.sandnode.exception.SandnodeException;
 import net.result.sandnode.hubagent.Node;
 import net.result.sandnode.link.SandnodeLinkRecord;
 import net.result.sandnode.message.util.Connection;
@@ -90,21 +89,20 @@ public class SandnodeClient {
             Connection connection = Connection.fromType(node.type(), nodeType);
             io = new IOController(socket, connection, node.keyStorageRegistry, chainManager);
 
-            String sendingThreadName = "Client/%s/Sending".formatted(IOController.addressFromSocket(socket));
             Thread sendingThread = new Thread(() -> {
                 try {
                     Sender.sendingLoop(io);
-                } catch (InterruptedException | SandnodeException e) {
+                } catch (Exception e) {
                     if (io.isConnected()) {
                         LOGGER.error("Error sending message", e);
                     }
                     Thread.currentThread().interrupt();
                 }
-            }, sendingThreadName);
+            });
+            sendingThread.setName("C/%s/Send".formatted(IOController.addressFromSocket(socket)));
             sendingThread.setDaemon(true);
             sendingThread.start();
 
-            String receivingThreadName = "Client/%s/Receiving".formatted(IOController.addressFromSocket(socket));
             Thread receivingThread = new Thread(() -> {
                 try {
                     Receiver.receivingLoop(io);
@@ -115,7 +113,8 @@ public class SandnodeClient {
                     close();
                     Thread.currentThread().interrupt();
                 }
-            }, receivingThreadName);
+            });
+            receivingThread.setName("C/%s/Rec".formatted(IOController.addressFromSocket(socket)));
             receivingThread.setDaemon(true);
             receivingThread.start();
 

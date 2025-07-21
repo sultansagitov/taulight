@@ -63,7 +63,10 @@ public class SandnodeServer {
             String ip = IOController.addressFromSocket(clientSocket).toString();
             LOGGER.info("Client connected {}", ip);
 
-            sessionExecutor.submit(() -> SessionHandler.handle(this, ip, clientSocket));
+            sessionExecutor.submit(() -> {
+                Thread.currentThread().setName(ip);
+                SessionHandler.handle(this, ip, clientSocket);
+            });
         }
 
         sessionExecutor.shutdown();

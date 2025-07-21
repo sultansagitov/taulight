@@ -1,6 +1,5 @@
 package net.result.sandnode.serverclient;
 
-import net.result.sandnode.exception.SandnodeException;
 import net.result.sandnode.message.EncryptedMessage;
 import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.message.util.Connection;
@@ -16,8 +15,6 @@ public class SessionHandler {
     private static final Logger LOGGER = LogManager.getLogger(SessionHandler.class);
 
     static void handle(SandnodeServer server, String ip, Socket clientSocket) {
-        Thread.currentThread().setName(ip);
-
         try {
             InputStream inputStream = StreamReader.inputStream(clientSocket);
             EncryptedMessage encrypted = EncryptedMessage.readMessage(inputStream);
@@ -26,7 +23,7 @@ public class SessionHandler {
             Session session = server.createSession(clientSocket, conn.getOpposite());
             session.io.chainManager.distributeMessage(request);
             session.start();
-        } catch (SandnodeException | InterruptedException e) {
+        } catch (Exception e) {
             LOGGER.error("Error handling session for client {}: {}", ip, e.getMessage(), e);
         }
     }

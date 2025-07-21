@@ -116,6 +116,12 @@ public abstract class BaseChain implements Chain {
         sendIgnoreQueue(message);
     }
 
+    protected RawMessage sendAndReceive(Message message) throws UnprocessedMessagesException, InterruptedException,
+            UnknownSandnodeErrorException, SandnodeErrorException {
+        send(message);
+        return receive();
+    }
+
     @Override
     public int compareTo(@NotNull Chain chain) {
         return compareID(chain.getID());

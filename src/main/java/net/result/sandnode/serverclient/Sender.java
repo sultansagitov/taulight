@@ -1,12 +1,12 @@
 package net.result.sandnode.serverclient;
 
 import net.result.sandnode.encryption.Encryptions;
+import net.result.sandnode.encryption.KeyStorageRegistry;
 import net.result.sandnode.error.Errors;
 import net.result.sandnode.error.SandnodeError;
 import net.result.sandnode.exception.IllegalMessageLengthException;
 import net.result.sandnode.exception.MessageSerializationException;
 import net.result.sandnode.exception.MessageWriteException;
-import net.result.sandnode.exception.crypto.CryptoException;
 import net.result.sandnode.exception.error.EncryptionException;
 import net.result.sandnode.exception.error.KeyStorageNotFoundException;
 import net.result.sandnode.message.Message;
@@ -21,104 +21,69 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.util.concurrent.*;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
 public class Sender {
     private static final Logger LOGGER = LogManager.getLogger(Sender.class);
+    private static final int POOL_SIZE = 10;
 
-    // Custom thread factory to name encryption threads
-    private static final ThreadFactory encryptionThreadFactory = new ThreadFactory() {
-        private final AtomicInteger count = new AtomicInteger(1);
+    private record EncryptionResult(long sequence, byte[] encryptedBytes, Message originalMessage) { }
 
-        @Override
-        public Thread newThread(@NotNull Runnable r) {
-            Thread thread = new Thread(r);
-            thread.setName("Encryption-Worker-" + count.getAndIncrement());
-            thread.setDaemon(true);
-            return thread;
-        }
-    };
+    public static void sendingLoop(@NotNull IOController io) throws InterruptedException, MessageWriteException {
+        try (var executorResource = new ExecutorServiceResource<>(io, "Encryptor", POOL_SIZE, EncryptionResult::sequence)) {
+            var sequenceGenerator = new AtomicLong(0);
+            var resultsMap = new ConcurrentSkipListMap<Long, EncryptionResult>();
 
-    private static final ExecutorService encryptionPool = Executors.newFixedThreadPool(10, encryptionThreadFactory);
+            Thread producer = new Thread(() -> {
+                try {
+                    while (io.connected) {
+                        Message message = io.sendingQueue.take();
+                        long sequence = sequenceGenerator.getAndIncrement();
 
-    // Helper class to store encrypted message with its sequence
-    private static class EncryptionResult {
-        final long sequence;
-        final byte[] encryptedBytes;
-        final Message originalMessage;
-
-        public EncryptionResult(long sequence, byte[] encryptedBytes, Message message) {
-            this.sequence = sequence;
-            this.encryptedBytes = encryptedBytes;
-            this.originalMessage = message;
-        }
-    }
-
-    public static void sendingLoop(IOController io)
-            throws InterruptedException, CryptoException, MessageWriteException {
-        AtomicLong sequenceGenerator = new AtomicLong(0);
-        ConcurrentSkipListMap<Long, EncryptionResult> resultsMap = new ConcurrentSkipListMap<>();
-        CompletionService<EncryptionResult> completionService = new ExecutorCompletionService<>(encryptionPool);
-
-        // Dispatcher thread to fetch messages and submit encryption tasks
-        Thread dispatcher = new Thread(() -> {
-            try {
-                while (io.connected) {
-                    Message message = io.sendingQueue.take();
-                    beforeSending(io, message);
-                    long sequence = sequenceGenerator.getAndIncrement();
-
-                    completionService.submit(() -> {
-                        try {
-                            byte[] byteArray = MessageUtil.encryptMessage(message, io.keyStorageRegistry).toByteArray();
-                            return new EncryptionResult(sequence, byteArray, message);
-                        } catch (Exception e) {
-                            LOGGER.error("Encryption failed", e);
-                            ErrorMessage errorMessage = new ErrorMessage(getErrorForException(e));
-                            errorMessage.setHeadersEncryption(message.headersEncryption());
-                            errorMessage.headers()
-                                    .setBodyEncryption(message.headers().bodyEncryption())
-                                    .setChainID(message.headers().chainID())
-                                    .setConnection(message.headers().connection());
-                            byte[] byteArray = MessageUtil.encryptMessage(errorMessage, io.keyStorageRegistry).toByteArray();
-                            return new EncryptionResult(sequence, byteArray, errorMessage);
-                        }
-                    });
+                        executorResource.submit(() -> {
+                            beforeSending(io, message);
+                            KeyStorageRegistry ksr = io.keyStorageRegistry;
+                            try {
+                                byte[] bytes = MessageUtil.encryptMessage(message, ksr).toByteArray();
+                                return new EncryptionResult(sequence, bytes, message);
+                            } catch (Exception e) {
+                                LOGGER.error("Encryption failed", e);
+                                Message fallback = createErrorMessage(e, message);
+                                byte[] fallbackBytes = MessageUtil.encryptMessage(fallback, ksr).toByteArray();
+                                return new EncryptionResult(sequence, fallbackBytes, fallback);
+                            }
+                        });
+                    }
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
                 }
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-            }
-        });
-        dispatcher.setName("Encryption-Dispatcher");
-        dispatcher.start();
+            }, "Encryption-Producer");
 
-        long nextSequenceToSend = 0;
+            producer.setDaemon(true);
+            producer.start();
 
-        while (io.connected) {
-            try {
-                Future<EncryptionResult> future = completionService.take(); // blocks until result is ready
-                EncryptionResult result = future.get(); // handles exceptions below
+            long nextSequenceToSend = 0;
+
+            while (io.connected) {
+                EncryptionResult result = executorResource.queue.take();
+
                 resultsMap.put(result.sequence, result);
 
-                // Send in sequence
                 while (resultsMap.containsKey(nextSequenceToSend)) {
                     EncryptionResult toSend = resultsMap.remove(nextSequenceToSend);
-                    io.out.write(toSend.encryptedBytes);
-                    io.out.flush();
-                    LOGGER.info("Message sent: {}", toSend.originalMessage);
-                    nextSequenceToSend++;
+                    try {
+                        io.out.write(toSend.encryptedBytes);
+                        io.out.flush();
+                        LOGGER.info("Sent {}", toSend.originalMessage);
+                        nextSequenceToSend++;
+                    } catch (IOException e) {
+                        throw new MessageWriteException("Failed to write encrypted message", e);
+                    }
                 }
-
-            } catch (ExecutionException e) {
-                LOGGER.error("Failed to encrypt message: {}", e.getCause().getMessage(), e.getCause());
-            } catch (IOException e) {
-                throw new MessageWriteException(null, "Failed to write encrypted message", e);
             }
-        }
 
-        encryptionPool.shutdownNow();
-        dispatcher.join();
+            producer.join();
+        }
     }
 
     private static void beforeSending(IOController io, Message message) {
@@ -131,6 +96,16 @@ public class Sender {
             headers.setBodyEncryption(io.currentEncryption());
         }
         headers.setValue("random", RandomUtil.getRandomString());
+    }
+
+    private static Message createErrorMessage(Exception e, Message original) {
+        ErrorMessage errorMessage = new ErrorMessage(getErrorForException(e));
+        errorMessage.setHeadersEncryption(original.headersEncryption());
+        errorMessage.headers()
+                .setBodyEncryption(original.headers().bodyEncryption())
+                .setChainID(original.headers().chainID())
+                .setConnection(original.headers().connection());
+        return errorMessage;
     }
 
     private static SandnodeError getErrorForException(Exception e) {

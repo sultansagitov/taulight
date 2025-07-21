@@ -10,6 +10,7 @@ import net.result.sandnode.exception.crypto.CryptoException;
 import net.result.sandnode.exception.crypto.EncryptionTypeException;
 import net.result.sandnode.exception.crypto.NoSuchEncryptionException;
 import net.result.sandnode.exception.error.SandnodeErrorException;
+import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.message.UUIDMessage;
 import net.result.sandnode.message.types.DEKListMessage;
 import net.result.sandnode.message.types.DEKRequest;
@@ -27,8 +28,8 @@ public class DEKClientChain extends ClientChain {
     public UUID sendDEK(String nickname, KeyDTO encryptor, KeyStorage keyStorage)
             throws InterruptedException, SandnodeErrorException, UnknownSandnodeErrorException,
             UnprocessedMessagesException, CryptoException, DeserializationException {
-        send(DEKRequest.send(nickname, encryptor, keyStorage));
-        return new UUIDMessage(receive()).uuid;
+        RawMessage raw = sendAndReceive(DEKRequest.send(nickname, encryptor, keyStorage));
+        return new UUIDMessage(raw).uuid;
     }
 
     public UUID sendDEK(String nickname, UUID encryptorID, KeyStorage keyStorage)
@@ -40,15 +41,15 @@ public class DEKClientChain extends ClientChain {
 
     public Collection<DEKDTO> get() throws UnprocessedMessagesException, InterruptedException,
             UnknownSandnodeErrorException, SandnodeErrorException, ExpectedMessageException, DeserializationException {
-        send(DEKRequest.get());
-        return new DEKListMessage(receive()).list();
+        RawMessage raw = sendAndReceive(DEKRequest.get());
+        return new DEKListMessage(raw).list();
     }
 
     public KeyDTO getKeyOf(String nickname) throws ExpectedMessageException, InterruptedException,
             UnknownSandnodeErrorException, SandnodeErrorException, UnprocessedMessagesException,
             EncryptionTypeException, NoSuchEncryptionException, CreatingKeyException, StorageException {
-        send(DEKRequest.getPersonalKeyOf(nickname));
-        KeyDTO key = PublicKeyResponse.getKeyDTO(receive());
+        RawMessage raw = sendAndReceive(DEKRequest.getPersonalKeyOf(nickname));
+        KeyDTO key = PublicKeyResponse.getKeyDTO(raw);
 
         client.node.agent().config.saveEncryptor(client.address, nickname, key.keyID(), key.keyStorage());
 

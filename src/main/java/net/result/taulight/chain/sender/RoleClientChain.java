@@ -20,21 +20,18 @@ public class RoleClientChain extends ClientChain {
 
     public synchronized RolesDTO getRoles(UUID chatID) throws UnprocessedMessagesException, InterruptedException,
             UnknownSandnodeErrorException, SandnodeErrorException, DeserializationException, ExpectedMessageException {
-        send(RoleRequest.getRoles(chatID));
-        return new RoleResponse(receive()).roles();
+        var raw = sendAndReceive(RoleRequest.getRoles(chatID));
+        return new RoleResponse(raw).roles();
     }
 
     public synchronized void addRole(UUID chatID, String roleName) throws UnprocessedMessagesException,
             InterruptedException, UnknownSandnodeErrorException, SandnodeErrorException {
-        send(RoleRequest.addRole(chatID, roleName));
-        receive();
+        sendAndReceive(RoleRequest.addRole(chatID, roleName));
     }
 
     public synchronized void assignRole(UUID chatID, String nickname, String roleName)
             throws UnprocessedMessagesException, InterruptedException, UnknownSandnodeErrorException,
             SandnodeErrorException {
-        send(RoleRequest.assignRole(chatID, roleName, nickname));
-
-        receive();
+        sendAndReceive(RoleRequest.assignRole(chatID, roleName, nickname));
     }
 }
