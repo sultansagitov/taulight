@@ -40,7 +40,7 @@ import java.net.Socket;
  * client.start(chainManager);
  * }</pre>
  */
-public class SandnodeClient {
+public class SandnodeClient implements Peer {
     private static final Logger LOGGER = LogManager.getLogger(SandnodeClient.class);
 
     public final Address address;
@@ -105,7 +105,7 @@ public class SandnodeClient {
 
             Thread receivingThread = new Thread(() -> {
                 try {
-                    Receiver.receivingLoop(io);
+                    Receiver.receivingLoop(io, this);
                 } catch (Exception e) {
                     if (io.isConnected()) {
                         LOGGER.error("Error receiving message", e);
@@ -125,6 +125,7 @@ public class SandnodeClient {
         }
     }
 
+    @Override
     public void close() {
         try {
             if (socket != null) {

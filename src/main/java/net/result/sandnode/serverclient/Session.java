@@ -15,7 +15,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Collection;
 import java.util.HashSet;
 
-public class Session {
+public class Session implements Peer {
     private static final Logger LOGGER = LogManager.getLogger(Session.class);
     private final Collection<Cluster> clusters = new HashSet<>();
     public final SandnodeServer server;
@@ -45,7 +45,7 @@ public class Session {
 
         new Thread(() -> {
             try {
-                Receiver.receivingLoop(io);
+                Receiver.receivingLoop(io, this);
             } catch (Exception e) {
                 LOGGER.error("Error receiving message", e);
             }
@@ -84,6 +84,7 @@ public class Session {
         return clusters;
     }
 
+    @Override
     public void close() {
         clusters.forEach(cluster -> cluster.remove(this));
     }

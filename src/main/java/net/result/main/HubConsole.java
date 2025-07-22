@@ -44,7 +44,7 @@ public class HubConsole {
         printAvailable();
 
         Scanner scanner = new Scanner(System.in);
-        while (running) {
+        while (running && !server.serverSocket.isClosed()) {
             System.out.print("> ");
             String input = scanner.nextLine().trim();
             if (input.isEmpty()) continue;
