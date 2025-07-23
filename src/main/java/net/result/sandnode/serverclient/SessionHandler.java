@@ -21,7 +21,7 @@ public class SessionHandler {
             RawMessage request = MessageUtil.decryptMessage(encrypted, server.node.keyStorageRegistry);
             Connection conn = request.headers().connection();
             Session session = server.createSession(clientSocket, conn.getOpposite());
-            session.io.chainManager.distributeMessage(request);
+            session.io().chainManager.distributeMessage(request);
             session.start();
         } catch (Exception e) {
             LOGGER.error("Error handling session for client {}: {}", ip, e.getMessage(), e);

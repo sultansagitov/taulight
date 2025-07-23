@@ -29,7 +29,7 @@ public abstract class LogPasswdServerChain extends ServerChain implements Receiv
         Tokenizer tokenizer = session.server.container.get(Tokenizer.class);
         LoginRepository loginRepo = session.server.container.get(LoginRepository.class);
         MemberRepository memberRepo = session.server.container.get(MemberRepository.class);
-        Hub hub = session.server.node.hub();
+        Hub hub = session.node().hub();
         PasswordHasher hasher = hub.config.hasher();
 
         MemberEntity member = memberRepo
@@ -41,7 +41,7 @@ public abstract class LogPasswdServerChain extends ServerChain implements Receiv
             throw new UnauthorizedException();
         }
 
-        String ip = session.io.socket.getInetAddress().getHostAddress();
+        String ip = session.io().socket.getInetAddress().getHostAddress();
 
         KeyStorageEntity keyEntity = member.publicKey();
         AsymmetricEncryption encryption = keyEntity.encryption().asymmetric();

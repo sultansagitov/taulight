@@ -6,7 +6,7 @@ public abstract class ServerChain extends BaseChain {
     protected final Session session;
 
     public ServerChain(Session session) {
-        super(session.io);
+        super(session.io());
         this.session = session;
     }
 }

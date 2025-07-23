@@ -59,7 +59,7 @@ public class RunAgentWork implements Work {
 
         // get key from fs or sending PUB if key not found
         final var serverKey = AgentProtocol.loadOrFetchServerKey(client, link);
-        client.io.setServerKey(serverKey);
+        client.io().setServerKey(serverKey);
 
         // sending symmetric key
         ClientProtocol.sendSYM(client);
@@ -105,7 +105,7 @@ public class RunAgentWork implements Work {
             var result = AgentProtocol.register(client, nickname, password, device, keyStorage);
             System.out.printf("Token for \"%s\":%n%s%n", nickname, result.token);
 
-            client.node.agent().config.savePersonalKey(client.address, result.keyID, keyStorage);
+            client.node().agent().config.savePersonalKey(client.address, result.keyID, keyStorage);
             context = new ConsoleContext(client, nickname, result.keyID);
         } catch (BusyNicknameException e) {
             System.out.println("Nickname is busy");
@@ -170,7 +170,7 @@ public class RunAgentWork implements Work {
         if (context.chat.chatType == ChatInfoDTO.ChatType.DIALOG) {
             try {
                 String otherNickname = context.chat.otherNickname;
-                KeyEntry dek = client.node.agent().config.loadDEK(client.address, otherNickname);
+                KeyEntry dek = client.node().agent().config.loadDEK(client.address, otherNickname);
 
                 LOGGER.debug("Using {} {}", dek.id(), dek.keyStorage());
 
@@ -256,7 +256,7 @@ public class RunAgentWork implements Work {
         }
 
         if (context.chain != null) {
-            client.io.chainManager.removeChain(context.chain);
+            client.io().chainManager.removeChain(context.chain);
             context.chain = null;
         }
     }

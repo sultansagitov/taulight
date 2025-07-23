@@ -33,18 +33,18 @@ public class AgentProtocol {
             ProtocolException {
 
         RegistrationClientChain chain = new RegistrationClientChain(client);
-        client.io.chainManager.linkChain(chain);
+        client.io().chainManager.linkChain(chain);
         RegistrationResponseDTO dto = chain.register(nickname, password, device, keyStorage);
-        client.io.chainManager.removeChain(chain);
+        client.io().chainManager.removeChain(chain);
         return dto;
     }
 
     public static LoginResponseDTO byToken(SandnodeClient client, String token)
             throws InterruptedException, SandnodeErrorException, DeserializationException, ProtocolException {
         LoginClientChain chain = new LoginClientChain(client);
-        client.io.chainManager.linkChain(chain);
+        client.io().chainManager.linkChain(chain);
         LoginResponseDTO dto = chain.login(token);
-        client.io.chainManager.removeChain(chain);
+        client.io().chainManager.removeChain(chain);
 
         return dto;
     }
@@ -56,9 +56,9 @@ public class AgentProtocol {
             String device
     ) throws InterruptedException, SandnodeErrorException, ProtocolException, DeserializationException {
         LogPasswdClientChain chain = new LogPasswdClientChain(client);
-        client.io.chainManager.linkChain(chain);
+        client.io().chainManager.linkChain(chain);
         LogPasswdResponseDTO token = chain.getToken(nickname, password, device);
-        client.io.chainManager.removeChain(chain);
+        client.io().chainManager.removeChain(chain);
         return token;
     }
 
@@ -66,7 +66,7 @@ public class AgentProtocol {
             throws CryptoException, LinkDoesNotMatchException, InterruptedException, SandnodeErrorException,
             ExpectedMessageException, UnknownSandnodeErrorException, UnprocessedMessagesException, StorageException {
 
-        Agent agent = client.node.agent();
+        Agent agent = client.node().agent();
 
         AsymmetricKeyStorage filePublicKey = null;
         try {
@@ -91,7 +91,7 @@ public class AgentProtocol {
         if (filePublicKey != null) return filePublicKey;
 
         ClientProtocol.PUB(client);
-        AsymmetricEncryption encryption = client.io.serverEncryption().asymmetric();
+        AsymmetricEncryption encryption = client.io().serverEncryption().asymmetric();
         AsymmetricKeyStorage serverKey = agent.keyStorageRegistry.asymmetricNonNull(encryption);
 
         agent.config.saveServerKey(link.address(), serverKey);

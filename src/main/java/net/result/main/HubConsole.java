@@ -78,10 +78,10 @@ public class HubConsole {
                 .forEach(session -> {
                     try {
                         System.out.println("Sending exit message");
-                        ExitChain chain = new ExitChain(session.io);
-                        session.io.chainManager.linkChain(chain);
+                        ExitChain chain = new ExitChain(session.io());
+                        session.io().chainManager.linkChain(chain);
                         chain.exit();
-                        session.io.chainManager.removeChain(chain);
+                        session.io().chainManager.removeChain(chain);
                     } catch (Exception e) {
                         LOGGER.warn("Error while closing connection", e);
                     }
@@ -118,7 +118,7 @@ public class HubConsole {
         Stream<Session> concat = Stream.concat(server.getHubs().stream(), server.getAgents().stream());
         for (Session session : concat.toList()) {
             System.out.println(session);
-            for (Chain chain : session.io.chainManager.storage().getAll()) {
+            for (Chain chain : session.io().chainManager.storage().getAll()) {
                 System.out.println(chain);
             }
         }

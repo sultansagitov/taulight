@@ -37,7 +37,7 @@ public abstract class BaseMessage implements Message {
                     headers().type().name(),
                     headers().connection().name(),
                     headers().chainID(),
-                    headers().keys(),
+                    headers().count(),
                     headers().bodyEncryption().name(),
                     getBody().length
             );

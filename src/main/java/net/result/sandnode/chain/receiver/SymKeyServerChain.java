@@ -24,7 +24,7 @@ public class SymKeyServerChain extends ServerChain implements ReceiverChain {
     public HappyMessage handle(RawMessage raw) throws EncryptionTypeException, NoSuchEncryptionException,
             ExpectedMessageException, DataNotEncryptedException {
         SymMessage message = new SymMessage(raw);
-        session.io.setClientKey(message.symmetricKeyStorage);
+        session.io().setClientKey(message.symmetricKeyStorage);
         LOGGER.info("Symmetric key initialized");
 
         return new HappyMessage();

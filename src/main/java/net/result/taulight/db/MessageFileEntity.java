@@ -6,6 +6,7 @@ import jakarta.persistence.OneToOne;
 import net.result.sandnode.db.BaseEntity;
 import net.result.sandnode.db.FileEntity;
 
+@SuppressWarnings("unused")
 @Entity
 public class MessageFileEntity extends BaseEntity {
     private String originalName;
@@ -19,7 +20,6 @@ public class MessageFileEntity extends BaseEntity {
     @OneToOne
     private FileEntity file;
 
-    @SuppressWarnings("unused")
     public MessageFileEntity() {
         super();
     }

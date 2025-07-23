@@ -22,7 +22,7 @@ public class PublicKeyServerChain extends ServerChain implements ReceiverChain {
         AsymmetricEncryption encryption = session.server.serverConfig.mainEncryption();
         AsymmetricKeyStorage asymmetricKeyStorage;
         try {
-            asymmetricKeyStorage = session.server.node.keyStorageRegistry.asymmetricNonNull(encryption);
+            asymmetricKeyStorage = session.node().keyStorageRegistry.asymmetricNonNull(encryption);
         } catch (KeyStorageNotFoundException e) {
             throw new ServerErrorException(e);
         } catch (EncryptionTypeException e) {

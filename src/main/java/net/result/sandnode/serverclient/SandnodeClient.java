@@ -43,12 +43,12 @@ import java.net.Socket;
 public class SandnodeClient implements Peer {
     private static final Logger LOGGER = LogManager.getLogger(SandnodeClient.class);
 
+    private final Node node;
+    private IOController io;
+
     public final Address address;
-    public final Node node;
     public final NodeType nodeType;
     public final ClientConfig config;
-
-    public IOController io;
     public Socket socket;
 
     /**
@@ -91,7 +91,7 @@ public class SandnodeClient implements Peer {
 
             Thread sendingThread = new Thread(() -> {
                 try {
-                    Sender.sendingLoop(io);
+                    Sender.sendingLoop(this);
                 } catch (Exception e) {
                     if (io.isConnected()) {
                         LOGGER.error("Error sending message", e);
@@ -123,6 +123,16 @@ public class SandnodeClient implements Peer {
             close();
             throw e;
         }
+    }
+
+    @Override
+    public Node node() {
+        return node;
+    }
+
+    @Override
+    public IOController io() {
+        return io;
     }
 
     @Override

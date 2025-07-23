@@ -20,7 +20,7 @@ public class ExitServerChain extends ServerChain implements ReceiverChain {
     @Override
     public @Nullable Message handle(RawMessage raw) throws Exception {
         new ExitMessage(raw);
-        session.io.disconnect(false);
+        session.io().disconnect(false);
         session.server.removeSession(session);
         session.close();
         LOGGER.info("Client disconnected");

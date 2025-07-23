@@ -126,7 +126,7 @@ public class ConsoleSandnodeCommands {
         context.io.chainManager.removeChain(chain);
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss z");
 
-        Agent agent = context.client.node.agent();
+        Agent agent = context.client.node().agent();
 
 
         for (LoginHistoryDTO dto : h) {
@@ -152,7 +152,7 @@ public class ConsoleSandnodeCommands {
         context.io.chainManager.linkChain(chain);
 
         UUID encryptorID;
-        Agent agent = context.client.node.agent();
+        Agent agent = context.client.node().agent();
         try {
             encryptorID = agent.config.loadEncryptor(context.client.address, nickname).id();
         } catch (KeyStorageNotFoundException ignored) {
@@ -173,7 +173,7 @@ public class ConsoleSandnodeCommands {
         context.io.chainManager.removeChain(chain);
 
         for (DEKDTO key : keys) {
-            Agent agent = context.client.node.agent();
+            Agent agent = context.client.node().agent();
 
             KeyStorage decrypted = key.decrypt(agent.config.loadPersonalKey(context.client.address, key.encryptorID));
 

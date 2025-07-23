@@ -4,6 +4,7 @@ import net.result.sandnode.chain.ServerChainManager;
 import net.result.sandnode.cluster.Cluster;
 import net.result.sandnode.db.LoginEntity;
 import net.result.sandnode.db.MemberEntity;
+import net.result.sandnode.hubagent.Node;
 import net.result.sandnode.util.Address;
 import net.result.sandnode.util.IOController;
 import net.result.sandnode.util.Logout;
@@ -19,7 +20,7 @@ public class Session implements Peer {
     private static final Logger LOGGER = LogManager.getLogger(Session.class);
     private final Collection<Cluster> clusters = new HashSet<>();
     public final SandnodeServer server;
-    public final IOController io;
+    private final IOController io;
     public @Nullable MemberEntity member;
     public @Nullable LoginEntity login;
 
@@ -33,7 +34,7 @@ public class Session implements Peer {
     public void start() {
         new Thread(() -> {
             try {
-                Sender.sendingLoop(io);
+                Sender.sendingLoop(this);
             } catch (Exception e) {
                 if (io.isConnected()) {
                     LOGGER.error("Error sending message", e);
@@ -82,6 +83,16 @@ public class Session implements Peer {
 
     public Collection<Cluster> getClusters() {
         return clusters;
+    }
+
+    @Override
+    public Node node() {
+        return server.node;
+    }
+
+    @Override
+    public IOController io() {
+        return io;
     }
 
     @Override

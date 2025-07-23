@@ -16,7 +16,7 @@ import java.util.Set;
 public class ClientProtocol {
     public static void PUB(@NotNull SandnodeClient client) throws CryptoException, ExpectedMessageException,
             InterruptedException, SandnodeErrorException, UnknownSandnodeErrorException, UnprocessedMessagesException {
-        IOController io = client.io;
+        IOController io = client.io();
         PublicKeyClientChain pubkeyChain = new PublicKeyClientChain(client);
         io.chainManager.linkChain(pubkeyChain);
         pubkeyChain.getPublicKey();
@@ -25,7 +25,7 @@ public class ClientProtocol {
 
     public static void sendSYM(@NotNull SandnodeClient client)
             throws InterruptedException, ProtocolException, KeyNotCreatedException, SandnodeErrorException {
-        IOController io = client.io;
+        IOController io = client.io();
         SymKeyClientChain symKeyChain = new SymKeyClientChain(client);
         io.chainManager.linkChain(symKeyChain);
         symKeyChain.sendSymKey();
@@ -35,7 +35,7 @@ public class ClientProtocol {
     public static Collection<String> addToClusters(@NotNull SandnodeClient client, Collection<String> clusters)
             throws InterruptedException, ExpectedMessageException, UnprocessedMessagesException,
             UnknownSandnodeErrorException, SandnodeErrorException {
-        IOController io = client.io;
+        IOController io = client.io();
         ClusterClientChain chain = new ClusterClientChain(client);
         io.chainManager.linkChain(chain);
         Collection<String> clustersID = chain.add(clusters);
@@ -52,7 +52,7 @@ public class ClientProtocol {
     public static Collection<String> removeFromClusters(@NotNull SandnodeClient client, Collection<String> clusters)
             throws InterruptedException, ExpectedMessageException, UnprocessedMessagesException,
             UnknownSandnodeErrorException, SandnodeErrorException {
-        IOController io = client.io;
+        IOController io = client.io();
         ClusterClientChain chain = new ClusterClientChain(client);
         io.chainManager.linkChain(chain);
         Collection<String> clustersID = chain.remove(clusters);

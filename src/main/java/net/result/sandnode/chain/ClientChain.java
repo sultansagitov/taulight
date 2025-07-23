@@ -6,7 +6,7 @@ public abstract class ClientChain extends BaseChain {
     protected final SandnodeClient client;
 
     public ClientChain(SandnodeClient client) {
-        super(client.io);
+        super(client.io());
         this.client = client;
     }
 }

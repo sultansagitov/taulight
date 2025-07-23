@@ -63,30 +63,28 @@ public class ReactionRequestServerChain extends ServerChain implements ReceiverC
             ReactionEntryEntity re = reactionEntryRepo.create(session.member.tauMember(), message, reactionType);
             LOGGER.info("Reaction added: {} to message {} by {}", reactionType.name(), message.id(), nickname);
             for (Session s : session.server.getAgents()) {
-                if (!notReactionReceiver.contains(s)) {
-                    var chain = new ReactionResponseServerChain(s);
-                    s.io.chainManager.linkChain(chain);
-                    try {
-                        chain.reaction(re, s == session);
-                    } catch (UnhandledMessageTypeException e) {
-                        s.addToCluster(notReactionReceiver);
-                    }
-                    s.io.chainManager.removeChain(chain);
+                if (notReactionReceiver.contains(s)) continue;
+                var chain = new ReactionResponseServerChain(s);
+                s.io().chainManager.linkChain(chain);
+                try {
+                    chain.reaction(re, s == session);
+                } catch (UnhandledMessageTypeException e) {
+                    s.addToCluster(notReactionReceiver);
                 }
+                s.io().chainManager.removeChain(chain);
             }
         } else {
             if (reactionEntryRepo.delete(message, session.member.tauMember(), reactionType)) {
                 for (Session s : session.server.getAgents()) {
-                    if (!notReactionReceiver.contains(s)) {
-                        var chain = new ReactionResponseServerChain(s);
-                        s.io.chainManager.linkChain(chain);
-                        try {
-                            chain.unreaction(nickname, message, reactionType, s == session);
-                        } catch (UnhandledMessageTypeException e) {
-                            s.addToCluster(notReactionReceiver);
-                        }
-                        s.io.chainManager.removeChain(chain);
+                    if (notReactionReceiver.contains(s)) continue;
+                    var chain = new ReactionResponseServerChain(s);
+                    s.io().chainManager.linkChain(chain);
+                    try {
+                        chain.unreaction(nickname, message, reactionType, s == session);
+                    } catch (UnhandledMessageTypeException e) {
+                        s.addToCluster(notReactionReceiver);
                     }
+                    s.io().chainManager.removeChain(chain);
                 }
 
                 LOGGER.info("Reaction removed: {} from message {}", reactionType.name(), message.id());

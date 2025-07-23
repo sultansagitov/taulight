@@ -35,7 +35,7 @@ public class DEKClientChain extends ClientChain {
     public UUID sendDEK(String nickname, UUID encryptorID, KeyStorage keyStorage)
             throws InterruptedException, SandnodeErrorException, UnknownSandnodeErrorException,
             UnprocessedMessagesException, CryptoException, DeserializationException {
-        KeyStorage encryptor = client.node.agent().config.loadPersonalKey(client.address, encryptorID);
+        KeyStorage encryptor = client.node().agent().config.loadPersonalKey(client.address, encryptorID);
         return sendDEK(nickname, new KeyDTO(encryptorID, encryptor), keyStorage);
     }
 
@@ -51,7 +51,7 @@ public class DEKClientChain extends ClientChain {
         RawMessage raw = sendAndReceive(DEKRequest.getPersonalKeyOf(nickname));
         KeyDTO key = PublicKeyResponse.getKeyDTO(raw);
 
-        client.node.agent().config.saveEncryptor(client.address, nickname, key.keyID(), key.keyStorage());
+        client.node().agent().config.saveEncryptor(client.address, nickname, key.keyID(), key.keyStorage());
 
         return key;
     }

@@ -114,7 +114,7 @@ public class MessageUtil {
             }
 
             int lengthInt = encryptedHeaders.length;
-            if (lengthInt > 65535) throw new IllegalMessageLengthException(message, lengthInt);
+            if (lengthInt > 65535) throw new IllegalMessageLengthException(lengthInt);
         } catch (HeadersSerializationException | NullPointerException e) {
             throw new MessageSerializationException(e);
         }

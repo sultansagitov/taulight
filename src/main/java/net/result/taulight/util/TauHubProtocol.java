@@ -93,7 +93,7 @@ public class TauHubProtocol {
             UnknownSandnodeErrorException, SandnodeErrorException, DatabaseException {
         ForwardResponse request = new ForwardResponse(serverMessage, s == session);
 
-        ChainManager chainManager = s.io.chainManager;
+        ChainManager chainManager = s.io().chainManager;
 
         var chain = new ForwardServerChain(s);
         chainManager.linkChain(chain);

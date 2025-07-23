@@ -76,7 +76,7 @@ public class LoginServerChain extends ServerChain implements ReceiverChain {
         session.member = login.member();
         session.login = login;
 
-        String ip = session.io.socket.getInetAddress().getHostAddress();
+        String ip = session.io().socket.getInetAddress().getHostAddress();
         loginRepo.create(login, ip);
 
         onLogin();

@@ -18,7 +18,7 @@ public class ConsoleContext {
 
     public ConsoleContext(SandnodeClient client, String nickname, UUID keyID) {
         this.client = client;
-        io = client.io;
+        io = client.io();
         this.nickname = nickname;
         this.keyID = keyID;
     }
@@ -26,7 +26,7 @@ public class ConsoleContext {
     public ForwardRequestClientChain chain() {
         if (chain == null) {
             chain = new ForwardRequestClientChain(client);
-            client.io.chainManager.linkChain(chain);
+            io.chainManager.linkChain(chain);
         }
         return chain;
     }

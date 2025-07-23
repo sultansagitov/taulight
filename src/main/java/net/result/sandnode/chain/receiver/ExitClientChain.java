@@ -14,7 +14,7 @@ public class ExitClientChain extends ClientChain implements ReceiverChain {
 
     @Override
     public @Nullable Message handle(RawMessage raw) throws Exception {
-        client.io.disconnect(false);
+        client.io().disconnect(false);
         return null;
     }
 }

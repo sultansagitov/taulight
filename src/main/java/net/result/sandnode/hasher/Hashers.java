@@ -16,8 +16,8 @@ public enum Hashers implements Hasher {
             return hash(data.getBytes(StandardCharsets.UTF_8));
         }
 
-        @Override
-        public @NotNull String hash(byte @NotNull [] data) {
+        @NotNull
+        private String hash(byte @NotNull [] data) {
             MessageDigest md;
             try {
                 md = MessageDigest.getInstance("SHA-256");
@@ -43,8 +43,8 @@ public enum Hashers implements Hasher {
             return hash(data.getBytes(StandardCharsets.UTF_8));
         }
 
-        @Override
-        public @NotNull String hash(byte @NotNull [] data) {
+        @NotNull
+        private String hash(byte @NotNull [] data) {
             MessageDigest md;
             try {
                 md = MessageDigest.getInstance("MD5");

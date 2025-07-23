@@ -1,6 +1,5 @@
 package net.result.sandnode.serverclient;
 
-import net.result.sandnode.encryption.Encryptions;
 import net.result.sandnode.encryption.KeyStorageRegistry;
 import net.result.sandnode.error.Errors;
 import net.result.sandnode.error.SandnodeError;
@@ -11,16 +10,13 @@ import net.result.sandnode.exception.error.EncryptionException;
 import net.result.sandnode.exception.error.KeyStorageNotFoundException;
 import net.result.sandnode.message.Message;
 import net.result.sandnode.message.types.ErrorMessage;
-import net.result.sandnode.message.util.Headers;
 import net.result.sandnode.util.IOController;
 import net.result.sandnode.util.MessageUtil;
-import net.result.sandnode.util.RandomUtil;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
-import java.util.concurrent.*;
+import java.util.concurrent.ConcurrentSkipListMap;
 import java.util.concurrent.atomic.AtomicLong;
 
 public class Sender {
@@ -29,19 +25,20 @@ public class Sender {
 
     private record EncryptionResult(long sequence, byte[] encryptedBytes, Message originalMessage) { }
 
-    public static void sendingLoop(@NotNull IOController io) throws InterruptedException, MessageWriteException {
-        try (var executorResource = new ExecutorServiceResource<>(io, "Encryptor", POOL_SIZE, EncryptionResult::sequence)) {
-            var sequenceGenerator = new AtomicLong(0);
+    public static void sendingLoop(Peer peer) throws InterruptedException, MessageWriteException {
+        IOController io = peer.io();
+        try (var exec = new ExecutorServiceResource<>(io, "Encryptor", POOL_SIZE, EncryptionResult::sequence)) {
+            var generator = new AtomicLong(0);
             var resultsMap = new ConcurrentSkipListMap<Long, EncryptionResult>();
 
             Thread producer = new Thread(() -> {
                 try {
                     while (io.connected) {
                         Message message = io.sendingQueue.take();
-                        long sequence = sequenceGenerator.getAndIncrement();
+                        long sequence = generator.getAndIncrement();
 
-                        executorResource.submit(() -> {
-                            beforeSending(io, message);
+                        exec.submit(() -> {
+                            peer.node().beforeSending(peer, message);
                             KeyStorageRegistry ksr = io.keyStorageRegistry;
                             try {
                                 byte[] bytes = MessageUtil.encryptMessage(message, ksr).toByteArray();
@@ -65,7 +62,7 @@ public class Sender {
             long nextSequenceToSend = 0;
 
             while (io.connected) {
-                EncryptionResult result = executorResource.queue.take();
+                EncryptionResult result = exec.queue.take();
 
                 resultsMap.put(result.sequence, result);
 
@@ -84,18 +81,6 @@ public class Sender {
 
             producer.join();
         }
-    }
-
-    private static void beforeSending(IOController io, Message message) {
-        Headers headers = message.headers();
-        headers.setConnection(io.connection);
-        if (message.headersEncryption() == Encryptions.NONE) {
-            message.setHeadersEncryption(io.currentEncryption());
-        }
-        if (headers.bodyEncryption() == Encryptions.NONE) {
-            headers.setBodyEncryption(io.currentEncryption());
-        }
-        headers.setValue("random", RandomUtil.getRandomString());
     }
 
     private static Message createErrorMessage(Exception e, Message original) {

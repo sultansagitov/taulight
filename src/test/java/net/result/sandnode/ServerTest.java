@@ -242,7 +242,7 @@ public class ServerTest {
 
                 Message sentMessage = prepareMessage();
 
-                IOController io = client.io;
+                IOController io = client.io();
 
                 TestClientChain chain = new TestClientChain(client);
                 io.chainManager.linkChain(chain);

@@ -20,9 +20,9 @@ public class NameChainTest {
         SandnodeClient client = GlobalTestState.client;
         try {
             NameClientChain chain = new NameClientChain(client);
-            client.io.chainManager.linkChain(chain);
+            client.io().chainManager.linkChain(chain);
             String newName = chain.getName();
-            client.io.chainManager.removeChain(chain);
+            client.io().chainManager.removeChain(chain);
 
             assertEquals(GlobalTestState.name, newName);
         } catch (Exception e) {
