@@ -3,8 +3,7 @@ package net.result.main.commands;
 import net.result.sandnode.dto.FileDTO;
 import net.result.sandnode.dto.PaginatedDTO;
 import net.result.sandnode.encryption.interfaces.KeyStorage;
-import net.result.sandnode.exception.*;
-import net.result.sandnode.exception.error.SandnodeErrorException;
+import net.result.sandnode.exception.SandnodeException;
 import net.result.sandnode.hubagent.Agent;
 import net.result.taulight.chain.sender.MessageClientChain;
 import net.result.taulight.chain.sender.MessageFileClientChain;
@@ -56,9 +55,7 @@ public class ConsoleMessagesRunner {
         System.out.printf("Sent message UUID: %s%n", uuid);
     }
 
-    static UUID uploadFile(ConsoleContext context, UUID chatID, String path)
-            throws FSException, UnprocessedMessagesException, InterruptedException, UnknownSandnodeErrorException,
-            SandnodeErrorException, DeserializationException, ExpectedMessageException {
+    static UUID uploadFile(ConsoleContext context, UUID chatID, String path) throws Exception {
         MessageFileClientChain chain = new MessageFileClientChain(context.client);
         context.io.chainManager.linkChain(chain);
         UUID fileID = chain.upload(chatID, path, new File(path).getName());
@@ -86,9 +83,7 @@ public class ConsoleMessagesRunner {
         System.out.printf("Sent message UUID with attachments: %s%n", uuid);
     }
 
-    public static void downloadFile(ConsoleContext context, UUID fileID)
-            throws UnprocessedMessagesException, ExpectedMessageException, UnknownSandnodeErrorException,
-            SandnodeErrorException, InterruptedException {
+    public static void downloadFile(ConsoleContext context, UUID fileID) throws Exception {
         MessageFileClientChain chain = new MessageFileClientChain(context.client);
         context.io.chainManager.linkChain(chain);
         FileDTO avatar = chain.download(fileID);

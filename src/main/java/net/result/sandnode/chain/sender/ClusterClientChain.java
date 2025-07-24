@@ -1,9 +1,7 @@
 package net.result.sandnode.chain.sender;
 
 import net.result.sandnode.chain.ClientChain;
-import net.result.sandnode.exception.ExpectedMessageException;
-import net.result.sandnode.exception.UnknownSandnodeErrorException;
-import net.result.sandnode.exception.UnprocessedMessagesException;
+import net.result.sandnode.exception.ProtocolException;
 import net.result.sandnode.exception.error.SandnodeErrorException;
 import net.result.sandnode.message.types.ClusterRequest;
 import net.result.sandnode.message.types.ClusterResponse;
@@ -17,15 +15,15 @@ public class ClusterClientChain extends ClientChain {
         super(client);
     }
 
-    public Collection<String> remove(Collection<String> clusters) throws InterruptedException, ExpectedMessageException,
-            UnprocessedMessagesException, UnknownSandnodeErrorException, SandnodeErrorException {
+    public Collection<String> remove(Collection<String> clusters)
+            throws InterruptedException, ProtocolException, SandnodeErrorException {
         ClusterRequest request = new ClusterRequest(new Headers().setValue("mode", "remove"), clusters);
         var raw = sendAndReceive(request);
         return new ClusterResponse(raw).getClustersID();
     }
 
-    public Collection<String> add(Collection<String> clusters) throws InterruptedException, ExpectedMessageException,
-            UnprocessedMessagesException, UnknownSandnodeErrorException, SandnodeErrorException {
+    public Collection<String> add(Collection<String> clusters)
+            throws InterruptedException, ProtocolException, SandnodeErrorException {
         ClusterRequest request = new ClusterRequest(new Headers().setValue("mode", "add"), clusters);
         var raw = sendAndReceive(request);
         return new ClusterResponse(raw).getClustersID();

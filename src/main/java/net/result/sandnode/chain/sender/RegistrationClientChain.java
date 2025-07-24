@@ -26,8 +26,7 @@ public class RegistrationClientChain extends ClientChain {
             @NotNull String password,
             @NotNull String device,
             @NotNull AsymmetricKeyStorage keyStorage
-    ) throws InterruptedException, SandnodeErrorException, DeserializationException, CannotUseEncryption,
-            ProtocolException {
+    ) throws InterruptedException, SandnodeErrorException, CannotUseEncryption, ProtocolException {
 
         var pubDTO = new PublicKeyDTO(keyStorage);
         var regDTO = new RegisterRequestDTO(nickname, password, device, pubDTO);

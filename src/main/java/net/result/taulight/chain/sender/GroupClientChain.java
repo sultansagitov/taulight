@@ -5,8 +5,6 @@ import net.result.sandnode.dto.FileDTO;
 import net.result.sandnode.exception.*;
 import net.result.sandnode.exception.error.NoEffectException;
 import net.result.sandnode.exception.error.SandnodeErrorException;
-import net.result.sandnode.message.Message;
-import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.message.TextMessage;
 import net.result.sandnode.message.UUIDMessage;
 import net.result.sandnode.message.util.MessageTypes;
@@ -23,7 +21,6 @@ import org.jetbrains.annotations.Nullable;
 import java.io.IOException;
 import java.net.URLConnection;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.Duration;
 import java.util.Collection;
@@ -37,41 +34,36 @@ public class GroupClientChain extends ClientChain {
     }
 
     public synchronized UUID sendNewGroupRequest(String title)
-            throws InterruptedException, UnknownSandnodeErrorException, SandnodeErrorException,
-            DeserializationException, UnprocessedMessagesException {
+            throws InterruptedException, ProtocolException, SandnodeErrorException {
         var raw = sendAndReceive(GroupRequest.newGroup(title));
         return new UUIDMessage(raw).uuid;
     }
 
-    public synchronized void sendLeaveRequest(UUID chatID) throws InterruptedException, ExpectedMessageException,
-            SandnodeErrorException, UnknownSandnodeErrorException, UnprocessedMessagesException {
+    public synchronized void sendLeaveRequest(UUID chatID)
+            throws InterruptedException, ProtocolException, SandnodeErrorException {
         sendAndReceive(GroupRequest.leave(chatID)).expect(MessageTypes.HAPPY);
     }
 
     public synchronized String createInviteCode(UUID chatID, String otherNickname, Duration expirationTime)
-            throws InterruptedException, SandnodeErrorException, UnknownSandnodeErrorException,
-            UnprocessedMessagesException {
+            throws InterruptedException, SandnodeErrorException, ProtocolException {
         return createInviteCode(chatID, otherNickname, String.valueOf(expirationTime.toSeconds()));
     }
 
     public synchronized String createInviteCode(UUID chatID, String otherNickname, String expirationTime)
-            throws InterruptedException, SandnodeErrorException, UnknownSandnodeErrorException,
-            UnprocessedMessagesException {
+            throws InterruptedException, SandnodeErrorException, ProtocolException {
         var raw = sendAndReceive(GroupRequest.addMember(chatID, otherNickname, expirationTime));
         return new TextMessage(raw).content();
     }
 
     public synchronized Collection<CodeDTO> getGroupCodes(UUID chatID)
-            throws InterruptedException, UnknownSandnodeErrorException, SandnodeErrorException,
-            UnprocessedMessagesException, DeserializationException, ExpectedMessageException {
+            throws InterruptedException, ProtocolException, SandnodeErrorException {
         var raw = sendAndReceive(GroupRequest.groupCodes(chatID));
         raw.expect(TauMessageTypes.GROUP);
         return new CodeListMessage(raw).codes();
     }
 
-    public synchronized Collection<CodeDTO> getMyCodes() throws InterruptedException,
-            UnknownSandnodeErrorException, SandnodeErrorException, DeserializationException,
-            UnprocessedMessagesException, ExpectedMessageException {
+    public synchronized Collection<CodeDTO> getMyCodes()
+            throws InterruptedException, ProtocolException, SandnodeErrorException {
         var raw = sendAndReceive(GroupRequest.myCodes());
         raw.expect(TauMessageTypes.GROUP);
         return new CodeListMessage(raw).codes();
@@ -81,9 +73,9 @@ public class GroupClientChain extends ClientChain {
             throws UnprocessedMessagesException, FSException, InterruptedException, UnknownSandnodeErrorException,
             SandnodeErrorException, ExpectedMessageException, DeserializationException {
 
-        Path path = Paths.get(avatarPath);
+        var path = Paths.get(avatarPath);
 
-        String contentType = URLConnection.guessContentTypeFromName(path.getFileName().toString());
+        var contentType = URLConnection.guessContentTypeFromName(path.getFileName().toString());
         byte[] bytes;
         try {
             bytes = Files.readAllBytes(path);
@@ -92,20 +84,21 @@ public class GroupClientChain extends ClientChain {
             throw new FSException(e);
         }
 
-        Message request = GroupRequest.setAvatar(chatID);
-        FileDTO dto = new FileDTO(null, contentType, bytes);
+        var request = GroupRequest.setAvatar(chatID);
+        var dto = new FileDTO(null, contentType, bytes);
 
         send(request);
         FileIOUtil.send(dto, this::send);
 
-        RawMessage raw = receive();
+        var raw = receive();
         raw.expect(MessageTypes.HAPPY);
 
         return new UUIDMessage(raw).uuid;
     }
 
-    public synchronized @Nullable FileDTO getAvatar(UUID chatID) throws UnprocessedMessagesException,
-            InterruptedException, UnknownSandnodeErrorException, SandnodeErrorException, ExpectedMessageException {
+    public synchronized @Nullable FileDTO getAvatar(UUID chatID)
+            throws UnprocessedMessagesException, InterruptedException, UnknownSandnodeErrorException,
+            SandnodeErrorException, ExpectedMessageException, DeserializationException {
         send(GroupRequest.getAvatar(chatID));
 
         try {

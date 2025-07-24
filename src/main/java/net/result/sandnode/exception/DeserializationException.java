@@ -1,6 +1,6 @@
 package net.result.sandnode.exception;
 
-public class DeserializationException extends SandnodeException {
+public class DeserializationException extends ProtocolException {
     public DeserializationException(String message) {
         super(message);
     }

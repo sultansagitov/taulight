@@ -2,6 +2,7 @@ package net.result.sandnode.util;
 
 import net.result.sandnode.dto.FileChunkDTO;
 import net.result.sandnode.dto.FileDTO;
+import net.result.sandnode.exception.DeserializationException;
 import net.result.sandnode.exception.ExpectedMessageException;
 import net.result.sandnode.exception.UnknownSandnodeErrorException;
 import net.result.sandnode.exception.UnprocessedMessagesException;
@@ -46,7 +47,7 @@ public class FileIOUtil {
     }
 
     public static FileDTO receive(ReceiveMethod method) throws InterruptedException, ExpectedMessageException,
-            UnknownSandnodeErrorException, SandnodeErrorException {
+            UnknownSandnodeErrorException, SandnodeErrorException, DeserializationException {
 
         Map<Integer, byte[]> chunks = new TreeMap<>();
         UUID fileId = null;
@@ -54,10 +55,10 @@ public class FileIOUtil {
         int totalChunks = -1;
 
         do {
-            RawMessage raw = method.receive();
+            var raw = method.receive();
 
-            FileMessage fileMessage = new FileMessage(raw);
-            FileChunkDTO chunk = fileMessage.chunk();
+            var fileMessage = new FileMessage(raw);
+            var chunk = fileMessage.chunk();
 
             if (fileId == null) fileId = chunk.id();
             if (contentType == null) contentType = chunk.contentType();

@@ -52,7 +52,7 @@ public abstract class BaseChain implements Chain {
     }
 
     protected RawMessage receive() throws InterruptedException, UnknownSandnodeErrorException, SandnodeErrorException {
-        RawMessage raw = queue.take();
+        var raw = queue.take();
         ServerErrorManager.instance().handleError(raw);
         return raw;
     }
@@ -116,8 +116,8 @@ public abstract class BaseChain implements Chain {
         sendIgnoreQueue(message);
     }
 
-    protected RawMessage sendAndReceive(Message message) throws UnprocessedMessagesException, InterruptedException,
-            UnknownSandnodeErrorException, SandnodeErrorException {
+    protected RawMessage sendAndReceive(Message message)
+            throws ProtocolException, InterruptedException, SandnodeErrorException {
         send(message);
         return receive();
     }

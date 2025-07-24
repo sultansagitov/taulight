@@ -2,9 +2,7 @@ package net.result.sandnode.message;
 
 import net.result.sandnode.encryption.AsymmetricEncryptions;
 import net.result.sandnode.encryption.EncryptionManager;
-import net.result.sandnode.exception.HeadersSerializationException;
-import net.result.sandnode.exception.NoSuchMessageTypeException;
-import net.result.sandnode.exception.crypto.NoSuchEncryptionException;
+import net.result.sandnode.exception.SandnodeException;
 import net.result.sandnode.message.util.Connection;
 import net.result.sandnode.message.util.Headers;
 import net.result.sandnode.message.util.MessageTypes;
@@ -15,7 +13,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class HeadersTest {
 
     @Test
-    public void test() throws NoSuchEncryptionException, NoSuchMessageTypeException, HeadersSerializationException {
+    public void test() throws SandnodeException {
         EncryptionManager.registerAll();
 
         Headers headers = new Headers()

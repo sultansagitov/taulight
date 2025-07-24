@@ -1,10 +1,7 @@
 package net.result.taulight.chain.sender;
 
 import net.result.sandnode.chain.ClientChain;
-import net.result.sandnode.exception.DeserializationException;
-import net.result.sandnode.exception.ExpectedMessageException;
-import net.result.sandnode.exception.UnknownSandnodeErrorException;
-import net.result.sandnode.exception.UnprocessedMessagesException;
+import net.result.sandnode.exception.*;
 import net.result.sandnode.exception.error.SandnodeErrorException;
 import net.result.sandnode.serverclient.SandnodeClient;
 import net.result.taulight.dto.TauMemberSettingsResponseDTO;
@@ -16,15 +13,13 @@ public class TauMemberSettingsClientChain extends ClientChain {
         super(client);
     }
 
-    public TauMemberSettingsResponseDTO get() throws UnprocessedMessagesException, InterruptedException,
-            DeserializationException, UnknownSandnodeErrorException, SandnodeErrorException, ExpectedMessageException {
+    public TauMemberSettingsResponseDTO get() throws ProtocolException, InterruptedException, SandnodeErrorException {
         var raw = sendAndReceive(new TauMemberSettingsRequest());
         return new TauMemberSettingsResponse(raw).dto();
     }
 
     public TauMemberSettingsResponseDTO setShowStatus(boolean b)
-            throws UnprocessedMessagesException, InterruptedException, UnknownSandnodeErrorException,
-            SandnodeErrorException, ExpectedMessageException, DeserializationException {
+            throws ProtocolException, InterruptedException, SandnodeErrorException {
         var message = new TauMemberSettingsRequest(TauMemberSettingsRequest.SHOW_STATUS, String.valueOf(b));
         var raw = sendAndReceive(message);
         return new TauMemberSettingsResponse(raw).dto();

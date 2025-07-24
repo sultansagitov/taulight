@@ -37,7 +37,7 @@ public class PublicKeyResponse extends BaseMessage {
     }
 
     public PublicKeyResponse(@NotNull RawMessage response) throws NoSuchEncryptionException, CreatingKeyException,
-            EncryptionTypeException, ExpectedMessageException {
+            EncryptionTypeException, ExpectedMessageException, DeserializationException {
         super(response.expect(MessageTypes.PUB).headers());
         byte encryptionByte = Byte.parseByte(headers().getValue("encryption"));
         AsymmetricEncryption encryption = EncryptionManager.findAsymmetric(encryptionByte);
@@ -63,10 +63,10 @@ public class PublicKeyResponse extends BaseMessage {
         return new PublicKeyResponse(new Headers().setValue("id", entity.id().toString()), keyStorage);
     }
 
-    public static KeyDTO getKeyDTO(RawMessage raw)
-            throws NoSuchEncryptionException, CreatingKeyException, EncryptionTypeException, ExpectedMessageException {
+    public static KeyDTO getKeyDTO(RawMessage raw) throws NoSuchEncryptionException, CreatingKeyException,
+            EncryptionTypeException, ExpectedMessageException, DeserializationException {
         PublicKeyResponse response = new PublicKeyResponse(raw);
-        UUID keyID = UUID.fromString(response.headers().getValue("id"));
+        UUID keyID = response.headers().getUUID("id");
         AsymmetricKeyStorage keyStorage = response.keyStorage;
         return new KeyDTO(keyID, keyStorage);
     }

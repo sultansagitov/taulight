@@ -1,5 +1,6 @@
 package net.result.sandnode.error;
 
+import net.result.sandnode.exception.DeserializationException;
 import net.result.sandnode.exception.ExpectedMessageException;
 import net.result.sandnode.exception.ImpossibleRuntimeException;
 import net.result.sandnode.exception.UnknownSandnodeErrorException;
@@ -42,7 +43,7 @@ public class ServerErrorManager extends Manager<SandnodeError> {
                 } else {
                     throw error.exception();
                 }
-            } catch (ExpectedMessageException e) {
+            } catch (ExpectedMessageException | DeserializationException e) {
                 throw new ImpossibleRuntimeException(e);
             }
         }

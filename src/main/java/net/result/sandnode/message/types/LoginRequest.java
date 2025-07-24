@@ -16,11 +16,11 @@ public class LoginRequest extends TextMessage {
         super(raw.expect(MessageTypes.LOGIN));
     }
 
-    public static LoginRequest byToken(Headers headers, String token) {
-        return new LoginRequest(headers, token);
+    public static LoginRequest byToken(String token) {
+        return new LoginRequest(new Headers(), token);
     }
 
-    public static LoginRequest history(Headers headers) {
-        return new LoginRequest(headers.setValue("history", "true"), "");
+    public static LoginRequest history() {
+        return new LoginRequest(new Headers().setValue("history", "true"), "");
     }
 }

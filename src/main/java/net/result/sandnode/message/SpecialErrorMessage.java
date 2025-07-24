@@ -1,6 +1,7 @@
 package net.result.sandnode.message;
 
 import net.result.sandnode.error.Errors;
+import net.result.sandnode.exception.DeserializationException;
 import net.result.sandnode.exception.ExpectedMessageException;
 import net.result.sandnode.exception.UnknownSandnodeErrorException;
 import net.result.sandnode.message.types.ErrorMessage;
@@ -10,7 +11,7 @@ public class SpecialErrorMessage extends ErrorMessage {
     public final String special;
 
     public SpecialErrorMessage(@NotNull RawMessage response)
-            throws ExpectedMessageException, UnknownSandnodeErrorException {
+            throws ExpectedMessageException, UnknownSandnodeErrorException, DeserializationException {
         super(response);
         special = response.headers().getValue("special");
     }

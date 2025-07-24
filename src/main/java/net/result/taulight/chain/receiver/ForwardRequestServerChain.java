@@ -39,13 +39,11 @@ public class ForwardRequestServerChain extends ServerChain implements ReceiverCh
 
     @SuppressWarnings("InfiniteLoopStatement")
     @Override
-    public Message handle(RawMessage raw1) throws Exception {
+    public Message handle(RawMessage raw) throws Exception {
         ChatUtil chatUtil = session.server.container.get(ChatUtil.class);
         MessageRepository messageRepo = session.server.container.get(MessageRepository.class);
         EncryptedKeyRepository encryptedKeyRepo = session.server.container.get(EncryptedKeyRepository.class);
         MessageFileRepository messageFileRepo = session.server.container.get(MessageFileRepository.class);
-
-        RawMessage raw = raw1;
 
         while (true) {
             if (raw.headers().type() == MessageTypes.ERR) {

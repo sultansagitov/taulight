@@ -6,7 +6,6 @@ import net.result.sandnode.exception.*;
 import net.result.sandnode.exception.error.NoEffectException;
 import net.result.sandnode.exception.error.SandnodeErrorException;
 import net.result.sandnode.message.Message;
-import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.message.UUIDMessage;
 import net.result.sandnode.message.types.AvatarRequest;
 import net.result.sandnode.message.util.MessageTypes;
@@ -50,15 +49,16 @@ public class AvatarClientChain extends ClientChain {
         send(request);
         FileIOUtil.send(dto, this::send);
 
-        RawMessage raw = receive();
+        var raw = receive();
 
         raw.expect(MessageTypes.HAPPY);
         UUIDMessage response = new UUIDMessage(raw);
         return response.uuid;
     }
 
-    public @Nullable FileDTO getMy() throws InterruptedException, ExpectedMessageException,
-            UnknownSandnodeErrorException, SandnodeErrorException, UnprocessedMessagesException {
+    public @Nullable FileDTO getMy()
+            throws InterruptedException, ExpectedMessageException, UnknownSandnodeErrorException,
+            SandnodeErrorException, UnprocessedMessagesException, DeserializationException {
         send(AvatarRequest.byType(AvatarRequest.Type.GET_MY));
         try {
             return FileIOUtil.receive(this::receive);
@@ -67,8 +67,9 @@ public class AvatarClientChain extends ClientChain {
         }
     }
 
-    public @Nullable FileDTO getOf(String nickname) throws InterruptedException, ExpectedMessageException,
-            UnknownSandnodeErrorException, SandnodeErrorException, UnprocessedMessagesException {
+    public @Nullable FileDTO getOf(String nickname)
+            throws InterruptedException, ExpectedMessageException, UnknownSandnodeErrorException,
+            SandnodeErrorException, UnprocessedMessagesException, DeserializationException {
         AvatarRequest request = AvatarRequest.byType(AvatarRequest.Type.GET_OF);
         request.headers().setValue("nickname", nickname);
         send(request);

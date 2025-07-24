@@ -1,10 +1,7 @@
 package net.result.taulight.chain.sender;
 
 import net.result.sandnode.chain.ClientChain;
-import net.result.sandnode.exception.DeserializationException;
-import net.result.sandnode.exception.ExpectedMessageException;
-import net.result.sandnode.exception.UnknownSandnodeErrorException;
-import net.result.sandnode.exception.UnprocessedMessagesException;
+import net.result.sandnode.exception.*;
 import net.result.sandnode.exception.error.SandnodeErrorException;
 import net.result.sandnode.serverclient.SandnodeClient;
 import net.result.taulight.dto.ChatInfoDTO;
@@ -21,15 +18,13 @@ public class ChatClientChain extends ClientChain {
     }
 
     public synchronized Collection<ChatInfoDTO> getByMember(Collection<ChatInfoPropDTO> infoProps)
-            throws InterruptedException, DeserializationException, ExpectedMessageException, SandnodeErrorException,
-            UnknownSandnodeErrorException, UnprocessedMessagesException {
+            throws InterruptedException, ProtocolException, SandnodeErrorException {
         var raw = sendAndReceive(ChatRequest.getByMember(infoProps));
         return new ChatResponse(raw).getInfos();
     }
 
     public synchronized Collection<ChatInfoDTO> getByID(Collection<UUID> chatID, Collection<ChatInfoPropDTO> infoProps)
-            throws InterruptedException, ExpectedMessageException, UnknownSandnodeErrorException,
-            SandnodeErrorException, DeserializationException, UnprocessedMessagesException {
+            throws InterruptedException, ProtocolException, SandnodeErrorException {
         var raw = sendAndReceive(ChatRequest.getByID(chatID, infoProps));
         return new ChatResponse(raw).getInfos();
     }

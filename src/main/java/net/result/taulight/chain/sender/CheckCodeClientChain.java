@@ -1,12 +1,8 @@
 package net.result.taulight.chain.sender;
 
 import net.result.sandnode.chain.ClientChain;
-import net.result.sandnode.exception.DeserializationException;
-import net.result.sandnode.exception.ExpectedMessageException;
-import net.result.sandnode.exception.UnknownSandnodeErrorException;
-import net.result.sandnode.exception.UnprocessedMessagesException;
+import net.result.sandnode.exception.ProtocolException;
 import net.result.sandnode.exception.error.SandnodeErrorException;
-import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.serverclient.SandnodeClient;
 import net.result.taulight.dto.CodeDTO;
 import net.result.taulight.message.types.CheckCodeRequest;
@@ -17,10 +13,8 @@ public class CheckCodeClientChain extends ClientChain {
         super(client);
     }
 
-    public CodeDTO check(String code) throws UnprocessedMessagesException, InterruptedException,
-            ExpectedMessageException, UnknownSandnodeErrorException, SandnodeErrorException, DeserializationException {
-        RawMessage raw = sendAndReceive(new CheckCodeRequest(code));
-
+    public CodeDTO check(String code) throws ProtocolException, InterruptedException, SandnodeErrorException {
+        var raw = sendAndReceive(new CheckCodeRequest(code));
         return new CheckCodeResponse(raw).getCode();
     }
 }

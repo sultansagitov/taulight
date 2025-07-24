@@ -13,10 +13,7 @@ import net.result.sandnode.encryption.EncryptionManager;
 import net.result.sandnode.encryption.KeyStorageRegistry;
 import net.result.sandnode.encryption.SymmetricEncryptions;
 import net.result.sandnode.encryption.interfaces.SymmetricEncryption;
-import net.result.sandnode.exception.ImpossibleRuntimeException;
-import net.result.sandnode.exception.ServerStartException;
-import net.result.sandnode.exception.SocketAcceptException;
-import net.result.sandnode.exception.UnprocessedMessagesException;
+import net.result.sandnode.exception.*;
 import net.result.sandnode.hubagent.Agent;
 import net.result.sandnode.hubagent.ClientProtocol;
 import net.result.sandnode.hubagent.Hub;
@@ -132,7 +129,7 @@ public class ServerTest {
         return sentMessage;
     }
 
-    private static void validateMessage(Message sentMessage, Message receivedMessage) {
+    private static void validateMessage(Message sentMessage, Message receivedMessage) throws DeserializationException {
         // Validate headers
         assertEquals(sentMessage.headers().connection(), receivedMessage.headers().connection());
         assertEquals(sentMessage.headers().type(), receivedMessage.headers().type());
@@ -195,7 +192,7 @@ public class ServerTest {
         }
 
         @Override
-        public @Nullable Message handle(RawMessage receivedMessage) {
+        public @Nullable Message handle(RawMessage receivedMessage) throws DeserializationException {
             // Client sends message via chain
             Message sentMessage = prepareMessage();
             sentMessage.headers().setChainID(getID());

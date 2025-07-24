@@ -2,6 +2,7 @@ package net.result.sandnode.chain.receiver;
 
 import net.result.sandnode.chain.ReceiverChain;
 import net.result.sandnode.chain.ServerChain;
+import net.result.sandnode.exception.DeserializationException;
 import net.result.sandnode.exception.ExpectedMessageException;
 import net.result.sandnode.exception.crypto.DataNotEncryptedException;
 import net.result.sandnode.exception.crypto.EncryptionTypeException;
@@ -22,7 +23,7 @@ public class SymKeyServerChain extends ServerChain implements ReceiverChain {
 
     @Override
     public HappyMessage handle(RawMessage raw) throws EncryptionTypeException, NoSuchEncryptionException,
-            ExpectedMessageException, DataNotEncryptedException {
+            ExpectedMessageException, DataNotEncryptedException, DeserializationException {
         SymMessage message = new SymMessage(raw);
         session.io().setClientKey(message.symmetricKeyStorage);
         LOGGER.info("Symmetric key initialized");

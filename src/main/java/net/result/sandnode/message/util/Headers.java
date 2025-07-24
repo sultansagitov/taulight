@@ -1,6 +1,7 @@
 package net.result.sandnode.message.util;
 
 import net.result.sandnode.encryption.Encryptions;
+import net.result.sandnode.exception.DeserializationException;
 import net.result.sandnode.exception.HeadersSerializationException;
 import net.result.sandnode.exception.NoSuchMessageTypeException;
 import net.result.sandnode.exception.crypto.NoSuchEncryptionException;
@@ -30,22 +31,35 @@ public class Headers {
         return fin;
     }
 
+    public int count() {
+        return map.size();
+    }
+
+    public boolean has(String key) {
+        return map.containsKey(key.toLowerCase());
+    }
+
     public Headers setValue(@NotNull String key, @NotNull String value) {
         map.put(key.toLowerCase(), value.toLowerCase());
         return this;
     }
 
-    public int count() {
-        return map.size();
+    public UUID getUUID(String key) throws DeserializationException {
+        if (!has(key)) throw new DeserializationException("headers don't have key \"%s\"".formatted(key));
+        try {
+            return UUID.fromString(map.get(key.toLowerCase()));
+        } catch (Exception e) {
+            throw new DeserializationException(e);
+        }
     }
 
     public Optional<String> getOptionalValue(String key) {
         return Optional.ofNullable(map.get(key.toLowerCase()));
     }
 
-    public @NotNull String getValue(@NotNull String key) throws IllegalArgumentException {
-        if (!map.containsKey(key.toLowerCase())) {
-            throw new IllegalArgumentException("headers don't have key \"%s\"".formatted(key));
+    public @NotNull String getValue(@NotNull String key) throws DeserializationException {
+        if (!has(key)) {
+            throw new DeserializationException("headers don't have key \"%s\"".formatted(key));
         }
         return map.get(key.toLowerCase());
     }

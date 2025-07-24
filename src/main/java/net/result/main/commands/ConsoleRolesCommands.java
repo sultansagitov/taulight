@@ -45,7 +45,6 @@ public class ConsoleRolesCommands {
         ConsoleRolesRunner.addRole(context, chatID, roleName);
     }
 
-
     private static void role(List<String> args, ConsoleContext context) throws Exception {
         if (args.size() < 2) {
             System.out.println("Please provide a nickname and role name.");

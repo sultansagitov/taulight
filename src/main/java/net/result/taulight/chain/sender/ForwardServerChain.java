@@ -4,10 +4,7 @@ import net.result.sandnode.chain.ServerChain;
 import net.result.sandnode.db.EncryptedKeyEntity;
 import net.result.sandnode.db.EncryptedKeyRepository;
 import net.result.sandnode.dto.DEKDTO;
-import net.result.sandnode.exception.DatabaseException;
-import net.result.sandnode.exception.ExpectedMessageException;
-import net.result.sandnode.exception.UnknownSandnodeErrorException;
-import net.result.sandnode.exception.UnprocessedMessagesException;
+import net.result.sandnode.exception.*;
 import net.result.sandnode.exception.error.KeyStorageNotFoundException;
 import net.result.sandnode.exception.error.SandnodeErrorException;
 import net.result.sandnode.exception.error.ServerErrorException;
@@ -26,8 +23,8 @@ public class ForwardServerChain extends ServerChain {
         super(session);
     }
 
-    public synchronized void response(ForwardResponse res) throws UnprocessedMessagesException, InterruptedException,
-            ExpectedMessageException, UnknownSandnodeErrorException, SandnodeErrorException, DatabaseException {
+    public synchronized void response(ForwardResponse res)
+            throws ProtocolException, InterruptedException, SandnodeErrorException, DatabaseException {
         send(res);
 
         try {

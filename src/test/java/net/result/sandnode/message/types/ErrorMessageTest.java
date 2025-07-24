@@ -24,11 +24,11 @@ class ErrorMessageTest {
 
     @Test
     void testConstructor_WithRawMessage() throws ExpectedMessageException, UnknownSandnodeErrorException {
-        Headers headers = new Headers().setType(MessageTypes.ERR);
-        String code = error.code();
-        byte[] body = code.getBytes();
-        RawMessage rawMessage = new RawMessage(headers, body);
-        ErrorMessage errorMessage = new ErrorMessage(rawMessage);
+        var headers = new Headers().setType(MessageTypes.ERR);
+        var code = error.code();
+        var body = code.getBytes();
+        var rawMessage = new RawMessage(headers, body);
+        var errorMessage = new ErrorMessage(rawMessage);
 
         assertNotNull(errorMessage);
         assertEquals(code, errorMessage.code());
@@ -38,14 +38,14 @@ class ErrorMessageTest {
     void testConstructor_WithUnknownError_ShouldThrowUnknownSandnodeErrorException() {
         Headers headers = new Headers().setType(MessageTypes.ERR);
 
-        byte[] body = new byte[] {
+        var body = new byte[] {
                 (byte) (999 >> 24),
                 (byte) (999 >> 16),
                 (byte) (999 >> 8),
                 (byte) 999
         };
 
-        RawMessage rawMessage = new RawMessage(headers, body);
+        var rawMessage = new RawMessage(headers, body);
 
         assertThrows(UnknownSandnodeErrorException.class, () -> new ErrorMessage(rawMessage));
     }

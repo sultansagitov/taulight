@@ -36,33 +36,13 @@ public class MessageFileRequest extends EmptyMessage {
 
     public MessageFileRequest(RawMessage raw) throws DeserializationException {
         super(raw.headers());
-        String chatIDString = null;
-        try {
-            chatIDString = raw.headers().getValue("chat-id");
-            filename = raw.headers().getValue("filename");
-        } catch (IllegalArgumentException ignored) {
+        Headers headers = headers();
+        if (headers.has("chat-id") && headers.has("filename")) {
+            chatID = headers.getUUID("chat-id");
+            filename = headers.getValue("filename");
         }
-
-        try {
-            if (chatIDString != null) {
-                chatID = UUID.fromString(chatIDString);
-            }
-        } catch (Exception e) {
-            throw new DeserializationException(e);
-        }
-
-        String fileIDString = null;
-        try {
-            fileIDString = raw.headers().getValue("file-id");
-        } catch (IllegalArgumentException ignored) {
-        }
-
-        try {
-            if (fileIDString != null) {
-                fileID = UUID.fromString(fileIDString);
-            }
-        } catch (Exception e) {
-            throw new DeserializationException(e);
+        if (headers.has("file-id")) {
+            fileID = headers.getUUID("file-id");
         }
     }
 }

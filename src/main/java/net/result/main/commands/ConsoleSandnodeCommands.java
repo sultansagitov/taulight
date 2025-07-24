@@ -1,8 +1,9 @@
 package net.result.main.commands;
 
-import net.result.sandnode.chain.ChainStorage;
 import net.result.sandnode.chain.Chain;
+import net.result.sandnode.chain.ChainStorage;
 import net.result.sandnode.chain.sender.*;
+import net.result.sandnode.dto.DEKDTO;
 import net.result.sandnode.dto.FileDTO;
 import net.result.sandnode.dto.LoginHistoryDTO;
 import net.result.sandnode.encryption.SymmetricEncryptions;
@@ -10,7 +11,6 @@ import net.result.sandnode.encryption.interfaces.KeyStorage;
 import net.result.sandnode.exception.error.KeyStorageNotFoundException;
 import net.result.sandnode.hubagent.Agent;
 import net.result.sandnode.hubagent.ClientProtocol;
-import net.result.sandnode.dto.DEKDTO;
 import org.jetbrains.annotations.Nullable;
 
 import java.time.format.DateTimeFormatter;
@@ -122,14 +122,13 @@ public class ConsoleSandnodeCommands {
     private static void loginHistory(List<String> ignored, ConsoleContext context) throws Exception {
         var chain = new LoginClientChain(context.client);
         context.io.chainManager.linkChain(chain);
-        List<LoginHistoryDTO> h = chain.getHistory();
+        var history = chain.getHistory();
         context.io.chainManager.removeChain(chain);
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss z");
+        var formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss z");
 
         Agent agent = context.client.node().agent();
 
-
-        for (LoginHistoryDTO dto : h) {
+        for (LoginHistoryDTO dto : history.stream().sorted(Comparator.comparing(a -> a.time)).toList()) {
             KeyStorage personalKey = agent.config.loadPersonalKey(context.client.address, dto.encryptorID);
 
             String ip = personalKey.decrypt(Base64.getDecoder().decode(dto.ip));

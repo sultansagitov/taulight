@@ -2,7 +2,6 @@ package net.result.sandnode.serverclient;
 
 import net.result.sandnode.exception.UnexpectedSocketDisconnectException;
 import net.result.sandnode.message.EncryptedMessage;
-import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.util.IOController;
 import net.result.sandnode.util.MessageUtil;
 import org.apache.logging.log4j.LogManager;
@@ -32,7 +31,7 @@ public class Receiver {
                         long seq = sequenceCounter.getAndIncrement();
 
                         pool.submit(() -> {
-                            RawMessage raw = MessageUtil.decryptMessage(encrypted, io.keyStorageRegistry);
+                            var raw = MessageUtil.decryptMessage(encrypted, io.keyStorageRegistry);
                             return new SequencedRawMessage(seq, raw);
                         });
                     }

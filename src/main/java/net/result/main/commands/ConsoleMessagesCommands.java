@@ -1,7 +1,5 @@
 package net.result.main.commands;
 
-import net.result.sandnode.exception.*;
-import net.result.sandnode.exception.error.SandnodeErrorException;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
@@ -56,9 +54,7 @@ public class ConsoleMessagesCommands {
         ConsoleMessagesRunner.reply(context, input, replies);
     }
 
-    private static void uploadFile(List<String> args, ConsoleContext context)
-            throws FSException, UnprocessedMessagesException, InterruptedException, UnknownSandnodeErrorException,
-            SandnodeErrorException, DeserializationException, ExpectedMessageException {
+    private static void uploadFile(List<String> args, ConsoleContext context) throws Exception {
         UUID chatID = context.currentChat;
         String path;
 
@@ -73,7 +69,6 @@ public class ConsoleMessagesCommands {
 
         System.out.printf("File ID: %s%n", fileID);
     }
-
 
     private static void fileAttached(List<String> args, ConsoleContext context) throws Exception {
         if (context.currentChat == null) {
@@ -107,11 +102,8 @@ public class ConsoleMessagesCommands {
         ConsoleMessagesRunner.fileAttached(context, input, fileIDs);
     }
 
-    private static void downloadFile(List<String> args, ConsoleContext context)
-            throws UnprocessedMessagesException, ExpectedMessageException, UnknownSandnodeErrorException,
-            SandnodeErrorException, InterruptedException {
+    private static void downloadFile(List<String> args, ConsoleContext context) throws Exception {
         UUID fileID = UUID.fromString(args.get(0));
-
         ConsoleMessagesRunner.downloadFile(context, fileID);
     }
 }

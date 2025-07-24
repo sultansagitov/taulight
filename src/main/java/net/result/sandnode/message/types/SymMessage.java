@@ -1,6 +1,7 @@
 package net.result.sandnode.message.types;
 
 import net.result.sandnode.encryption.Encryptions;
+import net.result.sandnode.exception.DeserializationException;
 import net.result.sandnode.exception.crypto.DataNotEncryptedException;
 import net.result.sandnode.exception.crypto.EncryptionTypeException;
 import net.result.sandnode.exception.ExpectedMessageException;
@@ -18,7 +19,7 @@ public class SymMessage extends BaseMessage {
     public final SymmetricKeyStorage symmetricKeyStorage;
 
     public SymMessage(@NotNull Message message) throws ExpectedMessageException, NoSuchEncryptionException,
-            EncryptionTypeException, DataNotEncryptedException {
+            EncryptionTypeException, DataNotEncryptedException, DeserializationException {
         super(message.expect(MessageTypes.SYM).headers());
 
         if (message.headersEncryption() == Encryptions.NONE) {

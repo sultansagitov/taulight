@@ -29,8 +29,7 @@ public class AgentProtocol {
             @NotNull String password,
             @NotNull String device,
             @NotNull AsymmetricKeyStorage keyStorage
-    ) throws InterruptedException, SandnodeErrorException, DeserializationException, CannotUseEncryption,
-            ProtocolException {
+    ) throws InterruptedException, SandnodeErrorException, CannotUseEncryption, ProtocolException {
 
         RegistrationClientChain chain = new RegistrationClientChain(client);
         client.io().chainManager.linkChain(chain);
@@ -40,7 +39,7 @@ public class AgentProtocol {
     }
 
     public static LoginResponseDTO byToken(SandnodeClient client, String token)
-            throws InterruptedException, SandnodeErrorException, DeserializationException, ProtocolException {
+            throws InterruptedException, SandnodeErrorException, ProtocolException {
         LoginClientChain chain = new LoginClientChain(client);
         client.io().chainManager.linkChain(chain);
         LoginResponseDTO dto = chain.login(token);
@@ -54,7 +53,7 @@ public class AgentProtocol {
             String nickname,
             String password,
             String device
-    ) throws InterruptedException, SandnodeErrorException, ProtocolException, DeserializationException {
+    ) throws InterruptedException, SandnodeErrorException, ProtocolException {
         LogPasswdClientChain chain = new LogPasswdClientChain(client);
         client.io().chainManager.linkChain(chain);
         LogPasswdResponseDTO token = chain.getToken(nickname, password, device);
@@ -64,7 +63,7 @@ public class AgentProtocol {
 
     public static AsymmetricKeyStorage loadOrFetchServerKey(SandnodeClient client, @NotNull SandnodeLinkRecord link)
             throws CryptoException, LinkDoesNotMatchException, InterruptedException, SandnodeErrorException,
-            ExpectedMessageException, UnknownSandnodeErrorException, UnprocessedMessagesException, StorageException {
+            ProtocolException, StorageException {
 
         Agent agent = client.node().agent();
 

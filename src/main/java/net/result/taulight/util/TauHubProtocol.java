@@ -30,8 +30,7 @@ public class TauHubProtocol {
     private static final Logger LOGGER = LogManager.getLogger(TauHubProtocol.class);
 
     public static void send(Session session, ChatEntity chat, ChatMessageInputDTO input)
-            throws InterruptedException, DatabaseException, SandnodeErrorException, UnprocessedMessagesException,
-            ExpectedMessageException, UnknownSandnodeErrorException {
+            throws InterruptedException, DatabaseException, SandnodeErrorException, ProtocolException {
         if (session.member == null) throw new UnauthorizedException();
 
         MessageRepository messageRepo = session.server.container.get(MessageRepository.class);
@@ -45,8 +44,7 @@ public class TauHubProtocol {
     }
 
     public static void send(Session session, ChatEntity chat, ChatMessageViewDTO serverMessage)
-            throws InterruptedException, DatabaseException, SandnodeErrorException, UnprocessedMessagesException,
-            ExpectedMessageException, UnknownSandnodeErrorException {
+            throws InterruptedException, DatabaseException, SandnodeErrorException, ProtocolException {
         if (session.member == null) throw new UnauthorizedException();
 
         TauClusterManager manager = session.server.container.get(TauClusterManager.class);
@@ -89,8 +87,7 @@ public class TauHubProtocol {
     }
 
     private static void getObjectCallable(Session session, ChatMessageViewDTO serverMessage, Session s)
-            throws UnprocessedMessagesException, InterruptedException, ExpectedMessageException,
-            UnknownSandnodeErrorException, SandnodeErrorException, DatabaseException {
+            throws ProtocolException, InterruptedException, SandnodeErrorException, DatabaseException {
         ForwardResponse request = new ForwardResponse(serverMessage, s == session);
 
         ChainManager chainManager = s.io().chainManager;

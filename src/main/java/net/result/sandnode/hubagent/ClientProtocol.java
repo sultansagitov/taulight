@@ -14,8 +14,8 @@ import java.util.Collection;
 import java.util.Set;
 
 public class ClientProtocol {
-    public static void PUB(@NotNull SandnodeClient client) throws CryptoException, ExpectedMessageException,
-            InterruptedException, SandnodeErrorException, UnknownSandnodeErrorException, UnprocessedMessagesException {
+    public static void PUB(@NotNull SandnodeClient client)
+            throws CryptoException, ProtocolException, InterruptedException, SandnodeErrorException {
         IOController io = client.io();
         PublicKeyClientChain pubkeyChain = new PublicKeyClientChain(client);
         io.chainManager.linkChain(pubkeyChain);
@@ -33,8 +33,7 @@ public class ClientProtocol {
     }
 
     public static Collection<String> addToClusters(@NotNull SandnodeClient client, Collection<String> clusters)
-            throws InterruptedException, ExpectedMessageException, UnprocessedMessagesException,
-            UnknownSandnodeErrorException, SandnodeErrorException {
+            throws InterruptedException, ProtocolException, SandnodeErrorException {
         IOController io = client.io();
         ClusterClientChain chain = new ClusterClientChain(client);
         io.chainManager.linkChain(chain);
@@ -44,14 +43,12 @@ public class ClientProtocol {
     }
 
     public static Collection<String> getClusters(@NotNull SandnodeClient client)
-            throws ExpectedMessageException, InterruptedException, UnprocessedMessagesException,
-            UnknownSandnodeErrorException, SandnodeErrorException {
+            throws ProtocolException, InterruptedException, SandnodeErrorException {
         return addToClusters(client, Set.of());
     }
 
     public static Collection<String> removeFromClusters(@NotNull SandnodeClient client, Collection<String> clusters)
-            throws InterruptedException, ExpectedMessageException, UnprocessedMessagesException,
-            UnknownSandnodeErrorException, SandnodeErrorException {
+            throws InterruptedException, ProtocolException, SandnodeErrorException {
         IOController io = client.io();
         ClusterClientChain chain = new ClusterClientChain(client);
         io.chainManager.linkChain(chain);
