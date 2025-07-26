@@ -104,8 +104,6 @@ public class RunAgentWork implements Work {
         try {
             var result = AgentProtocol.register(client, nickname, password, device, keyStorage);
             System.out.printf("Token for \"%s\":%n%s%n", nickname, result.token);
-
-            client.node().agent().config.savePersonalKey(client.address, result.keyID, keyStorage);
             context = new ConsoleContext(client, nickname, result.keyID);
         } catch (BusyNicknameException e) {
             System.out.println("Nickname is busy");

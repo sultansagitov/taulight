@@ -178,9 +178,9 @@ public class AgentPropertiesConfig implements AgentConfig {
     }
 
     @Override
-    public synchronized void savePersonalKey(Address address, UUID keyID, KeyStorage keyStorage)
+    public synchronized void savePersonalKey(Address address, String nickname, UUID keyID, KeyStorage keyStorage)
             throws StorageException {
-        memberKeys.add(new MemberKeyRecord(address, keyID, keyStorage));
+        memberKeys.add(new MemberKeyRecord(address, nickname, keyID, keyStorage));
         saveKeysJSON();
     }
 

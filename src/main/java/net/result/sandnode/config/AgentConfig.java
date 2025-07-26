@@ -47,17 +47,18 @@ public interface AgentConfig {
      * Saves this agent's personal asymmetric key pair.
      *
      * @param address    the agent's address or identifier
+     * @param nickname   nickname of member
      * @param keyID      unique ID of the personal key
      * @param keyStorage personal key storage (private + public keys)
      * @throws StorageException if saving fails
      */
-    void savePersonalKey(Address address, UUID keyID, KeyStorage keyStorage) throws StorageException;
+    void savePersonalKey(Address address, String nickname, UUID keyID, KeyStorage keyStorage) throws StorageException;
 
     /**
      * Saves an encryptor's public key for a given agent, identified by a nickname.
      *
      * @param address    the target agent's address or identifier
-     * @param nickname   alias for the key
+     * @param nickname   nickname of member
      * @param keyID      unique ID of the key
      * @param keyStorage public key storage of the encryptor
      * @throws StorageException if saving fails
@@ -68,7 +69,7 @@ public interface AgentConfig {
      * Saves a data encryption key (DEK) for encrypting actual data.
      *
      * @param address    the owner or context of the DEK
-     * @param nickname   alias for the DEK
+     * @param nickname   nickname of member
      * @param keyID      unique ID of the DEK
      * @param keyStorage symmetric key storage of the DEK
      * @throws StorageException if saving fails
@@ -89,7 +90,7 @@ public interface AgentConfig {
      * Loads an encryptor key by nickname.
      *
      * @param address  target agent address or identifier
-     * @param nickname alias of the key
+     * @param nickname nickname of member
      * @return KeyEntry containing the encryptor key
      * @throws KeyStorageNotFoundException if key not found
      */
@@ -99,7 +100,7 @@ public interface AgentConfig {
      * Loads a DEK by nickname.
      *
      * @param address  owner or context address
-     * @param nickname alias of the DEK
+     * @param nickname nickname of member
      * @return KeyEntry containing the DEK
      * @throws KeyStorageNotFoundException if DEK not found
      */

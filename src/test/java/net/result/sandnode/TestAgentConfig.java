@@ -21,7 +21,7 @@ public class TestAgentConfig implements AgentConfig {
     }
 
     @Override
-    public void savePersonalKey(Address address, UUID keyID, KeyStorage keyStorage) {
+    public void savePersonalKey(Address address, String nickname, UUID keyID, KeyStorage keyStorage) {
     }
 
     @Override

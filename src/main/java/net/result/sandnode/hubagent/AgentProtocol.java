@@ -29,12 +29,13 @@ public class AgentProtocol {
             @NotNull String password,
             @NotNull String device,
             @NotNull AsymmetricKeyStorage keyStorage
-    ) throws InterruptedException, SandnodeErrorException, CannotUseEncryption, ProtocolException {
-
+    ) throws InterruptedException, SandnodeErrorException, CannotUseEncryption, ProtocolException, StorageException {
         RegistrationClientChain chain = new RegistrationClientChain(client);
         client.io().chainManager.linkChain(chain);
         RegistrationResponseDTO dto = chain.register(nickname, password, device, keyStorage);
         client.io().chainManager.removeChain(chain);
+        client.node().agent().config.savePersonalKey(client.address, nickname, dto.keyID, keyStorage);
+
         return dto;
     }
 
