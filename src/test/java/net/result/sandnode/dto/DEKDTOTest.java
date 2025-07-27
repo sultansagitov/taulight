@@ -8,12 +8,10 @@ import net.result.sandnode.encryption.interfaces.KeyStorage;
 import net.result.sandnode.encryption.interfaces.SymmetricKeyStorage;
 import org.junit.jupiter.api.*;
 
-import java.util.*;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 public class DEKDTOTest {
-    private static UUID encryptorID;
+    private static String sender;
     private static AsymmetricKeyStorage encryptor;
     private static SymmetricKeyStorage keyStorage;
 
@@ -21,16 +19,16 @@ public class DEKDTOTest {
     public static void setup() {
         EncryptionManager.registerAll();
 
-        encryptorID = UUID.randomUUID();
+        sender = "rizl";
         encryptor = AsymmetricEncryptions.ECIES.generate();
         keyStorage = SymmetricEncryptions.AES.generate();
     }
 
     @Test
     void testDEKDTOEncryptDecrypt() throws Exception {
-        KeyDTO encryptorDTO = new KeyDTO(encryptorID, encryptor);
+        KeyDTO encryptorDTO = new KeyDTO(sender, encryptor);
 
-        DEKDTO dekDTO = new DEKDTO("receiver", encryptorDTO, keyStorage);
+        DEKDTO dekDTO = new DEKDTO(encryptorDTO, keyStorage);
 
         assertNotNull(dekDTO.encryptedKey);
 

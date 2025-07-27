@@ -19,7 +19,6 @@ import net.result.sandnode.message.util.MessageTypes;
 import org.jetbrains.annotations.NotNull;
 
 import java.nio.charset.StandardCharsets;
-import java.util.UUID;
 
 public class PublicKeyResponse extends BaseMessage {
     public final AsymmetricKeyStorage keyStorage;
@@ -53,21 +52,21 @@ public class PublicKeyResponse extends BaseMessage {
         }
     }
 
-    public static PublicKeyResponse fromEntity(KeyStorageEntity entity)
+    public static PublicKeyResponse fromEntity(String sender, KeyStorageEntity entity)
             throws CreatingKeyException, EncryptionTypeException {
         Encryption encryption = entity.encryption();
         AsymmetricKeyStorage keyStorage = encryption.asymmetric()
                 .publicKeyConvertor()
                 .toKeyStorage(entity.encodedKey());
 
-        return new PublicKeyResponse(new Headers().setValue("id", entity.id().toString()), keyStorage);
+        return new PublicKeyResponse(new Headers().setValue("sender", sender), keyStorage);
     }
 
     public static KeyDTO getKeyDTO(RawMessage raw) throws NoSuchEncryptionException, CreatingKeyException,
             EncryptionTypeException, ExpectedMessageException, DeserializationException {
         PublicKeyResponse response = new PublicKeyResponse(raw);
-        UUID keyID = response.headers().getUUID("id");
+        String sender = response.headers().getValue("sender");
         AsymmetricKeyStorage keyStorage = response.keyStorage;
-        return new KeyDTO(keyID, keyStorage);
+        return new KeyDTO(sender, keyStorage);
     }
 }

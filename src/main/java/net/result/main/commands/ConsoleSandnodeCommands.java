@@ -3,7 +3,7 @@ package net.result.main.commands;
 import net.result.sandnode.chain.Chain;
 import net.result.sandnode.chain.ChainStorage;
 import net.result.sandnode.chain.sender.*;
-import net.result.sandnode.dto.DEKDTO;
+import net.result.sandnode.dto.DEKResponseDTO;
 import net.result.sandnode.dto.FileDTO;
 import net.result.sandnode.dto.LoginHistoryDTO;
 import net.result.sandnode.encryption.SymmetricEncryptions;
@@ -129,7 +129,7 @@ public class ConsoleSandnodeCommands {
         Agent agent = context.client.node().agent();
 
         for (LoginHistoryDTO dto : history.stream().sorted(Comparator.comparing(a -> a.time)).toList()) {
-            KeyStorage personalKey = agent.config.loadPersonalKey(context.client.address, dto.encryptorID);
+            KeyStorage personalKey = agent.config.loadPersonalKey(context.client.address, context.nickname);
 
             String ip = personalKey.decrypt(Base64.getDecoder().decode(dto.ip));
             String device = personalKey.decrypt(Base64.getDecoder().decode(dto.device));
@@ -145,38 +145,43 @@ public class ConsoleSandnodeCommands {
     }
 
     public static void sendDEK(List<String> args, ConsoleContext context) throws Exception {
-        String nickname = args.get(0);
+        String receiver = args.get(0);
 
-        DEKClientChain chain = new DEKClientChain(context.client);
-        context.io.chainManager.linkChain(chain);
+        var client = context.client;
+        var agent = client.node().agent();
 
-        UUID encryptorID;
-        Agent agent = context.client.node().agent();
+        var key = SymmetricEncryptions.AES.generate();
+
+        KeyStorage encryptor;
         try {
-            encryptorID = agent.config.loadEncryptor(context.client.address, nickname).id();
-        } catch (KeyStorageNotFoundException ignored) {
-            encryptorID = chain.getKeyOf(nickname).keyID();
+            encryptor = client.node().agent().config.loadEncryptor(client.address, receiver).keyStorage();
+        } catch (KeyStorageNotFoundException e) {
+            // Load key if agent have no it
+            DEKClientChain chain = new DEKClientChain(client);
+            context.io.chainManager.linkChain(chain);
+            encryptor = chain.getKeyOf(receiver).keyStorage();
+            context.io.chainManager.removeChain(chain);
         }
-
-        KeyStorage key = SymmetricEncryptions.AES.generate();
-        UUID uuid = chain.sendDEK(nickname, encryptorID, key);
+        DEKClientChain chain = new DEKClientChain(client);
+        context.io.chainManager.linkChain(chain);
+        UUID uuid = chain.sendDEK(receiver, encryptor, key);
         context.io.chainManager.removeChain(chain);
 
-        agent.config.saveDEK(context.client.address, nickname, uuid, key);
+        agent.config.saveDEK(client.address, receiver, uuid, key);
     }
 
     private static void DEK(List<String> ignoredArgs, ConsoleContext context) throws Exception {
         DEKClientChain chain = new DEKClientChain(context.client);
         context.io.chainManager.linkChain(chain);
-        Collection<DEKDTO> keys = chain.get();
+        Collection<DEKResponseDTO> keys = chain.get();
         context.io.chainManager.removeChain(chain);
 
-        for (DEKDTO key : keys) {
+        for (DEKResponseDTO key : keys) {
             Agent agent = context.client.node().agent();
 
-            KeyStorage decrypted = key.decrypt(agent.config.loadPersonalKey(context.client.address, key.encryptorID));
+            KeyStorage decrypted = key.dek.decrypt(agent.config.loadPersonalKey(context.client.address, context.nickname));
 
-            agent.config.saveDEK(context.client.address, key.senderNickname, key.id, decrypted);
+            agent.config.saveDEK(context.client.address, key.senderNickname, key.dek.id, decrypted);
 
             System.out.println(decrypted);
         }

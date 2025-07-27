@@ -48,22 +48,20 @@ public interface AgentConfig {
      *
      * @param address    the agent's address or identifier
      * @param nickname   nickname of member
-     * @param keyID      unique ID of the personal key
      * @param keyStorage personal key storage (private + public keys)
      * @throws StorageException if saving fails
      */
-    void savePersonalKey(Address address, String nickname, UUID keyID, KeyStorage keyStorage) throws StorageException;
+    void savePersonalKey(Address address, String nickname, KeyStorage keyStorage) throws StorageException;
 
     /**
      * Saves an encryptor's public key for a given agent, identified by a nickname.
      *
      * @param address    the target agent's address or identifier
      * @param nickname   nickname of member
-     * @param keyID      unique ID of the key
      * @param keyStorage public key storage of the encryptor
      * @throws StorageException if saving fails
      */
-    void saveEncryptor(Address address, String nickname, UUID keyID, KeyStorage keyStorage) throws StorageException;
+    void saveEncryptor(Address address, String nickname, KeyStorage keyStorage) throws StorageException;
 
     /**
      * Saves a data encryption key (DEK) for encrypting actual data.
@@ -79,12 +77,11 @@ public interface AgentConfig {
     /**
      * Loads this agent's personal key pair by its ID.
      *
-     * @param address agent address or identifier
-     * @param keyID   unique ID of the personal key
-     * @return personal key storage
+     * @param address  agent address or identifier
+     * @param nickname nickname of member
      * @throws KeyStorageNotFoundException if key not found
      */
-    KeyStorage loadPersonalKey(Address address, UUID keyID) throws KeyStorageNotFoundException;
+    KeyStorage loadPersonalKey(Address address, String nickname) throws KeyStorageNotFoundException;
 
     /**
      * Loads an encryptor key by nickname.

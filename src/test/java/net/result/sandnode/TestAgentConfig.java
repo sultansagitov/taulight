@@ -21,12 +21,12 @@ public class TestAgentConfig implements AgentConfig {
     }
 
     @Override
-    public void savePersonalKey(Address address, String nickname, UUID keyID, KeyStorage keyStorage) {
+    public void savePersonalKey(Address address, String nickname, KeyStorage keyStorage) {
     }
 
     @Override
-    public KeyStorage loadPersonalKey(Address address, UUID keyID) throws KeyStorageNotFoundException {
-        throw new KeyStorageNotFoundException(keyID);
+    public KeyStorage loadPersonalKey(Address address, String nickname) throws KeyStorageNotFoundException {
+        throw new KeyStorageNotFoundException("Address %s, nickname %s".formatted(address, nickname));
     }
 
     @Override
@@ -45,7 +45,7 @@ public class TestAgentConfig implements AgentConfig {
     }
 
     @Override
-    public void saveEncryptor(Address address, String nickname, UUID keyID, KeyStorage keyStorage) {
+    public void saveEncryptor(Address address, String nickname, KeyStorage keyStorage) {
     }
 
     @Override

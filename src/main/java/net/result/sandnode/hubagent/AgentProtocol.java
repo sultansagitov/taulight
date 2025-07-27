@@ -34,7 +34,7 @@ public class AgentProtocol {
         client.io().chainManager.linkChain(chain);
         RegistrationResponseDTO dto = chain.register(nickname, password, device, keyStorage);
         client.io().chainManager.removeChain(chain);
-        client.node().agent().config.savePersonalKey(client.address, nickname, dto.keyID, keyStorage);
+        client.node().agent().config.savePersonalKey(client.address, nickname, keyStorage);
 
         return dto;
     }

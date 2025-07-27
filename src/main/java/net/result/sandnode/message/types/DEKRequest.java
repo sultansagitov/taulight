@@ -1,7 +1,7 @@
 package net.result.sandnode.message.types;
 
 import net.result.sandnode.dto.DEKDTO;
-import net.result.sandnode.dto.KeyDTO;
+import net.result.sandnode.dto.DEKRequestDTO;
 import net.result.sandnode.encryption.interfaces.KeyStorage;
 import net.result.sandnode.exception.DeserializationException;
 import net.result.sandnode.exception.ExpectedMessageException;
@@ -12,33 +12,31 @@ import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.message.util.Headers;
 import net.result.sandnode.message.util.MessageTypes;
 
-public class DEKRequest extends MSGPackMessage<DEKDTO> {
-    public enum DataType {SEND, GET, GET_PERSONAL_KEY_OF}
-
-    public DEKRequest(DataType dataType, DEKDTO DEKDTO) {
-        super(new Headers().setType(MessageTypes.DEK).setValue("type", dataType.name()), DEKDTO);
+public class DEKRequest extends MSGPackMessage<DEKRequestDTO> {
+    public DEKRequest(DEKRequestDTO dto) {
+        super(new Headers().setType(MessageTypes.DEK), dto);
     }
 
-    public static DEKRequest send(String nickname, KeyDTO encryptor, KeyStorage keyStorage)
+    public static DEKRequest send(String nickname, KeyStorage encryptor, KeyStorage keyStorage)
             throws EncryptionException, CryptoException {
-        return new DEKRequest(DataType.SEND, new DEKDTO(nickname, encryptor, keyStorage));
+        var dto = new DEKRequestDTO();
+        dto.send = new DEKRequestDTO.Send(nickname, DEKDTO.getEncrypted(encryptor, keyStorage));
+        return new DEKRequest(dto);
     }
 
     public static DEKRequest get() {
-        return new DEKRequest(DataType.GET, new DEKDTO());
+        DEKRequestDTO dto = new DEKRequestDTO();
+        dto.get = true;
+        return new DEKRequest(dto);
     }
 
     public static DEKRequest getPersonalKeyOf(String nickname) {
-        return new DEKRequest(DataType.GET_PERSONAL_KEY_OF, new DEKDTO(nickname));
+        DEKRequestDTO dto = new DEKRequestDTO();
+        dto.getOf = nickname;
+        return new DEKRequest(dto);
     }
 
     public DEKRequest(RawMessage raw) throws DeserializationException, ExpectedMessageException {
-        super(raw.expect(MessageTypes.DEK), DEKDTO.class);
-    }
-
-    public DataType type() {
-        return headers().getOptionalValue("type")
-                .map(name -> DataType.valueOf(name.toUpperCase()))
-                .orElse(DataType.GET);
+        super(raw.expect(MessageTypes.DEK), DEKRequestDTO.class);
     }
 }

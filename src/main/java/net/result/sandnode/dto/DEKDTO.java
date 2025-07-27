@@ -16,42 +16,22 @@ public class DEKDTO {
     @JsonProperty
     public UUID id;
 
-    @JsonProperty("sender-nickname")
-    public String senderNickname;
-
-    @JsonProperty("receiver-nickname")
-    public String receiverNickname;
-
-    @JsonProperty("encryptor-id")
-    public UUID encryptorID;
-
     @JsonProperty("encrypted-key")
     public String encryptedKey;
 
-    public DEKDTO() {
-    }
-
-    public DEKDTO(String receiverNickname, UUID encryptorID, String encryptedKey) {
-        this.receiverNickname = receiverNickname;
-        this.encryptorID = encryptorID;
-        this.encryptedKey = encryptedKey;
-    }
-
-    public DEKDTO(String receiverNickname) {
-        this.receiverNickname = receiverNickname;
-    }
+    @SuppressWarnings("unused")
+    public DEKDTO() {}
 
     public DEKDTO(EncryptedKeyEntity entity) {
-        this(entity.receiver().nickname(), entity.encryptor().id(), entity.encryptedKey());
+        encryptedKey = entity.encryptedKey();
         id = entity.id();
-        senderNickname = entity.sender().nickname();
     }
 
-    public DEKDTO(String receiverNickname, KeyDTO encryptor, KeyStorage keyStorage)
-            throws CryptoException, EncryptionException {
-        this.receiverNickname = receiverNickname;
-        this.encryptorID = encryptor.keyID();
+    public DEKDTO(KeyDTO encryptor, KeyStorage keyStorage) throws CryptoException, EncryptionException {
+        this.encryptedKey = getEncrypted(encryptor.keyStorage(), keyStorage);
+    }
 
+    public static String getEncrypted(KeyStorage encryptor, KeyStorage keyStorage) throws EncryptionException, CryptoException {
         Encryption encryption = keyStorage.encryption();
 
         StringBuilder stringBuilder = new StringBuilder(encryption.name());
@@ -65,8 +45,8 @@ public class DEKDTO {
         }
 
         String orig = stringBuilder.toString();
-        byte[] encrypted = encryptor.keyStorage().encrypt(orig);
-        this.encryptedKey = Base64.getEncoder().encodeToString(encrypted);
+        byte[] encrypted = encryptor.encrypt(orig);
+        return Base64.getEncoder().encodeToString(encrypted);
     }
 
     public KeyStorage decrypt(KeyStorage personalKey) throws WrongKeyException, CannotUseEncryption,

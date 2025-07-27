@@ -3,8 +3,9 @@ package net.result.taulight.chain.sender;
 import net.result.sandnode.chain.ServerChain;
 import net.result.sandnode.db.EncryptedKeyEntity;
 import net.result.sandnode.db.EncryptedKeyRepository;
-import net.result.sandnode.dto.DEKDTO;
-import net.result.sandnode.exception.*;
+import net.result.sandnode.dto.DEKResponseDTO;
+import net.result.sandnode.exception.DatabaseException;
+import net.result.sandnode.exception.ProtocolException;
 import net.result.sandnode.exception.error.KeyStorageNotFoundException;
 import net.result.sandnode.exception.error.SandnodeErrorException;
 import net.result.sandnode.exception.error.ServerErrorException;
@@ -35,7 +36,7 @@ public class ForwardServerChain extends ServerChain {
             UUID keyID = res.getServerMessage().message.keyID;
             Optional<EncryptedKeyEntity> opt = encryptedKeyRepo.find(keyID);
             EncryptedKeyEntity entity = opt.orElseThrow(ServerErrorException::new);
-            sendAndReceive(new DEKListMessage(List.of(new DEKDTO(entity)))).expect(MessageTypes.HAPPY);
+            sendAndReceive(new DEKListMessage(List.of(new DEKResponseDTO((entity))))).expect(MessageTypes.HAPPY);
         }
     }
 }

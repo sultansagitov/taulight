@@ -38,10 +38,9 @@ public class EncryptedKeyRepository {
     public EncryptedKeyEntity create(
             MemberEntity sender,
             MemberEntity receiver,
-            KeyStorageEntity encryptor,
             String encrypted
     ) throws DatabaseException {
-        return save(new EncryptedKeyEntity(sender, receiver, encryptor, encrypted));
+        return save(new EncryptedKeyEntity(sender, receiver, encrypted));
     }
 
     public Optional<EncryptedKeyEntity> find(UUID keyID) throws DatabaseException {

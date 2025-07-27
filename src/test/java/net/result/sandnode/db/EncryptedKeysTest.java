@@ -1,14 +1,12 @@
 package net.result.sandnode.db;
 
 import net.result.sandnode.GlobalTestState;
-import net.result.sandnode.encryption.AsymmetricEncryptions;
 import net.result.sandnode.encryption.EncryptionManager;
-import net.result.sandnode.encryption.interfaces.AsymmetricKeyStorage;
 import net.result.sandnode.exception.DatabaseException;
-import net.result.sandnode.exception.crypto.CannotUseEncryption;
 import net.result.sandnode.exception.error.BusyNicknameException;
 import net.result.sandnode.util.Container;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -19,13 +17,11 @@ public class EncryptedKeysTest {
     private static EncryptedKeyRepository encryptedKeyRepo;
     private static MemberEntity sender;
     private static MemberEntity receiver;
-    private static KeyStorageRepository keyStorageRepo;
 
     @BeforeAll
     public static void setUp() throws BusyNicknameException, DatabaseException {
         Container container = GlobalTestState.container;
         encryptedKeyRepo = container.get(EncryptedKeyRepository.class);
-        keyStorageRepo = container.get(KeyStorageRepository.class);
         MemberRepository memberRepo = container.get(MemberRepository.class);
 
         sender = memberRepo.create("sender_encrypted_keys", "hash");
@@ -35,13 +31,10 @@ public class EncryptedKeysTest {
     }
 
     @Test
-    void testCreateAndFindEncryptedKeyEntity() throws DatabaseException, CannotUseEncryption {
-        AsymmetricKeyStorage keyStorage = AsymmetricEncryptions.ECIES.generate();
-        KeyStorageEntity encryptor = keyStorageRepo.create(keyStorage);
-
+    void testCreateAndFindEncryptedKeyEntity() throws DatabaseException {
         String encrypted = "encrypted-data";
 
-        EncryptedKeyEntity created = encryptedKeyRepo.create(sender, receiver, encryptor, encrypted);
+        EncryptedKeyEntity created = encryptedKeyRepo.create(sender, receiver, encrypted);
         assertNotNull(created);
         assertNotNull(created.id());
 

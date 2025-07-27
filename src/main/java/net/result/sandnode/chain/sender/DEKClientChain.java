@@ -1,7 +1,7 @@
 package net.result.sandnode.chain.sender;
 
 import net.result.sandnode.chain.ClientChain;
-import net.result.sandnode.dto.DEKDTO;
+import net.result.sandnode.dto.DEKResponseDTO;
 import net.result.sandnode.dto.KeyDTO;
 import net.result.sandnode.encryption.interfaces.KeyStorage;
 import net.result.sandnode.exception.ProtocolException;
@@ -25,19 +25,13 @@ public class DEKClientChain extends ClientChain {
         super(client);
     }
 
-    public UUID sendDEK(String nickname, KeyDTO encryptor, KeyStorage keyStorage)
+    public UUID sendDEK(String receiver, KeyStorage encryptor, KeyStorage keyStorage)
             throws InterruptedException, SandnodeErrorException, ProtocolException, CryptoException {
-        var raw = sendAndReceive(DEKRequest.send(nickname, encryptor, keyStorage));
+        var raw = sendAndReceive(DEKRequest.send(receiver, encryptor, keyStorage));
         return new UUIDMessage(raw).uuid;
     }
 
-    public UUID sendDEK(String nickname, UUID encryptorID, KeyStorage keyStorage)
-            throws InterruptedException, SandnodeErrorException, ProtocolException, CryptoException {
-        var encryptor = client.node().agent().config.loadPersonalKey(client.address, encryptorID);
-        return sendDEK(nickname, new KeyDTO(encryptorID, encryptor), keyStorage);
-    }
-
-    public Collection<DEKDTO> get() throws ProtocolException, InterruptedException, SandnodeErrorException {
+    public Collection<DEKResponseDTO> get() throws ProtocolException, InterruptedException, SandnodeErrorException {
         var raw = sendAndReceive(DEKRequest.get());
         return new DEKListMessage(raw).list();
     }
@@ -47,7 +41,7 @@ public class DEKClientChain extends ClientChain {
         var raw = sendAndReceive(DEKRequest.getPersonalKeyOf(nickname));
         var key = PublicKeyResponse.getKeyDTO(raw);
 
-        client.node().agent().config.saveEncryptor(client.address, nickname, key.keyID(), key.keyStorage());
+        client.node().agent().config.saveEncryptor(client.address, nickname, key.keyStorage());
 
         return key;
     }

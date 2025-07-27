@@ -38,8 +38,9 @@ public abstract class ForwardClientChain extends ClientChain implements Receiver
             } catch (KeyStorageNotFoundException e) {
                 var raw = sendAndReceive(new ErrorMessage(Errors.KEY_NOT_FOUND));
                 var dto = new DEKListMessage(raw).list().get(0);
-                keyStorage = dto.decrypt(agent.config.loadPersonalKey(client.address, dto.encryptorID));
-                agent.config.saveDEK(client.address, input.nickname, dto.id, keyStorage);
+                var dek = dto.dek;
+                keyStorage = dek.decrypt(agent.config.loadPersonalKey(client.address, dto.senderNickname));
+                agent.config.saveDEK(client.address, input.nickname, dek.id, keyStorage);
             }
             decrypted = keyStorage.decrypt(Base64.getDecoder().decode(input.content));
         } else {

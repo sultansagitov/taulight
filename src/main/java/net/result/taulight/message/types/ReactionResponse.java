@@ -14,7 +14,7 @@ import java.util.UUID;
 public class ReactionResponse extends MSGPackMessage<ReactionDTO> {
     private static final String key = "your-session";
 
-    public ReactionResponse(@NotNull Headers headers, ReactionDTO dto, boolean yourSession) {
+    private ReactionResponse(@NotNull Headers headers, ReactionDTO dto, boolean yourSession) {
         super(headers.setValue(key, String.valueOf(yourSession)).setType(TauMessageTypes.REACTION), dto);
     }
 

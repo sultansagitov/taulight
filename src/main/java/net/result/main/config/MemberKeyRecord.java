@@ -20,29 +20,35 @@ import java.util.UUID;
 
 public class MemberKeyRecord {
     public final Address address;
-    public final UUID keyID;
     public final KeyStorage keyStorage;
+    public UUID keyID = null;
     public String nickname = null;
 
-    public MemberKeyRecord(Address address, UUID keyID, KeyStorage keyStorage) {
+    public MemberKeyRecord(Address address, KeyStorage keyStorage) {
         this.address = address;
-        this.keyID = keyID;
         this.keyStorage = keyStorage;
     }
 
     public MemberKeyRecord(Address address, String nickname, UUID keyID, KeyStorage keyStorage) {
-        this.address = address;
+        this(address, keyStorage);
         this.nickname = nickname;
         this.keyID = keyID;
-        this.keyStorage = keyStorage;
+    }
+
+    public MemberKeyRecord(Address address, String nickname, KeyStorage keyStorage) {
+        this(address, keyStorage);
+        this.nickname = nickname;
     }
 
     public JSONObject toJSON() {
         try {
             JSONObject json = new JSONObject()
-                    .put("id", keyID)
                     .put("address", address.toString())
                     .put("encryption", keyStorage.encryption().name());
+
+            if (keyID != null) {
+                json.put("id", keyID);
+            }
 
             if (nickname != null) {
                 json.put("nickname", nickname);
@@ -68,7 +74,6 @@ public class MemberKeyRecord {
     public static MemberKeyRecord fromJSON(JSONObject json)
             throws NoSuchEncryptionException, CreatingKeyException, EncryptionTypeException, InvalidAddressSyntax {
         MemberKeyRecord result;
-        UUID keyID = UUID.fromString(json.getString("id"));
         String encryptionType = json.getString("encryption");
         Address address = Address.getFromString(json.getString("address"), 52525);
         Encryption encryption = EncryptionManager.find(encryptionType);
@@ -91,12 +96,16 @@ public class MemberKeyRecord {
                 keyStorage = publicKey;
             }
 
-            result = new MemberKeyRecord(address, keyID, keyStorage);
+            result = new MemberKeyRecord(address, keyStorage);
         } else {
             byte[] decoded = Base64.getDecoder().decode(json.getString("encoded"));
             SymmetricKeyStorage keyStorage = encryption.symmetric().toKeyStorage(decoded);
-            result = new MemberKeyRecord(address, keyID, keyStorage);
+            result = new MemberKeyRecord(address, keyStorage);
         }
+
+        try {
+            result.keyID = UUID.fromString(json.getString("id"));
+        } catch (Exception ignored) {}
 
         try {
             result.nickname = json.getString("nickname");

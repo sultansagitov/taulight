@@ -10,9 +10,6 @@ public class EncryptedKeyEntity extends BaseEntity {
     private String encryptedKey;
 
     @ManyToOne
-    private KeyStorageEntity encryptor;
-
-    @ManyToOne
     private MemberEntity sender;
 
     @ManyToOne
@@ -21,45 +18,30 @@ public class EncryptedKeyEntity extends BaseEntity {
     @SuppressWarnings("unused")
     public EncryptedKeyEntity() {}
 
-    public EncryptedKeyEntity(
-            MemberEntity sender,
-            MemberEntity receiver,
-            KeyStorageEntity encryptor,
-            String encryptedKey
-    ) {
+    public EncryptedKeyEntity(MemberEntity sender, MemberEntity receiver, String encryptedKey) {
         setEncryptedKey(encryptedKey);
-        setEncryptor(encryptor);
         setSender(sender);
         setReceiver(receiver);
     }
 
-
     public String encryptedKey() {
         return encryptedKey;
-    }
-
-    public KeyStorageEntity encryptor() {
-        return encryptor;
-    }
-
-    public MemberEntity sender() {
-        return sender;
-    }
-
-    public MemberEntity receiver() {
-        return receiver;
     }
 
     public void setEncryptedKey(String encryptedKey) {
         this.encryptedKey = encryptedKey;
     }
 
-    public void setEncryptor(KeyStorageEntity encryptor) {
-        this.encryptor = encryptor;
+    public MemberEntity sender() {
+        return sender;
     }
 
     public void setSender(MemberEntity sender) {
         this.sender = sender;
+    }
+
+    public MemberEntity receiver() {
+        return receiver;
     }
 
     public void setReceiver(MemberEntity receiver) {

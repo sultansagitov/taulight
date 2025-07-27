@@ -178,17 +178,17 @@ public class AgentPropertiesConfig implements AgentConfig {
     }
 
     @Override
-    public synchronized void savePersonalKey(Address address, String nickname, UUID keyID, KeyStorage keyStorage)
+    public synchronized void savePersonalKey(Address address, String nickname, KeyStorage keyStorage)
             throws StorageException {
-        memberKeys.add(new MemberKeyRecord(address, nickname, keyID, keyStorage));
+        memberKeys.add(new MemberKeyRecord(address, nickname, keyStorage));
         saveKeysJSON();
     }
 
     @Override
-    public void saveEncryptor(Address address, String nickname, UUID keyID, KeyStorage keyStorage)
+    public void saveEncryptor(Address address, String nickname, KeyStorage keyStorage)
             throws StorageException {
-        LOGGER.debug("{}, {}, {}", nickname, keyID, keyStorage);
-        memberKeys.add(new MemberKeyRecord(address, nickname, keyID, keyStorage));
+        LOGGER.debug("{}, {}", nickname, keyStorage);
+        memberKeys.add(new MemberKeyRecord(address, nickname, keyStorage));
         saveKeysJSON();
     }
 
@@ -200,12 +200,12 @@ public class AgentPropertiesConfig implements AgentConfig {
     }
 
     @Override
-    public synchronized KeyStorage loadPersonalKey(Address address, UUID keyID) throws KeyStorageNotFoundException {
+    public synchronized KeyStorage loadPersonalKey(Address address, String nickname) throws KeyStorageNotFoundException {
         return memberKeys.stream()
-                .filter(k -> k.keyID.equals(keyID) && k.address.equals(address))
+                .filter(k -> k.nickname.equals(nickname) && k.address.equals(address))
                 .map(k -> k.keyStorage)
                 .findFirst()
-                .orElseThrow(() -> new KeyStorageNotFoundException("address: " + address + "; keyID: " + keyID));
+                .orElseThrow(() -> new KeyStorageNotFoundException("address: " + address + "; nickname: " + nickname));
     }
 
     @Override
