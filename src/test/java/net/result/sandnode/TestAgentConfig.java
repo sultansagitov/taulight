@@ -30,7 +30,7 @@ public class TestAgentConfig implements AgentConfig {
     }
 
     @Override
-    public KeyEntry loadEncryptor(Address address, String nickname) throws KeyStorageNotFoundException {
+    public KeyStorage loadEncryptor(Address address, String nickname) throws KeyStorageNotFoundException {
         throw new KeyStorageNotFoundException(nickname);
     }
 

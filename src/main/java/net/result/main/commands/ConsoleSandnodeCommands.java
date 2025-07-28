@@ -154,7 +154,7 @@ public class ConsoleSandnodeCommands {
 
         KeyStorage encryptor;
         try {
-            encryptor = client.node().agent().config.loadEncryptor(client.address, receiver).keyStorage();
+            encryptor = client.node().agent().config.loadEncryptor(client.address, receiver);
         } catch (KeyStorageNotFoundException e) {
             // Load key if agent have no it
             DEKClientChain chain = new DEKClientChain(client);

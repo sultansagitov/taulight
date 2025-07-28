@@ -91,7 +91,7 @@ public interface AgentConfig {
      * @return KeyEntry containing the encryptor key
      * @throws KeyStorageNotFoundException if key not found
      */
-    KeyEntry loadEncryptor(Address address, String nickname) throws KeyStorageNotFoundException;
+    KeyStorage loadEncryptor(Address address, String nickname) throws KeyStorageNotFoundException;
 
     /**
      * Loads a DEK by nickname.

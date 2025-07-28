@@ -209,10 +209,10 @@ public class AgentPropertiesConfig implements AgentConfig {
     }
 
     @Override
-    public KeyEntry loadEncryptor(Address address, String nickname) throws KeyStorageNotFoundException {
+    public KeyStorage loadEncryptor(Address address, String nickname) throws KeyStorageNotFoundException {
         return memberKeys.stream()
                 .filter(k -> Objects.equals(k.nickname, nickname) && k.address.equals(address))
-                .map(k -> new KeyEntry(k.keyID, k.keyStorage))
+                .map(k -> k.keyStorage)
                 .findFirst()
                 .orElseThrow(() -> new KeyStorageNotFoundException("address: " + address + "; nickname: " + nickname));
     }
