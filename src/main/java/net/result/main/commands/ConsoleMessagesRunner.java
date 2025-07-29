@@ -38,7 +38,7 @@ public class ConsoleMessagesRunner {
         ChatMessageInputDTO message = new ChatMessageInputDTO()
                 .setChatID(context.currentChat)
                 .setRepliedToMessages(replies)
-                .setNickname(context.nickname)
+                .setNickname(context.client.nickname)
                 .setSentDatetimeNow();
 
         ChatInfoDTO chat = context.chat;
@@ -67,7 +67,7 @@ public class ConsoleMessagesRunner {
         ChatMessageInputDTO message = new ChatMessageInputDTO()
                 .setChatID(context.currentChat)
                 .setFileIDs(fileIDs)
-                .setNickname(context.nickname)
+                .setNickname(context.client.nickname)
                 .setSentDatetimeNow();
 
         ChatInfoDTO chat = context.chat;

@@ -15,6 +15,8 @@ public class WhoAmIClientChain extends ClientChain {
     public synchronized String getNickname() throws InterruptedException, ProtocolException,
             SandnodeErrorException {
         var raw = sendAndReceive(new WhoAmIRequest());
-        return new WhoAmIResponse(raw).getNickname();
+        String nickname = new WhoAmIResponse(raw).getNickname();
+        client.nickname = nickname;
+        return nickname;
     }
 }

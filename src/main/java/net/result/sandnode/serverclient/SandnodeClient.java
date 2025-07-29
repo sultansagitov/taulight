@@ -51,6 +51,8 @@ public class SandnodeClient implements Peer {
     public final ClientConfig config;
     public Socket socket;
 
+    public String nickname;
+
     /**
      * Constructs a new {@code SandnodeClient}.
      * <p>

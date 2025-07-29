@@ -11,6 +11,7 @@ import net.result.sandnode.encryption.interfaces.KeyStorage;
 import net.result.sandnode.exception.error.KeyStorageNotFoundException;
 import net.result.sandnode.hubagent.Agent;
 import net.result.sandnode.hubagent.ClientProtocol;
+import net.result.sandnode.serverclient.SandnodeClient;
 import org.jetbrains.annotations.Nullable;
 
 import java.time.format.DateTimeFormatter;
@@ -120,16 +121,17 @@ public class ConsoleSandnodeCommands {
     }
 
     private static void loginHistory(List<String> ignored, ConsoleContext context) throws Exception {
-        var chain = new LoginClientChain(context.client);
+        SandnodeClient client = context.client;
+        var chain = new LoginClientChain(client);
         context.io.chainManager.linkChain(chain);
         var history = chain.getHistory();
         context.io.chainManager.removeChain(chain);
         var formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss z");
 
-        Agent agent = context.client.node().agent();
+        Agent agent = client.node().agent();
 
         for (LoginHistoryDTO dto : history.stream().sorted(Comparator.comparing(a -> a.time)).toList()) {
-            KeyStorage personalKey = agent.config.loadPersonalKey(context.client.address, context.nickname);
+            KeyStorage personalKey = agent.config.loadPersonalKey(client.address, client.nickname);
 
             String ip = personalKey.decrypt(Base64.getDecoder().decode(dto.ip));
             String device = personalKey.decrypt(Base64.getDecoder().decode(dto.device));
@@ -171,17 +173,18 @@ public class ConsoleSandnodeCommands {
     }
 
     private static void DEK(List<String> ignoredArgs, ConsoleContext context) throws Exception {
-        DEKClientChain chain = new DEKClientChain(context.client);
+        SandnodeClient client = context.client;
+        DEKClientChain chain = new DEKClientChain(client);
         context.io.chainManager.linkChain(chain);
         Collection<DEKResponseDTO> keys = chain.get();
         context.io.chainManager.removeChain(chain);
 
         for (DEKResponseDTO key : keys) {
-            Agent agent = context.client.node().agent();
+            Agent agent = client.node().agent();
 
-            KeyStorage decrypted = key.dek.decrypt(agent.config.loadPersonalKey(context.client.address, context.nickname));
+            KeyStorage decrypted = key.dek.decrypt(agent.config.loadPersonalKey(client.address, client.nickname));
 
-            agent.config.saveDEK(context.client.address, key.senderNickname, key.dek.id, decrypted);
+            agent.config.saveDEK(client.address, key.senderNickname, key.dek.id, decrypted);
 
             System.out.println(decrypted);
         }

@@ -36,6 +36,8 @@ public class AgentProtocol {
         client.io().chainManager.removeChain(chain);
         client.node().agent().config.savePersonalKey(client.address, nickname, keyStorage);
 
+        client.nickname = nickname;
+
         return dto;
     }
 
@@ -45,6 +47,8 @@ public class AgentProtocol {
         client.io().chainManager.linkChain(chain);
         LoginResponseDTO dto = chain.login(token);
         client.io().chainManager.removeChain(chain);
+
+        client.nickname = dto.nickname;
 
         return dto;
     }
@@ -59,6 +63,9 @@ public class AgentProtocol {
         client.io().chainManager.linkChain(chain);
         LogPasswdResponseDTO token = chain.getToken(nickname, password, device);
         client.io().chainManager.removeChain(chain);
+
+        client.nickname = nickname;
+
         return token;
     }
 
