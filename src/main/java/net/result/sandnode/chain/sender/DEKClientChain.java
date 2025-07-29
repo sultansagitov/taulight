@@ -6,10 +6,7 @@ import net.result.sandnode.dto.KeyDTO;
 import net.result.sandnode.encryption.interfaces.KeyStorage;
 import net.result.sandnode.exception.ProtocolException;
 import net.result.sandnode.exception.StorageException;
-import net.result.sandnode.exception.crypto.CreatingKeyException;
-import net.result.sandnode.exception.crypto.CryptoException;
-import net.result.sandnode.exception.crypto.EncryptionTypeException;
-import net.result.sandnode.exception.crypto.NoSuchEncryptionException;
+import net.result.sandnode.exception.crypto.*;
 import net.result.sandnode.exception.error.SandnodeErrorException;
 import net.result.sandnode.message.UUIDMessage;
 import net.result.sandnode.message.types.DEKListMessage;
@@ -17,7 +14,9 @@ import net.result.sandnode.message.types.DEKRequest;
 import net.result.sandnode.message.types.PublicKeyResponse;
 import net.result.sandnode.serverclient.SandnodeClient;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.UUID;
 
 public class DEKClientChain extends ClientChain {
@@ -31,9 +30,36 @@ public class DEKClientChain extends ClientChain {
         return new UUIDMessage(raw).uuid;
     }
 
-    public Collection<DEKResponseDTO> get() throws ProtocolException, InterruptedException, SandnodeErrorException {
+    public Collection<DEKResponseDTO> get() throws ProtocolException, InterruptedException, SandnodeErrorException,
+            EncryptionTypeException, NoSuchEncryptionException, CreatingKeyException, WrongKeyException,
+            CannotUseEncryption, PrivateKeyNotFoundException, StorageException {
+
         var raw = sendAndReceive(DEKRequest.get());
-        return new DEKListMessage(raw).list();
+        List<DEKResponseDTO> keys = new DEKListMessage(raw).list();
+
+        List<Exception> exceptions = new ArrayList<>();
+
+        for (DEKResponseDTO key : keys) {
+            try {
+                var agent = client.node().agent();
+                var personalKey = agent.config.loadPersonalKey(client.address, client.nickname);
+                var decrypted = key.dek.decrypt(personalKey);
+                agent.config.saveDEK(client.address, key.senderNickname, key.dek.id, decrypted);
+            } catch (EncryptionTypeException | NoSuchEncryptionException | CreatingKeyException |
+                     WrongKeyException | CannotUseEncryption | PrivateKeyNotFoundException | StorageException e) {
+                exceptions.add(e);
+            }
+        }
+
+        if (!exceptions.isEmpty()) {
+            RuntimeException aggregated = new RuntimeException("Errors occurred during DEK processing");
+            for (Exception e : exceptions) {
+                aggregated.addSuppressed(e);
+            }
+            throw aggregated;
+        }
+
+        return keys;
     }
 
     public KeyDTO getKeyOf(String nickname) throws ProtocolException, InterruptedException, SandnodeErrorException,

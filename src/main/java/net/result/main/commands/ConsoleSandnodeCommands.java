@@ -179,14 +179,6 @@ public class ConsoleSandnodeCommands {
         Collection<DEKResponseDTO> keys = chain.get();
         context.io.chainManager.removeChain(chain);
 
-        for (DEKResponseDTO key : keys) {
-            Agent agent = client.node().agent();
-
-            KeyStorage decrypted = key.dek.decrypt(agent.config.loadPersonalKey(client.address, client.nickname));
-
-            agent.config.saveDEK(client.address, key.senderNickname, key.dek.id, decrypted);
-
-            System.out.println(decrypted);
-        }
+        keys.forEach(System.out::println);
     }
 }

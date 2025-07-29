@@ -4,7 +4,6 @@ import net.result.main.chain.ConsoleClientChainManager;
 import net.result.main.commands.*;
 import net.result.main.config.AgentPropertiesConfig;
 import net.result.main.config.ClientPropertiesConfig;
-import net.result.sandnode.config.KeyEntry;
 import net.result.sandnode.dto.LogPasswdResponseDTO;
 import net.result.sandnode.dto.LoginResponseDTO;
 import net.result.sandnode.encryption.AsymmetricEncryptions;
@@ -165,25 +164,8 @@ public class RunAgentWork implements Work {
                 .setNickname(client.nickname)
                 .setSentDatetimeNow();
 
-        if (context.chat.chatType == ChatInfoDTO.ChatType.DIALOG) {
-            try {
-                String otherNickname = context.chat.otherNickname;
-                KeyEntry dek = client.node().agent().config.loadDEK(client.address, otherNickname);
-
-                LOGGER.debug("Using {} {}", dek.id(), dek.keyStorage());
-
-                message.setEncryptedContent(dek.id(), dek.keyStorage(), input);
-            } catch (KeyStorageNotFoundException e) {
-                LOGGER.error("Using null", e);
-                message.setContent(input);
-            }
-        } else {
-            message.setContent(input);
-        }
-
-
         try {
-            UUID messageID = context.chain().message(message);
+            UUID messageID = context.chain().messageWithFallback(context.chat, message, input);
             System.out.printf("Sent message uuid: %s %n", messageID);
         } catch (DeserializationException e) {
             System.out.println("Sent message with unknown uuid due deserialization");

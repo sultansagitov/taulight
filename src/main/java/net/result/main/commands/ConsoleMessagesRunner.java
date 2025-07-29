@@ -7,7 +7,6 @@ import net.result.sandnode.exception.SandnodeException;
 import net.result.sandnode.hubagent.Agent;
 import net.result.taulight.chain.sender.MessageClientChain;
 import net.result.taulight.chain.sender.MessageFileClientChain;
-import net.result.taulight.dto.ChatInfoDTO;
 import net.result.taulight.dto.ChatMessageInputDTO;
 import net.result.taulight.dto.ChatMessageViewDTO;
 import net.result.taulight.dto.NamedFileDTO;
@@ -41,17 +40,7 @@ public class ConsoleMessagesRunner {
                 .setNickname(context.client.nickname)
                 .setSentDatetimeNow();
 
-        ChatInfoDTO chat = context.chat;
-        if (chat.chatType == ChatInfoDTO.ChatType.DIALOG) {
-            Agent agent = context.client.node().agent();
-            var entry = agent.config.loadDEK(context.client.address, chat.otherNickname);
-
-            message.setEncryptedContent(entry.id(), entry.keyStorage(), input);
-        } else {
-            message.setContent(input);
-        }
-
-        UUID uuid = context.chain().message(message);
+        UUID uuid = context.chain().messageWithFallback(context.chat, message, input);
         System.out.printf("Sent message UUID: %s%n", uuid);
     }
 
@@ -70,16 +59,7 @@ public class ConsoleMessagesRunner {
                 .setNickname(context.client.nickname)
                 .setSentDatetimeNow();
 
-        ChatInfoDTO chat = context.chat;
-        if (chat.chatType == ChatInfoDTO.ChatType.DIALOG) {
-            Agent agent = context.client.node().agent();
-            var entry = agent.config.loadDEK(context.client.address, chat.otherNickname);
-            message.setEncryptedContent(entry.id(), entry.keyStorage(), input);
-        } else {
-            message.setContent(input);
-        }
-
-        UUID uuid = context.chain().message(message);
+        UUID uuid = context.chain().messageWithFallback(context.chat, message, input);
         System.out.printf("Sent message UUID with attachments: %s%n", uuid);
     }
 
