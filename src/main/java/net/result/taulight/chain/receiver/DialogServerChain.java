@@ -19,8 +19,8 @@ import net.result.taulight.db.*;
 import net.result.taulight.dto.ChatMessageInputDTO;
 import net.result.taulight.message.types.DialogRequest;
 import net.result.taulight.util.ChatUtil;
+import net.result.taulight.util.ClusterUtil;
 import net.result.taulight.util.SysMessages;
-import net.result.taulight.util.TauAgentProtocol;
 import net.result.taulight.util.TauHubProtocol;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -73,7 +73,7 @@ public class DialogServerChain extends ServerChain implements ReceiverChain {
 
         if (dialogOpt.isEmpty()) {
             Collection<MemberEntity> members = new ArrayList<>(List.of(you, anotherMember.member()));
-            TauAgentProtocol.addMembersToCluster(session, members, manager.getCluster(dialog));
+            ClusterUtil.addMembersToCluster(session, members, manager.getCluster(dialog));
 
             ChatMessageInputDTO input = SysMessages.dialogNew.toInput(dialog, you.tauMember());
 

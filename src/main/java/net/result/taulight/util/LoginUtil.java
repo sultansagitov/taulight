@@ -19,11 +19,11 @@ public class LoginUtil {
         TauMemberEntity tauMember = session.member.tauMember();
 
         for (GroupEntity group : tauMember.groups()) {
-            TauAgentProtocol.addMemberToCluster(session, manager.getCluster(group));
+            ClusterUtil.addMemberToCluster(session, manager.getCluster(group));
         }
 
         for (DialogEntity dialog : tauMember.dialogs()) {
-            TauAgentProtocol.addMemberToCluster(session, manager.getCluster(dialog));
+            ClusterUtil.addMemberToCluster(session, manager.getCluster(dialog));
         }
     }
 }

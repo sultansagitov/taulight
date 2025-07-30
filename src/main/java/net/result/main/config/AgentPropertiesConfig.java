@@ -24,7 +24,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
 
-public class AgentPropertiesConfig implements AgentConfig {
+public class
+AgentPropertiesConfig implements AgentConfig {
     private static final Logger LOGGER = LogManager.getLogger(AgentPropertiesConfig.class);
     private final Path KEYS_JSON_PATH;
     private final Path KEYS_PATH;
@@ -187,14 +188,14 @@ public class AgentPropertiesConfig implements AgentConfig {
     @Override
     public void saveEncryptor(Address address, String nickname, KeyStorage keyStorage)
             throws StorageException {
-        LOGGER.debug("{}, {}", nickname, keyStorage);
+        LOGGER.debug("Saving encryptor {}@{}", nickname, address);
         memberKeys.add(new MemberKeyRecord(address, nickname, keyStorage));
         saveKeysJSON();
     }
 
     @Override
     public void saveDEK(Address address, String nickname, UUID keyID, KeyStorage keyStorage) throws StorageException {
-        LOGGER.debug("{}, {}, {}", nickname, keyID, keyStorage);
+        LOGGER.debug("Saving DEK for {}@{} as {}", nickname, address, keyID);
         DEKs.add(new MemberKeyRecord(address, nickname, keyID, keyStorage));
         saveKeysJSON();
     }

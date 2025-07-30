@@ -1,43 +1,30 @@
 package net.result.taulight.util;
 
-import net.result.sandnode.db.MemberEntity;
-import net.result.sandnode.serverclient.Session;
-import net.result.taulight.cluster.ChatCluster;
-import org.jetbrains.annotations.NotNull;
-
-import java.util.Collection;
+import net.result.sandnode.chain.sender.DEKClientChain;
+import net.result.sandnode.encryption.interfaces.KeyStorage;
+import net.result.sandnode.exception.ProtocolException;
+import net.result.sandnode.exception.StorageException;
+import net.result.sandnode.exception.crypto.*;
+import net.result.sandnode.exception.error.KeyStorageNotFoundException;
+import net.result.sandnode.exception.error.SandnodeErrorException;
+import net.result.sandnode.hubagent.Agent;
+import net.result.sandnode.serverclient.SandnodeClient;
+import net.result.taulight.dto.ChatMessageInputDTO;
 
 public class TauAgentProtocol {
-    public static void addMemberToCluster(Session session, ChatCluster cluster) {
-        addMemberToCluster(session, session.member, cluster);
-    }
-
-    public static void addMemberToCluster(@NotNull Session session, MemberEntity member, ChatCluster cluster) {
-        session.server
-                .getAgents().stream()
-                .filter(s -> member.equals(s.member))
-                .forEach(s -> s.addToCluster(cluster));
-    }
-
-    public static void addMembersToCluster(
-            @NotNull Session session,
-            Collection<MemberEntity> members,
-            ChatCluster cluster
-    ) {
-        session.server
-                .getAgents().stream()
-                .filter(s -> members.contains(s.member))
-                .forEach(s -> s.addToCluster(cluster));
-    }
-
-    public static void removeMemberFromCluster(Session session, ChatCluster cluster) {
-        removeMemberFromCluster(session, session.member, cluster);
-    }
-
-    public static void removeMemberFromCluster(@NotNull Session session, MemberEntity member, ChatCluster cluster) {
-        session.server
-                .getAgents().stream()
-                .filter(s -> member.equals(s.member))
-                .forEach(s -> s.removeFromCluster(cluster));
+    public static KeyStorage loadDEK(SandnodeClient client, ChatMessageInputDTO input)
+            throws ProtocolException, InterruptedException, SandnodeErrorException, EncryptionTypeException,
+            NoSuchEncryptionException, CreatingKeyException, WrongKeyException, CannotUseEncryption,
+            PrivateKeyNotFoundException, StorageException {
+        Agent agent = client.node().agent();
+        try {
+            return agent.config.loadDEK(client.address, input.keyID);
+        } catch (KeyStorageNotFoundException e) {
+            DEKClientChain chain = new DEKClientChain(client);
+            client.io().chainManager.linkChain(chain);
+            chain.get();
+            client.io().chainManager.removeChain(chain);
+            return agent.config.loadDEK(client.address, input.keyID);
+        }
     }
 }

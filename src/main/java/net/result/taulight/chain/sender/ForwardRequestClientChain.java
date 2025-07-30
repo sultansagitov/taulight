@@ -45,9 +45,7 @@ public class ForwardRequestClientChain extends ClientChain {
                 try {
                     String otherNickname = chat.otherNickname;
                     KeyEntry dek = client.node().agent().config.loadDEK(client.address, otherNickname);
-
                     LOGGER.debug("Using {} {}", dek.id(), dek.keyStorage());
-
                     input.setEncryptedContent(dek.id(), dek.keyStorage(), text);
                 } catch (KeyStorageNotFoundException e) {
                     LOGGER.error("Using null", e);

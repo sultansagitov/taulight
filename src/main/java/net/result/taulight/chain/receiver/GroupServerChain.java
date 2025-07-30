@@ -30,8 +30,8 @@ import net.result.taulight.message.CodeListMessage;
 import net.result.taulight.message.TauMessageTypes;
 import net.result.taulight.message.types.GroupRequest;
 import net.result.taulight.util.ChatUtil;
+import net.result.taulight.util.ClusterUtil;
 import net.result.taulight.util.SysMessages;
-import net.result.taulight.util.TauAgentProtocol;
 import net.result.taulight.util.TauHubProtocol;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -105,7 +105,7 @@ public class GroupServerChain extends ServerChain implements ReceiverChain {
 
         GroupEntity group = groupRepo.create(dto.title, you);
 
-        TauAgentProtocol.addMemberToCluster(session, manager.getCluster(group));
+        ClusterUtil.addMemberToCluster(session, manager.getCluster(group));
         ChatMessageInputDTO input = SysMessages.groupNew.toInput(group, you);
         try {
             TauHubProtocol.send(session, group, input);
@@ -179,7 +179,7 @@ public class GroupServerChain extends ServerChain implements ReceiverChain {
             LOGGER.warn("Exception when sending system message of leaving member: {}", e.getMessage());
         }
 
-        TauAgentProtocol.removeMemberFromCluster(session, manager.getCluster(group));
+        ClusterUtil.removeMemberFromCluster(session, manager.getCluster(group));
 
         return new HappyMessage();
     }

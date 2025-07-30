@@ -97,4 +97,5 @@ public class TauHubProtocol {
         chain.response(request);
         chainManager.removeChain(chain);
     }
+
 }
