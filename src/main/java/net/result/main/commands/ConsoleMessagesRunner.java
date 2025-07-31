@@ -2,9 +2,7 @@ package net.result.main.commands;
 
 import net.result.sandnode.dto.FileDTO;
 import net.result.sandnode.dto.PaginatedDTO;
-import net.result.sandnode.encryption.interfaces.KeyStorage;
 import net.result.sandnode.exception.SandnodeException;
-import net.result.sandnode.hubagent.Agent;
 import net.result.taulight.chain.sender.MessageClientChain;
 import net.result.taulight.chain.sender.MessageFileClientChain;
 import net.result.taulight.dto.ChatMessageInputDTO;
@@ -12,6 +10,7 @@ import net.result.taulight.dto.ChatMessageViewDTO;
 import net.result.taulight.dto.NamedFileDTO;
 
 import java.io.File;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -40,7 +39,7 @@ public class ConsoleMessagesRunner {
                 .setNickname(context.client.nickname)
                 .setSentDatetimeNow();
 
-        UUID uuid = context.chain().messageWithFallback(context.chat, message, input);
+        UUID uuid = context.chain().sendMessage(context.chat, message, input, true, true);
         System.out.printf("Sent message UUID: %s%n", uuid);
     }
 
@@ -59,7 +58,7 @@ public class ConsoleMessagesRunner {
                 .setNickname(context.client.nickname)
                 .setSentDatetimeNow();
 
-        UUID uuid = context.chain().messageWithFallback(context.chat, message, input);
+        UUID uuid = context.chain().sendMessage(context.chat, message, input, true, true);
         System.out.printf("Sent message UUID with attachments: %s%n", uuid);
     }
 
@@ -75,17 +74,27 @@ public class ConsoleMessagesRunner {
     }
 
     public static void printMessage(ConsoleContext context, ChatMessageViewDTO dto) throws SandnodeException {
-        ChatMessageInputDTO input = dto.message;
+        var input = dto.message;
+
+        var formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+
         String decrypted;
         if (input.keyID != null) {
-            Agent agent = context.client.node().agent();
-            KeyStorage keyStorage = agent.config.loadDEK(context.client.address, input.keyID);
+            var agent = context.client.node().agent();
+            var keyStorage = agent.config.loadDEK(context.client.address, input.keyID);
             decrypted = keyStorage.decrypt(Base64.getDecoder().decode(input.content));
         } else {
             decrypted = input.content;
         }
 
-        System.out.printf("%s [%s] %s: %s%n", dto.id, dto.creationDate, input.nickname, decrypted);
+        System.out.printf(
+                "%s [%s] %s %s: %s%n",
+                dto.id,
+                dto.creationDate.format(formatter),
+                dto.message.keyID != null ? "+" : "-",
+                input.nickname,
+                decrypted
+        );
 
         Set<UUID> repliedToMessages = input.repliedToMessages;
         if (!repliedToMessages.isEmpty()) {

@@ -171,11 +171,12 @@ AgentPropertiesConfig implements AgentConfig {
 
     @Override
     public AsymmetricKeyStorage loadServerKey(@NotNull Address address) throws KeyStorageNotFoundException {
-        return serverKeys.stream()
-                .filter(keyRecord -> keyRecord.address.equals(address))
-                .findFirst()
-                .map(keyRecord -> keyRecord.keyStorage.asymmetric())
-                .orElseThrow(() -> new KeyStorageNotFoundException(address.toString()));
+        for (KeyRecord keyRecord : serverKeys) {
+            if (keyRecord.address.equals(address)) {
+                return keyRecord.keyStorage.asymmetric();
+            }
+        }
+        throw new KeyStorageNotFoundException(address.toString());
     }
 
     @Override
@@ -202,37 +203,41 @@ AgentPropertiesConfig implements AgentConfig {
 
     @Override
     public synchronized KeyStorage loadPersonalKey(Address address, String nickname) throws KeyStorageNotFoundException {
-        return memberKeys.stream()
-                .filter(k -> k.nickname.equals(nickname) && k.address.equals(address))
-                .map(k -> k.keyStorage)
-                .findFirst()
-                .orElseThrow(() -> new KeyStorageNotFoundException("address: " + address + "; nickname: " + nickname));
+        for (MemberKeyRecord k : memberKeys) {
+            if (k.nickname.equals(nickname) && k.address.equals(address)) {
+                return k.keyStorage;
+            }
+        }
+        throw new KeyStorageNotFoundException("%s@%s".formatted(nickname, address));
     }
 
     @Override
     public KeyStorage loadEncryptor(Address address, String nickname) throws KeyStorageNotFoundException {
-        return memberKeys.stream()
-                .filter(k -> Objects.equals(k.nickname, nickname) && k.address.equals(address))
-                .map(k -> k.keyStorage)
-                .findFirst()
-                .orElseThrow(() -> new KeyStorageNotFoundException("address: " + address + "; nickname: " + nickname));
+        for (MemberKeyRecord k : memberKeys) {
+            if (Objects.equals(k.nickname, nickname) && k.address.equals(address)) {
+                return k.keyStorage;
+            }
+        }
+        throw new KeyStorageNotFoundException("%s@%s".formatted(nickname, address));
     }
 
     @Override
     public KeyEntry loadDEK(Address address, String nickname) throws KeyStorageNotFoundException {
-        return DEKs.stream()
-                .filter(k -> Objects.equals(k.nickname, nickname) && k.address.equals(address))
-                .map(k -> new KeyEntry(k.keyID, k.keyStorage))
-                .findFirst()
-                .orElseThrow(() -> new KeyStorageNotFoundException("address: " + address + "; nickname: " + nickname));
+        for (MemberKeyRecord k : DEKs) {
+            if (Objects.equals(k.nickname, nickname) && k.address.equals(address)) {
+                return new KeyEntry(k.keyID, k.keyStorage);
+            }
+        }
+        throw new KeyStorageNotFoundException("%s@%s".formatted(nickname, address));
     }
 
     @Override
     public KeyStorage loadDEK(Address address, UUID keyID) throws KeyStorageNotFoundException {
-        return DEKs.stream()
-                .filter(k -> k.keyID.equals(keyID) && k.address.equals(address))
-                .map(k -> k.keyStorage)
-                .findFirst()
-                .orElseThrow(() -> new KeyStorageNotFoundException("address: " + address + "; keyID: " + keyID));
+        for (MemberKeyRecord k : DEKs) {
+            if (k.keyID.equals(keyID) && k.address.equals(address)) {
+                return k.keyStorage;
+            }
+        }
+        throw new KeyStorageNotFoundException("address: " + address + "; keyID: " + keyID);
     }
 }

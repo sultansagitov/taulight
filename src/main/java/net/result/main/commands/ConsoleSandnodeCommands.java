@@ -150,7 +150,6 @@ public class ConsoleSandnodeCommands {
         String receiver = args.get(0);
 
         var client = context.client;
-        var agent = client.node().agent();
 
         var key = SymmetricEncryptions.AES.generate();
 
@@ -169,7 +168,7 @@ public class ConsoleSandnodeCommands {
         UUID uuid = chain.sendDEK(receiver, encryptor, key);
         context.io.chainManager.removeChain(chain);
 
-        agent.config.saveDEK(client.address, receiver, uuid, key);
+        System.out.printf("DEK uuid: %s%n", uuid);
     }
 
     private static void DEK(List<String> ignoredArgs, ConsoleContext context) throws Exception {

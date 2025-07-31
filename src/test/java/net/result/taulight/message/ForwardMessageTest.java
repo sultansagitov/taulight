@@ -13,11 +13,11 @@ class ForwardMessageTest {
 
     @Test
     void testSerializationAndDeserialization() throws ExpectedMessageException, DeserializationException {
-        String expectedContent = "This is a test message.";
-        ForwardRequest originalMessage = new ForwardRequest(new ChatMessageInputDTO().setContent(expectedContent));
+        var expectedContent = "This is a test message.";
+        var originalMessage = new ForwardRequest(new ChatMessageInputDTO().setContent(expectedContent), false);
 
-        RawMessage serializedData = new RawMessage(originalMessage.headers(), originalMessage.getBody());
-        ForwardRequest deserializedMessage = new ForwardRequest(serializedData);
+        var serializedData = new RawMessage(originalMessage.headers(), originalMessage.getBody());
+        var deserializedMessage = new ForwardRequest(serializedData);
 
         assertNotNull(deserializedMessage, "Deserialized message should not be null.");
         assertEquals(expectedContent, deserializedMessage.getChatMessageInputDTO().content,

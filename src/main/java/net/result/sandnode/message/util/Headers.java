@@ -9,6 +9,7 @@ import net.result.sandnode.encryption.EncryptionManager;
 import net.result.sandnode.encryption.interfaces.Encryption;
 import net.result.simplesix64.SimpleSix64;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -62,6 +63,10 @@ public class Headers {
             throw new DeserializationException("headers don't have key \"%s\"".formatted(key));
         }
         return map.get(key.toLowerCase());
+    }
+
+    public @Nullable String getValueNullable(@NotNull String key) {
+        return has(key) ? map.get(key.toLowerCase()) : null;
     }
 
     public Headers setType(@NotNull MessageType type) {

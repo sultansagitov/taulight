@@ -24,10 +24,14 @@ public class DEKClientChain extends ClientChain {
         super(client);
     }
 
-    public UUID sendDEK(String receiver, KeyStorage encryptor, KeyStorage keyStorage)
-            throws InterruptedException, SandnodeErrorException, ProtocolException, CryptoException {
-        var raw = sendAndReceive(DEKRequest.send(receiver, encryptor, keyStorage));
-        return new UUIDMessage(raw).uuid;
+    public UUID sendDEK(String receiver, KeyStorage encryptor, KeyStorage dek)
+            throws InterruptedException, SandnodeErrorException, ProtocolException, CryptoException, StorageException {
+        var raw = sendAndReceive(DEKRequest.send(receiver, encryptor, dek));
+        var keyID = new UUIDMessage(raw).uuid;
+
+        client.node().agent().config.saveDEK(client.address, receiver, keyID, dek);
+
+        return keyID;
     }
 
     public Collection<DEKResponseDTO> get() throws ProtocolException, InterruptedException, SandnodeErrorException,

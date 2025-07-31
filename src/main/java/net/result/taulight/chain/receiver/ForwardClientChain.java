@@ -11,6 +11,7 @@ import net.result.taulight.message.types.ForwardResponse;
 import net.result.taulight.util.TauAgentProtocol;
 
 import java.util.Base64;
+import java.util.UUID;
 
 public abstract class ForwardClientChain extends ClientChain implements ReceiverChain {
     public ForwardClientChain(SandnodeClient client) {
@@ -23,9 +24,10 @@ public abstract class ForwardClientChain extends ClientChain implements Receiver
         var view = response.getServerMessage();
         var input = view.message;
 
-        var decrypted = input.keyID != null
+        UUID keyID = input.keyID;
+        var decrypted = keyID != null
             ? TauAgentProtocol
-                .loadDEK(client, input)
+                .loadDEK(client, keyID)
                 .decrypt(Base64.getDecoder().decode(input.content))
             : input.content;
 

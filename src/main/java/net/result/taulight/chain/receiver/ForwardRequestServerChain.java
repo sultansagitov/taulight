@@ -20,15 +20,12 @@ import net.result.taulight.db.ChatEntity;
 import net.result.taulight.db.MessageEntity;
 import net.result.taulight.db.MessageFileRepository;
 import net.result.taulight.db.MessageRepository;
-import net.result.taulight.dto.ChatMessageInputDTO;
 import net.result.taulight.dto.ChatMessageViewDTO;
 import net.result.taulight.message.types.ForwardRequest;
 import net.result.taulight.util.ChatUtil;
 import net.result.taulight.util.TauHubProtocol;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
-import java.util.UUID;
 
 public class ForwardRequestServerChain extends ServerChain implements ReceiverChain {
     private static final Logger LOGGER = LogManager.getLogger(ForwardRequestServerChain.class);
@@ -51,15 +48,15 @@ public class ForwardRequestServerChain extends ServerChain implements ReceiverCh
                 continue;
             }
 
-            ForwardRequest forwardMessage = new ForwardRequest(raw);
+            var forwardMessage = new ForwardRequest(raw);
 
             if (session.member == null) throw new UnauthorizedException();
 
-            ChatMessageInputDTO input = forwardMessage.getChatMessageInputDTO();
+            var input = forwardMessage.getChatMessageInputDTO();
             if (input == null) throw new TooFewArgumentsException();
 
-            UUID chatID = input.chatID;
-            String content = input.content;
+            var chatID = input.chatID;
+            var content = input.content;
             if (chatID == null || content == null) throw new TooFewArgumentsException();
 
             LOGGER.info("Forwarding message: {}", content);
@@ -85,7 +82,9 @@ public class ForwardRequestServerChain extends ServerChain implements ReceiverCh
 
             TauHubProtocol.send(session, chat, viewDTO);
 
-            raw = sendAndReceive(new HappyMessage());
+            if (forwardMessage.requireDeliveryAck) {
+                raw = sendAndReceive(new HappyMessage());
+            }
         }
     }
 }

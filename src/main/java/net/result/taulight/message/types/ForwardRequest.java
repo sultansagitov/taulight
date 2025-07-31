@@ -9,16 +9,24 @@ import net.result.taulight.dto.ChatMessageInputDTO;
 import net.result.taulight.message.TauMessageTypes;
 
 public class ForwardRequest extends MSGPackMessage<ChatMessageInputDTO> {
-    public ForwardRequest(ChatMessageInputDTO input) {
-        this(new Headers(), input);
+    public final boolean requireDeliveryAck;
+
+    public ForwardRequest(Headers headers, ChatMessageInputDTO input, boolean requireDeliveryAck) {
+        super(headers.setType(TauMessageTypes.FWD_REQ), input);
+        this.requireDeliveryAck = requireDeliveryAck;
+        if (requireDeliveryAck) {
+            headers().setValue("require-delivery-ack", "true");
+        }
     }
 
-    public ForwardRequest(Headers headers, ChatMessageInputDTO input) {
-        super(headers.setType(TauMessageTypes.FWD_REQ), input);
+    public ForwardRequest(ChatMessageInputDTO input, boolean requireDeliveryAck) {
+        this(new Headers(), input, requireDeliveryAck);
     }
 
     public ForwardRequest(RawMessage request) throws DeserializationException, ExpectedMessageException {
         super(request.expect(TauMessageTypes.FWD_REQ), ChatMessageInputDTO.class);
+        String v = headers().getValueNullable("require-delivery-ack");
+        requireDeliveryAck = v != null && v.equals("true");
     }
 
     public ChatMessageInputDTO getChatMessageInputDTO() {

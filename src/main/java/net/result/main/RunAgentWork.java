@@ -165,7 +165,7 @@ public class RunAgentWork implements Work {
                 .setSentDatetimeNow();
 
         try {
-            UUID messageID = context.chain().messageWithFallback(context.chat, message, input);
+            UUID messageID = context.chain().sendMessage(context.chat, message, input, true, true);
             System.out.printf("Sent message uuid: %s %n", messageID);
         } catch (DeserializationException e) {
             System.out.println("Sent message with unknown uuid due deserialization");
