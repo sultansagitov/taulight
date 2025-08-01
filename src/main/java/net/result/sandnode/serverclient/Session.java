@@ -53,7 +53,7 @@ public class Session implements Peer {
 
             Logout.logout(this);
 
-            server.removeSession(this);
+            close();
         }, "%s/Receiving".formatted(io.addressFromSocket())).start();
     }
 
@@ -97,6 +97,7 @@ public class Session implements Peer {
 
     @Override
     public void close() {
+        server.removeSession(this);
         clusters.forEach(cluster -> cluster.remove(this));
     }
 
