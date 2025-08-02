@@ -6,6 +6,7 @@ import net.result.sandnode.encryption.SymmetricEncryptions;
 import net.result.sandnode.encryption.interfaces.AsymmetricKeyStorage;
 import net.result.sandnode.encryption.interfaces.KeyStorage;
 import net.result.sandnode.encryption.interfaces.SymmetricKeyStorage;
+import net.result.sandnode.util.DEKUtil;
 import org.junit.jupiter.api.*;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -32,7 +33,7 @@ public class DEKDTOTest {
 
         assertNotNull(dekDTO.encryptedKey);
 
-        KeyStorage decrypted = dekDTO.decrypt(encryptor);
+        KeyStorage decrypted = DEKUtil.decrypt(dekDTO.encryptedKey, encryptor);
         Assertions.assertEquals(keyStorage.encryption().name(), decrypted.encryption().name());
 
         if (decrypted.encryption().isAsymmetric()) {

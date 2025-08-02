@@ -20,7 +20,6 @@ import java.util.*;
 @SuppressWarnings("SameReturnValue")
 public class ConsoleSandnodeCommands {
     public static void register(Map<String, LoopCondition> commands) {
-        commands.put("keyID", ConsoleSandnodeCommands::keyID);
         commands.put("chains", ConsoleSandnodeCommands::chains);
         commands.put("clusters", ConsoleSandnodeCommands::clusters);
         commands.put("addCluster", ConsoleSandnodeCommands::addCluster);
@@ -33,10 +32,6 @@ public class ConsoleSandnodeCommands {
         commands.put("loginHistory", ConsoleSandnodeCommands::loginHistory);
         commands.put("sendDEK", ConsoleSandnodeCommands::sendDEK);
         commands.put("DEK", ConsoleSandnodeCommands::DEK);
-    }
-
-    private static void keyID(List<String> ignored, ConsoleContext context) {
-        System.out.println(context.keyID);
     }
 
     private static void chains(List<String> ignored, ConsoleContext context) {

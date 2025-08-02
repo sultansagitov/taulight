@@ -1,6 +1,5 @@
 package net.result.sandnode.message.types;
 
-import net.result.sandnode.dto.DEKDTO;
 import net.result.sandnode.dto.DEKRequestDTO;
 import net.result.sandnode.encryption.interfaces.KeyStorage;
 import net.result.sandnode.exception.DeserializationException;
@@ -11,6 +10,7 @@ import net.result.sandnode.message.MSGPackMessage;
 import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.message.util.Headers;
 import net.result.sandnode.message.util.MessageTypes;
+import net.result.sandnode.util.DEKUtil;
 
 public class DEKRequest extends MSGPackMessage<DEKRequestDTO> {
     public DEKRequest(DEKRequestDTO dto) {
@@ -20,7 +20,7 @@ public class DEKRequest extends MSGPackMessage<DEKRequestDTO> {
     public static DEKRequest send(String nickname, KeyStorage encryptor, KeyStorage keyStorage)
             throws EncryptionException, CryptoException {
         var dto = new DEKRequestDTO();
-        dto.send = new DEKRequestDTO.Send(nickname, DEKDTO.getEncrypted(encryptor, keyStorage));
+        dto.send = new DEKRequestDTO.Send(nickname, DEKUtil.getEncrypted(encryptor, keyStorage));
         return new DEKRequest(dto);
     }
 

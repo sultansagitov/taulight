@@ -61,6 +61,6 @@ public class RegistrationServerChain extends ServerChain implements ReceiverChai
         LoginEntity login = loginRepo.create(member, keyEntity, encryptedIP, encryptedDevice);
 
         String token = tokenizer.tokenizeLogin(login);
-        return new RegistrationResponse(token, keyEntity.id());
+        return new RegistrationResponse(token);
     }
 }

@@ -10,15 +10,13 @@ import java.util.UUID;
 public class ConsoleContext {
     public final SandnodeClient client;
     public final IOController io;
-    public final UUID keyID;
     public ForwardRequestClientChain chain;
     public UUID currentChat = null;
     public ChatInfoDTO chat;
 
-    public ConsoleContext(SandnodeClient client, UUID keyID) {
+    public ConsoleContext(SandnodeClient client) {
         this.client = client;
         io = client.io();
-        this.keyID = keyID;
     }
 
     public ForwardRequestClientChain chain() {

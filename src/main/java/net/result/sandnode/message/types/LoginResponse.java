@@ -11,7 +11,7 @@ import org.jetbrains.annotations.NotNull;
 
 public class LoginResponse extends MSGPackMessage<LoginResponseDTO> {
     public LoginResponse(@NotNull Headers headers, @NotNull MemberEntity member) {
-        super(headers.setType(MessageTypes.LOGIN), new LoginResponseDTO(member.nickname(), member.publicKey().id()));
+        super(headers.setType(MessageTypes.LOGIN), new LoginResponseDTO(member.nickname()));
     }
 
     public LoginResponse(MemberEntity member) {

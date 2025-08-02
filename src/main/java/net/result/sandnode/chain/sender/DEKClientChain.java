@@ -13,6 +13,7 @@ import net.result.sandnode.message.types.DEKListMessage;
 import net.result.sandnode.message.types.DEKRequest;
 import net.result.sandnode.message.types.PublicKeyResponse;
 import net.result.sandnode.serverclient.SandnodeClient;
+import net.result.sandnode.util.DEKUtil;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -47,7 +48,7 @@ public class DEKClientChain extends ClientChain {
             try {
                 var agent = client.node().agent();
                 var personalKey = agent.config.loadPersonalKey(client.address, client.nickname);
-                var decrypted = key.dek.decrypt(personalKey);
+                var decrypted = DEKUtil.decrypt(key.dek.encryptedKey, personalKey);
                 agent.config.saveDEK(client.address, key.senderNickname, key.dek.id, decrypted);
             } catch (EncryptionTypeException | NoSuchEncryptionException | CreatingKeyException |
                      WrongKeyException | CannotUseEncryption | PrivateKeyNotFoundException | StorageException e) {

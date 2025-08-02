@@ -103,7 +103,7 @@ public class RunAgentWork implements Work {
         try {
             var result = AgentProtocol.register(client, nickname, password, device, keyStorage);
             System.out.printf("Token for \"%s\":%n%s%n", nickname, result.token);
-            context = new ConsoleContext(client, result.keyID);
+            context = new ConsoleContext(client);
         } catch (BusyNicknameException e) {
             System.out.println("Nickname is busy");
         } catch (InvalidNicknamePassword e) {
@@ -122,7 +122,7 @@ public class RunAgentWork implements Work {
         try {
             LoginResponseDTO result = AgentProtocol.byToken(client, token);
             System.out.printf("You log in as %s%n", result.nickname);
-            context = new ConsoleContext(client, result.keyID);
+            context = new ConsoleContext(client);
         } catch (InvalidArgumentException e) {
             System.out.println("Invalid token. Please try again.");
         } catch (ExpiredTokenException e) {
@@ -145,7 +145,7 @@ public class RunAgentWork implements Work {
         try {
             LogPasswdResponseDTO result = AgentProtocol.byPassword(client, nickname, password, device);
             System.out.printf("Token for \"%s\": %n%s%n", nickname, result.token);
-            context = new ConsoleContext(client, result.keyID);
+            context = new ConsoleContext(client);
         } catch (UnauthorizedException e) {
             System.out.println("Incorrect nickname or password. Please try again.");
         } catch (SandnodeErrorException | UnknownSandnodeErrorException e) {

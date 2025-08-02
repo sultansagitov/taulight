@@ -58,7 +58,7 @@ public abstract class LogPasswdServerChain extends ServerChain implements Receiv
         onLogin();
 
         String token = tokenizer.tokenizeLogin(login);
-        return new LogPasswdResponse(token, member.publicKey().id());
+        return new LogPasswdResponse(token);
     }
 
     protected abstract void onLogin() throws Exception;
