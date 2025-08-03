@@ -22,7 +22,11 @@ public class LoginClientChain extends ClientChain {
             throws InterruptedException, SandnodeErrorException, ProtocolException {
         send(LoginRequest.byToken(token));
         var raw = receiveWithSpecifics(ExpiredTokenException.class);
-        return new LoginResponse(raw).dto();
+        LoginResponseDTO dto = new LoginResponse(raw).dto();
+
+        client.nickname = dto.nickname;
+
+        return dto;
     }
 
     public synchronized List<LoginHistoryDTO> getHistory()

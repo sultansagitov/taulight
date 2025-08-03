@@ -27,28 +27,22 @@ public class AgentProtocol {
             @NotNull SandnodeClient client,
             @NotNull String nickname,
             @NotNull String password,
-            @NotNull String device,
-            @NotNull AsymmetricKeyStorage keyStorage
+            @NotNull String device
     ) throws InterruptedException, SandnodeErrorException, CannotUseEncryption, ProtocolException, StorageException {
-        RegistrationClientChain chain = new RegistrationClientChain(client);
+        var chain = new RegistrationClientChain(client);
         client.io().chainManager.linkChain(chain);
-        RegistrationResponseDTO dto = chain.register(nickname, password, device, keyStorage);
+        var dto = chain.register(nickname, password, device);
         client.io().chainManager.removeChain(chain);
-        client.node().agent().config.savePersonalKey(client.address, nickname, keyStorage);
-
-        client.nickname = nickname;
 
         return dto;
     }
 
     public static LoginResponseDTO byToken(SandnodeClient client, String token)
             throws InterruptedException, SandnodeErrorException, ProtocolException {
-        LoginClientChain chain = new LoginClientChain(client);
+        var chain = new LoginClientChain(client);
         client.io().chainManager.linkChain(chain);
-        LoginResponseDTO dto = chain.login(token);
+        var dto = chain.login(token);
         client.io().chainManager.removeChain(chain);
-
-        client.nickname = dto.nickname;
 
         return dto;
     }
@@ -59,14 +53,12 @@ public class AgentProtocol {
             String password,
             String device
     ) throws InterruptedException, SandnodeErrorException, ProtocolException {
-        LogPasswdClientChain chain = new LogPasswdClientChain(client);
+        var chain = new LogPasswdClientChain(client);
         client.io().chainManager.linkChain(chain);
-        LogPasswdResponseDTO token = chain.getToken(nickname, password, device);
+        var dto = chain.getToken(nickname, password, device);
         client.io().chainManager.removeChain(chain);
 
-        client.nickname = nickname;
-
-        return token;
+        return dto;
     }
 
     public static AsymmetricKeyStorage loadOrFetchServerKey(SandnodeClient client, @NotNull SandnodeLinkRecord link)

@@ -6,8 +6,6 @@ import net.result.main.config.AgentPropertiesConfig;
 import net.result.main.config.ClientPropertiesConfig;
 import net.result.sandnode.dto.LogPasswdResponseDTO;
 import net.result.sandnode.dto.LoginResponseDTO;
-import net.result.sandnode.encryption.AsymmetricEncryptions;
-import net.result.sandnode.encryption.interfaces.AsymmetricKeyStorage;
 import net.result.sandnode.exception.*;
 import net.result.sandnode.exception.crypto.CreatingKeyException;
 import net.result.sandnode.exception.error.*;
@@ -98,10 +96,8 @@ public class RunAgentWork implements Work {
         System.out.print("Device: ");
         String device = scanner.nextLine();
 
-        AsymmetricKeyStorage keyStorage = AsymmetricEncryptions.ECIES.generate();
-
         try {
-            var result = AgentProtocol.register(client, nickname, password, device, keyStorage);
+            var result = AgentProtocol.register(client, nickname, password, device);
             System.out.printf("Token for \"%s\":%n%s%n", nickname, result.token);
             context = new ConsoleContext(client);
         } catch (BusyNicknameException e) {

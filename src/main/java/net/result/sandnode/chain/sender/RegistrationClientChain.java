@@ -4,6 +4,7 @@ import net.result.sandnode.chain.ClientChain;
 import net.result.sandnode.dto.PublicKeyDTO;
 import net.result.sandnode.dto.RegisterRequestDTO;
 import net.result.sandnode.dto.RegistrationResponseDTO;
+import net.result.sandnode.encryption.AsymmetricEncryptions;
 import net.result.sandnode.encryption.interfaces.AsymmetricKeyStorage;
 import net.result.sandnode.exception.*;
 import net.result.sandnode.exception.crypto.CannotUseEncryption;
@@ -24,9 +25,17 @@ public class RegistrationClientChain extends ClientChain {
     public synchronized RegistrationResponseDTO register(
             @NotNull String nickname,
             @NotNull String password,
+            @NotNull String device
+    ) throws InterruptedException, SandnodeErrorException, CannotUseEncryption, ProtocolException, StorageException {
+        return register(nickname, password, device, AsymmetricEncryptions.ECIES.generate());
+    }
+
+    public synchronized RegistrationResponseDTO register(
+            @NotNull String nickname,
+            @NotNull String password,
             @NotNull String device,
             @NotNull AsymmetricKeyStorage keyStorage
-    ) throws InterruptedException, SandnodeErrorException, CannotUseEncryption, ProtocolException {
+    ) throws InterruptedException, SandnodeErrorException, CannotUseEncryption, ProtocolException, StorageException {
 
         var pubDTO = new PublicKeyDTO(keyStorage);
         var regDTO = new RegisterRequestDTO(nickname, password, device, pubDTO);
@@ -34,6 +43,10 @@ public class RegistrationClientChain extends ClientChain {
         RegistrationRequest request = new RegistrationRequest(regDTO);
         send(request);
         RawMessage response = receiveWithSpecifics(BusyNicknameException.class, InvalidNicknamePassword.class);
+
+        client.node().agent().config.savePersonalKey(client.address, nickname, keyStorage);
+
+        client.nickname = nickname;
 
         return new RegistrationResponse(response).dto();
     }

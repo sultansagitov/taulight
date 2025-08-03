@@ -16,6 +16,10 @@ public class LogPasswdClientChain extends ClientChain {
     public LogPasswdResponseDTO getToken(String nickname, String password, String device)
             throws InterruptedException, SandnodeErrorException, ProtocolException {
         var raw = sendAndReceive(new LogPasswdRequest(nickname, password, device));
-        return new LogPasswdResponse(raw).dto();
+        var dto = new LogPasswdResponse(raw).dto();
+
+        client.nickname = nickname;
+
+        return dto;
     }
 }
