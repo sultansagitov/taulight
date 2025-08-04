@@ -2,9 +2,14 @@ package net.result.sandnode.util;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
+import jakarta.persistence.EntityTransaction;
 import jakarta.persistence.Persistence;
 import net.result.sandnode.db.BaseEntity;
 import net.result.sandnode.exception.ConfigurationException;
+import net.result.sandnode.exception.DatabaseException;
+
+import java.util.Optional;
+import java.util.UUID;
 
 public class JPAUtil {
     public static final String persistenceUnitName = "taulight-unit";
@@ -32,5 +37,30 @@ public class JPAUtil {
     @SuppressWarnings("unchecked")
     public <T extends BaseEntity> T refresh(T entity) {
         return getEntityManager().find((Class<T>) entity.getClass(), entity.id());
+    }
+
+    public <T extends BaseEntity> T create(T entity) throws DatabaseException {
+        EntityManager em = getEntityManager();
+        EntityTransaction transaction = em.getTransaction();
+
+        try {
+            transaction.begin();
+            T managed = em.merge(entity);
+            transaction.commit();
+
+            return managed;
+        } catch (Exception e) {
+            if (transaction.isActive()) transaction.rollback();
+            throw new DatabaseException(e);
+        }
+    }
+
+    public <T extends BaseEntity> Optional<T> find(Class<T> clazz, UUID id) throws DatabaseException {
+        EntityManager em = getEntityManager();
+        try {
+            return Optional.ofNullable(em.find(clazz, id));
+        } catch (Exception e) {
+            throw new DatabaseException(e);
+        }
     }
 }

@@ -11,13 +11,14 @@ import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.message.types.HappyMessage;
 import net.result.sandnode.serverclient.Session;
 import net.result.sandnode.util.Container;
+import net.result.sandnode.util.JPAUtil;
 import net.result.taulight.db.*;
 import net.result.taulight.message.types.PermissionRequest;
 
 public class PermissionServerChain extends ServerChain implements ReceiverChain {
-
     private RoleRepository roleRepo;
     private GroupRepository groupRepo;
+    private JPAUtil jpaUtil;
 
     public PermissionServerChain(Session session) {
         super(session);
@@ -30,6 +31,7 @@ public class PermissionServerChain extends ServerChain implements ReceiverChain 
         Container container = session.server.container;
         roleRepo = container.get(RoleRepository.class);
         groupRepo = container.get(GroupRepository.class);
+        jpaUtil = container.get(JPAUtil.class);
 
         boolean success;
         if (request.mode.equals("-")) {
@@ -46,7 +48,7 @@ public class PermissionServerChain extends ServerChain implements ReceiverChain 
     }
 
     private GroupEntity getGroup(PermissionRequest request) throws SandnodeException {
-        GroupEntity group = groupRepo.findById(request.chatID).orElseThrow(NotFoundException::new);
+        GroupEntity group = jpaUtil.find(GroupEntity.class, request.chatID).orElseThrow(NotFoundException::new);
         if (session.member == null && !group.owner().equals(session.member.tauMember())) {
             throw new UnauthorizedException();
         }

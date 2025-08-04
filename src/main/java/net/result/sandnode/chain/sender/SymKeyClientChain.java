@@ -1,6 +1,7 @@
 package net.result.sandnode.chain.sender;
 
 import net.result.sandnode.chain.ClientChain;
+import net.result.sandnode.encryption.interfaces.Encryption;
 import net.result.sandnode.encryption.interfaces.SymmetricKeyStorage;
 import net.result.sandnode.exception.ExpectedMessageException;
 import net.result.sandnode.exception.UnknownSandnodeErrorException;
@@ -22,14 +23,15 @@ public class SymKeyClientChain extends ClientChain {
             UnprocessedMessagesException, UnknownSandnodeErrorException, SandnodeErrorException {
         SymmetricKeyStorage keyStorage = client.config.symmetricKeyEncryption().generate();
 
-        if (!io.keyStorageRegistry.has(io.serverEncryption()))
-            throw new KeyNotCreatedException(io.serverEncryption());
+        Encryption serverEncryption = io().serverEncryption();
+        if (!io().keyStorageRegistry.has(serverEncryption))
+            throw new KeyNotCreatedException(serverEncryption);
 
-        Message symMessage = new SymMessage(new Headers().setBodyEncryption(io.serverEncryption()), keyStorage);
+        Message symMessage = new SymMessage(new Headers().setBodyEncryption(serverEncryption), keyStorage);
 
         send(symMessage);
 
-        io.setClientKey(keyStorage);
+        io().setClientKey(keyStorage);
 
         new HappyMessage(receive());
     }

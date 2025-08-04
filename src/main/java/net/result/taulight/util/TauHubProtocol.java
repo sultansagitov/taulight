@@ -7,19 +7,18 @@ import net.result.sandnode.exception.error.SandnodeErrorException;
 import net.result.sandnode.exception.error.UnauthorizedException;
 import net.result.sandnode.serverclient.Session;
 import net.result.taulight.chain.sender.ForwardServerChain;
+import net.result.taulight.cluster.TauClusterManager;
 import net.result.taulight.db.ChatEntity;
 import net.result.taulight.db.MessageEntity;
 import net.result.taulight.db.MessageFileRepository;
 import net.result.taulight.db.MessageRepository;
 import net.result.taulight.dto.ChatMessageInputDTO;
 import net.result.taulight.dto.ChatMessageViewDTO;
-import net.result.taulight.cluster.TauClusterManager;
 import net.result.taulight.message.types.ForwardResponse;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -33,8 +32,8 @@ public class TauHubProtocol {
             throws InterruptedException, DatabaseException, SandnodeErrorException, ProtocolException {
         if (session.member == null) throw new UnauthorizedException();
 
-        MessageRepository messageRepo = session.server.container.get(MessageRepository.class);
-        MessageFileRepository messageFileRepo = session.server.container.get(MessageFileRepository.class);
+        var messageRepo = session.server.container.get(MessageRepository.class);
+        var messageFileRepo = session.server.container.get(MessageFileRepository.class);
 
         MessageEntity message = messageRepo.create(chat, input, session.member.tauMember());
         LOGGER.info("Saved message with id {} content: {}", message.id(), message.content());
@@ -47,9 +46,9 @@ public class TauHubProtocol {
             throws InterruptedException, DatabaseException, SandnodeErrorException, ProtocolException {
         if (session.member == null) throw new UnauthorizedException();
 
-        TauClusterManager manager = session.server.container.get(TauClusterManager.class);
+        var manager = session.server.container.get(TauClusterManager.class);
 
-        Collection<Session> sessions = manager.getCluster(chat).getSessions();
+        var sessions = manager.getCluster(chat).getSessions();
         if (sessions.isEmpty()) throw new NoEffectException();
 
         ExecutorService executorService = null;

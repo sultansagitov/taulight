@@ -2,24 +2,25 @@ package net.result.taulight.util;
 
 import net.result.sandnode.exception.DatabaseException;
 import net.result.sandnode.util.Container;
+import net.result.sandnode.util.JPAUtil;
 import net.result.taulight.db.*;
 
 import java.util.*;
 
 public class ChatUtil {
     private final GroupRepository groupRepo;
-    private final DialogRepository dialogRepo;
+    private final JPAUtil jpaUtil;
 
     public ChatUtil(Container container) {
         super();
         groupRepo = container.get(GroupRepository.class);
-        dialogRepo = container.get(DialogRepository.class);
+        jpaUtil = container.get(JPAUtil.class);
     }
 
     public Optional<ChatEntity> getChat(UUID id) throws DatabaseException {
-        Optional<GroupEntity> group = groupRepo.findById(id);
+        Optional<GroupEntity> group = jpaUtil.find(GroupEntity.class, id);
         if (group.isPresent()) return group.map(c -> c);
-        return dialogRepo.findById(id).map(d -> d);
+        return jpaUtil.find(DialogEntity.class, id).map(d -> d);
     }
 
     public Collection<TauMemberEntity> getMembers(ChatEntity chat) {

@@ -18,8 +18,8 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
 public abstract class BaseChain implements Chain {
-    public final BlockingQueue<RawMessage> queue = new LinkedBlockingQueue<>();
-    protected final IOController io;
+    private final BlockingQueue<RawMessage> queue = new LinkedBlockingQueue<>();
+    private final IOController io;
     private short id;
 
     protected BaseChain(IOController io) {

@@ -7,6 +7,7 @@ import net.result.sandnode.encryption.interfaces.AsymmetricKeyStorage;
 import net.result.sandnode.exception.DatabaseException;
 import net.result.sandnode.exception.crypto.CannotUseEncryption;
 import net.result.sandnode.util.Container;
+import net.result.sandnode.util.JPAUtil;
 import org.junit.jupiter.api.*;
 
 import java.util.Optional;
@@ -17,12 +18,14 @@ import static org.junit.jupiter.api.Assertions.*;
 public class KeyStoragesTest {
 
     private static KeyStorageRepository keyStorageRepo;
+    private static JPAUtil jpaUtil;
 
     @BeforeAll
     static void setup() {
         EncryptionManager.registerAll();
         Container container = GlobalTestState.container;
         keyStorageRepo = container.get(KeyStorageRepository.class);
+        jpaUtil = container.get(JPAUtil.class);
     }
 
     @Test
@@ -35,15 +38,15 @@ public class KeyStoragesTest {
         assertEquals(generatedKey.encryption(), saved.encryption());
         assertEquals(generatedKey.encodedPublicKey(), saved.encodedKey);
 
-        Optional<KeyStorageEntity> found = keyStorageRepo.find(saved.id());
+        Optional<KeyStorageEntity> found = jpaUtil.find(KeyStorageEntity.class, saved.id());
         assertTrue(found.isPresent());
         assertEquals(saved, found.get());
     }
 
     @Test
-    void testFindNonExistentKeyStorageEntity() {
+    void testFindNonExistentKeyStorageEntity() throws DatabaseException {
         UUID randomId = UUID.randomUUID();
-        Optional<KeyStorageEntity> result = keyStorageRepo.find(randomId);
+        Optional<KeyStorageEntity> result = jpaUtil.find(KeyStorageEntity.class, randomId);
         assertTrue(result.isEmpty());
     }
 

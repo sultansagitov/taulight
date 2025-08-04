@@ -7,10 +7,11 @@ import com.auth0.jwt.interfaces.DecodedJWT;
 import com.auth0.jwt.interfaces.JWTVerifier;
 import net.result.sandnode.config.JWTConfig;
 import net.result.sandnode.db.LoginEntity;
-import net.result.sandnode.db.LoginRepository;
+import net.result.sandnode.exception.DatabaseException;
 import net.result.sandnode.exception.error.ExpiredTokenException;
 import net.result.sandnode.exception.error.InvalidArgumentException;
 import net.result.sandnode.util.Container;
+import net.result.sandnode.util.JPAUtil;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
@@ -23,12 +24,12 @@ public class JWTTokenizer implements Tokenizer {
     private static final Logger LOGGER = LogManager.getLogger(JWTTokenizer.class);
     private final JWTVerifier VERIFIER;
     private final JWTConfig jwtConfig;
-    private final LoginRepository loginRepo;
+    private final JPAUtil jpaUtil;
 
     public JWTTokenizer(@NotNull Container container, @NotNull JWTConfig jwtConfig) {
         this.jwtConfig = jwtConfig;
         VERIFIER = JWT.require(jwtConfig.getAlgorithm()).build();
-        loginRepo = container.get(LoginRepository.class);
+        jpaUtil = container.get(JPAUtil.class);
     }
 
     @Override
@@ -42,11 +43,12 @@ public class JWTTokenizer implements Tokenizer {
     }
 
     @Override
-    public Optional<LoginEntity> findLogin(String token) throws ExpiredTokenException, InvalidArgumentException {
+    public Optional<LoginEntity> findLogin(String token)
+            throws ExpiredTokenException, InvalidArgumentException, DatabaseException {
         try {
             DecodedJWT decodedJWT = VERIFIER.verify(token);
             String uuid = decodedJWT.getSubject();
-            return loginRepo.find(UUID.fromString(uuid));
+            return jpaUtil.find(LoginEntity.class, UUID.fromString(uuid));
         } catch (TokenExpiredException e) {
             LOGGER.error("Expired token", e);
             throw new ExpiredTokenException(e);

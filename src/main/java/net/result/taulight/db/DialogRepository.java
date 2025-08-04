@@ -10,7 +10,6 @@ import net.result.sandnode.util.JPAUtil;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
-import java.util.UUID;
 
 public class DialogRepository {
     private final JPAUtil jpaUtil;
@@ -51,15 +50,6 @@ public class DialogRepository {
     public DialogEntity create(TauMemberEntity firstMember, TauMemberEntity secondMember)
             throws AlreadyExistingRecordException, DatabaseException {
         return save(new DialogEntity(firstMember, secondMember));
-    }
-
-    public Optional<DialogEntity> findById(UUID id) throws DatabaseException {
-        EntityManager em = jpaUtil.getEntityManager();
-        try {
-            return Optional.ofNullable(em.find(DialogEntity.class, id));
-        } catch (Exception e) {
-            throw new DatabaseException(e);
-        }
     }
 
     public Optional<DialogEntity> findByMembers(TauMemberEntity firstMember, TauMemberEntity secondMember)

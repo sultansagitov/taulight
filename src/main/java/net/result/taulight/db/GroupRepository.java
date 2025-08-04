@@ -8,9 +8,7 @@ import net.result.sandnode.util.Container;
 import net.result.sandnode.util.JPAUtil;
 
 import java.util.HashSet;
-import java.util.Optional;
 import java.util.Set;
-import java.util.UUID;
 
 public class GroupRepository {
     private final JPAUtil jpaUtil;
@@ -172,15 +170,6 @@ public class GroupRepository {
             return true;
         } catch (Exception e) {
             if (transaction.isActive()) transaction.rollback();
-            throw new DatabaseException(e);
-        }
-    }
-
-    public Optional<GroupEntity> findById(UUID id) throws DatabaseException {
-        EntityManager em = jpaUtil.getEntityManager();
-        try {
-            return Optional.ofNullable(em.find(GroupEntity.class, id));
-        } catch (Exception e) {
             throw new DatabaseException(e);
         }
     }

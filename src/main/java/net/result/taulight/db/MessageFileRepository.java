@@ -10,7 +10,6 @@ import net.result.sandnode.util.Container;
 import net.result.sandnode.util.JPAUtil;
 
 import java.util.Collection;
-import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
@@ -21,48 +20,9 @@ public class MessageFileRepository {
         jpaUtil = container.get(JPAUtil.class);
     }
 
-    private MessageFileEntity save(MessageFileEntity file) throws DatabaseException {
-        EntityManager em = jpaUtil.getEntityManager();
-        while (em.find(MessageFileEntity.class, file.id()) != null) {
-            file.setRandomID();
-        }
-
-        EntityTransaction transaction = em.getTransaction();
-        try {
-            transaction.begin();
-            MessageFileEntity managed = em.merge(file);
-            transaction.commit();
-            return managed;
-        } catch (Exception e) {
-            if (transaction.isActive()) transaction.rollback();
-            throw new DatabaseException(e);
-        }
-    }
-
     public MessageFileEntity create(TauMemberEntity member, ChatEntity chat, String originalName, FileEntity file)
             throws DatabaseException {
-        EntityManager em = jpaUtil.getEntityManager();
-        MessageFileEntity managed = save(new MessageFileEntity(member, chat, originalName, file));
-        EntityTransaction transaction = em.getTransaction();
-        try {
-            transaction.begin();
-            em.merge(managed);
-            transaction.commit();
-        } catch (Exception e) {
-            if (transaction.isActive()) transaction.rollback();
-            throw new DatabaseException(e);
-        }
-
-        return managed;
-    }
-
-    public Optional<MessageFileEntity> find(UUID id) throws DatabaseException {
-        EntityManager em = jpaUtil.getEntityManager();
-        try {
-            return Optional.ofNullable(em.find(MessageFileEntity.class, id));
-        } catch (Exception e) {
-            throw new DatabaseException(e);
-        }
+        return jpaUtil.create(new MessageFileEntity(member, chat, originalName, file));
     }
 
     public Collection<MessageFileEntity> getFiles(MessageEntity message) throws DatabaseException {

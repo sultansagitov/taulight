@@ -15,6 +15,7 @@ import net.result.sandnode.message.util.MessageTypes;
 import net.result.sandnode.serverclient.Session;
 import net.result.sandnode.util.DBFileUtil;
 import net.result.sandnode.util.FileIOUtil;
+import net.result.sandnode.util.JPAUtil;
 import net.result.taulight.db.ChatEntity;
 import net.result.taulight.db.MessageFileEntity;
 import net.result.taulight.db.MessageFileRepository;
@@ -68,10 +69,12 @@ public class MessageFileServerChain extends ServerChain implements ReceiverChain
     }
 
     private void downloadFile(UUID fileID) throws Exception {
-        MessageFileRepository messageFileRepo = session.server.container.get(MessageFileRepository.class);
+        JPAUtil jpaUtil = session.server.container.get(JPAUtil.class);
         DBFileUtil dbFileUtil = session.server.container.get(DBFileUtil.class);
 
-        MessageFileEntity fileEntity = messageFileRepo.find(fileID).orElseThrow(NotFoundException::new);
+        MessageFileEntity fileEntity = jpaUtil
+                .find(MessageFileEntity.class, fileID)
+                .orElseThrow(NotFoundException::new);
 
         FileDTO dto = dbFileUtil.readImage(fileEntity.file());
 

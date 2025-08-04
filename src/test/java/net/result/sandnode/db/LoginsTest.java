@@ -7,6 +7,7 @@ import net.result.sandnode.exception.DatabaseException;
 import net.result.sandnode.exception.crypto.CannotUseEncryption;
 import net.result.sandnode.exception.error.BusyNicknameException;
 import net.result.sandnode.util.Container;
+import net.result.sandnode.util.JPAUtil;
 import org.junit.jupiter.api.*;
 
 import java.util.List;
@@ -20,6 +21,7 @@ public class LoginsTest {
     private static LoginRepository loginRepo;
     private static MemberEntity member;
     private static KeyStorageRepository keyStorageRepo;
+    private static JPAUtil jpaUtil;
 
     @BeforeAll
     static void setup() throws BusyNicknameException, DatabaseException {
@@ -28,6 +30,8 @@ public class LoginsTest {
         Container container = GlobalTestState.container;
         loginRepo = container.get(LoginRepository.class);
         keyStorageRepo = container.get(KeyStorageRepository.class);
+        jpaUtil = container.get(JPAUtil.class);
+
         MemberRepository memberRepo = container.get(MemberRepository.class);
         member = memberRepo.create("user_login_test", "hash");
     }
@@ -45,7 +49,7 @@ public class LoginsTest {
         assertEquals(ip, created.ip());
         assertEquals(device, created.device());
 
-        Optional<LoginEntity> found = loginRepo.find(created.id());
+        Optional<LoginEntity> found = jpaUtil.find(LoginEntity.class, created.id());
         assertTrue(found.isPresent());
         assertEquals(created.id(), found.get().id());
         assertEquals(ip, found.get().ip());
@@ -62,7 +66,7 @@ public class LoginsTest {
         assertNotNull(linkedLogin.id());
         assertEquals(baseLogin.id(), linkedLogin.login().id());
 
-        Optional<LoginEntity> found = loginRepo.find(linkedLogin.id());
+        Optional<LoginEntity> found = jpaUtil.find(LoginEntity.class, linkedLogin.id());
         assertTrue(found.isPresent());
         assertEquals(baseLogin.id(), found.get().login().id());
     }
@@ -85,9 +89,9 @@ public class LoginsTest {
     }
 
     @Test
-    void testFindMissingLogin() {
+    void testFindMissingLogin() throws DatabaseException {
         UUID randomId = UUID.randomUUID();
-        Optional<LoginEntity> result = loginRepo.find(randomId);
+        Optional<LoginEntity> result = jpaUtil.find(LoginEntity.class, randomId);
         assertTrue(result.isEmpty());
     }
 }

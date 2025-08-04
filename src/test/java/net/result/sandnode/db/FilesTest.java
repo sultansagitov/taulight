@@ -3,6 +3,7 @@ package net.result.sandnode.db;
 import net.result.sandnode.GlobalTestState;
 import net.result.sandnode.exception.DatabaseException;
 import net.result.sandnode.util.Container;
+import net.result.sandnode.util.JPAUtil;
 import org.junit.jupiter.api.*;
 
 import java.util.Optional;
@@ -11,13 +12,14 @@ import java.util.UUID;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class FilesTest {
-
     private static FileRepository fileRepo;
+    private static JPAUtil jpaUtil;
 
     @BeforeAll
     static void setUp() {
         Container container = GlobalTestState.container;
         fileRepo = container.get(FileRepository.class);
+        jpaUtil = container.get(JPAUtil.class);
     }
 
     @Test
@@ -39,7 +41,7 @@ public class FilesTest {
         String filename = "document.pdf";
 
         FileEntity created = fileRepo.create(contentType, filename);
-        Optional<FileEntity> foundOpt = fileRepo.find(created.id());
+        Optional<FileEntity> foundOpt = jpaUtil.find(FileEntity.class, created.id());
 
         assertTrue(foundOpt.isPresent());
         FileEntity found = foundOpt.get();
@@ -52,7 +54,7 @@ public class FilesTest {
     @Test
     void testFindMissingFile() throws DatabaseException {
         UUID randomId = UUID.randomUUID();
-        Optional<FileEntity> result = fileRepo.find(randomId);
+        Optional<FileEntity> result = jpaUtil.find(FileEntity.class, randomId);
 
         assertTrue(result.isEmpty());
     }
