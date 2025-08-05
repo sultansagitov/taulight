@@ -18,9 +18,6 @@ public class ReactionEntryRepository {
 
     private ReactionEntryEntity save(@NotNull ReactionEntryEntity reactionEntry) throws DatabaseException {
         EntityManager em = jpaUtil.getEntityManager();
-        while (em.find(ReactionEntryEntity.class, reactionEntry.id()) != null) {
-            reactionEntry.setRandomID();
-        }
 
         EntityTransaction transaction = em.getTransaction();
         try {

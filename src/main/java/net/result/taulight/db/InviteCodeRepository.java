@@ -19,7 +19,6 @@ public class InviteCodeRepository {
 
     private InviteCodeEntity save(InviteCodeEntity code) throws DatabaseException {
         EntityManager em = jpaUtil.getEntityManager();
-        while (em.find(InviteCodeEntity.class, code.id()) != null) code.setRandomID();
 
         EntityTransaction transaction = em.getTransaction();
         try {

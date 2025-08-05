@@ -20,9 +20,6 @@ public class ReactionTypeRepository {
 
     private ReactionTypeEntity save(@NotNull ReactionTypeEntity reactionType) throws DatabaseException {
         EntityManager em = jpaUtil.getEntityManager();
-        while (em.find(ReactionTypeEntity.class, reactionType.id()) != null) {
-            reactionType.setRandomID();
-        }
 
         EntityTransaction transaction = em.getTransaction();
         try {
@@ -61,11 +58,6 @@ public class ReactionTypeRepository {
 
             for (String type : types) {
                 ReactionTypeEntity reactionType = new ReactionTypeEntity(type, rp);
-
-                // Ensure unique ID
-                while (em.find(ReactionTypeEntity.class, reactionType.id()) != null) {
-                    reactionType.setRandomID();
-                }
 
                 ReactionTypeEntity managed = em.merge(reactionType);
                 createdEntities.add(managed);

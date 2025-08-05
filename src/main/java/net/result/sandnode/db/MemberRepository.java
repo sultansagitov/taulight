@@ -23,10 +23,6 @@ public class MemberRepository {
 
     private MemberEntity save(MemberEntity member) throws DatabaseException {
         EntityManager em = jpaUtil.getEntityManager();
-        while (em.find(MemberEntity.class, member.id()) != null) {
-            member.setRandomID();
-        }
-
         EntityTransaction transaction = em.getTransaction();
         MemberEntity managed;
         try {
@@ -45,9 +41,6 @@ public class MemberRepository {
 
     private MemberEntity save(MemberEntity member, AsymmetricKeyStorage keyStorage) throws DatabaseException {
         EntityManager em = jpaUtil.getEntityManager();
-        while (em.find(MemberEntity.class, member.id()) != null) {
-            member.setRandomID();
-        }
 
         MemberEntity managed;
 
@@ -55,7 +48,8 @@ public class MemberRepository {
         try {
             transaction.begin();
 
-            var key = em.merge(new KeyStorageEntity(keyStorage.encryption(), keyStorage.encodedPublicKey()));
+            KeyStorageEntity e = new KeyStorageEntity(keyStorage.encryption(), keyStorage.encodedPublicKey());
+            KeyStorageEntity key = em.merge(e);
             member.setPublicKey(key);
             managed = em.merge(member);
 
@@ -102,12 +96,16 @@ public class MemberRepository {
         EntityManager em = jpaUtil.getEntityManager();
         EntityTransaction transaction = em.getTransaction();
         try {
-            MemberEntity m = em.find(MemberEntity.class, member.id());
-            if (m == null || m.deleted()) return false;
+            var m = jpaUtil.find(MemberEntity.class, member.id());
+            if (m.isEmpty()) return false;
+
+            MemberEntity t = m.get();
+
+            if (t.deleted()) return false;
 
             transaction.begin();
-            m.setDeleted(true);
-            em.merge(m);
+            t.setDeleted(true);
+            em.merge(t);
             transaction.commit();
             return true;
         } catch (Exception e) {
@@ -120,7 +118,7 @@ public class MemberRepository {
         EntityManager em = jpaUtil.getEntityManager();
         EntityTransaction transaction = em.getTransaction();
         try {
-            if (em.find(MemberEntity.class, member.id()) != null) {
+            if (jpaUtil.find(MemberEntity.class, member.id()).isPresent()) {
                 transaction.begin();
                 member.setAvatar(avatar);
                 em.merge(member);

@@ -11,6 +11,7 @@ import net.result.sandnode.exception.error.UnhandledMessageTypeException;
 import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.message.types.HappyMessage;
 import net.result.sandnode.serverclient.Session;
+import net.result.sandnode.util.JPAUtil;
 import net.result.taulight.chain.sender.ReactionResponseServerChain;
 import net.result.taulight.db.*;
 import net.result.taulight.message.types.ReactionRequest;
@@ -27,9 +28,9 @@ public class ReactionRequestServerChain extends ServerChain implements ReceiverC
     @Override
     public HappyMessage handle(RawMessage raw) throws Exception {
         ClusterManager clusterManager = session.server.container.get(ClusterManager.class);
-        MessageRepository messageRepo = session.server.container.get(MessageRepository.class);
         ReactionTypeRepository reactionTypeRepo = session.server.container.get(ReactionTypeRepository.class);
         ReactionEntryRepository reactionEntryRepo = session.server.container.get(ReactionEntryRepository.class);
+        JPAUtil jpaUtil = session.server.container.get(JPAUtil.class);
 
         ReactionRequest request = new ReactionRequest(raw);
 
@@ -39,8 +40,8 @@ public class ReactionRequestServerChain extends ServerChain implements ReceiverC
 
         String nickname = session.member.nickname();
 
-        MessageEntity message = messageRepo
-                .findById(request.dto().messageID)
+        MessageEntity message = jpaUtil
+                .find(MessageEntity.class, request.dto().messageID)
                 .orElseThrow(NotFoundException::new);
 
         String[] packageParts = request.dto().reaction.split(":");

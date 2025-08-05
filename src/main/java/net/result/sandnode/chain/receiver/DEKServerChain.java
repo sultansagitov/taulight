@@ -60,7 +60,7 @@ public class DEKServerChain extends ServerChain implements ReceiverChain {
         return new UUIDMessage(new Headers(), entity);
     }
 
-    private @NotNull DEKListMessage get(MemberEntity you) {
+    private @NotNull DEKListMessage get(MemberEntity you) throws DatabaseException {
         JPAUtil jpaUtil = session.server.container.get(JPAUtil.class);
 
         session.member = jpaUtil.refresh(you);

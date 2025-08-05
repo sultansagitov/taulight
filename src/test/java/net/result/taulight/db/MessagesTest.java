@@ -139,7 +139,7 @@ public class MessagesTest {
 
         // Test with non-existent message ID
         UUID nonExistentID = UUID.randomUUID();
-        Optional<MessageEntity> nonExistentMessage = messageRepo.findById(nonExistentID);
+        Optional<MessageEntity> nonExistentMessage = jpaUtil.find(MessageEntity.class, nonExistentID);
         assertFalse(nonExistentMessage.isPresent(), "Should not find non-existent message");
     }
 

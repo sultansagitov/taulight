@@ -19,10 +19,6 @@ public class TauMemberRepository {
 
     private TauMemberEntity save(TauMemberEntity tauMember) throws DatabaseException {
         EntityManager em = jpaUtil.getEntityManager();
-        while (em.find(TauMemberEntity.class, tauMember.id()) != null) {
-            tauMember.setRandomID();
-        }
-
         EntityTransaction transaction = em.getTransaction();
         try {
             transaction.begin();
@@ -61,6 +57,7 @@ public class TauMemberRepository {
             throw new DatabaseException(e);
         }
     }
+
     public void setShowStatus(TauMemberEntity entity, boolean value) throws DatabaseException {
         EntityManager em = jpaUtil.getEntityManager();
         EntityTransaction transaction = em.getTransaction();

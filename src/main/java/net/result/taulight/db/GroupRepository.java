@@ -19,9 +19,6 @@ public class GroupRepository {
 
     private GroupEntity save(GroupEntity group) throws DatabaseException {
         EntityManager em = jpaUtil.getEntityManager();
-        while (em.find(GroupEntity.class, group.id()) != null) {
-            group.setRandomID();
-        }
 
         EntityTransaction transaction = em.getTransaction();
         try {

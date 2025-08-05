@@ -35,8 +35,8 @@ public class JPAUtil {
     }
 
     @SuppressWarnings("unchecked")
-    public <T extends BaseEntity> T refresh(T entity) {
-        return getEntityManager().find((Class<T>) entity.getClass(), entity.id());
+    public <T extends BaseEntity> T refresh(T entity) throws DatabaseException {
+        return find((Class<T>) entity.getClass(), entity.id()).orElseThrow();
     }
 
     public <T extends BaseEntity> T create(T entity) throws DatabaseException {

@@ -1,6 +1,5 @@
 package net.result.taulight.db;
 
-import jakarta.persistence.EntityManager;
 import net.result.sandnode.GlobalTestState;
 import net.result.sandnode.db.MemberRepository;
 import net.result.sandnode.exception.DatabaseException;
@@ -21,8 +20,6 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class ReactionsTest {
     private static JPAUtil jpaUtil;
-    private static Container container;
-    private static EntityManager em;
     private static TauMemberEntity member1;
     private static TauMemberEntity member2;
     private static GroupRepository groupRepo;
@@ -33,11 +30,9 @@ class ReactionsTest {
 
     @BeforeAll
     public static void setup() throws DatabaseException, BusyNicknameException {
-        container = GlobalTestState.container;
+        Container container = GlobalTestState.container;
 
         jpaUtil = container.get(JPAUtil.class);
-
-        em = container.get(JPAUtil.class).getEntityManager();
 
         MemberRepository memberRepo = container.get(MemberRepository.class);
         groupRepo = container.get(GroupRepository.class);
@@ -59,9 +54,9 @@ class ReactionsTest {
         assertNotNull(reactionPackage);
         assertEquals("funny_emojis", reactionPackage.name());
 
-        ReactionPackageEntity found = em.find(ReactionPackageEntity.class, reactionPackage.id());
-        assertNotNull(found);
-        assertEquals(reactionPackage.id(), found.id());
+        Optional<ReactionPackageEntity> found = jpaUtil.find(ReactionPackageEntity.class, reactionPackage.id());
+        assertTrue(found.isPresent());
+        assertEquals(reactionPackage.id(), found.get().id());
 
         // Additional assertions
         assertNotNull(reactionPackage.id(), "Reaction package ID should not be null");
@@ -103,11 +98,9 @@ class ReactionsTest {
         assertEquals("laugh", reactionType.name());
         assertEquals("standard", reactionType.reactionPackage().name());
 
-        ReactionTypeEntity found = container.get(JPAUtil.class)
-                .getEntityManager()
-                .find(ReactionTypeEntity.class, reactionType.id());
-        assertNotNull(found);
-        assertEquals("laugh", found.name());
+        Optional<ReactionTypeEntity> found = jpaUtil.find(ReactionTypeEntity.class, reactionType.id());
+        assertTrue(found.isPresent());
+        assertEquals("laugh", found.get().name());
 
         // Additional assertions
         assertNotNull(reactionType.id(), "Reaction type ID should not be null");
@@ -141,11 +134,9 @@ class ReactionsTest {
             assertTrue(typeNames.contains(type.name()));
             assertEquals(reactionPackage.id(), type.reactionPackage().id());
 
-            ReactionTypeEntity found = container.get(JPAUtil.class)
-                    .getEntityManager()
-                    .find(ReactionTypeEntity.class, type.id());
-            assertNotNull(found);
-            assertEquals(type, found);
+            Optional<ReactionTypeEntity> found = jpaUtil.find(ReactionTypeEntity.class, type.id());
+            assertTrue(found.isPresent());
+            assertEquals(type, found.get());
         }
 
         // Additional assertions

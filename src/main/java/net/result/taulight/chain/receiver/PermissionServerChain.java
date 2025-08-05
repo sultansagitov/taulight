@@ -56,7 +56,9 @@ public class PermissionServerChain extends ServerChain implements ReceiverChain 
     }
 
     private RoleEntity getRole(PermissionRequest request) throws SandnodeException {
-        RoleEntity role = roleRepo.findById(request.roleID).orElseThrow(NotFoundException::new);
+        RoleEntity role = jpaUtil
+                .find(RoleEntity.class, request.roleID)
+                .orElseThrow(NotFoundException::new);
         GroupEntity group = role.group();
         if (session.member == null && !group.owner().equals(session.member.tauMember())) {
             throw new UnauthorizedException();

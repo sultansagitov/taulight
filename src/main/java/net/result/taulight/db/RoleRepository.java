@@ -8,9 +8,7 @@ import net.result.sandnode.util.JPAUtil;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.HashSet;
-import java.util.Optional;
 import java.util.Set;
-import java.util.UUID;
 
 public class RoleRepository {
     private final JPAUtil jpaUtil;
@@ -21,9 +19,6 @@ public class RoleRepository {
 
     private RoleEntity save(@NotNull RoleEntity reactionType) throws DatabaseException {
         EntityManager em = jpaUtil.getEntityManager();
-        while (em.find(RoleEntity.class, reactionType.id()) != null) {
-            reactionType.setRandomID();
-        }
 
         EntityTransaction transaction = em.getTransaction();
         try {
@@ -106,15 +101,6 @@ public class RoleRepository {
             return true;
         } catch (Exception e) {
             if (transaction.isActive()) transaction.rollback();
-            throw new DatabaseException(e);
-        }
-    }
-
-    public Optional<RoleEntity> findById(UUID id) throws DatabaseException {
-        EntityManager em = jpaUtil.getEntityManager();
-        try {
-            return Optional.ofNullable(em.find(RoleEntity.class, id));
-        } catch (Exception e) {
             throw new DatabaseException(e);
         }
     }

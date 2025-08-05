@@ -21,24 +21,6 @@ public class MessageRepository {
         messageFileRepo = container.get(MessageFileRepository.class);
     }
 
-    private MessageEntity save(MessageEntity m) throws DatabaseException {
-        EntityManager em = jpaUtil.getEntityManager();
-        while (em.find(MessageEntity.class, m.id()) != null) {
-            m.setRandomID();
-        }
-
-        EntityTransaction transaction = em.getTransaction();
-        try {
-            transaction.begin();
-            MessageEntity message = em.merge(m);
-            transaction.commit();
-            return message;
-        } catch (Exception e) {
-            if (transaction.isActive()) transaction.rollback();
-            throw new DatabaseException(e);
-        }
-    }
-
     public MessageEntity create(ChatEntity chat, ChatMessageInputDTO input, TauMemberEntity member)
             throws DatabaseException, UnauthorizedException {
         return create(chat, input, member, null);
@@ -51,15 +33,18 @@ public class MessageRepository {
             EncryptedKeyEntity key
     ) throws DatabaseException, UnauthorizedException {
         EntityManager em = jpaUtil.getEntityManager();
-        MessageEntity managed = save(new MessageEntity(chat, input, member, key));
         EntityTransaction transaction = em.getTransaction();
         try {
             transaction.begin();
+            MessageEntity managed = em.merge(new MessageEntity(chat, input, member, key));
             Set<MessageEntity> messageEntities = new HashSet<>();
             Set<UUID> replies = input.repliedToMessages;
             if (replies != null) {
                 for (UUID r : replies) {
-                    messageEntities.add(findById(r).orElseThrow(NotFoundException::new));
+                    MessageEntity e = jpaUtil
+                            .find(MessageEntity.class, r)
+                            .orElseThrow(NotFoundException::new);
+                    messageEntities.add(e);
                 }
             }
             managed.setRepliedToMessages(messageEntities);
@@ -78,15 +63,6 @@ public class MessageRepository {
             throw e;
         } catch (Exception e) {
             transaction.rollback();
-            throw new DatabaseException(e);
-        }
-    }
-
-    public Optional<MessageEntity> findById(UUID id) throws DatabaseException {
-        EntityManager em = jpaUtil.getEntityManager();
-        try {
-            return Optional.ofNullable(em.find(MessageEntity.class, id));
-        } catch (Exception e) {
             throw new DatabaseException(e);
         }
     }

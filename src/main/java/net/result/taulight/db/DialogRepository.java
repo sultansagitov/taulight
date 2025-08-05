@@ -20,9 +20,6 @@ public class DialogRepository {
 
     private DialogEntity save(@NotNull DialogEntity dialog) throws AlreadyExistingRecordException, DatabaseException {
         EntityManager em = jpaUtil.getEntityManager();
-        while (em.find(DialogEntity.class, dialog.id()) != null) {
-            dialog.setRandomID();
-        }
 
         Optional<DialogEntity> resultList = findByMembers(dialog.firstMember(), dialog.secondMember());
 

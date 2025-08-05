@@ -17,9 +17,6 @@ public class ReactionPackageRepository {
 
     private ReactionPackageEntity save(ReactionPackageEntity packageEntity) throws DatabaseException {
         EntityManager em = jpaUtil.getEntityManager();
-        while (em.find(ReactionPackageEntity.class, packageEntity.id()) != null) {
-            packageEntity.setRandomID();
-        }
 
         EntityTransaction transaction = em.getTransaction();
         try {
