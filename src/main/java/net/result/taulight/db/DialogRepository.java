@@ -1,13 +1,11 @@
 package net.result.taulight.db;
 
 import jakarta.persistence.EntityManager;
-import jakarta.persistence.EntityTransaction;
 import jakarta.persistence.TypedQuery;
 import net.result.sandnode.exception.AlreadyExistingRecordException;
 import net.result.sandnode.exception.DatabaseException;
 import net.result.sandnode.util.Container;
 import net.result.sandnode.util.JPAUtil;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
 
@@ -18,35 +16,21 @@ public class DialogRepository {
         jpaUtil = container.get(JPAUtil.class);
     }
 
-    private DialogEntity save(@NotNull DialogEntity dialog) throws AlreadyExistingRecordException, DatabaseException {
-        EntityManager em = jpaUtil.getEntityManager();
+    public DialogEntity create(TauMemberEntity firstMember, TauMemberEntity secondMember)
+            throws AlreadyExistingRecordException, DatabaseException {
 
-        Optional<DialogEntity> resultList = findByMembers(dialog.firstMember(), dialog.secondMember());
+        Optional<DialogEntity> resultList = findByMembers(firstMember, secondMember);
 
         if (resultList.isPresent()) {
-            String formatted = "%s, %s".formatted(dialog.firstMember(), dialog.secondMember());
+            String formatted = "%s, %s".formatted(firstMember, secondMember);
             throw new AlreadyExistingRecordException("Dialog", "members", formatted);
         }
 
-        EntityTransaction transaction = em.getTransaction();
-        try {
-            transaction.begin();
-            DialogEntity managed = em.merge(dialog);
+        DialogEntity dialog = new DialogEntity(firstMember, secondMember);
+        firstMember.dialogsAsFirst().add(dialog);
+        secondMember.dialogsAsSecond().add(dialog);
 
-            dialog.firstMember().dialogsAsFirst().add(managed);
-            dialog.secondMember().dialogsAsSecond().add(managed);
-
-            transaction.commit();
-            return managed;
-        } catch (Exception e) {
-            if (transaction.isActive()) transaction.rollback();
-            throw new DatabaseException(e);
-        }
-    }
-
-    public DialogEntity create(TauMemberEntity firstMember, TauMemberEntity secondMember)
-            throws AlreadyExistingRecordException, DatabaseException {
-        return save(new DialogEntity(firstMember, secondMember));
+        return jpaUtil.create(dialog);
     }
 
     public Optional<DialogEntity> findByMembers(TauMemberEntity firstMember, TauMemberEntity secondMember)

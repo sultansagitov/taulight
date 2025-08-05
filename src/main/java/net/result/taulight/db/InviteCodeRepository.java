@@ -17,21 +17,6 @@ public class InviteCodeRepository {
         jpaUtil = container.get(JPAUtil.class);
     }
 
-    private InviteCodeEntity save(InviteCodeEntity code) throws DatabaseException {
-        EntityManager em = jpaUtil.getEntityManager();
-
-        EntityTransaction transaction = em.getTransaction();
-        try {
-            transaction.begin();
-            InviteCodeEntity managed = em.merge(code);
-            transaction.commit();
-            return managed;
-        } catch (Exception e) {
-            if (transaction.isActive()) transaction.rollback();
-            throw new DatabaseException(e);
-        }
-    }
-
     public InviteCodeEntity create(
             GroupEntity group,
             TauMemberEntity receiver,
@@ -39,7 +24,7 @@ public class InviteCodeRepository {
             ZonedDateTime expiresDate
     ) throws DatabaseException {
         EntityManager em = jpaUtil.getEntityManager();
-        InviteCodeEntity managed = save(new InviteCodeEntity(group, receiver, sender, expiresDate));
+        InviteCodeEntity managed = jpaUtil.create(new InviteCodeEntity(group, receiver, sender, expiresDate));
 
         group.inviteCodes().add(managed);
         em.merge(group);

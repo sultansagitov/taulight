@@ -3,7 +3,6 @@ package net.result.taulight.chain.receiver;
 import net.result.sandnode.chain.ReceiverChain;
 import net.result.sandnode.chain.ServerChain;
 import net.result.sandnode.db.EncryptedKeyEntity;
-import net.result.sandnode.db.EncryptedKeyRepository;
 import net.result.sandnode.exception.error.KeyStorageNotFoundException;
 import net.result.sandnode.exception.error.NotFoundException;
 import net.result.sandnode.exception.error.TooFewArgumentsException;
@@ -15,6 +14,7 @@ import net.result.sandnode.message.types.HappyMessage;
 import net.result.sandnode.message.util.Headers;
 import net.result.sandnode.message.util.MessageTypes;
 import net.result.sandnode.serverclient.Session;
+import net.result.sandnode.util.JPAUtil;
 import net.result.taulight.db.ChatEntity;
 import net.result.taulight.db.MessageEntity;
 import net.result.taulight.db.MessageFileRepository;
@@ -37,8 +37,8 @@ public class ForwardRequestServerChain extends ServerChain implements ReceiverCh
     public Message handle(RawMessage raw) throws Exception {
         var chatUtil = session.server.container.get(ChatUtil.class);
         var messageRepo = session.server.container.get(MessageRepository.class);
-        var encryptedKeyRepo = session.server.container.get(EncryptedKeyRepository.class);
         var messageFileRepo = session.server.container.get(MessageFileRepository.class);
+        var jpaUtil = session.server.container.get(JPAUtil.class);
 
         var forwardMessage = new ForwardRequest(raw);
 
@@ -63,8 +63,8 @@ public class ForwardRequestServerChain extends ServerChain implements ReceiverCh
         if (input.keyID == null) {
             message = messageRepo.create(chat, input, session.member.tauMember());
         } else {
-            EncryptedKeyEntity key = encryptedKeyRepo
-                    .find(input.keyID)
+            EncryptedKeyEntity key = jpaUtil
+                    .find(EncryptedKeyEntity.class, input.keyID)
                     .orElseThrow(() -> new KeyStorageNotFoundException(input.keyID.toString()));
             message = messageRepo.create(chat, input, session.member.tauMember(), key);
         }

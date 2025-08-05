@@ -17,24 +17,9 @@ public class RoleRepository {
         jpaUtil = container.get(JPAUtil.class);
     }
 
-    private RoleEntity save(@NotNull RoleEntity reactionType) throws DatabaseException {
-        EntityManager em = jpaUtil.getEntityManager();
-
-        EntityTransaction transaction = em.getTransaction();
-        try {
-            transaction.begin();
-            RoleEntity managed = em.merge(reactionType);
-            transaction.commit();
-            return managed;
-        } catch (Exception e) {
-            if (transaction.isActive()) transaction.rollback();
-            throw new DatabaseException(e);
-        }
-    }
-
     public RoleEntity create(GroupEntity group, String role) throws DatabaseException {
         EntityManager em = jpaUtil.getEntityManager();
-        RoleEntity managed = save(new RoleEntity(group, role));
+        RoleEntity managed = jpaUtil.create(new RoleEntity(group, role));
 
         group.roles().add(managed);
         em.merge(group);

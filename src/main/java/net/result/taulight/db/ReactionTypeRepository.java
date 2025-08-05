@@ -5,7 +5,6 @@ import jakarta.persistence.EntityTransaction;
 import net.result.sandnode.exception.DatabaseException;
 import net.result.sandnode.util.Container;
 import net.result.sandnode.util.JPAUtil;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -18,24 +17,9 @@ public class ReactionTypeRepository {
         jpaUtil = container.get(JPAUtil.class);
     }
 
-    private ReactionTypeEntity save(@NotNull ReactionTypeEntity reactionType) throws DatabaseException {
-        EntityManager em = jpaUtil.getEntityManager();
-
-        EntityTransaction transaction = em.getTransaction();
-        try {
-            transaction.begin();
-            ReactionTypeEntity managed = em.merge(reactionType);
-            transaction.commit();
-            return managed;
-        } catch (Exception e) {
-            if (transaction.isActive()) transaction.rollback();
-            throw new DatabaseException(e);
-        }
-    }
-
     public ReactionTypeEntity create(String name, ReactionPackageEntity reactionPackage) throws DatabaseException {
         EntityManager em = jpaUtil.getEntityManager();
-        ReactionTypeEntity managed = save(new ReactionTypeEntity(name, reactionPackage));
+        ReactionTypeEntity managed = jpaUtil.create(new ReactionTypeEntity(name, reactionPackage));
 
         reactionPackage.reactionTypes().add(managed);
         em.merge(reactionPackage);
