@@ -17,7 +17,9 @@ public class TauMemberRepository {
         jpaUtil = container.get(JPAUtil.class);
     }
 
-    private TauMemberEntity save(TauMemberEntity tauMember) throws DatabaseException {
+    public TauMemberEntity create(MemberEntity member) throws DatabaseException {
+        TauMemberEntity tauMember = new TauMemberEntity(member);
+
         EntityManager em = jpaUtil.getEntityManager();
         EntityTransaction transaction = em.getTransaction();
         try {
@@ -25,10 +27,10 @@ public class TauMemberRepository {
 
             TauMemberEntity managed = em.merge(tauMember);
 
-            MemberEntity member = tauMember.member();
-            member.setTauMember(tauMember);
+            MemberEntity m = tauMember.member();
+            m.setTauMember(tauMember);
 
-            em.merge(member);
+            em.merge(m);
 
             transaction.commit();
             return managed;
@@ -36,10 +38,6 @@ public class TauMemberRepository {
             if (transaction.isActive()) transaction.rollback();
             throw new DatabaseException(e);
         }
-    }
-
-    public TauMemberEntity create(MemberEntity member) throws DatabaseException {
-        return save(new TauMemberEntity(member));
     }
 
     public Optional<TauMemberEntity> findByNickname(String nickname) throws DatabaseException {

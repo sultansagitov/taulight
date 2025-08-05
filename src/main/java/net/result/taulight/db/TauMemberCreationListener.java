@@ -1,0 +1,19 @@
+package net.result.taulight.db;
+
+import net.result.sandnode.db.MemberCreationListener;
+import net.result.sandnode.db.MemberEntity;
+import net.result.sandnode.exception.DatabaseException;
+import net.result.sandnode.util.Container;
+
+public class TauMemberCreationListener implements MemberCreationListener {
+    private final TauMemberRepository tauMemberRepo;
+
+    public TauMemberCreationListener(Container container) {
+        this.tauMemberRepo = container.get(TauMemberRepository.class);
+    }
+
+    @Override
+    public void onMemberCreated(MemberEntity member) throws DatabaseException {
+        tauMemberRepo.create(member);
+    }
+}

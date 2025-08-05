@@ -6,6 +6,7 @@ import net.result.main.config.ServerPropertiesConfig;
 import net.result.sandnode.cluster.ClusterManager;
 import net.result.sandnode.config.HubConfig;
 import net.result.sandnode.config.ServerConfig;
+import net.result.sandnode.db.MemberCreationListener;
 import net.result.sandnode.encryption.KeyStorageRegistry;
 import net.result.sandnode.encryption.interfaces.AsymmetricEncryption;
 import net.result.sandnode.exception.ConfigurationException;
@@ -24,6 +25,7 @@ import net.result.taulight.cluster.TauClusterManager;
 import net.result.taulight.db.ReactionPackageEntity;
 import net.result.taulight.db.ReactionPackageRepository;
 import net.result.taulight.db.ReactionTypeRepository;
+import net.result.taulight.db.TauMemberCreationListener;
 import net.result.taulight.hubagent.TauHub;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -38,6 +40,7 @@ public class RunHubWork implements Work {
     public void run() throws SandnodeException {
         Container container = new Container();
         container.get(JPAUtil.class);
+        container.addInstanceItem(MemberCreationListener.class, new TauMemberCreationListener(container));
 
         ServerConfig serverConfig = getServerConfig(container);
         AsymmetricEncryption mainEncryption = serverConfig.mainEncryption();

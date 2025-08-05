@@ -8,73 +8,68 @@ import net.result.sandnode.exception.DatabaseException;
 import net.result.sandnode.exception.error.BusyNicknameException;
 import net.result.sandnode.util.Container;
 import net.result.sandnode.util.JPAUtil;
-import net.result.taulight.db.TauMemberRepository;
 
+import java.util.List;
 import java.util.Optional;
 
 public class MemberRepository {
     private final JPAUtil jpaUtil;
-    private final TauMemberRepository tauMemberRepo;
+    private final List<MemberCreationListener> creationListeners;
 
     public MemberRepository(Container container) {
         jpaUtil = container.get(JPAUtil.class);
-        tauMemberRepo = container.get(TauMemberRepository.class);
+        creationListeners = container.getAll(MemberCreationListener.class);
     }
 
-    private MemberEntity save(MemberEntity member) throws DatabaseException {
-        EntityManager em = jpaUtil.getEntityManager();
-        EntityTransaction transaction = em.getTransaction();
-        MemberEntity managed;
-        try {
-            transaction.begin();
-            managed = em.merge(member);
-            transaction.commit();
-        } catch (Exception e) {
-            if (transaction.isActive()) transaction.rollback();
-            throw new DatabaseException(e);
+    private void notifyListeners(MemberEntity member) throws DatabaseException {
+        for (var listener : creationListeners) {
+            listener.onMemberCreated(member);
         }
-
-        tauMemberRepo.create(managed);
-
-        return managed;
-    }
-
-    private MemberEntity save(MemberEntity member, AsymmetricKeyStorage keyStorage) throws DatabaseException {
-        EntityManager em = jpaUtil.getEntityManager();
-
-        MemberEntity managed;
-
-        EntityTransaction transaction = em.getTransaction();
-        try {
-            transaction.begin();
-
-            KeyStorageEntity e = new KeyStorageEntity(keyStorage.encryption(), keyStorage.encodedPublicKey());
-            KeyStorageEntity key = em.merge(e);
-            member.setPublicKey(key);
-            managed = em.merge(member);
-
-            transaction.commit();
-        } catch (Exception e) {
-            if (transaction.isActive()) transaction.rollback();
-            throw new DatabaseException(e);
-        }
-
-        tauMemberRepo.create(managed);
-
-        return managed;
     }
 
     public MemberEntity create(String nickname, String hashedPassword)
             throws DatabaseException, BusyNicknameException {
         if (findByNickname(nickname).isPresent()) throw new BusyNicknameException();
-        return save(new MemberEntity(nickname, hashedPassword));
+        var member = new MemberEntity(nickname, hashedPassword);
+        EntityManager em = jpaUtil.getEntityManager();
+        EntityTransaction transaction = em.getTransaction();
+        MemberEntity managed;
+        try {
+            transaction.begin();
+            managed = em.merge(member);
+            transaction.commit();
+        } catch (Exception e) {
+            if (transaction.isActive()) transaction.rollback();
+            throw new DatabaseException(e);
+        }
+
+        notifyListeners(managed);
+
+        return managed;
     }
 
     public MemberEntity create(String nickname, String hashedPassword, AsymmetricKeyStorage keyStorage)
             throws DatabaseException, BusyNicknameException {
         if (findByNickname(nickname).isPresent()) throw new BusyNicknameException();
+        MemberEntity member = new MemberEntity(nickname, hashedPassword);
+        EntityManager em = jpaUtil.getEntityManager();
+        EntityTransaction transaction = em.getTransaction();
+        MemberEntity managed;
+        try {
+            transaction.begin();
+            KeyStorageEntity e = new KeyStorageEntity(keyStorage.encryption(), keyStorage.encodedPublicKey());
+            KeyStorageEntity key = em.merge(e);
+            member.setPublicKey(key);
+            managed = em.merge(member);
+            transaction.commit();
+        } catch (Exception e) {
+            if (transaction.isActive()) transaction.rollback();
+            throw new DatabaseException(e);
+        }
 
-        return save(new MemberEntity(nickname, hashedPassword), keyStorage);
+        notifyListeners(managed);
+
+        return managed;
     }
 
     public Optional<MemberEntity> findByNickname(String nickname) throws DatabaseException {
