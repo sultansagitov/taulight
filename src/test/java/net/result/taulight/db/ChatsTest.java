@@ -137,83 +137,112 @@ public class ChatsTest {
     @Test
     public void addMemberToGroup() throws DatabaseException {
         GroupEntity group = groupRepo.create("Test Group", member1);
+        member1 = jpaUtil.refresh(member1);
 
         boolean added = groupRepo.addMember(group, member2);
-        assertTrue(added);
+        group = jpaUtil.refresh(group);
+        member2 = jpaUtil.refresh(member2);
 
         Collection<TauMemberEntity> members = chatUtil.getMembers(group);
-        assertTrue(members.contains(member2));
-        assertFalse(members.contains(member5));
+        boolean containsMember2 = members.contains(member2);
+        boolean containsMember5 = members.contains(member5);
+        boolean member2HasGroup = member2.groups().contains(group);
+        boolean member5HasGroup = member5.groups().contains(group);
+        int initialCount = members.size();
+        boolean containsMember1 = members.contains(member1);
 
-        assertTrue(member2.groups().contains(group));
-        assertFalse(member5.groups().contains(group));
-
-        // Additional assertions
-        assertEquals(2, members.size(), "Group should have exactly two members");
-        assertTrue(members.contains(member1), "Group should still contain the owner");
-
-        // Test adding the same member again
         boolean addedAgain = groupRepo.addMember(group, member2);
-        assertFalse(addedAgain, "Should not add the same member twice");
-        assertEquals(2, chatUtil.getMembers(group).size(), "Member count should not change");
+        int countAfterDuplicateAdd = chatUtil.getMembers(group).size();
 
-        // Add a third member and verify
         boolean added3 = groupRepo.addMember(group, member3);
-        assertTrue(added3, "Should add third member successfully");
-        assertEquals(3, chatUtil.getMembers(group).size(), "Group should now have three members");
-        assertTrue(member3.groups().contains(group), "Group should be in member3's groups");
+        group = jpaUtil.refresh(group);
+        member3 = jpaUtil.refresh(member3);
+        Collection<TauMemberEntity> finalMembers = chatUtil.getMembers(group);
+        int finalCount = finalMembers.size();
+        boolean member3HasGroup = member3.groups().contains(group);
+
+        assertTrue(added, "Member2 should be added to the group");
+        assertTrue(containsMember2, "Group should contain member2 after addition");
+        assertFalse(containsMember5, "Group should not contain member5 (not added)");
+        assertTrue(member2HasGroup, "Group should appear in member2's group list");
+        assertFalse(member5HasGroup, "Group should not appear in member5's group list");
+        assertEquals(2, initialCount, "Group should have exactly two members after first addition");
+        assertTrue(containsMember1, "Group should still contain the owner (member1)");
+
+        assertFalse(addedAgain, "Should not be able to add the same member twice");
+        assertEquals(2, countAfterDuplicateAdd, "Group size should remain unchanged after duplicate add");
+
+        assertTrue(added3, "Member3 should be added successfully");
+        assertEquals(3, finalCount, "Group should have three members after adding member3");
+        assertTrue(member3HasGroup, "Group should appear in member3's group list");
     }
+
 
     @Test
     public void leaveFromGroup() throws DatabaseException {
         GroupEntity group = groupRepo.create("Test Group", member1);
-
         groupRepo.addMember(group, member2);
+        group = jpaUtil.refresh(group);
+
         boolean removed = groupRepo.removeMember(group, member2);
-        assertTrue(removed);
-
-        Collection<TauMemberEntity> members = chatUtil.getMembers(group);
-        assertFalse(members.contains(member2));
-
-        // Additional assertions
-        assertEquals(1, members.size(), "Group should have only one member left");
-        assertTrue(members.contains(member1), "Owner should still be in the group");
-        assertFalse(member2.groups().contains(group), "Group should be removed from member2's groups");
-
-        // Test removing a member who's not in the group
+        Collection<TauMemberEntity> membersAfterRemoval = chatUtil.getMembers(group);
+        boolean member2StillInGroupList = member2.groups().contains(group);
+        int memberCountAfterRemoval = membersAfterRemoval.size();
+        boolean ownerStillPresent = membersAfterRemoval.contains(member1);
+        boolean member2Present = membersAfterRemoval.contains(member2);
         boolean removedAgain = groupRepo.removeMember(group, member2);
-        assertFalse(removedAgain, "Should not be able to remove a member who's not in the group");
-
-        // Test removing the owner
+        group = jpaUtil.refresh(group);
         boolean ownerRemoved = groupRepo.removeMember(group, member1);
+        group = jpaUtil.refresh(group);
+        Collection<TauMemberEntity> membersAfterOwnerRemoved = chatUtil.getMembers(group);
+        boolean ownerStillInGroupList = member1.groups().contains(group);
+        int memberCountAfterOwnerRemoved = membersAfterOwnerRemoved.size();
+
+        assertTrue(removed, "Member2 should be successfully removed from the group");
+        assertFalse(member2Present, "Member2 should not be in the group after removal");
+        assertEquals(1, memberCountAfterRemoval, "Group should have only one member left");
+        assertTrue(ownerStillPresent, "Owner should still be in the group");
+        assertFalse(member2StillInGroupList, "Group should be removed from member2's group list");
+        assertFalse(removedAgain, "Should not be able to remove a member who's not in the group");
         assertTrue(ownerRemoved, "Owner should be able to leave the group");
-        assertEquals(0, chatUtil.getMembers(group).size(), "Group should have no members after owner leaves");
-        assertFalse(member1.groups().contains(group), "Group should be removed from owner's groups");
+        assertEquals(0, memberCountAfterOwnerRemoved, "Group should have no members after owner leaves");
+        assertFalse(ownerStillInGroupList, "Group should be removed from owner's groups");
     }
 
     @Test
     public void getMembers() throws DatabaseException {
         GroupEntity group = groupRepo.create("GetMembersGroup", member1);
         groupRepo.addMember(group, member2);
+        group = jpaUtil.refresh(group);
 
         Collection<TauMemberEntity> members = chatUtil.getMembers(group);
-        assertTrue(members.contains(member2));
-        assertFalse(members.contains(member6));
+        boolean containsMember1 = members.contains(member1);
+        boolean containsMember2 = members.contains(member2);
+        boolean containsMember6 = members.contains(member6);
+        int memberCount = members.size();
 
-        // Additional assertions
-        assertEquals(2, members.size(), "Group should have exactly two members");
-        assertTrue(members.contains(member1), "Group should contain its creator");
-
-        // Add another member and check again
         groupRepo.addMember(group, member3);
+        group = jpaUtil.refresh(group);
+        member3 = jpaUtil.refresh(member3);
         Collection<TauMemberEntity> updatedMembers = chatUtil.getMembers(group);
-        assertEquals(3, updatedMembers.size(), "Group should now have three members");
-        assertTrue(updatedMembers.contains(member3), "New member should be in the group");
+        boolean containsMember3 = updatedMembers.contains(member3);
+        int updatedCount = updatedMembers.size();
 
-        // Test with empty group (except owner)
         GroupEntity emptyGroup = groupRepo.create("EmptyGroup", member4);
         Collection<TauMemberEntity> singleMember = chatUtil.getMembers(emptyGroup);
-        assertEquals(1, singleMember.size(), "Empty group should have just the owner");
-        assertTrue(singleMember.contains(member4), "Owner should be in the member list");
+        boolean containsOnlyOwner = singleMember.contains(member4);
+        int singleCount = singleMember.size();
+
+        assertTrue(containsMember2, "Group should contain member2 after being added");
+        assertFalse(containsMember6, "Group should not contain member6 (never added)");
+        assertEquals(2, memberCount, "Group should have exactly two members after adding member2");
+        assertTrue(containsMember1, "Group should always contain the creator (member1)");
+
+        assertEquals(3, updatedCount, "Group should have three members after adding member3");
+        assertTrue(containsMember3, "Group should contain member3 after being added");
+
+        assertEquals(1, singleCount, "New group should only contain the owner");
+        assertTrue(containsOnlyOwner, "New group's member list should include only the owner (member4)");
     }
+
 }

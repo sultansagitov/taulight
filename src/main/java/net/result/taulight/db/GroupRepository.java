@@ -14,17 +14,23 @@ public class GroupRepository {
     private final JPAUtil jpaUtil;
 
     public GroupRepository(Container container) {
-        jpaUtil = container.get(JPAUtil.class);
+        this.jpaUtil = container.get(JPAUtil.class);
     }
 
-    private GroupEntity save(GroupEntity group) throws DatabaseException {
+    public GroupEntity create(String title, TauMemberEntity owner) throws DatabaseException {
         EntityManager em = jpaUtil.getEntityManager();
-
         EntityTransaction transaction = em.getTransaction();
+
         try {
             transaction.begin();
+
+            GroupEntity group = new GroupEntity(title, owner);
+            group.setMembers(new HashSet<>(Set.of(owner)));
+
             GroupEntity managed = em.merge(group);
+
             transaction.commit();
+
             return managed;
         } catch (Exception e) {
             if (transaction.isActive()) transaction.rollback();
@@ -32,31 +38,13 @@ public class GroupRepository {
         }
     }
 
-    public GroupEntity create(String title, TauMemberEntity owner) throws DatabaseException {
-        EntityManager em = jpaUtil.getEntityManager();
-        GroupEntity managed = save(new GroupEntity(title, owner));
-        EntityTransaction transaction = em.getTransaction();
-        try {
-            transaction.begin();
-
-            managed.setMembers(new HashSet<>(Set.of(owner)));
-            em.merge(managed);
-
-            transaction.commit();
-        } catch (Exception e) {
-            if (transaction.isActive()) transaction.rollback();
-            throw new DatabaseException(e);
-        }
-
-        return managed;
-    }
-
     public void delete(GroupEntity group) throws DatabaseException {
         EntityManager em = jpaUtil.getEntityManager();
         EntityTransaction transaction = em.getTransaction();
         try {
             transaction.begin();
-            em.remove(group);
+            GroupEntity managed = em.merge(group);
+            em.remove(managed);
             transaction.commit();
         } catch (Exception e) {
             if (transaction.isActive()) transaction.rollback();
@@ -67,61 +55,68 @@ public class GroupRepository {
     public boolean addMember(GroupEntity group, TauMemberEntity member) throws DatabaseException {
         EntityManager em = jpaUtil.getEntityManager();
         EntityTransaction transaction = em.getTransaction();
+
         try {
-            Set<TauMemberEntity> members = group.members();
+            transaction.begin();
+
+            GroupEntity managedGroup = em.merge(group);
+            TauMemberEntity managedMember = em.merge(member);
+
+            Set<TauMemberEntity> members = managedGroup.members();
             if (members == null) {
-                group.setMembers(Set.of(member));
-            } else if (members.contains(member)) {
-                return false;
-            } else {
-                group.members().add(member);
+                members = new HashSet<>();
+                managedGroup.setMembers(members);
             }
 
-            member.groups().add(group);
+            if (!members.add(managedMember)) {
+                transaction.rollback();
+                return false;
+            }
 
-            transaction.begin();
-            em.merge(group);
+            managedMember.groups().add(managedGroup);
+
             transaction.commit();
+            return true;
         } catch (Exception e) {
             if (transaction.isActive()) transaction.rollback();
             throw new DatabaseException(e);
         }
-        return true;
     }
 
     public boolean removeMember(GroupEntity group, TauMemberEntity member) throws DatabaseException {
         EntityManager em = jpaUtil.getEntityManager();
         EntityTransaction transaction = em.getTransaction();
-        try {
-            Set<TauMemberEntity> members = group.members();
 
-            if (members == null) {
-                group.setMembers(Set.of());
-            } else if (!members.contains(member)) {
+        try {
+            transaction.begin();
+
+            GroupEntity managedGroup = em.merge(group);
+            TauMemberEntity managedMember = em.merge(member);
+
+            Set<TauMemberEntity> members = managedGroup.members();
+            if (members == null || !members.remove(managedMember)) {
+                transaction.rollback();
                 return false;
-            } else {
-                group.members().remove(member);
             }
 
-            member.groups().remove(group);
+            managedMember.groups().remove(managedGroup);
 
-            transaction.begin();
-            em.merge(group);
             transaction.commit();
+            return true;
         } catch (Exception e) {
             if (transaction.isActive()) transaction.rollback();
             throw new DatabaseException(e);
         }
-        return true;
     }
 
     public void setAvatar(GroupEntity group, FileEntity avatar) throws DatabaseException {
         EntityManager em = jpaUtil.getEntityManager();
         EntityTransaction transaction = em.getTransaction();
+
         try {
             transaction.begin();
-            group.setAvatar(avatar);
-            em.merge(group);
+            GroupEntity managed = em.merge(group);
+            managed.setAvatar(avatar);
             transaction.commit();
         } catch (Exception e) {
             if (transaction.isActive()) transaction.rollback();
@@ -134,14 +129,14 @@ public class GroupRepository {
         EntityTransaction transaction = em.getTransaction();
 
         try {
-            if (group.permissions().contains(permission)) {
+            transaction.begin();
+            GroupEntity managed = em.merge(group);
+
+            if (!managed.permissions().add(permission)) {
+                transaction.rollback();
                 return false;
             }
 
-            group.permissions().add(permission);
-
-            transaction.begin();
-            em.merge(group);
             transaction.commit();
             return true;
         } catch (Exception e) {
@@ -155,14 +150,14 @@ public class GroupRepository {
         EntityTransaction transaction = em.getTransaction();
 
         try {
-            if (!group.permissions().contains(permission)) {
+            transaction.begin();
+            GroupEntity managed = em.merge(group);
+
+            if (!managed.permissions().remove(permission)) {
+                transaction.rollback();
                 return false;
             }
 
-            group.permissions().remove(permission);
-
-            transaction.begin();
-            em.merge(group);
             transaction.commit();
             return true;
         } catch (Exception e) {

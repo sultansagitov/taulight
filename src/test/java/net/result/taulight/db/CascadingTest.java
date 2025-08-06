@@ -4,6 +4,7 @@ import net.result.sandnode.GlobalTestState;
 import net.result.sandnode.db.MemberEntity;
 import net.result.sandnode.db.MemberRepository;
 import net.result.sandnode.util.Container;
+import net.result.sandnode.util.JPAUtil;
 import net.result.taulight.dto.ChatMessageInputDTO;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -14,6 +15,7 @@ import java.util.HashSet;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class CascadingTest {
+    private static JPAUtil jpaUtil;
     private static MemberRepository memberRepo;
     private static GroupRepository groupRepo;
     private static MessageRepository messageRepo;
@@ -25,6 +27,7 @@ public class CascadingTest {
     @BeforeAll
     public static void setup() {
         Container container = GlobalTestState.container;
+        jpaUtil = container.get(JPAUtil.class);
         memberRepo = container.get(MemberRepository.class);
         groupRepo = container.get(GroupRepository.class);
         messageRepo = container.get(MessageRepository.class);
@@ -42,12 +45,12 @@ public class CascadingTest {
         GroupEntity group = groupRepo.create("news", tau);
 
         boolean added = groupRepo.addMember(group, tau);
-        assertFalse(added);
-
         boolean left = groupRepo.removeMember(group, tau);
-        assertTrue(left);
-
+        group = jpaUtil.refresh(group);
         boolean leftAgain = groupRepo.removeMember(group, tau);
+
+        assertFalse(added);
+        assertTrue(left);
         assertFalse(leftAgain);
     }
 
@@ -74,9 +77,9 @@ public class CascadingTest {
         ReactionEntryEntity entry = reactionEntryRepo.create(reacter, msg, like);
 
         boolean removed = reactionEntryRepo.delete(entry);
-        assertTrue(removed);
-
         boolean removedAgain = reactionEntryRepo.delete(entry);
+
+        assertTrue(removed);
         assertFalse(removedAgain);
     }
 
@@ -103,9 +106,9 @@ public class CascadingTest {
         reactionEntryRepo.create(reacter, msg, haha);
 
         boolean removed = reactionEntryRepo.delete(msg, reacter, haha);
-        assertTrue(removed);
-
         boolean removedAgain = reactionEntryRepo.delete(msg, reacter, haha);
+
+        assertTrue(removed);
         assertFalse(removedAgain);
     }
 
