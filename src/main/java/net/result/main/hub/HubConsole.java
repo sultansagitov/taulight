@@ -1,4 +1,4 @@
-package net.result.main;
+package net.result.main.hub;
 
 import net.result.sandnode.chain.Chain;
 import net.result.sandnode.chain.sender.ExitChain;

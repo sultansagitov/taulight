@@ -1,17 +1,19 @@
-package net.result.main.commands;
+package net.result.main.commands.taulight;
 
+import net.result.main.commands.ConsoleContext;
+import net.result.main.commands.LoopCondition;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 
 @SuppressWarnings("SameReturnValue")
-public class ConsoleMessagesCommands {
+public class MessagesCommands {
     public static void register(Map<String, LoopCondition> commands) {
-        commands.put("messages", ConsoleMessagesCommands::messages);
-        commands.put("reply", ConsoleMessagesCommands::reply);
-        commands.put("uploadFile", ConsoleMessagesCommands::uploadFile);
-        commands.put("fileAttached", ConsoleMessagesCommands::fileAttached);
-        commands.put("downloadFile", ConsoleMessagesCommands::downloadFile);
+        commands.put("messages", MessagesCommands::messages);
+        commands.put("reply", MessagesCommands::reply);
+        commands.put("uploadFile", MessagesCommands::uploadFile);
+        commands.put("fileAttached", MessagesCommands::fileAttached);
+        commands.put("downloadFile", MessagesCommands::downloadFile);
     }
 
     private static void messages(@NotNull List<String> args, ConsoleContext context) throws Exception {
@@ -22,7 +24,7 @@ public class ConsoleMessagesCommands {
             return;
         }
 
-        ConsoleMessagesRunner.messages(context, chatID);
+        MessagesRunner.messages(context, chatID);
     }
 
     private static void reply(List<String> args, ConsoleContext context) throws Exception {
@@ -51,7 +53,7 @@ public class ConsoleMessagesCommands {
             return;
         }
 
-        ConsoleMessagesRunner.reply(context, input, replies);
+        MessagesRunner.reply(context, input, replies);
     }
 
     private static void uploadFile(List<String> args, ConsoleContext context) throws Exception {
@@ -65,7 +67,7 @@ public class ConsoleMessagesCommands {
             path = args.get(0);
         }
 
-        UUID fileID = ConsoleMessagesRunner.uploadFile(context, chatID, path);
+        UUID fileID = MessagesRunner.uploadFile(context, chatID, path);
 
         System.out.printf("File ID: %s%n", fileID);
     }
@@ -99,11 +101,11 @@ public class ConsoleMessagesCommands {
             return;
         }
 
-        ConsoleMessagesRunner.fileAttached(context, input, fileIDs);
+        MessagesRunner.fileAttached(context, input, fileIDs);
     }
 
     private static void downloadFile(List<String> args, ConsoleContext context) throws Exception {
         UUID fileID = UUID.fromString(args.get(0));
-        ConsoleMessagesRunner.downloadFile(context, fileID);
+        MessagesRunner.downloadFile(context, fileID);
     }
 }

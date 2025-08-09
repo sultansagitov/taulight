@@ -1,22 +1,25 @@
-package net.result.main.commands;
+package net.result.main.commands.taulight;
+
+import net.result.main.commands.ConsoleContext;
+import net.result.main.commands.LoopCondition;
 
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
 @SuppressWarnings("SameReturnValue")
-public class ConsoleRolesCommands {
+public class RolesCommands {
     public static void register(Map<String, LoopCondition> commands) {
-        commands.put("roles", ConsoleRolesCommands::roles);
-        commands.put("addRole", ConsoleRolesCommands::addRole);
-        commands.put("role", ConsoleRolesCommands::role);
+        commands.put("roles", RolesCommands::roles);
+        commands.put("addRole", RolesCommands::addRole);
+        commands.put("role", RolesCommands::role);
     }
 
     private static void roles(List<String> args, ConsoleContext context) throws Exception {
         UUID chatID = args.stream().findFirst().map(UUID::fromString).orElse(context.currentChat);
         if (chatID == null) return;
 
-        ConsoleRolesRunner.roles(context, chatID);
+        RolesRunner.roles(context, chatID);
     }
 
     private static void addRole(List<String> args, ConsoleContext context) throws Exception {
@@ -42,7 +45,7 @@ public class ConsoleRolesCommands {
             return;
         }
 
-        ConsoleRolesRunner.addRole(context, chatID, roleName);
+        RolesRunner.addRole(context, chatID, roleName);
     }
 
     private static void role(List<String> args, ConsoleContext context) throws Exception {
@@ -71,6 +74,6 @@ public class ConsoleRolesCommands {
             return;
         }
 
-        ConsoleRolesRunner.role(context, chatID, nickname, roleName);
+        RolesRunner.role(context, chatID, nickname, roleName);
     }
 }

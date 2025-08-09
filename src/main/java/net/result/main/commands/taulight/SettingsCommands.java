@@ -1,19 +1,21 @@
-package net.result.main.commands;
+package net.result.main.commands.taulight;
 
+import net.result.main.commands.ConsoleContext;
+import net.result.main.commands.LoopCondition;
 import net.result.taulight.dto.TauMemberSettingsResponseDTO;
 
 import java.util.List;
 import java.util.Map;
 
 @SuppressWarnings("SameReturnValue")
-public class ConsoleSettingsCommands {
+public class SettingsCommands {
     public static void register(Map<String, LoopCondition> commands) {
-        commands.put("settings", ConsoleSettingsCommands::settings);
-        commands.put("setShowStatus", ConsoleSettingsCommands::setShowStatus);
+        commands.put("settings", SettingsCommands::settings);
+        commands.put("setShowStatus", SettingsCommands::setShowStatus);
     }
 
     private static void settings(List<String> ignored, ConsoleContext context) throws Exception {
-        TauMemberSettingsResponseDTO dto = ConsoleSettingsRunner.get(context);
+        TauMemberSettingsResponseDTO dto = SettingsRunner.get(context);
         System.out.printf("showStatus: %s%n", dto.showStatus);
     }
 
@@ -21,7 +23,7 @@ public class ConsoleSettingsCommands {
         String s = args.stream().findFirst().orElseThrow();
         boolean b = Boolean.parseBoolean(s);
 
-        TauMemberSettingsResponseDTO dto = ConsoleSettingsRunner.setShowStatus(context, b);
+        TauMemberSettingsResponseDTO dto = SettingsRunner.setShowStatus(context, b);
         System.out.printf("showStatus: %s%n", dto.showStatus);
     }
 }

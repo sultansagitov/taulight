@@ -1,5 +1,7 @@
-package net.result.main.commands;
+package net.result.main.commands.taulight;
 
+import net.result.main.commands.ConsoleContext;
+import net.result.main.commands.LoopCondition;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -7,10 +9,10 @@ import java.util.Map;
 import java.util.UUID;
 
 @SuppressWarnings("SameReturnValue")
-public class ConsoleReactionsCommands {
+public class ReactionsCommands {
     public static void register(Map<String, LoopCondition> commands) {
-        commands.put("react", ConsoleReactionsCommands::react);
-        commands.put("unreact", ConsoleReactionsCommands::unreact);
+        commands.put("react", ReactionsCommands::react);
+        commands.put("unreact", ReactionsCommands::unreact);
     }
 
     private static void react(@NotNull List<String> args, ConsoleContext context) throws Exception {
@@ -23,7 +25,7 @@ public class ConsoleReactionsCommands {
 
         String reaction = args.get(1);
 
-        ConsoleReactionsRunner.react(context, messageId, reaction);
+        ReactionsRunner.react(context, messageId, reaction);
     }
 
     private static void unreact(@NotNull List<String> args, ConsoleContext context) throws Exception {
@@ -37,6 +39,6 @@ public class ConsoleReactionsCommands {
 
         String reaction = args.get(1);
 
-        ConsoleReactionsRunner.unreact(context, messageId, reaction);
+        ReactionsRunner.unreact(context, messageId, reaction);
     }
 }

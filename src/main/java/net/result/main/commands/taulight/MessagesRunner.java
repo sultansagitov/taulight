@@ -1,5 +1,6 @@
-package net.result.main.commands;
+package net.result.main.commands.taulight;
 
+import net.result.main.commands.ConsoleContext;
 import net.result.sandnode.dto.FileDTO;
 import net.result.sandnode.dto.PaginatedDTO;
 import net.result.sandnode.exception.SandnodeException;
@@ -14,7 +15,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class ConsoleMessagesRunner {
+public class MessagesRunner {
     public static void messages(ConsoleContext context, UUID chatID) throws Exception {
         var chain = new MessageClientChain(context.client);
         context.io.chainManager.linkChain(chain);
@@ -32,15 +33,19 @@ public class ConsoleMessagesRunner {
         }
     }
 
-    public static void reply(ConsoleContext context, String input, Set<UUID> replies) throws Exception {
+    public static void reply(ConsoleContext context, String input, Set<UUID> replies) {
         ChatMessageInputDTO message = new ChatMessageInputDTO()
                 .setChatID(context.currentChat)
                 .setRepliedToMessages(replies)
                 .setNickname(context.client.nickname)
                 .setSentDatetimeNow();
-
-        UUID uuid = context.chain().sendMessage(context.chat, message, input, true, true);
-        System.out.printf("Sent message UUID: %s%n", uuid);
+        try {
+            UUID uuid = context.chain().sendMessage(context.chat, message, input, true, true);
+            System.out.printf("Sent message UUID: %s%n", uuid);
+        } catch (Exception e) {
+            context.removeChain();
+            throw new RuntimeException(e);
+        }
     }
 
     static UUID uploadFile(ConsoleContext context, UUID chatID, String path) throws Exception {
@@ -51,15 +56,19 @@ public class ConsoleMessagesRunner {
         return fileID;
     }
 
-    public static void fileAttached(ConsoleContext context, String input, Set<UUID> fileIDs) throws Exception {
+    public static void fileAttached(ConsoleContext context, String input, Set<UUID> fileIDs) {
         ChatMessageInputDTO message = new ChatMessageInputDTO()
                 .setChatID(context.currentChat)
                 .setFileIDs(fileIDs)
                 .setNickname(context.client.nickname)
                 .setSentDatetimeNow();
-
-        UUID uuid = context.chain().sendMessage(context.chat, message, input, true, true);
-        System.out.printf("Sent message UUID with attachments: %s%n", uuid);
+        try {
+            UUID uuid = context.chain().sendMessage(context.chat, message, input, true, true);
+            System.out.printf("Sent message UUID with attachments: %s%n", uuid);
+        } catch (Exception e) {
+            context.removeChain();
+            throw new RuntimeException(e);
+        }
     }
 
     public static void downloadFile(ConsoleContext context, UUID fileID) throws Exception {

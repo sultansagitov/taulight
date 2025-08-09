@@ -1,5 +1,7 @@
-package net.result.main.commands;
+package net.result.main.commands.taulight;
 
+import net.result.main.commands.ConsoleContext;
+import net.result.main.commands.LoopCondition;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -7,12 +9,12 @@ import java.util.Map;
 import java.util.UUID;
 
 @SuppressWarnings("SameReturnValue")
-public class ConsoleCodesCommands {
+public class CodesCommands {
     public static void register(Map<String, LoopCondition> commands) {
-        commands.put("checkCode", ConsoleCodesCommands::checkCode);
-        commands.put("useCode", ConsoleCodesCommands::useCode);
-        commands.put("groupCodes", ConsoleCodesCommands::groupCodes);
-        commands.put("myCodes", ConsoleCodesCommands::myCodes);
+        commands.put("checkCode", CodesCommands::checkCode);
+        commands.put("useCode", CodesCommands::useCode);
+        commands.put("groupCodes", CodesCommands::groupCodes);
+        commands.put("myCodes", CodesCommands::myCodes);
     }
 
     private static void checkCode(@NotNull List<String> args, ConsoleContext context) throws Exception {
@@ -23,7 +25,7 @@ public class ConsoleCodesCommands {
 
         String code = args.get(0);
 
-        ConsoleCodesRunner.checkCode(context, code);
+        CodesRunner.checkCode(context, code);
     }
 
     private static void useCode(List<String> args, ConsoleContext context) throws Exception {
@@ -34,7 +36,7 @@ public class ConsoleCodesCommands {
 
         String code = args.get(0);
 
-        ConsoleCodesRunner.useCode(context, code);
+        CodesRunner.useCode(context, code);
     }
 
     private static void groupCodes(@NotNull List<String> args, ConsoleContext context) throws Exception {
@@ -45,10 +47,10 @@ public class ConsoleCodesCommands {
             return;
         }
 
-        ConsoleCodesRunner.groupCodes(context, chatID);
+        CodesRunner.groupCodes(context, chatID);
     }
 
     private static void myCodes(List<String> ignored, ConsoleContext context) throws Exception {
-        ConsoleCodesRunner.myCodes(context);
+        CodesRunner.myCodes(context);
     }
 }

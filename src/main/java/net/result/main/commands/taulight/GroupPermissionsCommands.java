@@ -1,5 +1,7 @@
-package net.result.main.commands;
+package net.result.main.commands.taulight;
 
+import net.result.main.commands.ConsoleContext;
+import net.result.main.commands.LoopCondition;
 import net.result.taulight.db.Permission;
 import org.jetbrains.annotations.NotNull;
 
@@ -7,12 +9,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-public class ConsoleGroupPermissionsCommands {
+public class GroupPermissionsCommands {
     public static void register(Map<String, LoopCondition> commands) {
-        commands.put("addDefaultPerm", ConsoleGroupPermissionsCommands::addDefaultPerm);
-        commands.put("removeDefaultPerm", ConsoleGroupPermissionsCommands::removeDefaultPerm);
-        commands.put("addRolePerm", ConsoleGroupPermissionsCommands::addRolePerm);
-        commands.put("removeRolePerm", ConsoleGroupPermissionsCommands::removeRolePerm);
+        commands.put("addDefaultPerm", GroupPermissionsCommands::addDefaultPerm);
+        commands.put("removeDefaultPerm", GroupPermissionsCommands::removeDefaultPerm);
+        commands.put("addRolePerm", GroupPermissionsCommands::addRolePerm);
+        commands.put("removeRolePerm", GroupPermissionsCommands::removeRolePerm);
     }
 
     private static void addDefaultPerm(@NotNull List<String> args, ConsoleContext context) throws Exception {
@@ -37,7 +39,7 @@ public class ConsoleGroupPermissionsCommands {
             return;
         }
 
-        ConsoleGroupPermissionsRunner.addDefaultPerm(context, chatID, permission);
+        GroupPermissionsRunner.addDefaultPerm(context, chatID, permission);
     }
 
     private static void removeDefaultPerm(@NotNull List<String> args, ConsoleContext context) throws Exception {
@@ -62,7 +64,7 @@ public class ConsoleGroupPermissionsCommands {
             return;
         }
 
-        ConsoleGroupPermissionsRunner.removeDefaultPerm(context, chatID, permission);
+        GroupPermissionsRunner.removeDefaultPerm(context, chatID, permission);
     }
 
     private static void addRolePerm(@NotNull List<String> args, ConsoleContext context) throws Exception {
@@ -90,7 +92,7 @@ public class ConsoleGroupPermissionsCommands {
             return;
         }
 
-        ConsoleGroupPermissionsRunner.addRolePerm(context, chatID, roleID, permission);
+        GroupPermissionsRunner.addRolePerm(context, chatID, roleID, permission);
     }
 
     private static void removeRolePerm(@NotNull List<String> args, ConsoleContext context) throws Exception {
@@ -118,7 +120,7 @@ public class ConsoleGroupPermissionsCommands {
             return;
         }
 
-        ConsoleGroupPermissionsRunner.removeRolePerm(context, chatID, roleID, permission);
+        GroupPermissionsRunner.removeRolePerm(context, chatID, roleID, permission);
     }
 
     private static boolean looksLikeUUID(String value) {

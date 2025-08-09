@@ -1,5 +1,6 @@
-package net.result.main;
+package net.result.main.hub;
 
+import net.result.main.Work;
 import net.result.main.config.HubPropertiesConfig;
 import net.result.main.config.JWTPropertiesConfig;
 import net.result.main.config.ServerPropertiesConfig;

@@ -1,11 +1,12 @@
-package net.result.main.commands;
+package net.result.main.commands.taulight;
 
+import net.result.main.commands.ConsoleContext;
 import net.result.taulight.chain.sender.PermissionClientChain;
 import net.result.taulight.db.Permission;
 
 import java.util.UUID;
 
-public class ConsoleGroupPermissionsRunner {
+public class GroupPermissionsRunner {
 
     public static void addDefaultPerm(ConsoleContext context, UUID chatID, Permission permission) throws Exception {
         PermissionClientChain chain = new PermissionClientChain(context.client);

@@ -1,5 +1,7 @@
-package net.result.main.commands;
+package net.result.main.commands.taulight;
 
+import net.result.main.commands.ConsoleContext;
+import net.result.main.commands.LoopCondition;
 import net.result.taulight.chain.sender.ChatClientChain;
 import net.result.taulight.dto.*;
 import org.jetbrains.annotations.NotNull;
@@ -10,21 +12,21 @@ import java.util.Map;
 import java.util.UUID;
 
 @SuppressWarnings("SameReturnValue")
-public class ConsoleChatsCommands {
+public class ChatsCommands {
     public static void register(Map<String, LoopCondition> commands) {
-        commands.put(":", ConsoleChatsCommands::setChat);
-        commands.put("chats", ConsoleChatsCommands::chats);
-        commands.put("dialogs", ConsoleChatsCommands::dialogs);
-        commands.put("groups", ConsoleChatsCommands::groups);
-        commands.put("info", ConsoleChatsCommands::info);
-        commands.put("newGroup", ConsoleChatsCommands::newGroup);
-        commands.put("addMember", ConsoleChatsCommands::addMember);
-        commands.put("leave", ConsoleChatsCommands::leave);
-        commands.put("dialog", ConsoleChatsCommands::dialog);
-        commands.put("members", ConsoleChatsCommands::members);
-        commands.put("setGroupAvatar", ConsoleChatsCommands::setGroupAvatar);
-        commands.put("getGroupAvatar", ConsoleChatsCommands::getGroupAvatar);
-        commands.put("getDialogAvatar", ConsoleChatsCommands::getDialogAvatar);
+        commands.put(":", ChatsCommands::setChat);
+        commands.put("chats", ChatsCommands::chats);
+        commands.put("dialogs", ChatsCommands::dialogs);
+        commands.put("groups", ChatsCommands::groups);
+        commands.put("info", ChatsCommands::info);
+        commands.put("newGroup", ChatsCommands::newGroup);
+        commands.put("addMember", ChatsCommands::addMember);
+        commands.put("leave", ChatsCommands::leave);
+        commands.put("dialog", ChatsCommands::dialog);
+        commands.put("members", ChatsCommands::members);
+        commands.put("setGroupAvatar", ChatsCommands::setGroupAvatar);
+        commands.put("getGroupAvatar", ChatsCommands::getGroupAvatar);
+        commands.put("getDialogAvatar", ChatsCommands::getDialogAvatar);
     }
 
     private static void setChat(List<String> args, ConsoleContext context) throws Exception {
@@ -46,15 +48,15 @@ public class ConsoleChatsCommands {
     }
 
     private static void chats(List<String> ignored, ConsoleContext context) throws Exception {
-        ConsoleChatsRunner.chats(context, ChatInfoPropDTO.all());
+        ChatsRunner.chats(context, ChatInfoPropDTO.all());
     }
 
     private static void dialogs(List<String> ignored, ConsoleContext context) throws Exception {
-        ConsoleChatsRunner.chats(context, ChatInfoPropDTO.dialogAll());
+        ChatsRunner.chats(context, ChatInfoPropDTO.dialogAll());
     }
 
     private static void groups(List<String> ignored, ConsoleContext context) throws Exception {
-        ConsoleChatsRunner.chats(context, ChatInfoPropDTO.groupAll());
+        ChatsRunner.chats(context, ChatInfoPropDTO.groupAll());
     }
 
     private static void info(@NotNull List<String> args, ConsoleContext context) throws Exception {
@@ -65,7 +67,7 @@ public class ConsoleChatsCommands {
             return;
         }
 
-        ConsoleChatsRunner.info(context, chatID);
+        ChatsRunner.info(context, chatID);
     }
 
     private static void newGroup(@NotNull List<String> args, ConsoleContext context) throws Exception {
@@ -76,7 +78,7 @@ public class ConsoleChatsCommands {
 
         String title = args.get(0);
 
-        ConsoleChatsRunner.newGroup(context, title);
+        ChatsRunner.newGroup(context, title);
     }
 
     private static void addMember(@NotNull List<String> args, ConsoleContext context) throws Exception {
@@ -103,7 +105,7 @@ public class ConsoleChatsCommands {
             return;
         }
 
-        ConsoleChatsRunner.addMember(context, chatID, otherNickname, expirationTime);
+        ChatsRunner.addMember(context, chatID, otherNickname, expirationTime);
     }
 
     private static void dialog(@NotNull List<String> args, ConsoleContext context) throws Exception {
@@ -114,7 +116,7 @@ public class ConsoleChatsCommands {
 
         String nickname = args.get(0);
 
-        ConsoleChatsRunner.dialog(context, nickname);
+        ChatsRunner.dialog(context, nickname);
     }
 
     private static void leave(@NotNull List<String> args, ConsoleContext context) throws Exception {
@@ -125,7 +127,7 @@ public class ConsoleChatsCommands {
             return;
         }
 
-        ConsoleChatsRunner.leave(context, chatID);
+        ChatsRunner.leave(context, chatID);
     }
 
     private static void members(@NotNull List<String> args, ConsoleContext context) throws Exception {
@@ -136,7 +138,7 @@ public class ConsoleChatsCommands {
             return;
         }
 
-        MembersResponseDTO response = ConsoleChatsRunner.members(context, chatID);
+        MembersResponseDTO response = ChatsRunner.members(context, chatID);
         for (ChatMemberDTO member : response.members) {
             StringBuilder builder = new StringBuilder();
             if (response.roles != null && member.roles != null) {
@@ -168,7 +170,7 @@ public class ConsoleChatsCommands {
             return;
         }
 
-        ConsoleChatsRunner.setGroupAvatar(context, chatID, path);
+        ChatsRunner.setGroupAvatar(context, chatID, path);
     }
 
     private static void getGroupAvatar(@NotNull List<String> args, ConsoleContext context) throws Exception {
@@ -179,7 +181,7 @@ public class ConsoleChatsCommands {
             return;
         }
 
-        ConsoleChatsRunner.getGroupAvatar(context, chatID);
+        ChatsRunner.getGroupAvatar(context, chatID);
     }
 
     private static void getDialogAvatar(List<String> args, ConsoleContext context) throws Exception {
@@ -191,6 +193,6 @@ public class ConsoleChatsCommands {
             return;
         }
 
-        ConsoleChatsRunner.getDialogAvatar(context, chatID);
+        ChatsRunner.getDialogAvatar(context, chatID);
     }
 }

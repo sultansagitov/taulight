@@ -1,10 +1,11 @@
-package net.result.main.commands;
+package net.result.main.commands.taulight;
 
+import net.result.main.commands.ConsoleContext;
 import net.result.taulight.chain.sender.ReactionRequestClientChain;
 
 import java.util.UUID;
 
-public class ConsoleReactionsRunner {
+public class ReactionsRunner {
     public static void react(ConsoleContext context, UUID messageId, String reaction) throws Exception {
         var chain = new ReactionRequestClientChain(context.client);
         context.io.chainManager.linkChain(chain);

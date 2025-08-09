@@ -24,8 +24,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
 
-public class
-AgentPropertiesConfig implements AgentConfig {
+public class AgentPropertiesConfig implements AgentConfig {
     private static final Logger LOGGER = LogManager.getLogger(AgentPropertiesConfig.class);
     private final Path KEYS_JSON_PATH;
     private final Path KEYS_PATH;

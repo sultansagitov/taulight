@@ -1,5 +1,6 @@
-package net.result.main.commands;
+package net.result.main.commands.taulight;
 
+import net.result.main.commands.ConsoleContext;
 import net.result.sandnode.util.IOController;
 import net.result.taulight.chain.sender.RoleClientChain;
 import net.result.taulight.dto.RolesDTO;
@@ -8,7 +9,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.UUID;
 import java.util.stream.Stream;
 
-public class ConsoleRolesRunner {
+public class RolesRunner {
 
     public static void roles(@NotNull ConsoleContext context, UUID chatID) throws Exception {
         IOController io = context.io;

@@ -1,5 +1,7 @@
 package net.result.main;
 
+import net.result.main.agent.RunAgentWork;
+import net.result.main.hub.RunHubWork;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;

@@ -1,5 +1,6 @@
-package net.result.main.commands;
+package net.result.main.commands.taulight;
 
+import net.result.main.commands.ConsoleContext;
 import net.result.sandnode.dto.FileDTO;
 import net.result.sandnode.exception.SandnodeException;
 import net.result.sandnode.serverclient.SandnodeClient;
@@ -18,7 +19,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 
-public class ConsoleChatsRunner {
+public class ChatsRunner {
     public static void chats(@NotNull ConsoleContext context, Collection<ChatInfoPropDTO> all) throws Exception {
         ChatClientChain chain = new ChatClientChain(context.client);
         context.io.chainManager.linkChain(chain);

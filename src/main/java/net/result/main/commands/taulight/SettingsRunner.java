@@ -1,9 +1,10 @@
-package net.result.main.commands;
+package net.result.main.commands.taulight;
 
+import net.result.main.commands.ConsoleContext;
 import net.result.taulight.chain.sender.TauMemberSettingsClientChain;
 import net.result.taulight.dto.TauMemberSettingsResponseDTO;
 
-public class ConsoleSettingsRunner {
+public class SettingsRunner {
     public static TauMemberSettingsResponseDTO get(ConsoleContext context) throws Exception {
         TauMemberSettingsClientChain chain = new TauMemberSettingsClientChain(context.client);
         context.io.chainManager.linkChain(chain);

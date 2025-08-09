@@ -26,4 +26,11 @@ public class ConsoleContext {
         }
         return chain;
     }
+
+    public void removeChain() {
+        if (chain != null) {
+            client.io().chainManager.removeChain(chain);
+            chain = null;
+        }
+    }
 }

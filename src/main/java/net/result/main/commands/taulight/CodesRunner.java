@@ -1,5 +1,6 @@
-package net.result.main.commands;
+package net.result.main.commands.taulight;
 
+import net.result.main.commands.ConsoleContext;
 import net.result.taulight.chain.sender.CheckCodeClientChain;
 import net.result.taulight.chain.sender.GroupClientChain;
 import net.result.taulight.chain.sender.UseCodeClientChain;
@@ -11,7 +12,7 @@ import java.time.ZonedDateTime;
 import java.util.Collection;
 import java.util.UUID;
 
-public class ConsoleCodesRunner {
+public class CodesRunner {
 
     public static void checkCode(@NotNull ConsoleContext context, String code) throws Exception {
         var chain = new CheckCodeClientChain(context.client);
