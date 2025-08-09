@@ -31,8 +31,7 @@ public class TauHubServerChainManager extends HubServerChainManager {
                 case FWD_REQ -> new ForwardRequestServerChain(session);
                 case MESSAGE -> new MessageServerChain(session);
                 case MEMBERS -> new MembersServerChain(session);
-                case CHECK_CODE -> new CheckCodeServerChain(session);
-                case USE_CODE -> new UseCodeServerChain(session);
+                case CODE -> new CodeServerChain(session);
                 case REACTION -> new ReactionRequestServerChain(session);
                 case ROLES -> new RoleServerChain(session);
                 case TAU_SETTINGS -> new TauMemberSettingsServerChain(session);

@@ -1,9 +1,8 @@
 package net.result.main.commands.taulight;
 
 import net.result.main.commands.ConsoleContext;
-import net.result.taulight.chain.sender.CheckCodeClientChain;
+import net.result.taulight.chain.sender.CodeClientChain;
 import net.result.taulight.chain.sender.GroupClientChain;
-import net.result.taulight.chain.sender.UseCodeClientChain;
 import net.result.taulight.dto.CodeDTO;
 import net.result.taulight.dto.InviteCodeDTO;
 import org.jetbrains.annotations.NotNull;
@@ -15,7 +14,7 @@ import java.util.UUID;
 public class CodesRunner {
 
     public static void checkCode(@NotNull ConsoleContext context, String code) throws Exception {
-        var chain = new CheckCodeClientChain(context.client);
+        var chain = new CodeClientChain(context.client);
         context.io.chainManager.linkChain(chain);
         CodeDTO dto = chain.check(code);
         context.io.chainManager.removeChain(chain);
@@ -34,7 +33,7 @@ public class CodesRunner {
     }
 
     public static void useCode(ConsoleContext context, String code) throws Exception {
-        var chain = new UseCodeClientChain(context.client);
+        var chain = new CodeClientChain(context.client);
         context.io.chainManager.linkChain(chain);
         chain.use(code);
         context.io.chainManager.removeChain(chain);
