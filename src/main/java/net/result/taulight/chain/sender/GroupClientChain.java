@@ -10,9 +10,6 @@ import net.result.sandnode.message.UUIDMessage;
 import net.result.sandnode.message.util.MessageTypes;
 import net.result.sandnode.serverclient.SandnodeClient;
 import net.result.sandnode.util.FileIOUtil;
-import net.result.taulight.dto.CodeDTO;
-import net.result.taulight.message.CodeListMessage;
-import net.result.taulight.message.TauMessageTypes;
 import net.result.taulight.message.types.GroupRequest;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -23,7 +20,6 @@ import java.net.URLConnection;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.time.Duration;
-import java.util.Collection;
 import java.util.UUID;
 
 public class GroupClientChain extends ClientChain {
@@ -53,20 +49,6 @@ public class GroupClientChain extends ClientChain {
             throws InterruptedException, SandnodeErrorException, ProtocolException {
         var raw = sendAndReceive(GroupRequest.addMember(chatID, otherNickname, expirationTime));
         return new TextMessage(raw).content();
-    }
-
-    public synchronized Collection<CodeDTO> getGroupCodes(UUID chatID)
-            throws InterruptedException, ProtocolException, SandnodeErrorException {
-        var raw = sendAndReceive(GroupRequest.groupCodes(chatID));
-        raw.expect(TauMessageTypes.GROUP);
-        return new CodeListMessage(raw).codes();
-    }
-
-    public synchronized Collection<CodeDTO> getMyCodes()
-            throws InterruptedException, ProtocolException, SandnodeErrorException {
-        var raw = sendAndReceive(GroupRequest.myCodes());
-        raw.expect(TauMessageTypes.GROUP);
-        return new CodeListMessage(raw).codes();
     }
 
     public synchronized UUID setAvatar(UUID chatID, String avatarPath)

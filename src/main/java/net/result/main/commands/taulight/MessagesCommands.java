@@ -27,7 +27,7 @@ public class MessagesCommands {
         MessagesRunner.messages(context, chatID);
     }
 
-    private static void reply(List<String> args, ConsoleContext context) throws Exception {
+    private static void reply(List<String> args, ConsoleContext context) {
         if (context.currentChat == null) {
             System.out.println("chat not selected");
             return;
@@ -72,7 +72,7 @@ public class MessagesCommands {
         System.out.printf("File ID: %s%n", fileID);
     }
 
-    private static void fileAttached(List<String> args, ConsoleContext context) throws Exception {
+    private static void fileAttached(List<String> args, ConsoleContext context) {
         if (context.currentChat == null) {
             System.out.println("chat not selected");
             return;

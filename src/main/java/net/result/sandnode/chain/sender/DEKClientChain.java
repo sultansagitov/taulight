@@ -35,10 +35,7 @@ public class DEKClientChain extends ClientChain {
         return keyID;
     }
 
-    public Collection<DEKResponseDTO> get() throws ProtocolException, InterruptedException, SandnodeErrorException,
-            EncryptionTypeException, NoSuchEncryptionException, CreatingKeyException, WrongKeyException,
-            CannotUseEncryption, PrivateKeyNotFoundException, StorageException {
-
+    public Collection<DEKResponseDTO> get() throws ProtocolException, InterruptedException, SandnodeErrorException {
         var raw = sendAndReceive(DEKRequest.get());
         List<DEKResponseDTO> keys = new DEKListMessage(raw).list();
 

@@ -2,7 +2,6 @@ package net.result.main.commands.taulight;
 
 import net.result.main.commands.ConsoleContext;
 import net.result.taulight.chain.sender.CodeClientChain;
-import net.result.taulight.chain.sender.GroupClientChain;
 import net.result.taulight.dto.CodeDTO;
 import net.result.taulight.dto.InviteCodeDTO;
 import org.jetbrains.annotations.NotNull;
@@ -41,7 +40,7 @@ public class CodesRunner {
     }
 
     public static void groupCodes(ConsoleContext context, UUID chatID) throws Exception {
-        var chain = new GroupClientChain(context.client);
+        var chain = new CodeClientChain(context.client);
         context.io.chainManager.linkChain(chain);
         Collection<CodeDTO> invites = chain.getGroupCodes(chatID);
         context.io.chainManager.removeChain(chain);
@@ -55,7 +54,7 @@ public class CodesRunner {
     }
 
     public static void myCodes(ConsoleContext context) throws Exception {
-        var chain = new GroupClientChain(context.client);
+        var chain = new CodeClientChain(context.client);
         context.io.chainManager.linkChain(chain);
 
         Collection<CodeDTO> codes = chain.getMyCodes();

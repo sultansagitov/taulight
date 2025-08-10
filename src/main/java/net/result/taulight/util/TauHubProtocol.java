@@ -86,7 +86,7 @@ public class TauHubProtocol {
     }
 
     private static void getObjectCallable(Session session, ChatMessageViewDTO serverMessage, Session s)
-            throws ProtocolException, InterruptedException, SandnodeErrorException, DatabaseException {
+            throws ProtocolException, InterruptedException, SandnodeErrorException {
         ForwardResponse request = new ForwardResponse(serverMessage, s == session);
 
         ChainManager chainManager = s.io().chainManager;

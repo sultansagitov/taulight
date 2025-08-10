@@ -29,4 +29,12 @@ public class CodeRequest extends MSGPackMessage<CodeRequestDTO> {
     public CodeRequestDTO.Use use() {
         return dto().use;
     }
+
+    public CodeRequestDTO.GroupCodes groupCodes() {
+        return dto().groupCodes;
+    }
+
+    public boolean myCodes() {
+        return dto().myCodes;
+    }
 }

@@ -7,6 +7,7 @@ public class CodeResponseDTO {
         @JsonProperty
         public CodeDTO code;
 
+        @SuppressWarnings("unused")
         public Check() {}
 
         public Check(CodeDTO code) {
@@ -17,6 +18,7 @@ public class CodeResponseDTO {
     @JsonProperty
     public Check check;
 
+    @SuppressWarnings("unused")
     public CodeResponseDTO() {}
 
     public CodeResponseDTO(Check check) {

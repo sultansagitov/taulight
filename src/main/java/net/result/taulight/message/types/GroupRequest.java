@@ -37,22 +37,11 @@ public class GroupRequest extends MSGPackMessage<GroupRequestDTO> {
         return new GroupRequest(data);
     }
 
-    public static @NotNull GroupRequest groupCodes(UUID chatID) {
-        GroupRequestDTO data = new GroupRequestDTO(GroupRequestDTO.DataType.CH_CODES);
-        data.chatID = chatID;
-
-        return new GroupRequest(data);
-    }
-
     public static @NotNull GroupRequest leave(UUID chatID) {
         GroupRequestDTO data = new GroupRequestDTO(GroupRequestDTO.DataType.LEAVE);
         data.chatID = chatID;
 
         return new GroupRequest(data);
-    }
-
-    public static @NotNull GroupRequest myCodes() {
-        return new GroupRequest(new GroupRequestDTO(GroupRequestDTO.DataType.MY_CODES));
     }
 
     public static @NotNull Message setAvatar(UUID chatID) {

@@ -23,10 +23,7 @@ import net.result.sandnode.util.JPAUtil;
 import net.result.taulight.cluster.TauClusterManager;
 import net.result.taulight.db.*;
 import net.result.taulight.dto.ChatMessageInputDTO;
-import net.result.taulight.dto.CodeDTO;
 import net.result.taulight.dto.GroupRequestDTO;
-import net.result.taulight.dto.InviteCodeDTO;
-import net.result.taulight.message.CodeListMessage;
 import net.result.taulight.message.TauMessageTypes;
 import net.result.taulight.message.types.GroupRequest;
 import net.result.taulight.util.ChatUtil;
@@ -35,14 +32,11 @@ import net.result.taulight.util.SysMessages;
 import net.result.taulight.util.TauHubProtocol;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.time.Duration;
 import java.time.ZonedDateTime;
-import java.util.Collection;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 public class GroupServerChain extends ServerChain implements ReceiverChain {
     private static final Logger LOGGER = LogManager.getLogger(GroupServerChain.class);
@@ -87,8 +81,6 @@ public class GroupServerChain extends ServerChain implements ReceiverChain {
             case CREATE -> create(dto, you);
             case INVITE -> invite(dto, you);
             case LEAVE -> leave(dto, you);
-            case CH_CODES -> groupCodes(dto, you);
-            case MY_CODES -> myCodes(you);
             case SET_AVATAR -> setAvatar(dto, you);
             case GET_AVATAR -> getAvatar(dto, you);
         };
@@ -182,29 +174,6 @@ public class GroupServerChain extends ServerChain implements ReceiverChain {
         ClusterUtil.removeMemberFromCluster(session, manager.getCluster(group));
 
         return new HappyMessage();
-    }
-
-    private CodeListMessage groupCodes(GroupRequestDTO dto, TauMemberEntity you) throws Exception {
-        ChatEntity chat = chatUtil.getChat(dto.chatID).orElseThrow(NotFoundException::new);
-        if (!chatUtil.contains(chat, you)) throw new UnauthorizedException();
-        if (!(chat instanceof GroupEntity group)) throw new WrongAddressException();
-
-        Headers headers = new Headers().setType(TauMessageTypes.GROUP);
-
-        Collection<CodeDTO> collected = group.inviteCodes().stream()
-                .map(InviteCodeDTO::new)
-                .collect(Collectors.toSet());
-
-        return new CodeListMessage(headers, collected);
-    }
-
-    private CodeListMessage myCodes(@NotNull TauMemberEntity you) {
-        Collection<CodeDTO> collected = you
-                .inviteCodesAsReceiver().stream()
-                .map(InviteCodeDTO::new)
-                .collect(Collectors.toSet());
-
-        return new CodeListMessage(new Headers().setType(TauMessageTypes.GROUP), collected);
     }
 
     private UUIDMessage setAvatar(GroupRequestDTO request, TauMemberEntity you) throws Exception {

@@ -3,7 +3,6 @@ package net.result.taulight.chain.sender;
 import net.result.sandnode.chain.ClientChain;
 import net.result.sandnode.config.KeyEntry;
 import net.result.sandnode.exception.ProtocolException;
-import net.result.sandnode.exception.StorageException;
 import net.result.sandnode.exception.crypto.CryptoException;
 import net.result.sandnode.exception.error.KeyStorageNotFoundException;
 import net.result.sandnode.exception.error.SandnodeErrorException;
@@ -46,7 +45,7 @@ public class ForwardRequestClientChain extends ClientChain {
      */
     public synchronized UUID sendMessage(ChatInfoDTO chat, ChatMessageInputDTO input, String text,
                                          boolean fallback, boolean requireDeliveryAck)
-            throws InterruptedException, ProtocolException, SandnodeErrorException, CryptoException, StorageException {
+            throws InterruptedException, ProtocolException, SandnodeErrorException, CryptoException {
         switch (chat.chatType) {
             case DIALOG -> {
                 try {
