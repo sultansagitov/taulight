@@ -17,15 +17,15 @@ public class RoleRequest extends MSGPackMessage<RoleRequestDTO> {
     }
 
     public static @NotNull RoleRequest getRoles(UUID chatID) {
-        return new RoleRequest(new RoleRequestDTO(RoleRequestDTO.DataType.GET, chatID, null, null));
+        return new RoleRequest(new RoleRequestDTO(RoleRequestDTO.DataType.GET, chatID, null, null, null));
     }
 
     public static @NotNull RoleRequest addRole(UUID chatID, String roleName) {
-        return new RoleRequest(new RoleRequestDTO(RoleRequestDTO.DataType.CREATE, chatID, roleName, null));
+        return new RoleRequest(new RoleRequestDTO(RoleRequestDTO.DataType.CREATE, chatID, null, roleName, null));
     }
 
-    public static @NotNull RoleRequest assignRole(UUID chatID, String roleName, String nickname) {
-        return new RoleRequest(new RoleRequestDTO(RoleRequestDTO.DataType.ADD, chatID, roleName, nickname));
+    public static @NotNull RoleRequest assignRole(UUID chatID, UUID roleID, String nickname) {
+        return new RoleRequest(new RoleRequestDTO(RoleRequestDTO.DataType.ADD, chatID, roleID, null, nickname));
     }
 
     public RoleRequest(RawMessage raw) throws DeserializationException, ExpectedMessageException {

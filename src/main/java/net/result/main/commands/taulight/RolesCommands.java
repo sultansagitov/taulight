@@ -66,14 +66,14 @@ public class RolesCommands {
         }
 
         String nickname = args.get(args.size() - 2);
-        String roleName = args.get(args.size() - 1);
+        UUID roleID = UUID.fromString(args.get(args.size() - 1));
 
         // Ensure nickname and role name are not empty
-        if (nickname.isEmpty() || roleName.isEmpty()) {
+        if (nickname.isEmpty()) {
             System.out.println("Nickname and role name cannot be empty.");
             return;
         }
 
-        RolesRunner.role(context, chatID, nickname, roleName);
+        RolesRunner.role(context, chatID, nickname, roleID);
     }
 }

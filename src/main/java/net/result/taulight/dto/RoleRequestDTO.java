@@ -11,19 +11,21 @@ public class RoleRequestDTO {
     public DataType dataType = null;
     @JsonProperty("chat-id")
     public UUID chatID = null;
-    @JsonProperty("role")
+    @JsonProperty("role-id")
+    public UUID roleID = null;
+    @JsonProperty("role-name")
     public String roleName = null;
 
     @JsonProperty("nickname")
     public String nickname = null;
 
     @SuppressWarnings("unused")
-    public RoleRequestDTO() {
-    }
+    public RoleRequestDTO() {}
 
-    public RoleRequestDTO(DataType dataType, UUID chatID, String roleName, String nickname) {
+    public RoleRequestDTO(DataType dataType, UUID chatID, UUID roleID, String roleName, String nickname) {
         this.dataType = dataType;
         this.chatID = chatID;
+        this.roleID = roleID;
         this.roleName = roleName;
         this.nickname = nickname;
     }

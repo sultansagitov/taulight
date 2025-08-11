@@ -36,6 +36,7 @@ public class RoleServerChain extends ServerChain implements ReceiverChain {
 
         RoleRequestDTO.DataType dataType = request.dto().dataType;
         UUID chatID = request.dto().chatID;
+        UUID roleID = request.dto().roleID;
         String roleName = request.dto().roleName;
         String nickname = request.dto().nickname;
 
@@ -60,7 +61,7 @@ public class RoleServerChain extends ServerChain implements ReceiverChain {
         return switch (dataType) {
             case GET -> get(allRoles, memberRoles, permissions);
             case CREATE -> create(group, roleName, allRoles, memberRoles, permissions);
-            case ADD -> add(roleName, nickname, roles, allRoles, memberRoles, permissions);
+            case ADD -> add(roleID, nickname, roles, allRoles, memberRoles, permissions);
         };
     }
 
@@ -85,7 +86,7 @@ public class RoleServerChain extends ServerChain implements ReceiverChain {
     }
 
     private @NotNull RoleResponse add(
-            String roleName,
+            UUID roleID,
             String nickname,
             Set<RoleEntity> roles,
             Set<RoleDTO> allRoles,
@@ -95,11 +96,12 @@ public class RoleServerChain extends ServerChain implements ReceiverChain {
         RoleRepository roleRepo = session.server.container.get(RoleRepository.class);
         MemberRepository memberRepo = session.server.container.get(MemberRepository.class);
 
-        if (roleName == null || nickname == null) throw new TooFewArgumentsException();
+        if (roleID == null || nickname == null) throw new TooFewArgumentsException();
 
         RoleEntity roleToAdd = roles.stream()
-                .filter(role -> role.name().equals(roleName))
-                .findFirst().orElseThrow(NotFoundException::new);
+                .filter(role -> role.id().equals(roleID))
+                .findFirst()
+                .orElseThrow(NotFoundException::new);
 
         TauMemberEntity member = memberRepo
                 .findByNickname(nickname)

@@ -39,19 +39,13 @@ public class RolesRunner {
         System.out.printf("Role '%s' added successfully to chat %s.%n", roleName, chatID);
     }
 
-    public static void role(ConsoleContext context, UUID chatID, String nickname, String roleName)
-            throws Exception {
-        if (nickname == null || nickname.isEmpty() || roleName == null || roleName.isEmpty()) {
-            System.out.println("Both nickname and role name must be provided.");
-            return;
-        }
-
+    public static void role(ConsoleContext context, UUID chatID, String nickname, UUID roleID) throws Exception {
         IOController io = context.io;
         RoleClientChain chain = new RoleClientChain(context.client);
         io.chainManager.linkChain(chain);
-        chain.assignRole(chatID, nickname, roleName);
+        chain.assignRole(chatID, nickname, roleID);
         io.chainManager.removeChain(chain);
 
-        System.out.printf("Role '%s' successfully assigned to '%s' in chat %s.%n", roleName, nickname, chatID);
+        System.out.printf("Role '%s' successfully assigned to '%s' in chat %s.%n", roleID, nickname, chatID);
     }
 }

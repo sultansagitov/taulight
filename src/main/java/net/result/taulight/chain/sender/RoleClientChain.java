@@ -26,8 +26,8 @@ public class RoleClientChain extends ClientChain {
         sendAndReceive(RoleRequest.addRole(chatID, roleName));
     }
 
-    public synchronized void assignRole(UUID chatID, String nickname, String roleName)
+    public synchronized void assignRole(UUID chatID, String nickname, UUID roleID)
             throws ProtocolException, InterruptedException, SandnodeErrorException {
-        sendAndReceive(RoleRequest.assignRole(chatID, roleName, nickname));
+        sendAndReceive(RoleRequest.assignRole(chatID, roleID, nickname));
     }
 }
