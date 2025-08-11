@@ -44,8 +44,6 @@ public class RoleServerChain extends ServerChain implements ReceiverChain {
         if (!chatUtil.contains(chat, session.member.tauMember())) throw new NotFoundException();
         if (!(chat instanceof GroupEntity group)) throw new WrongAddressException();
 
-        if (!group.owner().equals(session.member.tauMember())) throw new UnauthorizedException();
-
         Set<RoleEntity> roles = group.roles();
         Set<RoleDTO> allRoles = roles.stream()
                 .map(RoleDTO::new)
@@ -61,7 +59,7 @@ public class RoleServerChain extends ServerChain implements ReceiverChain {
         return switch (dataType) {
             case GET -> get(allRoles, memberRoles, permissions);
             case CREATE -> create(group, roleName, allRoles, memberRoles, permissions);
-            case ADD -> add(roleID, nickname, roles, allRoles, memberRoles, permissions);
+            case ADD -> add(group, roleID, nickname, roles, allRoles, memberRoles, permissions);
         };
     }
 
@@ -76,8 +74,11 @@ public class RoleServerChain extends ServerChain implements ReceiverChain {
             Set<RoleDTO> allRoles,
             Set<UUID> memberRoles,
             Set<Permission> permissions
-    ) throws TooFewArgumentsException, DatabaseException {
+    ) throws TooFewArgumentsException, DatabaseException, UnauthorizedException {
         RoleRepository roleRepo = session.server.container.get(RoleRepository.class);
+
+        //noinspection DataFlowIssue
+        if (!group.owner().equals(session.member.tauMember())) throw new UnauthorizedException();
 
         if (roleName == null || roleName.trim().isEmpty()) throw new TooFewArgumentsException();
         RoleEntity newRole = roleRepo.create(group, roleName);
@@ -86,15 +87,19 @@ public class RoleServerChain extends ServerChain implements ReceiverChain {
     }
 
     private @NotNull RoleResponse add(
+            GroupEntity group,
             UUID roleID,
             String nickname,
             Set<RoleEntity> roles,
             Set<RoleDTO> allRoles,
             Set<UUID> memberRoles,
             Set<Permission> permissions
-    ) throws TooFewArgumentsException, NotFoundException, DatabaseException, NoEffectException {
+    ) throws TooFewArgumentsException, NotFoundException, DatabaseException, NoEffectException, UnauthorizedException {
         RoleRepository roleRepo = session.server.container.get(RoleRepository.class);
         MemberRepository memberRepo = session.server.container.get(MemberRepository.class);
+
+        //noinspection DataFlowIssue
+        if (!group.owner().equals(session.member.tauMember())) throw new UnauthorizedException();
 
         if (roleID == null || nickname == null) throw new TooFewArgumentsException();
 

@@ -79,6 +79,6 @@ public class ReactionDTO {
     @Override
     public String toString() {
         String s = isReact ? "react" : "unreact";
-        return "<ReactionDTO %s %s %s %s:%s>".formatted(s, nickname, chatID, packageName, reaction);
+        return "<ReactionDTO %s %s %s %s %s:%s>".formatted(s, nickname, chatID, messageID, packageName, reaction);
     }
 }
