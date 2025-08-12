@@ -6,15 +6,12 @@ import net.result.sandnode.exception.DatabaseException;
 import net.result.sandnode.exception.error.NoEffectException;
 import net.result.sandnode.util.Container;
 import net.result.sandnode.util.JPAUtil;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 import java.time.ZonedDateTime;
 import java.util.Collection;
 import java.util.Optional;
 
 public class InviteCodeRepository {
-    private static final Logger LOGGER = LogManager.getLogger(InviteCodeRepository.class);
     private final JPAUtil jpaUtil;
 
     public InviteCodeRepository(Container container) {
@@ -72,8 +69,6 @@ public class InviteCodeRepository {
 
     public void activate(InviteCodeEntity code) throws DatabaseException, NoEffectException {
         if (code.activationDate() != null) throw new NoEffectException("Invite already activated");
-        LOGGER.debug("Expiation ztd: {}", code.expiresDate());
-        LOGGER.debug("Now ztd: {}", ZonedDateTime.now());
         if (code.expiresDate().isBefore(ZonedDateTime.now())) throw new NoEffectException("Invite expired");
 
         EntityManager em = jpaUtil.getEntityManager();

@@ -2,6 +2,7 @@ package net.result.taulight.db;
 
 import net.result.sandnode.GlobalTestState;
 import net.result.sandnode.db.MemberRepository;
+import net.result.sandnode.exception.error.NoEffectException;
 import net.result.sandnode.util.Container;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -132,11 +133,11 @@ public class InviteCodesTest {
         assertNotNull(found.get().activationDate(), "Invite code should be marked as activated");
 
         // Test activating an already activated code
-        inviteCodeRepo.activate(inviteCode);
+        assertThrows(NoEffectException.class, () -> inviteCodeRepo.activate(inviteCode));
 
         // Test with an expired invite code
         ZonedDateTime pastDate = ZonedDateTime.now().minusDays(1);
         InviteCodeEntity expiredInvite = inviteCodeRepo.create(group, member1, member3, pastDate);
-        inviteCodeRepo.activate(expiredInvite);
+        assertThrows(NoEffectException.class, () -> inviteCodeRepo.activate(expiredInvite));
     }
 }

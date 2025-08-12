@@ -3,6 +3,7 @@ package net.result.taulight.db;
 import net.result.sandnode.GlobalTestState;
 import net.result.sandnode.db.MemberEntity;
 import net.result.sandnode.db.MemberRepository;
+import net.result.sandnode.exception.error.NoEffectException;
 import net.result.sandnode.util.Container;
 import net.result.sandnode.util.JPAUtil;
 import net.result.taulight.dto.ChatMessageInputDTO;
@@ -123,6 +124,6 @@ public class CascadingTest {
         InviteCodeEntity invite = inviteCodeRepo.create(group, r, s, ZonedDateTime.now().plusDays(1));
 
         inviteCodeRepo.activate(invite);
-        inviteCodeRepo.activate(invite);
+        assertThrows(NoEffectException.class, () -> inviteCodeRepo.activate(invite));
     }
 }
