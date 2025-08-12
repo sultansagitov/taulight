@@ -107,9 +107,7 @@ public class CodeServerChain extends ServerChain implements ReceiverChain {
             }
         }
 
-        if (!inviteCodeRepo.activate(invite)) {
-            throw new NoEffectException("Invite already activated");
-        }
+        inviteCodeRepo.activate(invite);
 
         if (!groupRepo.addMember(group, member)) {
             throw new NoEffectException();

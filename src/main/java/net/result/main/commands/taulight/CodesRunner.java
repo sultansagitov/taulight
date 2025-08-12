@@ -78,8 +78,15 @@ public class CodesRunner {
             System.out.printf("For user: %s%n", invite.receiverNickname);
             System.out.printf("Created: %s%n", invite.creationDate);
             System.out.printf("Expires: %s%n", invite.expiresDate != null ? invite.expiresDate : "Never");
-            System.out.printf("Status: %s%n",
-                    invite.activationDate != null ? "Used on " + invite.activationDate : "Active");
+            String s;
+            if (invite.expiresDate != null && invite.expiresDate.isAfter(ZonedDateTime.now())) {
+                s = "Expired at " + invite.expiresDate;
+            } else if (invite.activationDate != null) {
+                s = "Used on " + invite.activationDate;
+            } else {
+                s = "Active";
+            }
+            System.out.printf("Status: %s%n", s);
         }
     }
 }

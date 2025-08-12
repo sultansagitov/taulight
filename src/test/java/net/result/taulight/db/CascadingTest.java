@@ -122,7 +122,7 @@ public class CascadingTest {
         GroupEntity group = groupRepo.create("private", s);
         InviteCodeEntity invite = inviteCodeRepo.create(group, r, s, ZonedDateTime.now().plusDays(1));
 
-        assertTrue(inviteCodeRepo.activate(invite));
-        assertFalse(inviteCodeRepo.activate(invite));
+        inviteCodeRepo.activate(invite);
+        inviteCodeRepo.activate(invite);
     }
 }

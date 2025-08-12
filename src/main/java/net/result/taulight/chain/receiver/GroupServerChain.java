@@ -132,9 +132,8 @@ public class GroupServerChain extends ServerChain implements ReceiverChain {
         if (chatUtil.contains(chat, member)) throw new NoEffectException();
 
         // Receiver already have invite code
-        for (InviteCodeEntity inviteCodeEntity : inviteCodeRepo.find(group, member)) {
-            if (inviteCodeEntity.activationDate() == null
-                    || !inviteCodeEntity.expiresDate().isAfter(ZonedDateTime.now())) {
+        for (InviteCodeEntity e : inviteCodeRepo.find(group, member)) {
+            if (e.expiresDate().isAfter(ZonedDateTime.now()) && e.activationDate() == null) {
                 throw new NoEffectException();
             }
         }

@@ -3,14 +3,18 @@ package net.result.taulight.db;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityTransaction;
 import net.result.sandnode.exception.DatabaseException;
+import net.result.sandnode.exception.error.NoEffectException;
 import net.result.sandnode.util.Container;
 import net.result.sandnode.util.JPAUtil;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.time.ZonedDateTime;
 import java.util.Collection;
 import java.util.Optional;
 
 public class InviteCodeRepository {
+    private static final Logger LOGGER = LogManager.getLogger(InviteCodeRepository.class);
     private final JPAUtil jpaUtil;
 
     public InviteCodeRepository(Container container) {
@@ -66,18 +70,19 @@ public class InviteCodeRepository {
         }
     }
 
-    public boolean activate(InviteCodeEntity code) throws DatabaseException {
+    public void activate(InviteCodeEntity code) throws DatabaseException, NoEffectException {
+        if (code.activationDate() != null) throw new NoEffectException("Invite already activated");
+        LOGGER.debug("Expiation ztd: {}", code.expiresDate());
+        LOGGER.debug("Now ztd: {}", ZonedDateTime.now());
+        if (code.expiresDate().isBefore(ZonedDateTime.now())) throw new NoEffectException("Invite expired");
+
         EntityManager em = jpaUtil.getEntityManager();
         EntityTransaction transaction = em.getTransaction();
         try {
-            if (code.activationDate() != null || !code.expiresDate().isAfter(ZonedDateTime.now())) {
-                return false;
-            }
-            code.setActivationDateNow();
             transaction.begin();
+            code.setActivationDateNow();
             em.merge(code);
             transaction.commit();
-            return true;
         } catch (Exception e) {
             if (transaction.isActive()) transaction.rollback();
             throw new DatabaseException(e);

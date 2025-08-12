@@ -2,8 +2,6 @@ package net.result.taulight.db;
 
 import net.result.sandnode.GlobalTestState;
 import net.result.sandnode.db.MemberRepository;
-import net.result.sandnode.exception.DatabaseException;
-import net.result.sandnode.exception.error.BusyNicknameException;
 import net.result.sandnode.util.Container;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -26,7 +24,7 @@ public class InviteCodesTest {
     private static InviteCodeRepository inviteCodeRepo;
 
     @BeforeAll
-    public static void setup() throws DatabaseException, BusyNicknameException {
+    public static void setup() throws Exception {
         Container container = GlobalTestState.container;
         MemberRepository memberRepo = container.get(MemberRepository.class);
         groupRepo = container.get(GroupRepository.class);
@@ -49,7 +47,7 @@ public class InviteCodesTest {
     }
 
     @Test
-    public void createInviteCode() throws DatabaseException {
+    public void createInviteCode() throws Exception {
         GroupEntity group = groupRepo.create("Test Group", member1);
 
         ZonedDateTime expiresDate = ZonedDateTime.now().plusDays(1);
@@ -71,7 +69,7 @@ public class InviteCodesTest {
     }
 
     @Test
-    public void findInviteCode1() throws DatabaseException {
+    public void findInviteCode1() throws Exception {
         GroupEntity group = groupRepo.create("InviteGroup", member1);
 
         ZonedDateTime expiration = ZonedDateTime.now().plusDays(1);
@@ -93,7 +91,7 @@ public class InviteCodesTest {
     }
 
     @Test
-    public void findInviteCode2() throws DatabaseException {
+    public void findInviteCode2() throws Exception {
         GroupEntity group = groupRepo.create("InviteGroup", member3);
 
         ZonedDateTime expiration = ZonedDateTime.now().plusDays(1);
@@ -120,14 +118,13 @@ public class InviteCodesTest {
     }
 
     @Test
-    public void activateInviteCode() throws DatabaseException {
+    public void activateInviteCode() throws Exception {
         GroupEntity group = groupRepo.create("Test Group", member1);
 
         ZonedDateTime expiresDate = ZonedDateTime.now().plusDays(1);
         InviteCodeEntity inviteCode = inviteCodeRepo.create(group, member1, member2, expiresDate);
 
-        boolean activated = inviteCodeRepo.activate(inviteCode);
-        assertTrue(activated);
+        inviteCodeRepo.activate(inviteCode);
 
         // Additional assertions
         Optional<InviteCodeEntity> found = inviteCodeRepo.find(inviteCode.code());
@@ -135,13 +132,11 @@ public class InviteCodesTest {
         assertNotNull(found.get().activationDate(), "Invite code should be marked as activated");
 
         // Test activating an already activated code
-        boolean activatedAgain = inviteCodeRepo.activate(inviteCode);
-        assertFalse(activatedAgain, "Should not activate an already activated invite code");
+        inviteCodeRepo.activate(inviteCode);
 
         // Test with an expired invite code
         ZonedDateTime pastDate = ZonedDateTime.now().minusDays(1);
         InviteCodeEntity expiredInvite = inviteCodeRepo.create(group, member1, member3, pastDate);
-        boolean activatedExpired = inviteCodeRepo.activate(expiredInvite);
-        assertFalse(activatedExpired, "Should not activate an expired invite code");
+        inviteCodeRepo.activate(expiredInvite);
     }
 }
