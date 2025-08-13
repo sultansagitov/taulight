@@ -8,6 +8,7 @@ import net.result.sandnode.exception.DatabaseException;
 import net.result.sandnode.exception.crypto.CannotUseEncryption;
 import net.result.sandnode.util.Container;
 import net.result.sandnode.util.JPAUtil;
+import net.result.sandnode.util.SimpleJPAUtil;
 import org.junit.jupiter.api.*;
 
 import java.util.Optional;
@@ -25,7 +26,7 @@ public class KeyStoragesTest {
         EncryptionManager.registerAll();
         Container container = GlobalTestState.container;
         keyStorageRepo = container.get(KeyStorageRepository.class);
-        jpaUtil = container.get(JPAUtil.class);
+        jpaUtil = container.get(SimpleJPAUtil.class);
     }
 
     @Test

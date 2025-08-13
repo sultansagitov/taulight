@@ -4,6 +4,7 @@ import net.result.sandnode.GlobalTestState;
 import net.result.sandnode.exception.DatabaseException;
 import net.result.sandnode.util.Container;
 import net.result.sandnode.util.JPAUtil;
+import net.result.sandnode.util.SimpleJPAUtil;
 import org.junit.jupiter.api.*;
 
 import java.util.Optional;
@@ -19,7 +20,7 @@ public class FilesTest {
     static void setUp() {
         Container container = GlobalTestState.container;
         fileRepo = container.get(FileRepository.class);
-        jpaUtil = container.get(JPAUtil.class);
+        jpaUtil = container.get(SimpleJPAUtil.class);
     }
 
     @Test

@@ -6,6 +6,7 @@ import net.result.sandnode.db.MemberRepository;
 import net.result.sandnode.exception.error.NoEffectException;
 import net.result.sandnode.util.Container;
 import net.result.sandnode.util.JPAUtil;
+import net.result.sandnode.util.SimpleJPAUtil;
 import net.result.taulight.dto.ChatMessageInputDTO;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -28,7 +29,7 @@ public class CascadingTest {
     @BeforeAll
     public static void setup() {
         Container container = GlobalTestState.container;
-        jpaUtil = container.get(JPAUtil.class);
+        jpaUtil = container.get(SimpleJPAUtil.class);
         memberRepo = container.get(MemberRepository.class);
         groupRepo = container.get(GroupRepository.class);
         messageRepo = container.get(MessageRepository.class);

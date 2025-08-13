@@ -5,6 +5,7 @@ import net.result.sandnode.db.MemberEntity;
 import net.result.sandnode.db.MemberRepository;
 import net.result.sandnode.util.Container;
 import net.result.sandnode.util.JPAUtil;
+import net.result.sandnode.util.SimpleJPAUtil;
 import net.result.taulight.dto.ChatMessageInputDTO;
 import org.junit.jupiter.api.*;
 
@@ -27,7 +28,7 @@ public class MemberDeletionIntegrationTest {
     @BeforeAll
     public static void setup() {
         Container container = GlobalTestState.container;
-        jpaUtil = container.get(JPAUtil.class);
+        jpaUtil = container.get(SimpleJPAUtil.class);
         memberRepo = container.get(MemberRepository.class);
         dialogRepo = container.get(DialogRepository.class);
         groupRepo = container.get(GroupRepository.class);

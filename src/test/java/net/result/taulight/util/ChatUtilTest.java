@@ -8,6 +8,7 @@ import net.result.sandnode.exception.DatabaseException;
 import net.result.sandnode.exception.error.BusyNicknameException;
 import net.result.sandnode.util.Container;
 import net.result.sandnode.util.JPAUtil;
+import net.result.sandnode.util.SimpleJPAUtil;
 import net.result.taulight.db.*;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -36,7 +37,7 @@ public class ChatUtilTest {
 
         chatUtil = container.get(ChatUtil.class);
         chatUtil = container.get(ChatUtil.class);
-        JPAUtil jpaUtil = container.get(JPAUtil.class);
+        JPAUtil jpaUtil = container.get(SimpleJPAUtil.class);
 
         member1 = memberRepo.create("member1_chat_util", "hash");
         member2 = memberRepo.create("member2_chat_util", "hash");

@@ -8,6 +8,7 @@ import net.result.sandnode.exception.crypto.CannotUseEncryption;
 import net.result.sandnode.exception.error.BusyNicknameException;
 import net.result.sandnode.util.Container;
 import net.result.sandnode.util.JPAUtil;
+import net.result.sandnode.util.SimpleJPAUtil;
 import org.junit.jupiter.api.*;
 
 import java.util.List;
@@ -30,7 +31,7 @@ public class LoginsTest {
         Container container = GlobalTestState.container;
         loginRepo = container.get(LoginRepository.class);
         keyStorageRepo = container.get(KeyStorageRepository.class);
-        jpaUtil = container.get(JPAUtil.class);
+        jpaUtil = container.get(SimpleJPAUtil.class);
 
         MemberRepository memberRepo = container.get(MemberRepository.class);
         member = memberRepo.create("user_login_test", "hash");

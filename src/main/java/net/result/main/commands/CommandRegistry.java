@@ -17,10 +17,6 @@ public class CommandRegistry {
         return commands.get(name.toLowerCase());
     }
 
-    public Collection<CommandInfo> all() {
-        return commands.values();
-    }
-
     public Collection<CommandInfo> getAllCommands() {
         return commands.values();
     }

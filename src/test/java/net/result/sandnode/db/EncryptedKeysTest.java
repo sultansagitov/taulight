@@ -6,6 +6,7 @@ import net.result.sandnode.exception.DatabaseException;
 import net.result.sandnode.exception.error.BusyNicknameException;
 import net.result.sandnode.util.Container;
 import net.result.sandnode.util.JPAUtil;
+import net.result.sandnode.util.SimpleJPAUtil;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
@@ -25,7 +26,7 @@ public class EncryptedKeysTest {
         Container container = GlobalTestState.container;
         encryptedKeyRepo = container.get(EncryptedKeyRepository.class);
         MemberRepository memberRepo = container.get(MemberRepository.class);
-        jpaUtil = container.get(JPAUtil.class);
+        jpaUtil = container.get(SimpleJPAUtil.class);
 
         sender = memberRepo.create("sender_encrypted_keys", "hash");
         receiver = memberRepo.create("receiver_encrypted_keys", "hash");

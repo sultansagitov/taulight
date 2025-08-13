@@ -6,6 +6,7 @@ import net.result.sandnode.exception.DatabaseException;
 import net.result.sandnode.exception.error.BusyNicknameException;
 import net.result.sandnode.util.Container;
 import net.result.sandnode.util.JPAUtil;
+import net.result.sandnode.util.SimpleJPAUtil;
 import net.result.sandnode.exception.AlreadyExistingRecordException;
 import net.result.taulight.util.ChatUtil;
 import org.junit.jupiter.api.BeforeAll;
@@ -33,7 +34,7 @@ public class ChatsTest {
     public static void setup() throws DatabaseException, BusyNicknameException {
         Container container = GlobalTestState.container;
 
-        jpaUtil = container.get(JPAUtil.class);
+        jpaUtil = container.get(SimpleJPAUtil.class);
 
         MemberRepository memberRepo = container.get(MemberRepository.class);
         dialogRepo = container.get(DialogRepository.class);
