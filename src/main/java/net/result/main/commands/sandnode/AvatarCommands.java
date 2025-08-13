@@ -1,16 +1,21 @@
 package net.result.main.commands.sandnode;
 
-import net.result.main.commands.LoopCondition;
+import net.result.main.commands.CommandInfo;
+import net.result.main.commands.CommandRegistry;
 import net.result.main.commands.ConsoleContext;
 import net.result.sandnode.chain.sender.AvatarClientChain;
 import net.result.sandnode.dto.FileDTO;
 
-import java.util.*;
+import java.util.Base64;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 public class AvatarCommands {
-    public static void register(Map<String, LoopCondition> commands) {
-        commands.put("getAvatar", AvatarCommands::getAvatar);
-        commands.put("setAvatar", AvatarCommands::setAvatar);
+
+    public static void register(CommandRegistry registry) {
+        registry.register(new CommandInfo("getAvatar", "Get your avatar", "Avatar", AvatarCommands::getAvatar));
+        registry.register(new CommandInfo("setAvatar", "Set your avatar", "Avatar", AvatarCommands::setAvatar));
     }
 
     private static void getAvatar(List<String> args, ConsoleContext context) throws Exception {

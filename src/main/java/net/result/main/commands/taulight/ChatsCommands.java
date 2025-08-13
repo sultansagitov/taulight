@@ -1,32 +1,54 @@
 package net.result.main.commands.taulight;
 
+import net.result.main.commands.CommandInfo;
+import net.result.main.commands.CommandRegistry;
 import net.result.main.commands.ConsoleContext;
-import net.result.main.commands.LoopCondition;
 import net.result.taulight.chain.sender.ChatClientChain;
 import net.result.taulight.dto.*;
 import org.jetbrains.annotations.NotNull;
 
 import java.time.Duration;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
-@SuppressWarnings("SameReturnValue")
 public class ChatsCommands {
-    public static void register(Map<String, LoopCondition> commands) {
-        commands.put(":", ChatsCommands::setChat);
-        commands.put("chats", ChatsCommands::chats);
-        commands.put("dialogs", ChatsCommands::dialogs);
-        commands.put("groups", ChatsCommands::groups);
-        commands.put("info", ChatsCommands::info);
-        commands.put("newGroup", ChatsCommands::newGroup);
-        commands.put("addMember", ChatsCommands::addMember);
-        commands.put("leave", ChatsCommands::leave);
-        commands.put("dialog", ChatsCommands::dialog);
-        commands.put("members", ChatsCommands::members);
-        commands.put("setGroupAvatar", ChatsCommands::setGroupAvatar);
-        commands.put("getGroupAvatar", ChatsCommands::getGroupAvatar);
-        commands.put("getDialogAvatar", ChatsCommands::getDialogAvatar);
+
+    public static void register(CommandRegistry registry) {
+        registry.register(new CommandInfo(":", "Set current chat", "Chats", ChatsCommands::setChat));
+        registry.register(new CommandInfo("chats", "List all chats", "Chats", ChatsCommands::chats));
+        registry.register(new CommandInfo("dialogs", "List all dialogs", "Chats", ChatsCommands::dialogs));
+        registry.register(new CommandInfo("groups", "List all groups", "Chats", ChatsCommands::groups));
+        registry.register(new CommandInfo("info", "Show current chat info", "Chats", ChatsCommands::info));
+        registry.register(new CommandInfo("newGroup", "Create a new group", "Chats", ChatsCommands::newGroup));
+        registry.register(
+                new CommandInfo("addMember", "Add a member to the current group", "Chats", ChatsCommands::addMember)
+        );
+        registry.register(new CommandInfo("leave", "Leave the current group", "Chats", ChatsCommands::leave));
+        registry.register(new CommandInfo("dialog", "Start a direct dialog", "Chats", ChatsCommands::dialog));
+        registry.register(new CommandInfo(
+                "members",
+                "List members of the current group",
+                "Chats",
+                ChatsCommands::members
+        ));
+        registry.register(new CommandInfo(
+                "setGroupAvatar",
+                "Set the avatar of the current group",
+                "Chats",
+                ChatsCommands::setGroupAvatar
+        ));
+        registry.register(new CommandInfo(
+                "getGroupAvatar",
+                "Get the avatar of the current group",
+                "Chats",
+                ChatsCommands::getGroupAvatar
+        ));
+        registry.register(new CommandInfo(
+                "getDialogAvatar",
+                "Get a dialog partner's avatar by dialog ID",
+                "Chats",
+                ChatsCommands::getDialogAvatar
+        ));
     }
 
     private static void setChat(List<String> args, ConsoleContext context) throws Exception {

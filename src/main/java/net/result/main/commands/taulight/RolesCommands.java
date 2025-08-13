@@ -1,18 +1,19 @@
 package net.result.main.commands.taulight;
 
+import net.result.main.commands.CommandInfo;
+import net.result.main.commands.CommandRegistry;
 import net.result.main.commands.ConsoleContext;
-import net.result.main.commands.LoopCondition;
 
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
 @SuppressWarnings("SameReturnValue")
 public class RolesCommands {
-    public static void register(Map<String, LoopCondition> commands) {
-        commands.put("roles", RolesCommands::roles);
-        commands.put("addRole", RolesCommands::addRole);
-        commands.put("role", RolesCommands::role);
+
+    public static void register(CommandRegistry registry) {
+        registry.register(new CommandInfo("roles", "List all roles", "Roles", RolesCommands::roles));
+        registry.register(new CommandInfo("addRole", "Add a role to a user", "Roles", RolesCommands::addRole));
+        registry.register(new CommandInfo("assignRole", "Assign a role to a user", "Roles", RolesCommands::assignRole));
     }
 
     private static void roles(List<String> args, ConsoleContext context) throws Exception {
@@ -24,7 +25,7 @@ public class RolesCommands {
 
     private static void addRole(List<String> args, ConsoleContext context) throws Exception {
         if (args.isEmpty()) {
-            System.out.println("Please provide a role name.");
+            System.out.println("Please provide a role id.");
             return;
         }
 
@@ -48,7 +49,7 @@ public class RolesCommands {
         RolesRunner.addRole(context, chatID, roleName);
     }
 
-    private static void role(List<String> args, ConsoleContext context) throws Exception {
+    private static void assignRole(List<String> args, ConsoleContext context) throws Exception {
         if (args.size() < 2) {
             System.out.println("Please provide a nickname and role name.");
             return;
@@ -74,6 +75,6 @@ public class RolesCommands {
             return;
         }
 
-        RolesRunner.role(context, chatID, nickname, roleID);
+        RolesRunner.assignRole(context, chatID, nickname, roleID);
     }
 }

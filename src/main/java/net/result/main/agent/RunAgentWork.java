@@ -2,8 +2,9 @@ package net.result.main.agent;
 
 import net.result.main.Work;
 import net.result.main.chain.ConsoleClientChainManager;
+import net.result.main.commands.CommandInfo;
+import net.result.main.commands.CommandRegistry;
 import net.result.main.commands.ConsoleContext;
-import net.result.main.commands.LoopCondition;
 import net.result.main.commands.sandnode.*;
 import net.result.main.commands.taulight.*;
 import net.result.main.config.AgentPropertiesConfig;
@@ -91,24 +92,24 @@ public class RunAgentWork implements Work {
 
     private void processUserCommands() {
         Scanner scanner = new Scanner(System.in);
-        Map<String, LoopCondition> commands = new HashMap<>();
+        CommandRegistry registry = new CommandRegistry();
 
         // Sandnode commands
-        AuthCommands.register(commands);
-        AvatarCommands.register(commands);
-        ChainsCommands.register(commands);
-        ClustersCommands.register(commands);
-        DEKCommands.register(commands);
-        UserInfoCommands.register(commands);
+        AuthCommands.register(registry);
+        AvatarCommands.register(registry);
+        ChainsCommands.register(registry);
+        ClustersCommands.register(registry);
+        DEKCommands.register(registry);
+        UserInfoCommands.register(registry);
 
         // Taulight commands
-        SettingsCommands.register(commands);
-        ChatsCommands.register(commands);
-        CodesCommands.register(commands);
-        ReactionsCommands.register(commands);
-        MessagesCommands.register(commands);
-        RolesCommands.register(commands);
-        GroupPermissionsCommands.register(commands);
+        SettingsCommands.register(registry);
+        ChatsCommands.register(registry);
+        CodesCommands.register(registry);
+        ReactionsCommands.register(registry);
+        MessagesCommands.register(registry);
+        RolesCommands.register(registry);
+        GroupPermissionsCommands.register(registry);
 
         while (true) {
             ChatInfoDTO chat = context.chat;
@@ -129,18 +130,35 @@ public class RunAgentWork implements Work {
             String command = com_arg[0];
 
             try {
-                if (command.equals("exit")) {
+                if (command.equalsIgnoreCase("exit")) {
                     context.io.disconnect(true);
                     break;
-                } else if (commands.containsKey(command)) {
-                    List<String> args = Arrays.stream(com_arg).skip(1).toList();
-                    commands.get(command).run(args, context);
+                } else if (command.equalsIgnoreCase("help") || command.equalsIgnoreCase("h")) {
+                    System.out.println("Available commands:");
+
+                    TreeMap<String, List<CommandInfo>> map = new TreeMap<>();
+                    for (CommandInfo commandInfo : registry.getAllCommands()) {
+                        map.computeIfAbsent(commandInfo.getGroup(), k -> new ArrayList<>()).add(commandInfo);
+                    }
+                    for (Map.Entry<String, List<CommandInfo>> entry : map.entrySet()) {
+                        String group = entry.getKey();
+                        System.out.printf("[%s]%n", group);
+                        for (CommandInfo cmd : entry.getValue()) {
+                            System.out.printf("  %-20s %s%n", cmd.getName(), cmd.getDescription());
+                        }
+                        System.out.println();
+                    }
+
+                    System.out.println("Type 'exit' to quit.");
+                } else if (registry.contains(command)) {
+                    registry.get(command).run(Arrays.stream(com_arg).skip(1).toList(), context);
                 } else {
                     sendChatMessage(input, context);
                 }
             } catch (Exception e) {
                 LOGGER.error("Unhandled exception", e);
             }
+
         }
 
         context.removeChain();

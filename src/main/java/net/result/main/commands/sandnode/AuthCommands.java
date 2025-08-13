@@ -1,6 +1,7 @@
 package net.result.main.commands.sandnode;
 
-import net.result.main.commands.LoopCondition;
+import net.result.main.commands.CommandInfo;
+import net.result.main.commands.CommandRegistry;
 import net.result.main.commands.ConsoleContext;
 import net.result.sandnode.chain.sender.LoginClientChain;
 import net.result.sandnode.chain.sender.LogoutClientChain;
@@ -10,12 +11,14 @@ import net.result.sandnode.hubagent.Agent;
 import net.result.sandnode.serverclient.SandnodeClient;
 
 import java.time.format.DateTimeFormatter;
-import java.util.*;
+import java.util.Base64;
+import java.util.Comparator;
+import java.util.List;
 
 public class AuthCommands {
-    public static void register(Map<String, LoopCondition> commands) {
-        commands.put("logout", AuthCommands::logout);
-        commands.put("loginHistory", AuthCommands::loginHistory);
+    public static void register(CommandRegistry registry) {
+        registry.register(new CommandInfo("logout", "Log out of the account", "Auth", AuthCommands::logout));
+        registry.register(new CommandInfo("loginHistory", "Show login history", "Auth", AuthCommands::loginHistory));
     }
 
     private static void logout(List<String> ignored, ConsoleContext context) throws Exception {

@@ -1,21 +1,43 @@
 package net.result.main.commands.taulight;
 
+import net.result.main.commands.CommandInfo;
+import net.result.main.commands.CommandRegistry;
 import net.result.main.commands.ConsoleContext;
-import net.result.main.commands.LoopCondition;
 import net.result.taulight.db.Permission;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
 public class GroupPermissionsCommands {
-    public static void register(Map<String, LoopCondition> commands) {
-        commands.put("addDefaultPerm", GroupPermissionsCommands::addDefaultPerm);
-        commands.put("removeDefaultPerm", GroupPermissionsCommands::removeDefaultPerm);
-        commands.put("addRolePerm", GroupPermissionsCommands::addRolePerm);
-        commands.put("removeRolePerm", GroupPermissionsCommands::removeRolePerm);
+
+    public static void register(CommandRegistry registry) {
+        registry.register(new CommandInfo(
+                "addDefaultPerm",
+                "Add a default permission to the group",
+                "Group Permissions",
+                GroupPermissionsCommands::addDefaultPerm
+        ));
+        registry.register(new CommandInfo(
+                "removeDefaultPerm",
+                "Remove a default permission from the group",
+                "Group Permissions",
+                GroupPermissionsCommands::removeDefaultPerm
+        ));
+        registry.register(new CommandInfo(
+                "addRolePerm",
+                "Add a permission to a specific role in the group",
+                "Group Permissions",
+                GroupPermissionsCommands::addRolePerm
+        ));
+        registry.register(new CommandInfo(
+                "removeRolePerm",
+                "Remove a permission from a specific role in the group",
+                "Group Permissions",
+                GroupPermissionsCommands::removeRolePerm
+        ));
     }
+
 
     private static void addDefaultPerm(@NotNull List<String> args, ConsoleContext context) throws Exception {
         if (args.isEmpty()) {

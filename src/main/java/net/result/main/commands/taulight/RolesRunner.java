@@ -39,7 +39,8 @@ public class RolesRunner {
         System.out.printf("Role '%s' added successfully to chat %s.%n", roleName, chatID);
     }
 
-    public static void role(ConsoleContext context, UUID chatID, String nickname, UUID roleID) throws Exception {
+    public static void assignRole(ConsoleContext context, UUID chatID, String nickname, UUID roleID)
+            throws Exception {
         IOController io = context.io;
         RoleClientChain chain = new RoleClientChain(context.client);
         io.chainManager.linkChain(chain);

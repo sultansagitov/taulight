@@ -1,17 +1,18 @@
 package net.result.main.commands.sandnode;
 
-import net.result.main.commands.LoopCondition;
+import net.result.main.commands.CommandInfo;
+import net.result.main.commands.CommandRegistry;
 import net.result.main.commands.ConsoleContext;
 import net.result.sandnode.chain.sender.NameClientChain;
 import net.result.sandnode.chain.sender.WhoAmIClientChain;
 
 import java.util.List;
-import java.util.Map;
 
 public class UserInfoCommands {
-    public static void register(Map<String, LoopCondition> commands) {
-        commands.put("whoami", UserInfoCommands::whoami);
-        commands.put("name", UserInfoCommands::name);
+
+    public static void register(CommandRegistry registry) {
+        registry.register(new CommandInfo("whoami", "Show your nickname", "UserInfo", UserInfoCommands::whoami));
+        registry.register(new CommandInfo("name", "Show hub name", "UserInfo", UserInfoCommands::name));
     }
 
     private static void whoami(List<String> ignored, ConsoleContext context) throws Exception {

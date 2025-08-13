@@ -1,18 +1,19 @@
 package net.result.main.commands.sandnode;
 
-import net.result.main.commands.LoopCondition;
+import net.result.main.commands.CommandInfo;
+import net.result.main.commands.CommandRegistry;
 import net.result.main.commands.ConsoleContext;
 import net.result.sandnode.hubagent.ClientProtocol;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 
 public class ClustersCommands {
-    public static void register(Map<String, LoopCondition> commands) {
-        commands.put("clusters", ClustersCommands::clusters);
-        commands.put("addCluster", ClustersCommands::addCluster);
-        commands.put("rmCluster", ClustersCommands::rmCluster);
+
+    public static void register(CommandRegistry registry) {
+        registry.register(new CommandInfo("clusters", "List all clusters", "Clusters", ClustersCommands::clusters));
+        registry.register(new CommandInfo("addCluster", "Add clusters", "Clusters", ClustersCommands::addCluster));
+        registry.register(new CommandInfo("rmCluster", "Remove clusters", "Clusters", ClustersCommands::rmCluster));
     }
 
     private static void clusters(List<String> ignored, ConsoleContext context) throws Exception {

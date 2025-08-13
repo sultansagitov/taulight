@@ -1,6 +1,7 @@
 package net.result.main.commands.sandnode;
 
-import net.result.main.commands.LoopCondition;
+import net.result.main.commands.CommandInfo;
+import net.result.main.commands.CommandRegistry;
 import net.result.main.commands.ConsoleContext;
 import net.result.sandnode.chain.Chain;
 import net.result.sandnode.chain.ChainStorage;
@@ -10,8 +11,8 @@ import java.util.List;
 import java.util.Map;
 
 public class ChainsCommands {
-    public static void register(Map<String, LoopCondition> commands) {
-        commands.put("chains", ChainsCommands::chains);
+    public static void register(CommandRegistry registry) {
+        registry.register(new CommandInfo("chains", "List all client chains", "Chains", ChainsCommands::chains));
     }
 
     private static void chains(List<String> ignored, ConsoleContext context) {

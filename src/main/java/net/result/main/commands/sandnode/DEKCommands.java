@@ -1,6 +1,7 @@
 package net.result.main.commands.sandnode;
 
-import net.result.main.commands.LoopCondition;
+import net.result.main.commands.CommandInfo;
+import net.result.main.commands.CommandRegistry;
 import net.result.main.commands.ConsoleContext;
 import net.result.sandnode.chain.sender.DEKClientChain;
 import net.result.sandnode.dto.DEKResponseDTO;
@@ -12,9 +13,10 @@ import net.result.sandnode.serverclient.SandnodeClient;
 import java.util.*;
 
 public class DEKCommands {
-    public static void register(Map<String, LoopCondition> commands) {
-        commands.put("sendDEK", DEKCommands::sendDEK);
-        commands.put("DEK", DEKCommands::DEK);
+
+    public static void register(CommandRegistry registry) {
+        registry.register(new CommandInfo("sendDEK", "Send a DEK to a receiver", "DEK", DEKCommands::sendDEK));
+        registry.register(new CommandInfo("DEK", "List all DEKs", "DEK", DEKCommands::DEK));
     }
 
     public static void sendDEK(List<String> args, ConsoleContext context) throws Exception {

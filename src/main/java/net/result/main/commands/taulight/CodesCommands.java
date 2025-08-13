@@ -1,20 +1,20 @@
 package net.result.main.commands.taulight;
 
+import net.result.main.commands.CommandInfo;
+import net.result.main.commands.CommandRegistry;
 import net.result.main.commands.ConsoleContext;
-import net.result.main.commands.LoopCondition;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
-@SuppressWarnings("SameReturnValue")
 public class CodesCommands {
-    public static void register(Map<String, LoopCondition> commands) {
-        commands.put("checkCode", CodesCommands::checkCode);
-        commands.put("useCode", CodesCommands::useCode);
-        commands.put("groupCodes", CodesCommands::groupCodes);
-        commands.put("myCodes", CodesCommands::myCodes);
+
+    public static void register(CommandRegistry registry) {
+        registry.register(new CommandInfo("checkCode", "Check if a code is valid", "Codes", CodesCommands::checkCode));
+        registry.register(new CommandInfo("useCode", "Redeem a code", "Codes", CodesCommands::useCode));
+        registry.register(new CommandInfo("groupCodes", "List group codes", "Codes", CodesCommands::groupCodes));
+        registry.register(new CommandInfo("myCodes", "List your codes", "Codes", CodesCommands::myCodes));
     }
 
     private static void checkCode(@NotNull List<String> args, ConsoleContext context) throws Exception {

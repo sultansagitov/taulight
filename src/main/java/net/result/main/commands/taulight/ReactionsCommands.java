@@ -1,18 +1,22 @@
 package net.result.main.commands.taulight;
 
+import net.result.main.commands.CommandInfo;
+import net.result.main.commands.CommandRegistry;
 import net.result.main.commands.ConsoleContext;
-import net.result.main.commands.LoopCondition;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
-@SuppressWarnings("SameReturnValue")
 public class ReactionsCommands {
-    public static void register(Map<String, LoopCondition> commands) {
-        commands.put("react", ReactionsCommands::react);
-        commands.put("unreact", ReactionsCommands::unreact);
+
+    public static void register(CommandRegistry registry) {
+        registry.register(
+                new CommandInfo("react", "Add a reaction to a message", "Reactions", ReactionsCommands::react)
+        );
+        registry.register(
+                new CommandInfo("unreact", "Remove a reaction from a message", "Reactions", ReactionsCommands::unreact)
+        );
     }
 
     private static void react(@NotNull List<String> args, ConsoleContext context) throws Exception {

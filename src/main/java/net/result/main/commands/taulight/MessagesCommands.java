@@ -1,20 +1,50 @@
 package net.result.main.commands.taulight;
 
+import net.result.main.commands.CommandInfo;
+import net.result.main.commands.CommandRegistry;
 import net.result.main.commands.ConsoleContext;
-import net.result.main.commands.LoopCondition;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.*;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.UUID;
 
-@SuppressWarnings("SameReturnValue")
 public class MessagesCommands {
-    public static void register(Map<String, LoopCondition> commands) {
-        commands.put("messages", MessagesCommands::messages);
-        commands.put("reply", MessagesCommands::reply);
-        commands.put("uploadFile", MessagesCommands::uploadFile);
-        commands.put("fileAttached", MessagesCommands::fileAttached);
-        commands.put("downloadFile", MessagesCommands::downloadFile);
+
+    public static void register(CommandRegistry registry) {
+        registry.register(new CommandInfo(
+                "messages",
+                "List messages in the current chat",
+                "Messages",
+                MessagesCommands::messages
+        ));
+        registry.register(new CommandInfo(
+                "reply",
+                "Reply to a specific message",
+                "Messages",
+                MessagesCommands::reply
+        ));
+        registry.register(new CommandInfo(
+                "uploadFile",
+                "Upload a file to the chat",
+                "Messages",
+                MessagesCommands::uploadFile
+        ));
+        registry.register(new CommandInfo(
+                "fileAttached",
+                "Check if a file is attached to a message",
+                "Messages",
+                MessagesCommands::fileAttached
+        ));
+        registry.register(new CommandInfo(
+                "downloadFile",
+                "Download a file from the chat",
+                "Messages",
+                MessagesCommands::downloadFile
+        ));
     }
+
 
     private static void messages(@NotNull List<String> args, ConsoleContext context) throws Exception {
         UUID chatID = args.stream().findFirst().map(UUID::fromString).orElse(context.currentChat);
