@@ -3,15 +3,15 @@ package net.result.taulight.error;
 import net.result.sandnode.error.SandnodeError;
 import net.result.sandnode.error.ServerErrorManager;
 import net.result.sandnode.exception.error.SandnodeErrorException;
+import net.result.taulight.exception.error.PermissionDeniedException;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
 import java.util.function.Supplier;
 
-@SuppressWarnings({"unused", "EmptyMethod"})
 public enum TauErrors implements SandnodeError {
-    ;
+    PERMISSION_DENIED("Permission denied", PermissionDeniedException::new);
 
     private final String code;
     private final String desc;

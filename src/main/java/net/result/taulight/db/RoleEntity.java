@@ -59,4 +59,9 @@ public class RoleEntity extends BaseEntity {
     public void setPermissions(Set<Permission> permissions) {
         this.permissions = permissions;
     }
+
+    @Override
+    public String toString() {
+        return "<RoleEntity %s %s permissions=%s members=%s>".formatted(id(), name(), permissions(), members());
+    }
 }

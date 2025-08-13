@@ -135,6 +135,6 @@ public class TauMemberEntity extends BaseEntity {
 
     @Override
     public String toString() {
-        return "<MemberEntity %s %s>".formatted(id(), member().nickname());
+        return "<TauMemberEntity %s %s>".formatted(id(), member().nickname());
     }
 }

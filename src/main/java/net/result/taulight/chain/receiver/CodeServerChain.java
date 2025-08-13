@@ -75,11 +75,8 @@ public class CodeServerChain extends ServerChain implements ReceiverChain {
 
         InviteCodeEntity invite = inviteCodeRepo.find(check.code).orElseThrow(NotFoundException::new);
 
-        if (!invite.receiver().equals(you)) {
-            //TODO add group roles and use it
-            if (!invite.sender().equals(you)) {
-                throw new NotFoundException();
-            }
+        if (!(invite.receiver().equals(you) || invite.sender().equals(you))) {
+            throw new NotFoundException();
         }
 
         var code = new InviteCodeDTO(invite);
@@ -99,7 +96,6 @@ public class CodeServerChain extends ServerChain implements ReceiverChain {
         GroupEntity group = invite.group();
 
         if (!invite.receiver().equals(you.tauMember())) {
-            //TODO add group roles and use it
             if (invite.sender().equals(you.tauMember())) {
                 throw new UnauthorizedException();
             } else {

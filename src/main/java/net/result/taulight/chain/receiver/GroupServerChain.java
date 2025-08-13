@@ -24,6 +24,7 @@ import net.result.taulight.cluster.TauClusterManager;
 import net.result.taulight.db.*;
 import net.result.taulight.dto.ChatMessageInputDTO;
 import net.result.taulight.dto.GroupRequestDTO;
+import net.result.taulight.exception.error.PermissionDeniedException;
 import net.result.taulight.message.TauMessageTypes;
 import net.result.taulight.message.types.GroupRequest;
 import net.result.taulight.util.ChatUtil;
@@ -46,6 +47,7 @@ public class GroupServerChain extends ServerChain implements ReceiverChain {
     private GroupRepository groupRepo;
     private MemberRepository memberRepo;
     private InviteCodeRepository inviteCodeRepo;
+    private RoleRepository roleRepo;
 
     public GroupServerChain(Session session) {
         super(session);
@@ -62,6 +64,7 @@ public class GroupServerChain extends ServerChain implements ReceiverChain {
         groupRepo = session.server.container.get(GroupRepository.class);
         memberRepo = session.server.container.get(MemberRepository.class);
         inviteCodeRepo = session.server.container.get(InviteCodeRepository.class);
+        roleRepo = session.server.container.get(RoleRepository.class);
 
         GroupRequest request = new GroupRequest(raw);
 
@@ -125,8 +128,9 @@ public class GroupServerChain extends ServerChain implements ReceiverChain {
                 .orElseThrow(AddressedMemberNotFoundException::new);
 
         // You are not owner
-        //TODO add settings for inviting by another members
-        if (!group.owner().equals(you)) throw new UnauthorizedException();
+        if (!roleRepo.getMemberPermissionsInGroup(group, you).contains(Permission.INVITE)) {
+            throw new PermissionDeniedException("Have no INVITE permissions");
+        }
 
         // Receiver already in group
         if (chatUtil.contains(chat, member)) throw new NoEffectException();

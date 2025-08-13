@@ -9,6 +9,8 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class RoleRepository {
     private final JPAUtil jpaUtil;
@@ -89,4 +91,16 @@ public class RoleRepository {
             throw new DatabaseException(e);
         }
     }
+
+    public Set<Permission> getMemberPermissionsInGroup(GroupEntity group, TauMemberEntity member) {
+        return Stream.concat(
+                group.roles().stream()
+                    .flatMap(role -> role.members().stream()
+                        .filter(member::equals)
+                        .flatMap(e -> role.permissions().stream())),
+                group.permissions().stream()
+            )
+            .collect(Collectors.toSet());
+    }
+
 }
