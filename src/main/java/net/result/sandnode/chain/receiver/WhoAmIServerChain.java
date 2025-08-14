@@ -19,6 +19,6 @@ public class WhoAmIServerChain extends ServerChain implements ReceiverChain {
 
         if (session.member == null) throw new UnauthorizedException();
 
-        return new WhoAmIResponse(session.member);
+        return new WhoAmIResponse(session.member.nickname());
     }
 }

@@ -2,9 +2,9 @@ package net.result.sandnode.chain.receiver;
 
 import net.result.sandnode.chain.ReceiverChain;
 import net.result.sandnode.chain.ServerChain;
-import net.result.sandnode.db.*;
 import net.result.sandnode.dto.DEKRequestDTO;
-import net.result.sandnode.dto.DEKResponseDTO;
+import net.result.sandnode.entity.EncryptedKeyEntity;
+import net.result.sandnode.entity.MemberEntity;
 import net.result.sandnode.exception.DatabaseException;
 import net.result.sandnode.exception.SandnodeException;
 import net.result.sandnode.exception.error.AddressedMemberNotFoundException;
@@ -18,8 +18,10 @@ import net.result.sandnode.message.types.DEKListMessage;
 import net.result.sandnode.message.types.DEKRequest;
 import net.result.sandnode.message.types.PublicKeyResponse;
 import net.result.sandnode.message.util.Headers;
+import net.result.sandnode.repository.EncryptedKeyRepository;
+import net.result.sandnode.repository.MemberRepository;
 import net.result.sandnode.serverclient.Session;
-import net.result.sandnode.util.JPAUtil;
+import net.result.sandnode.db.JPAUtil;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.stream.Collectors;
@@ -57,7 +59,7 @@ public class DEKServerChain extends ServerChain implements ReceiverChain {
 
         var entity = encryptedKeyRepo.create(you, receiver, sendDTO.encryptedKey);
 
-        return new UUIDMessage(new Headers(), entity);
+        return new UUIDMessage(new Headers(), entity.id());
     }
 
     private @NotNull DEKListMessage get(MemberEntity you) throws DatabaseException {
@@ -66,7 +68,7 @@ public class DEKServerChain extends ServerChain implements ReceiverChain {
         session.member = jpaUtil.refresh(you);
         var list = session.member
                 .encryptedKeys().stream()
-                .map(DEKResponseDTO::new)
+                .map(EncryptedKeyEntity::toDEKResponseDTO)
                 .collect(Collectors.toList());
         return new DEKListMessage((list));
     }
@@ -78,6 +80,6 @@ public class DEKServerChain extends ServerChain implements ReceiverChain {
                 .findPersonalKeyByNickname(dto.getOf)
                 .orElseThrow(AddressedMemberNotFoundException::new);
 
-        return PublicKeyResponse.fromEntity(you.nickname(), entity);
+        return entity.toDTO(you.nickname());
     }
 }

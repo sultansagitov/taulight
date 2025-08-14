@@ -8,10 +8,10 @@ import net.result.sandnode.exception.error.UnauthorizedException;
 import net.result.sandnode.serverclient.Session;
 import net.result.taulight.chain.sender.ForwardServerChain;
 import net.result.taulight.cluster.TauClusterManager;
-import net.result.taulight.db.ChatEntity;
-import net.result.taulight.db.MessageEntity;
-import net.result.taulight.db.MessageFileRepository;
-import net.result.taulight.db.MessageRepository;
+import net.result.taulight.entity.ChatEntity;
+import net.result.taulight.entity.MessageEntity;
+import net.result.taulight.repository.MessageFileRepository;
+import net.result.taulight.repository.MessageRepository;
 import net.result.taulight.dto.ChatMessageInputDTO;
 import net.result.taulight.dto.ChatMessageViewDTO;
 import net.result.taulight.message.types.ForwardResponse;
@@ -37,7 +37,7 @@ public class TauHubProtocol {
 
         MessageEntity message = messageRepo.create(chat, input, session.member.tauMember());
         LOGGER.info("Saved message with id {} content: {}", message.id(), message.content());
-        ChatMessageViewDTO serverMessage = new ChatMessageViewDTO(messageFileRepo, message);
+        ChatMessageViewDTO serverMessage = message.toViewDTO(messageFileRepo);
 
         send(session, chat, serverMessage);
     }

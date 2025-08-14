@@ -1,7 +1,7 @@
 package net.result.taulight.cluster;
 
 import net.result.sandnode.cluster.HashSetClusterManager;
-import net.result.taulight.db.ChatEntity;
+import net.result.taulight.entity.ChatEntity;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;

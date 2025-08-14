@@ -2,9 +2,9 @@ package net.result.taulight.chain.receiver;
 
 import net.result.sandnode.chain.ReceiverChain;
 import net.result.sandnode.chain.ServerChain;
-import net.result.sandnode.db.FileEntity;
-import net.result.sandnode.db.MemberEntity;
-import net.result.sandnode.db.MemberRepository;
+import net.result.sandnode.entity.FileEntity;
+import net.result.sandnode.entity.MemberEntity;
+import net.result.sandnode.repository.MemberRepository;
 import net.result.sandnode.dto.FileDTO;
 import net.result.sandnode.exception.DatabaseException;
 import net.result.sandnode.exception.ImpossibleRuntimeException;
@@ -17,16 +17,23 @@ import net.result.sandnode.message.types.HappyMessage;
 import net.result.sandnode.message.util.Headers;
 import net.result.sandnode.message.util.MessageTypes;
 import net.result.sandnode.serverclient.Session;
-import net.result.sandnode.util.DBFileUtil;
+import net.result.sandnode.db.DBFileUtil;
 import net.result.sandnode.util.FileIOUtil;
-import net.result.sandnode.util.JPAUtil;
+import net.result.sandnode.db.JPAUtil;
 import net.result.taulight.cluster.TauClusterManager;
 import net.result.taulight.db.*;
 import net.result.taulight.dto.ChatMessageInputDTO;
 import net.result.taulight.dto.GroupRequestDTO;
+import net.result.taulight.entity.ChatEntity;
+import net.result.taulight.entity.GroupEntity;
+import net.result.taulight.entity.InviteCodeEntity;
+import net.result.taulight.entity.TauMemberEntity;
 import net.result.taulight.exception.error.PermissionDeniedException;
 import net.result.taulight.message.TauMessageTypes;
 import net.result.taulight.message.types.GroupRequest;
+import net.result.taulight.repository.GroupRepository;
+import net.result.taulight.repository.InviteCodeRepository;
+import net.result.taulight.repository.RoleRepository;
 import net.result.taulight.util.ChatUtil;
 import net.result.taulight.util.ClusterUtil;
 import net.result.taulight.util.SysMessages;
@@ -101,7 +108,7 @@ public class GroupServerChain extends ServerChain implements ReceiverChain {
         GroupEntity group = groupRepo.create(dto.title, you);
 
         ClusterUtil.addMemberToCluster(session, manager.getCluster(group));
-        ChatMessageInputDTO input = SysMessages.groupNew.toInput(group, you);
+        ChatMessageInputDTO input = group.toInput(you, SysMessages.groupNew);
         try {
             TauHubProtocol.send(session, group, input);
         } catch (UnauthorizedException e) {
@@ -110,7 +117,7 @@ public class GroupServerChain extends ServerChain implements ReceiverChain {
             LOGGER.warn("Exception when sending system message of creating group {}", e.getMessage());
         }
 
-        return new UUIDMessage(new Headers().setType(MessageTypes.HAPPY), group);
+        return new UUIDMessage(new Headers().setType(MessageTypes.HAPPY), group.id());
     }
 
     private TextMessage invite(GroupRequestDTO dto, TauMemberEntity you) throws Exception {
@@ -165,7 +172,7 @@ public class GroupServerChain extends ServerChain implements ReceiverChain {
         // You are not in group (impossible)
         if (!groupRepo.removeMember(group, you)) throw new NotFoundException();
 
-        ChatMessageInputDTO input = SysMessages.groupLeave.toInput(group, you);
+        ChatMessageInputDTO input = group.toInput(you, SysMessages.groupLeave);
         try {
             TauHubProtocol.send(session, group, input);
         } catch (UnauthorizedException e) {
@@ -196,7 +203,7 @@ public class GroupServerChain extends ServerChain implements ReceiverChain {
 
         groupRepo.setAvatar(group, avatar);
 
-        return new UUIDMessage(new Headers().setType(MessageTypes.HAPPY), avatar);
+        return new UUIDMessage(new Headers().setType(MessageTypes.HAPPY), avatar.id());
     }
 
     @SuppressWarnings("SameReturnValue")

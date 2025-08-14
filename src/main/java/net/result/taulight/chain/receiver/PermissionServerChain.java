@@ -11,9 +11,13 @@ import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.message.types.HappyMessage;
 import net.result.sandnode.serverclient.Session;
 import net.result.sandnode.util.Container;
-import net.result.sandnode.util.JPAUtil;
+import net.result.sandnode.db.JPAUtil;
 import net.result.taulight.db.*;
+import net.result.taulight.entity.GroupEntity;
+import net.result.taulight.entity.RoleEntity;
 import net.result.taulight.message.types.PermissionRequest;
+import net.result.taulight.repository.GroupRepository;
+import net.result.taulight.repository.RoleRepository;
 
 public class PermissionServerChain extends ServerChain implements ReceiverChain {
     private RoleRepository roleRepo;

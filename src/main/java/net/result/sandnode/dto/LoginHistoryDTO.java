@@ -1,8 +1,6 @@
 package net.result.sandnode.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import net.result.sandnode.db.LoginEntity;
-import org.jetbrains.annotations.NotNull;
 
 import java.time.ZonedDateTime;
 
@@ -24,9 +22,5 @@ public class LoginHistoryDTO {
         this.ip = ip;
         this.device = device;
         this.isOnline = isOnline;
-    }
-
-    public LoginHistoryDTO(@NotNull LoginEntity e, boolean isOnline) {
-        this(e.creationDate(), e.ip(), e.device(), isOnline);
     }
 }

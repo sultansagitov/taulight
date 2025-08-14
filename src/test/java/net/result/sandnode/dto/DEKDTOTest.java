@@ -29,7 +29,8 @@ public class DEKDTOTest {
     void testDEKDTOEncryptDecrypt() throws Exception {
         KeyDTO encryptorDTO = new KeyDTO(sender, encryptor);
 
-        DEKDTO dekDTO = new DEKDTO(encryptorDTO, keyStorage);
+        DEKDTO dekDTO = new DEKDTO();
+        dekDTO.encryptedKey = DEKUtil.getEncrypted(encryptorDTO.keyStorage(), keyStorage);
 
         assertNotNull(dekDTO.encryptedKey);
 

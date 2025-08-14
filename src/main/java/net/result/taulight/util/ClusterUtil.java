@@ -1,6 +1,6 @@
 package net.result.taulight.util;
 
-import net.result.sandnode.db.MemberEntity;
+import net.result.sandnode.entity.MemberEntity;
 import net.result.sandnode.serverclient.Session;
 import net.result.taulight.cluster.ChatCluster;
 import org.jetbrains.annotations.NotNull;

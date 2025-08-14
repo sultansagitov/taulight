@@ -2,7 +2,7 @@ package net.result.taulight.chain.receiver;
 
 import net.result.sandnode.chain.ReceiverChain;
 import net.result.sandnode.chain.ServerChain;
-import net.result.sandnode.db.EncryptedKeyEntity;
+import net.result.sandnode.entity.EncryptedKeyEntity;
 import net.result.sandnode.exception.error.KeyStorageNotFoundException;
 import net.result.sandnode.exception.error.NotFoundException;
 import net.result.sandnode.exception.error.TooFewArgumentsException;
@@ -14,12 +14,11 @@ import net.result.sandnode.message.types.HappyMessage;
 import net.result.sandnode.message.util.Headers;
 import net.result.sandnode.message.util.MessageTypes;
 import net.result.sandnode.serverclient.Session;
-import net.result.sandnode.util.JPAUtil;
-import net.result.taulight.db.ChatEntity;
-import net.result.taulight.db.MessageEntity;
-import net.result.taulight.db.MessageFileRepository;
-import net.result.taulight.db.MessageRepository;
-import net.result.taulight.dto.ChatMessageViewDTO;
+import net.result.sandnode.db.JPAUtil;
+import net.result.taulight.entity.ChatEntity;
+import net.result.taulight.entity.MessageEntity;
+import net.result.taulight.repository.MessageFileRepository;
+import net.result.taulight.repository.MessageRepository;
 import net.result.taulight.message.types.ForwardRequest;
 import net.result.taulight.util.ChatUtil;
 import net.result.taulight.util.TauHubProtocol;
@@ -55,7 +54,7 @@ public class ForwardRequestServerChain extends ServerChain implements ReceiverCh
 
         input
                 .setSys(false)
-                .setMember(session.member);
+                .setNickname(session.member.nickname());
 
         ChatEntity chat = chatUtil.getChat(chatID).orElseThrow(NotFoundException::new);
         if (!chatUtil.contains(chat, session.member.tauMember())) throw new NotFoundException();
@@ -68,7 +67,7 @@ public class ForwardRequestServerChain extends ServerChain implements ReceiverCh
                     .orElseThrow(() -> new KeyStorageNotFoundException(input.keyID.toString()));
             message = messageRepo.create(chat, input, session.member.tauMember(), key);
         }
-        var viewDTO = new ChatMessageViewDTO(messageFileRepo, message);
+        var viewDTO = message.toViewDTO(messageFileRepo);
 
         send(new UUIDMessage(new Headers().setType(MessageTypes.HAPPY), viewDTO.id));
 

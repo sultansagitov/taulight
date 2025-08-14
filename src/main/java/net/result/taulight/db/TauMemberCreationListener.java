@@ -1,9 +1,10 @@
 package net.result.taulight.db;
 
 import net.result.sandnode.db.MemberCreationListener;
-import net.result.sandnode.db.MemberEntity;
+import net.result.sandnode.entity.MemberEntity;
 import net.result.sandnode.exception.DatabaseException;
 import net.result.sandnode.util.Container;
+import net.result.taulight.repository.TauMemberRepository;
 
 public class TauMemberCreationListener implements MemberCreationListener {
     private final TauMemberRepository tauMemberRepo;

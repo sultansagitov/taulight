@@ -1,15 +1,20 @@
 package net.result.taulight.util;
 
 import net.result.sandnode.GlobalTestState;
-import net.result.sandnode.db.MemberEntity;
-import net.result.sandnode.db.MemberRepository;
+import net.result.sandnode.entity.MemberEntity;
+import net.result.sandnode.repository.MemberRepository;
 import net.result.sandnode.exception.AlreadyExistingRecordException;
 import net.result.sandnode.exception.DatabaseException;
 import net.result.sandnode.exception.error.BusyNicknameException;
 import net.result.sandnode.util.Container;
-import net.result.sandnode.util.JPAUtil;
-import net.result.sandnode.util.SimpleJPAUtil;
-import net.result.taulight.db.*;
+import net.result.sandnode.db.JPAUtil;
+import net.result.sandnode.db.SimpleJPAUtil;
+import net.result.taulight.entity.ChatEntity;
+import net.result.taulight.entity.DialogEntity;
+import net.result.taulight.entity.GroupEntity;
+import net.result.taulight.entity.TauMemberEntity;
+import net.result.taulight.repository.DialogRepository;
+import net.result.taulight.repository.GroupRepository;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 

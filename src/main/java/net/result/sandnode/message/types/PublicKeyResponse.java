@@ -1,9 +1,7 @@
 package net.result.sandnode.message.types;
 
-import net.result.sandnode.db.KeyStorageEntity;
 import net.result.sandnode.dto.KeyDTO;
 import net.result.sandnode.encryption.Encryptions;
-import net.result.sandnode.encryption.interfaces.Encryption;
 import net.result.sandnode.exception.*;
 import net.result.sandnode.exception.crypto.CannotUseEncryption;
 import net.result.sandnode.exception.crypto.CreatingKeyException;
@@ -50,16 +48,6 @@ public class PublicKeyResponse extends BaseMessage {
         } catch (CannotUseEncryption e) {
             throw new ImpossibleRuntimeException(e);
         }
-    }
-
-    public static PublicKeyResponse fromEntity(String sender, KeyStorageEntity entity)
-            throws CreatingKeyException, EncryptionTypeException {
-        Encryption encryption = entity.encryption();
-        AsymmetricKeyStorage keyStorage = encryption.asymmetric()
-                .publicKeyConvertor()
-                .toKeyStorage(entity.encodedKey());
-
-        return new PublicKeyResponse(new Headers().setValue("sender", sender), keyStorage);
     }
 
     public static KeyDTO getKeyDTO(RawMessage raw) throws NoSuchEncryptionException, CreatingKeyException,

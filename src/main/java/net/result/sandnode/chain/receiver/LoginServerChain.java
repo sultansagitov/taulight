@@ -2,8 +2,8 @@ package net.result.sandnode.chain.receiver;
 
 import net.result.sandnode.chain.ReceiverChain;
 import net.result.sandnode.chain.ServerChain;
-import net.result.sandnode.db.LoginEntity;
-import net.result.sandnode.db.LoginRepository;
+import net.result.sandnode.entity.LoginEntity;
+import net.result.sandnode.repository.LoginRepository;
 import net.result.sandnode.dto.LoginHistoryDTO;
 import net.result.sandnode.exception.error.UnauthorizedException;
 import net.result.sandnode.message.Message;
@@ -60,7 +60,7 @@ public class LoginServerChain extends ServerChain implements ReceiverChain {
         for (LoginEntity login : logins) {
             boolean isOnline = onlineLogins.contains(login) ||
                     (login.login() != null && onlineLogins.contains(login.login()));
-            LoginHistoryDTO loginHistoryDTO = new LoginHistoryDTO(login, isOnline);
+            LoginHistoryDTO loginHistoryDTO = login.toDTO(isOnline);
             list.add(loginHistoryDTO);
         }
 
@@ -81,7 +81,8 @@ public class LoginServerChain extends ServerChain implements ReceiverChain {
 
         onLogin();
 
-        return new LoginResponse(session.member);
+        //noinspection DataFlowIssue
+        return new LoginResponse(session.member.nickname());
     }
 
     protected void onLogin() throws Exception {}

@@ -2,8 +2,8 @@ package net.result.sandnode.serverclient;
 
 import net.result.sandnode.chain.ServerChainManager;
 import net.result.sandnode.cluster.Cluster;
-import net.result.sandnode.db.LoginEntity;
-import net.result.sandnode.db.MemberEntity;
+import net.result.sandnode.entity.LoginEntity;
+import net.result.sandnode.entity.MemberEntity;
 import net.result.sandnode.hubagent.Node;
 import net.result.sandnode.util.Address;
 import net.result.sandnode.util.IOController;

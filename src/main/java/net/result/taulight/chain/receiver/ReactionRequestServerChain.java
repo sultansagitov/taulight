@@ -11,10 +11,14 @@ import net.result.sandnode.exception.error.UnhandledMessageTypeException;
 import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.message.types.HappyMessage;
 import net.result.sandnode.serverclient.Session;
-import net.result.sandnode.util.JPAUtil;
+import net.result.sandnode.db.JPAUtil;
 import net.result.taulight.chain.sender.ReactionResponseServerChain;
-import net.result.taulight.db.*;
+import net.result.taulight.entity.MessageEntity;
+import net.result.taulight.entity.ReactionEntryEntity;
+import net.result.taulight.entity.ReactionTypeEntity;
 import net.result.taulight.message.types.ReactionRequest;
+import net.result.taulight.repository.ReactionEntryRepository;
+import net.result.taulight.repository.ReactionTypeRepository;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 

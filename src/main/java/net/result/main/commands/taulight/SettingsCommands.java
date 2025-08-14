@@ -3,7 +3,7 @@ package net.result.main.commands.taulight;
 import net.result.main.commands.CommandInfo;
 import net.result.main.commands.CommandRegistry;
 import net.result.main.commands.ConsoleContext;
-import net.result.taulight.dto.TauMemberSettingsResponseDTO;
+import net.result.taulight.dto.TauMemberSettingsDTO;
 
 import java.util.List;
 
@@ -25,7 +25,7 @@ public class SettingsCommands {
     }
 
     private static void settings(List<String> ignored, ConsoleContext context) throws Exception {
-        TauMemberSettingsResponseDTO dto = SettingsRunner.get(context);
+        TauMemberSettingsDTO dto = SettingsRunner.get(context);
         System.out.printf("showStatus: %s%n", dto.showStatus);
     }
 
@@ -33,7 +33,7 @@ public class SettingsCommands {
         String s = args.stream().findFirst().orElseThrow();
         boolean b = Boolean.parseBoolean(s);
 
-        TauMemberSettingsResponseDTO dto = SettingsRunner.setShowStatus(context, b);
+        TauMemberSettingsDTO dto = SettingsRunner.setShowStatus(context, b);
         System.out.printf("showStatus: %s%n", dto.showStatus);
     }
 }

@@ -1,8 +1,6 @@
 package net.result.taulight.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import net.result.taulight.db.ReactionEntryEntity;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.UUID;
 
@@ -57,23 +55,6 @@ public class ReactionDTO {
         this.messageID = messageID;
         this.packageName = packageName;
         this.reaction = reaction;
-    }
-
-    /**
-     * Constructs a ReactionDTO from a {@link ReactionEntryEntity}.
-     *
-     * @param isReact true if adding a reaction, false if removing
-     * @param entry the reaction entry entity
-     */
-    public ReactionDTO(boolean isReact, @NotNull ReactionEntryEntity entry) {
-        this(
-                isReact,
-                entry.member().member().nickname(),
-                entry.message().chat().id(),
-                entry.message().id(),
-                entry.reactionType().reactionPackage().name(),
-                entry.reactionType().name()
-        );
     }
 
     @Override

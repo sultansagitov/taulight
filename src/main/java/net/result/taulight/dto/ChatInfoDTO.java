@@ -3,7 +3,6 @@ package net.result.taulight.dto;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import net.result.sandnode.db.FileEntity;
 import net.result.sandnode.encryption.interfaces.KeyStorage;
 import net.result.sandnode.exception.crypto.CannotUseEncryption;
 import net.result.sandnode.exception.crypto.PrivateKeyNotFoundException;
@@ -11,15 +10,11 @@ import net.result.sandnode.exception.crypto.WrongKeyException;
 import net.result.sandnode.exception.error.DecryptionException;
 import net.result.sandnode.exception.error.KeyStorageNotFoundException;
 import net.result.sandnode.serverclient.SandnodeClient;
-import net.result.taulight.db.DialogEntity;
-import net.result.taulight.db.GroupEntity;
-import net.result.taulight.db.TauMemberEntity;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.time.ZonedDateTime;
 import java.util.Base64;
-import java.util.Collection;
 import java.util.UUID;
 
 /**
@@ -98,66 +93,7 @@ public class ChatInfoDTO implements Comparable<ChatInfoDTO> {
     }
 
     /** Private constructor to enforce usage of static factory methods. */
-    private ChatInfoDTO() {}
-
-    /**
-     * Creates a ChatInfoDTO for a group.
-     *
-     * @param group     the group entity from the database
-     * @param member      the member requesting the data
-     * @param infoProps   a collection of properties to include in the response
-     * @param lastMessage the last message in the group (nullable)
-     * @return a populated ChatInfoDTO for a group
-     */
-    public static ChatInfoDTO group(
-            GroupEntity group,
-            TauMemberEntity member,
-            Collection<ChatInfoPropDTO> infoProps,
-            ChatMessageViewDTO lastMessage
-    ) {
-        ChatInfoDTO info = new ChatInfoDTO();
-        info.chatType = ChatType.GROUP;
-        if (infoProps.contains(ChatInfoPropDTO.groupID)) info.id = group.id();
-        if (infoProps.contains(ChatInfoPropDTO.createdAt)) info.creationDate = group.creationDate();
-        if (infoProps.contains(ChatInfoPropDTO.groupTitle)) info.title = group.title();
-        if (infoProps.contains(ChatInfoPropDTO.groupOwner)) info.ownerID = group.owner().member().nickname();
-        if (infoProps.contains(ChatInfoPropDTO.groupIsMy)) info.groupIsMy = group.owner() == member;
-        if (infoProps.contains(ChatInfoPropDTO.lastMessage)) info.lastMessage = lastMessage;
-        if (infoProps.contains(ChatInfoPropDTO.hasAvatar))
-            info.avatar = group.avatar() != null ? group.avatar().id() : null;
-        return info;
-    }
-
-    /**
-     * Constructs a ChatInfoDTO for a dialog.
-     *
-     * @param dialog      the dialog entity from the database
-     * @param member      the member requesting the data
-     * @param infoProps   a collection of properties to include in the response
-     * @param lastMessage the last message in the dialog (nullable)
-     *
-     * @return a populated ChatInfoDTO for a dialog
-     */
-    public static ChatInfoDTO dialog(
-            DialogEntity dialog,
-            TauMemberEntity member,
-            Collection<ChatInfoPropDTO> infoProps,
-            ChatMessageViewDTO lastMessage
-    ) {
-        ChatInfoDTO info = new ChatInfoDTO();
-        info.chatType = ChatType.DIALOG;
-        if (infoProps.contains(ChatInfoPropDTO.dialogID)) info.id = dialog.id();
-        if (infoProps.contains(ChatInfoPropDTO.createdAt)) info.creationDate = dialog.creationDate();
-        if (infoProps.contains(ChatInfoPropDTO.dialogOther))
-            info.otherNickname = dialog.otherMember(member).member().nickname();
-        if (infoProps.contains(ChatInfoPropDTO.lastMessage)) info.lastMessage = lastMessage;
-        if (infoProps.contains(ChatInfoPropDTO.hasAvatar)) {
-            FileEntity avatar = dialog.otherMember(member).member().avatar();
-            info.avatar = avatar != null ? avatar.id() : null;
-        }
-
-        return info;
-    }
+    public ChatInfoDTO() {}
 
     /**
      * Constructs a ChatInfoDTO indicating that the chat could not be found.

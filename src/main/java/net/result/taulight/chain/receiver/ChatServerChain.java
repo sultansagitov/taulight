@@ -5,13 +5,15 @@ import net.result.sandnode.chain.ServerChain;
 import net.result.sandnode.exception.error.UnauthorizedException;
 import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.serverclient.Session;
-import net.result.sandnode.util.JPAUtil;
-import net.result.taulight.db.*;
+import net.result.sandnode.db.JPAUtil;
 import net.result.taulight.dto.ChatInfoDTO;
 import net.result.taulight.dto.ChatInfoPropDTO;
 import net.result.taulight.dto.ChatMessageViewDTO;
+import net.result.taulight.entity.*;
 import net.result.taulight.message.types.ChatRequest;
 import net.result.taulight.message.types.ChatResponse;
+import net.result.taulight.repository.MessageFileRepository;
+import net.result.taulight.repository.MessageRepository;
 import net.result.taulight.util.ChatUtil;
 
 import java.util.*;
@@ -74,9 +76,9 @@ public class ChatServerChain extends ServerChain implements ReceiverChain {
             ChatMessageViewDTO lastMsg = lastMessages.get(chat.id());
 
             if (chat instanceof GroupEntity group) {
-                infos.add(ChatInfoDTO.group(group, you, props, lastMsg));
+                infos.add(group.toDTO(you, props, lastMsg));
             } else if (chat instanceof DialogEntity dialog) {
-                infos.add(ChatInfoDTO.dialog(dialog, you, props, lastMsg));
+                infos.add(dialog.toDTO(you, props, lastMsg));
             }
         }
 
@@ -121,9 +123,9 @@ public class ChatServerChain extends ServerChain implements ReceiverChain {
             ChatMessageViewDTO lastMsg = lastMessages.get(entry.getKey());
 
             if (chat instanceof GroupEntity group && props.contains(ChatInfoPropDTO.groupID)) {
-                infos.add(ChatInfoDTO.group(group, you, props, lastMsg));
+                infos.add(group.toDTO(you, props, lastMsg));
             } else if (chat instanceof DialogEntity dialog && props.contains(ChatInfoPropDTO.dialogID)) {
-                infos.add(ChatInfoDTO.dialog(dialog, you, props, lastMsg));
+                infos.add(dialog.toDTO(you, props, lastMsg));
             }
         }
 
@@ -135,7 +137,7 @@ public class ChatServerChain extends ServerChain implements ReceiverChain {
 
         Map<UUID, ChatMessageViewDTO> result = new HashMap<>();
         for (MessageEntity message : messageRepo.findLastMessagesByChats(chatIds)) {
-            result.putIfAbsent(message.chat().id(), new ChatMessageViewDTO(messageFileRepo, message));
+            result.putIfAbsent(message.chat().id(), message.toViewDTO(messageFileRepo));
         }
         return result;
     }

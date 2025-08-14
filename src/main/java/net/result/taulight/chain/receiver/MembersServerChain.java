@@ -2,7 +2,7 @@ package net.result.taulight.chain.receiver;
 
 import net.result.sandnode.chain.ReceiverChain;
 import net.result.sandnode.chain.ServerChain;
-import net.result.sandnode.db.MemberEntity;
+import net.result.sandnode.entity.MemberEntity;
 import net.result.sandnode.exception.error.NotFoundException;
 import net.result.sandnode.exception.error.UnauthorizedException;
 import net.result.sandnode.message.RawMessage;
@@ -10,10 +10,10 @@ import net.result.sandnode.message.UUIDMessage;
 import net.result.sandnode.serverclient.Session;
 import net.result.taulight.cluster.ChatCluster;
 import net.result.taulight.cluster.TauClusterManager;
-import net.result.taulight.db.ChatEntity;
-import net.result.taulight.db.GroupEntity;
-import net.result.taulight.db.RoleEntity;
-import net.result.taulight.db.TauMemberEntity;
+import net.result.taulight.entity.ChatEntity;
+import net.result.taulight.entity.GroupEntity;
+import net.result.taulight.entity.RoleEntity;
+import net.result.taulight.entity.TauMemberEntity;
 import net.result.taulight.dto.ChatMemberDTO;
 import net.result.taulight.dto.MemberStatus;
 import net.result.taulight.dto.RoleDTO;
@@ -60,7 +60,7 @@ public class MembersServerChain extends ServerChain implements ReceiverChain {
             Set<RoleDTO> set = new HashSet<>();
 
             for (RoleEntity role : group.roles()) {
-                set.add(new RoleDTO(role));
+                set.add(role.toDTO());
 
                 for (TauMemberEntity member : role.members()) {
                     memberRolesMap
@@ -75,7 +75,7 @@ public class MembersServerChain extends ServerChain implements ReceiverChain {
         Map<MemberEntity, ChatMemberDTO> map = new HashMap<>();
         for (TauMemberEntity m : tauMembers) {
             List<String> roleIds = memberRolesMap.getOrDefault(m, null);
-            map.put(m.member(), new ChatMemberDTO(m, roleIds));
+            map.put(m.member(), m.toChatMemberDTO(roleIds));
         }
 
         for (Session s : cluster.getSessions()) {

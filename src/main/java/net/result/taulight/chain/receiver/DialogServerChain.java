@@ -2,8 +2,8 @@ package net.result.taulight.chain.receiver;
 
 import net.result.sandnode.chain.ReceiverChain;
 import net.result.sandnode.chain.ServerChain;
-import net.result.sandnode.db.FileEntity;
-import net.result.sandnode.db.MemberEntity;
+import net.result.sandnode.entity.FileEntity;
+import net.result.sandnode.entity.MemberEntity;
 import net.result.sandnode.exception.ImpossibleRuntimeException;
 import net.result.sandnode.exception.error.*;
 import net.result.sandnode.message.Message;
@@ -12,12 +12,16 @@ import net.result.sandnode.message.UUIDMessage;
 import net.result.sandnode.message.util.Headers;
 import net.result.sandnode.message.util.MessageTypes;
 import net.result.sandnode.serverclient.Session;
-import net.result.sandnode.util.DBFileUtil;
+import net.result.sandnode.db.DBFileUtil;
 import net.result.sandnode.util.FileIOUtil;
 import net.result.taulight.cluster.TauClusterManager;
-import net.result.taulight.db.*;
 import net.result.taulight.dto.ChatMessageInputDTO;
+import net.result.taulight.entity.ChatEntity;
+import net.result.taulight.entity.DialogEntity;
+import net.result.taulight.entity.TauMemberEntity;
 import net.result.taulight.message.types.DialogRequest;
+import net.result.taulight.repository.DialogRepository;
+import net.result.taulight.repository.TauMemberRepository;
 import net.result.taulight.util.ChatUtil;
 import net.result.taulight.util.ClusterUtil;
 import net.result.taulight.util.SysMessages;
@@ -69,13 +73,13 @@ public class DialogServerChain extends ServerChain implements ReceiverChain {
         DialogEntity dialog = dialogOpt.isPresent()
                 ? dialogOpt.get()
                 : dialogRepo.create(you.tauMember(), anotherMember);
-        sendFin(new UUIDMessage(new Headers().setType(MessageTypes.HAPPY), dialog));
+        sendFin(new UUIDMessage(new Headers().setType(MessageTypes.HAPPY), dialog.id()));
 
         if (dialogOpt.isEmpty()) {
             Collection<MemberEntity> members = new ArrayList<>(List.of(you, anotherMember.member()));
             ClusterUtil.addMembersToCluster(session, members, manager.getCluster(dialog));
 
-            ChatMessageInputDTO input = SysMessages.dialogNew.toInput(dialog, you.tauMember());
+            ChatMessageInputDTO input = dialog.toInput(you.tauMember(), SysMessages.dialogNew);
 
             try {
                 TauHubProtocol.send(session, dialog, input);

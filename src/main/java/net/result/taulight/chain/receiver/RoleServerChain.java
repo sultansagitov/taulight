@@ -2,17 +2,22 @@ package net.result.taulight.chain.receiver;
 
 import net.result.sandnode.chain.ReceiverChain;
 import net.result.sandnode.chain.ServerChain;
-import net.result.sandnode.db.MemberRepository;
 import net.result.sandnode.exception.DatabaseException;
 import net.result.sandnode.exception.error.*;
 import net.result.sandnode.message.RawMessage;
+import net.result.sandnode.repository.MemberRepository;
 import net.result.sandnode.serverclient.Session;
-import net.result.taulight.db.*;
+import net.result.taulight.db.Permission;
 import net.result.taulight.dto.RoleDTO;
 import net.result.taulight.dto.RoleRequestDTO;
 import net.result.taulight.dto.RolesDTO;
+import net.result.taulight.entity.ChatEntity;
+import net.result.taulight.entity.GroupEntity;
+import net.result.taulight.entity.RoleEntity;
+import net.result.taulight.entity.TauMemberEntity;
 import net.result.taulight.message.types.RoleRequest;
 import net.result.taulight.message.types.RoleResponse;
+import net.result.taulight.repository.RoleRepository;
 import net.result.taulight.util.ChatUtil;
 import org.jetbrains.annotations.NotNull;
 
@@ -46,7 +51,7 @@ public class RoleServerChain extends ServerChain implements ReceiverChain {
 
         Set<RoleEntity> roles = group.roles();
         Set<RoleDTO> allRoles = roles.stream()
-                .map(RoleDTO::new)
+                .map(RoleEntity::toDTO)
                 .collect(Collectors.toSet());
 
         Set<UUID> memberRoles = roles.stream()
@@ -81,8 +86,7 @@ public class RoleServerChain extends ServerChain implements ReceiverChain {
         if (!group.owner().equals(session.member.tauMember())) throw new UnauthorizedException();
 
         if (roleName == null || roleName.trim().isEmpty()) throw new TooFewArgumentsException();
-        RoleEntity newRole = roleRepo.create(group, roleName);
-        allRoles.add(new RoleDTO(newRole));
+        allRoles.add(roleRepo.create(group, roleName).toDTO());
         return new RoleResponse(new RolesDTO(allRoles, memberRoles, permissions));
     }
 

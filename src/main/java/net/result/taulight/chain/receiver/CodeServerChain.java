@@ -2,7 +2,7 @@ package net.result.taulight.chain.receiver;
 
 import net.result.sandnode.chain.ReceiverChain;
 import net.result.sandnode.chain.ServerChain;
-import net.result.sandnode.db.MemberEntity;
+import net.result.sandnode.entity.MemberEntity;
 import net.result.sandnode.exception.DatabaseException;
 import net.result.sandnode.exception.ProtocolException;
 import net.result.sandnode.exception.error.*;
@@ -11,15 +11,20 @@ import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.message.types.HappyMessage;
 import net.result.sandnode.message.util.Headers;
 import net.result.sandnode.serverclient.Session;
-import net.result.sandnode.util.JPAUtil;
+import net.result.sandnode.db.JPAUtil;
 import net.result.taulight.cluster.ChatCluster;
 import net.result.taulight.cluster.TauClusterManager;
-import net.result.taulight.db.*;
 import net.result.taulight.dto.*;
+import net.result.taulight.entity.ChatEntity;
+import net.result.taulight.entity.GroupEntity;
+import net.result.taulight.entity.InviteCodeEntity;
+import net.result.taulight.entity.TauMemberEntity;
 import net.result.taulight.message.CodeListMessage;
 import net.result.taulight.message.TauMessageTypes;
 import net.result.taulight.message.types.CodeRequest;
 import net.result.taulight.message.types.CodeResponse;
+import net.result.taulight.repository.GroupRepository;
+import net.result.taulight.repository.InviteCodeRepository;
 import net.result.taulight.util.ChatUtil;
 import net.result.taulight.util.SysMessages;
 import net.result.taulight.util.TauHubProtocol;
@@ -79,7 +84,7 @@ public class CodeServerChain extends ServerChain implements ReceiverChain {
             throw new NotFoundException();
         }
 
-        var code = new InviteCodeDTO(invite);
+        InviteCodeDTO code = invite.toDTO();
         return new CodeResponse(new CodeResponseDTO(new CodeResponseDTO.Check(code)));
     }
 
@@ -119,7 +124,7 @@ public class CodeServerChain extends ServerChain implements ReceiverChain {
             }
         }
 
-        ChatMessageInputDTO input = SysMessages.groupAdd.toInput(group, member);
+        ChatMessageInputDTO input = group.toInput(member, SysMessages.groupAdd);
 
         try {
             TauHubProtocol.send(session, group, input);
@@ -140,7 +145,7 @@ public class CodeServerChain extends ServerChain implements ReceiverChain {
         Headers headers = new Headers().setType(TauMessageTypes.CODE);
 
         Collection<CodeDTO> collected = group.inviteCodes().stream()
-                .map(InviteCodeDTO::new)
+                .map(InviteCodeEntity::toDTO)
                 .collect(Collectors.toSet());
 
         return new CodeListMessage(headers, collected);
@@ -149,7 +154,7 @@ public class CodeServerChain extends ServerChain implements ReceiverChain {
     private Message handleMyCodes(@NotNull TauMemberEntity you) {
         Collection<CodeDTO> collected = you
                 .inviteCodesAsReceiver().stream()
-                .map(InviteCodeDTO::new)
+                .map(InviteCodeEntity::toDTO)
                 .collect(Collectors.toSet());
 
         return new CodeListMessage(new Headers().setType(TauMessageTypes.CODE), collected);

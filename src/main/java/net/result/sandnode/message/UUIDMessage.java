@@ -1,6 +1,5 @@
 package net.result.sandnode.message;
 
-import net.result.sandnode.db.BaseEntity;
 import net.result.sandnode.exception.DeserializationException;
 import net.result.sandnode.message.util.Headers;
 import org.jetbrains.annotations.NotNull;
@@ -14,10 +13,6 @@ public class UUIDMessage extends BaseMessage {
     public UUIDMessage(@NotNull Headers headers, @NotNull UUID uuid) {
         super(headers);
         this.uuid = uuid;
-    }
-
-    public UUIDMessage(Headers headers, @NotNull BaseEntity object) {
-        this(headers, object.id());
     }
 
     public UUIDMessage(@NotNull RawMessage raw) throws DeserializationException {

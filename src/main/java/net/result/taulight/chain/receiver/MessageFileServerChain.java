@@ -2,7 +2,7 @@ package net.result.taulight.chain.receiver;
 
 import net.result.sandnode.chain.ReceiverChain;
 import net.result.sandnode.chain.ServerChain;
-import net.result.sandnode.db.FileEntity;
+import net.result.sandnode.entity.FileEntity;
 import net.result.sandnode.dto.FileDTO;
 import net.result.sandnode.exception.error.NotFoundException;
 import net.result.sandnode.exception.error.TooFewArgumentsException;
@@ -13,13 +13,13 @@ import net.result.sandnode.message.UUIDMessage;
 import net.result.sandnode.message.util.Headers;
 import net.result.sandnode.message.util.MessageTypes;
 import net.result.sandnode.serverclient.Session;
-import net.result.sandnode.util.DBFileUtil;
+import net.result.sandnode.db.DBFileUtil;
 import net.result.sandnode.util.FileIOUtil;
-import net.result.sandnode.util.JPAUtil;
-import net.result.taulight.db.ChatEntity;
-import net.result.taulight.db.MessageFileEntity;
-import net.result.taulight.db.MessageFileRepository;
-import net.result.taulight.db.TauMemberEntity;
+import net.result.sandnode.db.JPAUtil;
+import net.result.taulight.entity.ChatEntity;
+import net.result.taulight.entity.MessageFileEntity;
+import net.result.taulight.repository.MessageFileRepository;
+import net.result.taulight.entity.TauMemberEntity;
 import net.result.taulight.message.types.MessageFileRequest;
 import net.result.taulight.util.ChatUtil;
 
@@ -65,7 +65,7 @@ public class MessageFileServerChain extends ServerChain implements ReceiverChain
 
         MessageFileEntity entity = messageFileRepo.create(you, chat, originalName, fileEntity);
 
-        return new UUIDMessage(new Headers().setType(MessageTypes.HAPPY), entity);
+        return new UUIDMessage(new Headers().setType(MessageTypes.HAPPY), entity.id());
     }
 
     private void downloadFile(UUID fileID) throws Exception {

@@ -2,8 +2,6 @@ package net.result.taulight.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import net.result.sandnode.exception.DatabaseException;
-import net.result.taulight.db.*;
 
 import java.time.ZonedDateTime;
 import java.util.*;
@@ -40,43 +38,20 @@ public class ChatMessageViewDTO {
     public List<NamedFileDTO> files;
 
     /** Default constructor. */
-    public ChatMessageViewDTO() {
-    }
+    public ChatMessageViewDTO() {}
 
-    /**
-     * Constructs a DTO based on a given {@link MessageEntity}.
-     *
-     * @param messageFileRepo the repository to fetch file attachments
-     * @param message         the message entity
-     * @throws DatabaseException if file loading fails
-     */
-    public ChatMessageViewDTO(MessageFileRepository messageFileRepo, MessageEntity message) throws DatabaseException {
-        setID(message.id());
-        setCreationDate(message.creationDate());
-
-        Map<String, List<String>> result = new HashMap<>();
-        message.reactionEntries().forEach((entry) -> {
-            ReactionTypeEntity type = entry.reactionType();
-            TauMemberEntity member = entry.member();
-
-            String reaction = "%s:%s".formatted(type.reactionPackage().name(), type.name());
-
-            result.computeIfAbsent(reaction, k -> new ArrayList<>()).add(member.member().nickname());
-        });
-        setReactions(result);
-
-        Collection<MessageFileEntity> files = messageFileRepo.getFiles(message);
-
-        List<NamedFileDTO> namedFiles = new ArrayList<>(files.size());
-        Set<UUID> fileIDs = new HashSet<>(files.size());
-
-        for (MessageFileEntity file : files) {
-            namedFiles.add(new NamedFileDTO(file));
-            fileIDs.add(file.id());
-        }
-
-        setFiles(namedFiles);
-        setMessage(new ChatMessageInputDTO(message, fileIDs));
+    public ChatMessageViewDTO(
+            ChatMessageInputDTO message,
+            UUID id,
+            ZonedDateTime creationDate,
+            Map<String, List<String>> reactions,
+            List<NamedFileDTO> files
+    ) {
+        this.message = message;
+        this.id = id;
+        this.creationDate = creationDate;
+        this.reactions = reactions;
+        this.files = files;
     }
 
     /**

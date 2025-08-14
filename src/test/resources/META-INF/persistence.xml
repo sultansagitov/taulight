@@ -1,22 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <persistence xmlns="http://xmlns.jcp.org/xml/ns/persistence" version="2.2">
     <persistence-unit name="taulight-unit" transaction-type="RESOURCE_LOCAL">
-        <class>net.result.sandnode.db.MemberEntity</class>
-        <class>net.result.sandnode.db.LoginEntity</class>
-        <class>net.result.sandnode.db.KeyStorageEntity</class>
-        <class>net.result.sandnode.db.EncryptedKeyEntity</class>
-        <class>net.result.sandnode.db.FileEntity</class>
-        <class>net.result.taulight.db.TauMemberEntity</class>
-        <class>net.result.taulight.db.ChatEntity</class>
-        <class>net.result.taulight.db.MessageFileEntity</class>
-        <class>net.result.taulight.db.GroupEntity</class>
-        <class>net.result.taulight.db.DialogEntity</class>
-        <class>net.result.taulight.db.InviteCodeEntity</class>
-        <class>net.result.taulight.db.MessageEntity</class>
-        <class>net.result.taulight.db.ReactionPackageEntity</class>
-        <class>net.result.taulight.db.ReactionTypeEntity</class>
-        <class>net.result.taulight.db.ReactionEntryEntity</class>
-        <class>net.result.taulight.db.RoleEntity</class>
+        <class>net.result.sandnode.entity.MemberEntity</class>
+        <class>net.result.sandnode.entity.LoginEntity</class>
+        <class>net.result.sandnode.entity.KeyStorageEntity</class>
+        <class>net.result.sandnode.entity.EncryptedKeyEntity</class>
+        <class>net.result.sandnode.entity.FileEntity</class>
+        <class>net.result.taulight.entity.TauMemberEntity</class>
+        <class>net.result.taulight.entity.ChatEntity</class>
+        <class>net.result.taulight.entity.MessageFileEntity</class>
+        <class>net.result.taulight.entity.GroupEntity</class>
+        <class>net.result.taulight.entity.DialogEntity</class>
+        <class>net.result.taulight.entity.InviteCodeEntity</class>
+        <class>net.result.taulight.entity.MessageEntity</class>
+        <class>net.result.taulight.entity.ReactionPackageEntity</class>
+        <class>net.result.taulight.entity.ReactionTypeEntity</class>
+        <class>net.result.taulight.entity.ReactionEntryEntity</class>
+        <class>net.result.taulight.entity.RoleEntity</class>
 
         <properties>
             <property name="jakarta.persistence.jdbc.driver" value="org.h2.Driver"/>

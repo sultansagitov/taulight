@@ -1,8 +1,6 @@
 package net.result.taulight.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import net.result.sandnode.db.MemberEntity;
-import net.result.taulight.db.TauMemberEntity;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
@@ -25,15 +23,9 @@ public class ChatMemberDTO {
     @SuppressWarnings("unused")
     public ChatMemberDTO() {}
 
-    /**
-     * Constructs a ChatMemberDTO from a {@link MemberEntity}.
-     *
-     * @param member the member entity
-     * @param roles  roles of member in current chat
-     */
-    public ChatMemberDTO(TauMemberEntity member, @Nullable List<String> roles) {
-        nickname = member.member().nickname();
-        status = member.isShowStatus() ? MemberStatus.OFFLINE : MemberStatus.HIDDEN;
+    public ChatMemberDTO(String nickname, MemberStatus status, @Nullable List<String> roles) {
+        this.nickname = nickname;
+        this.status = status;
         this.roles = roles;
     }
 

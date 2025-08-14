@@ -2,9 +2,9 @@ package net.result.taulight.util;
 
 import net.result.sandnode.exception.error.UnauthorizedException;
 import net.result.sandnode.serverclient.Session;
-import net.result.taulight.db.GroupEntity;
-import net.result.taulight.db.DialogEntity;
-import net.result.taulight.db.TauMemberEntity;
+import net.result.taulight.entity.GroupEntity;
+import net.result.taulight.entity.DialogEntity;
+import net.result.taulight.entity.TauMemberEntity;
 import net.result.taulight.cluster.TauClusterManager;
 import org.jetbrains.annotations.NotNull;
 

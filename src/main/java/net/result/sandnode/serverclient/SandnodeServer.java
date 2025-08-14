@@ -2,6 +2,7 @@ package net.result.sandnode.serverclient;
 
 import net.result.sandnode.chain.ServerChainManager;
 import net.result.sandnode.config.ServerConfig;
+import net.result.sandnode.db.JPAUtil;
 import net.result.sandnode.exception.*;
 import net.result.sandnode.hubagent.Node;
 import net.result.sandnode.message.util.Connection;

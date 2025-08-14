@@ -1,7 +1,8 @@
 package net.result.taulight.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import net.result.taulight.db.InviteCodeEntity;
+
+import java.time.ZonedDateTime;
 
 /**
  * Data Transfer Object representing an invite code along with metadata about sender, receiver, and validity.
@@ -17,24 +18,27 @@ public class InviteCodeDTO extends CodeDTO {
     @JsonProperty("sender-nickname")
     public String senderNickname;
 
+    public InviteCodeDTO(
+            String code,
+            String title,
+            String receiverNickname,
+            String senderNickname,
+            ZonedDateTime creationDate,
+            ZonedDateTime activationDate,
+            ZonedDateTime expiresDate
+    ) {
+        super(code);
+        this.title = title;
+        this.receiverNickname = receiverNickname;
+        this.senderNickname = senderNickname;
+        this.creationDate = creationDate;
+        this.activationDate = activationDate;
+        this.expiresDate = expiresDate;
+    }
+
     /** Default constructor. */
     @SuppressWarnings("unused")
     public InviteCodeDTO() {
         super();
-    }
-
-    /**
-     * Constructs an InviteCodeDTO from an {@link InviteCodeEntity}.
-     *
-     * @param invite the invite entity
-     */
-    public InviteCodeDTO(InviteCodeEntity invite) {
-        super(invite.code());
-        title = invite.group().title();
-        receiverNickname = invite.receiver().member().nickname();
-        senderNickname = invite.sender().member().nickname();
-        creationDate = invite.creationDate();
-        activationDate = invite.activationDate();
-        expiresDate = invite.expiresDate();
     }
 }

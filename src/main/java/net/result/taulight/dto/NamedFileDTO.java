@@ -1,7 +1,6 @@
 package net.result.taulight.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import net.result.taulight.db.MessageFileEntity;
 
 import java.util.UUID;
 
@@ -16,9 +15,9 @@ public class NamedFileDTO {
     @SuppressWarnings("unused")
     public NamedFileDTO() {}
 
-    public NamedFileDTO(MessageFileEntity entity) {
-        id = entity.id();
-        filename = entity.originalName();
-        contentType = entity.file().contentType();
+    public NamedFileDTO(UUID id, String filename, String contentType) {
+        this.id = id;
+        this.filename = filename;
+        this.contentType = contentType;
     }
 }

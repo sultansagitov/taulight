@@ -6,10 +6,10 @@ import net.result.sandnode.exception.error.NotFoundException;
 import net.result.sandnode.exception.error.UnauthorizedException;
 import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.serverclient.Session;
-import net.result.taulight.db.ChatEntity;
-import net.result.taulight.db.MessageEntity;
-import net.result.taulight.db.MessageFileRepository;
-import net.result.taulight.db.MessageRepository;
+import net.result.taulight.entity.ChatEntity;
+import net.result.taulight.entity.MessageEntity;
+import net.result.taulight.repository.MessageFileRepository;
+import net.result.taulight.repository.MessageRepository;
 import net.result.taulight.dto.ChatMessageViewDTO;
 import net.result.taulight.message.types.MessageRequest;
 import net.result.taulight.message.types.MessageResponse;
@@ -46,7 +46,7 @@ public class MessageServerChain extends ServerChain implements ReceiverChain {
         List<ChatMessageViewDTO> messages = new ArrayList<>();
         List<MessageEntity> entities = messageRepo.findMessagesByChat(chat, request.dto().index, request.dto().size);
         for (MessageEntity message : entities) {
-            ChatMessageViewDTO chatMessageViewDTO = new ChatMessageViewDTO(messageFileRepo, message);
+            ChatMessageViewDTO chatMessageViewDTO = message.toViewDTO(messageFileRepo);
             messages.add(chatMessageViewDTO);
         }
 

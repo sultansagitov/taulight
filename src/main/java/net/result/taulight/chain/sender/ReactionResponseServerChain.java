@@ -3,11 +3,12 @@ package net.result.taulight.chain.sender;
 import net.result.sandnode.chain.ServerChain;
 import net.result.sandnode.exception.ProtocolException;
 import net.result.sandnode.exception.error.SandnodeErrorException;
+import net.result.sandnode.message.util.Headers;
 import net.result.sandnode.message.util.MessageTypes;
 import net.result.sandnode.serverclient.Session;
-import net.result.taulight.db.MessageEntity;
-import net.result.taulight.db.ReactionEntryEntity;
-import net.result.taulight.db.ReactionTypeEntity;
+import net.result.taulight.entity.MessageEntity;
+import net.result.taulight.entity.ReactionEntryEntity;
+import net.result.taulight.entity.ReactionTypeEntity;
 import net.result.taulight.message.types.ReactionResponse;
 
 public class ReactionResponseServerChain extends ServerChain {
@@ -17,7 +18,8 @@ public class ReactionResponseServerChain extends ServerChain {
 
     public synchronized void reaction(ReactionEntryEntity reactionEntry, boolean yourSession)
             throws ProtocolException, InterruptedException, SandnodeErrorException {
-        sendAndReceive(new ReactionResponse(true, reactionEntry, yourSession)).expect(MessageTypes.HAPPY);
+        var message = new ReactionResponse(new Headers(), reactionEntry.toDTO(true), yourSession);
+        sendAndReceive(message).expect(MessageTypes.HAPPY);
     }
 
     public synchronized void unreaction(
@@ -25,8 +27,7 @@ public class ReactionResponseServerChain extends ServerChain {
             MessageEntity message,
             ReactionTypeEntity reactionType,
             boolean yourSession
-    ) throws ProtocolException, InterruptedException,
-            SandnodeErrorException {
+    ) throws ProtocolException, InterruptedException, SandnodeErrorException {
         var response = new ReactionResponse(
                 false,
                 nickname,

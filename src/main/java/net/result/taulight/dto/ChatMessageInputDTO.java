@@ -2,20 +2,15 @@ package net.result.taulight.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import net.result.sandnode.db.BaseEntity;
-import net.result.sandnode.db.MemberEntity;
 import net.result.sandnode.encryption.interfaces.KeyStorage;
 import net.result.sandnode.exception.crypto.CryptoException;
 import net.result.sandnode.exception.error.EncryptionException;
-import net.result.taulight.db.ChatEntity;
-import net.result.taulight.db.MessageEntity;
 
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Base64;
 import java.util.Set;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 /**
  * Data Transfer Object used to send or receive chat message input data.
@@ -50,21 +45,24 @@ public class ChatMessageInputDTO {
     /** Default constructor. */
     public ChatMessageInputDTO() {}
 
-    /**
-     * Constructs a ChatMessageInputDTO from a {@link MessageEntity}, loading file attachments from the repository.
-     *
-     * @param message  the message entity to convert
-     * @param fileIDs  a list of file identifiers associated with the message
-     */
-    public ChatMessageInputDTO(MessageEntity message, Set<UUID> fileIDs) {
-        setChat(message.chat());
-        setContent(message.content());
-        setKeyID(message.key() != null ? message.key().id() : null);
-        setSentDatetime(message.sentDatetime());
-        setMember(message.member().member());
-        setSys(message.sys());
-        setRepliedToMessages(message.repliedToMessages().stream().map(BaseEntity::id).collect(Collectors.toSet()));
-        setFileIDs(fileIDs);
+    public ChatMessageInputDTO(
+            UUID chatID,
+            UUID keyID,
+            String content,
+            ZonedDateTime sentDatetime,
+            String nickname,
+            boolean sys,
+            Set<UUID> repliedToMessages,
+            Set<UUID> fileIDs
+    ) {
+        this.chatID = chatID;
+        this.keyID = keyID;
+        this.content = content;
+        this.sentDatetime = sentDatetime;
+        this.nickname = nickname;
+        this.sys = sys;
+        this.repliedToMessages = repliedToMessages;
+        this.fileIDs = fileIDs;
     }
 
     public ChatMessageInputDTO setChatID(UUID chatID) {
@@ -75,10 +73,6 @@ public class ChatMessageInputDTO {
     public ChatMessageInputDTO setKeyID(UUID keyID) {
         this.keyID = keyID;
         return this;
-    }
-
-    public ChatMessageInputDTO setChat(ChatEntity chat) {
-        return setChatID(chat.id());
     }
 
     @SuppressWarnings("UnusedReturnValue")
@@ -109,10 +103,6 @@ public class ChatMessageInputDTO {
     public ChatMessageInputDTO setNickname(String nickname) {
         this.nickname = nickname;
         return this;
-    }
-
-    public ChatMessageInputDTO setMember(MemberEntity member) {
-        return setNickname(member.nickname());
     }
 
     public ChatMessageInputDTO setSys(boolean sys) {

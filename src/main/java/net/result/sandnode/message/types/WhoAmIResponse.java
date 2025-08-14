@@ -1,6 +1,5 @@
 package net.result.sandnode.message.types;
 
-import net.result.sandnode.db.MemberEntity;
 import net.result.sandnode.exception.ExpectedMessageException;
 import net.result.sandnode.message.BaseMessage;
 import net.result.sandnode.message.RawMessage;
@@ -16,9 +15,9 @@ public class WhoAmIResponse extends BaseMessage {
         nickname = new String(raw.getBody());
     }
 
-    public WhoAmIResponse(@NotNull MemberEntity member) {
+    public WhoAmIResponse(String nickname) {
         super(new Headers().setType(MessageTypes.WHOAMI));
-        nickname = member.nickname();
+        this.nickname = nickname;
     }
 
     public String getNickname() {
