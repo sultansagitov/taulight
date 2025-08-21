@@ -2,7 +2,6 @@ package net.result.sandnode;
 
 import net.result.sandnode.chain.*;
 import net.result.sandnode.chain.receiver.UnhandledMessageTypeClientChain;
-import net.result.sandnode.cluster.ClusterManager;
 import net.result.sandnode.cluster.HashSetClusterManager;
 import net.result.sandnode.config.ClientConfig;
 import net.result.sandnode.config.HubConfigRecord;
@@ -74,7 +73,7 @@ public class ServerTest {
 
         Container container = GlobalTestState.container;
 
-        container.addInstance(ClusterManager.class, new HashSetClusterManager());
+        container.set(HashSetClusterManager.class);
 
         ServerConfig serverConfig = new ServerConfigRecord(
                 container,

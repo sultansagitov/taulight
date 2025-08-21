@@ -2,7 +2,7 @@ package net.result.sandnode;
 
 import net.result.sandnode.chain.*;
 import net.result.sandnode.config.ServerConfigRecord;
-import net.result.sandnode.db.MemberCreationListener;
+import net.result.sandnode.db.SimpleJPAUtil;
 import net.result.sandnode.encryption.AsymmetricEncryptions;
 import net.result.sandnode.encryption.EncryptionManager;
 import net.result.sandnode.encryption.KeyStorageRegistry;
@@ -15,7 +15,6 @@ import net.result.sandnode.serverclient.Session;
 import net.result.sandnode.util.Address;
 import net.result.sandnode.util.Container;
 import net.result.sandnode.util.SimpleContainer;
-import net.result.sandnode.db.SimpleJPAUtil;
 import net.result.taulight.db.TauMemberCreationListener;
 import org.junit.jupiter.api.TestInstance;
 
@@ -26,7 +25,7 @@ public class GlobalTestState {
     static {
         container = new SimpleContainer();
         container.get(SimpleJPAUtil.class);
-        container.addInstanceItem(MemberCreationListener.class, new TauMemberCreationListener(container));
+        container.addInstanceItem(TauMemberCreationListener.class);
     }
 
     public static final String name = "Hub";

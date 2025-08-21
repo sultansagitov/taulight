@@ -12,11 +12,14 @@ import net.result.sandnode.exception.DatabaseException;
 import net.result.sandnode.exception.error.BusyNicknameException;
 import net.result.sandnode.util.Container;
 import net.result.sandnode.db.JPAUtil;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.List;
 import java.util.Optional;
 
 public class MemberRepository {
+    private static final Logger LOGGER = LogManager.getLogger(MemberRepository.class);
     private final JPAUtil jpaUtil;
     private final List<MemberCreationListener> creationListeners;
 
@@ -27,6 +30,7 @@ public class MemberRepository {
 
     private void notifyListeners(MemberEntity member) throws DatabaseException {
         for (var listener : creationListeners) {
+            LOGGER.info("Using listener - {}", listener);
             listener.onMemberCreated(member);
         }
     }

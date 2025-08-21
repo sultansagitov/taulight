@@ -5,9 +5,9 @@ import java.util.List;
 public interface Container {
     <T> T get(Class<T> clazz);
 
-    <T> void addInstance(Class<T> clazz, T instance);
+    <T> void set(Class<T> clazz);
 
-    <T> void addInstanceItem(Class<T> clazz, T item);
+    <T> void addInstanceItem(Class<T> clazz);
 
     <T> List<T> getAll(Class<T> clazz);
 }

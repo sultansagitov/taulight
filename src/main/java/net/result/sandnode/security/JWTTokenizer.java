@@ -26,8 +26,8 @@ public class JWTTokenizer implements Tokenizer {
     private final JWTConfig jwtConfig;
     private final JPAUtil jpaUtil;
 
-    public JWTTokenizer(@NotNull Container container, @NotNull JWTConfig jwtConfig) {
-        this.jwtConfig = jwtConfig;
+    public JWTTokenizer(@NotNull Container container) {
+        jwtConfig = container.get(JWTConfig.class);
         VERIFIER = JWT.require(jwtConfig.getAlgorithm()).build();
         jpaUtil = container.get(JPAUtil.class);
     }

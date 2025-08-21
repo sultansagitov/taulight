@@ -12,7 +12,13 @@ public class SimpleContainer implements Container {
     public <T> T get(Class<T> clazz) {
         if (!instances.containsKey(clazz)) {
             try {
-                T instance = clazz.getDeclaredConstructor(Container.class).newInstance(this);
+                T ins;
+                try {
+                    ins = clazz.getDeclaredConstructor(Container.class).newInstance(this);
+                } catch (NoSuchMethodException e) {
+                    ins = clazz.getDeclaredConstructor().newInstance();
+                }
+                T instance = ins;
                 instances.put(clazz, instance);
                 Arrays
                         .stream(clazz.getInterfaces())
@@ -26,13 +32,43 @@ public class SimpleContainer implements Container {
     }
 
     @Override
-    public <T> void addInstance(Class<T> clazz, T instance) {
-        instances.put(clazz, instance);
+    public <T> void set(Class<T> clazz) {
+        if (!instances.containsKey(clazz)) {
+            try {
+                T ins;
+                try {
+                    ins = clazz.getDeclaredConstructor(Container.class).newInstance(this);
+                } catch (NoSuchMethodException e) {
+                    ins = clazz.getDeclaredConstructor().newInstance();
+                }
+                T instance = ins;
+                instances.put(clazz, instance);
+                Arrays
+                        .stream(clazz.getInterfaces())
+                        .filter(i -> !instances.containsKey(i))
+                        .forEach(i -> instances.put(i, instance));
+            } catch (Exception e) {
+                throw new RuntimeException("Failed to create instance of " + clazz, e);
+            }
+        }
     }
 
     @Override
-    public <T> void addInstanceItem(Class<T> clazz, T item) {
-        multiInstances.computeIfAbsent(clazz, k -> new ArrayList<>()).add(item);
+    public <T> void addInstanceItem(Class<T> clazz) {
+        try {
+            T ins;
+            try {
+                ins = clazz.getDeclaredConstructor(Container.class).newInstance(this);
+            } catch (NoSuchMethodException e) {
+                ins = clazz.getDeclaredConstructor().newInstance();
+            }
+            T instance = ins;
+            Arrays
+                    .stream(clazz.getInterfaces())
+                    .forEach(i -> multiInstances.computeIfAbsent(i, k -> new ArrayList<>()).add(instance));
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to create instance of " + clazz, e);
+        }
     }
 
     @SuppressWarnings("unchecked")
