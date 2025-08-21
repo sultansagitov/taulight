@@ -2,9 +2,8 @@ package net.result.sandnode.chain.receiver;
 
 import net.result.sandnode.chain.ReceiverChain;
 import net.result.sandnode.chain.ServerChain;
-import net.result.sandnode.entity.LoginEntity;
-import net.result.sandnode.repository.LoginRepository;
 import net.result.sandnode.dto.LoginHistoryDTO;
+import net.result.sandnode.entity.LoginEntity;
 import net.result.sandnode.exception.error.UnauthorizedException;
 import net.result.sandnode.message.Message;
 import net.result.sandnode.message.RawMessage;
@@ -12,8 +11,8 @@ import net.result.sandnode.message.types.LoginHistoryResponse;
 import net.result.sandnode.message.types.LoginRequest;
 import net.result.sandnode.message.types.LoginResponse;
 import net.result.sandnode.message.util.Headers;
+import net.result.sandnode.repository.LoginRepository;
 import net.result.sandnode.security.Tokenizer;
-import net.result.sandnode.serverclient.Session;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -25,10 +24,6 @@ import java.util.stream.Collectors;
 public class LoginServerChain extends ServerChain implements ReceiverChain {
     private static final Logger LOGGER = LogManager.getLogger(LoginServerChain.class);
     private LoginRepository loginRepo;
-
-    public LoginServerChain(Session session) {
-        super(session);
-    }
 
     @Override
     public Message handle(RawMessage raw) throws Exception {

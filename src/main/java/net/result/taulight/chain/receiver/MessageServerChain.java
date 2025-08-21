@@ -5,24 +5,19 @@ import net.result.sandnode.chain.ServerChain;
 import net.result.sandnode.exception.error.NotFoundException;
 import net.result.sandnode.exception.error.UnauthorizedException;
 import net.result.sandnode.message.RawMessage;
-import net.result.sandnode.serverclient.Session;
+import net.result.taulight.dto.ChatMessageViewDTO;
 import net.result.taulight.entity.ChatEntity;
 import net.result.taulight.entity.MessageEntity;
-import net.result.taulight.repository.MessageFileRepository;
-import net.result.taulight.repository.MessageRepository;
-import net.result.taulight.dto.ChatMessageViewDTO;
 import net.result.taulight.message.types.MessageRequest;
 import net.result.taulight.message.types.MessageResponse;
+import net.result.taulight.repository.MessageFileRepository;
+import net.result.taulight.repository.MessageRepository;
 import net.result.taulight.util.ChatUtil;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class MessageServerChain extends ServerChain implements ReceiverChain {
-    public MessageServerChain(Session session) {
-        super(session);
-    }
-
     @Override
     public MessageResponse handle(RawMessage raw) throws Exception {
         ChatUtil chatUtil = session.server.container.get(ChatUtil.class);

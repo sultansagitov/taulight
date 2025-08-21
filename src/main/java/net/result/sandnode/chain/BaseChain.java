@@ -19,16 +19,17 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 public abstract class BaseChain implements Chain {
     private final BlockingQueue<RawMessage> queue = new LinkedBlockingQueue<>();
-    private final IOController io;
+    private IOController io;
     private short id;
-
-    protected BaseChain(IOController io) {
-        this.io = io;
-    }
 
     @Override
     public IOController io() {
         return io;
+    }
+
+    @Override
+    public void setIO(IOController io) {
+        this.io = io;
     }
 
     @Override

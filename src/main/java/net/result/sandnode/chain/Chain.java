@@ -12,6 +12,8 @@ public interface Chain extends Searchable<Chain, Short> {
 
     IOController io();
 
+    void setIO(IOController io);
+
     void put(RawMessage message) throws InterruptedException;
 
     short getID();

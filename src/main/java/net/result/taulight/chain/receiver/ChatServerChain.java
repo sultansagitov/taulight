@@ -2,10 +2,9 @@ package net.result.taulight.chain.receiver;
 
 import net.result.sandnode.chain.ReceiverChain;
 import net.result.sandnode.chain.ServerChain;
+import net.result.sandnode.db.JPAUtil;
 import net.result.sandnode.exception.error.UnauthorizedException;
 import net.result.sandnode.message.RawMessage;
-import net.result.sandnode.serverclient.Session;
-import net.result.sandnode.db.JPAUtil;
 import net.result.taulight.dto.ChatInfoDTO;
 import net.result.taulight.dto.ChatInfoPropDTO;
 import net.result.taulight.dto.ChatMessageViewDTO;
@@ -21,10 +20,6 @@ import java.util.*;
 public class ChatServerChain extends ServerChain implements ReceiverChain {
     private MessageRepository messageRepo;
     private MessageFileRepository messageFileRepo;
-
-    public ChatServerChain(Session session) {
-        super(session);
-    }
 
     @Override
     public ChatResponse handle(RawMessage raw) throws Exception {

@@ -8,17 +8,12 @@ import net.result.sandnode.exception.ExpectedMessageException;
 import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.message.types.ClusterRequest;
 import net.result.sandnode.message.types.ClusterResponse;
-import net.result.sandnode.serverclient.Session;
 
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 public class ClusterServerChain extends ServerChain implements ReceiverChain {
-    public ClusterServerChain(Session session) {
-        super(session);
-    }
-
     @Override
     public ClusterResponse handle(RawMessage raw) throws ExpectedMessageException {
         ClusterManager clusterManager = session.server.container.get(ClusterManager.class);

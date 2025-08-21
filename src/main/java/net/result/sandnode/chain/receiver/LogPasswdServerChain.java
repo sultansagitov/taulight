@@ -16,15 +16,10 @@ import net.result.sandnode.repository.LoginRepository;
 import net.result.sandnode.repository.MemberRepository;
 import net.result.sandnode.security.PasswordHasher;
 import net.result.sandnode.security.Tokenizer;
-import net.result.sandnode.serverclient.Session;
 
 import java.util.Base64;
 
 public abstract class LogPasswdServerChain extends ServerChain implements ReceiverChain {
-
-    public LogPasswdServerChain(Session session) {
-        super(session);
-    }
 
     @Override
     public LogPasswdResponse handle(RawMessage raw) throws Exception {

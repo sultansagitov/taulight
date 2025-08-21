@@ -23,10 +23,6 @@ import net.result.taulight.util.ChatUtil;
 import java.util.*;
 
 public class MembersServerChain extends ServerChain implements ReceiverChain {
-    public MembersServerChain(Session session) {
-        super(session);
-    }
-
     @Override
     public MembersResponse handle(RawMessage raw) throws Exception {
         ChatUtil chatUtil = session.server.container.get(ChatUtil.class);

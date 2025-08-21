@@ -9,7 +9,7 @@ import net.result.taulight.message.types.ForwardResponse;
 
 public class ForwardServerChain extends ServerChain {
     public ForwardServerChain(Session session) {
-        super(session);
+        setSession(session);
     }
 
     public synchronized void response(ForwardResponse res)

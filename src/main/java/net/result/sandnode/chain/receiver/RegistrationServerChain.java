@@ -20,15 +20,10 @@ import net.result.sandnode.repository.LoginRepository;
 import net.result.sandnode.repository.MemberRepository;
 import net.result.sandnode.security.PasswordHasher;
 import net.result.sandnode.security.Tokenizer;
-import net.result.sandnode.serverclient.Session;
 
 import java.util.Base64;
 
 public class RegistrationServerChain extends ServerChain implements ReceiverChain {
-    public RegistrationServerChain(Session session) {
-        super(session);
-    }
-
     @Override
     public RegistrationResponse handle(RawMessage raw) throws SandnodeException {
         MemberRepository memberRepo = session.server.container.get(MemberRepository.class);

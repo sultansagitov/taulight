@@ -2,6 +2,7 @@ package net.result.sandnode.chain.receiver;
 
 import net.result.sandnode.chain.ReceiverChain;
 import net.result.sandnode.chain.ServerChain;
+import net.result.sandnode.db.JPAUtil;
 import net.result.sandnode.dto.DEKRequestDTO;
 import net.result.sandnode.entity.EncryptedKeyEntity;
 import net.result.sandnode.entity.MemberEntity;
@@ -20,17 +21,11 @@ import net.result.sandnode.message.types.PublicKeyResponse;
 import net.result.sandnode.message.util.Headers;
 import net.result.sandnode.repository.EncryptedKeyRepository;
 import net.result.sandnode.repository.MemberRepository;
-import net.result.sandnode.serverclient.Session;
-import net.result.sandnode.db.JPAUtil;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.stream.Collectors;
 
 public class DEKServerChain extends ServerChain implements ReceiverChain {
-    public DEKServerChain(Session session) {
-        super(session);
-    }
-
     @Override
     public Message handle(RawMessage raw) throws Exception {
         if (session.member == null) throw new UnauthorizedException();

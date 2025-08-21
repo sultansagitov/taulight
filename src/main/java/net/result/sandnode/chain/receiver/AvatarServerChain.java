@@ -2,10 +2,11 @@ package net.result.sandnode.chain.receiver;
 
 import net.result.sandnode.chain.ReceiverChain;
 import net.result.sandnode.chain.ServerChain;
+import net.result.sandnode.db.DBFileUtil;
+import net.result.sandnode.db.JPAUtil;
+import net.result.sandnode.dto.FileDTO;
 import net.result.sandnode.entity.FileEntity;
 import net.result.sandnode.entity.MemberEntity;
-import net.result.sandnode.repository.MemberRepository;
-import net.result.sandnode.dto.FileDTO;
 import net.result.sandnode.exception.error.*;
 import net.result.sandnode.message.Message;
 import net.result.sandnode.message.RawMessage;
@@ -13,22 +14,19 @@ import net.result.sandnode.message.UUIDMessage;
 import net.result.sandnode.message.types.AvatarRequest;
 import net.result.sandnode.message.util.Headers;
 import net.result.sandnode.message.util.MessageTypes;
-import net.result.sandnode.serverclient.Session;
-import net.result.sandnode.db.DBFileUtil;
+import net.result.sandnode.repository.MemberRepository;
 import net.result.sandnode.util.FileIOUtil;
-import net.result.sandnode.db.JPAUtil;
 import org.jetbrains.annotations.Nullable;
 
 public class AvatarServerChain extends ServerChain implements ReceiverChain {
-    private final DBFileUtil dbFileUtil = session.server.container.get(DBFileUtil.class);
-    private final MemberRepository memberRepo = session.server.container.get(MemberRepository.class);
-
-    public AvatarServerChain(Session session) {
-        super(session);
-    }
+    private DBFileUtil dbFileUtil;
+    private MemberRepository memberRepo;
 
     @Override
     public @Nullable Message handle(RawMessage raw) throws Exception {
+        dbFileUtil = session.server.container.get(DBFileUtil.class);
+        memberRepo = session.server.container.get(MemberRepository.class);
+
         AvatarRequest request = new AvatarRequest(raw);
 
         if (session.member == null) throw new UnauthorizedException();

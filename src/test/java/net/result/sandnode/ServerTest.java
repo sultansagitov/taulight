@@ -177,8 +177,8 @@ public class ServerTest {
 
     private static class TestHubServerChainManager extends HubServerChainManager {
         @Override
-        public ReceiverChain createChain(MessageType type) {
-            return type == Testing.TESTING ? new TestServerChain(session) : super.createChain(type);
+        public ServerChain createSessionChain(MessageType type) {
+            return type == Testing.TESTING ? new TestServerChain(session) : super.createSessionChain(type);
         }
     }
 
@@ -187,7 +187,7 @@ public class ServerTest {
         public static Condition condition;
 
         public TestServerChain(Session session) {
-            super(session);
+            setSession(session);
         }
 
         @Override

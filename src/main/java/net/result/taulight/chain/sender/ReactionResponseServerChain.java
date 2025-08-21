@@ -13,7 +13,7 @@ import net.result.taulight.message.types.ReactionResponse;
 
 public class ReactionResponseServerChain extends ServerChain {
     public ReactionResponseServerChain(Session session) {
-        super(session);
+        setSession(session);
     }
 
     public synchronized void reaction(ReactionEntryEntity reactionEntry, boolean yourSession)

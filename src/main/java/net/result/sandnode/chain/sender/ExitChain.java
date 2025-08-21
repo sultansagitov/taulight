@@ -7,7 +7,7 @@ import net.result.sandnode.util.IOController;
 
 public class ExitChain extends BaseChain {
     public ExitChain(IOController io) {
-        super(io);
+        setIO(io);
     }
 
     public void exit() throws UnprocessedMessagesException, InterruptedException {

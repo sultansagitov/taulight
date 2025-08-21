@@ -25,10 +25,6 @@ import org.apache.logging.log4j.Logger;
 public class ReactionRequestServerChain extends ServerChain implements ReceiverChain {
     private static final Logger LOGGER = LogManager.getLogger(ReactionRequestServerChain.class);
 
-    public ReactionRequestServerChain(Session session) {
-        super(session);
-    }
-
     @Override
     public HappyMessage handle(RawMessage raw) throws Exception {
         ClusterManager clusterManager = session.server.container.get(ClusterManager.class);

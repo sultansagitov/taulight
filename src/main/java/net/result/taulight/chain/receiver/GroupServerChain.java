@@ -2,10 +2,11 @@ package net.result.taulight.chain.receiver;
 
 import net.result.sandnode.chain.ReceiverChain;
 import net.result.sandnode.chain.ServerChain;
+import net.result.sandnode.db.DBFileUtil;
+import net.result.sandnode.db.JPAUtil;
+import net.result.sandnode.dto.FileDTO;
 import net.result.sandnode.entity.FileEntity;
 import net.result.sandnode.entity.MemberEntity;
-import net.result.sandnode.repository.MemberRepository;
-import net.result.sandnode.dto.FileDTO;
 import net.result.sandnode.exception.DatabaseException;
 import net.result.sandnode.exception.ImpossibleRuntimeException;
 import net.result.sandnode.exception.error.*;
@@ -16,12 +17,10 @@ import net.result.sandnode.message.UUIDMessage;
 import net.result.sandnode.message.types.HappyMessage;
 import net.result.sandnode.message.util.Headers;
 import net.result.sandnode.message.util.MessageTypes;
-import net.result.sandnode.serverclient.Session;
-import net.result.sandnode.db.DBFileUtil;
+import net.result.sandnode.repository.MemberRepository;
 import net.result.sandnode.util.FileIOUtil;
-import net.result.sandnode.db.JPAUtil;
 import net.result.taulight.cluster.TauClusterManager;
-import net.result.taulight.db.*;
+import net.result.taulight.db.Permission;
 import net.result.taulight.dto.ChatMessageInputDTO;
 import net.result.taulight.dto.GroupRequestDTO;
 import net.result.taulight.entity.ChatEntity;
@@ -55,10 +54,6 @@ public class GroupServerChain extends ServerChain implements ReceiverChain {
     private MemberRepository memberRepo;
     private InviteCodeRepository inviteCodeRepo;
     private RoleRepository roleRepo;
-
-    public GroupServerChain(Session session) {
-        super(session);
-    }
 
     @Override
     public @Nullable Message handle(RawMessage raw) throws Exception {

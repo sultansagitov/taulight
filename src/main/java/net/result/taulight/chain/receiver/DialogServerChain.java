@@ -2,6 +2,7 @@ package net.result.taulight.chain.receiver;
 
 import net.result.sandnode.chain.ReceiverChain;
 import net.result.sandnode.chain.ServerChain;
+import net.result.sandnode.db.DBFileUtil;
 import net.result.sandnode.entity.FileEntity;
 import net.result.sandnode.entity.MemberEntity;
 import net.result.sandnode.exception.ImpossibleRuntimeException;
@@ -11,8 +12,6 @@ import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.message.UUIDMessage;
 import net.result.sandnode.message.util.Headers;
 import net.result.sandnode.message.util.MessageTypes;
-import net.result.sandnode.serverclient.Session;
-import net.result.sandnode.db.DBFileUtil;
 import net.result.sandnode.util.FileIOUtil;
 import net.result.taulight.cluster.TauClusterManager;
 import net.result.taulight.dto.ChatMessageInputDTO;
@@ -33,10 +32,6 @@ import java.util.*;
 
 public class DialogServerChain extends ServerChain implements ReceiverChain {
     private static final Logger LOGGER = LogManager.getLogger(DialogServerChain.class);
-
-    public DialogServerChain(Session session) {
-        super(session);
-    }
 
     @Override
     public Message handle(RawMessage raw) throws Exception {

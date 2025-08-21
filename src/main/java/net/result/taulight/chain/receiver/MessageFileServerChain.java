@@ -2,8 +2,10 @@ package net.result.taulight.chain.receiver;
 
 import net.result.sandnode.chain.ReceiverChain;
 import net.result.sandnode.chain.ServerChain;
-import net.result.sandnode.entity.FileEntity;
+import net.result.sandnode.db.DBFileUtil;
+import net.result.sandnode.db.JPAUtil;
 import net.result.sandnode.dto.FileDTO;
+import net.result.sandnode.entity.FileEntity;
 import net.result.sandnode.exception.error.NotFoundException;
 import net.result.sandnode.exception.error.TooFewArgumentsException;
 import net.result.sandnode.exception.error.UnauthorizedException;
@@ -12,24 +14,17 @@ import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.message.UUIDMessage;
 import net.result.sandnode.message.util.Headers;
 import net.result.sandnode.message.util.MessageTypes;
-import net.result.sandnode.serverclient.Session;
-import net.result.sandnode.db.DBFileUtil;
 import net.result.sandnode.util.FileIOUtil;
-import net.result.sandnode.db.JPAUtil;
 import net.result.taulight.entity.ChatEntity;
 import net.result.taulight.entity.MessageFileEntity;
-import net.result.taulight.repository.MessageFileRepository;
 import net.result.taulight.entity.TauMemberEntity;
 import net.result.taulight.message.types.MessageFileRequest;
+import net.result.taulight.repository.MessageFileRepository;
 import net.result.taulight.util.ChatUtil;
 
 import java.util.UUID;
 
 public class MessageFileServerChain extends ServerChain implements ReceiverChain {
-    public MessageFileServerChain(Session session) {
-        super(session);
-    }
-
     @Override
     public Message handle(RawMessage raw) throws Exception {
         if (session.member == null) throw new UnauthorizedException();

@@ -10,13 +10,8 @@ import net.result.sandnode.exception.error.KeyStorageNotFoundException;
 import net.result.sandnode.exception.error.ServerErrorException;
 import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.message.types.PublicKeyResponse;
-import net.result.sandnode.serverclient.Session;
 
 public class PublicKeyServerChain extends ServerChain implements ReceiverChain {
-    public PublicKeyServerChain(Session session) {
-        super(session);
-    }
-
     @Override
     public PublicKeyResponse handle(RawMessage ignored) throws Exception {
         AsymmetricEncryption encryption = session.server.serverConfig.mainEncryption();

@@ -6,7 +6,6 @@ import net.result.sandnode.exception.DatabaseException;
 import net.result.sandnode.exception.error.*;
 import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.repository.MemberRepository;
-import net.result.sandnode.serverclient.Session;
 import net.result.taulight.db.Permission;
 import net.result.taulight.dto.RoleDTO;
 import net.result.taulight.dto.RoleRequestDTO;
@@ -26,10 +25,6 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 public class RoleServerChain extends ServerChain implements ReceiverChain {
-
-    public RoleServerChain(Session session) {
-        super(session);
-    }
 
     @Override
     public RoleResponse handle(RawMessage raw) throws Exception {

@@ -2,6 +2,7 @@ package net.result.taulight.chain.receiver;
 
 import net.result.sandnode.chain.ReceiverChain;
 import net.result.sandnode.chain.ServerChain;
+import net.result.sandnode.db.JPAUtil;
 import net.result.sandnode.exception.DatabaseException;
 import net.result.sandnode.exception.SandnodeException;
 import net.result.sandnode.exception.error.NoEffectException;
@@ -9,10 +10,8 @@ import net.result.sandnode.exception.error.NotFoundException;
 import net.result.sandnode.exception.error.UnauthorizedException;
 import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.message.types.HappyMessage;
-import net.result.sandnode.serverclient.Session;
 import net.result.sandnode.util.Container;
-import net.result.sandnode.db.JPAUtil;
-import net.result.taulight.db.*;
+import net.result.taulight.db.Permission;
 import net.result.taulight.entity.GroupEntity;
 import net.result.taulight.entity.RoleEntity;
 import net.result.taulight.message.types.PermissionRequest;
@@ -23,10 +22,6 @@ public class PermissionServerChain extends ServerChain implements ReceiverChain 
     private RoleRepository roleRepo;
     private GroupRepository groupRepo;
     private JPAUtil jpaUtil;
-
-    public PermissionServerChain(Session session) {
-        super(session);
-    }
 
     @Override
     public HappyMessage handle(RawMessage raw) throws Exception {

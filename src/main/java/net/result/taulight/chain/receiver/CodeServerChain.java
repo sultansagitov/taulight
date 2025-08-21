@@ -38,10 +38,6 @@ import java.util.stream.Collectors;
 public class CodeServerChain extends ServerChain implements ReceiverChain {
     private static final Logger LOGGER = LogManager.getLogger(CodeServerChain.class);
 
-    public CodeServerChain(Session session) {
-        super(session);
-    }
-
     @Override
     public Message handle(RawMessage raw) throws Exception {
         CodeRequest request = new CodeRequest(raw);
