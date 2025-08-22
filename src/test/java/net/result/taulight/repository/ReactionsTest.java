@@ -169,25 +169,25 @@ class ReactionsTest {
 
         ReactionEntryEntity reactionEntry = reactionEntryRepo.create(member1, message, reactionType);
 
-        assertEquals("Test", ((GroupEntity) reactionEntry.message().chat()).title());
+        assertEquals("Test", ((GroupEntity) reactionEntry.getMessage().getChat()).title());
 
         // Additional assertions
         assertNotNull(reactionEntry.id(), "Reaction entry ID should not be null");
-        assertEquals(member1, reactionEntry.member(), "Member should match");
-        assertEquals(message, reactionEntry.message(), "Message should match");
-        assertEquals(reactionType, reactionEntry.reactionType(), "Reaction type should match");
-        assertTrue(message.reactionEntries().contains(reactionEntry), "Message should contain the reaction entry");
+        assertEquals(member1, reactionEntry.getMember(), "Member should match");
+        assertEquals(message, reactionEntry.getMessage(), "Message should match");
+        assertEquals(reactionType, reactionEntry.getReactionType(), "Reaction type should match");
+        assertTrue(message.getReactionEntries().contains(reactionEntry), "Message should contain the reaction entry");
 
         // Test adding same reaction from different member
         ReactionEntryEntity differentMember = reactionEntryRepo.create(member2, message, reactionType);
-        assertEquals(2, message.reactionEntries().size(), "Message should now have two reactions");
-        assertEquals(member2, differentMember.member(), "Second reaction should be from member2");
+        assertEquals(2, message.getReactionEntries().size(), "Message should now have two reactions");
+        assertEquals(member2, differentMember.getMember(), "Second reaction should be from member2");
 
         // Test adding different reaction from same member
         ReactionTypeEntity anotherType = reactionTypeRepo.create("heart", testPackage);
         ReactionEntryEntity differentType = reactionEntryRepo.create(member1, message, anotherType);
-        assertEquals(3, message.reactionEntries().size(), "Message should now have three reactions");
-        assertEquals(anotherType, differentType.reactionType(), "Third reaction should have different type");
+        assertEquals(3, message.getReactionEntries().size(), "Message should now have three reactions");
+        assertEquals(anotherType, differentType.getReactionType(), "Third reaction should have different type");
     }
 
     @Test
@@ -215,21 +215,21 @@ class ReactionsTest {
         message = jpaUtil.refresh(message);
 
         // Additional assertions
-        assertEquals(0, message.reactionEntries().size(), "Message should have no reactions after removal");
+        assertEquals(0, message.getReactionEntries().size(), "Message should have no reactions after removal");
 
         // Add multiple reactions and remove one
         ReactionEntryEntity reaction1 = reactionEntryRepo.create(member1, message, reactionType);
         ReactionTypeEntity anotherType = reactionTypeRepo.create("love", testPackage);
         ReactionEntryEntity reaction2 = reactionEntryRepo.create(member2, message, anotherType);
 
-        assertEquals(2, message.reactionEntries().size(), "Message should have two reactions");
+        assertEquals(2, message.getReactionEntries().size(), "Message should have two reactions");
 
         message = jpaUtil.refresh(message);
 
         boolean removedOne = reactionEntryRepo.delete(reaction1);
         assertTrue(removedOne, "Should successfully remove first reaction");
-        assertEquals(1, message.reactionEntries().size(), "Message should have one reaction left");
-        assertTrue(message.reactionEntries().contains(reaction2), "Second reaction should still be present");
+        assertEquals(1, message.getReactionEntries().size(), "Message should have one reaction left");
+        assertTrue(message.getReactionEntries().contains(reaction2), "Second reaction should still be present");
     }
 
     @Test

@@ -52,7 +52,7 @@ public class MessageFileRepository {
             TypedQuery<MessageFileEntity> query = em.createQuery(q, MessageFileEntity.class);
             query.setParameter("ids", fileIDs);
             for (MessageFileEntity file : query.getResultList()) {
-                if (!file.member().equals(message.member()) || file.message() != null) {
+                if (!file.member().equals(message.getMember()) || file.message() != null) {
                     throw new UnauthorizedException();
                 }
 

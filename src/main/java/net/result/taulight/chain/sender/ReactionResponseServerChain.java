@@ -28,7 +28,7 @@ public class ReactionResponseServerChain extends ServerChain {
         var response = new ReactionResponse(
                 false,
                 nickname,
-                message.chat().id(),
+                message.getChat().id(),
                 message.id(),
                 reactionType.reactionPackage().name(),
                 reactionType.name(),

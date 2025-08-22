@@ -127,6 +127,6 @@ public class ChatServerChain extends ServerChain implements ReceiverChain {
 
         return messageRepo
                 .findLastMessagesByChats(chatIds).stream()
-                .collect(Collectors.toMap(m -> m.chat().id(), m -> m.toViewDTO(messageFileRepo), (a, b) -> a));
+                .collect(Collectors.toMap(m -> m.getChat().id(), m -> m.toViewDTO(messageFileRepo), (a, b) -> a));
     }
 }

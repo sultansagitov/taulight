@@ -54,17 +54,17 @@ public class MessagesTest {
         MessageEntity message = messageRepo.create(chat, messageInputDTO, member1);
 
         MessageEntity foundMessage = jpaUtil.refresh(message);
-        assertEquals("Hello!", foundMessage.content());
+        assertEquals("Hello!", foundMessage.getContent());
 
         // Additional assertions
         assertNotNull(message.id(), "Message ID should not be null");
-        assertEquals(member1, message.member(), "Message member should be the creator");
-        assertEquals(chat, message.chat(), "Message chat should be the specified chat");
-        assertTrue(message.sys(), "Message should be marked as system message");
-        assertNotNull(message.sentDatetime(), "Sent datetime should not be null");
+        assertEquals(member1, message.getMember(), "Message member should be the creator");
+        assertEquals(chat, message.getChat(), "Message chat should be the specified chat");
+        assertTrue(message.isSys(), "Message should be marked as system message");
+        assertNotNull(message.getSentDatetime(), "Sent datetime should not be null");
         assertTrue(chat.messages().contains(message), "Chat should contain the new message");
-        assertEquals(0, message.repliedToMessages().size(), "No replied-to messages should be present");
-        assertEquals(0, message.reactionEntries().size(), "No reactions should be present on new message");
+        assertEquals(0, message.getRepliedToMessages().size(), "No replied-to messages should be present");
+        assertEquals(0, message.getReactionEntries().size(), "No reactions should be present on new message");
     }
 
     @Test
@@ -130,13 +130,13 @@ public class MessagesTest {
         MessageEntity message = messageRepo.create(group, input, member1);
 
         MessageEntity found = jpaUtil.refresh(message);
-        assertEquals("Find me", found.content());
+        assertEquals("Find me", found.getContent());
 
         // Additional assertions
         assertEquals(message.id(), found.id(), "IDs should match");
-        assertEquals(message.member(), found.member(), "Members should match");
-        assertEquals(message.chat(), found.chat(), "Chats should match");
-        assertFalse(found.sys(), "Message should not be a system message");
+        assertEquals(message.getMember(), found.getMember(), "Members should match");
+        assertEquals(message.getChat(), found.getChat(), "Chats should match");
+        assertFalse(found.isSys(), "Message should not be a system message");
 
         // Test with non-existent message ID
         UUID nonExistentID = UUID.randomUUID();

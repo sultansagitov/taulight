@@ -23,7 +23,7 @@ public class ReactionEntryRepository {
         ReactionEntryEntity managed = jpaUtil.create(new ReactionEntryEntity(member, message, reactionType));
 
         member.getReactionEntries().add(managed);
-        message.reactionEntries().add(managed);
+        message.getReactionEntries().add(managed);
         reactionType.reactionEntries().add(managed);
 
         return managed;
@@ -37,15 +37,15 @@ public class ReactionEntryRepository {
             if (re != null) {
                 transaction.begin();
 
-                MessageEntity message = re.message();
-                message.reactionEntries().remove(re);
+                MessageEntity message = re.getMessage();
+                message.getReactionEntries().remove(re);
                 em.merge(message);
 
-                TauMemberEntity member = re.member();
+                TauMemberEntity member = re.getMember();
                 member.getReactionEntries().remove(re);
                 em.merge(member);
 
-                ReactionTypeEntity type = re.reactionType();
+                ReactionTypeEntity type = re.getReactionType();
                 type.reactionEntries().remove(re);
                 em.merge(type);
 

@@ -2,10 +2,18 @@ package net.result.taulight.entity;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.ManyToOne;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import net.result.sandnode.entity.BaseEntity;
 import net.result.taulight.dto.ReactionDTO;
 import org.jetbrains.annotations.NotNull;
 
+@Setter
+@Getter
+@NoArgsConstructor
+@AllArgsConstructor
 @SuppressWarnings("unused")
 @Entity
 public class ReactionEntryEntity extends BaseEntity {
@@ -18,46 +26,14 @@ public class ReactionEntryEntity extends BaseEntity {
     @ManyToOne
     private ReactionTypeEntity reactionType;
 
-    public ReactionEntryEntity() {}
-
-    public ReactionEntryEntity(TauMemberEntity member, MessageEntity message, ReactionTypeEntity reactionType) {
-        this.message = message;
-        this.reactionType = reactionType;
-        this.member = member;
-    }
-
     public @NotNull ReactionDTO toDTO(boolean isReact) {
         return new ReactionDTO(
                 isReact,
-                member().getMember().getNickname(),
-                message().chat().id(),
-                message().id(),
-                reactionType().reactionPackage().name(),
-                reactionType().name()
+                getMember().getMember().getNickname(),
+                getMessage().getChat().id(),
+                getMessage().id(),
+                getReactionType().reactionPackage().name(),
+                getReactionType().name()
         );
-    }
-
-    public TauMemberEntity member() {
-        return member;
-    }
-
-    public void setMember(TauMemberEntity member) {
-        this.member = member;
-    }
-
-    public MessageEntity message() {
-        return message;
-    }
-
-    public void setMessage(MessageEntity message) {
-        this.message = message;
-    }
-
-    public ReactionTypeEntity reactionType() {
-        return reactionType;
-    }
-
-    public void setReactionType(ReactionTypeEntity reactionType) {
-        this.reactionType = reactionType;
     }
 }
