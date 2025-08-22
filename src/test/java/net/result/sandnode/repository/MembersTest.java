@@ -5,7 +5,6 @@ import net.result.sandnode.encryption.AsymmetricEncryptions;
 import net.result.sandnode.encryption.EncryptionManager;
 import net.result.sandnode.encryption.interfaces.AsymmetricKeyStorage;
 import net.result.sandnode.entity.MemberEntity;
-import net.result.sandnode.exception.DatabaseException;
 import net.result.sandnode.exception.error.BusyNicknameException;
 import net.result.sandnode.util.Container;
 import org.junit.jupiter.api.BeforeAll;
@@ -28,7 +27,7 @@ class MembersTest {
     }
 
     @Test
-    public void registerMember() throws DatabaseException, BusyNicknameException {
+    public void registerMember() {
         MemberEntity newMember = memberRepo.create("testuser123", "hash");
         assertNotNull(newMember);
         assertEquals("testuser123", newMember.nickname());
@@ -44,7 +43,7 @@ class MembersTest {
     }
 
     @Test
-    public void registerMemberWithKeyStorage() throws DatabaseException, BusyNicknameException {
+    public void registerMemberWithKeyStorage() {
         AsymmetricKeyStorage keyStorage = AsymmetricEncryptions.ECIES.generate();
         MemberEntity newMember = memberRepo.create("testuser123_with_key", "hash", keyStorage);
         assertNotNull(newMember);
@@ -61,7 +60,7 @@ class MembersTest {
     }
 
     @Test
-    public void findMemberByNickname() throws DatabaseException, BusyNicknameException {
+    public void findMemberByNickname() {
         MemberEntity registeredMember = memberRepo.create("nicksearch", "hash");
 
         Optional<MemberEntity> found = memberRepo.findByNickname("nicksearch");

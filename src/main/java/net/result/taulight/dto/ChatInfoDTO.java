@@ -4,11 +4,6 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import net.result.sandnode.encryption.interfaces.KeyStorage;
-import net.result.sandnode.exception.crypto.CannotUseEncryption;
-import net.result.sandnode.exception.crypto.PrivateKeyNotFoundException;
-import net.result.sandnode.exception.crypto.WrongKeyException;
-import net.result.sandnode.exception.error.DecryptionException;
-import net.result.sandnode.exception.error.KeyStorageNotFoundException;
 import net.result.sandnode.serverclient.SandnodeClient;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -67,8 +62,7 @@ public class ChatInfoDTO implements Comparable<ChatInfoDTO> {
         return creationDate.compareTo(o.creationDate);
     }
 
-    public void decrypt(SandnodeClient client) throws KeyStorageNotFoundException, WrongKeyException,
-            CannotUseEncryption, PrivateKeyNotFoundException, DecryptionException {
+    public void decrypt(SandnodeClient client) {
         if (lastMessage != null) {
             UUID keyID = lastMessage.message.keyID;
             if (keyID != null) {

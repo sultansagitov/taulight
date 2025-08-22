@@ -46,7 +46,7 @@ public class MessagesCommands {
     }
 
 
-    private static void messages(@NotNull List<String> args, ConsoleContext context) throws Exception {
+    private static void messages(@NotNull List<String> args, ConsoleContext context) {
         UUID chatID = args.stream().findFirst().map(UUID::fromString).orElse(context.currentChat);
 
         if (chatID == null) {
@@ -86,7 +86,7 @@ public class MessagesCommands {
         MessagesRunner.reply(context, input, replies);
     }
 
-    private static void uploadFile(List<String> args, ConsoleContext context) throws Exception {
+    private static void uploadFile(List<String> args, ConsoleContext context) {
         UUID chatID = context.currentChat;
         String path;
 
@@ -134,7 +134,7 @@ public class MessagesCommands {
         MessagesRunner.fileAttached(context, input, fileIDs);
     }
 
-    private static void downloadFile(List<String> args, ConsoleContext context) throws Exception {
+    private static void downloadFile(List<String> args, ConsoleContext context) {
         UUID fileID = UUID.fromString(args.get(0));
         MessagesRunner.downloadFile(context, fileID);
     }

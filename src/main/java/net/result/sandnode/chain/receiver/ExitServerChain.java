@@ -13,7 +13,7 @@ public class ExitServerChain extends ServerChain implements ReceiverChain {
     private static final Logger LOGGER = LogManager.getLogger(ExitServerChain.class);
 
     @Override
-    public @Nullable Message handle(RawMessage raw) throws Exception {
+    public @Nullable Message handle(RawMessage raw) {
         new ExitMessage(raw);
         session.io().disconnect(false);
         session.close();

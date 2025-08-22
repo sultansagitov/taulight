@@ -15,7 +15,7 @@ public class UUIDMessage extends BaseMessage {
         this.uuid = uuid;
     }
 
-    public UUIDMessage(@NotNull RawMessage raw) throws DeserializationException {
+    public UUIDMessage(@NotNull RawMessage raw) {
         super(raw.headers());
         byte[] body = raw.getBody();
         if (body.length != 16) {

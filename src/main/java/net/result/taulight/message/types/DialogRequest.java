@@ -1,6 +1,5 @@
 package net.result.taulight.message.types;
 
-import net.result.sandnode.exception.ExpectedMessageException;
 import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.message.TextMessage;
 import net.result.sandnode.message.util.Headers;
@@ -24,7 +23,7 @@ public class DialogRequest extends TextMessage {
         return new DialogRequest(Type.AVATAR, chatID.toString());
     }
 
-    public DialogRequest(@NotNull RawMessage raw) throws ExpectedMessageException {
+    public DialogRequest(@NotNull RawMessage raw) {
         super(raw.expect(TauMessageTypes.DIALOG));
     }
 }

@@ -19,7 +19,7 @@ public class DEKCommands {
         registry.register(new CommandInfo("DEK", "List all DEKs", "DEK", DEKCommands::DEK));
     }
 
-    public static void sendDEK(List<String> args, ConsoleContext context) throws Exception {
+    public static void sendDEK(List<String> args, ConsoleContext context) {
         String receiver = args.get(0);
         var client = context.client;
         var key = SymmetricEncryptions.AES.generate();
@@ -42,7 +42,7 @@ public class DEKCommands {
         System.out.printf("DEK uuid: %s%n", uuid);
     }
 
-    private static void DEK(List<String> ignoredArgs, ConsoleContext context) throws Exception {
+    private static void DEK(List<String> ignoredArgs, ConsoleContext context) {
         SandnodeClient client = context.client;
         DEKClientChain chain = new DEKClientChain(client);
         context.io.chainManager.linkChain(chain);

@@ -1,7 +1,5 @@
 package net.result.taulight.message.types;
 
-import net.result.sandnode.exception.DeserializationException;
-import net.result.sandnode.exception.ExpectedMessageException;
 import net.result.sandnode.message.MSGPackMessage;
 import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.message.util.Headers;
@@ -13,7 +11,7 @@ public class TauMemberSettingsResponse extends MSGPackMessage<TauMemberSettingsD
         super(new Headers().setType(TauMessageTypes.TAU_SETTINGS), dto);
     }
 
-    public TauMemberSettingsResponse(RawMessage raw) throws DeserializationException, ExpectedMessageException {
+    public TauMemberSettingsResponse(RawMessage raw) {
         super(raw.expect(TauMessageTypes.TAU_SETTINGS), TauMemberSettingsDTO.class);
     }
 }

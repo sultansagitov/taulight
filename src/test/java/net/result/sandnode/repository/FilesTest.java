@@ -2,7 +2,6 @@ package net.result.sandnode.repository;
 
 import net.result.sandnode.GlobalTestState;
 import net.result.sandnode.entity.FileEntity;
-import net.result.sandnode.exception.DatabaseException;
 import net.result.sandnode.util.Container;
 import net.result.sandnode.db.JPAUtil;
 import net.result.sandnode.db.SimpleJPAUtil;
@@ -25,7 +24,7 @@ public class FilesTest {
     }
 
     @Test
-    void testCreateFile() throws DatabaseException {
+    void testCreateFile() {
         String contentType = "image/png";
         String filename = "example.png";
 
@@ -38,7 +37,7 @@ public class FilesTest {
     }
 
     @Test
-    void testCreateAndFindFile() throws DatabaseException {
+    void testCreateAndFindFile() {
         String contentType = "application/pdf";
         String filename = "document.pdf";
 
@@ -54,7 +53,7 @@ public class FilesTest {
     }
 
     @Test
-    void testFindMissingFile() throws DatabaseException {
+    void testFindMissingFile() {
         UUID randomId = UUID.randomUUID();
         Optional<FileEntity> result = jpaUtil.find(FileEntity.class, randomId);
 

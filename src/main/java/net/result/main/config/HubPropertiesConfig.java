@@ -18,11 +18,12 @@ public class HubPropertiesConfig implements HubConfig {
     private final PasswordHasher HASHER;
     private final Path IMAGE_PATH;
 
-    public HubPropertiesConfig() throws ConfigurationException {
+    @SuppressWarnings("unused")
+    public HubPropertiesConfig() {
         this("taulight.properties");
     }
 
-    public HubPropertiesConfig(@NotNull String fileName) throws ConfigurationException {
+    public HubPropertiesConfig(@NotNull String fileName) {
         Properties properties = new Properties();
         try (InputStream input = getClass().getClassLoader().getResourceAsStream(fileName)) {
             properties.load(input);

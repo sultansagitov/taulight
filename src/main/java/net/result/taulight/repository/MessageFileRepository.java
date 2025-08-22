@@ -24,12 +24,11 @@ public class MessageFileRepository {
         jpaUtil = container.get(JPAUtil.class);
     }
 
-    public MessageFileEntity create(TauMemberEntity member, ChatEntity chat, String originalName, FileEntity file)
-            throws DatabaseException {
+    public MessageFileEntity create(TauMemberEntity member, ChatEntity chat, String originalName, FileEntity file) {
         return jpaUtil.create(new MessageFileEntity(member, chat, originalName, file));
     }
 
-    public Collection<MessageFileEntity> getFiles(MessageEntity message) throws DatabaseException {
+    public Collection<MessageFileEntity> getFiles(MessageEntity message) {
         EntityManager em = jpaUtil.getEntityManager();
         try {
             String q = "SELECT f FROM MessageFileEntity f WHERE f.message = :message";
@@ -41,7 +40,7 @@ public class MessageFileRepository {
         }
     }
 
-    public void setMessage(MessageEntity message, Set<UUID> fileIDs) throws DatabaseException, UnauthorizedException {
+    public void setMessage(MessageEntity message, Set<UUID> fileIDs) {
         if (fileIDs == null || fileIDs.isEmpty()) return;
 
         EntityManager em = jpaUtil.getEntityManager();

@@ -31,7 +31,7 @@ public class RunAgentWork implements Work {
     private ConsoleContext context = null;
 
     @Override
-    public void run() throws Exception {
+    public void run() {
         Scanner scanner = new Scanner(System.in);
 
         SandnodeLinkRecord link;

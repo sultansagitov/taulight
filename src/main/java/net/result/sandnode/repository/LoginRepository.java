@@ -18,16 +18,15 @@ public class LoginRepository {
         jpaUtil = container.get(JPAUtil.class);
     }
 
-    public LoginEntity create(MemberEntity member, KeyStorageEntity encryptor, String ip, String device)
-            throws DatabaseException {
+    public LoginEntity create(MemberEntity member, KeyStorageEntity encryptor, String ip, String device) {
         return jpaUtil.create(new LoginEntity(member, encryptor, ip, device));
     }
 
-    public LoginEntity create(LoginEntity login, String ip) throws DatabaseException {
+    public LoginEntity create(LoginEntity login, String ip) {
         return jpaUtil.create(new LoginEntity(login, ip));
     }
 
-    public List<LoginEntity> byDevice(@Nullable MemberEntity member) throws DatabaseException {
+    public List<LoginEntity> byDevice(@Nullable MemberEntity member) {
         EntityManager em = jpaUtil.getEntityManager();
         try {
             String q = "FROM LoginEntity l WHERE l.member = :member AND l.login IS NULL";

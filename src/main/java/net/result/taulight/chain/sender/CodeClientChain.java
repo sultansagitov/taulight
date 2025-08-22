@@ -1,8 +1,6 @@
 package net.result.taulight.chain.sender;
 
 import net.result.sandnode.chain.ClientChain;
-import net.result.sandnode.exception.ProtocolException;
-import net.result.sandnode.exception.error.SandnodeErrorException;
 import net.result.sandnode.message.util.MessageTypes;
 import net.result.sandnode.serverclient.SandnodeClient;
 import net.result.taulight.dto.CodeDTO;
@@ -20,25 +18,22 @@ public class CodeClientChain extends ClientChain {
         super(client);
     }
 
-    public synchronized CodeDTO check(String code)
-            throws ProtocolException, InterruptedException, SandnodeErrorException {
+    public synchronized CodeDTO check(String code) {
         var raw = sendAndReceive(new CodeRequest(CodeRequestDTO.check(code)));
         return new CodeResponse(raw).check().code;
     }
 
-    public synchronized void use(String code) throws ProtocolException, SandnodeErrorException, InterruptedException {
+    public synchronized void use(String code) {
         sendAndReceive(new CodeRequest(CodeRequestDTO.use(code))).expect(MessageTypes.HAPPY);
     }
 
-    public synchronized Collection<CodeDTO> getGroupCodes(UUID chatID)
-            throws InterruptedException, ProtocolException, SandnodeErrorException {
+    public synchronized Collection<CodeDTO> getGroupCodes(UUID chatID) {
         var raw = sendAndReceive(new CodeRequest(CodeRequestDTO.groupCodes(chatID)));
         raw.expect(TauMessageTypes.CODE);
         return new CodeListMessage(raw).codes();
     }
 
-    public synchronized Collection<CodeDTO> getMyCodes()
-            throws InterruptedException, ProtocolException, SandnodeErrorException {
+    public synchronized Collection<CodeDTO> getMyCodes() {
         var raw = sendAndReceive(new CodeRequest(CodeRequestDTO.myCodes()));
         raw.expect(TauMessageTypes.CODE);
         return new CodeListMessage(raw).codes();

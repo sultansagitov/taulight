@@ -26,7 +26,7 @@ import java.util.UUID;
 
 public class MessageFileServerChain extends ServerChain implements ReceiverChain {
     @Override
-    public Message handle(RawMessage raw) throws Exception {
+    public Message handle(RawMessage raw) {
         if (session.member == null) throw new UnauthorizedException();
 
         MessageFileRequest request = new MessageFileRequest(raw);
@@ -46,7 +46,7 @@ public class MessageFileServerChain extends ServerChain implements ReceiverChain
         return null;
     }
 
-    private UUIDMessage uploadFile(UUID chatID, String originalName, TauMemberEntity you) throws Exception {
+    private UUIDMessage uploadFile(UUID chatID, String originalName, TauMemberEntity you) {
         FileDTO dto = FileIOUtil.receive(this::receive);
 
         MessageFileRepository messageFileRepo = session.server.container.get(MessageFileRepository.class);
@@ -63,7 +63,7 @@ public class MessageFileServerChain extends ServerChain implements ReceiverChain
         return new UUIDMessage(new Headers().setType(MessageTypes.HAPPY), entity.id());
     }
 
-    private void downloadFile(UUID fileID) throws Exception {
+    private void downloadFile(UUID fileID) {
         JPAUtil jpaUtil = session.server.container.get(JPAUtil.class);
         DBFileUtil dbFileUtil = session.server.container.get(DBFileUtil.class);
 

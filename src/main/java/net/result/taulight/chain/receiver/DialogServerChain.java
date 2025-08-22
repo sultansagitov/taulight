@@ -34,7 +34,7 @@ public class DialogServerChain extends ServerChain implements ReceiverChain {
     private static final Logger LOGGER = LogManager.getLogger(DialogServerChain.class);
 
     @Override
-    public Message handle(RawMessage raw) throws Exception {
+    public Message handle(RawMessage raw) {
         DialogRequest request = new DialogRequest(raw);
 
         if (session.member == null) {
@@ -54,7 +54,7 @@ public class DialogServerChain extends ServerChain implements ReceiverChain {
         return null;
     }
 
-    private void id(DialogRequest request, MemberEntity you) throws Exception {
+    private void id(DialogRequest request, MemberEntity you) {
         TauClusterManager manager = session.server.container.get(TauClusterManager.class);
         TauMemberRepository tauMemberRepo = session.server.container.get(TauMemberRepository.class);
         DialogRepository dialogRepo = session.server.container.get(DialogRepository.class);
@@ -84,7 +84,7 @@ public class DialogServerChain extends ServerChain implements ReceiverChain {
         }
     }
 
-    private void avatar(DialogRequest request, MemberEntity you) throws Exception {
+    private void avatar(DialogRequest request, MemberEntity you) {
         ChatUtil chatUtil = session.server.container.get(ChatUtil.class);
         DBFileUtil dbFileUtil = session.server.container.get(DBFileUtil.class);
 

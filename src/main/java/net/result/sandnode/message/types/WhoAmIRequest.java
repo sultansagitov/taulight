@@ -1,6 +1,5 @@
 package net.result.sandnode.message.types;
 
-import net.result.sandnode.exception.ExpectedMessageException;
 import net.result.sandnode.message.EmptyMessage;
 import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.message.util.Headers;
@@ -18,7 +17,7 @@ public class WhoAmIRequest extends EmptyMessage{
         super(headers.setType(MessageTypes.WHOAMI));
     }
 
-    public WhoAmIRequest(@NotNull RawMessage raw) throws ExpectedMessageException {
+    public WhoAmIRequest(@NotNull RawMessage raw) {
         this(raw.expect(MessageTypes.WHOAMI).headers());
     }
 

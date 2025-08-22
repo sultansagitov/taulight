@@ -1,8 +1,6 @@
 package net.result.taulight.repository;
 
 import net.result.sandnode.GlobalTestState;
-import net.result.sandnode.exception.DatabaseException;
-import net.result.sandnode.exception.error.BusyNicknameException;
 import net.result.sandnode.repository.MemberRepository;
 import net.result.sandnode.util.Container;
 import net.result.taulight.entity.GroupEntity;
@@ -20,7 +18,7 @@ public class RolesTest {
     private static RoleRepository roleRepo;
 
     @BeforeAll
-    public static void setup() throws DatabaseException, BusyNicknameException {
+    public static void setup() {
         Container container = GlobalTestState.container;
         MemberRepository memberRepo = container.get(MemberRepository.class);
         groupRepo = container.get(GroupRepository.class);
@@ -34,7 +32,7 @@ public class RolesTest {
     }
 
     @Test
-    void createRole() throws DatabaseException {
+    void createRole() {
         GroupEntity group = groupRepo.create("role_creation_group", member1);
         RoleEntity role = roleRepo.create(group, "admin");
 
@@ -44,7 +42,7 @@ public class RolesTest {
     }
 
     @Test
-    void addMemberToRole() throws DatabaseException {
+    void addMemberToRole() {
         GroupEntity group = groupRepo.create("test_group", member1);
         RoleEntity role = roleRepo.create(group, "moderator");
         boolean result = roleRepo.addMember(role, member2);

@@ -1,7 +1,5 @@
 package net.result.taulight.message.types;
 
-import net.result.sandnode.exception.DeserializationException;
-import net.result.sandnode.exception.ExpectedMessageException;
 import net.result.sandnode.message.MSGPackMessage;
 import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.message.util.Headers;
@@ -18,7 +16,7 @@ public class CodeResponse extends MSGPackMessage<CodeResponseDTO> {
         super(headers.setType(TauMessageTypes.CODE), data);
     }
 
-    public CodeResponse(@NotNull RawMessage raw) throws DeserializationException, ExpectedMessageException {
+    public CodeResponse(@NotNull RawMessage raw) {
         super(raw.expect(TauMessageTypes.CODE), CodeResponseDTO.class);
     }
 

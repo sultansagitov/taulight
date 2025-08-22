@@ -25,8 +25,7 @@ public class MessageRepository {
         messageFileRepo = container.get(MessageFileRepository.class);
     }
 
-    public MessageEntity create(ChatEntity chat, ChatMessageInputDTO input, TauMemberEntity member)
-            throws DatabaseException, UnauthorizedException {
+    public MessageEntity create(ChatEntity chat, ChatMessageInputDTO input, TauMemberEntity member) {
         return create(chat, input, member, null);
     }
 
@@ -35,7 +34,7 @@ public class MessageRepository {
             ChatMessageInputDTO input,
             TauMemberEntity member,
             EncryptedKeyEntity key
-    ) throws DatabaseException, UnauthorizedException {
+    ) {
         EntityManager em = jpaUtil.getEntityManager();
         EntityTransaction transaction = em.getTransaction();
         try {
@@ -67,7 +66,7 @@ public class MessageRepository {
         }
     }
 
-    public List<MessageEntity> findMessagesByChat(ChatEntity chat, int index, int size) throws DatabaseException {
+    public List<MessageEntity> findMessagesByChat(ChatEntity chat, int index, int size) {
         EntityManager em = jpaUtil.getEntityManager();
         try {
             String q = "FROM MessageEntity WHERE chat = :chat ORDER BY creationDate DESC, id DESC";
@@ -81,7 +80,7 @@ public class MessageRepository {
         }
     }
 
-    public long countMessagesByChat(ChatEntity chat) throws DatabaseException {
+    public long countMessagesByChat(ChatEntity chat) {
         EntityManager em = jpaUtil.getEntityManager();
         try {
             String q = "SELECT COUNT(m) FROM MessageEntity m WHERE m.chat = :chat";
@@ -91,7 +90,7 @@ public class MessageRepository {
         }
     }
 
-    public Collection<MessageEntity> findLastMessagesByChats(Set<UUID> accessibleChatIds) throws DatabaseException {
+    public Collection<MessageEntity> findLastMessagesByChats(Set<UUID> accessibleChatIds) {
         EntityManager em = jpaUtil.getEntityManager();
         if (accessibleChatIds == null || accessibleChatIds.isEmpty()) return Collections.emptyList();
 

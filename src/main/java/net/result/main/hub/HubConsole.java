@@ -2,9 +2,6 @@ package net.result.main.hub;
 
 import net.result.sandnode.chain.Chain;
 import net.result.sandnode.chain.sender.ExitChain;
-import net.result.sandnode.exception.ServerClosingException;
-import net.result.sandnode.exception.crypto.EncryptionTypeException;
-import net.result.sandnode.exception.error.KeyStorageNotFoundException;
 import net.result.sandnode.link.SandnodeLinkRecord;
 import net.result.sandnode.serverclient.SandnodeServer;
 import net.result.sandnode.serverclient.Session;
@@ -20,7 +17,7 @@ import java.util.stream.Stream;
 public class HubConsole {
     @FunctionalInterface
     interface F {
-        void run() throws Exception;
+        void run();
     }
 
     private static final Logger LOGGER = LogManager.getLogger(HubConsole.class);
@@ -71,7 +68,7 @@ public class HubConsole {
     }
 
 
-    private void exit() throws ServerClosingException {
+    private void exit() {
         Stream
                 .concat(server.getHubs().stream(), server.getAgents().stream())
                 .parallel()
@@ -92,7 +89,7 @@ public class HubConsole {
         server.close();
     }
 
-    private void getLink() throws EncryptionTypeException, KeyStorageNotFoundException {
+    private void getLink() {
         URI link = SandnodeLinkRecord.fromServer(server).getURI();
         System.out.println("Link for server:");
         System.out.println();

@@ -4,7 +4,6 @@ import net.result.sandnode.chain.ClientChain;
 import net.result.sandnode.dto.FileDTO;
 import net.result.sandnode.exception.*;
 import net.result.sandnode.exception.error.NoEffectException;
-import net.result.sandnode.exception.error.SandnodeErrorException;
 import net.result.sandnode.message.Message;
 import net.result.sandnode.message.UUIDMessage;
 import net.result.sandnode.message.types.AvatarRequest;
@@ -29,9 +28,7 @@ public class AvatarClientChain extends ClientChain {
         super(client);
     }
 
-    public UUID set(String avatarPath) throws UnprocessedMessagesException, InterruptedException,
-            UnknownSandnodeErrorException, SandnodeErrorException, ExpectedMessageException, FSException,
-            DeserializationException {
+    public UUID set(String avatarPath) {
         Path path = Paths.get(avatarPath);
 
         String contentType = URLConnection.guessContentTypeFromName(path.getFileName().toString());
@@ -56,9 +53,7 @@ public class AvatarClientChain extends ClientChain {
         return response.uuid;
     }
 
-    public @Nullable FileDTO getMy()
-            throws InterruptedException, ExpectedMessageException, UnknownSandnodeErrorException,
-            SandnodeErrorException, UnprocessedMessagesException, DeserializationException {
+    public @Nullable FileDTO getMy() {
         send(AvatarRequest.byType(AvatarRequest.Type.GET_MY));
         try {
             return FileIOUtil.receive(this::receive);
@@ -67,9 +62,7 @@ public class AvatarClientChain extends ClientChain {
         }
     }
 
-    public @Nullable FileDTO getOf(String nickname)
-            throws InterruptedException, ExpectedMessageException, UnknownSandnodeErrorException,
-            SandnodeErrorException, UnprocessedMessagesException, DeserializationException {
+    public @Nullable FileDTO getOf(String nickname) {
         AvatarRequest request = AvatarRequest.byType(AvatarRequest.Type.GET_OF);
         request.headers().setValue("nickname", nickname);
         send(request);

@@ -1,7 +1,6 @@
 package net.result.sandnode.chain;
 
 import net.result.sandnode.error.ServerErrorManager;
-import net.result.sandnode.exception.error.SandnodeErrorException;
 import net.result.sandnode.exception.error.SpecialErrorException;
 import net.result.sandnode.message.types.ErrorMessage;
 import net.result.sandnode.message.util.Headers;
@@ -32,8 +31,12 @@ public abstract class BaseChain implements Chain {
     }
 
     @Override
-    public void put(RawMessage message) throws InterruptedException {
-        queue.put(message);
+    public void put(RawMessage message) {
+        try {
+            queue.put(message);
+        } catch (InterruptedException e) {
+            throw new SandnodeInterruptedException(e);
+        }
     }
 
     @Override
@@ -47,19 +50,23 @@ public abstract class BaseChain implements Chain {
     }
 
     @Override
-    public synchronized void chainName(String chainName) throws InterruptedException, UnprocessedMessagesException {
+    public synchronized void chainName(String chainName) {
         send(new ChainNameRequest(chainName));
     }
 
-    protected RawMessage receive() throws InterruptedException, UnknownSandnodeErrorException, SandnodeErrorException {
-        var raw = queue.take();
-        ServerErrorManager.instance().handleError(raw);
-        return raw;
+    protected RawMessage receive() {
+        try {
+            RawMessage raw = queue.take();
+            ServerErrorManager.instance().handleError(raw);
+            return raw;
+        } catch (InterruptedException e) {
+            throw new SandnodeInterruptedException(e);
+        }
     }
 
     @SafeVarargs
     protected final RawMessage receiveWithSpecifics(Class<? extends SpecialErrorException>... list)
-            throws SandnodeErrorException, InterruptedException, ProtocolException {
+            {
         try {
             try {
                 return receive();
@@ -78,7 +85,7 @@ public abstract class BaseChain implements Chain {
         }
     }
 
-    protected void send(@NotNull Message request) throws UnprocessedMessagesException, InterruptedException {
+    protected void send(@NotNull Message request) {
         if (!queue.isEmpty()) {
             throw new UnprocessedMessagesException(queue.peek());
         }
@@ -94,12 +101,12 @@ public abstract class BaseChain implements Chain {
     }
 
     @Override
-    public void sendFin(@NotNull Message message) throws UnprocessedMessagesException, InterruptedException {
+    public void sendFin(@NotNull Message message) {
         message.headers().setFin(true);
         send(message);
     }
 
-    protected void sendIgnoreQueue(@NotNull ErrorMessage request) throws InterruptedException {
+    protected void sendIgnoreQueue(@NotNull ErrorMessage request) {
         Headers headers = request.headers();
         headers.setChainID(getID());
 
@@ -111,13 +118,12 @@ public abstract class BaseChain implements Chain {
     }
 
     @Override
-    public void sendFinIgnoreQueue(@NotNull ErrorMessage message) throws InterruptedException {
+    public void sendFinIgnoreQueue(@NotNull ErrorMessage message) {
         message.headers().setFin(true);
         sendIgnoreQueue(message);
     }
 
-    protected RawMessage sendAndReceive(Message message)
-            throws ProtocolException, InterruptedException, SandnodeErrorException {
+    protected RawMessage sendAndReceive(Message message) {
         send(message);
         return receive();
     }

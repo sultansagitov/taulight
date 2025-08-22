@@ -10,7 +10,7 @@ import java.util.Optional;
 public class BinarySearchTree<S extends Searchable<S, ID>, ID> {
     protected BSTNode<S, ID> root = null;
 
-    public synchronized void add(S searchable) throws BSTBusyPosition {
+    public synchronized void add(S searchable) {
         if (root == null) {
             root = new BSTNode<>(searchable);
             return;

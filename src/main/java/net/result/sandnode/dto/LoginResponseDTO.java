@@ -7,8 +7,7 @@ public class LoginResponseDTO {
     public String nickname;
 
     @SuppressWarnings("unused")
-    public LoginResponseDTO() {
-    }
+    public LoginResponseDTO() {}
 
     public LoginResponseDTO(String nickname) {
         this.nickname = nickname;

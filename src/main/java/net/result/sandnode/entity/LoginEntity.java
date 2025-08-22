@@ -39,7 +39,6 @@ public class LoginEntity extends BaseEntity {
      * @param device the device used for login
      */
     public LoginEntity(MemberEntity member, KeyStorageEntity encryptor, String ip, String device) {
-        super();
         setEncryptor(encryptor);
         setMember(member);
         setIp(ip);
@@ -54,7 +53,6 @@ public class LoginEntity extends BaseEntity {
      * @param ip    the IP address of the new login
      */
     public LoginEntity(LoginEntity login, String ip) {
-        super();
         setLogin(login);
         setMember(login.member());
         setIp(ip);

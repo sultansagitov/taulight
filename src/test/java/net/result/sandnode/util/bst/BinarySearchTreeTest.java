@@ -43,7 +43,7 @@ class BinarySearchTreeTest {
 
     @ParameterizedTest
     @MethodSource("treesProvider")
-    void testAddAndFindSingleElement(@NotNull BinarySearchTree<TestSearchable, Integer> tree) throws BSTBusyPosition {
+    void testAddAndFindSingleElement(@NotNull BinarySearchTree<TestSearchable, Integer> tree) {
         TestSearchable item = new TestSearchable(10);
         tree.add(item);
 
@@ -55,7 +55,7 @@ class BinarySearchTreeTest {
 
     @ParameterizedTest
     @MethodSource("treesProvider")
-    void testFindNonExistentElement(@NotNull BinarySearchTree<TestSearchable, Integer> tree) throws BSTBusyPosition {
+    void testFindNonExistentElement(@NotNull BinarySearchTree<TestSearchable, Integer> tree) {
         TestSearchable item = new TestSearchable(10);
         tree.add(item);
 
@@ -66,8 +66,7 @@ class BinarySearchTreeTest {
 
     @ParameterizedTest
     @MethodSource("treesProvider")
-    void testAddAndFindMultipleElements(@NotNull BinarySearchTree<TestSearchable, Integer> tree)
-            throws BSTBusyPosition {
+    void testAddAndFindMultipleElements(@NotNull BinarySearchTree<TestSearchable, Integer> tree) {
         TestSearchable item1 = new TestSearchable(10);
         TestSearchable item2 = new TestSearchable(5);
         TestSearchable item3 = new TestSearchable(15);
@@ -83,7 +82,7 @@ class BinarySearchTreeTest {
 
     @ParameterizedTest
     @MethodSource("treesProvider")
-    void testGetOrdered(@NotNull BinarySearchTree<TestSearchable, Integer> tree) throws BSTBusyPosition {
+    void testGetOrdered(@NotNull BinarySearchTree<TestSearchable, Integer> tree) {
         TestSearchable item1 = new TestSearchable(10);
         TestSearchable item2 = new TestSearchable(5);
         TestSearchable item3 = new TestSearchable(15);
@@ -110,7 +109,7 @@ class BinarySearchTreeTest {
 
     @ParameterizedTest
     @MethodSource("treesProvider")
-    void testDuplicateElements(@NotNull BinarySearchTree<TestSearchable, Integer> tree) throws BSTBusyPosition {
+    void testDuplicateElements(@NotNull BinarySearchTree<TestSearchable, Integer> tree) {
         TestSearchable item1 = new TestSearchable(10);
         TestSearchable item2 = new TestSearchable(10); // Duplicate ID
 
@@ -120,7 +119,7 @@ class BinarySearchTreeTest {
 
     @ParameterizedTest
     @MethodSource("treesProvider")
-    void testRemoveElement(@NotNull BinarySearchTree<TestSearchable, Integer> tree) throws BSTBusyPosition {
+    void testRemoveElement(@NotNull BinarySearchTree<TestSearchable, Integer> tree) {
         // Arrange
         TestSearchable item1 = new TestSearchable(10);
         TestSearchable item2 = new TestSearchable(5);
@@ -144,7 +143,7 @@ class BinarySearchTreeTest {
 
     @ParameterizedTest
     @MethodSource("treesProvider")
-    void testRemoveNonExistentElement(@NotNull BinarySearchTree<TestSearchable, Integer> tree) throws BSTBusyPosition {
+    void testRemoveNonExistentElement(@NotNull BinarySearchTree<TestSearchable, Integer> tree) {
         // Arrange: Add some items to the tree
         TestSearchable item1 = new TestSearchable(10);
         TestSearchable item2 = new TestSearchable(5);
@@ -163,7 +162,7 @@ class BinarySearchTreeTest {
 
     @ParameterizedTest
     @MethodSource("treesProvider")
-    void testRemoveRootElement(@NotNull BinarySearchTree<TestSearchable, Integer> tree) throws BSTBusyPosition {
+    void testRemoveRootElement(@NotNull BinarySearchTree<TestSearchable, Integer> tree) {
         // Arrange: Add elements such that one of them is the root
         TestSearchable root = new TestSearchable(10);
         TestSearchable leftChild = new TestSearchable(5);
@@ -184,7 +183,7 @@ class BinarySearchTreeTest {
 
     @ParameterizedTest
     @MethodSource("treesProvider")
-    void testRemoveLeafElement(@NotNull BinarySearchTree<TestSearchable, Integer> tree) throws BSTBusyPosition {
+    void testRemoveLeafElement(@NotNull BinarySearchTree<TestSearchable, Integer> tree) {
         // Arrange: Add elements where one is a leaf node
         TestSearchable item1 = new TestSearchable(10);
         TestSearchable item2 = new TestSearchable(5);

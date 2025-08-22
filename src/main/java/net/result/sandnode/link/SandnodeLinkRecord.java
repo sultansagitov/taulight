@@ -3,8 +3,6 @@ package net.result.sandnode.link;
 import net.result.sandnode.encryption.interfaces.AsymmetricEncryption;
 import net.result.sandnode.encryption.interfaces.AsymmetricKeyStorage;
 import net.result.sandnode.exception.crypto.CannotUseEncryption;
-import net.result.sandnode.exception.crypto.EncryptionTypeException;
-import net.result.sandnode.exception.error.KeyStorageNotFoundException;
 import net.result.sandnode.message.util.NodeType;
 import net.result.sandnode.serverclient.SandnodeServer;
 import net.result.sandnode.util.Address;
@@ -16,8 +14,7 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 
 public record SandnodeLinkRecord(NodeType nodeType, Address address, AsymmetricKeyStorage keyStorage) {
-    public static SandnodeLinkRecord fromServer(SandnodeServer server)
-            throws EncryptionTypeException, KeyStorageNotFoundException {
+    public static SandnodeLinkRecord fromServer(SandnodeServer server) {
         NodeType type = server.node.type();
         Address address = server.serverConfig.address();
         AsymmetricEncryption encryption = server.serverConfig.mainEncryption();

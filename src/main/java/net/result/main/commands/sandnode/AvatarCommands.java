@@ -18,7 +18,7 @@ public class AvatarCommands {
         registry.register(new CommandInfo("setAvatar", "Set your avatar", "Avatar", AvatarCommands::setAvatar));
     }
 
-    private static void getAvatar(List<String> args, ConsoleContext context) throws Exception {
+    private static void getAvatar(List<String> args, ConsoleContext context) {
         Optional<String> nickname = args.stream().findFirst();
 
         var chain = new AvatarClientChain(context.client);
@@ -35,7 +35,7 @@ public class AvatarCommands {
         }
     }
 
-    private static void setAvatar(List<String> args, ConsoleContext context) throws Exception {
+    private static void setAvatar(List<String> args, ConsoleContext context) {
         Optional<String> path = args.stream().findFirst();
         if (path.isEmpty()) {
             System.out.println("Usage: setAvatar <path>");

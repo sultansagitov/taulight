@@ -3,8 +3,6 @@ package net.result.taulight.dto;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import net.result.sandnode.encryption.interfaces.KeyStorage;
-import net.result.sandnode.exception.crypto.CryptoException;
-import net.result.sandnode.exception.error.EncryptionException;
 
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -76,8 +74,7 @@ public class ChatMessageInputDTO {
     }
 
     @SuppressWarnings("UnusedReturnValue")
-    public ChatMessageInputDTO setEncryptedContent(UUID keyID, KeyStorage keyStorage, String input)
-            throws EncryptionException, CryptoException {
+    public ChatMessageInputDTO setEncryptedContent(UUID keyID, KeyStorage keyStorage, String input) {
         setKeyID(keyID);
 
         String content = Base64.getEncoder().encodeToString(keyStorage.encrypt(input));

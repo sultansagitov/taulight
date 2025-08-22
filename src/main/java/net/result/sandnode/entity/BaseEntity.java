@@ -22,7 +22,7 @@ public abstract class BaseEntity {
     @Convert(converter = ZonedDateTimeConverter.class)
     private ZonedDateTime creationDate;
 
-    protected BaseEntity() {
+    public BaseEntity() {
         setRandomID();
         setCreationDateNow();
     }

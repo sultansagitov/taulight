@@ -19,7 +19,7 @@ public class ReactionsCommands {
         );
     }
 
-    private static void react(@NotNull List<String> args, ConsoleContext context) throws Exception {
+    private static void react(@NotNull List<String> args, ConsoleContext context) {
         if (args.size() < 2) {
             System.out.println("Usage: react <messageID> <package:name>");
             return;
@@ -32,7 +32,7 @@ public class ReactionsCommands {
         ReactionsRunner.react(context, messageId, reaction);
     }
 
-    private static void unreact(@NotNull List<String> args, ConsoleContext context) throws Exception {
+    private static void unreact(@NotNull List<String> args, ConsoleContext context) {
         if (args.size() < 2) {
             System.out.println("Usage: unreact <messageID> <package:name>");
             return;

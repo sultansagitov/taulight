@@ -11,7 +11,7 @@ import net.result.sandnode.serverclient.SandnodeClient;
 import java.util.Scanner;
 
 public class Auth {
-    public static ConsoleContext authenticateUser(Scanner scanner, SandnodeClient client) throws Exception {
+    public static ConsoleContext authenticateUser(Scanner scanner, SandnodeClient client) {
         ConsoleContext context = null;
         while (context == null) {
             String s;
@@ -34,7 +34,7 @@ public class Auth {
         return context;
     }
 
-    public static ConsoleContext register(Scanner scanner, SandnodeClient client) throws Exception {
+    public static ConsoleContext register(Scanner scanner, SandnodeClient client) {
         System.out.print("Nickname: ");
         String nickname = scanner.nextLine();
         System.out.print("Password: ");
@@ -57,7 +57,7 @@ public class Auth {
         return null;
     }
 
-    public static ConsoleContext login(Scanner scanner, SandnodeClient client) throws Exception {
+    public static ConsoleContext login(Scanner scanner, SandnodeClient client) {
         System.out.print("Token: ");
         String token = scanner.nextLine();
 
@@ -78,7 +78,7 @@ public class Auth {
         return null;
     }
 
-    public static ConsoleContext password(Scanner scanner, SandnodeClient client) throws Exception {
+    public static ConsoleContext password(Scanner scanner, SandnodeClient client) {
         System.out.print("Nickname: ");
         String nickname = scanner.nextLine();
         System.out.print("Password: ");

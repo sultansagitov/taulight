@@ -28,7 +28,7 @@ public abstract class MSGPackMessage<T> extends BaseMessage {
         this.object = object;
     }
 
-    public MSGPackMessage(@NotNull Message message, Class<T> clazz) throws DeserializationException {
+    public MSGPackMessage(@NotNull Message message, Class<T> clazz) {
         super(message.headers());
         try {
             object = objectMapper.readValue(message.getBody(), clazz);
@@ -37,7 +37,7 @@ public abstract class MSGPackMessage<T> extends BaseMessage {
         }
     }
 
-    public MSGPackMessage(@NotNull Message message, TypeReference<T> typeReference) throws DeserializationException {
+    public MSGPackMessage(@NotNull Message message, TypeReference<T> typeReference) {
         super(message.headers());
         try {
             object = objectMapper.readValue(message.getBody(), typeReference);

@@ -6,11 +6,7 @@ import net.result.sandnode.encryption.interfaces.Encryption;
 import net.result.sandnode.encryption.interfaces.KeyStorage;
 import net.result.sandnode.encryption.interfaces.SymmetricKeyStorage;
 import net.result.sandnode.exception.ImpossibleRuntimeException;
-import net.result.sandnode.exception.InvalidAddressSyntax;
 import net.result.sandnode.exception.crypto.CannotUseEncryption;
-import net.result.sandnode.exception.crypto.CreatingKeyException;
-import net.result.sandnode.exception.crypto.EncryptionTypeException;
-import net.result.sandnode.exception.crypto.NoSuchEncryptionException;
 import net.result.sandnode.util.Address;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -71,8 +67,7 @@ public class MemberKeyRecord {
         }
     }
 
-    public static MemberKeyRecord fromJSON(JSONObject json)
-            throws NoSuchEncryptionException, CreatingKeyException, EncryptionTypeException, InvalidAddressSyntax {
+    public static MemberKeyRecord fromJSON(JSONObject json) {
         MemberKeyRecord result;
         String encryptionType = json.getString("encryption");
         Address address = Address.getFromString(json.getString("address"), 52525);
@@ -82,8 +77,7 @@ public class MemberKeyRecord {
             String privateString = null;
             try {
                 privateString = json.getString("private");
-            } catch (JSONException ignored) {
-            }
+            } catch (JSONException ignored) {}
 
             AsymmetricKeyStorage keyStorage;
             AsymmetricKeyStorage publicKey = encryption.asymmetric().publicKeyConvertor().toKeyStorage(publicString);

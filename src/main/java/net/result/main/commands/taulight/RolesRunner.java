@@ -11,7 +11,7 @@ import java.util.stream.Stream;
 
 public class RolesRunner {
 
-    public static void roles(@NotNull ConsoleContext context, UUID chatID) throws Exception {
+    public static void roles(@NotNull ConsoleContext context, UUID chatID) {
         IOController io = context.io;
         RoleClientChain chain = new RoleClientChain(context.client);
         io.chainManager.linkChain(chain);
@@ -24,7 +24,7 @@ public class RolesRunner {
         System.out.printf("All Roles: %s%n", s.toList());
     }
 
-    public static void addRole(ConsoleContext context, UUID chatID, String roleName) throws Exception {
+    public static void addRole(ConsoleContext context, UUID chatID, String roleName) {
         if (roleName == null || roleName.isEmpty()) {
             System.out.println("Role name cannot be empty.");
             return;
@@ -39,8 +39,7 @@ public class RolesRunner {
         System.out.printf("Role '%s' added successfully to chat %s.%n", roleName, chatID);
     }
 
-    public static void assignRole(ConsoleContext context, UUID chatID, String nickname, UUID roleID)
-            throws Exception {
+    public static void assignRole(ConsoleContext context, UUID chatID, String nickname, UUID roleID) {
         IOController io = context.io;
         RoleClientChain chain = new RoleClientChain(context.client);
         io.chainManager.linkChain(chain);

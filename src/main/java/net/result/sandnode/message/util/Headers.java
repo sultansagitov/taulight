@@ -1,12 +1,10 @@
 package net.result.sandnode.message.util;
 
+import net.result.sandnode.encryption.EncryptionManager;
 import net.result.sandnode.encryption.Encryptions;
+import net.result.sandnode.encryption.interfaces.Encryption;
 import net.result.sandnode.exception.DeserializationException;
 import net.result.sandnode.exception.HeadersSerializationException;
-import net.result.sandnode.exception.NoSuchMessageTypeException;
-import net.result.sandnode.exception.crypto.NoSuchEncryptionException;
-import net.result.sandnode.encryption.EncryptionManager;
-import net.result.sandnode.encryption.interfaces.Encryption;
 import net.result.simplesix64.SimpleSix64;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -45,7 +43,7 @@ public class Headers {
         return this;
     }
 
-    public UUID getUUID(String key) throws DeserializationException {
+    public UUID getUUID(String key) {
         if (!has(key)) throw new DeserializationException("headers don't have key \"%s\"".formatted(key));
         try {
             return UUID.fromString(map.get(key.toLowerCase()));
@@ -58,7 +56,7 @@ public class Headers {
         return Optional.ofNullable(map.get(key.toLowerCase()));
     }
 
-    public @NotNull String getValue(@NotNull String key) throws DeserializationException {
+    public @NotNull String getValue(@NotNull String key) {
         if (!has(key)) {
             throw new DeserializationException("headers don't have key \"%s\"".formatted(key));
         }
@@ -74,7 +72,7 @@ public class Headers {
         return this;
     }
 
-    public @NotNull MessageType type() throws NullPointerException {
+    public @NotNull MessageType type() {
         return type;
     }
 
@@ -83,7 +81,7 @@ public class Headers {
         return this;
     }
 
-    public @NotNull Connection connection() throws NullPointerException {
+    public @NotNull Connection connection() {
         return connection;
     }
 
@@ -92,7 +90,7 @@ public class Headers {
         return this;
     }
 
-    public @NotNull Encryption bodyEncryption() throws NullPointerException {
+    public @NotNull Encryption bodyEncryption() {
         return bodyEncryption;
     }
 
@@ -106,8 +104,7 @@ public class Headers {
     }
 
     @SuppressWarnings("CommentedOutCode")
-    public static Headers fromBytes(byte @NotNull [] data)
-            throws NoSuchEncryptionException, NoSuchMessageTypeException {
+    public static Headers fromBytes(byte @NotNull [] data) {
         if (data.length < 5) {
             throw new IllegalArgumentException("Data is too short to extract the required information");
         }
@@ -143,7 +140,7 @@ public class Headers {
         return headers;
     }
 
-    public byte[] toByteArray() throws HeadersSerializationException {
+    public byte[] toByteArray() {
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
 
         byte first = (byte) new Random().nextInt(16);

@@ -1,7 +1,6 @@
 package net.result.sandnode.encryption.interfaces;
 
 import net.result.sandnode.exception.crypto.*;
-import net.result.sandnode.exception.error.*;
 
 public interface Encryption {
 
@@ -15,23 +14,21 @@ public interface Encryption {
 
     KeyStorage generate();
 
-    byte[] encrypt(String data, KeyStorage keyStorage) throws EncryptionException, CryptoException;
+    byte[] encrypt(String data, KeyStorage keyStorage);
 
-    byte[] encryptBytes(byte[] bytes, KeyStorage keyStorage) throws EncryptionException, CryptoException;
+    byte[] encryptBytes(byte[] bytes, KeyStorage keyStorage);
 
-    String decrypt(byte[] encryptedData, KeyStorage keyStorage)
-            throws WrongKeyException, CannotUseEncryption, DecryptionException, PrivateKeyNotFoundException;
+    String decrypt(byte[] encryptedData, KeyStorage keyStorage);
 
-    byte[] decryptBytes(byte[] encryptedBytes, KeyStorage keyStorage)
-            throws DecryptionException, WrongKeyException, CannotUseEncryption, PrivateKeyNotFoundException;
+    byte[] decryptBytes(byte[] encryptedBytes, KeyStorage keyStorage);
 
-    default AsymmetricEncryption asymmetric() throws EncryptionTypeException {
+    default AsymmetricEncryption asymmetric() {
         if (isAsymmetric())
             return (AsymmetricEncryption) this;
         throw new EncryptionTypeException(this);
     }
 
-    default SymmetricEncryption symmetric() throws EncryptionTypeException {
+    default SymmetricEncryption symmetric() {
         if (isSymmetric())
             return (SymmetricEncryption) this;
         throw new EncryptionTypeException(this);

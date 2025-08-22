@@ -26,7 +26,7 @@ public class ReactionRequestServerChain extends ServerChain implements ReceiverC
     private static final Logger LOGGER = LogManager.getLogger(ReactionRequestServerChain.class);
 
     @Override
-    public HappyMessage handle(RawMessage raw) throws Exception {
+    public HappyMessage handle(RawMessage raw) {
         ClusterManager clusterManager = session.server.container.get(ClusterManager.class);
         ReactionTypeRepository reactionTypeRepo = session.server.container.get(ReactionTypeRepository.class);
         ReactionEntryRepository reactionEntryRepo = session.server.container.get(ReactionEntryRepository.class);

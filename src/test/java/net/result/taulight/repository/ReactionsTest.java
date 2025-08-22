@@ -2,9 +2,6 @@ package net.result.taulight.repository;
 
 import net.result.sandnode.GlobalTestState;
 import net.result.sandnode.repository.MemberRepository;
-import net.result.sandnode.exception.DatabaseException;
-import net.result.sandnode.exception.SandnodeException;
-import net.result.sandnode.exception.error.BusyNicknameException;
 import net.result.sandnode.util.Container;
 import net.result.sandnode.db.JPAUtil;
 import net.result.sandnode.db.SimpleJPAUtil;
@@ -31,7 +28,7 @@ class ReactionsTest {
     private static ReactionEntryRepository reactionEntryRepo;
 
     @BeforeAll
-    public static void setup() throws DatabaseException, BusyNicknameException {
+    public static void setup() {
         Container container = GlobalTestState.container;
 
         jpaUtil = container.get(SimpleJPAUtil.class);
@@ -51,7 +48,7 @@ class ReactionsTest {
     }
 
     @Test
-    public void createReactionPackage() throws DatabaseException {
+    public void createReactionPackage() {
         ReactionPackageEntity reactionPackage = reactionPackageRepo.create("funny_emojis", "");
         assertNotNull(reactionPackage);
         assertEquals("funny_emojis", reactionPackage.name());
@@ -71,7 +68,7 @@ class ReactionsTest {
     }
 
     @Test
-    public void findReactionPackage() throws DatabaseException {
+    public void findReactionPackage() {
         ReactionPackageEntity created = reactionPackageRepo.create("qwe", "rty");
         Optional<ReactionPackageEntity> found = reactionPackageRepo.find("qwe");
         assertTrue(found.isPresent());
@@ -92,7 +89,7 @@ class ReactionsTest {
     }
 
     @Test
-    public void createReactionType1() throws DatabaseException {
+    public void createReactionType1() {
         ReactionPackageEntity reactionPackage = reactionPackageRepo.create("standard", "");
         ReactionTypeEntity reactionType = reactionTypeRepo.create("laugh", reactionPackage);
 
@@ -122,7 +119,7 @@ class ReactionsTest {
     }
 
     @Test
-    public void createReactionType2() throws DatabaseException {
+    public void createReactionType2() {
         ReactionPackageEntity reactionPackage = reactionPackageRepo.create("multi_package", "");
 
         Collection<String> typeNames = List.of("clap", "wow", "heart");
@@ -154,7 +151,7 @@ class ReactionsTest {
     }
 
     @Test
-    public void createReactionEntry() throws SandnodeException {
+    public void createReactionEntry() {
         ReactionPackageEntity testPackage = reactionPackageRepo.create("test", "");
         ReactionTypeEntity reactionType = reactionTypeRepo.create("like", testPackage);
 
@@ -194,7 +191,7 @@ class ReactionsTest {
     }
 
     @Test
-    public void removeReactionEntry() throws SandnodeException {
+    public void removeReactionEntry() {
         ReactionPackageEntity testPackage = reactionPackageRepo.create("test", "");
         ReactionTypeEntity reactionType = reactionTypeRepo.create("fire", testPackage);
 
@@ -236,7 +233,7 @@ class ReactionsTest {
     }
 
     @Test
-    public void getReactionTypesByPackage() throws DatabaseException {
+    public void getReactionTypesByPackage() {
         ReactionPackageEntity funnyPackage = reactionPackageRepo.create("funny", "");
         ReactionPackageEntity angryPackage = reactionPackageRepo.create("angry_pack", "");
 
@@ -263,7 +260,7 @@ class ReactionsTest {
     }
 
     @Test
-    public void testRemoveReactionEntry() throws SandnodeException {
+    public void testRemoveReactionEntry() {
         ReactionEntryEntity fakeEntry = new ReactionEntryEntity();
         boolean result = reactionEntryRepo.delete(fakeEntry);
         assertFalse(result);

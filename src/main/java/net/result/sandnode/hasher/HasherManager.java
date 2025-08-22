@@ -11,7 +11,6 @@ public class HasherManager extends Manager<Hasher> {
     }
 
     private HasherManager() {
-        super();
         add(Hashers.SHA256);
         add(Hashers.MD5);
     }
@@ -21,7 +20,7 @@ public class HasherManager extends Manager<Hasher> {
         list.removeIf(h -> h.name().equals(hasher.name()));
     }
 
-    public static Hasher find(String algorithm) throws NoSuchHasherException {
+    public static Hasher find(String algorithm) {
         for (Hasher hasher : instance().list) {
             if (hasher.name().equals(algorithm)) {
                 return hasher;

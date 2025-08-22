@@ -1,8 +1,6 @@
 package net.result.sandnode.message.types;
 
 import net.result.sandnode.dto.FileChunkDTO;
-import net.result.sandnode.exception.DeserializationException;
-import net.result.sandnode.exception.ExpectedMessageException;
 import net.result.sandnode.message.BaseMessage;
 import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.message.util.Headers;
@@ -29,7 +27,7 @@ public class FileMessage extends BaseMessage {
         this.chunk = chunk;
     }
 
-    public FileMessage(@NotNull RawMessage raw) throws ExpectedMessageException, DeserializationException {
+    public FileMessage(@NotNull RawMessage raw) {
         super(raw.expect(MessageTypes.FILE).headers());
 
         UUID id = headers().getUUID("id");

@@ -28,7 +28,7 @@ public class ForwardRequestServerChain extends ServerChain implements ReceiverCh
     private static final Logger LOGGER = LogManager.getLogger(ForwardRequestServerChain.class);
 
     @Override
-    public Message handle(RawMessage raw) throws Exception {
+    public Message handle(RawMessage raw) {
         var chatUtil = session.server.container.get(ChatUtil.class);
         var messageRepo = session.server.container.get(MessageRepository.class);
         var messageFileRepo = session.server.container.get(MessageFileRepository.class);

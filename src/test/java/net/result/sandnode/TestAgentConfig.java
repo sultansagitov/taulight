@@ -12,43 +12,39 @@ import java.util.UUID;
 
 public class TestAgentConfig implements AgentConfig {
     @Override
-    public void saveServerKey(@NotNull Address address, @NotNull AsymmetricKeyStorage keyStorage) {
-    }
+    public void saveServerKey(@NotNull Address address, @NotNull AsymmetricKeyStorage keyStorage) {}
 
     @Override
-    public AsymmetricKeyStorage loadServerKey(@NotNull Address address) throws KeyStorageNotFoundException {
+    public AsymmetricKeyStorage loadServerKey(@NotNull Address address) {
         throw new KeyStorageNotFoundException();
     }
 
     @Override
-    public void savePersonalKey(Address address, String nickname, KeyStorage keyStorage) {
-    }
+    public void savePersonalKey(Address address, String nickname, KeyStorage keyStorage) {}
 
     @Override
-    public KeyStorage loadPersonalKey(Address address, String nickname) throws KeyStorageNotFoundException {
+    public KeyStorage loadPersonalKey(Address address, String nickname) {
         throw new KeyStorageNotFoundException("Address %s, nickname %s".formatted(address, nickname));
     }
 
     @Override
-    public KeyStorage loadEncryptor(Address address, String nickname) throws KeyStorageNotFoundException {
+    public KeyStorage loadEncryptor(Address address, String nickname) {
         throw new KeyStorageNotFoundException(nickname);
     }
 
     @Override
-    public KeyEntry loadDEK(Address address, String nickname) throws KeyStorageNotFoundException {
+    public KeyEntry loadDEK(Address address, String nickname) {
         throw new KeyStorageNotFoundException(nickname);
     }
 
     @Override
-    public KeyStorage loadDEK(Address address, UUID keyID) throws KeyStorageNotFoundException {
+    public KeyStorage loadDEK(Address address, UUID keyID) {
         throw new KeyStorageNotFoundException(keyID);
     }
 
     @Override
-    public void saveEncryptor(Address address, String nickname, KeyStorage keyStorage) {
-    }
+    public void saveEncryptor(Address address, String nickname, KeyStorage keyStorage) {}
 
     @Override
-    public void saveDEK(Address address, String nickname, UUID keyID, KeyStorage keyStorage) {
-    }
+    public void saveDEK(Address address, String nickname, UUID keyID, KeyStorage keyStorage) {}
 }

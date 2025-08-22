@@ -51,7 +51,7 @@ public class ChatsCommands {
         ));
     }
 
-    private static void setChat(List<String> args, ConsoleContext context) throws Exception {
+    private static void setChat(List<String> args, ConsoleContext context) {
         UUID currentChat = UUID.fromString(args.get(0));
 
         ChatClientChain chain = new ChatClientChain(context.client);
@@ -69,19 +69,19 @@ public class ChatsCommands {
         context.currentChat = currentChat;
     }
 
-    private static void chats(List<String> ignored, ConsoleContext context) throws Exception {
+    private static void chats(List<String> ignored, ConsoleContext context) {
         ChatsRunner.chats(context, ChatInfoPropDTO.all());
     }
 
-    private static void dialogs(List<String> ignored, ConsoleContext context) throws Exception {
+    private static void dialogs(List<String> ignored, ConsoleContext context) {
         ChatsRunner.chats(context, ChatInfoPropDTO.dialogAll());
     }
 
-    private static void groups(List<String> ignored, ConsoleContext context) throws Exception {
+    private static void groups(List<String> ignored, ConsoleContext context) {
         ChatsRunner.chats(context, ChatInfoPropDTO.groupAll());
     }
 
-    private static void info(@NotNull List<String> args, ConsoleContext context) throws Exception {
+    private static void info(@NotNull List<String> args, ConsoleContext context) {
         UUID chatID = args.stream().findFirst().map(UUID::fromString).orElse(context.currentChat);
 
         if (chatID == null) {
@@ -92,7 +92,7 @@ public class ChatsCommands {
         ChatsRunner.info(context, chatID);
     }
 
-    private static void newGroup(@NotNull List<String> args, ConsoleContext context) throws Exception {
+    private static void newGroup(@NotNull List<String> args, ConsoleContext context) {
         if (args.isEmpty()) {
             System.out.println("Usage: newGroup <title>");
             return;
@@ -103,7 +103,7 @@ public class ChatsCommands {
         ChatsRunner.newGroup(context, title);
     }
 
-    private static void addMember(@NotNull List<String> args, ConsoleContext context) throws Exception {
+    private static void addMember(@NotNull List<String> args, ConsoleContext context) {
         UUID chatID = context.currentChat;
         String otherNickname = null;
         Duration expirationTime = Duration.ofHours(24);
@@ -130,7 +130,7 @@ public class ChatsCommands {
         ChatsRunner.addMember(context, chatID, otherNickname, expirationTime);
     }
 
-    private static void dialog(@NotNull List<String> args, ConsoleContext context) throws Exception {
+    private static void dialog(@NotNull List<String> args, ConsoleContext context) {
         if (args.isEmpty()) {
             System.out.println("Usage: dialog <nickname>");
             return;
@@ -141,7 +141,7 @@ public class ChatsCommands {
         ChatsRunner.dialog(context, nickname);
     }
 
-    private static void leave(@NotNull List<String> args, ConsoleContext context) throws Exception {
+    private static void leave(@NotNull List<String> args, ConsoleContext context) {
         UUID chatID = args.stream().findFirst().map(UUID::fromString).orElse(context.currentChat);
 
         if (chatID == null) {
@@ -152,7 +152,7 @@ public class ChatsCommands {
         ChatsRunner.leave(context, chatID);
     }
 
-    private static void members(@NotNull List<String> args, ConsoleContext context) throws Exception {
+    private static void members(@NotNull List<String> args, ConsoleContext context) {
         UUID chatID = args.stream().findFirst().map(UUID::fromString).orElse(context.currentChat);
 
         if (chatID == null) {
@@ -176,7 +176,7 @@ public class ChatsCommands {
         }
     }
 
-    private static void setGroupAvatar(@NotNull List<String> args, ConsoleContext context) throws Exception {
+    private static void setGroupAvatar(@NotNull List<String> args, ConsoleContext context) {
         UUID chatID;
         String path;
         if (args.size() > 1) {
@@ -195,7 +195,7 @@ public class ChatsCommands {
         ChatsRunner.setGroupAvatar(context, chatID, path);
     }
 
-    private static void getGroupAvatar(@NotNull List<String> args, ConsoleContext context) throws Exception {
+    private static void getGroupAvatar(@NotNull List<String> args, ConsoleContext context) {
         UUID chatID = args.stream().findFirst().map(UUID::fromString).orElse(context.currentChat);
 
         if (chatID == null) {
@@ -206,7 +206,7 @@ public class ChatsCommands {
         ChatsRunner.getGroupAvatar(context, chatID);
     }
 
-    private static void getDialogAvatar(List<String> args, ConsoleContext context) throws Exception {
+    private static void getDialogAvatar(List<String> args, ConsoleContext context) {
 
         UUID chatID = args.stream().findFirst().map(UUID::fromString).orElse(context.currentChat);
 

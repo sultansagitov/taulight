@@ -1,5 +1,6 @@
 package net.result.sandnode.serverclient;
 
+import net.result.sandnode.exception.SandnodeInterruptedException;
 import net.result.sandnode.exception.UnexpectedSocketDisconnectException;
 import net.result.sandnode.message.EncryptedMessage;
 import net.result.sandnode.util.IOController;
@@ -14,7 +15,7 @@ public class Receiver {
     private static final int POOL_SIZE = 10;
     private static final Logger LOGGER = LogManager.getLogger(Receiver.class);
 
-    public static void receivingLoop(IOController io, Peer peer) throws InterruptedException {
+    public static void receivingLoop(IOController io, Peer peer) {
         AtomicLong sequenceCounter = new AtomicLong(0);
         AtomicLong nextExpected = new AtomicLong(0);
 
@@ -60,8 +61,12 @@ public class Receiver {
             readerThread.start();
             distributorThread.start();
 
-            readerThread.join();
-            distributorThread.join();
+            try {
+                readerThread.join();
+                distributorThread.join();
+            } catch (InterruptedException e) {
+                throw new SandnodeInterruptedException(e);
+            }
 
             LOGGER.info("Receiving loop stopped");
         }

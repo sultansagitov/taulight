@@ -18,8 +18,7 @@ public class DialogRepository {
         jpaUtil = container.get(JPAUtil.class);
     }
 
-    public DialogEntity create(TauMemberEntity firstMember, TauMemberEntity secondMember)
-            throws AlreadyExistingRecordException, DatabaseException {
+    public DialogEntity create(TauMemberEntity firstMember, TauMemberEntity secondMember) {
 
         Optional<DialogEntity> resultList = findByMembers(firstMember, secondMember);
 
@@ -35,8 +34,7 @@ public class DialogRepository {
         return jpaUtil.create(dialog);
     }
 
-    public Optional<DialogEntity> findByMembers(TauMemberEntity firstMember, TauMemberEntity secondMember)
-            throws DatabaseException {
+    public Optional<DialogEntity> findByMembers(TauMemberEntity firstMember, TauMemberEntity secondMember) {
         EntityManager em = jpaUtil.getEntityManager();
         String q = """
             FROM DialogEntity

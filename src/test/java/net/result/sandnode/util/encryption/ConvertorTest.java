@@ -3,8 +3,6 @@ package net.result.sandnode.util.encryption;
 import net.result.sandnode.encryption.EncryptionManager;
 import net.result.sandnode.encryption.interfaces.AsymmetricEncryption;
 import net.result.sandnode.encryption.interfaces.AsymmetricKeyStorage;
-import net.result.sandnode.exception.crypto.CannotUseEncryption;
-import net.result.sandnode.exception.crypto.CreatingKeyException;
 import net.result.sandnode.encryption.interfaces.AsymmetricConvertor;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
@@ -25,7 +23,7 @@ public class ConvertorTest {
 
     @ParameterizedTest
     @MethodSource("hashersProvider")
-    public void convertPublicTest(AsymmetricKeyStorage keyStorage) throws CreatingKeyException, CannotUseEncryption {
+    public void convertPublicTest(AsymmetricKeyStorage keyStorage) {
         String original = keyStorage.encodedPublicKey();
 
         AsymmetricConvertor convertor = keyStorage.encryption().publicKeyConvertor();
@@ -38,7 +36,7 @@ public class ConvertorTest {
 
     @ParameterizedTest
     @MethodSource("hashersProvider")
-    public void convertPrivateTest(AsymmetricKeyStorage keyStorage) throws CreatingKeyException, CannotUseEncryption {
+    public void convertPrivateTest(AsymmetricKeyStorage keyStorage) {
         String original = keyStorage.encodedPrivateKey();
 
         AsymmetricConvertor convertor = keyStorage.encryption().privateKeyConvertor();

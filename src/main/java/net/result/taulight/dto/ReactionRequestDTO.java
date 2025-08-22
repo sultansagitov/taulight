@@ -15,8 +15,7 @@ public class ReactionRequestDTO {
     public boolean react = true;
 
     @SuppressWarnings("unused")
-    public ReactionRequestDTO() {
-    }
+    public ReactionRequestDTO() {}
 
     public ReactionRequestDTO(UUID messageID, String reaction, boolean react) {
         this.messageID = messageID;

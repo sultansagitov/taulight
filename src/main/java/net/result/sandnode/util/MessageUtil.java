@@ -8,27 +8,20 @@ import net.result.sandnode.encryption.KeyStorageRegistry;
 import net.result.sandnode.encryption.interfaces.Encryption;
 import net.result.sandnode.encryption.interfaces.KeyStorage;
 import net.result.sandnode.exception.*;
-import net.result.sandnode.exception.crypto.*;
-import net.result.sandnode.exception.error.DecryptionException;
-import net.result.sandnode.exception.error.EncryptionException;
-import net.result.sandnode.exception.error.KeyStorageNotFoundException;
+import net.result.sandnode.exception.crypto.CannotUseEncryption;
 import net.result.sandnode.message.EncryptedMessage;
 import net.result.sandnode.message.Message;
 import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.message.util.Headers;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jetbrains.annotations.NotNull;
 
-import java.io.IOException;
 import java.util.Optional;
 
 public class MessageUtil {
     private static final Logger LOGGER = LogManager.getLogger(MessageUtil.class);
 
-    public static @NotNull RawMessage decryptMessage(EncryptedMessage encrypted, KeyStorageRegistry keyStorageRegistry)
-            throws DecryptionException, NoSuchMessageTypeException, NoSuchEncryptionException,
-            KeyStorageNotFoundException, WrongKeyException, PrivateKeyNotFoundException {
+    public static RawMessage decryptMessage(EncryptedMessage encrypted, KeyStorageRegistry keyStorageRegistry) {
         Encryption headersEncryption = EncryptionManager.find(encrypted.encryptionByte());
         byte[] decryptedHeaders;
         KeyStorage headersKeyStorage = keyStorageRegistry.getNonNull(headersEncryption);
@@ -54,7 +47,7 @@ public class MessageUtil {
         byte[] decompressed;
         try {
             decompressed = compression.orElse(Compressions.NONE).decompress(decryptedBody);
-        } catch (IOException e) {
+        } catch (DeserializationException e) {
             LOGGER.error("Using not decompressed body", e);
             decompressed = decryptedBody;
         }
@@ -65,9 +58,7 @@ public class MessageUtil {
         return message;
     }
 
-    public static EncryptedMessage encryptMessage(Message message, KeyStorageRegistry keyStorageRegistry)
-            throws KeyStorageNotFoundException, EncryptionException, CryptoException, IllegalMessageLengthException,
-            MessageSerializationException {
+    public static EncryptedMessage encryptMessage(Message message, KeyStorageRegistry keyStorageRegistry) {
         byte[] encryptedHeaders;
         byte[] encryptedBody;
 
@@ -93,7 +84,7 @@ public class MessageUtil {
                     message.headers().setValue(CompressionManager.HEADER_NAME, Compressions.NONE.name());
                 }
             }
-        } catch (IOException e) {
+        } catch (DeserializationException e) {
             compressed = bodyBytes;
             message.headers().setValue(CompressionManager.HEADER_NAME, Compressions.NONE.name());
         }

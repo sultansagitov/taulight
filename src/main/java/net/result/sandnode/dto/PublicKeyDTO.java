@@ -2,7 +2,6 @@ package net.result.sandnode.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import net.result.sandnode.encryption.interfaces.AsymmetricKeyStorage;
-import net.result.sandnode.exception.crypto.CannotUseEncryption;
 import org.jetbrains.annotations.NotNull;
 
 public class PublicKeyDTO {
@@ -15,7 +14,7 @@ public class PublicKeyDTO {
     @SuppressWarnings("unused")
     public PublicKeyDTO() {}
 
-    public PublicKeyDTO(@NotNull AsymmetricKeyStorage keyStorage) throws CannotUseEncryption {
+    public PublicKeyDTO(@NotNull AsymmetricKeyStorage keyStorage) {
         this.encryption = keyStorage.encryption().name();
         this.encoded = keyStorage.encodedPublicKey();
     }

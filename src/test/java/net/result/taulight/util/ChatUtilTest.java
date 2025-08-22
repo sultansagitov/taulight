@@ -3,9 +3,6 @@ package net.result.taulight.util;
 import net.result.sandnode.GlobalTestState;
 import net.result.sandnode.entity.MemberEntity;
 import net.result.sandnode.repository.MemberRepository;
-import net.result.sandnode.exception.AlreadyExistingRecordException;
-import net.result.sandnode.exception.DatabaseException;
-import net.result.sandnode.exception.error.BusyNicknameException;
 import net.result.sandnode.util.Container;
 import net.result.sandnode.db.JPAUtil;
 import net.result.sandnode.db.SimpleJPAUtil;
@@ -34,7 +31,7 @@ public class ChatUtilTest {
     private static DialogEntity monolog;
 
     @BeforeAll
-    static void setUp() throws BusyNicknameException, DatabaseException, AlreadyExistingRecordException {
+    static void setUp() {
         Container container = GlobalTestState.container;
         MemberRepository memberRepo = container.get(MemberRepository.class);
         GroupRepository groupRepo = container.get(GroupRepository.class);
@@ -58,7 +55,7 @@ public class ChatUtilTest {
     }
 
     @Test
-    void testGetChatFromGroupRepo() throws DatabaseException {
+    void testGetChatFromGroupRepo() {
         Optional<ChatEntity> result = chatUtil.getChat(group.id());
 
         boolean present = result.isPresent();
@@ -70,7 +67,7 @@ public class ChatUtilTest {
 
 
     @Test
-    void testGetChatFromDialogRepo() throws DatabaseException {
+    void testGetChatFromDialogRepo() {
         Optional<ChatEntity> result = chatUtil.getChat(dialog.id());
 
         boolean present = result.isPresent();
@@ -81,7 +78,7 @@ public class ChatUtilTest {
     }
 
     @Test
-    void testGetChatReturnsEmpty() throws DatabaseException {
+    void testGetChatReturnsEmpty() {
         UUID unknownId = UUID.randomUUID();
         Optional<ChatEntity> result = chatUtil.getChat(unknownId);
 
@@ -125,14 +122,14 @@ public class ChatUtilTest {
 
 
     @Test
-    void testContainsInGroup() throws DatabaseException {
+    void testContainsInGroup() {
         boolean contains1 = chatUtil.contains(group, member1.tauMember());
 
         assertTrue(contains1);
     }
 
     @Test
-    void testContainsInDialog() throws DatabaseException {
+    void testContainsInDialog() {
         boolean contains1 = chatUtil.contains(dialog, member1.tauMember());
         boolean contains2 = chatUtil.contains(dialog, member2.tauMember());
         boolean contains3 = chatUtil.contains(dialog, member3.tauMember());

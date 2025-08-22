@@ -31,8 +31,6 @@ public abstract class BaseChainManager implements ChainManager {
     private final ExecutorService executorService = Executors.newCachedThreadPool(new DaemonFactory());
     protected final ChainStorage storage = new BSTChainStorage(new AVLTree<>());
 
-    protected BaseChainManager() {}
-
     @Override
     public ChainStorage storage() {
         return storage;
@@ -42,7 +40,7 @@ public abstract class BaseChainManager implements ChainManager {
         return storage.find(id);
     }
 
-    private ReceiverChain createNew(RawMessage message) throws BusyChainID {
+    private ReceiverChain createNew(RawMessage message) {
         Headers headers = message.headers();
         MessageType type = headers.type();
         ReceiverChain chain = createChain(type);
@@ -77,7 +75,7 @@ public abstract class BaseChainManager implements ChainManager {
     }
 
     @Override
-    public void distributeMessage(RawMessage message) throws InterruptedException {
+    public void distributeMessage(RawMessage message) {
         Headers headers = message.headers();
         Optional<Chain> initialChainOpt = getByID(headers.chainID());
         Chain chain;

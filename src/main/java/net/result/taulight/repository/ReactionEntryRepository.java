@@ -19,8 +19,7 @@ public class ReactionEntryRepository {
         jpaUtil = container.get(JPAUtil.class);
     }
 
-    public ReactionEntryEntity create(TauMemberEntity member, MessageEntity message, ReactionTypeEntity reactionType)
-            throws DatabaseException {
+    public ReactionEntryEntity create(TauMemberEntity member, MessageEntity message, ReactionTypeEntity reactionType) {
         ReactionEntryEntity managed = jpaUtil.create(new ReactionEntryEntity(member, message, reactionType));
 
         member.reactionEntries().add(managed);
@@ -30,7 +29,7 @@ public class ReactionEntryRepository {
         return managed;
     }
 
-    public boolean delete(ReactionEntryEntity reactionEntry) throws DatabaseException {
+    public boolean delete(ReactionEntryEntity reactionEntry) {
         EntityManager em = jpaUtil.getEntityManager();
         EntityTransaction transaction = em.getTransaction();
         try {
@@ -62,8 +61,7 @@ public class ReactionEntryRepository {
         return false;
     }
 
-    public boolean delete(MessageEntity message, TauMemberEntity member, ReactionTypeEntity reactionType)
-            throws DatabaseException {
+    public boolean delete(MessageEntity message, TauMemberEntity member, ReactionTypeEntity reactionType) {
         EntityManager em = jpaUtil.getEntityManager();
         String q = """
             FROM ReactionEntryEntity r WHERE

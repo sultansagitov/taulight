@@ -16,7 +16,7 @@ public class AVLTree<S extends Searchable<S, ID>, ID> extends BinarySearchTree<S
     }
 
     @Override
-    public synchronized void add(S searchable) throws BSTBusyPosition {
+    public synchronized void add(S searchable) {
         AVLNode<S, ID> newNode = new AVLNode<>(searchable);
 
         if (root == null) {

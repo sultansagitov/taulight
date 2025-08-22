@@ -1,6 +1,5 @@
 package net.result.sandnode.message.types;
 
-import net.result.sandnode.exception.ExpectedMessageException;
 import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.message.TextMessage;
 import net.result.sandnode.message.util.Headers;
@@ -12,7 +11,7 @@ public class LoginRequest extends TextMessage {
         super(headers.setType(MessageTypes.LOGIN), token);
     }
 
-    public LoginRequest(@NotNull RawMessage raw) throws ExpectedMessageException {
+    public LoginRequest(@NotNull RawMessage raw) {
         super(raw.expect(MessageTypes.LOGIN));
     }
 

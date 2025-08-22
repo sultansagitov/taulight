@@ -18,7 +18,7 @@ public class TauMemberRepository {
         jpaUtil = container.get(JPAUtil.class);
     }
 
-    public void create(MemberEntity member) throws DatabaseException {
+    public void create(MemberEntity member) {
         TauMemberEntity tauMember = new TauMemberEntity(member);
 
         EntityManager em = jpaUtil.getEntityManager();
@@ -40,7 +40,7 @@ public class TauMemberRepository {
         }
     }
 
-    public Optional<TauMemberEntity> findByNickname(String nickname) throws DatabaseException {
+    public Optional<TauMemberEntity> findByNickname(String nickname) {
         EntityManager em = jpaUtil.getEntityManager();
         String q = """
             FROM TauMemberEntity
@@ -56,7 +56,7 @@ public class TauMemberRepository {
         }
     }
 
-    public void setShowStatus(TauMemberEntity entity, boolean value) throws DatabaseException {
+    public void setShowStatus(TauMemberEntity entity, boolean value) {
         EntityManager em = jpaUtil.getEntityManager();
         EntityTransaction transaction = em.getTransaction();
         try {

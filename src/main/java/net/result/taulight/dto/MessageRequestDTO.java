@@ -13,8 +13,7 @@ public class MessageRequestDTO {
     public int size;
 
     @SuppressWarnings("unused")
-    public MessageRequestDTO() {
-    }
+    public MessageRequestDTO() {}
 
     public MessageRequestDTO(UUID chatID, int index, int size) {
         this.chatID = chatID;

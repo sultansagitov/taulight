@@ -22,9 +22,7 @@ public class MessageFileEntity extends BaseEntity {
     @OneToOne
     private FileEntity file;
 
-    public MessageFileEntity() {
-        super();
-    }
+    public MessageFileEntity() {}
 
     public MessageFileEntity(TauMemberEntity member, ChatEntity chat, String originalName, FileEntity file) {
         setOriginalName(originalName);

@@ -16,17 +16,17 @@ public class ClustersCommands {
         registry.register(new CommandInfo("rmCluster", "Remove clusters", "Clusters", ClustersCommands::rmCluster));
     }
 
-    private static void clusters(List<String> ignored, ConsoleContext context) throws Exception {
+    private static void clusters(List<String> ignored, ConsoleContext context) {
         Collection<String> clusters = ClientProtocol.getClusters(context.client);
         System.out.printf("Your clusters: %s%n", clusters);
     }
 
-    private static void addCluster(List<String> clusters, ConsoleContext context) throws Exception {
+    private static void addCluster(List<String> clusters, ConsoleContext context) {
         Collection<String> clustersAfterAdding = ClientProtocol.addToClusters(context.client, clusters);
         System.out.printf("Your clusters now (after adding): %s%n", clustersAfterAdding);
     }
 
-    private static void rmCluster(List<String> clusters, ConsoleContext context) throws Exception {
+    private static void rmCluster(List<String> clusters, ConsoleContext context) {
         Collection<String> clustersAfterRemoving = ClientProtocol.removeFromClusters(context.client, clusters);
         System.out.printf("Your clusters now (after removing): %s%n", clustersAfterRemoving);
     }

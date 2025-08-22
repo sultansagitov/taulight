@@ -2,8 +2,6 @@ package net.result.sandnode.chain.sender;
 
 import net.result.sandnode.chain.ClientChain;
 import net.result.sandnode.dto.LogPasswdResponseDTO;
-import net.result.sandnode.exception.*;
-import net.result.sandnode.exception.error.SandnodeErrorException;
 import net.result.sandnode.message.types.LogPasswdRequest;
 import net.result.sandnode.message.types.LogPasswdResponse;
 import net.result.sandnode.serverclient.SandnodeClient;
@@ -13,8 +11,7 @@ public class LogPasswdClientChain extends ClientChain {
         super(client);
     }
 
-    public LogPasswdResponseDTO getToken(String nickname, String password, String device)
-            throws InterruptedException, SandnodeErrorException, ProtocolException {
+    public LogPasswdResponseDTO getToken(String nickname, String password, String device) {
         var raw = sendAndReceive(new LogPasswdRequest(nickname, password, device));
         var dto = new LogPasswdResponse(raw).dto();
 

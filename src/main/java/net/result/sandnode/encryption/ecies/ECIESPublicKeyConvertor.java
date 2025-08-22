@@ -3,7 +3,6 @@ package net.result.sandnode.encryption.ecies;
 import net.result.sandnode.encryption.AsymmetricEncryptions;
 import net.result.sandnode.encryption.interfaces.AsymmetricConvertor;
 import net.result.sandnode.encryption.interfaces.KeyStorage;
-import net.result.sandnode.exception.crypto.CannotUseEncryption;
 import net.result.sandnode.exception.crypto.CreatingKeyException;
 import org.jetbrains.annotations.NotNull;
 
@@ -20,11 +19,10 @@ public class ECIESPublicKeyConvertor implements AsymmetricConvertor {
         return INSTANCE;
     }
 
-    private ECIESPublicKeyConvertor() {
-    }
+    private ECIESPublicKeyConvertor() {}
 
     @Override
-    public @NotNull ECIESKeyStorage toKeyStorage(@NotNull String encodedString) throws CreatingKeyException {
+    public @NotNull ECIESKeyStorage toKeyStorage(@NotNull String encodedString) {
         try {
             byte[] publicKeyBytes = Base64.getDecoder().decode(encodedString);
 
@@ -38,7 +36,7 @@ public class ECIESPublicKeyConvertor implements AsymmetricConvertor {
     }
 
     @Override
-    public @NotNull String toEncodedString(@NotNull KeyStorage keyStorage) throws CannotUseEncryption {
+    public @NotNull String toEncodedString(@NotNull KeyStorage keyStorage) {
         Base64.Encoder encoder = Base64.getEncoder();
         ECIESKeyStorage eciesKeyStorage = (ECIESKeyStorage) keyStorage.expect(AsymmetricEncryptions.ECIES);
         byte[] encoded = eciesKeyStorage.publicKey().getEncoded();

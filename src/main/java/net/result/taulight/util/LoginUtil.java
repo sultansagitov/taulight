@@ -9,7 +9,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.stream.Stream;
 
 public class LoginUtil {
-    public static void onLogin(@NotNull Session session) throws UnauthorizedException {
+    public static void onLogin(@NotNull Session session) {
         TauClusterManager manager = session.server.container.get(TauClusterManager.class);
 
         if (session.member == null) {

@@ -28,36 +28,21 @@ public class MemberRepository {
         creationListeners = container.getAll(MemberCreationListener.class);
     }
 
-    private void notifyListeners(MemberEntity member) throws DatabaseException {
+    private void notifyListeners(MemberEntity member) {
         for (var listener : creationListeners) {
             LOGGER.info("Using listener - {}", listener);
             listener.onMemberCreated(member);
         }
     }
 
-    public MemberEntity create(String nickname, String hashedPassword)
-            throws DatabaseException, BusyNicknameException {
+    public MemberEntity create(String nickname, String hashedPassword) {
         if (findByNickname(nickname).isPresent()) throw new BusyNicknameException();
-        var member = new MemberEntity(nickname, hashedPassword);
-        EntityManager em = jpaUtil.getEntityManager();
-        EntityTransaction transaction = em.getTransaction();
-        MemberEntity managed;
-        try {
-            transaction.begin();
-            managed = em.merge(member);
-            transaction.commit();
-        } catch (Exception e) {
-            if (transaction.isActive()) transaction.rollback();
-            throw new DatabaseException(e);
-        }
-
+        MemberEntity managed = jpaUtil.create(new MemberEntity(nickname, hashedPassword));
         notifyListeners(managed);
-
         return managed;
     }
 
-    public MemberEntity create(String nickname, String hashedPassword, AsymmetricKeyStorage keyStorage)
-            throws DatabaseException, BusyNicknameException {
+    public MemberEntity create(String nickname, String hashedPassword, AsymmetricKeyStorage keyStorage) {
         if (findByNickname(nickname).isPresent()) throw new BusyNicknameException();
         MemberEntity member = new MemberEntity(nickname, hashedPassword);
         EntityManager em = jpaUtil.getEntityManager();
@@ -80,7 +65,7 @@ public class MemberRepository {
         return managed;
     }
 
-    public Optional<MemberEntity> findByNickname(String nickname) throws DatabaseException {
+    public Optional<MemberEntity> findByNickname(String nickname) {
         EntityManager em = jpaUtil.getEntityManager();
         try {
             String q = "FROM MemberEntity WHERE nickname = :nickname AND deleted = false";
@@ -95,7 +80,7 @@ public class MemberRepository {
         }
     }
 
-    public boolean delete(MemberEntity member) throws DatabaseException {
+    public boolean delete(MemberEntity member) {
         EntityManager em = jpaUtil.getEntityManager();
         EntityTransaction transaction = em.getTransaction();
         try {
@@ -117,7 +102,7 @@ public class MemberRepository {
         }
     }
 
-    public boolean setAvatar(MemberEntity member, FileEntity avatar) throws DatabaseException {
+    public boolean setAvatar(MemberEntity member, FileEntity avatar) {
         EntityManager em = jpaUtil.getEntityManager();
         EntityTransaction transaction = em.getTransaction();
         try {
@@ -136,7 +121,7 @@ public class MemberRepository {
         }
     }
 
-    public Optional<KeyStorageEntity> findPersonalKeyByNickname(String nickname) throws DatabaseException {
+    public Optional<KeyStorageEntity> findPersonalKeyByNickname(String nickname) {
         EntityManager em = jpaUtil.getEntityManager();
         String q = """
             SELECT m.publicKey

@@ -33,7 +33,7 @@ public class BSTChainStorage implements ChainStorage {
     }
 
     @Override
-    public void add(Chain chain) throws BusyChainID {
+    public void add(Chain chain) {
         try {
             bst.add(chain);
         } catch (BSTBusyPosition e) {

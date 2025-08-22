@@ -11,8 +11,7 @@ public class LogPasswdRequestDTO {
     public String device;
 
     @SuppressWarnings("unused")
-    public LogPasswdRequestDTO() {
-    }
+    public LogPasswdRequestDTO() {}
 
     public LogPasswdRequestDTO(String nickname, String password, String device) {
         this.nickname = nickname;

@@ -2,8 +2,6 @@ package net.result.taulight.repository;
 
 import net.result.sandnode.GlobalTestState;
 import net.result.sandnode.repository.MemberRepository;
-import net.result.sandnode.exception.DatabaseException;
-import net.result.sandnode.exception.error.BusyNicknameException;
 import net.result.sandnode.util.Container;
 import net.result.sandnode.db.JPAUtil;
 import net.result.sandnode.db.SimpleJPAUtil;
@@ -35,7 +33,7 @@ public class ChatsTest {
     private static GroupRepository groupRepo;
 
     @BeforeAll
-    public static void setup() throws DatabaseException, BusyNicknameException {
+    public static void setup() {
         Container container = GlobalTestState.container;
 
         jpaUtil = container.get(SimpleJPAUtil.class);
@@ -62,7 +60,7 @@ public class ChatsTest {
     }
 
     @Test
-    public void createDialog() throws DatabaseException, AlreadyExistingRecordException {
+    public void createDialog() {
         DialogEntity dialog = dialogRepo.create(member3, member4);
         assertNotNull(dialog);
         if (member3.equals(dialog.firstMember())) {
@@ -85,7 +83,7 @@ public class ChatsTest {
     }
 
     @Test
-    public void findDialog() throws DatabaseException, AlreadyExistingRecordException {
+    public void findDialog() {
         DialogEntity createdDialog = dialogRepo.create(member5, member6);
         Optional<DialogEntity> foundDialog = dialogRepo.findByMembers(member5, member6);
 
@@ -103,7 +101,7 @@ public class ChatsTest {
     }
 
     @Test
-    public void createGroup() throws DatabaseException {
+    public void createGroup() {
         GroupEntity group = groupRepo.create("General Chat", member1);
 
         Optional<ChatEntity> foundGroup = chatUtil.getChat(group.id());
@@ -122,7 +120,7 @@ public class ChatsTest {
     }
 
     @Test
-    public void getChat() throws DatabaseException {
+    public void getChat() {
         GroupEntity group = groupRepo.create("Test Group", member1);
 
         Optional<ChatEntity> foundGroup = chatUtil.getChat(group.id());
@@ -140,7 +138,7 @@ public class ChatsTest {
     }
 
     @Test
-    public void addMemberToGroup() throws DatabaseException {
+    public void addMemberToGroup() {
         GroupEntity group = groupRepo.create("Test Group", member1);
         member1 = jpaUtil.refresh(member1);
 
@@ -184,7 +182,7 @@ public class ChatsTest {
 
 
     @Test
-    public void leaveFromGroup() throws DatabaseException {
+    public void leaveFromGroup() {
         GroupEntity group = groupRepo.create("Test Group", member1);
         groupRepo.addMember(group, member2);
         group = jpaUtil.refresh(group);
@@ -215,7 +213,7 @@ public class ChatsTest {
     }
 
     @Test
-    public void getMembers() throws DatabaseException {
+    public void getMembers() {
         GroupEntity group = groupRepo.create("GetMembersGroup", member1);
         groupRepo.addMember(group, member2);
         group = jpaUtil.refresh(group);

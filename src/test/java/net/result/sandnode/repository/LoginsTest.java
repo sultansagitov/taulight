@@ -6,9 +6,6 @@ import net.result.sandnode.encryption.EncryptionManager;
 import net.result.sandnode.entity.KeyStorageEntity;
 import net.result.sandnode.entity.LoginEntity;
 import net.result.sandnode.entity.MemberEntity;
-import net.result.sandnode.exception.DatabaseException;
-import net.result.sandnode.exception.crypto.CannotUseEncryption;
-import net.result.sandnode.exception.error.BusyNicknameException;
 import net.result.sandnode.util.Container;
 import net.result.sandnode.db.JPAUtil;
 import net.result.sandnode.db.SimpleJPAUtil;
@@ -28,7 +25,7 @@ public class LoginsTest {
     private static JPAUtil jpaUtil;
 
     @BeforeAll
-    static void setup() throws BusyNicknameException, DatabaseException {
+    static void setup() {
         EncryptionManager.registerAll();
 
         Container container = GlobalTestState.container;
@@ -41,7 +38,7 @@ public class LoginsTest {
     }
 
     @Test
-    void testCreateAndFindLogin() throws DatabaseException, CannotUseEncryption {
+    void testCreateAndFindLogin() {
         String ip = "192.168.0.1";
         String device = "Firefox on Linux";
 
@@ -60,7 +57,7 @@ public class LoginsTest {
     }
 
     @Test
-    void testCreateLoginWithLoginLink() throws DatabaseException, CannotUseEncryption {
+    void testCreateLoginWithLoginLink() {
         KeyStorageEntity keyStorageEntity = keyStorageRepo.create(AsymmetricEncryptions.ECIES.generate());
 
         LoginEntity baseLogin = loginRepo.create(member, keyStorageEntity, "10.0.0.1", "Mac");
@@ -76,7 +73,7 @@ public class LoginsTest {
     }
 
     @Test
-    void testFindLoginsByDevice() throws DatabaseException, CannotUseEncryption {
+    void testFindLoginsByDevice() {
         KeyStorageEntity keyStorageEntity = keyStorageRepo.create(AsymmetricEncryptions.ECIES.generate());
 
         loginRepo.create(member, keyStorageEntity, "172.16.0.1", "Device-A");
@@ -93,7 +90,7 @@ public class LoginsTest {
     }
 
     @Test
-    void testFindMissingLogin() throws DatabaseException {
+    void testFindMissingLogin() {
         UUID randomId = UUID.randomUUID();
         Optional<LoginEntity> result = jpaUtil.find(LoginEntity.class, randomId);
         assertTrue(result.isEmpty());

@@ -56,7 +56,7 @@ public class GroupServerChain extends ServerChain implements ReceiverChain {
     private RoleRepository roleRepo;
 
     @Override
-    public @Nullable Message handle(RawMessage raw) throws Exception {
+    public @Nullable Message handle(RawMessage raw) {
         JPAUtil jpaUtil = session.server.container.get(JPAUtil.class);
         chatUtil = session.server.container.get(ChatUtil.class);
         dbFileUtil = session.server.container.get(DBFileUtil.class);
@@ -95,7 +95,7 @@ public class GroupServerChain extends ServerChain implements ReceiverChain {
         return response;
     }
 
-    private UUIDMessage create(GroupRequestDTO dto, TauMemberEntity you) throws Exception {
+    private UUIDMessage create(GroupRequestDTO dto, TauMemberEntity you) {
         if (dto.title == null) {
             throw new TooFewArgumentsException();
         }
@@ -152,7 +152,7 @@ public class GroupServerChain extends ServerChain implements ReceiverChain {
         return new TextMessage(new Headers().setType(TauMessageTypes.GROUP), code.code());
     }
 
-    private HappyMessage leave(GroupRequestDTO dto, TauMemberEntity you) throws Exception {
+    private HappyMessage leave(GroupRequestDTO dto, TauMemberEntity you) {
         ChatEntity chat = chatUtil.getChat(dto.chatID).orElseThrow(NotFoundException::new);
 
         // You not in group
@@ -181,7 +181,7 @@ public class GroupServerChain extends ServerChain implements ReceiverChain {
         return new HappyMessage();
     }
 
-    private UUIDMessage setAvatar(GroupRequestDTO request, TauMemberEntity you) throws Exception {
+    private UUIDMessage setAvatar(GroupRequestDTO request, TauMemberEntity you) {
         UUID chatID = request.chatID;
 
         ChatEntity chat = chatUtil.getChat(chatID).orElseThrow(NotFoundException::new);
@@ -202,7 +202,7 @@ public class GroupServerChain extends ServerChain implements ReceiverChain {
     }
 
     @SuppressWarnings("SameReturnValue")
-    private Message getAvatar(GroupRequestDTO dto, TauMemberEntity you) throws Exception {
+    private Message getAvatar(GroupRequestDTO dto, TauMemberEntity you) {
         UUID chatID = dto.chatID;
 
         ChatEntity chat = chatUtil.getChat(chatID).orElseThrow(NotFoundException::new);

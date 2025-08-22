@@ -4,7 +4,6 @@ import net.result.sandnode.encryption.AsymmetricEncryptions;
 import net.result.sandnode.encryption.interfaces.AsymmetricEncryption;
 import net.result.sandnode.encryption.interfaces.AsymmetricKeyStorage;
 import net.result.sandnode.encryption.interfaces.KeyStorage;
-import net.result.sandnode.exception.crypto.CannotUseEncryption;
 import org.jetbrains.annotations.NotNull;
 
 import java.security.PrivateKey;
@@ -33,12 +32,12 @@ public final class ECIESKeyStorage implements AsymmetricKeyStorage {
     }
 
     @Override
-    public String encodedPublicKey() throws CannotUseEncryption {
+    public String encodedPublicKey() {
         return AsymmetricEncryptions.ECIES.publicKeyConvertor().toEncodedString(this);
     }
 
     @Override
-    public String encodedPrivateKey() throws CannotUseEncryption {
+    public String encodedPrivateKey() {
         return AsymmetricEncryptions.ECIES.privateKeyConvertor().toEncodedString(this);
     }
 

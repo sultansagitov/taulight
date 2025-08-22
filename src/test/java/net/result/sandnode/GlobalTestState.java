@@ -18,6 +18,8 @@ import net.result.sandnode.util.SimpleContainer;
 import net.result.taulight.db.TauMemberCreationListener;
 import org.junit.jupiter.api.TestInstance;
 
+import java.io.IOException;
+
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class GlobalTestState {
     public static final Container container;
@@ -35,7 +37,7 @@ public class GlobalTestState {
 
     private static boolean init = false;
 
-    public static void initChainTests() throws Exception {
+    public static void initChainTests() throws IOException {
         if (init) return;
         init = true;
 

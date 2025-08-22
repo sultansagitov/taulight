@@ -1,12 +1,11 @@
 package net.result.sandnode.db;
 
 import net.result.sandnode.config.HubConfig;
-import net.result.sandnode.entity.FileEntity;
-import net.result.sandnode.repository.FileRepository;
 import net.result.sandnode.dto.FileDTO;
-import net.result.sandnode.exception.DatabaseException;
+import net.result.sandnode.entity.FileEntity;
 import net.result.sandnode.exception.error.NoEffectException;
 import net.result.sandnode.exception.error.ServerErrorException;
+import net.result.sandnode.repository.FileRepository;
 import net.result.sandnode.util.Container;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -27,8 +26,7 @@ public class DBFileUtil {
         avatarDirectory = container.get(HubConfig.class).imagePath();
     }
 
-    public @NotNull FileEntity saveFile(FileDTO dto, String filename)
-            throws ServerErrorException, DatabaseException {
+    public @NotNull FileEntity saveFile(FileDTO dto, String filename) {
         byte[] body = dto.body();
 
         try {
@@ -51,7 +49,7 @@ public class DBFileUtil {
         return fileRepo.create(dto.contentType(), filename);
     }
 
-    public FileDTO readImage(FileEntity file) throws NoEffectException, ServerErrorException {
+    public FileDTO readImage(FileEntity file) {
         if (file == null) throw new NoEffectException();
         Path filePath = avatarDirectory.resolve(file.filename());
 

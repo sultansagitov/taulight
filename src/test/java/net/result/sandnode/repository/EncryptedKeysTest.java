@@ -4,8 +4,6 @@ import net.result.sandnode.GlobalTestState;
 import net.result.sandnode.encryption.EncryptionManager;
 import net.result.sandnode.entity.EncryptedKeyEntity;
 import net.result.sandnode.entity.MemberEntity;
-import net.result.sandnode.exception.DatabaseException;
-import net.result.sandnode.exception.error.BusyNicknameException;
 import net.result.sandnode.util.Container;
 import net.result.sandnode.db.JPAUtil;
 import net.result.sandnode.db.SimpleJPAUtil;
@@ -24,7 +22,7 @@ public class EncryptedKeysTest {
     private static JPAUtil jpaUtil;
 
     @BeforeAll
-    public static void setUp() throws BusyNicknameException, DatabaseException {
+    public static void setUp() {
         Container container = GlobalTestState.container;
         encryptedKeyRepo = container.get(EncryptedKeyRepository.class);
         MemberRepository memberRepo = container.get(MemberRepository.class);
@@ -37,7 +35,7 @@ public class EncryptedKeysTest {
     }
 
     @Test
-    void testCreateAndFindEncryptedKeyEntity() throws DatabaseException {
+    void testCreateAndFindEncryptedKeyEntity() {
         String encrypted = "encrypted-data";
 
         EncryptedKeyEntity created = encryptedKeyRepo.create(sender, receiver, encrypted);
@@ -50,7 +48,7 @@ public class EncryptedKeysTest {
     }
 
     @Test
-    void testFindMissingEncryptedKeyEntity() throws DatabaseException {
+    void testFindMissingEncryptedKeyEntity() {
         UUID id = UUID.randomUUID();
         Optional<EncryptedKeyEntity> result = jpaUtil.find(EncryptedKeyEntity.class, id);
         assertTrue(result.isEmpty());

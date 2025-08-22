@@ -5,8 +5,6 @@ import jakarta.persistence.Entity;
 import net.result.sandnode.db.EncryptionConverter;
 import net.result.sandnode.encryption.interfaces.AsymmetricKeyStorage;
 import net.result.sandnode.encryption.interfaces.Encryption;
-import net.result.sandnode.exception.crypto.CreatingKeyException;
-import net.result.sandnode.exception.crypto.EncryptionTypeException;
 import net.result.sandnode.message.types.PublicKeyResponse;
 import net.result.sandnode.message.util.Headers;
 
@@ -41,7 +39,7 @@ public class KeyStorageEntity extends BaseEntity {
         this.encodedKey = encodedKey;
     }
 
-    public PublicKeyResponse toDTO(String sender) throws CreatingKeyException, EncryptionTypeException {
+    public PublicKeyResponse toDTO(String sender) {
         Encryption encryption = encryption();
         AsymmetricKeyStorage keyStorage = encryption.asymmetric()
                 .publicKeyConvertor()

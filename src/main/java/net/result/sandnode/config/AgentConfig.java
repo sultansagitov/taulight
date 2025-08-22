@@ -31,8 +31,7 @@ public interface AgentConfig {
      * @throws KeyAlreadySaved  if the server public key is already saved
      * @throws StorageException if an error occurs during saving
      */
-    void saveServerKey(@NotNull Address address, @NotNull AsymmetricKeyStorage keyStorage)
-            throws KeyAlreadySaved, StorageException;
+    void saveServerKey(@NotNull Address address, @NotNull AsymmetricKeyStorage keyStorage);
 
     /**
      * Retrieves the server's public key.
@@ -41,7 +40,7 @@ public interface AgentConfig {
      * @return the server's public key storage
      * @throws KeyStorageNotFoundException if no key is found for the server
      */
-    AsymmetricKeyStorage loadServerKey(@NotNull Address address) throws KeyStorageNotFoundException;
+    AsymmetricKeyStorage loadServerKey(@NotNull Address address);
 
     /**
      * Saves this agent's personal asymmetric key pair.
@@ -51,7 +50,7 @@ public interface AgentConfig {
      * @param keyStorage personal key storage (private + public keys)
      * @throws StorageException if saving fails
      */
-    void savePersonalKey(Address address, String nickname, KeyStorage keyStorage) throws StorageException;
+    void savePersonalKey(Address address, String nickname, KeyStorage keyStorage);
 
     /**
      * Saves an encryptor's public key for a given agent, identified by a nickname.
@@ -61,7 +60,7 @@ public interface AgentConfig {
      * @param keyStorage public key storage of the encryptor
      * @throws StorageException if saving fails
      */
-    void saveEncryptor(Address address, String nickname, KeyStorage keyStorage) throws StorageException;
+    void saveEncryptor(Address address, String nickname, KeyStorage keyStorage);
 
     /**
      * Saves a data encryption key (DEK) for encrypting actual data.
@@ -72,7 +71,7 @@ public interface AgentConfig {
      * @param keyStorage symmetric key storage of the DEK
      * @throws StorageException if saving fails
      */
-    void saveDEK(Address address, String nickname, UUID keyID, KeyStorage keyStorage) throws StorageException;
+    void saveDEK(Address address, String nickname, UUID keyID, KeyStorage keyStorage);
 
     /**
      * Loads this agent's personal key pair by its ID.
@@ -81,7 +80,7 @@ public interface AgentConfig {
      * @param nickname nickname of member
      * @throws KeyStorageNotFoundException if key not found
      */
-    KeyStorage loadPersonalKey(Address address, String nickname) throws KeyStorageNotFoundException;
+    KeyStorage loadPersonalKey(Address address, String nickname);
 
     /**
      * Loads an encryptor key by nickname.
@@ -91,7 +90,7 @@ public interface AgentConfig {
      * @return KeyEntry containing the encryptor key
      * @throws KeyStorageNotFoundException if key not found
      */
-    KeyStorage loadEncryptor(Address address, String nickname) throws KeyStorageNotFoundException;
+    KeyStorage loadEncryptor(Address address, String nickname);
 
     /**
      * Loads a DEK by nickname.
@@ -101,7 +100,7 @@ public interface AgentConfig {
      * @return KeyEntry containing the DEK
      * @throws KeyStorageNotFoundException if DEK not found
      */
-    KeyEntry loadDEK(Address address, String nickname) throws KeyStorageNotFoundException;
+    KeyEntry loadDEK(Address address, String nickname);
 
     /**
      * Loads a DEK by its unique ID.
@@ -111,5 +110,5 @@ public interface AgentConfig {
      * @return DEK key storage
      * @throws KeyStorageNotFoundException if DEK not found
      */
-    KeyStorage loadDEK(Address address, UUID keyID) throws KeyStorageNotFoundException;
+    KeyStorage loadDEK(Address address, UUID keyID);
 }

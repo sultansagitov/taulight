@@ -3,8 +3,6 @@ package net.result.taulight.chain.receiver;
 import net.result.sandnode.chain.ReceiverChain;
 import net.result.sandnode.chain.ServerChain;
 import net.result.sandnode.entity.MemberEntity;
-import net.result.sandnode.exception.DatabaseException;
-import net.result.sandnode.exception.ProtocolException;
 import net.result.sandnode.exception.error.*;
 import net.result.sandnode.message.Message;
 import net.result.sandnode.message.RawMessage;
@@ -39,7 +37,7 @@ public class CodeServerChain extends ServerChain implements ReceiverChain {
     private static final Logger LOGGER = LogManager.getLogger(CodeServerChain.class);
 
     @Override
-    public Message handle(RawMessage raw) throws Exception {
+    public Message handle(RawMessage raw) {
         CodeRequest request = new CodeRequest(raw);
 
         if (session.member == null) {
@@ -70,8 +68,7 @@ public class CodeServerChain extends ServerChain implements ReceiverChain {
         throw new TooFewArgumentsException();
     }
 
-    private Message handleCheck(CodeRequestDTO.Check check, TauMemberEntity you)
-            throws NotFoundException, DatabaseException {
+    private Message handleCheck(CodeRequestDTO.Check check, TauMemberEntity you) {
         InviteCodeRepository inviteCodeRepo = session.server.container.get(InviteCodeRepository.class);
 
         InviteCodeEntity invite = inviteCodeRepo.find(check.code).orElseThrow(NotFoundException::new);
@@ -84,8 +81,7 @@ public class CodeServerChain extends ServerChain implements ReceiverChain {
         return new CodeResponse(new CodeResponseDTO(new CodeResponseDTO.Check(code)));
     }
 
-    private Message handleUse(CodeRequestDTO.Use use, MemberEntity you)
-            throws DatabaseException, InterruptedException, SandnodeErrorException, ProtocolException {
+    private Message handleUse(CodeRequestDTO.Use use, MemberEntity you) {
         JPAUtil jpaUtil = session.server.container.get(JPAUtil.class);
         TauClusterManager tauClusterManager = session.server.container.get(TauClusterManager.class);
         GroupRepository groupRepo = session.server.container.get(GroupRepository.class);

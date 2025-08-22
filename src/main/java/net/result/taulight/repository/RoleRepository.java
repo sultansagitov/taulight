@@ -23,7 +23,7 @@ public class RoleRepository {
         jpaUtil = container.get(JPAUtil.class);
     }
 
-    public RoleEntity create(GroupEntity group, String role) throws DatabaseException {
+    public RoleEntity create(GroupEntity group, String role) {
         EntityManager em = jpaUtil.getEntityManager();
         RoleEntity managed = jpaUtil.create(new RoleEntity(group, role));
 
@@ -33,7 +33,7 @@ public class RoleRepository {
         return managed;
     }
 
-    public boolean addMember(RoleEntity role, TauMemberEntity member) throws DatabaseException {
+    public boolean addMember(RoleEntity role, TauMemberEntity member) {
         EntityManager em = jpaUtil.getEntityManager();
         EntityTransaction transaction = em.getTransaction();
         transaction.begin();
@@ -58,7 +58,7 @@ public class RoleRepository {
         }
     }
 
-    public boolean grantPermission(@NotNull RoleEntity role, @NotNull Permission permission) throws DatabaseException {
+    public boolean grantPermission(@NotNull RoleEntity role, @NotNull Permission permission) {
         EntityManager em = jpaUtil.getEntityManager();
         EntityTransaction transaction = em.getTransaction();
 
@@ -77,7 +77,7 @@ public class RoleRepository {
         }
     }
 
-    public boolean revokePermission(@NotNull RoleEntity role, @NotNull Permission permission) throws DatabaseException {
+    public boolean revokePermission(@NotNull RoleEntity role, @NotNull Permission permission) {
         EntityManager em = jpaUtil.getEntityManager();
         EntityTransaction transaction = em.getTransaction();
 

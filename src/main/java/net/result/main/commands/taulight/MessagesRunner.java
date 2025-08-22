@@ -3,7 +3,6 @@ package net.result.main.commands.taulight;
 import net.result.main.commands.ConsoleContext;
 import net.result.sandnode.dto.FileDTO;
 import net.result.sandnode.dto.PaginatedDTO;
-import net.result.sandnode.exception.SandnodeException;
 import net.result.taulight.chain.sender.MessageClientChain;
 import net.result.taulight.chain.sender.MessageFileClientChain;
 import net.result.taulight.dto.ChatMessageInputDTO;
@@ -16,7 +15,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public class MessagesRunner {
-    public static void messages(ConsoleContext context, UUID chatID) throws Exception {
+    public static void messages(ConsoleContext context, UUID chatID) {
         var chain = new MessageClientChain(context.client);
         context.io.chainManager.linkChain(chain);
         PaginatedDTO<ChatMessageViewDTO> paginated = chain.getMessages(chatID, 0, 100);
@@ -48,7 +47,7 @@ public class MessagesRunner {
         }
     }
 
-    static UUID uploadFile(ConsoleContext context, UUID chatID, String path) throws Exception {
+    static UUID uploadFile(ConsoleContext context, UUID chatID, String path) {
         MessageFileClientChain chain = new MessageFileClientChain(context.client);
         context.io.chainManager.linkChain(chain);
         UUID fileID = chain.upload(chatID, path, new File(path).getName());
@@ -71,7 +70,7 @@ public class MessagesRunner {
         }
     }
 
-    public static void downloadFile(ConsoleContext context, UUID fileID) throws Exception {
+    public static void downloadFile(ConsoleContext context, UUID fileID) {
         MessageFileClientChain chain = new MessageFileClientChain(context.client);
         context.io.chainManager.linkChain(chain);
         FileDTO avatar = chain.download(fileID);
@@ -82,7 +81,7 @@ public class MessagesRunner {
         System.out.printf("data:%s;base64,%s%n", mimeType, base64);
     }
 
-    public static void printMessage(ConsoleContext context, ChatMessageViewDTO dto) throws SandnodeException {
+    public static void printMessage(ConsoleContext context, ChatMessageViewDTO dto) {
         var input = dto.message;
 
         var formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");

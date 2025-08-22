@@ -7,8 +7,7 @@ public class TauMemberSettingsDTO {
     public boolean showStatus;
 
     @SuppressWarnings("unused")
-    public TauMemberSettingsDTO() {
-    }
+    public TauMemberSettingsDTO() {}
 
     public TauMemberSettingsDTO(boolean showStatus) {
         this.showStatus = showStatus;

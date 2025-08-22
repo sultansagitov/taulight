@@ -9,7 +9,6 @@ public abstract class BaseClientChainManager extends BaseChainManager implements
     protected final SandnodeClient client;
 
     protected BaseClientChainManager(SandnodeClient client) {
-        super();
         this.client = client;
     }
 

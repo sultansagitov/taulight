@@ -16,8 +16,6 @@ public abstract class ChatEntity extends BaseEntity {
     @OneToMany(mappedBy = "chat", cascade = {CascadeType.PERSIST, CascadeType.MERGE}, orphanRemoval = true)
     private Set<MessageEntity> messages = new HashSet<>();
 
-    public ChatEntity() {}
-
     public Set<MessageEntity> messages() {
         return messages;
     }

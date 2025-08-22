@@ -1,6 +1,5 @@
 package net.result.sandnode.message.types;
 
-import net.result.sandnode.exception.ExpectedMessageException;
 import net.result.sandnode.message.BaseMessage;
 import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.message.util.Headers;
@@ -10,7 +9,7 @@ import org.jetbrains.annotations.NotNull;
 public class WhoAmIResponse extends BaseMessage {
     private final String nickname;
 
-    public WhoAmIResponse(@NotNull RawMessage raw) throws ExpectedMessageException {
+    public WhoAmIResponse(@NotNull RawMessage raw) {
         super(raw.expect(MessageTypes.WHOAMI).headers());
         nickname = new String(raw.getBody());
     }

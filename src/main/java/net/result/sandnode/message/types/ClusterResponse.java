@@ -1,6 +1,5 @@
 package net.result.sandnode.message.types;
 
-import net.result.sandnode.exception.ExpectedMessageException;
 import net.result.sandnode.message.BaseMessage;
 import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.message.util.Headers;
@@ -12,7 +11,7 @@ import java.util.Set;
 public class ClusterResponse extends BaseMessage {
     private final Collection<String> clustersID;
 
-    public ClusterResponse(RawMessage raw) throws ExpectedMessageException {
+    public ClusterResponse(RawMessage raw) {
         super(raw.expect(MessageTypes.CLUSTER).headers());
         clustersID = Set.of(new String(raw.getBody()).split(","));
     }

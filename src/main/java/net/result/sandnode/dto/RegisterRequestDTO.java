@@ -13,8 +13,7 @@ public class RegisterRequestDTO {
     public PublicKeyDTO keyStorage;
 
     @SuppressWarnings("unused")
-    public RegisterRequestDTO() {
-    }
+    public RegisterRequestDTO() {}
 
     public RegisterRequestDTO(String nickname, String password, String device, PublicKeyDTO keyStorage) {
         this.nickname = nickname;

@@ -9,10 +9,6 @@ import net.result.sandnode.encryption.KeyStorageRegistry;
 import net.result.sandnode.encryption.interfaces.AsymmetricEncryption;
 import net.result.sandnode.encryption.interfaces.AsymmetricKeyStorage;
 import net.result.sandnode.exception.InvalidSandnodeLinkException;
-import net.result.sandnode.exception.crypto.CannotUseEncryption;
-import net.result.sandnode.exception.crypto.CreatingKeyException;
-import net.result.sandnode.exception.crypto.EncryptionTypeException;
-import net.result.sandnode.exception.error.KeyStorageNotFoundException;
 import net.result.sandnode.hubagent.Hub;
 import net.result.sandnode.serverclient.SandnodeServer;
 import net.result.sandnode.util.Address;
@@ -38,7 +34,7 @@ public class LinksTest {
     }
 
     @Test
-    public void testGetServerLink() throws KeyStorageNotFoundException, EncryptionTypeException {
+    public void testGetServerLink() {
         SandnodeServer server = new SandnodeServer(new TestHub(), new TestServerConfig());
 
         URI serverLink = SandnodeLinkRecord.fromServer(server).getURI();
@@ -51,7 +47,7 @@ public class LinksTest {
     }
 
     @Test
-    public void testParse() throws CreatingKeyException, InvalidSandnodeLinkException, CannotUseEncryption {
+    public void testParse() {
         AsymmetricKeyStorage eciesKeyStorage = AsymmetricEncryptions.ECIES.generate();
 
         String validLink = "sandnode://hub@localhost:52525?encryption=ECIES&key=%s"

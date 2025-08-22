@@ -1,6 +1,5 @@
 package net.result.sandnode.message.types;
 
-import net.result.sandnode.exception.ExpectedMessageException;
 import net.result.sandnode.message.RawMessage;
 import org.junit.jupiter.api.Test;
 
@@ -11,7 +10,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class ClusterRequestTest {
 
     @Test
-    void testClusterMessageInitializationAndRetrieval() throws ExpectedMessageException {
+    void testClusterMessageInitializationAndRetrieval() {
         var inputClusterNames = Set.of(
                 "cluster1", "CLUSTER2", "cluster_3", "invalid-name", "cluster_4", "cluster_5 ", "123Cluster",
                 "_underscore", "cluster with spaces", "cluster$special", "UPPERCASE", "", "  ", "что_то_на_русском"

@@ -1,10 +1,9 @@
 package net.result.taulight.entity;
 
 import jakarta.persistence.*;
+import net.result.sandnode.db.ZonedDateTimeConverter;
 import net.result.sandnode.entity.BaseEntity;
 import net.result.sandnode.entity.EncryptedKeyEntity;
-import net.result.sandnode.db.ZonedDateTimeConverter;
-import net.result.sandnode.exception.DatabaseException;
 import net.result.taulight.dto.ChatMessageInputDTO;
 import net.result.taulight.dto.ChatMessageViewDTO;
 import net.result.taulight.dto.NamedFileDTO;
@@ -158,7 +157,7 @@ public class MessageEntity extends BaseEntity {
         );
     }
 
-    public @NotNull ChatMessageViewDTO toViewDTO(MessageFileRepository messageFileRepo) throws DatabaseException {
+    public @NotNull ChatMessageViewDTO toViewDTO(MessageFileRepository messageFileRepo) {
         Map<String, List<String>> reactions = new HashMap<>();
         reactionEntries().forEach((entry) -> {
             ReactionTypeEntity type = entry.reactionType();

@@ -1,8 +1,7 @@
 package net.result.sandnode.message.types;
 
-import net.result.sandnode.exception.ExpectedMessageException;
-import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.message.BaseMessage;
+import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.message.util.Headers;
 import net.result.sandnode.message.util.MessageTypes;
 import org.apache.logging.log4j.LogManager;
@@ -47,7 +46,7 @@ public class ClusterRequest extends BaseMessage {
         this(new Headers(), clustersID);
     }
 
-    public ClusterRequest(@NotNull RawMessage message) throws ExpectedMessageException {
+    public ClusterRequest(@NotNull RawMessage message) {
         super(message.expect(MessageTypes.CLUSTER).headers());
 
         String[] clustersID = new String(message.getBody()).split(",");

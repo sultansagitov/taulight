@@ -16,14 +16,14 @@ public class RolesCommands {
         registry.register(new CommandInfo("assignRole", "Assign a role to a user", "Roles", RolesCommands::assignRole));
     }
 
-    private static void roles(List<String> args, ConsoleContext context) throws Exception {
+    private static void roles(List<String> args, ConsoleContext context) {
         UUID chatID = args.stream().findFirst().map(UUID::fromString).orElse(context.currentChat);
         if (chatID == null) return;
 
         RolesRunner.roles(context, chatID);
     }
 
-    private static void addRole(List<String> args, ConsoleContext context) throws Exception {
+    private static void addRole(List<String> args, ConsoleContext context) {
         if (args.isEmpty()) {
             System.out.println("Please provide a role id.");
             return;
@@ -49,7 +49,7 @@ public class RolesCommands {
         RolesRunner.addRole(context, chatID, roleName);
     }
 
-    private static void assignRole(List<String> args, ConsoleContext context) throws Exception {
+    private static void assignRole(List<String> args, ConsoleContext context) {
         if (args.size() < 2) {
             System.out.println("Please provide a nickname and role name.");
             return;

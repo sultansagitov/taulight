@@ -2,7 +2,6 @@ package net.result.taulight.chain.receiver;
 
 import net.result.sandnode.chain.ReceiverChain;
 import net.result.sandnode.chain.ServerChain;
-import net.result.sandnode.exception.DatabaseException;
 import net.result.sandnode.exception.error.*;
 import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.repository.MemberRepository;
@@ -74,7 +73,7 @@ public class RoleServerChain extends ServerChain implements ReceiverChain {
             Set<RoleDTO> allRoles,
             Set<UUID> memberRoles,
             Set<Permission> permissions
-    ) throws TooFewArgumentsException, DatabaseException, UnauthorizedException {
+    ) {
         RoleRepository roleRepo = session.server.container.get(RoleRepository.class);
 
         //noinspection DataFlowIssue
@@ -93,7 +92,7 @@ public class RoleServerChain extends ServerChain implements ReceiverChain {
             Set<RoleDTO> allRoles,
             Set<UUID> memberRoles,
             Set<Permission> permissions
-    ) throws TooFewArgumentsException, NotFoundException, DatabaseException, NoEffectException, UnauthorizedException {
+    ) {
         RoleRepository roleRepo = session.server.container.get(RoleRepository.class);
         MemberRepository memberRepo = session.server.container.get(MemberRepository.class);
 

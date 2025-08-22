@@ -27,7 +27,7 @@ public class CommandInfo {
         return group;
     }
 
-    public void run(List<String> args, ConsoleContext context) throws Exception {
+    public void run(List<String> args, ConsoleContext context) {
         action.run(args, context);
     }
 }

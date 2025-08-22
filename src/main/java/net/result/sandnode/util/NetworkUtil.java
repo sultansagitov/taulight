@@ -20,8 +20,7 @@ public class NetworkUtil {
                         ? "[%s]".formatted(localIP)
                         : localIP;
             }
-        } catch (SocketException ignored) {
-        }
+        } catch (SocketException ignored) {}
         return new Address(host, address.port()).toString(defaultPort);
     }
 

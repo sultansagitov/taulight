@@ -1,6 +1,5 @@
 package net.result.sandnode.message.types;
 
-import net.result.sandnode.exception.ExpectedMessageException;
 import net.result.sandnode.message.EmptyMessage;
 import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.message.util.Headers;
@@ -12,7 +11,7 @@ public class HappyMessage extends EmptyMessage {
         super(new Headers().setType(MessageTypes.HAPPY));
     }
 
-    public HappyMessage(@NotNull RawMessage message) throws ExpectedMessageException {
+    public HappyMessage(@NotNull RawMessage message) {
         super(message.expect(MessageTypes.HAPPY).headers());
     }
 }

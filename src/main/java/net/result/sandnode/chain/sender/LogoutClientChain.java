@@ -1,8 +1,6 @@
 package net.result.sandnode.chain.sender;
 
 import net.result.sandnode.chain.ClientChain;
-import net.result.sandnode.exception.ProtocolException;
-import net.result.sandnode.exception.error.SandnodeErrorException;
 import net.result.sandnode.message.EmptyMessage;
 import net.result.sandnode.message.util.Headers;
 import net.result.sandnode.message.util.MessageTypes;
@@ -13,7 +11,7 @@ public class LogoutClientChain extends ClientChain {
         super(client);
     }
 
-    public synchronized void logout() throws ProtocolException, InterruptedException, SandnodeErrorException {
+    public synchronized void logout() {
         sendAndReceive(new EmptyMessage(new Headers().setType(MessageTypes.LOGOUT))).expect(MessageTypes.HAPPY);
     }
 }

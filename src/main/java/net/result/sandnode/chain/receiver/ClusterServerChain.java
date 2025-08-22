@@ -4,7 +4,6 @@ import net.result.sandnode.chain.ReceiverChain;
 import net.result.sandnode.chain.ServerChain;
 import net.result.sandnode.cluster.Cluster;
 import net.result.sandnode.cluster.ClusterManager;
-import net.result.sandnode.exception.ExpectedMessageException;
 import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.message.types.ClusterRequest;
 import net.result.sandnode.message.types.ClusterResponse;
@@ -15,7 +14,7 @@ import java.util.stream.Collectors;
 
 public class ClusterServerChain extends ServerChain implements ReceiverChain {
     @Override
-    public ClusterResponse handle(RawMessage raw) throws ExpectedMessageException {
+    public ClusterResponse handle(RawMessage raw) {
         ClusterManager clusterManager = session.server.container.get(ClusterManager.class);
         ClusterRequest request = new ClusterRequest(raw);
 

@@ -21,14 +21,14 @@ public class AuthCommands {
         registry.register(new CommandInfo("loginHistory", "Show login history", "Auth", AuthCommands::loginHistory));
     }
 
-    private static void logout(List<String> ignored, ConsoleContext context) throws Exception {
+    private static void logout(List<String> ignored, ConsoleContext context) {
         var chain = new LogoutClientChain(context.client);
         context.io.chainManager.linkChain(chain);
         chain.logout();
         context.io.chainManager.removeChain(chain);
     }
 
-    private static void loginHistory(List<String> ignored, ConsoleContext context) throws Exception {
+    private static void loginHistory(List<String> ignored, ConsoleContext context) {
         SandnodeClient client = context.client;
         var chain = new LoginClientChain(client);
         context.io.chainManager.linkChain(chain);

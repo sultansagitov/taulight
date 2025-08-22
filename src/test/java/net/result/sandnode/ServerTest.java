@@ -91,7 +91,7 @@ public class ServerTest {
     }
 
     @Test
-    public void testMessageTransmission() throws Exception {
+    public void testMessageTransmission() throws InterruptedException {
         hubThread.start();
 
         TestServerChain.lock.lock();
@@ -128,7 +128,7 @@ public class ServerTest {
         return sentMessage;
     }
 
-    private static void validateMessage(Message sentMessage, Message receivedMessage) throws DeserializationException {
+    private static void validateMessage(Message sentMessage, Message receivedMessage) {
         // Validate headers
         assertEquals(sentMessage.headers().connection(), receivedMessage.headers().connection());
         assertEquals(sentMessage.headers().type(), receivedMessage.headers().type());
@@ -191,7 +191,7 @@ public class ServerTest {
         }
 
         @Override
-        public @Nullable Message handle(RawMessage receivedMessage) throws DeserializationException {
+        public @Nullable Message handle(RawMessage receivedMessage) {
             // Client sends message via chain
             Message sentMessage = prepareMessage();
             sentMessage.headers().setChainID(getID());
@@ -287,7 +287,7 @@ public class ServerTest {
             super(client);
         }
 
-        public void sendTestMessage(Message message) throws InterruptedException, UnprocessedMessagesException {
+        public void sendTestMessage(Message message) {
             sendFin(message);
         }
     }

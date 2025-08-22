@@ -2,7 +2,6 @@ package net.result.main.commands.taulight;
 
 import net.result.main.commands.ConsoleContext;
 import net.result.sandnode.dto.FileDTO;
-import net.result.sandnode.exception.SandnodeException;
 import net.result.sandnode.serverclient.SandnodeClient;
 import net.result.taulight.chain.sender.GroupClientChain;
 import net.result.taulight.chain.sender.ChatClientChain;
@@ -20,14 +19,14 @@ import java.util.List;
 import java.util.UUID;
 
 public class ChatsRunner {
-    public static void chats(@NotNull ConsoleContext context, Collection<ChatInfoPropDTO> all) throws Exception {
+    public static void chats(@NotNull ConsoleContext context, Collection<ChatInfoPropDTO> all) {
         ChatClientChain chain = new ChatClientChain(context.client);
         context.io.chainManager.linkChain(chain);
         printInfo(chain.getByMember(all), context.client);
         context.io.chainManager.removeChain(chain);
     }
 
-    public static void newGroup(@NotNull ConsoleContext context, String title) throws Exception {
+    public static void newGroup(@NotNull ConsoleContext context, String title) {
         var chain = new GroupClientChain(context.client);
         context.io.chainManager.linkChain(chain);
         UUID id = chain.sendNewGroupRequest(title);
@@ -40,7 +39,7 @@ public class ChatsRunner {
             UUID chatID,
             String otherNickname,
             Duration expirationTime
-    ) throws Exception {
+    ) {
         var chain = new GroupClientChain(context.client);
         context.io.chainManager.linkChain(chain);
         String code = chain.createInviteCode(chatID, otherNickname, expirationTime);
@@ -49,7 +48,7 @@ public class ChatsRunner {
         System.out.printf("%n%s%n%n", code);
     }
 
-    public static void leave(ConsoleContext context, UUID chatID) throws Exception {
+    public static void leave(ConsoleContext context, UUID chatID) {
         GroupClientChain chain = new GroupClientChain(context.client);
         context.io.chainManager.linkChain(chain);
         chain.sendLeaveRequest(chatID);
@@ -57,7 +56,7 @@ public class ChatsRunner {
         System.out.printf("Left chat '%s' successfully%n", chatID);
     }
 
-    public static MembersResponseDTO members(ConsoleContext context, UUID chatID) throws Exception {
+    public static MembersResponseDTO members(ConsoleContext context, UUID chatID) {
         MembersClientChain chain = new MembersClientChain(context.client);
 
         context.io.chainManager.linkChain(chain);
@@ -66,7 +65,7 @@ public class ChatsRunner {
         return result;
     }
 
-    public static void dialog(ConsoleContext context, String nickname) throws Exception {
+    public static void dialog(ConsoleContext context, String nickname) {
         DialogClientChain chain = new DialogClientChain(context.client);
         context.io.chainManager.linkChain(chain);
         UUID chatID = chain.getDialogID(nickname);
@@ -74,14 +73,15 @@ public class ChatsRunner {
         context.io.chainManager.removeChain(chain);
     }
 
-    public static void info(@NotNull ConsoleContext context, UUID chatID) throws Exception {
+    public static void info(@NotNull ConsoleContext context, UUID chatID) {
         ChatClientChain chain = new ChatClientChain(context.client);
         context.io.chainManager.linkChain(chain);
         printInfo(chain.getByID(List.of(chatID), ChatInfoPropDTO.all()), context.client);
         context.io.chainManager.removeChain(chain);
     }
 
-    public static void setGroupAvatar(@NotNull ConsoleContext context, UUID chatID, String path) throws Exception {
+    public static void setGroupAvatar(@NotNull ConsoleContext context, UUID chatID, String path)
+            {
         GroupClientChain chain = new GroupClientChain(context.client);
         context.io.chainManager.linkChain(chain);
         UUID uuid = chain.setAvatar(chatID, path);
@@ -89,7 +89,7 @@ public class ChatsRunner {
         System.out.printf("Avatar set successfully for group %s with path %s with id %s%n", chatID, path, uuid);
     }
 
-    public static void getGroupAvatar(@NotNull ConsoleContext context, UUID chatID) throws Exception {
+    public static void getGroupAvatar(@NotNull ConsoleContext context, UUID chatID) {
         GroupClientChain chain = new GroupClientChain(context.client);
         context.io.chainManager.linkChain(chain);
         FileDTO avatar = chain.getAvatar(chatID);
@@ -104,7 +104,7 @@ public class ChatsRunner {
         }
     }
 
-    public static void getDialogAvatar(@NotNull ConsoleContext context, UUID chatID) throws Exception {
+    public static void getDialogAvatar(@NotNull ConsoleContext context, UUID chatID) {
         DialogClientChain chain = new DialogClientChain(context.client);
         context.io.chainManager.linkChain(chain);
         FileDTO avatar = chain.getAvatar(chatID);
@@ -119,8 +119,7 @@ public class ChatsRunner {
         }
     }
 
-    public static void printInfo(@NotNull Collection<ChatInfoDTO> infos, SandnodeClient client)
-            throws SandnodeException {
+    public static void printInfo(@NotNull Collection<ChatInfoDTO> infos, SandnodeClient client) {
         for (ChatInfoDTO info : infos) {
             info.decrypt(client);
 

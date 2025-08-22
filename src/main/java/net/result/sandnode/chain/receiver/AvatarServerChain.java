@@ -23,7 +23,7 @@ public class AvatarServerChain extends ServerChain implements ReceiverChain {
     private MemberRepository memberRepo;
 
     @Override
-    public @Nullable Message handle(RawMessage raw) throws Exception {
+    public @Nullable Message handle(RawMessage raw) {
         dbFileUtil = session.server.container.get(DBFileUtil.class);
         memberRepo = session.server.container.get(MemberRepository.class);
 
@@ -40,7 +40,7 @@ public class AvatarServerChain extends ServerChain implements ReceiverChain {
         };
     }
 
-    private UUIDMessage set(MemberEntity you) throws Exception {
+    private UUIDMessage set(MemberEntity you) {
         JPAUtil jpaUtil = session.server.container.get(JPAUtil.class);
 
         FileDTO dto = FileIOUtil.receive(this::receive);
@@ -61,7 +61,7 @@ public class AvatarServerChain extends ServerChain implements ReceiverChain {
     }
 
     @SuppressWarnings("SameReturnValue")
-    private Message getMy(MemberEntity you) throws Exception {
+    private Message getMy(MemberEntity you) {
         FileEntity avatar = you.avatar();
         if (avatar == null) throw new NoEffectException();
         FileIOUtil.send(dbFileUtil.readImage(avatar), this::send);
@@ -69,7 +69,7 @@ public class AvatarServerChain extends ServerChain implements ReceiverChain {
     }
 
     @SuppressWarnings("SameReturnValue")
-    private Message getOf(String nickname) throws Exception {
+    private Message getOf(String nickname) {
         MemberEntity member = memberRepo.findByNickname(nickname).orElseThrow(NotFoundException::new);
         FileEntity avatar = member.avatar();
         if (avatar == null) throw new NoEffectException();

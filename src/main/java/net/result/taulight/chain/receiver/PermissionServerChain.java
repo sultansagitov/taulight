@@ -3,8 +3,6 @@ package net.result.taulight.chain.receiver;
 import net.result.sandnode.chain.ReceiverChain;
 import net.result.sandnode.chain.ServerChain;
 import net.result.sandnode.db.JPAUtil;
-import net.result.sandnode.exception.DatabaseException;
-import net.result.sandnode.exception.SandnodeException;
 import net.result.sandnode.exception.error.NoEffectException;
 import net.result.sandnode.exception.error.NotFoundException;
 import net.result.sandnode.exception.error.UnauthorizedException;
@@ -46,7 +44,7 @@ public class PermissionServerChain extends ServerChain implements ReceiverChain 
         return new HappyMessage();
     }
 
-    private GroupEntity getGroup(PermissionRequest request) throws SandnodeException {
+    private GroupEntity getGroup(PermissionRequest request) {
         GroupEntity group = jpaUtil.find(GroupEntity.class, request.chatID).orElseThrow(NotFoundException::new);
         if (session.member == null && !group.owner().equals(session.member.tauMember())) {
             throw new UnauthorizedException();
@@ -54,7 +52,7 @@ public class PermissionServerChain extends ServerChain implements ReceiverChain 
         return group;
     }
 
-    private RoleEntity getRole(PermissionRequest request) throws SandnodeException {
+    private RoleEntity getRole(PermissionRequest request) {
         RoleEntity role = jpaUtil
                 .find(RoleEntity.class, request.roleID)
                 .orElseThrow(NotFoundException::new);
@@ -65,7 +63,7 @@ public class PermissionServerChain extends ServerChain implements ReceiverChain 
         return role;
     }
 
-    private boolean grantPermission(PermissionRequest request) throws SandnodeException {
+    private boolean grantPermission(PermissionRequest request) {
         if (request.roleID != null) {
             RoleEntity role = getRole(request);
             return grantRolePermission(role, request.perm);
@@ -75,7 +73,7 @@ public class PermissionServerChain extends ServerChain implements ReceiverChain 
         }
     }
 
-    private boolean revokePermission(PermissionRequest request) throws SandnodeException {
+    private boolean revokePermission(PermissionRequest request) {
         if (request.roleID != null) {
             RoleEntity role = getRole(request);
             return revokeRolePermission(role, request.perm);
@@ -85,19 +83,19 @@ public class PermissionServerChain extends ServerChain implements ReceiverChain 
         }
     }
 
-    private boolean grantRolePermission(RoleEntity role, Permission perm) throws DatabaseException {
+    private boolean grantRolePermission(RoleEntity role, Permission perm) {
         return roleRepo.grantPermission(role, perm);
     }
 
-    private boolean revokeRolePermission(RoleEntity role, Permission perm) throws DatabaseException {
+    private boolean revokeRolePermission(RoleEntity role, Permission perm) {
         return roleRepo.revokePermission(role, perm);
     }
 
-    private boolean grantChatPermission(GroupEntity group, Permission perm) throws DatabaseException {
+    private boolean grantChatPermission(GroupEntity group, Permission perm) {
         return groupRepo.grantPermission(group, perm);
     }
 
-    private boolean revokeChatPermission(GroupEntity group, Permission perm) throws DatabaseException {
+    private boolean revokeChatPermission(GroupEntity group, Permission perm) {
         return groupRepo.revokePermission(group, perm);
     }
 }

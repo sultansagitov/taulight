@@ -37,8 +37,7 @@ public class IOController {
     private Encryption symKeyEncryption = Encryptions.NONE;
     public boolean connected = true;
 
-    public IOController(Socket socket, Connection conn, KeyStorageRegistry ksr, ChainManager chainManager)
-            throws InputStreamException, OutputStreamException {
+    public IOController(Socket socket, Connection conn, KeyStorageRegistry ksr, ChainManager chainManager) {
         this.in = StreamReader.inputStream(socket);
         this.out = StreamReader.outputStream(socket);
         this.socket = socket;
@@ -82,14 +81,17 @@ public class IOController {
         return symKeyEncryption() != Encryptions.NONE ? symKeyEncryption() : serverEncryption();
     }
 
-    public void sendMessage(@NotNull Message message) throws InterruptedException {
+    public void sendMessage(@NotNull Message message) {
         if (message.headersEncryption() == Encryptions.NONE)
             message.setHeadersEncryption(currentEncryption());
-        sendingQueue.put(message);
+        try {
+            sendingQueue.put(message);
+        } catch (InterruptedException e) {
+            throw new SandnodeInterruptedException(e);
+        }
     }
 
-    public synchronized void disconnect(boolean sendMessage)
-            throws SocketClosingException, InterruptedException, UnprocessedMessagesException {
+    public synchronized void disconnect(boolean sendMessage) {
         LOGGER.info("Disconnecting from {}", addressFromSocket(socket));
         connected = false;
         LOGGER.info("Sending exit message");

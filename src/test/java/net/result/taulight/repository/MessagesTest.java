@@ -2,10 +2,6 @@ package net.result.taulight.repository;
 
 import net.result.sandnode.GlobalTestState;
 import net.result.sandnode.repository.MemberRepository;
-import net.result.sandnode.exception.DatabaseException;
-import net.result.sandnode.exception.SandnodeException;
-import net.result.sandnode.exception.error.BusyNicknameException;
-import net.result.sandnode.exception.error.UnauthorizedException;
 import net.result.sandnode.util.Container;
 import net.result.sandnode.db.JPAUtil;
 import net.result.sandnode.db.SimpleJPAUtil;
@@ -29,7 +25,7 @@ public class MessagesTest {
     private static MessageRepository messageRepo;
 
     @BeforeAll
-    public static void setup() throws DatabaseException, BusyNicknameException {
+    public static void setup() {
         Container container = GlobalTestState.container;
         jpaUtil = container.get(SimpleJPAUtil.class);
 
@@ -45,7 +41,7 @@ public class MessagesTest {
     }
 
     @Test
-    public void createMessage() throws SandnodeException {
+    public void createMessage() {
         ChatEntity chat = groupRepo.create("Test Group", member1);
 
         ChatMessageInputDTO messageInputDTO = new ChatMessageInputDTO()
@@ -72,7 +68,7 @@ public class MessagesTest {
     }
 
     @Test
-    public void loadMessages() throws DatabaseException, UnauthorizedException {
+    public void loadMessages() {
         GroupEntity group = groupRepo.create("Test Group", member1);
 
         ChatMessageInputDTO input1 = new ChatMessageInputDTO()
@@ -120,7 +116,7 @@ public class MessagesTest {
     }
 
     @Test
-    public void findMessage() throws SandnodeException {
+    public void findMessage() {
         GroupEntity group = groupRepo.create("FindMessageGroup", member1);
 
         ChatMessageInputDTO input = new ChatMessageInputDTO()
@@ -149,7 +145,7 @@ public class MessagesTest {
     }
 
     @Test
-    public void getMessageCount() throws SandnodeException {
+    public void getMessageCount() {
         GroupEntity group = groupRepo.create("Test Group", member1);
 
         ChatMessageInputDTO input1 = new ChatMessageInputDTO()

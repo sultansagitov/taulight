@@ -8,7 +8,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.UUID;
 
 public class Main {
-    public static void main(String @NotNull [] args) throws Exception {
+    public static void main(String @NotNull [] args) {
         String randomId = UUID.randomUUID().toString();
         System.setProperty("randomId", randomId);
         EncryptionManager.registerAll();

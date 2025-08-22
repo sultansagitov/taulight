@@ -16,7 +16,7 @@ public interface Message {
 
     @NotNull Encryption headersEncryption();
 
-    default @NotNull Message expect(MessageType type) throws ExpectedMessageException {
+    default @NotNull Message expect(MessageType type) {
         if (this.headers().type() != type)
             throw new ExpectedMessageException(type, this);
         return this;

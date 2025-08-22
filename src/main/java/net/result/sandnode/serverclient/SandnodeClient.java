@@ -72,8 +72,7 @@ public class SandnodeClient implements Peer {
         return new SandnodeClient(link.address(), node, link.nodeType(), clientConfig);
     }
 
-    public void start(ClientChainManager chainManager)
-            throws InputStreamException, OutputStreamException, ConnectionException {
+    public void start(ClientChainManager chainManager) {
         try {
             LOGGER.info("Connecting to {}", address);
             start(chainManager, new Socket(address.host(), address.port()));
@@ -83,8 +82,7 @@ public class SandnodeClient implements Peer {
         }
     }
 
-    public void start(ClientChainManager chainManager, Socket socket)
-            throws InputStreamException, OutputStreamException {
+    public void start(ClientChainManager chainManager, Socket socket) {
         this.socket = socket;
         try {
             LOGGER.info("Connection established.");

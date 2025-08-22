@@ -1,6 +1,5 @@
 package net.result.taulight.util;
 
-import net.result.sandnode.exception.DatabaseException;
 import net.result.sandnode.util.Container;
 import net.result.sandnode.db.JPAUtil;
 import net.result.taulight.entity.ChatEntity;
@@ -16,12 +15,11 @@ public class ChatUtil {
     private final JPAUtil jpaUtil;
 
     public ChatUtil(Container container) {
-        super();
         groupRepo = container.get(GroupRepository.class);
         jpaUtil = container.get(JPAUtil.class);
     }
 
-    public Optional<ChatEntity> getChat(UUID id) throws DatabaseException {
+    public Optional<ChatEntity> getChat(UUID id) {
         Optional<GroupEntity> group = jpaUtil.find(GroupEntity.class, id);
         if (group.isPresent()) return group.map(c -> c);
         return jpaUtil.find(DialogEntity.class, id).map(d -> d);
@@ -41,7 +39,7 @@ public class ChatUtil {
         return Set.of();
     }
 
-    public boolean contains(ChatEntity chat, TauMemberEntity member) throws DatabaseException {
+    public boolean contains(ChatEntity chat, TauMemberEntity member) {
         if (chat instanceof GroupEntity group) {
             return groupRepo.contains(group, member);
         }

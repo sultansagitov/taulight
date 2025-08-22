@@ -14,8 +14,7 @@ public class ChatRequestDTO {
     public Collection<ChatInfoPropDTO> infoProps;
 
     @SuppressWarnings("unused")
-    public ChatRequestDTO() {
-    }
+    public ChatRequestDTO() {}
 
     public ChatRequestDTO(Collection<ChatInfoPropDTO> infoProps) {
         this.infoProps = infoProps;

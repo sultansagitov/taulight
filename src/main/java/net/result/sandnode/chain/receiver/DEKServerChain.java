@@ -6,8 +6,6 @@ import net.result.sandnode.db.JPAUtil;
 import net.result.sandnode.dto.DEKRequestDTO;
 import net.result.sandnode.entity.EncryptedKeyEntity;
 import net.result.sandnode.entity.MemberEntity;
-import net.result.sandnode.exception.DatabaseException;
-import net.result.sandnode.exception.SandnodeException;
 import net.result.sandnode.exception.error.AddressedMemberNotFoundException;
 import net.result.sandnode.exception.error.NotFoundException;
 import net.result.sandnode.exception.error.TooFewArgumentsException;
@@ -44,7 +42,7 @@ public class DEKServerChain extends ServerChain implements ReceiverChain {
         throw new TooFewArgumentsException();
     }
 
-    private @NotNull UUIDMessage send(MemberEntity you, DEKRequestDTO.Send sendDTO) throws NotFoundException, DatabaseException {
+    private @NotNull UUIDMessage send(MemberEntity you, DEKRequestDTO.Send sendDTO) {
         var memberRepo = session.server.container.get(MemberRepository.class);
         var encryptedKeyRepo = session.server.container.get(EncryptedKeyRepository.class);
 
@@ -57,7 +55,7 @@ public class DEKServerChain extends ServerChain implements ReceiverChain {
         return new UUIDMessage(new Headers(), entity.id());
     }
 
-    private @NotNull DEKListMessage get(MemberEntity you) throws DatabaseException {
+    private @NotNull DEKListMessage get(MemberEntity you) {
         JPAUtil jpaUtil = session.server.container.get(JPAUtil.class);
 
         session.member = jpaUtil.refresh(you);
@@ -68,7 +66,7 @@ public class DEKServerChain extends ServerChain implements ReceiverChain {
         return new DEKListMessage((list));
     }
 
-    private @NotNull PublicKeyResponse getOf(MemberEntity you, DEKRequestDTO dto) throws SandnodeException {
+    private @NotNull PublicKeyResponse getOf(MemberEntity you, DEKRequestDTO dto) {
         MemberRepository memberRepo = session.server.container.get(MemberRepository.class);
 
         var entity = memberRepo

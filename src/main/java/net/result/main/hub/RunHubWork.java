@@ -7,7 +7,6 @@ import net.result.sandnode.config.HubConfig;
 import net.result.sandnode.config.ServerConfig;
 import net.result.sandnode.encryption.KeyStorageRegistry;
 import net.result.sandnode.encryption.interfaces.AsymmetricEncryption;
-import net.result.sandnode.exception.SandnodeException;
 import net.result.sandnode.exception.SocketAcceptException;
 import net.result.sandnode.serverclient.SandnodeServer;
 import net.result.sandnode.util.Container;
@@ -16,7 +15,7 @@ import net.result.taulight.hubagent.TauHub;
 
 public class RunHubWork implements Work {
     @Override
-    public void run() throws SandnodeException {
+    public void run() {
         Container container = new SimpleContainer();
 
         container.set(HubSetting.class);
