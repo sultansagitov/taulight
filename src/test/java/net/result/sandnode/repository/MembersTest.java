@@ -30,13 +30,13 @@ class MembersTest {
     public void registerMember() {
         MemberEntity newMember = memberRepo.create("testuser123", "hash");
         assertNotNull(newMember);
-        assertEquals("testuser123", newMember.nickname());
+        assertEquals("testuser123", newMember.getNickname());
 
         // Additional assertions
         assertNotNull(newMember.id());
-        assertNotNull(newMember.tauMember());
-        assertEquals(0, newMember.tauMember().dialogs().size(), "New member should have no dialogs");
-        assertEquals(0, newMember.tauMember().groups().size(), "New member should have no groups");
+        assertNotNull(newMember.getTauMember());
+        assertEquals(0, newMember.getTauMember().getDialogs().size(), "New member should have no dialogs");
+        assertEquals(0, newMember.getTauMember().getGroups().size(), "New member should have no groups");
 
         // Test duplicate nickname
         assertThrows(BusyNicknameException.class, () -> memberRepo.create("testuser123", "hash"));
@@ -47,13 +47,13 @@ class MembersTest {
         AsymmetricKeyStorage keyStorage = AsymmetricEncryptions.ECIES.generate();
         MemberEntity newMember = memberRepo.create("testuser123_with_key", "hash", keyStorage);
         assertNotNull(newMember);
-        assertEquals("testuser123_with_key", newMember.nickname());
+        assertEquals("testuser123_with_key", newMember.getNickname());
 
         // Additional assertions
         assertNotNull(newMember.id());
-        assertNotNull(newMember.tauMember());
-        assertEquals(0, newMember.tauMember().dialogs().size(), "New member should have no dialogs");
-        assertEquals(0, newMember.tauMember().groups().size(), "New member should have no groups");
+        assertNotNull(newMember.getTauMember());
+        assertEquals(0, newMember.getTauMember().getDialogs().size(), "New member should have no dialogs");
+        assertEquals(0, newMember.getTauMember().getGroups().size(), "New member should have no groups");
 
         // Test duplicate nickname
         assertThrows(BusyNicknameException.class, () -> memberRepo.create("testuser123", "hash"));
@@ -65,7 +65,7 @@ class MembersTest {
 
         Optional<MemberEntity> found = memberRepo.findByNickname("nicksearch");
         assertTrue(found.isPresent());
-        assertEquals("nicksearch", found.get().nickname());
+        assertEquals("nicksearch", found.get().getNickname());
 
         // Additional assertions
         assertEquals(registeredMember.id(), found.get().id(), "IDs should match");

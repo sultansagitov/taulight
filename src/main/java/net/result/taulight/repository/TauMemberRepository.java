@@ -28,7 +28,7 @@ public class TauMemberRepository {
 
             em.merge(tauMember);
 
-            MemberEntity m = tauMember.member();
+            MemberEntity m = tauMember.getMember();
             m.setTauMember(tauMember);
 
             em.merge(m);

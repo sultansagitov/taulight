@@ -29,7 +29,7 @@ public class ReactionEntryEntity extends BaseEntity {
     public @NotNull ReactionDTO toDTO(boolean isReact) {
         return new ReactionDTO(
                 isReact,
-                member().member().nickname(),
+                member().getMember().getNickname(),
                 message().chat().id(),
                 message().id(),
                 reactionType().reactionPackage().name(),

@@ -33,8 +33,8 @@ public class MessagesTest {
         groupRepo = container.get(GroupRepository.class);
         messageRepo = container.get(MessageRepository.class);
 
-        member1 = memberRepo.create("user1_messages", "hash").tauMember();
-        member2 = memberRepo.create("user2_messages", "hash").tauMember();
+        member1 = memberRepo.create("user1_messages", "hash").getTauMember();
+        member2 = memberRepo.create("user2_messages", "hash").getTauMember();
 
         assertNotNull(member1.id());
         assertNotNull(member2.id());
@@ -47,7 +47,7 @@ public class MessagesTest {
         ChatMessageInputDTO messageInputDTO = new ChatMessageInputDTO()
                 .setContent("Hello!")
                 .setChatID(chat.id())
-                .setNickname(member1.member().nickname())
+                .setNickname(member1.getMember().getNickname())
                 .setSentDatetimeNow()
                 .setRepliedToMessages(new HashSet<>())
                 .setSys(true);
@@ -74,7 +74,7 @@ public class MessagesTest {
         ChatMessageInputDTO input1 = new ChatMessageInputDTO()
                 .setContent("Hello world")
                 .setChatID(group.id())
-                .setNickname(member1.member().nickname())
+                .setNickname(member1.getMember().getNickname())
                 .setSentDatetimeNow()
                 .setRepliedToMessages(new HashSet<>())
                 .setSys(true);
@@ -82,7 +82,7 @@ public class MessagesTest {
         ChatMessageInputDTO input2 = new ChatMessageInputDTO()
                 .setContent("Hello world")
                 .setChatID(group.id())
-                .setNickname(member2.member().nickname())
+                .setNickname(member2.getMember().getNickname())
                 .setSentDatetimeNow()
                 .setRepliedToMessages(new HashSet<>())
                 .setSys(true);
@@ -122,7 +122,7 @@ public class MessagesTest {
         ChatMessageInputDTO input = new ChatMessageInputDTO()
                 .setContent("Find me")
                 .setChatID(group.id())
-                .setNickname(member1.member().nickname())
+                .setNickname(member1.getMember().getNickname())
                 .setSentDatetimeNow()
                 .setRepliedToMessages(new HashSet<>())
                 .setSys(false);
@@ -151,7 +151,7 @@ public class MessagesTest {
         ChatMessageInputDTO input1 = new ChatMessageInputDTO()
                 .setContent("Hello world")
                 .setChatID(group.id())
-                .setNickname(member1.member().nickname())
+                .setNickname(member1.getMember().getNickname())
                 .setSentDatetimeNow()
                 .setRepliedToMessages(new HashSet<>())
                 .setSys(true);
@@ -159,7 +159,7 @@ public class MessagesTest {
         ChatMessageInputDTO input2 = new ChatMessageInputDTO()
                 .setContent("Hello world")
                 .setChatID(group.id())
-                .setNickname(member2.member().nickname())
+                .setNickname(member2.getMember().getNickname())
                 .setSentDatetimeNow()
                 .setRepliedToMessages(new HashSet<>())
                 .setSys(true);
@@ -176,7 +176,7 @@ public class MessagesTest {
         ChatMessageInputDTO input3 = new ChatMessageInputDTO()
                 .setContent("Third message")
                 .setChatID(group.id())
-                .setNickname(member1.member().nickname())
+                .setNickname(member1.getMember().getNickname())
                 .setSentDatetimeNow()
                 .setRepliedToMessages(new HashSet<>())
                 .setSys(false);

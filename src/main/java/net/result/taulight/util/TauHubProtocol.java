@@ -34,7 +34,7 @@ public class TauHubProtocol {
         var messageRepo = session.server.container.get(MessageRepository.class);
         var messageFileRepo = session.server.container.get(MessageFileRepository.class);
 
-        MessageEntity message = messageRepo.create(chat, input, session.member.tauMember());
+        MessageEntity message = messageRepo.create(chat, input, session.member.getTauMember());
         LOGGER.info("Saved message with id {} content: {}", message.id(), message.content());
         ChatMessageViewDTO serverMessage = message.toViewDTO(messageFileRepo);
 

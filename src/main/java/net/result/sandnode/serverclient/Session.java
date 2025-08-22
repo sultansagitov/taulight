@@ -106,6 +106,6 @@ public class Session implements Peer {
         String simpleName = getClass().getSimpleName();
         Address address = io.addressFromSocket();
         if (member == null) return "<%s %s>".formatted(simpleName, address);
-        return "<%s %s %s>".formatted(simpleName, address, member.nickname());
+        return "<%s %s %s>".formatted(simpleName, address, member.getNickname());
     }
 }

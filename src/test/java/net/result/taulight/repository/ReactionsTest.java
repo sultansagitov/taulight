@@ -40,8 +40,8 @@ class ReactionsTest {
         reactionTypeRepo = container.get(ReactionTypeRepository.class);
         reactionEntryRepo = container.get(ReactionEntryRepository.class);
 
-        member1 = memberRepo.create("user1", "hash").tauMember();
-        member2 = memberRepo.create("user2", "hash").tauMember();
+        member1 = memberRepo.create("user1", "hash").getTauMember();
+        member2 = memberRepo.create("user2", "hash").getTauMember();
 
         assertNotNull(member1.id());
         assertNotNull(member2.id());
@@ -160,7 +160,7 @@ class ReactionsTest {
         ChatMessageInputDTO input = new ChatMessageInputDTO()
                 .setContent("Hello world")
                 .setChatID(group.id())
-                .setNickname(member1.member().nickname())
+                .setNickname(member1.getMember().getNickname())
                 .setSentDatetimeNow()
                 .setRepliedToMessages(new HashSet<>())
                 .setSys(true);
@@ -200,7 +200,7 @@ class ReactionsTest {
         ChatMessageInputDTO input = new ChatMessageInputDTO()
                 .setContent("Hello world")
                 .setChatID(group.id())
-                .setNickname(member1.member().nickname())
+                .setNickname(member1.getMember().getNickname())
                 .setSentDatetimeNow()
                 .setRepliedToMessages(new HashSet<>())
                 .setSys(true);
@@ -273,7 +273,7 @@ class ReactionsTest {
         ChatMessageInputDTO input = new ChatMessageInputDTO()
                 .setContent("Test remove")
                 .setChatID(group.id())
-                .setNickname(member1.member().nickname())
+                .setNickname(member1.getMember().getNickname())
                 .setSentDatetimeNow()
                 .setRepliedToMessages(new HashSet<>())
                 .setSys(false);

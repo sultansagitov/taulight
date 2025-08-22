@@ -28,8 +28,8 @@ public class ChatUtil {
     public Collection<TauMemberEntity> getMembers(ChatEntity chat) {
         if (chat instanceof GroupEntity group) return group.members();
         if (chat instanceof DialogEntity dialog) {
-            TauMemberEntity e1 = dialog.firstMember();
-            TauMemberEntity e2 = dialog.secondMember();
+            TauMemberEntity e1 = dialog.getFirstMember();
+            TauMemberEntity e2 = dialog.getSecondMember();
             if (e1.equals(e2)) {
                 return Set.of(e1);
             } else {
@@ -45,8 +45,8 @@ public class ChatUtil {
         }
 
         if (chat instanceof DialogEntity dialog) {
-            if (dialog.firstMember().equals(member)) return true;
-            return dialog.secondMember().equals(member);
+            if (dialog.getFirstMember().equals(member)) return true;
+            return dialog.getSecondMember().equals(member);
         }
         return false;
     }

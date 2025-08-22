@@ -35,14 +35,14 @@ public abstract class LogPasswdServerChain extends ServerChain implements Receiv
                 .findByNickname(request.dto().nickname)
                 .orElseThrow(UnauthorizedException::new);
 
-        boolean verified = hasher.verify(request.dto().password, member.hashedPassword());
+        boolean verified = hasher.verify(request.dto().password, member.getPasswordHash());
         if (!verified) {
             throw new UnauthorizedException();
         }
 
         String ip = session.io().socket.getInetAddress().getHostAddress();
 
-        KeyStorageEntity keyEntity = member.publicKey();
+        KeyStorageEntity keyEntity = member.getPublicKey();
         AsymmetricEncryption encryption = keyEntity.encryption().asymmetric();
         AsymmetricKeyStorage keyStorage = encryption.publicKeyConvertor().toKeyStorage(keyEntity.encodedKey());
 

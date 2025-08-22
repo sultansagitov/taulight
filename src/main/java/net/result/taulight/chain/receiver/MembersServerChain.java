@@ -44,7 +44,7 @@ public class MembersServerChain extends ServerChain implements ReceiverChain {
         ChatEntity chat = optChat.get();
         ChatCluster cluster = clusterManager.getCluster(chat);
 
-        if (!chatUtil.contains(chat, session.member.tauMember())) {
+        if (!chatUtil.contains(chat, session.member.getTauMember())) {
             throw new NotFoundException();
         }
 
@@ -72,7 +72,7 @@ public class MembersServerChain extends ServerChain implements ReceiverChain {
         Map<MemberEntity, ChatMemberDTO> map = new HashMap<>();
         for (TauMemberEntity m : tauMembers) {
             List<UUID> roleIds = memberRolesMap.getOrDefault(m, null);
-            map.put(m.member(), m.toChatMemberDTO(roleIds));
+            map.put(m.getMember(), m.toChatMemberDTO(roleIds));
         }
 
         for (Session s : cluster.getSessions()) {

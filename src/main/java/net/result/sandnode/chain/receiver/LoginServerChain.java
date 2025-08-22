@@ -77,7 +77,7 @@ public class LoginServerChain extends ServerChain implements ReceiverChain {
         onLogin();
 
         //noinspection DataFlowIssue
-        return new LoginResponse(session.member.nickname());
+        return new LoginResponse(session.member.getNickname());
     }
 
     protected void onLogin() {}

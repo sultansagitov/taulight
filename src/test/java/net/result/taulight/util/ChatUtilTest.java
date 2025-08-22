@@ -45,13 +45,13 @@ public class ChatUtilTest {
         member2 = memberRepo.create("member2_chat_util", "hash");
         member3 = memberRepo.create("member3_chat_util", "hash");
 
-        GroupEntity g = groupRepo.create("new group", member1.tauMember());
-        groupRepo.addMember(g, member1.tauMember());
-        groupRepo.addMember(g, member2.tauMember());
+        GroupEntity g = groupRepo.create("new group", member1.getTauMember());
+        groupRepo.addMember(g, member1.getTauMember());
+        groupRepo.addMember(g, member2.getTauMember());
         group = jpaUtil.refresh(g);
 
-        dialog = dialogRepo.create(member1.tauMember(), member2.tauMember());
-        monolog = dialogRepo.create(member3.tauMember(), member3.tauMember());
+        dialog = dialogRepo.create(member1.getTauMember(), member2.getTauMember());
+        monolog = dialogRepo.create(member3.getTauMember(), member3.getTauMember());
     }
 
     @Test
@@ -92,7 +92,7 @@ public class ChatUtilTest {
         Collection<TauMemberEntity> members = chatUtil.getMembers(group);
 
         int count = members.size();
-        boolean containsExpected = members.containsAll(List.of(member1.tauMember(), member2.tauMember()));
+        boolean containsExpected = members.containsAll(List.of(member1.getTauMember(), member2.getTauMember()));
 
         assertEquals(2, count, "Group should contain exactly 2 members");
         assertTrue(containsExpected, "Group should contain member1 and member2");
@@ -103,7 +103,7 @@ public class ChatUtilTest {
         Collection<TauMemberEntity> members = chatUtil.getMembers(dialog);
 
         int count = members.size();
-        boolean containsExpected = members.containsAll(List.of(member1.tauMember(), member2.tauMember()));
+        boolean containsExpected = members.containsAll(List.of(member1.getTauMember(), member2.getTauMember()));
 
         assertEquals(2, count, "Dialog should contain exactly 2 members");
         assertTrue(containsExpected, "Dialog should contain both member1 and member2");
@@ -114,7 +114,7 @@ public class ChatUtilTest {
         Collection<TauMemberEntity> members = chatUtil.getMembers(monolog);
 
         int count = members.size();
-        boolean containsExpected = members.contains(member3.tauMember());
+        boolean containsExpected = members.contains(member3.getTauMember());
 
         assertEquals(1, count, "Monolog should contain exactly 1 member");
         assertTrue(containsExpected, "Monolog should contain member3 only");
@@ -123,16 +123,16 @@ public class ChatUtilTest {
 
     @Test
     void testContainsInGroup() {
-        boolean contains1 = chatUtil.contains(group, member1.tauMember());
+        boolean contains1 = chatUtil.contains(group, member1.getTauMember());
 
         assertTrue(contains1);
     }
 
     @Test
     void testContainsInDialog() {
-        boolean contains1 = chatUtil.contains(dialog, member1.tauMember());
-        boolean contains2 = chatUtil.contains(dialog, member2.tauMember());
-        boolean contains3 = chatUtil.contains(dialog, member3.tauMember());
+        boolean contains1 = chatUtil.contains(dialog, member1.getTauMember());
+        boolean contains2 = chatUtil.contains(dialog, member2.getTauMember());
+        boolean contains3 = chatUtil.contains(dialog, member3.getTauMember());
 
         assertTrue(contains1);
         assertTrue(contains2);

@@ -16,10 +16,10 @@ public class LoginUtil {
             throw new UnauthorizedException();
         }
 
-        TauMemberEntity tauMember = session.member.tauMember();
+        TauMemberEntity tauMember = session.member.getTauMember();
 
         Stream
-                .concat(tauMember.groups().stream(), tauMember.dialogs().stream())
+                .concat(tauMember.getGroups().stream(), tauMember.getDialogs().stream())
                 .forEach(chat -> ClusterUtil.addMemberToCluster(session, manager.getCluster(chat)));
     }
 }

@@ -36,7 +36,7 @@ public class MessageFileServerChain extends ServerChain implements ReceiverChain
         if (chatID != null) {
             String filename = request.filename;
             if (filename == null) throw new TooFewArgumentsException();
-            return uploadFile(chatID, filename, session.member.tauMember());
+            return uploadFile(chatID, filename, session.member.getTauMember());
         } else if (fileID != null) {
             downloadFile(fileID);
         } else {

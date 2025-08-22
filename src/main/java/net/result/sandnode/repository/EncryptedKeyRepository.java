@@ -12,7 +12,7 @@ public class EncryptedKeyRepository {
         jpaUtil = container.get(JPAUtil.class);
     }
 
-    public EncryptedKeyEntity create(MemberEntity sender, MemberEntity receiver, String encrypted) {
-        return jpaUtil.create(new EncryptedKeyEntity(sender, receiver, encrypted));
+    public EncryptedKeyEntity create(String encrypted, MemberEntity sender, MemberEntity receiver) {
+        return jpaUtil.create(new EncryptedKeyEntity(encrypted, sender, receiver));
     }
 }

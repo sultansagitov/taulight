@@ -28,8 +28,8 @@ public class DialogRepository {
         }
 
         DialogEntity dialog = new DialogEntity(firstMember, secondMember);
-        firstMember.dialogsAsFirst().add(dialog);
-        secondMember.dialogsAsSecond().add(dialog);
+        firstMember.getDialogsAsFirst().add(dialog);
+        secondMember.getDialogsAsSecond().add(dialog);
 
         return jpaUtil.create(dialog);
     }

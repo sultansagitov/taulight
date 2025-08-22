@@ -38,13 +38,13 @@ public class EncryptedKeysTest {
     void testCreateAndFindEncryptedKeyEntity() {
         String encrypted = "encrypted-data";
 
-        EncryptedKeyEntity created = encryptedKeyRepo.create(sender, receiver, encrypted);
+        EncryptedKeyEntity created = encryptedKeyRepo.create(encrypted, sender, receiver);
         assertNotNull(created);
         assertNotNull(created.id());
 
         Optional<EncryptedKeyEntity> found = jpaUtil.find(EncryptedKeyEntity.class, created.id());
         assertTrue(found.isPresent());
-        assertEquals(encrypted, found.get().encryptedKey());
+        assertEquals(encrypted, found.get().getEncryptedKey());
     }
 
     @Test

@@ -44,7 +44,7 @@ public class CodeServerChain extends ServerChain implements ReceiverChain {
             throw new UnauthorizedException();
         }
 
-        TauMemberEntity tauMember = session.member.tauMember();
+        TauMemberEntity tauMember = session.member.getTauMember();
 
         CodeRequestDTO.Check check = request.check();
         if (check != null) {
@@ -92,8 +92,8 @@ public class CodeServerChain extends ServerChain implements ReceiverChain {
         TauMemberEntity member = invite.receiver();
         GroupEntity group = invite.group();
 
-        if (!invite.receiver().equals(you.tauMember())) {
-            if (invite.sender().equals(you.tauMember())) {
+        if (!invite.receiver().equals(you.getTauMember())) {
+            if (invite.sender().equals(you.getTauMember())) {
                 throw new UnauthorizedException();
             } else {
                 throw new NotFoundException();
@@ -145,7 +145,7 @@ public class CodeServerChain extends ServerChain implements ReceiverChain {
 
     private Message handleMyCodes(@NotNull TauMemberEntity you) {
         Collection<CodeDTO> collected = you
-                .inviteCodesAsReceiver().stream()
+                .getInviteCodesAsReceiver().stream()
                 .map(InviteCodeEntity::toDTO)
                 .collect(Collectors.toSet());
 

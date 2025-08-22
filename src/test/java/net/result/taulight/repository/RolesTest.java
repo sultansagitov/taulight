@@ -24,8 +24,8 @@ public class RolesTest {
         groupRepo = container.get(GroupRepository.class);
         roleRepo = container.get(RoleRepository.class);
 
-        member1 = memberRepo.create("user1_roles", "hash").tauMember();
-        member2 = memberRepo.create("user2_roles", "hash").tauMember();
+        member1 = memberRepo.create("user1_roles", "hash").getTauMember();
+        member2 = memberRepo.create("user2_roles", "hash").getTauMember();
 
         assertNotNull(member1.id());
         assertNotNull(member2.id());

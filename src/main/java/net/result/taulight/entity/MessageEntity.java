@@ -150,7 +150,7 @@ public class MessageEntity extends BaseEntity {
                 key() != null ? key().id() : null,
                 content(),
                 sentDatetime(),
-                member().member().nickname(),
+                member().getMember().getNickname(),
                 sys(),
                 repliedToMessages().stream().map(BaseEntity::id).collect(Collectors.toSet()),
                 fileIDs
@@ -165,7 +165,7 @@ public class MessageEntity extends BaseEntity {
 
             String reaction = "%s:%s".formatted(type.reactionPackage().name(), type.name());
 
-            reactions.computeIfAbsent(reaction, k -> new ArrayList<>()).add(member.member().nickname());
+            reactions.computeIfAbsent(reaction, k -> new ArrayList<>()).add(member.getMember().getNickname());
         });
 
         Collection<MessageFileEntity> files = messageFileRepo.getFiles(this);

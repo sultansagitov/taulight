@@ -66,7 +66,7 @@ public class GroupEntity extends ChatEntity {
         if (infoProps.contains(ChatInfoPropDTO.groupID)) info.id = id();
         if (infoProps.contains(ChatInfoPropDTO.createdAt)) info.creationDate = creationDate();
         if (infoProps.contains(ChatInfoPropDTO.groupTitle)) info.title = title();
-        if (infoProps.contains(ChatInfoPropDTO.groupOwner)) info.ownerID = owner().member().nickname();
+        if (infoProps.contains(ChatInfoPropDTO.groupOwner)) info.ownerID = owner().getMember().getNickname();
         if (infoProps.contains(ChatInfoPropDTO.groupIsMy)) info.groupIsMy = owner() == member;
         if (infoProps.contains(ChatInfoPropDTO.lastMessage)) info.lastMessage = lastMessage;
         if (infoProps.contains(ChatInfoPropDTO.hasAvatar))

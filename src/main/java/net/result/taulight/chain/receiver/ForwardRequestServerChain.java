@@ -49,18 +49,18 @@ public class ForwardRequestServerChain extends ServerChain implements ReceiverCh
 
         input
                 .setSys(false)
-                .setNickname(session.member.nickname());
+                .setNickname(session.member.getNickname());
 
         ChatEntity chat = chatUtil.getChat(chatID).orElseThrow(NotFoundException::new);
-        if (!chatUtil.contains(chat, session.member.tauMember())) throw new NotFoundException();
+        if (!chatUtil.contains(chat, session.member.getTauMember())) throw new NotFoundException();
         MessageEntity message;
         if (input.keyID == null) {
-            message = messageRepo.create(chat, input, session.member.tauMember());
+            message = messageRepo.create(chat, input, session.member.getTauMember());
         } else {
             EncryptedKeyEntity key = jpaUtil
                     .find(EncryptedKeyEntity.class, input.keyID)
                     .orElseThrow(() -> new KeyStorageNotFoundException(input.keyID.toString()));
-            message = messageRepo.create(chat, input, session.member.tauMember(), key);
+            message = messageRepo.create(chat, input, session.member.getTauMember(), key);
         }
         var viewDTO = message.toViewDTO(messageFileRepo);
 

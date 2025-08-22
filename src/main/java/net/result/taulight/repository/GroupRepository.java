@@ -76,7 +76,7 @@ public class GroupRepository {
                 return false;
             }
 
-            managedMember.groups().add(managedGroup);
+            managedMember.getGroups().add(managedGroup);
 
             transaction.commit();
             return true;
@@ -102,7 +102,7 @@ public class GroupRepository {
                 return false;
             }
 
-            managedMember.groups().remove(managedGroup);
+            managedMember.getGroups().remove(managedGroup);
 
             transaction.commit();
             return true;

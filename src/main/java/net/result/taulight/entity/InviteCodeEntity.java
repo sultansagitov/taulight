@@ -3,6 +3,7 @@ package net.result.taulight.entity;
 import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
 import jakarta.persistence.ManyToOne;
+import lombok.Setter;
 import net.result.sandnode.entity.BaseEntity;
 import net.result.sandnode.db.ZonedDateTimeConverter;
 import net.result.taulight.dto.InviteCodeDTO;
@@ -27,6 +28,7 @@ public class InviteCodeEntity extends BaseEntity {
     @ManyToOne
     private TauMemberEntity receiver;
 
+    @Setter
     @ManyToOne
     private TauMemberEntity sender;
 
@@ -89,10 +91,6 @@ public class InviteCodeEntity extends BaseEntity {
         return sender;
     }
 
-    public void setSender(TauMemberEntity sender) {
-        this.sender = sender;
-    }
-
     public ZonedDateTime activationDate() {
         return activatedAt;
     }
@@ -109,8 +107,8 @@ public class InviteCodeEntity extends BaseEntity {
         return new InviteCodeDTO(
                 code(),
                 group().title(),
-                receiver().member().nickname(),
-                sender().member().nickname(),
+                receiver().getMember().getNickname(),
+                sender().getMember().getNickname(),
                 creationDate(),
                 activationDate(),
                 expiresDate()
@@ -122,8 +120,8 @@ public class InviteCodeEntity extends BaseEntity {
         return "<InviteCodeEntity code=%s, group=%s, receiver=%s, sender=%s>".formatted(
                 code,
                 group.title(),
-                receiver.member().nickname(),
-                sender.member().nickname()
+                receiver.getMember().getNickname(),
+                sender.getMember().getNickname()
         );
     }
 }

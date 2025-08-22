@@ -50,7 +50,7 @@ public class DEKServerChain extends ServerChain implements ReceiverChain {
                 .findByNickname(sendDTO.receiverNickname)
                 .orElseThrow(NotFoundException::new);
 
-        var entity = encryptedKeyRepo.create(you, receiver, sendDTO.encryptedKey);
+        var entity = encryptedKeyRepo.create(sendDTO.encryptedKey, you, receiver);
 
         return new UUIDMessage(new Headers(), entity.id());
     }
@@ -60,7 +60,7 @@ public class DEKServerChain extends ServerChain implements ReceiverChain {
 
         session.member = jpaUtil.refresh(you);
         var list = session.member
-                .encryptedKeys().stream()
+                .getEncryptedKeys().stream()
                 .map(EncryptedKeyEntity::toDEKResponseDTO)
                 .collect(Collectors.toList());
         return new DEKListMessage((list));
@@ -73,6 +73,6 @@ public class DEKServerChain extends ServerChain implements ReceiverChain {
                 .findPersonalKeyByNickname(dto.getOf)
                 .orElseThrow(AddressedMemberNotFoundException::new);
 
-        return entity.toDTO(you.nickname());
+        return entity.toDTO(you.getNickname());
     }
 }

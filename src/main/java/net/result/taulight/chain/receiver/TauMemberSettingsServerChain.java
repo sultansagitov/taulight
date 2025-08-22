@@ -26,7 +26,7 @@ public class TauMemberSettingsServerChain extends ServerChain implements Receive
 
         Headers headers = request.headers();
 
-        TauMemberEntity entity = session.member.tauMember();
+        TauMemberEntity entity = session.member.getTauMember();
 
         headers
                 .getOptionalValue(TauMemberSettingsRequest.SHOW_STATUS)

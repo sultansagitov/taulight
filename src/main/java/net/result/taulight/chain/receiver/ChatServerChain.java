@@ -35,7 +35,7 @@ public class ChatServerChain extends ServerChain implements ReceiverChain {
 
         session.member = jpaUtil.refresh(session.member);
 
-        TauMemberEntity you = session.member.tauMember();
+        TauMemberEntity you = session.member.getTauMember();
 
         Collection<UUID> allChatID = request.dto().allChatID;
         Collection<ChatInfoPropDTO> chatInfoProps = request.dto().infoProps;
@@ -54,8 +54,8 @@ public class ChatServerChain extends ServerChain implements ReceiverChain {
         List<ChatEntity> relevantChats = new ArrayList<>();
 
         Stream.concat(
-                you.groups().stream().filter(group -> props.contains(ChatInfoPropDTO.groupID)),
-                you.dialogs().stream().filter(dialog -> props.contains(ChatInfoPropDTO.dialogID))
+                you.getGroups().stream().filter(group -> props.contains(ChatInfoPropDTO.groupID)),
+                you.getDialogs().stream().filter(dialog -> props.contains(ChatInfoPropDTO.dialogID))
         ).forEach(group -> {
             relevantChats.add(group);
             if (needLastMessage) chatIds.add(group.id());
@@ -95,7 +95,7 @@ public class ChatServerChain extends ServerChain implements ReceiverChain {
             ChatEntity chat = opt.get();
             boolean groupAccessible = chat instanceof GroupEntity g && g.members().contains(you);
             boolean dialogAccessible = chat instanceof DialogEntity d &&
-                    (d.firstMember().equals(you) || d.secondMember().equals(you));
+                    (d.getFirstMember().equals(you) || d.getSecondMember().equals(you));
 
             if (!groupAccessible && !dialogAccessible) {
                 infos.add(ChatInfoDTO.chatNotFound(chatID));

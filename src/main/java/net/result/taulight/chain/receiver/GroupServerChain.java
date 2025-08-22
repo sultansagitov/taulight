@@ -80,7 +80,7 @@ public class GroupServerChain extends ServerChain implements ReceiverChain {
             throw new UnauthorizedException();
         }
 
-        final TauMemberEntity you = session.member.tauMember();
+        final TauMemberEntity you = session.member.getTauMember();
 
         Message response = switch (dto.type) {
             case CREATE -> create(dto, you);
@@ -126,7 +126,7 @@ public class GroupServerChain extends ServerChain implements ReceiverChain {
 
         TauMemberEntity member = memberRepo
                 .findByNickname(dto.otherNickname)
-                .map(MemberEntity::tauMember)
+                .map(MemberEntity::getTauMember)
                 .orElseThrow(AddressedMemberNotFoundException::new);
 
         // You are not owner

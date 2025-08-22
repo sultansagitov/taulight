@@ -43,7 +43,7 @@ public class RoleRepository {
             members.add(member);
             role.setMembers(members);
 
-            Set<RoleEntity> roles = new HashSet<>(member.roles());
+            Set<RoleEntity> roles = new HashSet<>(member.getRoles());
             roles.add(role);
             member.setRoles(roles);
 

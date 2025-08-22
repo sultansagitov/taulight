@@ -38,7 +38,7 @@ public class ReactionRequestServerChain extends ServerChain implements ReceiverC
             throw new UnauthorizedException();
         }
 
-        String nickname = session.member.nickname();
+        String nickname = session.member.getNickname();
 
         MessageEntity message = jpaUtil
                 .find(MessageEntity.class, request.dto().messageID)
@@ -61,7 +61,7 @@ public class ReactionRequestServerChain extends ServerChain implements ReceiverC
         Cluster notReactionReceiver = clusterManager.get("#not_reaction_receiver");
 
         if (request.dto().react) {
-            ReactionEntryEntity re = reactionEntryRepo.create(session.member.tauMember(), message, reactionType);
+            ReactionEntryEntity re = reactionEntryRepo.create(session.member.getTauMember(), message, reactionType);
             LOGGER.info("Reaction added: {} to message {} by {}", reactionType.name(), message.id(), nickname);
             for (Session s : session.server.getAgents()) {
                 if (notReactionReceiver.contains(s)) continue;
@@ -75,7 +75,7 @@ public class ReactionRequestServerChain extends ServerChain implements ReceiverC
                 s.io().chainManager.removeChain(chain);
             }
         } else {
-            if (reactionEntryRepo.delete(message, session.member.tauMember(), reactionType)) {
+            if (reactionEntryRepo.delete(message, session.member.getTauMember(), reactionType)) {
                 for (Session s : session.server.getAgents()) {
                     if (notReactionReceiver.contains(s)) continue;
                     var chain = new ReactionResponseServerChain(s);

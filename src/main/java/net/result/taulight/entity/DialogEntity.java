@@ -3,6 +3,8 @@ package net.result.taulight.entity;
 import jakarta.persistence.Entity;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import lombok.Getter;
+import lombok.Setter;
 import net.result.sandnode.entity.FileEntity;
 import net.result.taulight.dto.ChatInfoDTO;
 import net.result.taulight.dto.ChatInfoPropDTO;
@@ -10,6 +12,8 @@ import net.result.taulight.dto.ChatMessageViewDTO;
 
 import java.util.Collection;
 
+@Getter
+@Setter
 @Entity
 public class DialogEntity extends ChatEntity {
     @ManyToOne
@@ -25,14 +29,6 @@ public class DialogEntity extends ChatEntity {
     public DialogEntity(TauMemberEntity firstMember, TauMemberEntity secondMember) {
         this.firstMember = firstMember;
         this.secondMember = secondMember;
-    }
-
-    public TauMemberEntity firstMember() {
-        return firstMember;
-    }
-
-    public TauMemberEntity secondMember() {
-        return secondMember;
     }
 
     public TauMemberEntity otherMember(TauMemberEntity member) {
@@ -61,10 +57,10 @@ public class DialogEntity extends ChatEntity {
         if (infoProps.contains(ChatInfoPropDTO.dialogID)) info.id = id();
         if (infoProps.contains(ChatInfoPropDTO.createdAt)) info.creationDate = creationDate();
         if (infoProps.contains(ChatInfoPropDTO.dialogOther))
-            info.otherNickname = otherMember(member).member().nickname();
+            info.otherNickname = otherMember(member).getMember().getNickname();
         if (infoProps.contains(ChatInfoPropDTO.lastMessage)) info.lastMessage = lastMessage;
         if (infoProps.contains(ChatInfoPropDTO.hasAvatar)) {
-            FileEntity avatar = otherMember(member).member().avatar();
+            FileEntity avatar = otherMember(member).getMember().getAvatar();
             info.avatar = avatar != null ? avatar.id() : null;
         }
 
@@ -73,6 +69,6 @@ public class DialogEntity extends ChatEntity {
 
     @Override
     public String toString() {
-        return "<Dialog %s and %s>".formatted(firstMember.member().nickname(), secondMember.member().nickname());
+        return "<Dialog %s and %s>".formatted(firstMember.getMember().getNickname(), secondMember.getMember().getNickname());
     }
 }

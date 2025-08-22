@@ -28,7 +28,7 @@ public abstract class ChatEntity extends BaseEntity {
         return new ChatMessageInputDTO()
                 .setSys(true)
                 .setChatID(id())
-                .setNickname(member.member().nickname())
+                .setNickname(member.getMember().getNickname())
                 .setContent(sysMessages.toString())
                 .setSentDatetimeNow();
     }

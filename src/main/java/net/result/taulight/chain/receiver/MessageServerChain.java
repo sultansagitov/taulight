@@ -32,7 +32,7 @@ public class MessageServerChain extends ServerChain implements ReceiverChain {
 
         ChatEntity chat = chatUtil.getChat(request.dto().chatID).orElseThrow(NotFoundException::new);
 
-        if (!chatUtil.contains(chat, session.member.tauMember())) {
+        if (!chatUtil.contains(chat, session.member.getTauMember())) {
             throw new NotFoundException();
         }
 

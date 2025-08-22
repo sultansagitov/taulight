@@ -33,10 +33,10 @@ public class InviteCodeRepository {
         group.inviteCodes().add(managed);
         em.merge(group);
 
-        receiver.inviteCodesAsReceiver().add(managed);
+        receiver.getInviteCodesAsReceiver().add(managed);
         em.merge(receiver);
 
-        sender.inviteCodesAsReceiver().add(managed);
+        sender.getInviteCodesAsReceiver().add(managed);
         em.merge(sender);
 
         return managed;

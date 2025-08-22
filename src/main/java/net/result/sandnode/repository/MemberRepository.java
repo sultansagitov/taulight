@@ -89,7 +89,7 @@ public class MemberRepository {
 
             MemberEntity t = m.get();
 
-            if (t.deleted()) return false;
+            if (t.isDeleted()) return false;
 
             transaction.begin();
             t.setDeleted(true);
