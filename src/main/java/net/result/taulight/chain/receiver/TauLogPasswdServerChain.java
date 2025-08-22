@@ -6,7 +6,7 @@ import net.result.taulight.util.LoginUtil;
 
 public class TauLogPasswdServerChain extends LogPasswdServerChain implements ReceiverChain {
     @Override
-    protected void onLogin() throws Exception {
+    protected void onLogin() {
         LoginUtil.onLogin(session);
     }
 }

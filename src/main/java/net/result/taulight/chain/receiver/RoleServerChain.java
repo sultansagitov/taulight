@@ -27,7 +27,7 @@ import java.util.stream.Collectors;
 public class RoleServerChain extends ServerChain implements ReceiverChain {
 
     @Override
-    public RoleResponse handle(RawMessage raw) throws Exception {
+    public RoleResponse handle(RawMessage raw) {
         if (session.member == null) throw new UnauthorizedException();
 
         ChatUtil chatUtil = session.server.container.get(ChatUtil.class);

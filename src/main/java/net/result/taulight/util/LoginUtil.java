@@ -2,11 +2,11 @@ package net.result.taulight.util;
 
 import net.result.sandnode.exception.error.UnauthorizedException;
 import net.result.sandnode.serverclient.Session;
-import net.result.taulight.entity.GroupEntity;
-import net.result.taulight.entity.DialogEntity;
-import net.result.taulight.entity.TauMemberEntity;
 import net.result.taulight.cluster.TauClusterManager;
+import net.result.taulight.entity.TauMemberEntity;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.stream.Stream;
 
 public class LoginUtil {
     public static void onLogin(@NotNull Session session) throws UnauthorizedException {
@@ -18,12 +18,8 @@ public class LoginUtil {
 
         TauMemberEntity tauMember = session.member.tauMember();
 
-        for (GroupEntity group : tauMember.groups()) {
-            ClusterUtil.addMemberToCluster(session, manager.getCluster(group));
-        }
-
-        for (DialogEntity dialog : tauMember.dialogs()) {
-            ClusterUtil.addMemberToCluster(session, manager.getCluster(dialog));
-        }
+        Stream
+                .concat(tauMember.groups().stream(), tauMember.dialogs().stream())
+                .forEach(chat -> ClusterUtil.addMemberToCluster(session, manager.getCluster(chat)));
     }
 }

@@ -14,6 +14,7 @@ import net.result.taulight.entity.MessageEntity;
 import net.result.taulight.entity.TauMemberEntity;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class MessageRepository {
     private final JPAUtil jpaUtil;
@@ -40,17 +41,13 @@ public class MessageRepository {
         try {
             transaction.begin();
             MessageEntity managed = em.merge(new MessageEntity(chat, input, member, key));
-            Set<MessageEntity> messageEntities = new HashSet<>();
             Set<UUID> replies = input.repliedToMessages;
             if (replies != null) {
-                for (UUID r : replies) {
-                    MessageEntity e = jpaUtil
-                            .find(MessageEntity.class, r)
-                            .orElseThrow(NotFoundException::new);
-                    messageEntities.add(e);
-                }
+                Set<MessageEntity> messageEntities = replies.stream()
+                        .map(r -> jpaUtil.find(MessageEntity.class, r).orElseThrow(NotFoundException::new))
+                        .collect(Collectors.toSet());
+                managed.setRepliedToMessages(messageEntities);
             }
-            managed.setRepliedToMessages(messageEntities);
 
             chat.messages().add(managed);
             em.merge(chat);

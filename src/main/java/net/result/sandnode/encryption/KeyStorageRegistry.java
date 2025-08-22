@@ -46,11 +46,8 @@ public class KeyStorageRegistry {
         return encryption == Encryptions.NONE || keyStorageMap.containsKey(encryption);
     }
 
-    public Optional<AsymmetricKeyStorage> asymmetric(@NotNull AsymmetricEncryption encryption)
-            throws EncryptionTypeException {
-        Optional<KeyStorage> opt = get(encryption);
-        if (opt.isPresent()) return Optional.ofNullable(opt.get().asymmetric());
-        return Optional.empty();
+    public Optional<AsymmetricKeyStorage> asymmetric(@NotNull AsymmetricEncryption encryption) {
+        return get(encryption).map(KeyStorage::asymmetric);
     }
 
     public @NotNull AsymmetricKeyStorage asymmetricNonNull(@NotNull AsymmetricEncryption encryption)
@@ -60,11 +57,8 @@ public class KeyStorageRegistry {
         throw new KeyStorageNotFoundException(encryption);
     }
 
-    public Optional<SymmetricKeyStorage> symmetric(@NotNull SymmetricEncryption encryption)
-            throws EncryptionTypeException {
-        Optional<KeyStorage> opt = get(encryption);
-        if (opt.isPresent()) return Optional.ofNullable(opt.get().symmetric());
-        return Optional.empty();
+    public Optional<SymmetricKeyStorage> symmetric(@NotNull SymmetricEncryption encryption) {
+        return get(encryption).map(KeyStorage::symmetric);
     }
 
     public @NotNull SymmetricKeyStorage symmetricNonNull(@NotNull SymmetricEncryption encryption)

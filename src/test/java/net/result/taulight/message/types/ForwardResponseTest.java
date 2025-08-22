@@ -12,7 +12,7 @@ class ForwardResponseTest {
     private static final String YOUR_SESSION_KEY = "your-session";
 
     @Test
-    void testConstructorWithHeadersAndYourSessionTrue() throws Exception {
+    void testConstructorWithHeadersAndYourSessionTrue() {
         var response = new ForwardResponse(new ChatMessageViewDTO(), true);
         var byteArray = response.getBody();
 
@@ -26,7 +26,7 @@ class ForwardResponseTest {
     }
 
     @Test
-    void testConstructorWithHeadersAndYourSessionFalse() throws Exception {
+    void testConstructorWithHeadersAndYourSessionFalse() {
         var headers = new Headers();
         var response = new ForwardResponse(headers, new ChatMessageViewDTO(), false);
         var byteArray = response.getBody();

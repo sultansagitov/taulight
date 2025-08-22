@@ -24,7 +24,7 @@ public class PermissionServerChain extends ServerChain implements ReceiverChain 
     private JPAUtil jpaUtil;
 
     @Override
-    public HappyMessage handle(RawMessage raw) throws Exception {
+    public HappyMessage handle(RawMessage raw) {
         PermissionRequest request = new PermissionRequest(raw);
 
         Container container = session.server.container;

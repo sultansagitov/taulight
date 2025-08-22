@@ -27,7 +27,7 @@ import java.util.stream.Collectors;
 
 public class DEKServerChain extends ServerChain implements ReceiverChain {
     @Override
-    public Message handle(RawMessage raw) throws Exception {
+    public Message handle(RawMessage raw) {
         if (session.member == null) throw new UnauthorizedException();
 
         var request = new DEKRequest(raw);

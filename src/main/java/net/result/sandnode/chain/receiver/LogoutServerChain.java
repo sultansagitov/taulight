@@ -9,7 +9,7 @@ import net.result.sandnode.message.types.HappyMessage;
 
 public class LogoutServerChain extends ServerChain implements ReceiverChain {
     @Override
-    public HappyMessage handle(RawMessage ignored) throws Exception {
+    public HappyMessage handle(RawMessage ignored) {
         if (session.member == null) throw new UnauthorizedException();
         Logout.logout(session);
         return new HappyMessage();

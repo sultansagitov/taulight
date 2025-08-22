@@ -21,10 +21,11 @@ import net.result.taulight.message.types.MembersResponse;
 import net.result.taulight.util.ChatUtil;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class MembersServerChain extends ServerChain implements ReceiverChain {
     @Override
-    public MembersResponse handle(RawMessage raw) throws Exception {
+    public MembersResponse handle(RawMessage raw) {
         ChatUtil chatUtil = session.server.container.get(ChatUtil.class);
         TauClusterManager clusterManager = session.server.container.get(TauClusterManager.class);
 
@@ -49,7 +50,7 @@ public class MembersServerChain extends ServerChain implements ReceiverChain {
 
         Collection<TauMemberEntity> tauMembers = chatUtil.getMembers(chat);
 
-        Map<TauMemberEntity, List<String>> memberRolesMap = new HashMap<>();
+        Map<TauMemberEntity, List<UUID>> memberRolesMap = new HashMap<>();
         Set<RoleDTO> roleDTOs = null;
 
         if (chat instanceof GroupEntity group) {
@@ -57,12 +58,12 @@ public class MembersServerChain extends ServerChain implements ReceiverChain {
 
             for (RoleEntity role : group.roles()) {
                 set.add(role.toDTO());
-
-                for (TauMemberEntity member : role.members()) {
-                    memberRolesMap
-                            .computeIfAbsent(member, k -> new ArrayList<>())
-                            .add(role.id().toString());
-                }
+                memberRolesMap = role
+                        .members().stream()
+                        .collect(Collectors.groupingBy(
+                                member -> member,
+                                Collectors.mapping(member -> role.id(), Collectors.toList())
+                        ));
             }
 
             roleDTOs = set;
@@ -70,7 +71,7 @@ public class MembersServerChain extends ServerChain implements ReceiverChain {
 
         Map<MemberEntity, ChatMemberDTO> map = new HashMap<>();
         for (TauMemberEntity m : tauMembers) {
-            List<String> roleIds = memberRolesMap.getOrDefault(m, null);
+            List<UUID> roleIds = memberRolesMap.getOrDefault(m, null);
             map.put(m.member(), m.toChatMemberDTO(roleIds));
         }
 

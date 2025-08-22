@@ -28,7 +28,7 @@ public class InviteCodesTest {
     private static InviteCodeRepository inviteCodeRepo;
 
     @BeforeAll
-    public static void setup() throws Exception {
+    public static void setup() {
         Container container = GlobalTestState.container;
         MemberRepository memberRepo = container.get(MemberRepository.class);
         groupRepo = container.get(GroupRepository.class);
@@ -51,7 +51,7 @@ public class InviteCodesTest {
     }
 
     @Test
-    public void createInviteCode() throws Exception {
+    public void createInviteCode() {
         GroupEntity group = groupRepo.create("Test Group", member1);
 
         ZonedDateTime expiresDate = ZonedDateTime.now().plusDays(1);
@@ -73,7 +73,7 @@ public class InviteCodesTest {
     }
 
     @Test
-    public void findInviteCode1() throws Exception {
+    public void findInviteCode1() {
         GroupEntity group = groupRepo.create("InviteGroup", member1);
 
         ZonedDateTime expiration = ZonedDateTime.now().plusDays(1);
@@ -95,7 +95,7 @@ public class InviteCodesTest {
     }
 
     @Test
-    public void findInviteCode2() throws Exception {
+    public void findInviteCode2() {
         GroupEntity group = groupRepo.create("InviteGroup", member3);
 
         ZonedDateTime expiration = ZonedDateTime.now().plusDays(1);
@@ -122,7 +122,7 @@ public class InviteCodesTest {
     }
 
     @Test
-    public void activateInviteCode() throws Exception {
+    public void activateInviteCode() {
         GroupEntity group = groupRepo.create("Test Group", member1);
 
         ZonedDateTime expiresDate = ZonedDateTime.now().plusDays(1);

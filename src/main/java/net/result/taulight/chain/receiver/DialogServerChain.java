@@ -65,9 +65,7 @@ public class DialogServerChain extends ServerChain implements ReceiverChain {
 
         Optional<DialogEntity> dialogOpt = dialogRepo.findByMembers(you.tauMember(), anotherMember);
 
-        DialogEntity dialog = dialogOpt.isPresent()
-                ? dialogOpt.get()
-                : dialogRepo.create(you.tauMember(), anotherMember);
+        DialogEntity dialog = dialogOpt.orElseGet(() -> dialogRepo.create(you.tauMember(), anotherMember));
         sendFin(new UUIDMessage(new Headers().setType(MessageTypes.HAPPY), dialog.id()));
 
         if (dialogOpt.isEmpty()) {

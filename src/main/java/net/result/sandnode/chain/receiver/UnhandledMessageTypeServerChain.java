@@ -14,7 +14,7 @@ public class UnhandledMessageTypeServerChain extends ServerChain implements Rece
     private static final Logger LOGGER = LogManager.getLogger(UnhandledMessageTypeServerChain.class);
 
     @Override
-    public Message handle(RawMessage raw) throws Exception {
+    public Message handle(RawMessage raw) {
         if (raw.headers().type() != MessageTypes.ERR) {
             throw new UnhandledMessageTypeException();
         }

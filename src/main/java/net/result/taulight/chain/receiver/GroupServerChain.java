@@ -115,7 +115,7 @@ public class GroupServerChain extends ServerChain implements ReceiverChain {
         return new UUIDMessage(new Headers().setType(MessageTypes.HAPPY), group.id());
     }
 
-    private TextMessage invite(GroupRequestDTO dto, TauMemberEntity you) throws Exception {
+    private TextMessage invite(GroupRequestDTO dto, TauMemberEntity you) {
         ChatEntity chat = chatUtil.getChat(dto.chatID).orElseThrow(NotFoundException::new);
 
         // You not in group

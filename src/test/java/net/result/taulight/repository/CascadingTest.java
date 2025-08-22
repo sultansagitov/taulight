@@ -41,7 +41,7 @@ public class CascadingTest {
     }
 
     @Test
-    public void testLeaveFromGroup() throws Exception {
+    public void testLeaveFromGroup() {
         MemberEntity m1 = memberRepo.create("new_user", "hash");
         TauMemberEntity tau = m1.tauMember();
 
@@ -58,7 +58,7 @@ public class CascadingTest {
     }
 
     @Test
-    public void testRemoveReactionByObject() throws Exception {
+    public void testRemoveReactionByObject() {
         MemberEntity m1 = memberRepo.create("reacter", "hash");
         MemberEntity m2 = memberRepo.create("author", "hash");
 
@@ -87,7 +87,7 @@ public class CascadingTest {
     }
 
     @Test
-    public void testRemoveReactionByCompositeKey() throws Exception {
+    public void testRemoveReactionByCompositeKey() {
         MemberEntity m1 = memberRepo.create("maria", "hash");
         MemberEntity m2 = memberRepo.create("mark", "hash");
 
@@ -116,7 +116,7 @@ public class CascadingTest {
     }
 
     @Test
-    public void testActivateInviteCode() throws Exception {
+    public void testActivateInviteCode() {
         MemberEntity sender = memberRepo.create("sender_cascading", "hash");
         MemberEntity receiver = memberRepo.create("receiver_cascading", "hash");
         TauMemberEntity s = sender.tauMember();

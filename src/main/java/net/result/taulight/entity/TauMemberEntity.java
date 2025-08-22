@@ -11,6 +11,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 
 @SuppressWarnings("unused")
 @Entity
@@ -138,7 +139,7 @@ public class TauMemberEntity extends BaseEntity {
         this.roles = roles;
     }
 
-    public @NotNull ChatMemberDTO toChatMemberDTO(List<String> roleIds) {
+    public @NotNull ChatMemberDTO toChatMemberDTO(List<UUID> roleIds) {
         return new ChatMemberDTO(
                 member().nickname(),
                 isShowStatus() ? MemberStatus.OFFLINE : MemberStatus.HIDDEN,

@@ -26,7 +26,7 @@ public class LoginServerChain extends ServerChain implements ReceiverChain {
     private LoginRepository loginRepo;
 
     @Override
-    public Message handle(RawMessage raw) throws Exception {
+    public Message handle(RawMessage raw) {
         loginRepo = session.server.container.get(LoginRepository.class);
 
         var request = new LoginRequest(raw);
@@ -38,7 +38,7 @@ public class LoginServerChain extends ServerChain implements ReceiverChain {
         }
     }
 
-    private LoginHistoryResponse history() throws Exception {
+    private LoginHistoryResponse history() {
         if (session.member == null) {
             throw new UnauthorizedException();
         }
@@ -62,7 +62,7 @@ public class LoginServerChain extends ServerChain implements ReceiverChain {
         return new LoginHistoryResponse(new Headers(), list);
     }
 
-    private LoginResponse loginByToken(LoginRequest request) throws Exception {
+    private LoginResponse loginByToken(LoginRequest request) {
         Tokenizer tokenizer = session.server.container.get(Tokenizer.class);
 
         String token = request.content();
@@ -80,5 +80,5 @@ public class LoginServerChain extends ServerChain implements ReceiverChain {
         return new LoginResponse(session.member.nickname());
     }
 
-    protected void onLogin() throws Exception {}
+    protected void onLogin() {}
 }

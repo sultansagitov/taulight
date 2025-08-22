@@ -1,6 +1,6 @@
 package net.result.sandnode.exception;
 
-public class SandnodeException extends Exception {
+public class SandnodeException extends RuntimeException {
     public SandnodeException(String message) {
         super(message);
     }

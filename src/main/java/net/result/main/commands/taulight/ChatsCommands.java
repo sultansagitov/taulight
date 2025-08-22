@@ -166,7 +166,7 @@ public class ChatsCommands {
             if (response.roles != null && member.roles != null) {
                 builder.append(" - ");
                 for (RoleDTO r : response.roles) {
-                    if (member.roles.contains(r.id.toString())) {
+                    if (member.roles.contains(r.id)) {
                         builder.append(r.name);
                         builder.append(", ");
                     }

@@ -16,13 +16,15 @@ import net.result.taulight.repository.MessageRepository;
 import net.result.taulight.util.ChatUtil;
 
 import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class ChatServerChain extends ServerChain implements ReceiverChain {
     private MessageRepository messageRepo;
     private MessageFileRepository messageFileRepo;
 
     @Override
-    public ChatResponse handle(RawMessage raw) throws Exception {
+    public ChatResponse handle(RawMessage raw) {
         messageRepo = session.server.container.get(MessageRepository.class);
         messageFileRepo = session.server.container.get(MessageFileRepository.class);
         JPAUtil jpaUtil = session.server.container.get(JPAUtil.class);
@@ -45,25 +47,20 @@ public class ChatServerChain extends ServerChain implements ReceiverChain {
         return new ChatResponse(infos);
     }
 
-    private List<ChatInfoDTO> byMember(Collection<ChatInfoPropDTO> props, TauMemberEntity you) throws Exception {
+    private List<ChatInfoDTO> byMember(Collection<ChatInfoPropDTO> props, TauMemberEntity you) {
         List<ChatInfoDTO> infos = new ArrayList<>();
         boolean needLastMessage = props.contains(ChatInfoPropDTO.lastMessage);
         Set<UUID> chatIds = new HashSet<>();
         List<ChatEntity> relevantChats = new ArrayList<>();
 
-        for (GroupEntity group : you.groups()) {
-            if (props.contains(ChatInfoPropDTO.groupID)) {
-                relevantChats.add(group);
-                if (needLastMessage) chatIds.add(group.id());
-            }
-        }
+        Stream.concat(
+                you.groups().stream().filter(group -> props.contains(ChatInfoPropDTO.groupID)),
+                you.dialogs().stream().filter(dialog -> props.contains(ChatInfoPropDTO.dialogID))
+        ).forEach(group -> {
+            relevantChats.add(group);
+            if (needLastMessage) chatIds.add(group.id());
+        });
 
-        for (DialogEntity dialog : you.dialogs()) {
-            if (props.contains(ChatInfoPropDTO.dialogID)) {
-                relevantChats.add(dialog);
-                if (needLastMessage) chatIds.add(dialog.id());
-            }
-        }
 
         Map<UUID, ChatMessageViewDTO> lastMessages = fetchLastMessages(chatIds, needLastMessage);
 
@@ -80,9 +77,7 @@ public class ChatServerChain extends ServerChain implements ReceiverChain {
         return infos;
     }
 
-    private List<ChatInfoDTO> byID(Collection<UUID> chatIDs, Collection<ChatInfoPropDTO> props, TauMemberEntity you)
-            throws Exception {
-
+    private List<ChatInfoDTO> byID(Collection<UUID> chatIDs, Collection<ChatInfoPropDTO> props, TauMemberEntity you) {
         List<ChatInfoDTO> infos = new ArrayList<>();
         ChatUtil chatUtil = session.server.container.get(ChatUtil.class);
         boolean needLastMessage = props.contains(ChatInfoPropDTO.lastMessage);
@@ -127,13 +122,11 @@ public class ChatServerChain extends ServerChain implements ReceiverChain {
         return infos;
     }
 
-    private Map<UUID, ChatMessageViewDTO> fetchLastMessages(Set<UUID> chatIds, boolean needed) throws Exception {
+    private Map<UUID, ChatMessageViewDTO> fetchLastMessages(Set<UUID> chatIds, boolean needed) {
         if (!needed || chatIds.isEmpty()) return Collections.emptyMap();
 
-        Map<UUID, ChatMessageViewDTO> result = new HashMap<>();
-        for (MessageEntity message : messageRepo.findLastMessagesByChats(chatIds)) {
-            result.putIfAbsent(message.chat().id(), message.toViewDTO(messageFileRepo));
-        }
-        return result;
+        return messageRepo
+                .findLastMessagesByChats(chatIds).stream()
+                .collect(Collectors.toMap(m -> m.chat().id(), m -> m.toViewDTO(messageFileRepo), (a, b) -> a));
     }
 }

@@ -16,7 +16,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class MessageTest {
     @Test
-    void toByteArray() throws Exception {
+    void toByteArray() {
 
         EncryptionManager.registerAll();
 

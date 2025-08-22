@@ -131,7 +131,7 @@ public class CodeServerChain extends ServerChain implements ReceiverChain {
         return new HappyMessage();
     }
 
-    private Message handleGroupCodes(CodeRequestDTO.GroupCodes dto, TauMemberEntity you) throws Exception {
+    private Message handleGroupCodes(CodeRequestDTO.GroupCodes dto, TauMemberEntity you) {
         ChatUtil chatUtil = session.server.container.get(ChatUtil.class);
 
         ChatEntity chat = chatUtil.getChat(dto.chatID).orElseThrow(NotFoundException::new);

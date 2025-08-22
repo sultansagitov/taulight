@@ -41,7 +41,7 @@ public class MemberDeletionIntegrationTest {
     }
 
     @Test
-    public void testDeleteMemberAndCheckDialogCleanup() throws Exception {
+    public void testDeleteMemberAndCheckDialogCleanup() {
         MemberEntity m1 = memberRepo.create("alice", "hash");
         MemberEntity m2 = memberRepo.create("bob", "hash");
 
@@ -59,7 +59,7 @@ public class MemberDeletionIntegrationTest {
     }
 
     @Test
-    public void testDeleteMemberAndCheckMessageCleanup() throws Exception {
+    public void testDeleteMemberAndCheckMessageCleanup() {
         MemberEntity member = memberRepo.create("charlie", "hash");
         TauMemberEntity tau = member.tauMember();
 
@@ -84,7 +84,7 @@ public class MemberDeletionIntegrationTest {
     }
 
     @Test
-    public void testDeleteMemberAndCheckReactionCleanup() throws Exception {
+    public void testDeleteMemberAndCheckReactionCleanup() {
         MemberEntity m1 = memberRepo.create("eva", "hash");
         MemberEntity m2 = memberRepo.create("oliver", "hash");
         TauMemberEntity tau1 = m1.tauMember();
@@ -114,7 +114,7 @@ public class MemberDeletionIntegrationTest {
     }
 
     @Test
-    public void testDeleteMemberAndCheckInviteCleanup() throws Exception {
+    public void testDeleteMemberAndCheckInviteCleanup() {
         MemberEntity owner = memberRepo.create("sam", "hash");
         MemberEntity invited = memberRepo.create("jack", "hash");
         TauMemberEntity tauOwner = owner.tauMember();

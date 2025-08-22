@@ -70,7 +70,7 @@ class KeyStorageRegistryTest {
     }
 
     @Test
-    void testCopy() throws Exception {
+    void testCopy() {
         keyStorageRegistry.set(AsymmetricEncryptions.ECIES, eciesKeyStorage);
         KeyStorageRegistry copy = keyStorageRegistry.copy();
         KeyStorage copiedKeyStorage = copy.getNonNull(AsymmetricEncryptions.ECIES);

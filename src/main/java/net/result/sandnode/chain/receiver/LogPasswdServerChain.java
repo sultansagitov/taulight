@@ -22,7 +22,7 @@ import java.util.Base64;
 public abstract class LogPasswdServerChain extends ServerChain implements ReceiverChain {
 
     @Override
-    public LogPasswdResponse handle(RawMessage raw) throws Exception {
+    public LogPasswdResponse handle(RawMessage raw) {
         LogPasswdRequest request = new LogPasswdRequest(raw);
 
         Tokenizer tokenizer = session.server.container.get(Tokenizer.class);
@@ -60,5 +60,5 @@ public abstract class LogPasswdServerChain extends ServerChain implements Receiv
         return new LogPasswdResponse(token);
     }
 
-    protected abstract void onLogin() throws Exception;
+    protected abstract void onLogin();
 }

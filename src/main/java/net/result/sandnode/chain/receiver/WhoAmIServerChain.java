@@ -9,7 +9,7 @@ import net.result.sandnode.message.types.WhoAmIResponse;
 
 public class WhoAmIServerChain extends ServerChain implements ReceiverChain {
     @Override
-    public WhoAmIResponse handle(RawMessage raw) throws Exception {
+    public WhoAmIResponse handle(RawMessage raw) {
         new WhoAmIRequest(raw);
 
         if (session.member == null) throw new UnauthorizedException();

@@ -5,7 +5,7 @@ import net.result.taulight.util.LoginUtil;
 
 public class TauLoginServerChain extends LoginServerChain {
     @Override
-    protected void onLogin() throws Exception {
+    protected void onLogin() {
         LoginUtil.onLogin(session);
     }
 }

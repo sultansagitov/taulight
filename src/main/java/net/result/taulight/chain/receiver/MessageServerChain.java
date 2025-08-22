@@ -19,7 +19,7 @@ import java.util.List;
 
 public class MessageServerChain extends ServerChain implements ReceiverChain {
     @Override
-    public MessageResponse handle(RawMessage raw) throws Exception {
+    public MessageResponse handle(RawMessage raw) {
         ChatUtil chatUtil = session.server.container.get(ChatUtil.class);
         MessageRepository messageRepo = session.server.container.get(MessageRepository.class);
         MessageFileRepository messageFileRepo = session.server.container.get(MessageFileRepository.class);

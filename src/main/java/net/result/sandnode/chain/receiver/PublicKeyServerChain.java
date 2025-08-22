@@ -13,7 +13,7 @@ import net.result.sandnode.message.types.PublicKeyResponse;
 
 public class PublicKeyServerChain extends ServerChain implements ReceiverChain {
     @Override
-    public PublicKeyResponse handle(RawMessage ignored) throws Exception {
+    public PublicKeyResponse handle(RawMessage ignored) {
         AsymmetricEncryption encryption = session.server.serverConfig.mainEncryption();
         AsymmetricKeyStorage asymmetricKeyStorage;
         try {

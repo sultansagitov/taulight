@@ -27,7 +27,6 @@ public abstract class BaseChain implements Chain {
         return io;
     }
 
-    @Override
     public void setIO(IOController io) {
         this.io = io;
     }

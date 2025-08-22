@@ -12,11 +12,9 @@ import net.result.taulight.message.types.TauMemberSettingsRequest;
 import net.result.taulight.message.types.TauMemberSettingsResponse;
 import net.result.taulight.repository.TauMemberRepository;
 
-import java.util.Optional;
-
 public class TauMemberSettingsServerChain extends ServerChain implements ReceiverChain {
     @Override
-    public TauMemberSettingsResponse handle(RawMessage raw) throws Exception {
+    public TauMemberSettingsResponse handle(RawMessage raw) {
         TauMemberSettingsRequest request = new TauMemberSettingsRequest(raw);
 
         if (session.member == null) throw new UnauthorizedException();
@@ -30,10 +28,9 @@ public class TauMemberSettingsServerChain extends ServerChain implements Receive
 
         TauMemberEntity entity = session.member.tauMember();
 
-        Optional<String> showStatus = headers.getOptionalValue(TauMemberSettingsRequest.SHOW_STATUS);
-        if (showStatus.isPresent()) {
-            repo.setShowStatus(entity, Boolean.parseBoolean(showStatus.get()));
-        }
+        headers
+                .getOptionalValue(TauMemberSettingsRequest.SHOW_STATUS)
+                .ifPresent(s -> repo.setShowStatus(entity, Boolean.parseBoolean(s)));
 
         TauMemberSettingsDTO dto = entity.toSettingsDTO();
 
