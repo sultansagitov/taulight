@@ -1,9 +1,13 @@
 package net.result.taulight.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
 
 import java.util.UUID;
 
+@NoArgsConstructor
+@AllArgsConstructor
 public class MessageRequestDTO {
     @JsonProperty("chat-id")
     public UUID chatID;
@@ -11,13 +15,4 @@ public class MessageRequestDTO {
     public int index;
     @JsonProperty
     public int size;
-
-    @SuppressWarnings("unused")
-    public MessageRequestDTO() {}
-
-    public MessageRequestDTO(UUID chatID, int index, int size) {
-        this.chatID = chatID;
-        this.index = index;
-        this.size = size;
-    }
 }

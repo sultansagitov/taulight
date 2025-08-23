@@ -16,7 +16,6 @@ import net.result.sandnode.message.util.Headers;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-@SuppressWarnings("unused")
 @Entity
 public class KeyStorageEntity extends BaseEntity {
     @Convert(converter = EncryptionConverter.class)

@@ -7,7 +7,6 @@ import jakarta.persistence.Persistence;
 import net.result.sandnode.entity.BaseEntity;
 import net.result.sandnode.exception.ConfigurationException;
 import net.result.sandnode.exception.DatabaseException;
-import net.result.sandnode.util.Container;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -17,7 +16,7 @@ public class SimpleJPAUtil implements JPAUtil {
 
     private final EntityManagerFactory emf;
 
-    public SimpleJPAUtil(@SuppressWarnings("unused") Container container) {
+    public SimpleJPAUtil() {
         try {
             emf = Persistence.createEntityManagerFactory(persistenceUnitName);
         } catch (Exception e) {

@@ -21,7 +21,6 @@ import java.util.stream.Collectors;
 @Setter
 @Getter
 @NoArgsConstructor
-@SuppressWarnings("unused")
 @Entity
 public class MessageEntity extends BaseEntity {
     private boolean sys;

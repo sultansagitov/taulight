@@ -14,7 +14,6 @@ import java.util.Set;
 @Setter
 @Getter
 @NoArgsConstructor
-@SuppressWarnings("unused")
 @Entity
 public class ReactionTypeEntity extends BaseEntity {
     private String name;

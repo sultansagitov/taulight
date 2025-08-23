@@ -16,7 +16,6 @@ import org.jetbrains.annotations.NotNull;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-@SuppressWarnings("unused")
 @Entity
 public class MessageFileEntity extends BaseEntity {
     private String originalName;

@@ -13,7 +13,6 @@ public class CodeListMessage extends MSGPackMessage<CodeListMessage.Data> {
         @JsonProperty
         public Collection<CodeDTO> codes;
 
-        @SuppressWarnings("unused")
         public Data() {}
 
         public Data(Collection<CodeDTO> codes) {

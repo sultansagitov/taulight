@@ -1,9 +1,13 @@
 package net.result.taulight.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
 
 import java.util.UUID;
 
+@NoArgsConstructor
+@AllArgsConstructor
 public class RoleRequestDTO {
     public enum DataType {GET, CREATE, ADD}
 
@@ -18,15 +22,4 @@ public class RoleRequestDTO {
 
     @JsonProperty("nickname")
     public String nickname = null;
-
-    @SuppressWarnings("unused")
-    public RoleRequestDTO() {}
-
-    public RoleRequestDTO(DataType dataType, UUID chatID, UUID roleID, String roleName, String nickname) {
-        this.dataType = dataType;
-        this.chatID = chatID;
-        this.roleID = roleID;
-        this.roleName = roleName;
-        this.nickname = nickname;
-    }
 }

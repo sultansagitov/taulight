@@ -1,7 +1,11 @@
 package net.result.sandnode.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
 
+@NoArgsConstructor
+@AllArgsConstructor
 public class LogPasswdRequestDTO {
     @JsonProperty
     public String nickname;
@@ -9,13 +13,4 @@ public class LogPasswdRequestDTO {
     public String password;
     @JsonProperty
     public String device;
-
-    @SuppressWarnings("unused")
-    public LogPasswdRequestDTO() {}
-
-    public LogPasswdRequestDTO(String nickname, String password, String device) {
-        this.nickname = nickname;
-        this.password = password;
-        this.device = device;
-    }
 }

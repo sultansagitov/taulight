@@ -1,9 +1,14 @@
 package net.result.sandnode.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
 import net.result.sandnode.encryption.interfaces.AsymmetricKeyStorage;
 import org.jetbrains.annotations.NotNull;
 
+
+@NoArgsConstructor
+@AllArgsConstructor
 public class PublicKeyDTO {
     @JsonProperty
     public String encryption;
@@ -11,11 +16,7 @@ public class PublicKeyDTO {
     @JsonProperty
     public String encoded;
 
-    @SuppressWarnings("unused")
-    public PublicKeyDTO() {}
-
     public PublicKeyDTO(@NotNull AsymmetricKeyStorage keyStorage) {
-        this.encryption = keyStorage.encryption().name();
-        this.encoded = keyStorage.encodedPublicKey();
+        this(keyStorage.encryption().name(), keyStorage.encodedPublicKey());
     }
 }

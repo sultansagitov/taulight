@@ -17,7 +17,6 @@ import java.util.Set;
 @Setter
 @Getter
 @NoArgsConstructor
-@SuppressWarnings("unused")
 @Entity
 public class GroupEntity extends ChatEntity {
     private String title;

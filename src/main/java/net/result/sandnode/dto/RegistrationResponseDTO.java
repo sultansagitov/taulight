@@ -1,15 +1,12 @@
 package net.result.sandnode.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
 
+@NoArgsConstructor
+@AllArgsConstructor
 public class RegistrationResponseDTO {
     @JsonProperty
     public String token;
-
-    @SuppressWarnings("unused")
-    public RegistrationResponseDTO() {}
-
-    public RegistrationResponseDTO(String token) {
-        this.token = token;
-    }
 }

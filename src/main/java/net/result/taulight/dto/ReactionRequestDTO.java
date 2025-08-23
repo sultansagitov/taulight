@@ -1,9 +1,13 @@
 package net.result.taulight.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
 
 import java.util.UUID;
 
+@NoArgsConstructor
+@AllArgsConstructor
 public class ReactionRequestDTO {
     @JsonProperty("message-id")
     public UUID messageID;
@@ -13,13 +17,4 @@ public class ReactionRequestDTO {
 
     @JsonProperty("react")
     public boolean react = true;
-
-    @SuppressWarnings("unused")
-    public ReactionRequestDTO() {}
-
-    public ReactionRequestDTO(UUID messageID, String reaction, boolean react) {
-        this.messageID = messageID;
-        this.reaction = reaction;
-        this.react = react;
-    }
 }

@@ -1,44 +1,31 @@
 package net.result.taulight.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
 
 import java.util.UUID;
 
 public class CodeRequestDTO {
+    @NoArgsConstructor
+    @AllArgsConstructor
     public static class Check {
         @JsonProperty
         public String code;
-
-        @SuppressWarnings("unused")
-        public Check() {}
-
-        public Check(String code) {
-            this.code = code;
-        }
     }
 
+    @NoArgsConstructor
+    @AllArgsConstructor
     public static class Use {
         @JsonProperty
         public String code;
-
-        @SuppressWarnings("unused")
-        public Use() {}
-
-        public Use(String code) {
-            this.code = code;
-        }
     }
 
+    @NoArgsConstructor
+    @AllArgsConstructor
     public static class GroupCodes {
         @JsonProperty
         public UUID chatID;
-
-        @SuppressWarnings("unused")
-        public GroupCodes() {}
-
-        public GroupCodes(UUID chatID) {
-            this.chatID = chatID;
-        }
     }
 
     @JsonProperty

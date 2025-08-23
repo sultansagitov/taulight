@@ -10,7 +10,6 @@ import java.util.Set;
 
 @Getter
 @Setter
-@SuppressWarnings("unused")
 @Entity
 public class MemberEntity extends BaseEntity {
     private String nickname;

@@ -1,9 +1,11 @@
 package net.result.taulight.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.NoArgsConstructor;
 
 import java.util.UUID;
 
+@NoArgsConstructor
 public class GroupRequestDTO {
     public enum DataType {CREATE, INVITE, LEAVE, SET_AVATAR, GET_AVATAR}
 
@@ -17,9 +19,6 @@ public class GroupRequestDTO {
     public String otherNickname;
     @JsonProperty("expiration-time")
     public String expirationTime;
-
-    @SuppressWarnings("unused")
-    public GroupRequestDTO() {}
 
     public GroupRequestDTO(DataType type) {
         this.type = type;

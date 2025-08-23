@@ -19,7 +19,6 @@ import java.util.UUID;
 @Getter
 @Setter
 @NoArgsConstructor
-@SuppressWarnings("unused")
 @Entity
 public class TauMemberEntity extends BaseEntity {
     @Column()

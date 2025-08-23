@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import lombok.NoArgsConstructor;
 import org.jetbrains.annotations.Nullable;
 
 import java.time.ZonedDateTime;
@@ -15,6 +16,7 @@ import java.time.ZonedDateTime;
 @JsonSubTypes({
         @JsonSubTypes.Type(value = InviteCodeDTO.class, name = "invite")
 })
+@NoArgsConstructor
 public abstract class CodeDTO {
     /** The actual code string. */
     @JsonProperty
@@ -31,9 +33,6 @@ public abstract class CodeDTO {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ssX", timezone = "UTC")
     @JsonProperty("expires-date")
     public ZonedDateTime expiresDate;
-
-    /** Default constructor. */
-    public CodeDTO() {}
 
     /**
      * Constructs a CodeDTO with a specified code.

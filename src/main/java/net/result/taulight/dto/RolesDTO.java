@@ -1,6 +1,8 @@
 package net.result.taulight.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
 import net.result.taulight.db.Permission;
 
 import java.util.Set;
@@ -9,6 +11,8 @@ import java.util.UUID;
 /**
  * Data Transfer Object representing a set of all available roles and the roles of a specific member.
  */
+@NoArgsConstructor
+@AllArgsConstructor
 public class RolesDTO {
     /** Set of all available roles in the system. */
     @JsonProperty("all-roles")
@@ -19,22 +23,4 @@ public class RolesDTO {
     /** Set of default permissions . */
     @JsonProperty
     public Set<Permission> permissions;
-
-    /** Default constructor. */
-    @SuppressWarnings("unused")
-    public RolesDTO() {}
-
-    /**
-     * Constructs a RolesDTO.
-     *
-     * @param allRoles     all available roles
-     * @param memberRoles  roles assigned to the member
-     * @param permissions  granted permissions
-     */
-    public RolesDTO(Set<RoleDTO> allRoles, Set<UUID> memberRoles, Set<Permission> permissions) {
-        this.allRoles = allRoles;
-        this.memberRoles = memberRoles;
-        this.permissions = permissions;
-    }
-
 }

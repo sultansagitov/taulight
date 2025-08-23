@@ -14,7 +14,6 @@ import org.jetbrains.annotations.NotNull;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-@SuppressWarnings("unused")
 @Entity
 public class ReactionEntryEntity extends BaseEntity {
     @ManyToOne

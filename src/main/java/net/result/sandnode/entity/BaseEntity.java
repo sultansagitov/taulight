@@ -15,7 +15,6 @@ import java.util.UUID;
 
 @Setter
 @Getter
-@SuppressWarnings("unused")
 @MappedSuperclass
 public abstract class BaseEntity {
     @Id

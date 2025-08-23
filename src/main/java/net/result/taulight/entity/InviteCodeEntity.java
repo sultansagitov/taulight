@@ -18,7 +18,6 @@ import java.util.stream.IntStream;
 @Setter
 @Getter
 @NoArgsConstructor
-@SuppressWarnings("unused")
 @Entity
 public class InviteCodeEntity extends BaseEntity {
     private String code;

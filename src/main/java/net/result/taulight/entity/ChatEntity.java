@@ -13,7 +13,6 @@ import java.util.Set;
 
 @Setter
 @Getter
-@SuppressWarnings("unused")
 @Entity
 @Inheritance(strategy = InheritanceType.JOINED)
 public abstract class ChatEntity extends BaseEntity {

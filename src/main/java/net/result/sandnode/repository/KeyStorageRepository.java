@@ -8,7 +8,6 @@ import net.result.sandnode.db.JPAUtil;
 public class KeyStorageRepository {
     private final JPAUtil jpaUtil;
 
-    @SuppressWarnings("unused")
     public KeyStorageRepository(Container container) {
         this.jpaUtil = container.get(JPAUtil.class);
     }

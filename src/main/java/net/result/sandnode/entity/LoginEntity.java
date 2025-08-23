@@ -16,7 +16,6 @@ import net.result.sandnode.dto.LoginHistoryDTO;
 @Setter
 @Getter
 @NoArgsConstructor
-@SuppressWarnings("unused")
 @Entity
 public class LoginEntity extends BaseEntity {
     private String ip;
