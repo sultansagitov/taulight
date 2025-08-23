@@ -26,7 +26,7 @@ public class ChatUtil {
     }
 
     public Collection<TauMemberEntity> getMembers(ChatEntity chat) {
-        if (chat instanceof GroupEntity group) return group.members();
+        if (chat instanceof GroupEntity group) return group.getMembers();
         if (chat instanceof DialogEntity dialog) {
             TauMemberEntity e1 = dialog.getFirstMember();
             TauMemberEntity e2 = dialog.getSecondMember();

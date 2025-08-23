@@ -43,7 +43,7 @@ public class RoleServerChain extends ServerChain implements ReceiverChain {
         if (!chatUtil.contains(chat, session.member.getTauMember())) throw new NotFoundException();
         if (!(chat instanceof GroupEntity group)) throw new WrongAddressException();
 
-        Set<RoleEntity> roles = group.roles();
+        Set<RoleEntity> roles = group.getRoles();
         Set<RoleDTO> allRoles = roles.stream()
                 .map(RoleEntity::toDTO)
                 .collect(Collectors.toSet());
@@ -53,7 +53,7 @@ public class RoleServerChain extends ServerChain implements ReceiverChain {
                 .map(RoleEntity::id)
                 .collect(Collectors.toSet());
 
-        Set<Permission> permissions = group.permissions();
+        Set<Permission> permissions = group.getPermissions();
 
         return switch (dataType) {
             case GET -> get(allRoles, memberRoles, permissions);
@@ -77,7 +77,7 @@ public class RoleServerChain extends ServerChain implements ReceiverChain {
         RoleRepository roleRepo = session.server.container.get(RoleRepository.class);
 
         //noinspection DataFlowIssue
-        if (!group.owner().equals(session.member.getTauMember())) throw new UnauthorizedException();
+        if (!group.getOwner().equals(session.member.getTauMember())) throw new UnauthorizedException();
 
         if (roleName == null || roleName.trim().isEmpty()) throw new TooFewArgumentsException();
         allRoles.add(roleRepo.create(group, roleName).toDTO());
@@ -97,7 +97,7 @@ public class RoleServerChain extends ServerChain implements ReceiverChain {
         MemberRepository memberRepo = session.server.container.get(MemberRepository.class);
 
         //noinspection DataFlowIssue
-        if (!group.owner().equals(session.member.getTauMember())) throw new UnauthorizedException();
+        if (!group.getOwner().equals(session.member.getTauMember())) throw new UnauthorizedException();
 
         if (roleID == null || nickname == null) throw new TooFewArgumentsException();
 

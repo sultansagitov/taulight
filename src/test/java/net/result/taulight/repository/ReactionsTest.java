@@ -169,7 +169,7 @@ class ReactionsTest {
 
         ReactionEntryEntity reactionEntry = reactionEntryRepo.create(member1, message, reactionType);
 
-        assertEquals("Test", ((GroupEntity) reactionEntry.getMessage().getChat()).title());
+        assertEquals("Test", ((GroupEntity) reactionEntry.getMessage().getChat()).getTitle());
 
         // Additional assertions
         assertNotNull(reactionEntry.id(), "Reaction entry ID should not be null");

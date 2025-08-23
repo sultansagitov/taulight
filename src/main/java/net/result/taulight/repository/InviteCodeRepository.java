@@ -30,7 +30,7 @@ public class InviteCodeRepository {
         EntityManager em = jpaUtil.getEntityManager();
         InviteCodeEntity managed = jpaUtil.create(new InviteCodeEntity(group, receiver, sender, expiresDate));
 
-        group.inviteCodes().add(managed);
+        group.getInviteCodes().add(managed);
         em.merge(group);
 
         receiver.getInviteCodesAsReceiver().add(managed);

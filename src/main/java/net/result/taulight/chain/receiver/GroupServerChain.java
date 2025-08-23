@@ -162,7 +162,7 @@ public class GroupServerChain extends ServerChain implements ReceiverChain {
         if (!(chat instanceof GroupEntity group)) throw new WrongAddressException();
 
         // You cannot leave, because you are owner
-        if (group.owner().equals(you)) throw new UnauthorizedException();
+        if (group.getOwner().equals(you)) throw new UnauthorizedException();
 
         // You are not in group (impossible)
         if (!groupRepo.removeMember(group, you)) throw new NotFoundException();
@@ -209,7 +209,7 @@ public class GroupServerChain extends ServerChain implements ReceiverChain {
         if (!chatUtil.contains(chat, you)) throw new UnauthorizedException();
         if (!(chat instanceof GroupEntity group)) throw new WrongAddressException();
 
-        FileEntity avatar = group.avatar();
+        FileEntity avatar = group.getAvatar();
         if (avatar == null) throw new NoEffectException(); 
 
         FileIOUtil.send(dbFileUtil.readImage(avatar), this::send);

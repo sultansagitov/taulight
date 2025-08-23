@@ -46,7 +46,7 @@ public class PermissionServerChain extends ServerChain implements ReceiverChain 
 
     private GroupEntity getGroup(PermissionRequest request) {
         GroupEntity group = jpaUtil.find(GroupEntity.class, request.chatID).orElseThrow(NotFoundException::new);
-        if (session.member == null && !group.owner().equals(session.member.getTauMember())) {
+        if (session.member == null && !group.getOwner().equals(session.member.getTauMember())) {
             throw new UnauthorizedException();
         }
         return group;
@@ -57,7 +57,7 @@ public class PermissionServerChain extends ServerChain implements ReceiverChain 
                 .find(RoleEntity.class, request.roleID)
                 .orElseThrow(NotFoundException::new);
         GroupEntity group = role.group();
-        if (session.member == null && !group.owner().equals(session.member.getTauMember())) {
+        if (session.member == null && !group.getOwner().equals(session.member.getTauMember())) {
             throw new UnauthorizedException();
         }
         return role;

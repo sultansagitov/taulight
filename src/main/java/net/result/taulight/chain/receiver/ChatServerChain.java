@@ -93,7 +93,7 @@ public class ChatServerChain extends ServerChain implements ReceiverChain {
             }
 
             ChatEntity chat = opt.get();
-            boolean groupAccessible = chat instanceof GroupEntity g && g.members().contains(you);
+            boolean groupAccessible = chat instanceof GroupEntity g && g.getMembers().contains(you);
             boolean dialogAccessible = chat instanceof DialogEntity d &&
                     (d.getFirstMember().equals(you) || d.getSecondMember().equals(you));
 

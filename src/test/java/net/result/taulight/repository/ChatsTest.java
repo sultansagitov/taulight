@@ -106,7 +106,7 @@ public class ChatsTest {
 
         Optional<ChatEntity> foundGroup = chatUtil.getChat(group.id());
         assertTrue(foundGroup.isPresent());
-        assertEquals("General Chat", ((GroupEntity) foundGroup.get()).title());
+        assertEquals("General Chat", ((GroupEntity) foundGroup.get()).getTitle());
 
         member1 = jpaUtil.refresh(member1);
 
@@ -116,7 +116,7 @@ public class ChatsTest {
         assertTrue(chatUtil.getMembers(group).contains(member1), "Group should contain creator as member");
         assertTrue(member1.getGroups().contains(group), "Member should have group in their groups list");
         assertEquals(0, group.getMessages().size(), "New group should have no messages");
-        assertEquals(member1, group.owner(), "Group owner should be the creator");
+        assertEquals(member1, group.getOwner(), "Group owner should be the creator");
     }
 
     @Test
@@ -129,7 +129,7 @@ public class ChatsTest {
         // Additional assertions
         assertEquals(group, foundGroup.get(), "Retrieved group should be the same object");
         assertEquals(group.id(), foundGroup.get().id(), "IDs should match");
-        assertEquals("Test Group", ((GroupEntity) foundGroup.get()).title(), "Titles should match");
+        assertEquals("Test Group", ((GroupEntity) foundGroup.get()).getTitle(), "Titles should match");
 
         // Test with non-existent chat ID
         UUID nonExistentID = UUID.randomUUID();

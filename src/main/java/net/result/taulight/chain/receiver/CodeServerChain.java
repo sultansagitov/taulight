@@ -136,7 +136,7 @@ public class CodeServerChain extends ServerChain implements ReceiverChain {
 
         Headers headers = new Headers().setType(TauMessageTypes.CODE);
 
-        Collection<CodeDTO> collected = group.inviteCodes().stream()
+        Collection<CodeDTO> collected = group.getInviteCodes().stream()
                 .map(InviteCodeEntity::toDTO)
                 .collect(Collectors.toSet());
 

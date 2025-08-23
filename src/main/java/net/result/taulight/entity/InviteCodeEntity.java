@@ -106,7 +106,7 @@ public class InviteCodeEntity extends BaseEntity {
     public InviteCodeDTO toDTO() {
         return new InviteCodeDTO(
                 code(),
-                group().title(),
+                group().getTitle(),
                 receiver().getMember().getNickname(),
                 sender().getMember().getNickname(),
                 getCreationDate(),
@@ -119,7 +119,7 @@ public class InviteCodeEntity extends BaseEntity {
     public String toString() {
         return "<InviteCodeEntity code=%s, group=%s, receiver=%s, sender=%s>".formatted(
                 code,
-                group.title(),
+                group.getTitle(),
                 receiver.getMember().getNickname(),
                 sender.getMember().getNickname()
         );

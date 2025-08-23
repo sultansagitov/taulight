@@ -56,7 +56,7 @@ public class MembersServerChain extends ServerChain implements ReceiverChain {
         if (chat instanceof GroupEntity group) {
             Set<RoleDTO> set = new HashSet<>();
 
-            for (RoleEntity role : group.roles()) {
+            for (RoleEntity role : group.getRoles()) {
                 set.add(role.toDTO());
                 memberRolesMap = role
                         .members().stream()

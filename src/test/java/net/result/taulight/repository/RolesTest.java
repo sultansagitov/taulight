@@ -48,7 +48,7 @@ public class RolesTest {
         boolean result = roleRepo.addMember(role, member2);
 
         assertTrue(result, "Member should be added to the role");
-        assertTrue(group.roles().contains(role), "Group should contain the newly created role");
+        assertTrue(group.getRoles().contains(role), "Group should contain the newly created role");
         assertEquals(group, role.group(), "Role should be linked to the correct group");
     }
 }

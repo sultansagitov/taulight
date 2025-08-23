@@ -27,7 +27,7 @@ public class RoleRepository {
         EntityManager em = jpaUtil.getEntityManager();
         RoleEntity managed = jpaUtil.create(new RoleEntity(group, role));
 
-        group.roles().add(managed);
+        group.getRoles().add(managed);
         em.merge(group);
 
         return managed;
@@ -98,11 +98,11 @@ public class RoleRepository {
 
     public Set<Permission> getMemberPermissionsInGroup(GroupEntity group, TauMemberEntity member) {
         return Stream.concat(
-                group.roles().stream()
+                group.getRoles().stream()
                     .flatMap(role -> role.members().stream()
                         .filter(member::equals)
                         .flatMap(e -> role.permissions().stream())),
-                group.permissions().stream()
+                group.getPermissions().stream()
             )
             .collect(Collectors.toSet());
     }
