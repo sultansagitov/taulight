@@ -32,8 +32,8 @@ public class ReactionEntryEntity extends BaseEntity {
                 getMember().getMember().getNickname(),
                 getMessage().getChat().id(),
                 getMessage().id(),
-                getReactionType().reactionPackage().getName(),
-                getReactionType().name()
+                getReactionType().getReactionPackage().getName(),
+                getReactionType().getName()
         );
     }
 }

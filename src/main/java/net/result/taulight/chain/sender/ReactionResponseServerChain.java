@@ -30,8 +30,8 @@ public class ReactionResponseServerChain extends ServerChain {
                 nickname,
                 message.getChat().id(),
                 message.id(),
-                reactionType.reactionPackage().getName(),
-                reactionType.name(),
+                reactionType.getReactionPackage().getName(),
+                reactionType.getName(),
                 yourSession
         );
         sendAndReceive(response).expect(MessageTypes.HAPPY);

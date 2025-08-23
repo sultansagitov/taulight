@@ -38,7 +38,7 @@ public class RoleRepository {
         EntityTransaction transaction = em.getTransaction();
         transaction.begin();
         try {
-            Set<TauMemberEntity> members = new HashSet<>(role.members());
+            Set<TauMemberEntity> members = new HashSet<>(role.getMembers());
             if (members.contains(member)) return false;
             members.add(member);
             role.setMembers(members);
@@ -63,9 +63,9 @@ public class RoleRepository {
         EntityTransaction transaction = em.getTransaction();
 
         try {
-            if (role.permissions().contains(permission)) return false;
+            if (role.getPermissions().contains(permission)) return false;
 
-            role.permissions().add(permission);
+            role.getPermissions().add(permission);
 
             transaction.begin();
             em.merge(role);
@@ -82,9 +82,9 @@ public class RoleRepository {
         EntityTransaction transaction = em.getTransaction();
 
         try {
-            if (!role.permissions().contains(permission)) return false;
+            if (!role.getPermissions().contains(permission)) return false;
 
-            role.permissions().remove(permission);
+            role.getPermissions().remove(permission);
 
             transaction.begin();
             em.merge(role);
@@ -99,9 +99,9 @@ public class RoleRepository {
     public Set<Permission> getMemberPermissionsInGroup(GroupEntity group, TauMemberEntity member) {
         return Stream.concat(
                 group.getRoles().stream()
-                    .flatMap(role -> role.members().stream()
+                    .flatMap(role -> role.getMembers().stream()
                         .filter(member::equals)
-                        .flatMap(e -> role.permissions().stream())),
+                        .flatMap(e -> role.getPermissions().stream())),
                 group.getPermissions().stream()
             )
             .collect(Collectors.toSet());

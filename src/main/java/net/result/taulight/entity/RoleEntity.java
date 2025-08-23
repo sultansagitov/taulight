@@ -1,6 +1,9 @@
 package net.result.taulight.entity;
 
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import net.result.sandnode.entity.BaseEntity;
 import net.result.taulight.db.Permission;
 import net.result.taulight.dto.RoleDTO;
@@ -9,7 +12,9 @@ import org.jetbrains.annotations.NotNull;
 import java.util.HashSet;
 import java.util.Set;
 
-@SuppressWarnings("unused")
+@Getter
+@Setter
+@NoArgsConstructor
 @Entity
 public class RoleEntity extends BaseEntity {
     private String name;
@@ -24,51 +29,22 @@ public class RoleEntity extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private Set<Permission> permissions = new HashSet<>();
 
-    public RoleEntity() {}
-
     public RoleEntity(GroupEntity group, String role) {
         setGroup(group);
         setName(role);
     }
 
-    public String name() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public GroupEntity group() {
-        return group;
-    }
-
-    public void setGroup(GroupEntity group) {
-        this.group = group;
-    }
-
-    public Set<TauMemberEntity> members() {
-        return members;
-    }
-
-    public void setMembers(Set<TauMemberEntity> members) {
-        this.members = members;
-    }
-
-    public Set<Permission> permissions() {
-        return permissions;
-    }
-
-    public void setPermissions(Set<Permission> permissions) {
-        this.permissions = permissions;
-    }
-
     public @NotNull RoleDTO toDTO() {
-        return new RoleDTO(id(), name(), permissions());
+        return new RoleDTO(id(), getName(), getPermissions());
     }
 
     @Override
     public String toString() {
-        return "<RoleEntity %s %s permissions=%s members=%s>".formatted(id(), name(), permissions(), members());
+        return "<RoleEntity %s %s permissions=%s members=%s>".formatted(
+                id(),
+                getName(),
+                getPermissions(),
+                getMembers()
+        );
     }
 }

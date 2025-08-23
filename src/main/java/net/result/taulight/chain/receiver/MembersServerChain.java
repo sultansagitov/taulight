@@ -59,7 +59,7 @@ public class MembersServerChain extends ServerChain implements ReceiverChain {
             for (RoleEntity role : group.getRoles()) {
                 set.add(role.toDTO());
                 memberRolesMap = role
-                        .members().stream()
+                        .getMembers().stream()
                         .collect(Collectors.groupingBy(
                                 member -> member,
                                 Collectors.mapping(member -> role.id(), Collectors.toList())

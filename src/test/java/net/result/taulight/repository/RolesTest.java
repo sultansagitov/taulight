@@ -37,8 +37,8 @@ public class RolesTest {
         RoleEntity role = roleRepo.create(group, "admin");
 
         assertNotNull(role, "Role should not be null after creation");
-        assertEquals("admin", role.name(), "Role name should match the specified name");
-        assertEquals(group, role.group(), "Role should be associated with the correct group");
+        assertEquals("admin", role.getName(), "Role name should match the specified name");
+        assertEquals(group, role.getGroup(), "Role should be associated with the correct group");
     }
 
     @Test
@@ -49,6 +49,6 @@ public class RolesTest {
 
         assertTrue(result, "Member should be added to the role");
         assertTrue(group.getRoles().contains(role), "Group should contain the newly created role");
-        assertEquals(group, role.group(), "Role should be linked to the correct group");
+        assertEquals(group, role.getGroup(), "Role should be linked to the correct group");
     }
 }

@@ -53,7 +53,7 @@ public class ReactionRequestServerChain extends ServerChain implements ReceiverC
 
         ReactionTypeEntity reactionType = reactionTypeRepo
                 .findByPackageName(packageName).stream()
-                .filter(type -> type.name().equals(reactionTypeName))
+                .filter(type -> type.getName().equals(reactionTypeName))
                 .findFirst()
                 .orElseThrow(NotFoundException::new);
 
@@ -62,7 +62,7 @@ public class ReactionRequestServerChain extends ServerChain implements ReceiverC
 
         if (request.dto().react) {
             ReactionEntryEntity re = reactionEntryRepo.create(session.member.getTauMember(), message, reactionType);
-            LOGGER.info("Reaction added: {} to message {} by {}", reactionType.name(), message.id(), nickname);
+            LOGGER.info("Reaction added: {} to message {} by {}", reactionType.getName(), message.id(), nickname);
             for (Session s : session.server.getAgents()) {
                 if (notReactionReceiver.contains(s)) continue;
                 var chain = new ReactionResponseServerChain(s);
@@ -88,7 +88,7 @@ public class ReactionRequestServerChain extends ServerChain implements ReceiverC
                     s.io().chainManager.removeChain(chain);
                 }
 
-                LOGGER.info("Reaction removed: {} from message {}", reactionType.name(), message.id());
+                LOGGER.info("Reaction removed: {} from message {}", reactionType.getName(), message.id());
             } else {
                 throw new NoEffectException();
             }

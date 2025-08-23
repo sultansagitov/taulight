@@ -95,7 +95,7 @@ public class MessageEntity extends BaseEntity {
             ReactionTypeEntity type = entry.getReactionType();
             TauMemberEntity member = entry.getMember();
 
-            String reaction = "%s:%s".formatted(type.reactionPackage().getName(), type.name());
+            String reaction = "%s:%s".formatted(type.getReactionPackage().getName(), type.getName());
 
             reactions.computeIfAbsent(reaction, k -> new ArrayList<>()).add(member.getMember().getNickname());
         });

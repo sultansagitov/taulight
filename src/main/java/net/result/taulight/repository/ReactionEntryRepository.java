@@ -24,7 +24,7 @@ public class ReactionEntryRepository {
 
         member.getReactionEntries().add(managed);
         message.getReactionEntries().add(managed);
-        reactionType.reactionEntries().add(managed);
+        reactionType.getReactionEntries().add(managed);
 
         return managed;
     }
@@ -46,7 +46,7 @@ public class ReactionEntryRepository {
                 em.merge(member);
 
                 ReactionTypeEntity type = re.getReactionType();
-                type.reactionEntries().remove(re);
+                type.getReactionEntries().remove(re);
                 em.merge(type);
 
                 em.remove(re);

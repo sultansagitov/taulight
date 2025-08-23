@@ -49,7 +49,7 @@ public class RoleServerChain extends ServerChain implements ReceiverChain {
                 .collect(Collectors.toSet());
 
         Set<UUID> memberRoles = roles.stream()
-                .filter(role -> role.members().contains(session.member.getTauMember()))
+                .filter(role -> role.getMembers().contains(session.member.getTauMember()))
                 .map(RoleEntity::id)
                 .collect(Collectors.toSet());
 
