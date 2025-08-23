@@ -30,7 +30,7 @@ public class ReactionResponseServerChain extends ServerChain {
                 nickname,
                 message.getChat().id(),
                 message.id(),
-                reactionType.reactionPackage().name(),
+                reactionType.reactionPackage().getName(),
                 reactionType.name(),
                 yourSession
         );

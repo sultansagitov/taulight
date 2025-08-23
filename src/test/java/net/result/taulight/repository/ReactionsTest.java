@@ -51,7 +51,7 @@ class ReactionsTest {
     public void createReactionPackage() {
         ReactionPackageEntity reactionPackage = reactionPackageRepo.create("funny_emojis", "");
         assertNotNull(reactionPackage);
-        assertEquals("funny_emojis", reactionPackage.name());
+        assertEquals("funny_emojis", reactionPackage.getName());
 
         Optional<ReactionPackageEntity> found = jpaUtil.find(ReactionPackageEntity.class, reactionPackage.id());
         assertTrue(found.isPresent());
@@ -59,12 +59,12 @@ class ReactionsTest {
 
         // Additional assertions
         assertNotNull(reactionPackage.id(), "Reaction package ID should not be null");
-        assertEquals("", reactionPackage.description(), "Description should match");
-        assertEquals(0, reactionPackage.reactionTypes().size(), "New reaction package should have no reaction types");
+        assertEquals("", reactionPackage.getDescription(), "Description should match");
+        assertEquals(0, reactionPackage.getReactionTypes().size(), "New reaction package should have no reaction types");
 
         // Test creating package with description
         ReactionPackageEntity packageWithDesc = reactionPackageRepo.create("animal_emojis", "Animal themed reactions");
-        assertEquals("Animal themed reactions", packageWithDesc.description(), "Description should match");
+        assertEquals("Animal themed reactions", packageWithDesc.getDescription(), "Description should match");
     }
 
     @Test
@@ -72,7 +72,7 @@ class ReactionsTest {
         ReactionPackageEntity created = reactionPackageRepo.create("qwe", "rty");
         Optional<ReactionPackageEntity> found = reactionPackageRepo.find("qwe");
         assertTrue(found.isPresent());
-        assertEquals("rty", found.get().description());
+        assertEquals("rty", found.get().getDescription());
 
         // Additional assertions
         assertEquals(created.id(), found.get().id(), "IDs should match");
@@ -95,7 +95,7 @@ class ReactionsTest {
 
         assertNotNull(reactionType);
         assertEquals("laugh", reactionType.name());
-        assertEquals("standard", reactionType.reactionPackage().name());
+        assertEquals("standard", reactionType.reactionPackage().getName());
 
         Optional<ReactionTypeEntity> found = jpaUtil.find(ReactionTypeEntity.class, reactionType.id());
         assertTrue(found.isPresent());
@@ -103,13 +103,13 @@ class ReactionsTest {
 
         // Additional assertions
         assertNotNull(reactionType.id(), "Reaction type ID should not be null");
-        assertTrue(reactionPackage.reactionTypes().contains(reactionType),
+        assertTrue(reactionPackage.getReactionTypes().contains(reactionType),
                 "Reaction package should contain the new reaction type");
 
         // Test creating another reaction type in the same package
         ReactionTypeEntity second = reactionTypeRepo.create("cry", reactionPackage);
         assertEquals(reactionPackage, second.reactionPackage(), "Reaction package should match");
-        assertEquals(2, reactionPackage.reactionTypes().size(), "Package should now have two reaction types");
+        assertEquals(2, reactionPackage.getReactionTypes().size(), "Package should now have two reaction types");
 
         // Test reusing the same name in a different package
         ReactionPackageEntity otherPackage = reactionPackageRepo.create("other_package", "");
@@ -139,15 +139,15 @@ class ReactionsTest {
         }
 
         // Additional assertions
-        assertEquals(3, reactionPackage.reactionTypes().size(), "Package should have all three reaction types");
-        List<String> retrievedNames = reactionPackage.reactionTypes().stream().map(ReactionTypeEntity::name).toList();
+        assertEquals(3, reactionPackage.getReactionTypes().size(), "Package should have all three reaction types");
+        List<String> retrievedNames = reactionPackage.getReactionTypes().stream().map(ReactionTypeEntity::name).toList();
         assertTrue(retrievedNames.containsAll(typeNames), "All type names should be present in package");
 
         // Test adding more types to the same package
         Collection<String> moreTypes = List.of("thumbsup", "thumbsdown");
         Collection<ReactionTypeEntity> moreCreatedTypes = reactionTypeRepo.create(reactionPackage, moreTypes);
         assertEquals(2, moreCreatedTypes.size(), "Should create two more types");
-        assertEquals(5, reactionPackage.reactionTypes().size(), "Package should now have five reaction types");
+        assertEquals(5, reactionPackage.getReactionTypes().size(), "Package should now have five reaction types");
     }
 
     @Test

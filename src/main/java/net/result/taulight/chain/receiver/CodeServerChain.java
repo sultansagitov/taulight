@@ -73,7 +73,7 @@ public class CodeServerChain extends ServerChain implements ReceiverChain {
 
         InviteCodeEntity invite = inviteCodeRepo.find(check.code).orElseThrow(NotFoundException::new);
 
-        if (!(invite.receiver().equals(you) || invite.sender().equals(you))) {
+        if (!(invite.getReceiver().equals(you) || invite.getSender().equals(you))) {
             throw new NotFoundException();
         }
 
@@ -89,11 +89,11 @@ public class CodeServerChain extends ServerChain implements ReceiverChain {
 
         InviteCodeEntity invite = inviteCodeRepo.find(use.code).orElseThrow(NotFoundException::new);
 
-        TauMemberEntity member = invite.receiver();
-        GroupEntity group = invite.group();
+        TauMemberEntity member = invite.getReceiver();
+        GroupEntity group = invite.getGroup();
 
-        if (!invite.receiver().equals(you.getTauMember())) {
-            if (invite.sender().equals(you.getTauMember())) {
+        if (!invite.getReceiver().equals(you.getTauMember())) {
+            if (invite.getSender().equals(you.getTauMember())) {
                 throw new UnauthorizedException();
             } else {
                 throw new NotFoundException();

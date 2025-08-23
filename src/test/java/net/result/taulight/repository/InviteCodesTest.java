@@ -57,19 +57,19 @@ public class InviteCodesTest {
         ZonedDateTime expiresDate = ZonedDateTime.now().plusDays(1);
         InviteCodeEntity inviteCode = inviteCodeRepo.create(group, member2, member1, expiresDate);
 
-        String stringCode = inviteCode.code();
+        String stringCode = inviteCode.getCode();
         Optional<InviteCodeEntity> foundInviteCode = inviteCodeRepo.find(stringCode);
         assertTrue(foundInviteCode.isPresent());
-        assertEquals(stringCode, foundInviteCode.get().code());
+        assertEquals(stringCode, foundInviteCode.get().getCode());
 
         // Additional assertions
         assertNotNull(inviteCode.id(), "Invite code ID should not be null");
-        assertEquals(group, inviteCode.group(), "Invite should be for the correct group");
-        assertEquals(member1, inviteCode.sender(), "Sender should be member1");
-        assertEquals(member2, inviteCode.receiver(), "Receiver should be member2");
-        assertEquals(expiresDate.toEpochSecond(), inviteCode.expiresDate().toEpochSecond(),
+        assertEquals(group, inviteCode.getGroup(), "Invite should be for the correct group");
+        assertEquals(member1, inviteCode.getSender(), "Sender should be member1");
+        assertEquals(member2, inviteCode.getReceiver(), "Receiver should be member2");
+        assertEquals(expiresDate.toEpochSecond(), inviteCode.getExpiresDate().toEpochSecond(),
                 "Expiration date should match");
-        assertNull(inviteCode.activationDate(), "New invite code should not be activated");
+        assertNull(inviteCode.getActivatedAt(), "New invite code should not be activated");
     }
 
     @Test
@@ -79,15 +79,15 @@ public class InviteCodesTest {
         ZonedDateTime expiration = ZonedDateTime.now().plusDays(1);
         InviteCodeEntity invite = inviteCodeRepo.create(group, member2, member1, expiration);
 
-        Optional<InviteCodeEntity> result = inviteCodeRepo.find(invite.code());
+        Optional<InviteCodeEntity> result = inviteCodeRepo.find(invite.getCode());
         assertTrue(result.isPresent());
         assertEquals(invite, result.get());
 
         // Additional assertions
         assertEquals(invite.id(), result.get().id(), "IDs should match");
-        assertEquals(invite.group(), result.get().group(), "Groups should match");
-        assertEquals(invite.receiver(), result.get().receiver(), "Receivers should match");
-        assertEquals(invite.sender(), result.get().sender(), "Senders should match");
+        assertEquals(invite.getGroup(), result.get().getGroup(), "Groups should match");
+        assertEquals(invite.getReceiver(), result.get().getReceiver(), "Receivers should match");
+        assertEquals(invite.getSender(), result.get().getSender(), "Senders should match");
 
         // Test with non-existent invite code
         Optional<InviteCodeEntity> nonExistentInvite = inviteCodeRepo.find("non-existent-code");
@@ -106,15 +106,15 @@ public class InviteCodesTest {
         assertEquals(2, result.size());
 
         // Additional assertions
-        List<String> inviteCodes = result.stream().map(InviteCodeEntity::code).toList();
-        assertTrue(inviteCodes.contains(invite1.code()), "Result should contain first invite code");
-        assertTrue(inviteCodes.contains(invite2.code()), "Result should contain second invite code");
+        List<String> inviteCodes = result.stream().map(InviteCodeEntity::getCode).toList();
+        assertTrue(inviteCodes.contains(invite1.getCode()), "Result should contain first invite code");
+        assertTrue(inviteCodes.contains(invite2.getCode()), "Result should contain second invite code");
 
         // Test with a different receiver
         InviteCodeEntity invite3 = inviteCodeRepo.create(group, member5, member3, expiration);
         Collection<InviteCodeEntity> result2 = inviteCodeRepo.find(group, member5);
         assertEquals(1, result2.size(), "Should find only one invite from member5");
-        assertEquals(invite3.code(), result2.iterator().next().code(), "Should find the correct invite");
+        assertEquals(invite3.getCode(), result2.iterator().next().getCode(), "Should find the correct invite");
 
         // Test with no invites
         Collection<InviteCodeEntity> emptyResult = inviteCodeRepo.find(group, member6);
@@ -131,9 +131,9 @@ public class InviteCodesTest {
         inviteCodeRepo.activate(inviteCode);
 
         // Additional assertions
-        Optional<InviteCodeEntity> found = inviteCodeRepo.find(inviteCode.code());
+        Optional<InviteCodeEntity> found = inviteCodeRepo.find(inviteCode.getCode());
         assertTrue(found.isPresent(), "Should still find the invite code after activation");
-        assertNotNull(found.get().activationDate(), "Invite code should be marked as activated");
+        assertNotNull(found.get().getActivatedAt(), "Invite code should be marked as activated");
 
         // Test activating an already activated code
         assertThrows(NoEffectException.class, () -> inviteCodeRepo.activate(inviteCode));

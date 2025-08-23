@@ -70,8 +70,8 @@ public class InviteCodeRepository {
     }
 
     public void activate(InviteCodeEntity code) {
-        if (code.activationDate() != null) throw new NoEffectException("Invite already activated");
-        if (code.expiresDate().isBefore(ZonedDateTime.now())) throw new NoEffectException("Invite expired");
+        if (code.getActivatedAt() != null) throw new NoEffectException("Invite already activated");
+        if (code.getExpiresDate().isBefore(ZonedDateTime.now())) throw new NoEffectException("Invite expired");
 
         EntityManager em = jpaUtil.getEntityManager();
         EntityTransaction transaction = em.getTransaction();

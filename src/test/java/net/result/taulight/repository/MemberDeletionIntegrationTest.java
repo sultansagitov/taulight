@@ -124,11 +124,11 @@ public class MemberDeletionIntegrationTest {
         ZonedDateTime expiresDate = ZonedDateTime.now().plusDays(1);
         InviteCodeEntity invite = inviteCodeRepo.create(group, tauInvited, tauOwner, expiresDate);
 
-        assertTrue(inviteCodeRepo.find(invite.code()).isPresent());
+        assertTrue(inviteCodeRepo.find(invite.getCode()).isPresent());
 
         boolean deleted = memberRepo.delete(invited);
 
         assertTrue(deleted);
-        assertTrue(inviteCodeRepo.find(invite.code()).isPresent());
+        assertTrue(inviteCodeRepo.find(invite.getCode()).isPresent());
     }
 }

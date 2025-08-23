@@ -139,7 +139,7 @@ public class GroupServerChain extends ServerChain implements ReceiverChain {
 
         // Receiver already have invite code
         for (InviteCodeEntity e : inviteCodeRepo.find(group, member)) {
-            if (e.expiresDate().isAfter(ZonedDateTime.now()) && e.activationDate() == null) {
+            if (e.getExpiresDate().isAfter(ZonedDateTime.now()) && e.getActivatedAt() == null) {
                 throw new NoEffectException();
             }
         }
@@ -149,7 +149,7 @@ public class GroupServerChain extends ServerChain implements ReceiverChain {
         ZonedDateTime expiresDate = ZonedDateTime.now().plus(duration);
         InviteCodeEntity code = inviteCodeRepo.create(group, member, you, expiresDate);
 
-        return new TextMessage(new Headers().setType(TauMessageTypes.GROUP), code.code());
+        return new TextMessage(new Headers().setType(TauMessageTypes.GROUP), code.getCode());
     }
 
     private HappyMessage leave(GroupRequestDTO dto, TauMemberEntity you) {

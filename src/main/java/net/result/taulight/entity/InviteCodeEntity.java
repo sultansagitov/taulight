@@ -3,6 +3,8 @@ package net.result.taulight.entity;
 import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
 import jakarta.persistence.ManyToOne;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import net.result.sandnode.entity.BaseEntity;
 import net.result.sandnode.db.ZonedDateTimeConverter;
@@ -13,12 +15,17 @@ import java.time.ZonedDateTime;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+@Setter
+@Getter
+@NoArgsConstructor
 @SuppressWarnings("unused")
 @Entity
 public class InviteCodeEntity extends BaseEntity {
     private String code;
+
     @Convert(converter = ZonedDateTimeConverter.class)
     private ZonedDateTime activatedAt;
+
     @Convert(converter = ZonedDateTimeConverter.class)
     private ZonedDateTime expiresDate;
 
@@ -28,11 +35,8 @@ public class InviteCodeEntity extends BaseEntity {
     @ManyToOne
     private TauMemberEntity receiver;
 
-    @Setter
     @ManyToOne
     private TauMemberEntity sender;
-
-    public InviteCodeEntity() {}
 
     public InviteCodeEntity(
             GroupEntity group,
@@ -48,55 +52,11 @@ public class InviteCodeEntity extends BaseEntity {
         this.activatedAt = null;
     }
 
-    public ZonedDateTime expiresDate() {
-        return expiresDate;
-    }
-
-    public void setExpiresDate(ZonedDateTime expiresDate) {
-        this.expiresDate = expiresDate;
-    }
-
-    public String code() {
-        return code;
-    }
-
-    public void setCode(String code) {
-        this.code = code;
-    }
-
     public void setRandomCode() {
         SecureRandom random = new SecureRandom();
         code = IntStream.range(0, 64)
                 .mapToObj(i -> String.valueOf((char) ('a' + random.nextInt(26))))
                 .collect(Collectors.joining());
-    }
-
-    public GroupEntity group() {
-        return group;
-    }
-
-    public void setGroup(GroupEntity group) {
-        this.group = group;
-    }
-
-    public TauMemberEntity receiver() {
-        return receiver;
-    }
-
-    public void setReceiver(TauMemberEntity receiver) {
-        this.receiver = receiver;
-    }
-
-    public TauMemberEntity sender() {
-        return sender;
-    }
-
-    public ZonedDateTime activationDate() {
-        return activatedAt;
-    }
-
-    public void setActivationDate(ZonedDateTime activatedAt) {
-        this.activatedAt = activatedAt;
     }
 
     public void setActivationDateNow() {
@@ -105,13 +65,13 @@ public class InviteCodeEntity extends BaseEntity {
 
     public InviteCodeDTO toDTO() {
         return new InviteCodeDTO(
-                code(),
-                group().getTitle(),
-                receiver().getMember().getNickname(),
-                sender().getMember().getNickname(),
+                getCode(),
+                getGroup().getTitle(),
+                getReceiver().getMember().getNickname(),
+                getSender().getMember().getNickname(),
                 getCreationDate(),
-                activationDate(),
-                expiresDate()
+                getActivatedAt(),
+                getExpiresDate()
         );
     }
 

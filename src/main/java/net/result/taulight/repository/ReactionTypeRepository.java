@@ -23,7 +23,7 @@ public class ReactionTypeRepository {
         EntityManager em = jpaUtil.getEntityManager();
         ReactionTypeEntity managed = jpaUtil.create(new ReactionTypeEntity(name, reactionPackage));
 
-        reactionPackage.reactionTypes().add(managed);
+        reactionPackage.getReactionTypes().add(managed);
         em.merge(reactionPackage);
 
         return managed;
@@ -47,7 +47,7 @@ public class ReactionTypeRepository {
                 ReactionTypeEntity managed = em.merge(reactionType);
                 createdEntities.add(managed);
 
-                rp.reactionTypes().add(managed);
+                rp.getReactionTypes().add(managed);
                 em.merge(rp);
             }
 
