@@ -6,7 +6,7 @@ public class CommandRegistry {
     private final Map<String, CommandInfo> commands = new HashMap<>();
 
     public void register(CommandInfo cmd) {
-        commands.put(cmd.getName().toLowerCase(), cmd);
+        commands.put(cmd.name().toLowerCase(), cmd);
     }
 
     public boolean contains(String name) {

@@ -33,11 +33,12 @@ public class RoleServerChain extends ServerChain implements ReceiverChain {
 
         RoleRequest request = new RoleRequest(raw);
 
-        RoleRequestDTO.DataType dataType = request.dto().dataType;
-        UUID chatID = request.dto().chatID;
-        UUID roleID = request.dto().roleID;
-        String roleName = request.dto().roleName;
-        String nickname = request.dto().nickname;
+        RoleRequestDTO dto = request.dto();
+        RoleRequestDTO.DataType dataType = dto.dataType();
+        UUID chatID = dto.chatID();
+        UUID roleID = dto.roleID();
+        String roleName = dto.roleName();
+        String nickname = dto.nickname();
 
         ChatEntity chat = chatUtil.getChat(chatID).orElseThrow(NotFoundException::new);
         if (!chatUtil.contains(chat, session.member.getTauMember())) throw new NotFoundException();

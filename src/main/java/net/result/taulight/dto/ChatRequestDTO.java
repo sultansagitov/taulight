@@ -16,7 +16,6 @@ public class ChatRequestDTO {
     @JsonProperty("properties")
     public Collection<ChatInfoPropDTO> infoProps;
 
-
     public ChatRequestDTO(Collection<ChatInfoPropDTO> infoProps) {
         this(null, infoProps);
     }

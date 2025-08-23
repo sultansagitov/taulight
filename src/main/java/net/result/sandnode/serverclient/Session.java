@@ -1,5 +1,6 @@
 package net.result.sandnode.serverclient;
 
+import lombok.Getter;
 import net.result.sandnode.chain.ServerChainManager;
 import net.result.sandnode.cluster.Cluster;
 import net.result.sandnode.entity.LoginEntity;
@@ -18,6 +19,7 @@ import java.util.HashSet;
 
 public class Session implements Peer {
     private static final Logger LOGGER = LogManager.getLogger(Session.class);
+    @Getter
     private final Collection<Cluster> clusters = new HashSet<>();
     public final SandnodeServer server;
     private final IOController io;
@@ -79,10 +81,6 @@ public class Session implements Peer {
 
     public void removeFromClusters(Collection<Cluster> clusters) {
         clusters.forEach(this::removeFromCluster);
-    }
-
-    public Collection<Cluster> getClusters() {
-        return clusters;
     }
 
     @Override
