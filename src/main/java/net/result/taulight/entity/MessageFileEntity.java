@@ -3,12 +3,19 @@ package net.result.taulight.entity;
 import jakarta.persistence.Entity;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToOne;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import net.result.sandnode.entity.BaseEntity;
 import net.result.sandnode.entity.FileEntity;
 import net.result.taulight.dto.NamedFileDTO;
 import org.jetbrains.annotations.NotNull;
 
-@SuppressWarnings("unused")
+@Setter
+@Getter
+@NoArgsConstructor
+@AllArgsConstructor
 @Entity
 public class MessageFileEntity extends BaseEntity {
     private String originalName;
@@ -22,58 +29,7 @@ public class MessageFileEntity extends BaseEntity {
     @OneToOne
     private FileEntity file;
 
-    public MessageFileEntity() {
-        super();
-    }
-
-    public MessageFileEntity(TauMemberEntity member, ChatEntity chat, String originalName, FileEntity file) {
-        setOriginalName(originalName);
-        setFile(file);
-        setMember(member);
-        setChat(chat);
-    }
-
     public @NotNull NamedFileDTO toDTO() {
-        return new NamedFileDTO(id(), originalName(), file().contentType());
-    }
-
-    public String originalName() {
-        return originalName;
-    }
-
-    public void setOriginalName(String originalName) {
-        this.originalName = originalName;
-    }
-
-    public TauMemberEntity member() {
-        return member;
-    }
-
-    public void setMember(TauMemberEntity member) {
-        this.member = member;
-    }
-
-    public ChatEntity chat() {
-        return chat;
-    }
-
-    public void setChat(ChatEntity chat) {
-        this.chat = chat;
-    }
-
-    public MessageEntity message() {
-        return message;
-    }
-
-    public void setMessage(MessageEntity message) {
-        this.message = message;
-    }
-
-    public FileEntity file() {
-        return file;
-    }
-
-    public void setFile(FileEntity file) {
-        this.file = file;
+        return new NamedFileDTO(id(), getOriginalName(), getFile().getContentType());
     }
 }

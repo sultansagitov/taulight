@@ -1,7 +1,5 @@
 package net.result.sandnode.message.types;
 
-import net.result.sandnode.exception.DeserializationException;
-import net.result.sandnode.exception.ExpectedMessageException;
 import net.result.sandnode.message.EmptyMessage;
 import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.message.util.Headers;
@@ -35,7 +33,7 @@ public class AvatarRequest extends EmptyMessage {
         return new AvatarRequest(new Headers().setValue("type", type.value));
     }
 
-    public AvatarRequest(@NotNull RawMessage raw) throws ExpectedMessageException {
+    public AvatarRequest(@NotNull RawMessage raw) {
         this(raw.expect(MessageTypes.AVATAR).headers());
     }
 
@@ -43,7 +41,7 @@ public class AvatarRequest extends EmptyMessage {
         return headers().getOptionalValue("type").map(Type::fromValue).orElse(Type.GET_MY);
     }
 
-    public String getNickname() throws DeserializationException {
+    public String getNickname() {
         return headers().getValue("nickname");
     }
 }

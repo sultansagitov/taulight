@@ -15,7 +15,7 @@ public class UserInfoCommands {
         registry.register(new CommandInfo("name", "Show hub name", "UserInfo", UserInfoCommands::name));
     }
 
-    private static void whoami(List<String> ignored, ConsoleContext context) throws Exception {
+    private static void whoami(List<String> ignored, ConsoleContext context) {
         WhoAmIClientChain chain = new WhoAmIClientChain(context.client);
         context.io.chainManager.linkChain(chain);
         String userID = chain.getNickname();
@@ -23,7 +23,7 @@ public class UserInfoCommands {
         System.out.println(userID);
     }
 
-    private static void name(List<String> ignored, ConsoleContext context) throws Exception {
+    private static void name(List<String> ignored, ConsoleContext context) {
         NameClientChain chain = new NameClientChain(context.client);
         context.io.chainManager.linkChain(chain);
         System.out.printf("Hub name: %s%n", chain.getName());

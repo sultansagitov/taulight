@@ -6,12 +6,14 @@ import net.result.sandnode.serverclient.SandnodeClient;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
+import java.io.IOException;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
 
 public class NameChainTest {
     @BeforeAll
-    public static void setup() throws Exception {
+    public static void setup() throws IOException {
         GlobalTestState.initChainTests();
     }
 

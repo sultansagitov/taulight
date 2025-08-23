@@ -24,12 +24,11 @@ public class MessageFileRepository {
         jpaUtil = container.get(JPAUtil.class);
     }
 
-    public MessageFileEntity create(TauMemberEntity member, ChatEntity chat, String originalName, FileEntity file)
-            throws DatabaseException {
-        return jpaUtil.create(new MessageFileEntity(member, chat, originalName, file));
+    public MessageFileEntity create(TauMemberEntity member, ChatEntity chat, String originalName, FileEntity file) {
+        return jpaUtil.create(new MessageFileEntity(originalName, member, chat, null, file));
     }
 
-    public Collection<MessageFileEntity> getFiles(MessageEntity message) throws DatabaseException {
+    public Collection<MessageFileEntity> getFiles(MessageEntity message) {
         EntityManager em = jpaUtil.getEntityManager();
         try {
             String q = "SELECT f FROM MessageFileEntity f WHERE f.message = :message";
@@ -41,7 +40,7 @@ public class MessageFileRepository {
         }
     }
 
-    public void setMessage(MessageEntity message, Set<UUID> fileIDs) throws DatabaseException, UnauthorizedException {
+    public void setMessage(MessageEntity message, Set<UUID> fileIDs) {
         if (fileIDs == null || fileIDs.isEmpty()) return;
 
         EntityManager em = jpaUtil.getEntityManager();
@@ -53,7 +52,7 @@ public class MessageFileRepository {
             TypedQuery<MessageFileEntity> query = em.createQuery(q, MessageFileEntity.class);
             query.setParameter("ids", fileIDs);
             for (MessageFileEntity file : query.getResultList()) {
-                if (!file.member().equals(message.member()) || file.message() != null) {
+                if (!file.getMember().equals(message.getMember()) || file.getMessage() != null) {
                     throw new UnauthorizedException();
                 }
 

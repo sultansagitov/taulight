@@ -41,9 +41,9 @@ public class CascadingTest {
     }
 
     @Test
-    public void testLeaveFromGroup() throws Exception {
+    public void testLeaveFromGroup() {
         MemberEntity m1 = memberRepo.create("new_user", "hash");
-        TauMemberEntity tau = m1.tauMember();
+        TauMemberEntity tau = m1.getTauMember();
 
         GroupEntity group = groupRepo.create("news", tau);
 
@@ -58,18 +58,18 @@ public class CascadingTest {
     }
 
     @Test
-    public void testRemoveReactionByObject() throws Exception {
+    public void testRemoveReactionByObject() {
         MemberEntity m1 = memberRepo.create("reacter", "hash");
         MemberEntity m2 = memberRepo.create("author", "hash");
 
-        TauMemberEntity reacter = m1.tauMember();
-        TauMemberEntity author = m2.tauMember();
+        TauMemberEntity reacter = m1.getTauMember();
+        TauMemberEntity author = m2.getTauMember();
 
         ChatEntity chat = groupRepo.create("memes", author);
         ChatMessageInputDTO input = new ChatMessageInputDTO()
                 .setContent("Hello world")
                 .setChatID(chat.id())
-                .setNickname(m1.nickname())
+                .setNickname(m1.getNickname())
                 .setSentDatetimeNow()
                 .setRepliedToMessages(new HashSet<>())
                 .setSys(true);
@@ -87,18 +87,18 @@ public class CascadingTest {
     }
 
     @Test
-    public void testRemoveReactionByCompositeKey() throws Exception {
+    public void testRemoveReactionByCompositeKey() {
         MemberEntity m1 = memberRepo.create("maria", "hash");
         MemberEntity m2 = memberRepo.create("mark", "hash");
 
-        TauMemberEntity reacter = m1.tauMember();
-        TauMemberEntity author = m2.tauMember();
+        TauMemberEntity reacter = m1.getTauMember();
+        TauMemberEntity author = m2.getTauMember();
 
         ChatEntity chat = groupRepo.create("random", author);
         ChatMessageInputDTO input = new ChatMessageInputDTO()
                 .setContent("Hello world")
                 .setChatID(chat.id())
-                .setNickname(m1.nickname())
+                .setNickname(m1.getNickname())
                 .setSentDatetimeNow()
                 .setRepliedToMessages(new HashSet<>())
                 .setSys(true);
@@ -116,11 +116,11 @@ public class CascadingTest {
     }
 
     @Test
-    public void testActivateInviteCode() throws Exception {
+    public void testActivateInviteCode() {
         MemberEntity sender = memberRepo.create("sender_cascading", "hash");
         MemberEntity receiver = memberRepo.create("receiver_cascading", "hash");
-        TauMemberEntity s = sender.tauMember();
-        TauMemberEntity r = receiver.tauMember();
+        TauMemberEntity s = sender.getTauMember();
+        TauMemberEntity r = receiver.getTauMember();
 
         GroupEntity group = groupRepo.create("private", s);
         InviteCodeEntity invite = inviteCodeRepo.create(group, r, s, ZonedDateTime.now().plusDays(1));

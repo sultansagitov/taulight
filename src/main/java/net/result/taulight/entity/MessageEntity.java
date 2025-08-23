@@ -1,10 +1,12 @@
 package net.result.taulight.entity;
 
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import net.result.sandnode.db.ZonedDateTimeConverter;
 import net.result.sandnode.entity.BaseEntity;
 import net.result.sandnode.entity.EncryptedKeyEntity;
-import net.result.sandnode.db.ZonedDateTimeConverter;
-import net.result.sandnode.exception.DatabaseException;
 import net.result.taulight.dto.ChatMessageInputDTO;
 import net.result.taulight.dto.ChatMessageViewDTO;
 import net.result.taulight.dto.NamedFileDTO;
@@ -16,7 +18,9 @@ import java.time.ZonedDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
-@SuppressWarnings("unused")
+@Setter
+@Getter
+@NoArgsConstructor
 @Entity
 public class MessageEntity extends BaseEntity {
     private boolean sys;
@@ -50,8 +54,6 @@ public class MessageEntity extends BaseEntity {
     @ManyToMany(mappedBy = "repliedToMessages", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     private Set<MessageEntity> replies = new HashSet<>();
 
-    public MessageEntity() {}
-
     public MessageEntity(
             ChatEntity chat,
             ChatMessageInputDTO input,
@@ -67,78 +69,6 @@ public class MessageEntity extends BaseEntity {
         setSys(input.sys);
     }
 
-    public EncryptedKeyEntity key() {
-        return key;
-    }
-
-    public void setKey(EncryptedKeyEntity key) {
-        this.key = key;
-    }
-
-    public ChatEntity chat() {
-        return chat;
-    }
-
-    public void setChat(ChatEntity chat) {
-        this.chat = chat;
-    }
-
-    public String content() {
-        return content;
-    }
-
-    public void setContent(String content) {
-        this.content = content;
-    }
-
-    public ZonedDateTime sentDatetime() {
-        return sentDatetime;
-    }
-
-    public void setSentDatetime(ZonedDateTime sentDatetime) {
-        this.sentDatetime = sentDatetime;
-    }
-
-    public TauMemberEntity member() {
-        return member;
-    }
-
-    public void setMember(TauMemberEntity member) {
-        this.member = member;
-    }
-
-    public boolean sys() {
-        return sys;
-    }
-
-    public void setSys(boolean sys) {
-        this.sys = sys;
-    }
-
-    public Set<ReactionEntryEntity> reactionEntries() {
-        return reactionEntries;
-    }
-
-    public void setReactionEntries(Set<ReactionEntryEntity> reactionEntries) {
-        this.reactionEntries = reactionEntries;
-    }
-
-    public Set<MessageEntity> repliedToMessages() {
-        return repliedToMessages;
-    }
-
-    public void setRepliedToMessages(Set<MessageEntity> repliedToMessages) {
-        this.repliedToMessages = repliedToMessages;
-    }
-
-    public Set<MessageEntity> replies() {
-        return replies;
-    }
-
-    public void setReplies(Set<MessageEntity> replies) {
-        this.replies = replies;
-    }
-
     @Override
     public String toString() {
         return "<MessageEntity content='%s' sys=%s chat=%s member=%s repliedToMessages=%s>"
@@ -147,26 +77,26 @@ public class MessageEntity extends BaseEntity {
 
     public @NotNull ChatMessageInputDTO toInputDTO(Set<UUID> fileIDs) {
         return new ChatMessageInputDTO(
-                chat().id(),
-                key() != null ? key().id() : null,
-                content(),
-                sentDatetime(),
-                member().member().nickname(),
-                sys(),
-                repliedToMessages().stream().map(BaseEntity::id).collect(Collectors.toSet()),
+                getChat().id(),
+                getKey() != null ? getKey().id() : null,
+                getContent(),
+                getSentDatetime(),
+                getMember().getMember().getNickname(),
+                isSys(),
+                getRepliedToMessages().stream().map(BaseEntity::id).collect(Collectors.toSet()),
                 fileIDs
         );
     }
 
-    public @NotNull ChatMessageViewDTO toViewDTO(MessageFileRepository messageFileRepo) throws DatabaseException {
+    public @NotNull ChatMessageViewDTO toViewDTO(MessageFileRepository messageFileRepo) {
         Map<String, List<String>> reactions = new HashMap<>();
-        reactionEntries().forEach((entry) -> {
-            ReactionTypeEntity type = entry.reactionType();
-            TauMemberEntity member = entry.member();
+        getReactionEntries().forEach((entry) -> {
+            ReactionTypeEntity type = entry.getReactionType();
+            TauMemberEntity member = entry.getMember();
 
-            String reaction = "%s:%s".formatted(type.reactionPackage().name(), type.name());
+            String reaction = "%s:%s".formatted(type.getReactionPackage().getName(), type.getName());
 
-            reactions.computeIfAbsent(reaction, k -> new ArrayList<>()).add(member.member().nickname());
+            reactions.computeIfAbsent(reaction, k -> new ArrayList<>()).add(member.getMember().getNickname());
         });
 
         Collection<MessageFileEntity> files = messageFileRepo.getFiles(this);
@@ -181,6 +111,6 @@ public class MessageEntity extends BaseEntity {
 
         ChatMessageInputDTO input = toInputDTO(fileIDs);
 
-        return new ChatMessageViewDTO(input, id(), creationDate(), reactions, namedFiles);
+        return new ChatMessageViewDTO(input, id(), getCreationDate(), reactions, namedFiles);
     }
 }

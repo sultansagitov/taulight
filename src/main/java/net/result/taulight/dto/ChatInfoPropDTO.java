@@ -32,6 +32,7 @@ public enum ChatInfoPropDTO {
     /**
      * @return group and dialog id
      */
+    @SuppressWarnings("unused")
     public static Collection<ChatInfoPropDTO> id() {
         return id;
     }

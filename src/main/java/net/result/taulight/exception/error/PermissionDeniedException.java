@@ -5,8 +5,7 @@ import net.result.sandnode.exception.error.SandnodeErrorException;
 import net.result.taulight.error.TauErrors;
 
 public class PermissionDeniedException extends SandnodeErrorException {
-    public PermissionDeniedException() {
-    }
+    public PermissionDeniedException() {}
 
     public PermissionDeniedException(String message) {
         super(message);

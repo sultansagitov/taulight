@@ -17,7 +17,7 @@ public class CodesCommands {
         registry.register(new CommandInfo("myCodes", "List your codes", "Codes", CodesCommands::myCodes));
     }
 
-    private static void checkCode(@NotNull List<String> args, ConsoleContext context) throws Exception {
+    private static void checkCode(@NotNull List<String> args, ConsoleContext context) {
         if (args.isEmpty()) {
             System.out.println("Usage: checkCode <code>");
             return;
@@ -28,7 +28,7 @@ public class CodesCommands {
         CodesRunner.checkCode(context, code);
     }
 
-    private static void useCode(List<String> args, ConsoleContext context) throws Exception {
+    private static void useCode(List<String> args, ConsoleContext context) {
         if (args.isEmpty()) {
             System.out.println("Usage: useCode <code>");
             return;
@@ -39,7 +39,7 @@ public class CodesCommands {
         CodesRunner.useCode(context, code);
     }
 
-    private static void groupCodes(@NotNull List<String> args, ConsoleContext context) throws Exception {
+    private static void groupCodes(@NotNull List<String> args, ConsoleContext context) {
         UUID chatID = args.stream().findFirst().map(UUID::fromString).orElse(context.currentChat);
 
         if (chatID == null) {
@@ -50,7 +50,7 @@ public class CodesCommands {
         CodesRunner.groupCodes(context, chatID);
     }
 
-    private static void myCodes(List<String> ignored, ConsoleContext context) throws Exception {
+    private static void myCodes(List<String> ignored, ConsoleContext context) {
         CodesRunner.myCodes(context);
     }
 }

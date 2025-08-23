@@ -1,7 +1,6 @@
 package net.result.sandnode.message.types;
 
 import net.result.sandnode.error.Errors;
-import net.result.sandnode.exception.ExpectedMessageException;
 import net.result.sandnode.exception.UnknownSandnodeErrorException;
 import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.message.util.Headers;
@@ -23,7 +22,7 @@ class ErrorMessageTest {
     }
 
     @Test
-    void testConstructor_WithRawMessage() throws ExpectedMessageException, UnknownSandnodeErrorException {
+    void testConstructor_WithRawMessage() {
         var headers = new Headers().setType(MessageTypes.ERR);
         var code = error.code();
         var body = code.getBytes();

@@ -14,7 +14,7 @@ public abstract class ReactionResponseClientChain extends ClientChain implements
     }
 
     @Override
-    public HappyMessage handle(RawMessage raw) throws Exception {
+    public HappyMessage handle(RawMessage raw) {
         ReactionResponse response = new ReactionResponse(raw);
         ReactionDTO reaction = response.getReaction();
         onReaction(reaction, response.isYourSession());

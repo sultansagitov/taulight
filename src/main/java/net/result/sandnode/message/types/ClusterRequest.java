@@ -1,8 +1,8 @@
 package net.result.sandnode.message.types;
 
-import net.result.sandnode.exception.ExpectedMessageException;
-import net.result.sandnode.message.RawMessage;
+import lombok.Getter;
 import net.result.sandnode.message.BaseMessage;
+import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.message.util.Headers;
 import net.result.sandnode.message.util.MessageTypes;
 import org.apache.logging.log4j.LogManager;
@@ -16,6 +16,7 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+@Getter
 public class ClusterRequest extends BaseMessage {
     private static final Logger LOGGER = LogManager.getLogger(ClusterRequest.class);
 
@@ -47,7 +48,7 @@ public class ClusterRequest extends BaseMessage {
         this(new Headers(), clustersID);
     }
 
-    public ClusterRequest(@NotNull RawMessage message) throws ExpectedMessageException {
+    public ClusterRequest(@NotNull RawMessage message) {
         super(message.expect(MessageTypes.CLUSTER).headers());
 
         String[] clustersID = new String(message.getBody()).split(",");
@@ -59,10 +60,6 @@ public class ClusterRequest extends BaseMessage {
                 .filter(str -> str.matches("^#?[a-z0-9_]+$"))
                 .map(str -> str.startsWith("#") ? str : "#" + str)
                 .collect(Collectors.toSet());
-    }
-
-    public Collection<String> getClustersID() {
-        return clustersID;
     }
 
     public String toString() {

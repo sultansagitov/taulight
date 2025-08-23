@@ -15,11 +15,11 @@ public class ReactionPackageRepository {
         jpaUtil = container.get(JPAUtil.class);
     }
 
-    public ReactionPackageEntity create(String name, String description) throws DatabaseException {
+    public ReactionPackageEntity create(String name, String description) {
         return jpaUtil.create(new ReactionPackageEntity(name, description));
     }
 
-    public Optional<ReactionPackageEntity> find(String packageName) throws DatabaseException {
+    public Optional<ReactionPackageEntity> find(String packageName) {
         EntityManager em = jpaUtil.getEntityManager();
         try {
             String q = "FROM ReactionPackageEntity WHERE name = :name";

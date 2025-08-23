@@ -12,11 +12,12 @@ import java.util.Properties;
 public class JWTPropertiesConfig implements JWTConfig {
     private final Algorithm ALGORITHM;
 
-    public JWTPropertiesConfig() throws ConfigurationException {
+    @SuppressWarnings("unused")
+    public JWTPropertiesConfig() {
         this("taulight.properties");
     }
 
-    public JWTPropertiesConfig(@NotNull String fileName) throws ConfigurationException {
+    public JWTPropertiesConfig(@NotNull String fileName) {
         Properties properties = new Properties();
         try (InputStream input = getClass().getClassLoader().getResourceAsStream(fileName)) {
             properties.load(input);

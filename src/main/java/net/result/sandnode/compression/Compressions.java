@@ -1,5 +1,8 @@
 package net.result.sandnode.compression;
 
+import net.result.sandnode.exception.DeserializationException;
+import net.result.sandnode.exception.SerializationException;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -20,24 +23,27 @@ public enum Compressions implements Compression {
     },
     DEFLATE {
         @Override
-        public byte[] compress(byte[] data) throws IOException {
+        public byte[] compress(byte[] data) {
             ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
             try (DeflaterOutputStream deflaterOutputStream = new DeflaterOutputStream(byteArrayOutputStream)) {
                 deflaterOutputStream.write(data);
+            } catch (IOException e) {
+                throw new SerializationException(e);
             }
             return byteArrayOutputStream.toByteArray();
         }
 
         @Override
-        public byte[] decompress(byte[] compressedData) throws IOException {
+        public byte[] decompress(byte[] compressedData) {
             ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-            try (InflaterInputStream inflaterInputStream =
-                         new InflaterInputStream(new ByteArrayInputStream(compressedData))) {
+            try (InflaterInputStream in = new InflaterInputStream(new ByteArrayInputStream(compressedData))) {
                 byte[] buffer = new byte[1024];
                 int bytesRead;
-                while ((bytesRead = inflaterInputStream.read(buffer)) != -1) {
+                while ((bytesRead = in.read(buffer)) != -1) {
                     byteArrayOutputStream.write(buffer, 0, bytesRead);
                 }
+            } catch (IOException e) {
+                throw new DeserializationException(e);
             }
             return byteArrayOutputStream.toByteArray();
         }

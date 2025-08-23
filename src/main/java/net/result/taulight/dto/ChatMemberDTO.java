@@ -1,13 +1,16 @@
 package net.result.taulight.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.NoArgsConstructor;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
+import java.util.UUID;
 
 /**
  * Data Transfer Object representing a chat member's nickname and online status.
  */
+@NoArgsConstructor
 public class ChatMemberDTO {
     /** Nickname of the member. */
     @JsonProperty
@@ -17,13 +20,9 @@ public class ChatMemberDTO {
     public MemberStatus status;
     /** Roles of the member in current chat */
     @JsonProperty
-    public @Nullable List<String> roles;
+    public @Nullable List<UUID> roles;
 
-    /** Default constructor. */
-    @SuppressWarnings("unused")
-    public ChatMemberDTO() {}
-
-    public ChatMemberDTO(String nickname, MemberStatus status, @Nullable List<String> roles) {
+    public ChatMemberDTO(String nickname, MemberStatus status, @Nullable List<UUID> roles) {
         this.nickname = nickname;
         this.status = status;
         this.roles = roles;

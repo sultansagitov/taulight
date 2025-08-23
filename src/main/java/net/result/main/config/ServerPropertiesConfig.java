@@ -33,13 +33,11 @@ public class ServerPropertiesConfig implements ServerConfig {
     private final Path PRIVATE_KEY_PATH;
     private final AsymmetricEncryption MAIN_ENCRYPTION;
 
-    public ServerPropertiesConfig(Container container)
-            throws ConfigurationException, FSException, NoSuchEncryptionException, EncryptionTypeException {
+    public ServerPropertiesConfig(Container container) {
         this(container, "taulight.properties", null);
     }
 
-    public ServerPropertiesConfig(Container container, String fileName, @Nullable Address address)
-            throws ConfigurationException, FSException, NoSuchEncryptionException, EncryptionTypeException {
+    public ServerPropertiesConfig(Container container, String fileName, @Nullable Address address) {
         this.container = container;
 
         Properties properties = new Properties();
@@ -98,7 +96,7 @@ public class ServerPropertiesConfig implements ServerConfig {
     }
 
     @Override
-    public void saveKey(AsymmetricKeyStorage keyStorage) throws SavingKeyException {
+    public void saveKey(AsymmetricKeyStorage keyStorage) {
         boolean isPublicFileDeleted = FileUtil.deleteFile(PUBLIC_KEY_PATH);
         boolean isPrivateFileDeleted = FileUtil.deleteFile(PRIVATE_KEY_PATH);
 
@@ -134,8 +132,7 @@ public class ServerPropertiesConfig implements ServerConfig {
     }
 
     @Override
-    public KeyStorageRegistry readKey(AsymmetricEncryption mainEncryption)
-            throws CreatingKeyException, ReadingKeyException {
+    public KeyStorageRegistry readKey(AsymmetricEncryption mainEncryption) {
         AsymmetricKeyStorage publicKeyStorage;
         AsymmetricKeyStorage privateKeyStorage;
         try {

@@ -24,12 +24,12 @@ public class SettingsCommands {
         ));
     }
 
-    private static void settings(List<String> ignored, ConsoleContext context) throws Exception {
+    private static void settings(List<String> ignored, ConsoleContext context) {
         TauMemberSettingsDTO dto = SettingsRunner.get(context);
         System.out.printf("showStatus: %s%n", dto.showStatus);
     }
 
-    private static void setShowStatus(List<String> args, ConsoleContext context) throws Exception {
+    private static void setShowStatus(List<String> args, ConsoleContext context) {
         String s = args.stream().findFirst().orElseThrow();
         boolean b = Boolean.parseBoolean(s);
 

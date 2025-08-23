@@ -12,7 +12,7 @@ import java.util.UUID;
 
 public class CodesRunner {
 
-    public static void checkCode(@NotNull ConsoleContext context, String code) throws Exception {
+    public static void checkCode(@NotNull ConsoleContext context, String code) {
         var chain = new CodeClientChain(context.client);
         context.io.chainManager.linkChain(chain);
         CodeDTO dto = chain.check(code);
@@ -31,7 +31,7 @@ public class CodesRunner {
         }
     }
 
-    public static void useCode(ConsoleContext context, String code) throws Exception {
+    public static void useCode(ConsoleContext context, String code) {
         var chain = new CodeClientChain(context.client);
         context.io.chainManager.linkChain(chain);
         chain.use(code);
@@ -39,7 +39,7 @@ public class CodesRunner {
         System.out.println("Code used successfully.");
     }
 
-    public static void groupCodes(ConsoleContext context, UUID chatID) throws Exception {
+    public static void groupCodes(ConsoleContext context, UUID chatID) {
         var chain = new CodeClientChain(context.client);
         context.io.chainManager.linkChain(chain);
         Collection<CodeDTO> invites = chain.getGroupCodes(chatID);
@@ -53,7 +53,7 @@ public class CodesRunner {
         }
     }
 
-    public static void myCodes(ConsoleContext context) throws Exception {
+    public static void myCodes(ConsoleContext context) {
         var chain = new CodeClientChain(context.client);
         context.io.chainManager.linkChain(chain);
 

@@ -1,5 +1,6 @@
 package net.result.sandnode.cluster;
 
+import lombok.Getter;
 import net.result.sandnode.serverclient.Session;
 import org.jetbrains.annotations.NotNull;
 
@@ -7,15 +8,12 @@ import java.util.Collection;
 import java.util.HashSet;
 
 public class HashSetCluster implements Cluster {
+    @Getter
     private final Collection<Session> sessions = new HashSet<>();
     private final String id;
 
     public HashSetCluster(@NotNull String id) {
         this.id = id;
-    }
-
-    public Collection<Session> getSessions() {
-        return sessions;
     }
 
     @Override

@@ -5,7 +5,7 @@ import net.result.taulight.chain.sender.TauMemberSettingsClientChain;
 import net.result.taulight.dto.TauMemberSettingsDTO;
 
 public class SettingsRunner {
-    public static TauMemberSettingsDTO get(ConsoleContext context) throws Exception {
+    public static TauMemberSettingsDTO get(ConsoleContext context) {
         TauMemberSettingsClientChain chain = new TauMemberSettingsClientChain(context.client);
         context.io.chainManager.linkChain(chain);
         TauMemberSettingsDTO dto = chain.get();
@@ -13,7 +13,7 @@ public class SettingsRunner {
         return dto;
     }
 
-    public static TauMemberSettingsDTO setShowStatus(ConsoleContext context, boolean b) throws Exception {
+    public static TauMemberSettingsDTO setShowStatus(ConsoleContext context, boolean b) {
         TauMemberSettingsClientChain chain = new TauMemberSettingsClientChain(context.client);
         context.io.chainManager.linkChain(chain);
         TauMemberSettingsDTO dto = chain.setShowStatus(b);

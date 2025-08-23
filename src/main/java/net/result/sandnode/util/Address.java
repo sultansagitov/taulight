@@ -9,7 +9,7 @@ import java.net.URISyntaxException;
 
 public record Address(String host, int port) {
 
-    public static @NotNull Address getFromString(String input, int defaultPort) throws InvalidAddressSyntax {
+    public static @NotNull Address getFromString(String input, int defaultPort) {
         URI uri;
         try {
             uri = new URI("dummy://%s".formatted(input));

@@ -2,8 +2,6 @@ package net.result.taulight.repository;
 
 import net.result.sandnode.GlobalTestState;
 import net.result.sandnode.repository.MemberRepository;
-import net.result.sandnode.exception.DatabaseException;
-import net.result.sandnode.exception.error.BusyNicknameException;
 import net.result.sandnode.util.Container;
 import net.result.sandnode.db.JPAUtil;
 import net.result.sandnode.db.SimpleJPAUtil;
@@ -35,7 +33,7 @@ public class ChatsTest {
     private static GroupRepository groupRepo;
 
     @BeforeAll
-    public static void setup() throws DatabaseException, BusyNicknameException {
+    public static void setup() {
         Container container = GlobalTestState.container;
 
         jpaUtil = container.get(SimpleJPAUtil.class);
@@ -45,12 +43,12 @@ public class ChatsTest {
         groupRepo = container.get(GroupRepository.class);
         chatUtil = container.get(ChatUtil.class);
 
-        member1 = memberRepo.create("user1_chats", "hash").tauMember();
-        member2 = memberRepo.create("user2_chats", "hash").tauMember();
-        member3 = memberRepo.create("user3_chats", "hash").tauMember();
-        member4 = memberRepo.create("user4_chats", "hash").tauMember();
-        member5 = memberRepo.create("user5_chats", "hash").tauMember();
-        member6 = memberRepo.create("user6_chats", "hash").tauMember();
+        member1 = memberRepo.create("user1_chats", "hash").getTauMember();
+        member2 = memberRepo.create("user2_chats", "hash").getTauMember();
+        member3 = memberRepo.create("user3_chats", "hash").getTauMember();
+        member4 = memberRepo.create("user4_chats", "hash").getTauMember();
+        member5 = memberRepo.create("user5_chats", "hash").getTauMember();
+        member6 = memberRepo.create("user6_chats", "hash").getTauMember();
 
         // Assert that all members are properly created
         assertNotNull(member1.id());
@@ -62,22 +60,22 @@ public class ChatsTest {
     }
 
     @Test
-    public void createDialog() throws DatabaseException, AlreadyExistingRecordException {
+    public void createDialog() {
         DialogEntity dialog = dialogRepo.create(member3, member4);
         assertNotNull(dialog);
-        if (member3.equals(dialog.firstMember())) {
-            assertEquals(member3, dialog.firstMember());
-            assertEquals(member4, dialog.secondMember());
+        if (member3.equals(dialog.getFirstMember())) {
+            assertEquals(member3, dialog.getFirstMember());
+            assertEquals(member4, dialog.getSecondMember());
         } else {
-            assertEquals(member4, dialog.firstMember());
-            assertEquals(member3, dialog.secondMember());
+            assertEquals(member4, dialog.getFirstMember());
+            assertEquals(member3, dialog.getSecondMember());
         }
 
         // Additional assertions
         assertNotNull(dialog.id(), "Dialog ID should not be null");
-        assertTrue(member3.dialogs().contains(dialog), "Dialog should be in member3's dialogs");
-        assertTrue(member4.dialogs().contains(dialog), "Dialog should be in member4's dialogs");
-        assertEquals(0, dialog.messages().size(), "New dialog should have no messages");
+        assertTrue(member3.getDialogs().contains(dialog), "Dialog should be in member3's dialogs");
+        assertTrue(member4.getDialogs().contains(dialog), "Dialog should be in member4's dialogs");
+        assertEquals(0, dialog.getMessages().size(), "New dialog should have no messages");
 
         // Test creating duplicate dialog
         assertThrows(AlreadyExistingRecordException.class, () -> dialogRepo.create(member3, member4),
@@ -85,7 +83,7 @@ public class ChatsTest {
     }
 
     @Test
-    public void findDialog() throws DatabaseException, AlreadyExistingRecordException {
+    public void findDialog() {
         DialogEntity createdDialog = dialogRepo.create(member5, member6);
         Optional<DialogEntity> foundDialog = dialogRepo.findByMembers(member5, member6);
 
@@ -103,12 +101,12 @@ public class ChatsTest {
     }
 
     @Test
-    public void createGroup() throws DatabaseException {
+    public void createGroup() {
         GroupEntity group = groupRepo.create("General Chat", member1);
 
         Optional<ChatEntity> foundGroup = chatUtil.getChat(group.id());
         assertTrue(foundGroup.isPresent());
-        assertEquals("General Chat", ((GroupEntity) foundGroup.get()).title());
+        assertEquals("General Chat", ((GroupEntity) foundGroup.get()).getTitle());
 
         member1 = jpaUtil.refresh(member1);
 
@@ -116,13 +114,13 @@ public class ChatsTest {
         assertNotNull(group.id(), "Group ID should not be null");
         assertEquals(1, chatUtil.getMembers(group).size(), "Group should have exactly one member (creator)");
         assertTrue(chatUtil.getMembers(group).contains(member1), "Group should contain creator as member");
-        assertTrue(member1.groups().contains(group), "Member should have group in their groups list");
-        assertEquals(0, group.messages().size(), "New group should have no messages");
-        assertEquals(member1, group.owner(), "Group owner should be the creator");
+        assertTrue(member1.getGroups().contains(group), "Member should have group in their groups list");
+        assertEquals(0, group.getMessages().size(), "New group should have no messages");
+        assertEquals(member1, group.getOwner(), "Group owner should be the creator");
     }
 
     @Test
-    public void getChat() throws DatabaseException {
+    public void getChat() {
         GroupEntity group = groupRepo.create("Test Group", member1);
 
         Optional<ChatEntity> foundGroup = chatUtil.getChat(group.id());
@@ -131,7 +129,7 @@ public class ChatsTest {
         // Additional assertions
         assertEquals(group, foundGroup.get(), "Retrieved group should be the same object");
         assertEquals(group.id(), foundGroup.get().id(), "IDs should match");
-        assertEquals("Test Group", ((GroupEntity) foundGroup.get()).title(), "Titles should match");
+        assertEquals("Test Group", ((GroupEntity) foundGroup.get()).getTitle(), "Titles should match");
 
         // Test with non-existent chat ID
         UUID nonExistentID = UUID.randomUUID();
@@ -140,7 +138,7 @@ public class ChatsTest {
     }
 
     @Test
-    public void addMemberToGroup() throws DatabaseException {
+    public void addMemberToGroup() {
         GroupEntity group = groupRepo.create("Test Group", member1);
         member1 = jpaUtil.refresh(member1);
 
@@ -151,8 +149,8 @@ public class ChatsTest {
         Collection<TauMemberEntity> members = chatUtil.getMembers(group);
         boolean containsMember2 = members.contains(member2);
         boolean containsMember5 = members.contains(member5);
-        boolean member2HasGroup = member2.groups().contains(group);
-        boolean member5HasGroup = member5.groups().contains(group);
+        boolean member2HasGroup = member2.getGroups().contains(group);
+        boolean member5HasGroup = member5.getGroups().contains(group);
         int initialCount = members.size();
         boolean containsMember1 = members.contains(member1);
 
@@ -164,7 +162,7 @@ public class ChatsTest {
         member3 = jpaUtil.refresh(member3);
         Collection<TauMemberEntity> finalMembers = chatUtil.getMembers(group);
         int finalCount = finalMembers.size();
-        boolean member3HasGroup = member3.groups().contains(group);
+        boolean member3HasGroup = member3.getGroups().contains(group);
 
         assertTrue(added, "Member2 should be added to the group");
         assertTrue(containsMember2, "Group should contain member2 after addition");
@@ -184,14 +182,14 @@ public class ChatsTest {
 
 
     @Test
-    public void leaveFromGroup() throws DatabaseException {
+    public void leaveFromGroup() {
         GroupEntity group = groupRepo.create("Test Group", member1);
         groupRepo.addMember(group, member2);
         group = jpaUtil.refresh(group);
 
         boolean removed = groupRepo.removeMember(group, member2);
         Collection<TauMemberEntity> membersAfterRemoval = chatUtil.getMembers(group);
-        boolean member2StillInGroupList = member2.groups().contains(group);
+        boolean member2StillInGroupList = member2.getGroups().contains(group);
         int memberCountAfterRemoval = membersAfterRemoval.size();
         boolean ownerStillPresent = membersAfterRemoval.contains(member1);
         boolean member2Present = membersAfterRemoval.contains(member2);
@@ -200,7 +198,7 @@ public class ChatsTest {
         boolean ownerRemoved = groupRepo.removeMember(group, member1);
         group = jpaUtil.refresh(group);
         Collection<TauMemberEntity> membersAfterOwnerRemoved = chatUtil.getMembers(group);
-        boolean ownerStillInGroupList = member1.groups().contains(group);
+        boolean ownerStillInGroupList = member1.getGroups().contains(group);
         int memberCountAfterOwnerRemoved = membersAfterOwnerRemoved.size();
 
         assertTrue(removed, "Member2 should be successfully removed from the group");
@@ -215,7 +213,7 @@ public class ChatsTest {
     }
 
     @Test
-    public void getMembers() throws DatabaseException {
+    public void getMembers() {
         GroupEntity group = groupRepo.create("GetMembersGroup", member1);
         groupRepo.addMember(group, member2);
         group = jpaUtil.refresh(group);

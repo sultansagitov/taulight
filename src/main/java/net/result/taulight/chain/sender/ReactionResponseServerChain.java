@@ -1,8 +1,6 @@
 package net.result.taulight.chain.sender;
 
 import net.result.sandnode.chain.ServerChain;
-import net.result.sandnode.exception.ProtocolException;
-import net.result.sandnode.exception.error.SandnodeErrorException;
 import net.result.sandnode.message.util.Headers;
 import net.result.sandnode.message.util.MessageTypes;
 import net.result.sandnode.serverclient.Session;
@@ -13,11 +11,10 @@ import net.result.taulight.message.types.ReactionResponse;
 
 public class ReactionResponseServerChain extends ServerChain {
     public ReactionResponseServerChain(Session session) {
-        super(session);
+        setSession(session);
     }
 
-    public synchronized void reaction(ReactionEntryEntity reactionEntry, boolean yourSession)
-            throws ProtocolException, InterruptedException, SandnodeErrorException {
+    public synchronized void reaction(ReactionEntryEntity reactionEntry, boolean yourSession) {
         var message = new ReactionResponse(new Headers(), reactionEntry.toDTO(true), yourSession);
         sendAndReceive(message).expect(MessageTypes.HAPPY);
     }
@@ -27,14 +24,14 @@ public class ReactionResponseServerChain extends ServerChain {
             MessageEntity message,
             ReactionTypeEntity reactionType,
             boolean yourSession
-    ) throws ProtocolException, InterruptedException, SandnodeErrorException {
+    ) {
         var response = new ReactionResponse(
                 false,
                 nickname,
-                message.chat().id(),
+                message.getChat().id(),
                 message.id(),
-                reactionType.reactionPackage().name(),
-                reactionType.name(),
+                reactionType.getReactionPackage().getName(),
+                reactionType.getName(),
                 yourSession
         );
         sendAndReceive(response).expect(MessageTypes.HAPPY);

@@ -19,7 +19,7 @@ class HybridEncryptionTest {
 
     @ParameterizedTest
     @MethodSource("encryptionPairs")
-    void testHybridEncryption(AsymmetricEncryption a, SymmetricEncryption s) throws Exception {
+    void testHybridEncryption(AsymmetricEncryption a, SymmetricEncryption s) {
         AsymmetricKeyStorage asymmetricKeyStorage = a.generate();
         SymmetricKeyStorage symmetricKeyStorage = s.generate();
 

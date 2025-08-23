@@ -2,10 +2,6 @@ package net.result.taulight.repository;
 
 import net.result.sandnode.GlobalTestState;
 import net.result.sandnode.repository.MemberRepository;
-import net.result.sandnode.exception.DatabaseException;
-import net.result.sandnode.exception.SandnodeException;
-import net.result.sandnode.exception.error.BusyNicknameException;
-import net.result.sandnode.exception.error.UnauthorizedException;
 import net.result.sandnode.util.Container;
 import net.result.sandnode.db.JPAUtil;
 import net.result.sandnode.db.SimpleJPAUtil;
@@ -29,7 +25,7 @@ public class MessagesTest {
     private static MessageRepository messageRepo;
 
     @BeforeAll
-    public static void setup() throws DatabaseException, BusyNicknameException {
+    public static void setup() {
         Container container = GlobalTestState.container;
         jpaUtil = container.get(SimpleJPAUtil.class);
 
@@ -37,48 +33,48 @@ public class MessagesTest {
         groupRepo = container.get(GroupRepository.class);
         messageRepo = container.get(MessageRepository.class);
 
-        member1 = memberRepo.create("user1_messages", "hash").tauMember();
-        member2 = memberRepo.create("user2_messages", "hash").tauMember();
+        member1 = memberRepo.create("user1_messages", "hash").getTauMember();
+        member2 = memberRepo.create("user2_messages", "hash").getTauMember();
 
         assertNotNull(member1.id());
         assertNotNull(member2.id());
     }
 
     @Test
-    public void createMessage() throws SandnodeException {
+    public void createMessage() {
         ChatEntity chat = groupRepo.create("Test Group", member1);
 
         ChatMessageInputDTO messageInputDTO = new ChatMessageInputDTO()
                 .setContent("Hello!")
                 .setChatID(chat.id())
-                .setNickname(member1.member().nickname())
+                .setNickname(member1.getMember().getNickname())
                 .setSentDatetimeNow()
                 .setRepliedToMessages(new HashSet<>())
                 .setSys(true);
         MessageEntity message = messageRepo.create(chat, messageInputDTO, member1);
 
         MessageEntity foundMessage = jpaUtil.refresh(message);
-        assertEquals("Hello!", foundMessage.content());
+        assertEquals("Hello!", foundMessage.getContent());
 
         // Additional assertions
         assertNotNull(message.id(), "Message ID should not be null");
-        assertEquals(member1, message.member(), "Message member should be the creator");
-        assertEquals(chat, message.chat(), "Message chat should be the specified chat");
-        assertTrue(message.sys(), "Message should be marked as system message");
-        assertNotNull(message.sentDatetime(), "Sent datetime should not be null");
-        assertTrue(chat.messages().contains(message), "Chat should contain the new message");
-        assertEquals(0, message.repliedToMessages().size(), "No replied-to messages should be present");
-        assertEquals(0, message.reactionEntries().size(), "No reactions should be present on new message");
+        assertEquals(member1, message.getMember(), "Message member should be the creator");
+        assertEquals(chat, message.getChat(), "Message chat should be the specified chat");
+        assertTrue(message.isSys(), "Message should be marked as system message");
+        assertNotNull(message.getSentDatetime(), "Sent datetime should not be null");
+        assertTrue(chat.getMessages().contains(message), "Chat should contain the new message");
+        assertEquals(0, message.getRepliedToMessages().size(), "No replied-to messages should be present");
+        assertEquals(0, message.getReactionEntries().size(), "No reactions should be present on new message");
     }
 
     @Test
-    public void loadMessages() throws DatabaseException, UnauthorizedException {
+    public void loadMessages() {
         GroupEntity group = groupRepo.create("Test Group", member1);
 
         ChatMessageInputDTO input1 = new ChatMessageInputDTO()
                 .setContent("Hello world")
                 .setChatID(group.id())
-                .setNickname(member1.member().nickname())
+                .setNickname(member1.getMember().getNickname())
                 .setSentDatetimeNow()
                 .setRepliedToMessages(new HashSet<>())
                 .setSys(true);
@@ -86,7 +82,7 @@ public class MessagesTest {
         ChatMessageInputDTO input2 = new ChatMessageInputDTO()
                 .setContent("Hello world")
                 .setChatID(group.id())
-                .setNickname(member2.member().nickname())
+                .setNickname(member2.getMember().getNickname())
                 .setSentDatetimeNow()
                 .setRepliedToMessages(new HashSet<>())
                 .setSys(true);
@@ -120,13 +116,13 @@ public class MessagesTest {
     }
 
     @Test
-    public void findMessage() throws SandnodeException {
+    public void findMessage() {
         GroupEntity group = groupRepo.create("FindMessageGroup", member1);
 
         ChatMessageInputDTO input = new ChatMessageInputDTO()
                 .setContent("Find me")
                 .setChatID(group.id())
-                .setNickname(member1.member().nickname())
+                .setNickname(member1.getMember().getNickname())
                 .setSentDatetimeNow()
                 .setRepliedToMessages(new HashSet<>())
                 .setSys(false);
@@ -134,13 +130,13 @@ public class MessagesTest {
         MessageEntity message = messageRepo.create(group, input, member1);
 
         MessageEntity found = jpaUtil.refresh(message);
-        assertEquals("Find me", found.content());
+        assertEquals("Find me", found.getContent());
 
         // Additional assertions
         assertEquals(message.id(), found.id(), "IDs should match");
-        assertEquals(message.member(), found.member(), "Members should match");
-        assertEquals(message.chat(), found.chat(), "Chats should match");
-        assertFalse(found.sys(), "Message should not be a system message");
+        assertEquals(message.getMember(), found.getMember(), "Members should match");
+        assertEquals(message.getChat(), found.getChat(), "Chats should match");
+        assertFalse(found.isSys(), "Message should not be a system message");
 
         // Test with non-existent message ID
         UUID nonExistentID = UUID.randomUUID();
@@ -149,13 +145,13 @@ public class MessagesTest {
     }
 
     @Test
-    public void getMessageCount() throws SandnodeException {
+    public void getMessageCount() {
         GroupEntity group = groupRepo.create("Test Group", member1);
 
         ChatMessageInputDTO input1 = new ChatMessageInputDTO()
                 .setContent("Hello world")
                 .setChatID(group.id())
-                .setNickname(member1.member().nickname())
+                .setNickname(member1.getMember().getNickname())
                 .setSentDatetimeNow()
                 .setRepliedToMessages(new HashSet<>())
                 .setSys(true);
@@ -163,7 +159,7 @@ public class MessagesTest {
         ChatMessageInputDTO input2 = new ChatMessageInputDTO()
                 .setContent("Hello world")
                 .setChatID(group.id())
-                .setNickname(member2.member().nickname())
+                .setNickname(member2.getMember().getNickname())
                 .setSentDatetimeNow()
                 .setRepliedToMessages(new HashSet<>())
                 .setSys(true);
@@ -173,14 +169,14 @@ public class MessagesTest {
 
         long count = messageRepo.countMessagesByChat(group);
         assertEquals(2, count);
-        assertEquals(group.messages().size(), count);
+        assertEquals(group.getMessages().size(), count);
 
         // Additional assertions
         // Add one more message and verify count increases
         ChatMessageInputDTO input3 = new ChatMessageInputDTO()
                 .setContent("Third message")
                 .setChatID(group.id())
-                .setNickname(member1.member().nickname())
+                .setNickname(member1.getMember().getNickname())
                 .setSentDatetimeNow()
                 .setRepliedToMessages(new HashSet<>())
                 .setSys(false);

@@ -3,9 +3,6 @@ package net.result.sandnode.encryption;
 import net.result.sandnode.encryption.interfaces.AsymmetricKeyStorage;
 import net.result.sandnode.encryption.interfaces.KeyStorage;
 import net.result.sandnode.encryption.interfaces.SymmetricKeyStorage;
-import net.result.sandnode.exception.crypto.CannotUseEncryption;
-import net.result.sandnode.exception.crypto.EncryptionTypeException;
-import net.result.sandnode.exception.error.KeyStorageNotFoundException;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
@@ -30,7 +27,7 @@ class KeyStorageRegistryTest {
     }
 
     @Test
-    void testSetAndGetNonNull() throws KeyStorageNotFoundException {
+    void testSetAndGetNonNull() {
         keyStorageRegistry.set(AsymmetricEncryptions.ECIES, eciesKeyStorage);
         KeyStorage retrieved = keyStorageRegistry.getNonNull(AsymmetricEncryptions.ECIES);
         assertEquals(eciesKeyStorage, retrieved);
@@ -51,7 +48,7 @@ class KeyStorageRegistryTest {
     }
 
     @Test
-    void testAsymmetricNonNull() throws KeyStorageNotFoundException, EncryptionTypeException {
+    void testAsymmetricNonNull() {
         keyStorageRegistry.set(AsymmetricEncryptions.ECIES, eciesKeyStorage);
         AsymmetricKeyStorage retrieved = keyStorageRegistry.asymmetricNonNull(AsymmetricEncryptions.ECIES);
         assertNotNull(retrieved);
@@ -63,14 +60,14 @@ class KeyStorageRegistryTest {
     }
 
     @Test
-    void testSymmetricNonNull() throws CannotUseEncryption, EncryptionTypeException {
+    void testSymmetricNonNull() {
         keyStorageRegistry.set(SymmetricEncryptions.AES, aesKeyStorage);
         SymmetricKeyStorage retrieved = keyStorageRegistry.symmetricNonNull(SymmetricEncryptions.AES);
         assertNotNull(retrieved);
     }
 
     @Test
-    void testCopy() throws Exception {
+    void testCopy() {
         keyStorageRegistry.set(AsymmetricEncryptions.ECIES, eciesKeyStorage);
         KeyStorageRegistry copy = keyStorageRegistry.copy();
         KeyStorage copiedKeyStorage = copy.getNonNull(AsymmetricEncryptions.ECIES);

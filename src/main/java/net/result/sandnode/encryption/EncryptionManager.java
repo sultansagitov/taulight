@@ -35,30 +35,28 @@ public class EncryptionManager extends Manager<Encryption> {
         list.removeIf(e -> e.asByte() == encryption.asByte() || e.name().equals(encryption.name()));
     }
 
-    public static @NotNull Encryption find(byte e) throws NoSuchEncryptionException {
+    public static @NotNull Encryption find(byte e) {
         for (Encryption encryption : instance().list)
             if (encryption.asByte() == e)
                 return encryption;
         throw new NoSuchEncryptionException(e);
     }
 
-    public static @NotNull AsymmetricEncryption findAsymmetric(byte e)
-            throws NoSuchEncryptionException, EncryptionTypeException {
+    public static @NotNull AsymmetricEncryption findAsymmetric(byte e) {
         for (Encryption encryption : instance().list)
             if (encryption.asByte() == e)
                 return encryption.asymmetric();
         throw new NoSuchEncryptionException(e);
     }
 
-    public static @NotNull SymmetricEncryption findSymmetric(byte e)
-            throws NoSuchEncryptionException, EncryptionTypeException {
+    public static @NotNull SymmetricEncryption findSymmetric(byte e) {
         for (Encryption encryption : instance().list)
             if (encryption.asByte() == e)
                 return encryption.symmetric();
         throw new NoSuchEncryptionException(e);
     }
 
-    public static @NotNull Encryption find(String e) throws NoSuchEncryptionException {
+    public static @NotNull Encryption find(String e) {
         for (Encryption encryption : instance().list)
             if (encryption.name().equalsIgnoreCase(e))
                 return encryption;

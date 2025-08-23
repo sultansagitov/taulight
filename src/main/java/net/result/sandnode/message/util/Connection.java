@@ -1,7 +1,9 @@
 package net.result.sandnode.message.util;
 
+import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 
+@Getter
 public enum Connection {
     HUB2HUB(NodeType.HUB, NodeType.HUB),
     HUB2AGENT(NodeType.HUB, NodeType.AGENT),
@@ -27,14 +29,6 @@ public enum Connection {
             case AGENT -> (to == NodeType.AGENT) ? AGENT2AGENT : AGENT2HUB;
             case HUB -> (to == NodeType.AGENT) ? HUB2AGENT : HUB2HUB;
         };
-    }
-
-    public NodeType getFrom() {
-        return from;
-    }
-
-    public NodeType getTo() {
-        return to;
     }
 
     public @NotNull Connection getOpposite() {

@@ -21,14 +21,11 @@ import net.result.taulight.message.types.MembersResponse;
 import net.result.taulight.util.ChatUtil;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class MembersServerChain extends ServerChain implements ReceiverChain {
-    public MembersServerChain(Session session) {
-        super(session);
-    }
-
     @Override
-    public MembersResponse handle(RawMessage raw) throws Exception {
+    public MembersResponse handle(RawMessage raw) {
         ChatUtil chatUtil = session.server.container.get(ChatUtil.class);
         TauClusterManager clusterManager = session.server.container.get(TauClusterManager.class);
 
@@ -47,26 +44,26 @@ public class MembersServerChain extends ServerChain implements ReceiverChain {
         ChatEntity chat = optChat.get();
         ChatCluster cluster = clusterManager.getCluster(chat);
 
-        if (!chatUtil.contains(chat, session.member.tauMember())) {
+        if (!chatUtil.contains(chat, session.member.getTauMember())) {
             throw new NotFoundException();
         }
 
         Collection<TauMemberEntity> tauMembers = chatUtil.getMembers(chat);
 
-        Map<TauMemberEntity, List<String>> memberRolesMap = new HashMap<>();
+        Map<TauMemberEntity, List<UUID>> memberRolesMap = new HashMap<>();
         Set<RoleDTO> roleDTOs = null;
 
         if (chat instanceof GroupEntity group) {
             Set<RoleDTO> set = new HashSet<>();
 
-            for (RoleEntity role : group.roles()) {
+            for (RoleEntity role : group.getRoles()) {
                 set.add(role.toDTO());
-
-                for (TauMemberEntity member : role.members()) {
-                    memberRolesMap
-                            .computeIfAbsent(member, k -> new ArrayList<>())
-                            .add(role.id().toString());
-                }
+                memberRolesMap = role
+                        .getMembers().stream()
+                        .collect(Collectors.groupingBy(
+                                member -> member,
+                                Collectors.mapping(member -> role.id(), Collectors.toList())
+                        ));
             }
 
             roleDTOs = set;
@@ -74,8 +71,8 @@ public class MembersServerChain extends ServerChain implements ReceiverChain {
 
         Map<MemberEntity, ChatMemberDTO> map = new HashMap<>();
         for (TauMemberEntity m : tauMembers) {
-            List<String> roleIds = memberRolesMap.getOrDefault(m, null);
-            map.put(m.member(), m.toChatMemberDTO(roleIds));
+            List<UUID> roleIds = memberRolesMap.getOrDefault(m, null);
+            map.put(m.getMember(), m.toChatMemberDTO(roleIds));
         }
 
         for (Session s : cluster.getSessions()) {

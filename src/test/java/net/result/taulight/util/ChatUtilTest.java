@@ -3,9 +3,6 @@ package net.result.taulight.util;
 import net.result.sandnode.GlobalTestState;
 import net.result.sandnode.entity.MemberEntity;
 import net.result.sandnode.repository.MemberRepository;
-import net.result.sandnode.exception.AlreadyExistingRecordException;
-import net.result.sandnode.exception.DatabaseException;
-import net.result.sandnode.exception.error.BusyNicknameException;
 import net.result.sandnode.util.Container;
 import net.result.sandnode.db.JPAUtil;
 import net.result.sandnode.db.SimpleJPAUtil;
@@ -34,7 +31,7 @@ public class ChatUtilTest {
     private static DialogEntity monolog;
 
     @BeforeAll
-    static void setUp() throws BusyNicknameException, DatabaseException, AlreadyExistingRecordException {
+    static void setUp() {
         Container container = GlobalTestState.container;
         MemberRepository memberRepo = container.get(MemberRepository.class);
         GroupRepository groupRepo = container.get(GroupRepository.class);
@@ -48,17 +45,17 @@ public class ChatUtilTest {
         member2 = memberRepo.create("member2_chat_util", "hash");
         member3 = memberRepo.create("member3_chat_util", "hash");
 
-        GroupEntity g = groupRepo.create("new group", member1.tauMember());
-        groupRepo.addMember(g, member1.tauMember());
-        groupRepo.addMember(g, member2.tauMember());
+        GroupEntity g = groupRepo.create("new group", member1.getTauMember());
+        groupRepo.addMember(g, member1.getTauMember());
+        groupRepo.addMember(g, member2.getTauMember());
         group = jpaUtil.refresh(g);
 
-        dialog = dialogRepo.create(member1.tauMember(), member2.tauMember());
-        monolog = dialogRepo.create(member3.tauMember(), member3.tauMember());
+        dialog = dialogRepo.create(member1.getTauMember(), member2.getTauMember());
+        monolog = dialogRepo.create(member3.getTauMember(), member3.getTauMember());
     }
 
     @Test
-    void testGetChatFromGroupRepo() throws DatabaseException {
+    void testGetChatFromGroupRepo() {
         Optional<ChatEntity> result = chatUtil.getChat(group.id());
 
         boolean present = result.isPresent();
@@ -70,7 +67,7 @@ public class ChatUtilTest {
 
 
     @Test
-    void testGetChatFromDialogRepo() throws DatabaseException {
+    void testGetChatFromDialogRepo() {
         Optional<ChatEntity> result = chatUtil.getChat(dialog.id());
 
         boolean present = result.isPresent();
@@ -81,7 +78,7 @@ public class ChatUtilTest {
     }
 
     @Test
-    void testGetChatReturnsEmpty() throws DatabaseException {
+    void testGetChatReturnsEmpty() {
         UUID unknownId = UUID.randomUUID();
         Optional<ChatEntity> result = chatUtil.getChat(unknownId);
 
@@ -95,7 +92,7 @@ public class ChatUtilTest {
         Collection<TauMemberEntity> members = chatUtil.getMembers(group);
 
         int count = members.size();
-        boolean containsExpected = members.containsAll(List.of(member1.tauMember(), member2.tauMember()));
+        boolean containsExpected = members.containsAll(List.of(member1.getTauMember(), member2.getTauMember()));
 
         assertEquals(2, count, "Group should contain exactly 2 members");
         assertTrue(containsExpected, "Group should contain member1 and member2");
@@ -106,7 +103,7 @@ public class ChatUtilTest {
         Collection<TauMemberEntity> members = chatUtil.getMembers(dialog);
 
         int count = members.size();
-        boolean containsExpected = members.containsAll(List.of(member1.tauMember(), member2.tauMember()));
+        boolean containsExpected = members.containsAll(List.of(member1.getTauMember(), member2.getTauMember()));
 
         assertEquals(2, count, "Dialog should contain exactly 2 members");
         assertTrue(containsExpected, "Dialog should contain both member1 and member2");
@@ -117,7 +114,7 @@ public class ChatUtilTest {
         Collection<TauMemberEntity> members = chatUtil.getMembers(monolog);
 
         int count = members.size();
-        boolean containsExpected = members.contains(member3.tauMember());
+        boolean containsExpected = members.contains(member3.getTauMember());
 
         assertEquals(1, count, "Monolog should contain exactly 1 member");
         assertTrue(containsExpected, "Monolog should contain member3 only");
@@ -125,17 +122,17 @@ public class ChatUtilTest {
 
 
     @Test
-    void testContainsInGroup() throws DatabaseException {
-        boolean contains1 = chatUtil.contains(group, member1.tauMember());
+    void testContainsInGroup() {
+        boolean contains1 = chatUtil.contains(group, member1.getTauMember());
 
         assertTrue(contains1);
     }
 
     @Test
-    void testContainsInDialog() throws DatabaseException {
-        boolean contains1 = chatUtil.contains(dialog, member1.tauMember());
-        boolean contains2 = chatUtil.contains(dialog, member2.tauMember());
-        boolean contains3 = chatUtil.contains(dialog, member3.tauMember());
+    void testContainsInDialog() {
+        boolean contains1 = chatUtil.contains(dialog, member1.getTauMember());
+        boolean contains2 = chatUtil.contains(dialog, member2.getTauMember());
+        boolean contains3 = chatUtil.contains(dialog, member3.getTauMember());
 
         assertTrue(contains1);
         assertTrue(contains2);

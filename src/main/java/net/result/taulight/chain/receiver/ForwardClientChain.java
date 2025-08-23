@@ -19,7 +19,7 @@ public abstract class ForwardClientChain extends ClientChain implements Receiver
     }
 
     @Override
-    public Message handle(RawMessage request) throws Exception {
+    public Message handle(RawMessage request) {
         var response = new ForwardResponse(request);
         var view = response.getServerMessage();
         var input = view.message;

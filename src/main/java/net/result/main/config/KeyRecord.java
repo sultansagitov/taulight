@@ -5,14 +5,8 @@ import net.result.sandnode.encryption.EncryptionManager;
 import net.result.sandnode.encryption.interfaces.AsymmetricConvertor;
 import net.result.sandnode.encryption.interfaces.AsymmetricEncryption;
 import net.result.sandnode.encryption.interfaces.AsymmetricKeyStorage;
-import net.result.sandnode.exception.FSException;
 import net.result.sandnode.exception.ImpossibleRuntimeException;
-import net.result.sandnode.exception.InvalidAddressSyntax;
-import net.result.sandnode.exception.NoSuchHasherException;
 import net.result.sandnode.exception.crypto.CannotUseEncryption;
-import net.result.sandnode.exception.crypto.CreatingKeyException;
-import net.result.sandnode.exception.crypto.EncryptionTypeException;
-import net.result.sandnode.exception.crypto.NoSuchEncryptionException;
 import net.result.sandnode.hasher.Hasher;
 import net.result.sandnode.hasher.HasherManager;
 import net.result.sandnode.hasher.Hashers;
@@ -37,9 +31,7 @@ public final class KeyRecord {
         hash = hasher.hash(encodedKey);
     }
 
-    public static @NotNull KeyRecord fromJSON(@NotNull JSONObject json)
-            throws NoSuchEncryptionException, CreatingKeyException, FSException, NoSuchHasherException,
-            KeyHashCheckingException, EncryptionTypeException, InvalidAddressSyntax {
+    public static @NotNull KeyRecord fromJSON(@NotNull JSONObject json) {
         Path path = Path.of(json.getString("path"));
         AsymmetricEncryption encryption = EncryptionManager.find(json.getString("encryption")).asymmetric();
         AsymmetricConvertor convertor = encryption.publicKeyConvertor();

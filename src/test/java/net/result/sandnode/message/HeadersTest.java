@@ -2,7 +2,6 @@ package net.result.sandnode.message;
 
 import net.result.sandnode.encryption.AsymmetricEncryptions;
 import net.result.sandnode.encryption.EncryptionManager;
-import net.result.sandnode.exception.SandnodeException;
 import net.result.sandnode.message.util.Connection;
 import net.result.sandnode.message.util.Headers;
 import net.result.sandnode.message.util.MessageTypes;
@@ -13,7 +12,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class HeadersTest {
 
     @Test
-    public void test() throws SandnodeException {
+    public void test() {
         EncryptionManager.registerAll();
 
         Headers headers = new Headers()

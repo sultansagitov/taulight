@@ -1,6 +1,9 @@
 package net.result.taulight.entity;
 
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import net.result.sandnode.entity.FileEntity;
 import net.result.taulight.db.Permission;
 import net.result.taulight.dto.ChatInfoDTO;
@@ -11,7 +14,9 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
-@SuppressWarnings("unused")
+@Setter
+@Getter
+@NoArgsConstructor
 @Entity
 public class GroupEntity extends ChatEntity {
     private String title;
@@ -40,8 +45,6 @@ public class GroupEntity extends ChatEntity {
     @Enumerated(EnumType.STRING)
     private Set<Permission> permissions = new HashSet<>();
 
-    public GroupEntity() {}
-
     public GroupEntity(String title, TauMemberEntity owner) {
         this.title = title;
         this.owner = owner;
@@ -64,55 +67,15 @@ public class GroupEntity extends ChatEntity {
         info.chatType = ChatInfoDTO.ChatType.GROUP;
 
         if (infoProps.contains(ChatInfoPropDTO.groupID)) info.id = id();
-        if (infoProps.contains(ChatInfoPropDTO.createdAt)) info.creationDate = creationDate();
-        if (infoProps.contains(ChatInfoPropDTO.groupTitle)) info.title = title();
-        if (infoProps.contains(ChatInfoPropDTO.groupOwner)) info.ownerID = owner().member().nickname();
-        if (infoProps.contains(ChatInfoPropDTO.groupIsMy)) info.groupIsMy = owner() == member;
+        if (infoProps.contains(ChatInfoPropDTO.createdAt)) info.creationDate = getCreationDate();
+        if (infoProps.contains(ChatInfoPropDTO.groupTitle)) info.title = getTitle();
+        if (infoProps.contains(ChatInfoPropDTO.groupOwner)) info.ownerID = getOwner().getMember().getNickname();
+        if (infoProps.contains(ChatInfoPropDTO.groupIsMy)) info.groupIsMy = getOwner() == member;
         if (infoProps.contains(ChatInfoPropDTO.lastMessage)) info.lastMessage = lastMessage;
         if (infoProps.contains(ChatInfoPropDTO.hasAvatar))
-            info.avatar = avatar() != null ? avatar().id() : null;
+            info.avatar = getAvatar() != null ? getAvatar().id() : null;
 
         return info;
-    }
-
-    public String title() {
-        return title;
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
-    public FileEntity avatar() {
-        return avatar;
-    }
-
-    public void setAvatar(FileEntity avatar) {
-        this.avatar = avatar;
-    }
-
-    public TauMemberEntity owner() {
-        return owner;
-    }
-
-    public void setOwner(TauMemberEntity owner) {
-        this.owner = owner;
-    }
-
-    public Set<TauMemberEntity> members() {
-        return members;
-    }
-
-    public void setMembers(Set<TauMemberEntity> members) {
-        this.members = members;
-    }
-
-    public Set<InviteCodeEntity> inviteCodes() {
-        return inviteCodes;
-    }
-
-    public void setInviteCodes(Set<InviteCodeEntity> inviteCodes) {
-        this.inviteCodes = inviteCodes;
     }
 
     @Override
@@ -120,19 +83,4 @@ public class GroupEntity extends ChatEntity {
         return "<GroupEntity %s>".formatted(id());
     }
 
-    public Set<RoleEntity> roles() {
-        return roles;
-    }
-
-    public void setRoles(Set<RoleEntity> roles) {
-        this.roles = roles;
-    }
-
-    public Set<Permission> permissions() {
-        return permissions;
-    }
-
-    public void setPermissions(Set<Permission> permissions) {
-        this.permissions = permissions;
-    }
 }

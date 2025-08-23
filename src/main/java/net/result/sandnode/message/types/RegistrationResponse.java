@@ -1,8 +1,6 @@
 package net.result.sandnode.message.types;
 
 import net.result.sandnode.dto.RegistrationResponseDTO;
-import net.result.sandnode.exception.DeserializationException;
-import net.result.sandnode.exception.ExpectedMessageException;
 import net.result.sandnode.message.MSGPackMessage;
 import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.message.util.Headers;
@@ -11,7 +9,7 @@ import org.jetbrains.annotations.NotNull;
 
 public class RegistrationResponse extends MSGPackMessage<RegistrationResponseDTO> {
 
-    public RegistrationResponse(@NotNull RawMessage message) throws ExpectedMessageException, DeserializationException {
+    public RegistrationResponse(@NotNull RawMessage message) {
         super(message.expect(MessageTypes.REG), RegistrationResponseDTO.class);
     }
 

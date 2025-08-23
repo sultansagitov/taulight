@@ -1,7 +1,6 @@
 package net.result.sandnode.repository;
 
 import net.result.sandnode.entity.FileEntity;
-import net.result.sandnode.exception.DatabaseException;
 import net.result.sandnode.util.Container;
 import net.result.sandnode.db.JPAUtil;
 
@@ -12,7 +11,7 @@ public class FileRepository {
         jpaUtil = container.get(JPAUtil.class);
     }
 
-    public FileEntity create(String contentType, String filename) throws DatabaseException {
+    public FileEntity create(String contentType, String filename) {
         return jpaUtil.create(new FileEntity(contentType, filename));
     }
 }

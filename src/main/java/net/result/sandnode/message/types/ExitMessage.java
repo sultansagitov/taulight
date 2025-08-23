@@ -1,6 +1,5 @@
 package net.result.sandnode.message.types;
 
-import net.result.sandnode.exception.ExpectedMessageException;
 import net.result.sandnode.message.EmptyMessage;
 import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.message.util.Headers;
@@ -16,7 +15,7 @@ public class ExitMessage extends EmptyMessage {
         this(new Headers());
     }
 
-    public ExitMessage(RawMessage raw) throws ExpectedMessageException {
+    public ExitMessage(RawMessage raw) {
         super(raw.expect(MessageTypes.EXIT).headers());
     }
 }

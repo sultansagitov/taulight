@@ -1,7 +1,6 @@
 package net.result.taulight.message;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import net.result.sandnode.exception.DeserializationException;
 import net.result.sandnode.message.MSGPackMessage;
 import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.message.util.Headers;
@@ -14,7 +13,6 @@ public class CodeListMessage extends MSGPackMessage<CodeListMessage.Data> {
         @JsonProperty
         public Collection<CodeDTO> codes;
 
-        @SuppressWarnings("unused")
         public Data() {}
 
         public Data(Collection<CodeDTO> codes) {
@@ -26,7 +24,7 @@ public class CodeListMessage extends MSGPackMessage<CodeListMessage.Data> {
         super(headers, new Data(codes));
     }
 
-    public CodeListMessage(RawMessage raw) throws DeserializationException {
+    public CodeListMessage(RawMessage raw) {
         super(raw, Data.class);
     }
 

@@ -13,7 +13,7 @@ public interface SymmetricKeyStorage extends KeyStorage {
     byte[] toBytes();
 
     @Contract(value = " -> fail")
-    default AsymmetricKeyStorage asymmetric() throws EncryptionTypeException {
+    default AsymmetricKeyStorage asymmetric() {
         throw new EncryptionTypeException(encryption());
     }
 

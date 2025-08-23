@@ -6,6 +6,7 @@ import net.result.sandnode.error.SandnodeError;
 import net.result.sandnode.exception.IllegalMessageLengthException;
 import net.result.sandnode.exception.MessageSerializationException;
 import net.result.sandnode.exception.MessageWriteException;
+import net.result.sandnode.exception.SandnodeInterruptedException;
 import net.result.sandnode.exception.error.EncryptionException;
 import net.result.sandnode.exception.error.KeyStorageNotFoundException;
 import net.result.sandnode.message.Message;
@@ -25,7 +26,7 @@ public class Sender {
 
     private record EncryptionResult(long sequence, byte[] encryptedBytes, Message originalMessage) { }
 
-    public static void sendingLoop(Peer peer) throws InterruptedException, MessageWriteException {
+    public static void sendingLoop(Peer peer) {
         IOController io = peer.io();
         try (var exec = new ExecutorServiceResource<>(io, "Encryptor", POOL_SIZE, EncryptionResult::sequence)) {
             var generator = new AtomicLong(0);
@@ -62,7 +63,12 @@ public class Sender {
             long nextSequenceToSend = 0;
 
             while (io.connected) {
-                EncryptionResult result = exec.queue.take();
+                EncryptionResult result;
+                try {
+                    result = exec.queue.take();
+                } catch (InterruptedException e) {
+                    throw new SandnodeInterruptedException(e);
+                }
 
                 resultsMap.put(result.sequence, result);
 
@@ -79,7 +85,11 @@ public class Sender {
                 }
             }
 
-            producer.join();
+            try {
+                producer.join();
+            } catch (InterruptedException e) {
+                throw new SandnodeInterruptedException(e);
+            }
         }
     }
 

@@ -1,8 +1,6 @@
 package net.result.sandnode.chain.sender;
 
 import net.result.sandnode.chain.ClientChain;
-import net.result.sandnode.exception.ProtocolException;
-import net.result.sandnode.exception.error.SandnodeErrorException;
 import net.result.sandnode.message.types.ClusterRequest;
 import net.result.sandnode.message.types.ClusterResponse;
 import net.result.sandnode.message.util.Headers;
@@ -15,15 +13,13 @@ public class ClusterClientChain extends ClientChain {
         super(client);
     }
 
-    public Collection<String> remove(Collection<String> clusters)
-            throws InterruptedException, ProtocolException, SandnodeErrorException {
+    public Collection<String> remove(Collection<String> clusters) {
         ClusterRequest request = new ClusterRequest(new Headers().setValue("mode", "remove"), clusters);
         var raw = sendAndReceive(request);
         return new ClusterResponse(raw).getClustersID();
     }
 
-    public Collection<String> add(Collection<String> clusters)
-            throws InterruptedException, ProtocolException, SandnodeErrorException {
+    public Collection<String> add(Collection<String> clusters) {
         ClusterRequest request = new ClusterRequest(new Headers().setValue("mode", "add"), clusters);
         var raw = sendAndReceive(request);
         return new ClusterResponse(raw).getClustersID();

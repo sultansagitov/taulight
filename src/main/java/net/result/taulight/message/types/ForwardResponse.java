@@ -1,10 +1,8 @@
 package net.result.taulight.message.types;
 
-import net.result.sandnode.message.util.Headers;
-import net.result.sandnode.exception.DeserializationException;
-import net.result.sandnode.exception.ExpectedMessageException;
-import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.message.MSGPackMessage;
+import net.result.sandnode.message.RawMessage;
+import net.result.sandnode.message.util.Headers;
 import net.result.taulight.dto.ChatMessageViewDTO;
 import net.result.taulight.message.TauMessageTypes;
 
@@ -23,7 +21,7 @@ public class ForwardResponse extends MSGPackMessage<ChatMessageViewDTO> {
         this(new Headers(), message, yourSession);
     }
 
-    public ForwardResponse(RawMessage message) throws DeserializationException, ExpectedMessageException {
+    public ForwardResponse(RawMessage message) {
         super(message.expect(TauMessageTypes.FWD), ChatMessageViewDTO.class);
     }
 

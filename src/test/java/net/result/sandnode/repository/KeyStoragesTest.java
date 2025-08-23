@@ -5,8 +5,6 @@ import net.result.sandnode.encryption.AsymmetricEncryptions;
 import net.result.sandnode.encryption.EncryptionManager;
 import net.result.sandnode.encryption.interfaces.AsymmetricKeyStorage;
 import net.result.sandnode.entity.KeyStorageEntity;
-import net.result.sandnode.exception.DatabaseException;
-import net.result.sandnode.exception.crypto.CannotUseEncryption;
 import net.result.sandnode.util.Container;
 import net.result.sandnode.db.JPAUtil;
 import net.result.sandnode.db.SimpleJPAUtil;
@@ -31,13 +29,13 @@ public class KeyStoragesTest {
     }
 
     @Test
-    void testCreateAndFindKeyStorageEntity() throws CannotUseEncryption, DatabaseException {
+    void testCreateAndFindKeyStorageEntity() {
         AsymmetricKeyStorage generatedKey = AsymmetricEncryptions.ECIES.generate();
 
         KeyStorageEntity saved = keyStorageRepo.create(generatedKey);
         assertNotNull(saved);
         assertNotNull(saved.id());
-        assertEquals(generatedKey.encryption(), saved.encryption());
+        assertEquals(generatedKey.encryption(), saved.getEncryption());
         assertEquals(generatedKey.encodedPublicKey(), saved.encodedKey);
 
         Optional<KeyStorageEntity> found = jpaUtil.find(KeyStorageEntity.class, saved.id());
@@ -46,14 +44,14 @@ public class KeyStoragesTest {
     }
 
     @Test
-    void testFindNonExistentKeyStorageEntity() throws DatabaseException {
+    void testFindNonExistentKeyStorageEntity() {
         UUID randomId = UUID.randomUUID();
         Optional<KeyStorageEntity> result = jpaUtil.find(KeyStorageEntity.class, randomId);
         assertTrue(result.isEmpty());
     }
 
     @Test
-    void testUniqueIdGenerationAvoidsCollision() throws CannotUseEncryption, DatabaseException {
+    void testUniqueIdGenerationAvoidsCollision() {
         AsymmetricKeyStorage key1 = AsymmetricEncryptions.ECIES.generate();
         AsymmetricKeyStorage key2 = AsymmetricEncryptions.ECIES.generate();
 

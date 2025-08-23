@@ -2,10 +2,11 @@ package net.result.taulight.chain.receiver;
 
 import net.result.sandnode.chain.ReceiverChain;
 import net.result.sandnode.chain.ServerChain;
+import net.result.sandnode.db.DBFileUtil;
+import net.result.sandnode.db.JPAUtil;
+import net.result.sandnode.dto.FileDTO;
 import net.result.sandnode.entity.FileEntity;
 import net.result.sandnode.entity.MemberEntity;
-import net.result.sandnode.repository.MemberRepository;
-import net.result.sandnode.dto.FileDTO;
 import net.result.sandnode.exception.DatabaseException;
 import net.result.sandnode.exception.ImpossibleRuntimeException;
 import net.result.sandnode.exception.error.*;
@@ -16,12 +17,10 @@ import net.result.sandnode.message.UUIDMessage;
 import net.result.sandnode.message.types.HappyMessage;
 import net.result.sandnode.message.util.Headers;
 import net.result.sandnode.message.util.MessageTypes;
-import net.result.sandnode.serverclient.Session;
-import net.result.sandnode.db.DBFileUtil;
+import net.result.sandnode.repository.MemberRepository;
 import net.result.sandnode.util.FileIOUtil;
-import net.result.sandnode.db.JPAUtil;
 import net.result.taulight.cluster.TauClusterManager;
-import net.result.taulight.db.*;
+import net.result.taulight.db.Permission;
 import net.result.taulight.dto.ChatMessageInputDTO;
 import net.result.taulight.dto.GroupRequestDTO;
 import net.result.taulight.entity.ChatEntity;
@@ -56,12 +55,8 @@ public class GroupServerChain extends ServerChain implements ReceiverChain {
     private InviteCodeRepository inviteCodeRepo;
     private RoleRepository roleRepo;
 
-    public GroupServerChain(Session session) {
-        super(session);
-    }
-
     @Override
-    public @Nullable Message handle(RawMessage raw) throws Exception {
+    public @Nullable Message handle(RawMessage raw) {
         JPAUtil jpaUtil = session.server.container.get(JPAUtil.class);
         chatUtil = session.server.container.get(ChatUtil.class);
         dbFileUtil = session.server.container.get(DBFileUtil.class);
@@ -85,7 +80,7 @@ public class GroupServerChain extends ServerChain implements ReceiverChain {
             throw new UnauthorizedException();
         }
 
-        final TauMemberEntity you = session.member.tauMember();
+        final TauMemberEntity you = session.member.getTauMember();
 
         Message response = switch (dto.type) {
             case CREATE -> create(dto, you);
@@ -100,7 +95,7 @@ public class GroupServerChain extends ServerChain implements ReceiverChain {
         return response;
     }
 
-    private UUIDMessage create(GroupRequestDTO dto, TauMemberEntity you) throws Exception {
+    private UUIDMessage create(GroupRequestDTO dto, TauMemberEntity you) {
         if (dto.title == null) {
             throw new TooFewArgumentsException();
         }
@@ -120,7 +115,7 @@ public class GroupServerChain extends ServerChain implements ReceiverChain {
         return new UUIDMessage(new Headers().setType(MessageTypes.HAPPY), group.id());
     }
 
-    private TextMessage invite(GroupRequestDTO dto, TauMemberEntity you) throws Exception {
+    private TextMessage invite(GroupRequestDTO dto, TauMemberEntity you) {
         ChatEntity chat = chatUtil.getChat(dto.chatID).orElseThrow(NotFoundException::new);
 
         // You not in group
@@ -131,7 +126,7 @@ public class GroupServerChain extends ServerChain implements ReceiverChain {
 
         TauMemberEntity member = memberRepo
                 .findByNickname(dto.otherNickname)
-                .map(MemberEntity::tauMember)
+                .map(MemberEntity::getTauMember)
                 .orElseThrow(AddressedMemberNotFoundException::new);
 
         // You are not owner
@@ -144,7 +139,7 @@ public class GroupServerChain extends ServerChain implements ReceiverChain {
 
         // Receiver already have invite code
         for (InviteCodeEntity e : inviteCodeRepo.find(group, member)) {
-            if (e.expiresDate().isAfter(ZonedDateTime.now()) && e.activationDate() == null) {
+            if (e.getExpiresDate().isAfter(ZonedDateTime.now()) && e.getActivatedAt() == null) {
                 throw new NoEffectException();
             }
         }
@@ -154,10 +149,10 @@ public class GroupServerChain extends ServerChain implements ReceiverChain {
         ZonedDateTime expiresDate = ZonedDateTime.now().plus(duration);
         InviteCodeEntity code = inviteCodeRepo.create(group, member, you, expiresDate);
 
-        return new TextMessage(new Headers().setType(TauMessageTypes.GROUP), code.code());
+        return new TextMessage(new Headers().setType(TauMessageTypes.GROUP), code.getCode());
     }
 
-    private HappyMessage leave(GroupRequestDTO dto, TauMemberEntity you) throws Exception {
+    private HappyMessage leave(GroupRequestDTO dto, TauMemberEntity you) {
         ChatEntity chat = chatUtil.getChat(dto.chatID).orElseThrow(NotFoundException::new);
 
         // You not in group
@@ -167,7 +162,7 @@ public class GroupServerChain extends ServerChain implements ReceiverChain {
         if (!(chat instanceof GroupEntity group)) throw new WrongAddressException();
 
         // You cannot leave, because you are owner
-        if (group.owner().equals(you)) throw new UnauthorizedException();
+        if (group.getOwner().equals(you)) throw new UnauthorizedException();
 
         // You are not in group (impossible)
         if (!groupRepo.removeMember(group, you)) throw new NotFoundException();
@@ -186,7 +181,7 @@ public class GroupServerChain extends ServerChain implements ReceiverChain {
         return new HappyMessage();
     }
 
-    private UUIDMessage setAvatar(GroupRequestDTO request, TauMemberEntity you) throws Exception {
+    private UUIDMessage setAvatar(GroupRequestDTO request, TauMemberEntity you) {
         UUID chatID = request.chatID;
 
         ChatEntity chat = chatUtil.getChat(chatID).orElseThrow(NotFoundException::new);
@@ -207,14 +202,14 @@ public class GroupServerChain extends ServerChain implements ReceiverChain {
     }
 
     @SuppressWarnings("SameReturnValue")
-    private Message getAvatar(GroupRequestDTO dto, TauMemberEntity you) throws Exception {
+    private Message getAvatar(GroupRequestDTO dto, TauMemberEntity you) {
         UUID chatID = dto.chatID;
 
         ChatEntity chat = chatUtil.getChat(chatID).orElseThrow(NotFoundException::new);
         if (!chatUtil.contains(chat, you)) throw new UnauthorizedException();
         if (!(chat instanceof GroupEntity group)) throw new WrongAddressException();
 
-        FileEntity avatar = group.avatar();
+        FileEntity avatar = group.getAvatar();
         if (avatar == null) throw new NoEffectException(); 
 
         FileIOUtil.send(dbFileUtil.readImage(avatar), this::send);

@@ -4,9 +4,6 @@ import net.result.sandnode.dto.KeyDTO;
 import net.result.sandnode.encryption.Encryptions;
 import net.result.sandnode.exception.*;
 import net.result.sandnode.exception.crypto.CannotUseEncryption;
-import net.result.sandnode.exception.crypto.CreatingKeyException;
-import net.result.sandnode.exception.crypto.EncryptionTypeException;
-import net.result.sandnode.exception.crypto.NoSuchEncryptionException;
 import net.result.sandnode.message.BaseMessage;
 import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.message.util.Headers;
@@ -33,8 +30,7 @@ public class PublicKeyResponse extends BaseMessage {
         this(new Headers(), keyStorage);
     }
 
-    public PublicKeyResponse(@NotNull RawMessage response) throws NoSuchEncryptionException, CreatingKeyException,
-            EncryptionTypeException, ExpectedMessageException, DeserializationException {
+    public PublicKeyResponse(@NotNull RawMessage response) {
         super(response.expect(MessageTypes.PUB).headers());
         byte encryptionByte = Byte.parseByte(headers().getValue("encryption"));
         AsymmetricEncryption encryption = EncryptionManager.findAsymmetric(encryptionByte);
@@ -50,8 +46,7 @@ public class PublicKeyResponse extends BaseMessage {
         }
     }
 
-    public static KeyDTO getKeyDTO(RawMessage raw) throws NoSuchEncryptionException, CreatingKeyException,
-            EncryptionTypeException, ExpectedMessageException, DeserializationException {
+    public static KeyDTO getKeyDTO(RawMessage raw) {
         PublicKeyResponse response = new PublicKeyResponse(raw);
         String sender = response.headers().getValue("sender");
         AsymmetricKeyStorage keyStorage = response.keyStorage;

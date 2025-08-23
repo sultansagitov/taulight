@@ -2,10 +2,9 @@ package net.result.sandnode.encryption.ecies;
 
 import net.result.sandnode.encryption.AsymmetricEncryptions;
 import net.result.sandnode.encryption.interfaces.KeyStorage;
-import net.result.sandnode.exception.crypto.CryptoException;
-import net.result.sandnode.exception.error.EncryptionException;
 import net.result.sandnode.exception.ImpossibleRuntimeException;
 import net.result.sandnode.exception.crypto.WrongKeyException;
+import net.result.sandnode.exception.error.EncryptionException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
@@ -23,13 +22,11 @@ import java.security.PublicKey;
 public class ECIESEncryptor {
     private static final Logger LOGGER = LogManager.getLogger(ECIESEncryptor.class);
 
-    public static byte[] encrypt(@NotNull String data, @NotNull KeyStorage keyStorage)
-            throws EncryptionException, CryptoException {
+    public static byte[] encrypt(@NotNull String data, @NotNull KeyStorage keyStorage) {
         return encryptBytes(data.getBytes(StandardCharsets.UTF_8), keyStorage);
     }
 
-    public static byte[] encryptBytes(byte @NotNull [] data, @NotNull KeyStorage keyStorage)
-            throws EncryptionException, CryptoException {
+    public static byte[] encryptBytes(byte @NotNull [] data, @NotNull KeyStorage keyStorage) {
         ECIESKeyStorage eciesKeyStorage = (ECIESKeyStorage) keyStorage.expect(AsymmetricEncryptions.ECIES);
         Cipher cipher;
         try {

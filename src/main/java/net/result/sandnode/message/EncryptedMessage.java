@@ -2,7 +2,6 @@ package net.result.sandnode.message;
 
 import net.result.sandnode.encryption.EncryptionManager;
 import net.result.sandnode.exception.MessageSerializationException;
-import net.result.sandnode.exception.UnexpectedSocketDisconnectException;
 import net.result.sandnode.exception.crypto.NoSuchEncryptionException;
 import net.result.sandnode.util.StreamReader;
 import org.jetbrains.annotations.NotNull;
@@ -12,8 +11,7 @@ import java.io.IOException;
 import java.io.InputStream;
 
 public record EncryptedMessage(int version, byte encryptionByte, byte[] headersBytes, byte[] bodyBytes) {
-    public static @NotNull EncryptedMessage readMessage(@NotNull InputStream in)
-            throws UnexpectedSocketDisconnectException {
+    public static @NotNull EncryptedMessage readMessage(@NotNull InputStream in) {
         int version = StreamReader.readByte(in, "version");
         byte encryptionByte = StreamReader.readByte(in, "encryption");
         short headersLength = StreamReader.readShort(in, "headers length");
@@ -23,7 +21,7 @@ public record EncryptedMessage(int version, byte encryptionByte, byte[] headersB
         return new EncryptedMessage(version, encryptionByte, headersBytes, bodyBytes);
     }
 
-    public byte @NotNull [] toByteArray() throws MessageSerializationException {
+    public byte @NotNull [] toByteArray() {
         try {
             ByteArrayOutputStream result = new ByteArrayOutputStream();
 

@@ -14,6 +14,7 @@ import net.result.taulight.entity.MessageEntity;
 import net.result.taulight.entity.TauMemberEntity;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class MessageRepository {
     private final JPAUtil jpaUtil;
@@ -24,8 +25,7 @@ public class MessageRepository {
         messageFileRepo = container.get(MessageFileRepository.class);
     }
 
-    public MessageEntity create(ChatEntity chat, ChatMessageInputDTO input, TauMemberEntity member)
-            throws DatabaseException, UnauthorizedException {
+    public MessageEntity create(ChatEntity chat, ChatMessageInputDTO input, TauMemberEntity member) {
         return create(chat, input, member, null);
     }
 
@@ -34,25 +34,21 @@ public class MessageRepository {
             ChatMessageInputDTO input,
             TauMemberEntity member,
             EncryptedKeyEntity key
-    ) throws DatabaseException, UnauthorizedException {
+    ) {
         EntityManager em = jpaUtil.getEntityManager();
         EntityTransaction transaction = em.getTransaction();
         try {
             transaction.begin();
             MessageEntity managed = em.merge(new MessageEntity(chat, input, member, key));
-            Set<MessageEntity> messageEntities = new HashSet<>();
             Set<UUID> replies = input.repliedToMessages;
             if (replies != null) {
-                for (UUID r : replies) {
-                    MessageEntity e = jpaUtil
-                            .find(MessageEntity.class, r)
-                            .orElseThrow(NotFoundException::new);
-                    messageEntities.add(e);
-                }
+                Set<MessageEntity> messageEntities = replies.stream()
+                        .map(r -> jpaUtil.find(MessageEntity.class, r).orElseThrow(NotFoundException::new))
+                        .collect(Collectors.toSet());
+                managed.setRepliedToMessages(messageEntities);
             }
-            managed.setRepliedToMessages(messageEntities);
 
-            chat.messages().add(managed);
+            chat.getMessages().add(managed);
             em.merge(chat);
             transaction.commit();
 
@@ -70,7 +66,7 @@ public class MessageRepository {
         }
     }
 
-    public List<MessageEntity> findMessagesByChat(ChatEntity chat, int index, int size) throws DatabaseException {
+    public List<MessageEntity> findMessagesByChat(ChatEntity chat, int index, int size) {
         EntityManager em = jpaUtil.getEntityManager();
         try {
             String q = "FROM MessageEntity WHERE chat = :chat ORDER BY creationDate DESC, id DESC";
@@ -84,7 +80,7 @@ public class MessageRepository {
         }
     }
 
-    public long countMessagesByChat(ChatEntity chat) throws DatabaseException {
+    public long countMessagesByChat(ChatEntity chat) {
         EntityManager em = jpaUtil.getEntityManager();
         try {
             String q = "SELECT COUNT(m) FROM MessageEntity m WHERE m.chat = :chat";
@@ -94,7 +90,7 @@ public class MessageRepository {
         }
     }
 
-    public Collection<MessageEntity> findLastMessagesByChats(Set<UUID> accessibleChatIds) throws DatabaseException {
+    public Collection<MessageEntity> findLastMessagesByChats(Set<UUID> accessibleChatIds) {
         EntityManager em = jpaUtil.getEntityManager();
         if (accessibleChatIds == null || accessibleChatIds.isEmpty()) return Collections.emptyList();
 

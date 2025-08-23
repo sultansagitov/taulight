@@ -2,11 +2,9 @@ package net.result.taulight.chain.receiver;
 
 import net.result.sandnode.chain.ReceiverChain;
 import net.result.sandnode.chain.ServerChain;
-import net.result.sandnode.exception.DatabaseException;
 import net.result.sandnode.exception.error.*;
 import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.repository.MemberRepository;
-import net.result.sandnode.serverclient.Session;
 import net.result.taulight.db.Permission;
 import net.result.taulight.dto.RoleDTO;
 import net.result.taulight.dto.RoleRequestDTO;
@@ -27,39 +25,36 @@ import java.util.stream.Collectors;
 
 public class RoleServerChain extends ServerChain implements ReceiverChain {
 
-    public RoleServerChain(Session session) {
-        super(session);
-    }
-
     @Override
-    public RoleResponse handle(RawMessage raw) throws Exception {
+    public RoleResponse handle(RawMessage raw) {
         if (session.member == null) throw new UnauthorizedException();
 
         ChatUtil chatUtil = session.server.container.get(ChatUtil.class);
 
         RoleRequest request = new RoleRequest(raw);
 
-        RoleRequestDTO.DataType dataType = request.dto().dataType;
-        UUID chatID = request.dto().chatID;
-        UUID roleID = request.dto().roleID;
-        String roleName = request.dto().roleName;
-        String nickname = request.dto().nickname;
+        RoleRequestDTO dto = request.dto();
+        RoleRequestDTO.DataType dataType = dto.dataType();
+        UUID chatID = dto.chatID();
+        UUID roleID = dto.roleID();
+        String roleName = dto.roleName();
+        String nickname = dto.nickname();
 
         ChatEntity chat = chatUtil.getChat(chatID).orElseThrow(NotFoundException::new);
-        if (!chatUtil.contains(chat, session.member.tauMember())) throw new NotFoundException();
+        if (!chatUtil.contains(chat, session.member.getTauMember())) throw new NotFoundException();
         if (!(chat instanceof GroupEntity group)) throw new WrongAddressException();
 
-        Set<RoleEntity> roles = group.roles();
+        Set<RoleEntity> roles = group.getRoles();
         Set<RoleDTO> allRoles = roles.stream()
                 .map(RoleEntity::toDTO)
                 .collect(Collectors.toSet());
 
         Set<UUID> memberRoles = roles.stream()
-                .filter(role -> role.members().contains(session.member.tauMember()))
+                .filter(role -> role.getMembers().contains(session.member.getTauMember()))
                 .map(RoleEntity::id)
                 .collect(Collectors.toSet());
 
-        Set<Permission> permissions = group.permissions();
+        Set<Permission> permissions = group.getPermissions();
 
         return switch (dataType) {
             case GET -> get(allRoles, memberRoles, permissions);
@@ -79,11 +74,11 @@ public class RoleServerChain extends ServerChain implements ReceiverChain {
             Set<RoleDTO> allRoles,
             Set<UUID> memberRoles,
             Set<Permission> permissions
-    ) throws TooFewArgumentsException, DatabaseException, UnauthorizedException {
+    ) {
         RoleRepository roleRepo = session.server.container.get(RoleRepository.class);
 
         //noinspection DataFlowIssue
-        if (!group.owner().equals(session.member.tauMember())) throw new UnauthorizedException();
+        if (!group.getOwner().equals(session.member.getTauMember())) throw new UnauthorizedException();
 
         if (roleName == null || roleName.trim().isEmpty()) throw new TooFewArgumentsException();
         allRoles.add(roleRepo.create(group, roleName).toDTO());
@@ -98,12 +93,12 @@ public class RoleServerChain extends ServerChain implements ReceiverChain {
             Set<RoleDTO> allRoles,
             Set<UUID> memberRoles,
             Set<Permission> permissions
-    ) throws TooFewArgumentsException, NotFoundException, DatabaseException, NoEffectException, UnauthorizedException {
+    ) {
         RoleRepository roleRepo = session.server.container.get(RoleRepository.class);
         MemberRepository memberRepo = session.server.container.get(MemberRepository.class);
 
         //noinspection DataFlowIssue
-        if (!group.owner().equals(session.member.tauMember())) throw new UnauthorizedException();
+        if (!group.getOwner().equals(session.member.getTauMember())) throw new UnauthorizedException();
 
         if (roleID == null || nickname == null) throw new TooFewArgumentsException();
 
@@ -115,7 +110,7 @@ public class RoleServerChain extends ServerChain implements ReceiverChain {
         TauMemberEntity member = memberRepo
                 .findByNickname(nickname)
                 .orElseThrow(NotFoundException::new)
-                .tauMember();
+                .getTauMember();
 
         if (!roleRepo.addMember(roleToAdd, member)) throw new NoEffectException();
         return new RoleResponse(new RolesDTO(allRoles, memberRoles, permissions));

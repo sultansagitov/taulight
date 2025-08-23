@@ -25,12 +25,8 @@ import org.apache.logging.log4j.Logger;
 public class ReactionRequestServerChain extends ServerChain implements ReceiverChain {
     private static final Logger LOGGER = LogManager.getLogger(ReactionRequestServerChain.class);
 
-    public ReactionRequestServerChain(Session session) {
-        super(session);
-    }
-
     @Override
-    public HappyMessage handle(RawMessage raw) throws Exception {
+    public HappyMessage handle(RawMessage raw) {
         ClusterManager clusterManager = session.server.container.get(ClusterManager.class);
         ReactionTypeRepository reactionTypeRepo = session.server.container.get(ReactionTypeRepository.class);
         ReactionEntryRepository reactionEntryRepo = session.server.container.get(ReactionEntryRepository.class);
@@ -42,13 +38,13 @@ public class ReactionRequestServerChain extends ServerChain implements ReceiverC
             throw new UnauthorizedException();
         }
 
-        String nickname = session.member.nickname();
+        String nickname = session.member.getNickname();
 
         MessageEntity message = jpaUtil
-                .find(MessageEntity.class, request.dto().messageID)
+                .find(MessageEntity.class, request.dto().messageID())
                 .orElseThrow(NotFoundException::new);
 
-        String[] packageParts = request.dto().reaction.split(":");
+        String[] packageParts = request.dto().reaction().split(":");
         if (packageParts.length != 2) {
             throw new IllegalArgumentException("Invalid reaction type format. Expected format 'package:reaction'.");
         }
@@ -57,16 +53,16 @@ public class ReactionRequestServerChain extends ServerChain implements ReceiverC
 
         ReactionTypeEntity reactionType = reactionTypeRepo
                 .findByPackageName(packageName).stream()
-                .filter(type -> type.name().equals(reactionTypeName))
+                .filter(type -> type.getName().equals(reactionTypeName))
                 .findFirst()
                 .orElseThrow(NotFoundException::new);
 
 
         Cluster notReactionReceiver = clusterManager.get("#not_reaction_receiver");
 
-        if (request.dto().react) {
-            ReactionEntryEntity re = reactionEntryRepo.create(session.member.tauMember(), message, reactionType);
-            LOGGER.info("Reaction added: {} to message {} by {}", reactionType.name(), message.id(), nickname);
+        if (request.dto().react()) {
+            ReactionEntryEntity re = reactionEntryRepo.create(session.member.getTauMember(), message, reactionType);
+            LOGGER.info("Reaction added: {} to message {} by {}", reactionType.getName(), message.id(), nickname);
             for (Session s : session.server.getAgents()) {
                 if (notReactionReceiver.contains(s)) continue;
                 var chain = new ReactionResponseServerChain(s);
@@ -79,7 +75,7 @@ public class ReactionRequestServerChain extends ServerChain implements ReceiverC
                 s.io().chainManager.removeChain(chain);
             }
         } else {
-            if (reactionEntryRepo.delete(message, session.member.tauMember(), reactionType)) {
+            if (reactionEntryRepo.delete(message, session.member.getTauMember(), reactionType)) {
                 for (Session s : session.server.getAgents()) {
                     if (notReactionReceiver.contains(s)) continue;
                     var chain = new ReactionResponseServerChain(s);
@@ -92,7 +88,7 @@ public class ReactionRequestServerChain extends ServerChain implements ReceiverC
                     s.io().chainManager.removeChain(chain);
                 }
 
-                LOGGER.info("Reaction removed: {} from message {}", reactionType.name(), message.id());
+                LOGGER.info("Reaction removed: {} from message {}", reactionType.getName(), message.id());
             } else {
                 throw new NoEffectException();
             }

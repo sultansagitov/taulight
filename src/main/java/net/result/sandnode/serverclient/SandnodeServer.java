@@ -39,11 +39,11 @@ public class SandnodeServer {
         container = serverConfig.container();
     }
 
-    public void start() throws ServerStartException {
+    public void start() {
         start(serverConfig.address().port());
     }
 
-    public void start(int port) throws ServerStartException {
+    public void start(int port) {
         try {
             InetAddress host = Inet4Address.getByName(serverConfig.address().host());
             serverSocket = new ServerSocket(port, Integer.MAX_VALUE, host);
@@ -52,7 +52,7 @@ public class SandnodeServer {
         }
     }
 
-    public void acceptSessions() throws SocketAcceptException {
+    public void acceptSessions() {
         while (!serverSocket.isClosed()) {
             Socket clientSocket;
             try {
@@ -73,7 +73,7 @@ public class SandnodeServer {
         sessionExecutor.shutdown();
     }
 
-    public synchronized void close() throws ServerClosingException {
+    public synchronized void close() {
         try {
             serverSocket.close();
         } catch (IOException e) {
@@ -85,7 +85,7 @@ public class SandnodeServer {
         container.get(JPAUtil.class).shutdown();
     }
 
-    public synchronized void closeWithoutDBShutdown() throws ServerClosingException {
+    public synchronized void closeWithoutDBShutdown() {
         try {
             serverSocket.close();
         } catch (IOException e) {
@@ -121,8 +121,7 @@ public class SandnodeServer {
         agentSessions.remove(session);
     }
 
-    public Session createSession(Socket socket, @NotNull Connection connection)
-            throws WrongNodeUsedException, OutputStreamException, InputStreamException {
+    public Session createSession(Socket socket, @NotNull Connection connection) {
         if (connection.getFrom() != node.type()) throw new WrongNodeUsedException(connection);
 
         ServerChainManager chainManager = node.createChainManager();

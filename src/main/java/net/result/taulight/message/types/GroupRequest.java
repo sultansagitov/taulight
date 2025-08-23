@@ -1,9 +1,7 @@
 package net.result.taulight.message.types;
 
-import net.result.sandnode.exception.DeserializationException;
-import net.result.sandnode.exception.ExpectedMessageException;
-import net.result.sandnode.message.Message;
 import net.result.sandnode.message.MSGPackMessage;
+import net.result.sandnode.message.Message;
 import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.message.util.Headers;
 import net.result.taulight.dto.GroupRequestDTO;
@@ -17,7 +15,7 @@ public class GroupRequest extends MSGPackMessage<GroupRequestDTO> {
         super(new Headers().setType(TauMessageTypes.GROUP), data);
     }
 
-    public GroupRequest(@NotNull RawMessage raw) throws ExpectedMessageException, DeserializationException {
+    public GroupRequest(@NotNull RawMessage raw) {
         super(raw.expect(TauMessageTypes.GROUP), GroupRequestDTO.class);
     }
 

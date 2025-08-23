@@ -1,6 +1,5 @@
 package net.result.sandnode.chain;
 
-import net.result.sandnode.exception.UnprocessedMessagesException;
 import net.result.sandnode.message.Message;
 import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.message.types.ErrorMessage;
@@ -12,16 +11,16 @@ public interface Chain extends Searchable<Chain, Short> {
 
     IOController io();
 
-    void put(RawMessage message) throws InterruptedException;
+    void put(RawMessage message);
 
     short getID();
 
     void setID(short id);
 
-    void chainName(String chainName) throws InterruptedException, UnprocessedMessagesException;
+    void chainName(String chainName);
 
-    void sendFin(@NotNull Message message) throws UnprocessedMessagesException, InterruptedException;
+    void sendFin(@NotNull Message message);
 
-    void sendFinIgnoreQueue(@NotNull ErrorMessage message) throws InterruptedException;
+    void sendFinIgnoreQueue(@NotNull ErrorMessage message);
 
 }

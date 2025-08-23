@@ -31,7 +31,7 @@ public class RunAgentWork implements Work {
     private ConsoleContext context = null;
 
     @Override
-    public void run() throws Exception {
+    public void run() {
         Scanner scanner = new Scanner(System.in);
 
         SandnodeLinkRecord link;
@@ -138,13 +138,13 @@ public class RunAgentWork implements Work {
 
                     TreeMap<String, List<CommandInfo>> map = new TreeMap<>();
                     for (CommandInfo commandInfo : registry.getAllCommands()) {
-                        map.computeIfAbsent(commandInfo.getGroup(), k -> new ArrayList<>()).add(commandInfo);
+                        map.computeIfAbsent(commandInfo.group(), k -> new ArrayList<>()).add(commandInfo);
                     }
                     for (Map.Entry<String, List<CommandInfo>> entry : map.entrySet()) {
                         String group = entry.getKey();
                         System.out.printf("[%s]%n", group);
                         for (CommandInfo cmd : entry.getValue()) {
-                            System.out.printf("  %-20s %s%n", cmd.getName(), cmd.getDescription());
+                            System.out.printf("  %-20s %s%n", cmd.name(), cmd.description());
                         }
                         System.out.println();
                     }

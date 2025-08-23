@@ -2,8 +2,6 @@ package net.result.sandnode.message.types;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import net.result.sandnode.dto.LoginHistoryDTO;
-import net.result.sandnode.exception.DeserializationException;
-import net.result.sandnode.exception.ExpectedMessageException;
 import net.result.sandnode.message.MSGPackMessage;
 import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.message.util.Headers;
@@ -17,7 +15,7 @@ public class LoginHistoryResponse extends MSGPackMessage<List<LoginHistoryDTO>> 
         super(headers.setType(MessageTypes.LOGIN), dtos);
     }
 
-    public LoginHistoryResponse(@NotNull RawMessage raw) throws DeserializationException, ExpectedMessageException {
+    public LoginHistoryResponse(@NotNull RawMessage raw) {
         super(raw.expect(MessageTypes.LOGIN), new TypeReference<>() {});
     }
 

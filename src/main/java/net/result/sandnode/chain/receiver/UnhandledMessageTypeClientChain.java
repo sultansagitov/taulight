@@ -20,7 +20,7 @@ public class UnhandledMessageTypeClientChain extends ClientChain implements Rece
     }
 
     @Override
-    public @Nullable Message handle(RawMessage raw) throws Exception {
+    public @Nullable Message handle(RawMessage raw) {
         LOGGER.error(raw);
         if (raw.headers().type() != MessageTypes.ERR) {
             throw new UnhandledMessageTypeException();

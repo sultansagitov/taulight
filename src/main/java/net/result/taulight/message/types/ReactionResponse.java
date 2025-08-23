@@ -1,6 +1,5 @@
 package net.result.taulight.message.types;
 
-import net.result.sandnode.exception.DeserializationException;
 import net.result.sandnode.message.MSGPackMessage;
 import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.message.util.Headers;
@@ -29,7 +28,7 @@ public class ReactionResponse extends MSGPackMessage<ReactionDTO> {
         this(new Headers(), new ReactionDTO(isReact, nickname, chatID, messageID, packageName, reaction), yourSession);
     }
 
-    public ReactionResponse(RawMessage raw) throws DeserializationException {
+    public ReactionResponse(RawMessage raw) {
         super(raw, ReactionDTO.class);
     }
 

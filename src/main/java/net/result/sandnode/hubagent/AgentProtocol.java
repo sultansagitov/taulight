@@ -9,10 +9,7 @@ import net.result.sandnode.dto.RegistrationResponseDTO;
 import net.result.sandnode.encryption.interfaces.AsymmetricEncryption;
 import net.result.sandnode.encryption.interfaces.AsymmetricKeyStorage;
 import net.result.sandnode.exception.*;
-import net.result.sandnode.exception.crypto.CannotUseEncryption;
-import net.result.sandnode.exception.crypto.CryptoException;
 import net.result.sandnode.exception.error.KeyStorageNotFoundException;
-import net.result.sandnode.exception.error.SandnodeErrorException;
 import net.result.sandnode.link.SandnodeLinkRecord;
 import net.result.sandnode.serverclient.SandnodeClient;
 import net.result.sandnode.util.EncryptionUtil;
@@ -28,7 +25,7 @@ public class AgentProtocol {
             @NotNull String nickname,
             @NotNull String password,
             @NotNull String device
-    ) throws InterruptedException, SandnodeErrorException, CannotUseEncryption, ProtocolException, StorageException {
+    ) {
         var chain = new RegistrationClientChain(client);
         client.io().chainManager.linkChain(chain);
         var dto = chain.register(nickname, password, device);
@@ -37,8 +34,7 @@ public class AgentProtocol {
         return dto;
     }
 
-    public static LoginResponseDTO byToken(SandnodeClient client, String token)
-            throws InterruptedException, SandnodeErrorException, ProtocolException {
+    public static LoginResponseDTO byToken(SandnodeClient client, String token) {
         var chain = new LoginClientChain(client);
         client.io().chainManager.linkChain(chain);
         var dto = chain.login(token);
@@ -52,7 +48,7 @@ public class AgentProtocol {
             String nickname,
             String password,
             String device
-    ) throws InterruptedException, SandnodeErrorException, ProtocolException {
+    ) {
         var chain = new LogPasswdClientChain(client);
         client.io().chainManager.linkChain(chain);
         var dto = chain.getToken(nickname, password, device);
@@ -61,17 +57,13 @@ public class AgentProtocol {
         return dto;
     }
 
-    public static AsymmetricKeyStorage loadOrFetchServerKey(SandnodeClient client, @NotNull SandnodeLinkRecord link)
-            throws CryptoException, LinkDoesNotMatchException, InterruptedException, SandnodeErrorException,
-            ProtocolException, StorageException {
-
+    public static AsymmetricKeyStorage loadOrFetchServerKey(SandnodeClient client, @NotNull SandnodeLinkRecord link) {
         Agent agent = client.node().agent();
 
         AsymmetricKeyStorage filePublicKey = null;
         try {
             filePublicKey = agent.config.loadServerKey(link.address());
-        } catch (KeyStorageNotFoundException ignored) {
-        }
+        } catch (KeyStorageNotFoundException ignored) {}
         AsymmetricKeyStorage linkKeyStorage = link.keyStorage();
 
         if (linkKeyStorage != null) {

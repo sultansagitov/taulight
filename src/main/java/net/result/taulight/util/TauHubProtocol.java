@@ -28,22 +28,20 @@ import java.util.concurrent.Future;
 public class TauHubProtocol {
     private static final Logger LOGGER = LogManager.getLogger(TauHubProtocol.class);
 
-    public static void send(Session session, ChatEntity chat, ChatMessageInputDTO input)
-            throws InterruptedException, DatabaseException, SandnodeErrorException, ProtocolException {
+    public static void send(Session session, ChatEntity chat, ChatMessageInputDTO input) {
         if (session.member == null) throw new UnauthorizedException();
 
         var messageRepo = session.server.container.get(MessageRepository.class);
         var messageFileRepo = session.server.container.get(MessageFileRepository.class);
 
-        MessageEntity message = messageRepo.create(chat, input, session.member.tauMember());
-        LOGGER.info("Saved message with id {} content: {}", message.id(), message.content());
+        MessageEntity message = messageRepo.create(chat, input, session.member.getTauMember());
+        LOGGER.info("Saved message with id {} content: {}", message.id(), message.getContent());
         ChatMessageViewDTO serverMessage = message.toViewDTO(messageFileRepo);
 
         send(session, chat, serverMessage);
     }
 
-    public static void send(Session session, ChatEntity chat, ChatMessageViewDTO serverMessage)
-            throws InterruptedException, DatabaseException, SandnodeErrorException, ProtocolException {
+    public static void send(Session session, ChatEntity chat, ChatMessageViewDTO serverMessage) {
         if (session.member == null) throw new UnauthorizedException();
 
         var manager = session.server.container.get(TauClusterManager.class);
@@ -65,17 +63,21 @@ public class TauHubProtocol {
 
             for (Future<?> future : futures) {
                 try {
-                    future.get();
-                } catch (ExecutionException e) {
                     try {
-                        throw e.getCause();
-                    } catch (UnprocessedMessagesException | InterruptedException | ExpectedMessageException |
-                             UnknownSandnodeErrorException | SandnodeErrorException | DatabaseException ex) {
-                        LOGGER.error("Error from executor", e);
-                        throw ex;
-                    } catch (Throwable ex) {
-                        throw new ImpossibleRuntimeException(ex);
+                        future.get();
+                    } catch (ExecutionException e) {
+                        try {
+                            throw e.getCause();
+                        } catch (UnprocessedMessagesException | InterruptedException | ExpectedMessageException |
+                                 UnknownSandnodeErrorException | SandnodeErrorException | DatabaseException ex) {
+                            LOGGER.error("Error from executor", e);
+                            throw ex;
+                        } catch (Throwable ex) {
+                            throw new ImpossibleRuntimeException(ex);
+                        }
                     }
+                } catch (InterruptedException e) {
+                    throw new SandnodeInterruptedException(e);
                 }
             }
         } finally {
@@ -85,8 +87,7 @@ public class TauHubProtocol {
         }
     }
 
-    private static void getObjectCallable(Session session, ChatMessageViewDTO serverMessage, Session s)
-            throws ProtocolException, InterruptedException, SandnodeErrorException {
+    private static void getObjectCallable(Session session, ChatMessageViewDTO serverMessage, Session s) {
         ForwardResponse request = new ForwardResponse(serverMessage, s == session);
 
         ChainManager chainManager = s.io().chainManager;

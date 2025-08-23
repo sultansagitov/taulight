@@ -20,7 +20,7 @@ public class MessageTypeManager extends Manager<MessageType> {
     @Override
     protected void handleOverflow(MessageType messageType) {}
 
-    public static @NotNull MessageType getMessageType(byte type) throws NoSuchMessageTypeException {
+    public static @NotNull MessageType getMessageType(byte type) {
         for (MessageType m : instance().list) {
             if (m.asByte() == type) {
                 return m;

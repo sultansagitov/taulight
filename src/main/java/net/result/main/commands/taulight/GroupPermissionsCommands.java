@@ -39,7 +39,7 @@ public class GroupPermissionsCommands {
     }
 
 
-    private static void addDefaultPerm(@NotNull List<String> args, ConsoleContext context) throws Exception {
+    private static void addDefaultPerm(@NotNull List<String> args, ConsoleContext context) {
         if (args.isEmpty()) {
             System.out.println("Usage: addDefaultPerm [chatID] <permission>");
             return;
@@ -64,7 +64,7 @@ public class GroupPermissionsCommands {
         GroupPermissionsRunner.addDefaultPerm(context, chatID, permission);
     }
 
-    private static void removeDefaultPerm(@NotNull List<String> args, ConsoleContext context) throws Exception {
+    private static void removeDefaultPerm(@NotNull List<String> args, ConsoleContext context) {
         if (args.isEmpty()) {
             System.out.println("Usage: removeDefaultPerm [chatID] <permission>");
             return;
@@ -89,7 +89,7 @@ public class GroupPermissionsCommands {
         GroupPermissionsRunner.removeDefaultPerm(context, chatID, permission);
     }
 
-    private static void addRolePerm(@NotNull List<String> args, ConsoleContext context) throws Exception {
+    private static void addRolePerm(@NotNull List<String> args, ConsoleContext context) {
         if (args.size() < 2) {
             System.out.println("Usage: addRolePerm [chatID] <roleID> <permission>");
             return;
@@ -117,7 +117,7 @@ public class GroupPermissionsCommands {
         GroupPermissionsRunner.addRolePerm(context, chatID, roleID, permission);
     }
 
-    private static void removeRolePerm(@NotNull List<String> args, ConsoleContext context) throws Exception {
+    private static void removeRolePerm(@NotNull List<String> args, ConsoleContext context) {
         if (args.size() < 2) {
             System.out.println("Usage: removeRolePerm [chatID] <roleID> <permission>");
             return;

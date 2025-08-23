@@ -20,7 +20,7 @@ public class GroupRepository {
         this.jpaUtil = container.get(JPAUtil.class);
     }
 
-    public GroupEntity create(String title, TauMemberEntity owner) throws DatabaseException {
+    public GroupEntity create(String title, TauMemberEntity owner) {
         EntityManager em = jpaUtil.getEntityManager();
         EntityTransaction transaction = em.getTransaction();
 
@@ -41,7 +41,7 @@ public class GroupRepository {
         }
     }
 
-    public void delete(GroupEntity group) throws DatabaseException {
+    public void delete(GroupEntity group) {
         EntityManager em = jpaUtil.getEntityManager();
         EntityTransaction transaction = em.getTransaction();
         try {
@@ -55,7 +55,7 @@ public class GroupRepository {
         }
     }
 
-    public boolean addMember(GroupEntity group, TauMemberEntity member) throws DatabaseException {
+    public boolean addMember(GroupEntity group, TauMemberEntity member) {
         EntityManager em = jpaUtil.getEntityManager();
         EntityTransaction transaction = em.getTransaction();
 
@@ -65,7 +65,7 @@ public class GroupRepository {
             GroupEntity managedGroup = em.merge(group);
             TauMemberEntity managedMember = em.merge(member);
 
-            Set<TauMemberEntity> members = managedGroup.members();
+            Set<TauMemberEntity> members = managedGroup.getMembers();
             if (members == null) {
                 members = new HashSet<>();
                 managedGroup.setMembers(members);
@@ -76,7 +76,7 @@ public class GroupRepository {
                 return false;
             }
 
-            managedMember.groups().add(managedGroup);
+            managedMember.getGroups().add(managedGroup);
 
             transaction.commit();
             return true;
@@ -86,7 +86,7 @@ public class GroupRepository {
         }
     }
 
-    public boolean removeMember(GroupEntity group, TauMemberEntity member) throws DatabaseException {
+    public boolean removeMember(GroupEntity group, TauMemberEntity member) {
         EntityManager em = jpaUtil.getEntityManager();
         EntityTransaction transaction = em.getTransaction();
 
@@ -96,13 +96,13 @@ public class GroupRepository {
             GroupEntity managedGroup = em.merge(group);
             TauMemberEntity managedMember = em.merge(member);
 
-            Set<TauMemberEntity> members = managedGroup.members();
+            Set<TauMemberEntity> members = managedGroup.getMembers();
             if (members == null || !members.remove(managedMember)) {
                 transaction.rollback();
                 return false;
             }
 
-            managedMember.groups().remove(managedGroup);
+            managedMember.getGroups().remove(managedGroup);
 
             transaction.commit();
             return true;
@@ -112,7 +112,7 @@ public class GroupRepository {
         }
     }
 
-    public void setAvatar(GroupEntity group, FileEntity avatar) throws DatabaseException {
+    public void setAvatar(GroupEntity group, FileEntity avatar) {
         EntityManager em = jpaUtil.getEntityManager();
         EntityTransaction transaction = em.getTransaction();
 
@@ -127,7 +127,7 @@ public class GroupRepository {
         }
     }
 
-    public boolean grantPermission(GroupEntity group, Permission permission) throws DatabaseException {
+    public boolean grantPermission(GroupEntity group, Permission permission) {
         EntityManager em = jpaUtil.getEntityManager();
         EntityTransaction transaction = em.getTransaction();
 
@@ -135,7 +135,7 @@ public class GroupRepository {
             transaction.begin();
             GroupEntity managed = em.merge(group);
 
-            if (!managed.permissions().add(permission)) {
+            if (!managed.getPermissions().add(permission)) {
                 transaction.rollback();
                 return false;
             }
@@ -148,7 +148,7 @@ public class GroupRepository {
         }
     }
 
-    public boolean revokePermission(GroupEntity group, Permission permission) throws DatabaseException {
+    public boolean revokePermission(GroupEntity group, Permission permission) {
         EntityManager em = jpaUtil.getEntityManager();
         EntityTransaction transaction = em.getTransaction();
 
@@ -156,7 +156,7 @@ public class GroupRepository {
             transaction.begin();
             GroupEntity managed = em.merge(group);
 
-            if (!managed.permissions().remove(permission)) {
+            if (!managed.getPermissions().remove(permission)) {
                 transaction.rollback();
                 return false;
             }
@@ -169,7 +169,7 @@ public class GroupRepository {
         }
     }
 
-    public boolean contains(GroupEntity group, TauMemberEntity member) throws DatabaseException {
+    public boolean contains(GroupEntity group, TauMemberEntity member) {
         EntityManager em = jpaUtil.getEntityManager();
         try {
             String q = "SELECT COUNT(g) FROM GroupEntity g JOIN g.members m WHERE g = :group AND m = :member";

@@ -19,18 +19,17 @@ public class ReactionTypeRepository {
         jpaUtil = container.get(JPAUtil.class);
     }
 
-    public ReactionTypeEntity create(String name, ReactionPackageEntity reactionPackage) throws DatabaseException {
+    public ReactionTypeEntity create(String name, ReactionPackageEntity reactionPackage) {
         EntityManager em = jpaUtil.getEntityManager();
         ReactionTypeEntity managed = jpaUtil.create(new ReactionTypeEntity(name, reactionPackage));
 
-        reactionPackage.reactionTypes().add(managed);
+        reactionPackage.getReactionTypes().add(managed);
         em.merge(reactionPackage);
 
         return managed;
     }
 
-    public Collection<ReactionTypeEntity> create(ReactionPackageEntity rp, Collection<String> types)
-            throws DatabaseException {
+    public Collection<ReactionTypeEntity> create(ReactionPackageEntity rp, Collection<String> types) {
         EntityManager em = jpaUtil.getEntityManager();
         if (types == null || types.isEmpty()) {
             return List.of();
@@ -48,7 +47,7 @@ public class ReactionTypeRepository {
                 ReactionTypeEntity managed = em.merge(reactionType);
                 createdEntities.add(managed);
 
-                rp.reactionTypes().add(managed);
+                rp.getReactionTypes().add(managed);
                 em.merge(rp);
             }
 
@@ -60,7 +59,7 @@ public class ReactionTypeRepository {
         }
     }
 
-    public List<ReactionTypeEntity> findByPackageName(String packageName) throws DatabaseException {
+    public List<ReactionTypeEntity> findByPackageName(String packageName) {
         EntityManager em = jpaUtil.getEntityManager();
         try {
             String q = "FROM ReactionTypeEntity WHERE reactionPackage.name = :packageName";

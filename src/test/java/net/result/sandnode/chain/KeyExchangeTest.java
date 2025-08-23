@@ -13,20 +13,21 @@ import net.result.sandnode.util.IOController;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
+import java.io.IOException;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class KeyExchangeTest {
     @BeforeAll
-    public static void setup() throws Exception {
+    public static void setup() throws IOException {
         GlobalTestState.initChainTests();
     }
 
     @Test
-    void getPublicKey() throws Exception {
+    void getPublicKey() {
         SandnodeClient client = GlobalTestState.client;
-        IOController io = client.io();
-        {
+        IOController io = client.io(); {
             ClientProtocol.PUB(client);
 
             AsymmetricEncryption a = io.serverEncryption().asymmetric();
@@ -34,8 +35,7 @@ public class KeyExchangeTest {
             AsymmetricKeyStorage actual = io.keyStorageRegistry.asymmetricNonNull(a);
             assertTrue(EncryptionUtil.isPublicKeysEquals(expected, actual));
         }
-
-        {
+ {
             ClientProtocol.sendSYM(client);
 
             SymmetricEncryption a = io.symKeyEncryption().symmetric();

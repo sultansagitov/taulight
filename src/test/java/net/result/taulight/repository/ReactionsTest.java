@@ -2,9 +2,6 @@ package net.result.taulight.repository;
 
 import net.result.sandnode.GlobalTestState;
 import net.result.sandnode.repository.MemberRepository;
-import net.result.sandnode.exception.DatabaseException;
-import net.result.sandnode.exception.SandnodeException;
-import net.result.sandnode.exception.error.BusyNicknameException;
 import net.result.sandnode.util.Container;
 import net.result.sandnode.db.JPAUtil;
 import net.result.sandnode.db.SimpleJPAUtil;
@@ -31,7 +28,7 @@ class ReactionsTest {
     private static ReactionEntryRepository reactionEntryRepo;
 
     @BeforeAll
-    public static void setup() throws DatabaseException, BusyNicknameException {
+    public static void setup() {
         Container container = GlobalTestState.container;
 
         jpaUtil = container.get(SimpleJPAUtil.class);
@@ -43,18 +40,18 @@ class ReactionsTest {
         reactionTypeRepo = container.get(ReactionTypeRepository.class);
         reactionEntryRepo = container.get(ReactionEntryRepository.class);
 
-        member1 = memberRepo.create("user1", "hash").tauMember();
-        member2 = memberRepo.create("user2", "hash").tauMember();
+        member1 = memberRepo.create("user1", "hash").getTauMember();
+        member2 = memberRepo.create("user2", "hash").getTauMember();
 
         assertNotNull(member1.id());
         assertNotNull(member2.id());
     }
 
     @Test
-    public void createReactionPackage() throws DatabaseException {
+    public void createReactionPackage() {
         ReactionPackageEntity reactionPackage = reactionPackageRepo.create("funny_emojis", "");
         assertNotNull(reactionPackage);
-        assertEquals("funny_emojis", reactionPackage.name());
+        assertEquals("funny_emojis", reactionPackage.getName());
 
         Optional<ReactionPackageEntity> found = jpaUtil.find(ReactionPackageEntity.class, reactionPackage.id());
         assertTrue(found.isPresent());
@@ -62,20 +59,20 @@ class ReactionsTest {
 
         // Additional assertions
         assertNotNull(reactionPackage.id(), "Reaction package ID should not be null");
-        assertEquals("", reactionPackage.description(), "Description should match");
-        assertEquals(0, reactionPackage.reactionTypes().size(), "New reaction package should have no reaction types");
+        assertEquals("", reactionPackage.getDescription(), "Description should match");
+        assertEquals(0, reactionPackage.getReactionTypes().size(), "New reaction package should have no reaction types");
 
         // Test creating package with description
         ReactionPackageEntity packageWithDesc = reactionPackageRepo.create("animal_emojis", "Animal themed reactions");
-        assertEquals("Animal themed reactions", packageWithDesc.description(), "Description should match");
+        assertEquals("Animal themed reactions", packageWithDesc.getDescription(), "Description should match");
     }
 
     @Test
-    public void findReactionPackage() throws DatabaseException {
+    public void findReactionPackage() {
         ReactionPackageEntity created = reactionPackageRepo.create("qwe", "rty");
         Optional<ReactionPackageEntity> found = reactionPackageRepo.find("qwe");
         assertTrue(found.isPresent());
-        assertEquals("rty", found.get().description());
+        assertEquals("rty", found.get().getDescription());
 
         // Additional assertions
         assertEquals(created.id(), found.get().id(), "IDs should match");
@@ -92,37 +89,37 @@ class ReactionsTest {
     }
 
     @Test
-    public void createReactionType1() throws DatabaseException {
+    public void createReactionType1() {
         ReactionPackageEntity reactionPackage = reactionPackageRepo.create("standard", "");
         ReactionTypeEntity reactionType = reactionTypeRepo.create("laugh", reactionPackage);
 
         assertNotNull(reactionType);
-        assertEquals("laugh", reactionType.name());
-        assertEquals("standard", reactionType.reactionPackage().name());
+        assertEquals("laugh", reactionType.getName());
+        assertEquals("standard", reactionType.getReactionPackage().getName());
 
         Optional<ReactionTypeEntity> found = jpaUtil.find(ReactionTypeEntity.class, reactionType.id());
         assertTrue(found.isPresent());
-        assertEquals("laugh", found.get().name());
+        assertEquals("laugh", found.get().getName());
 
         // Additional assertions
         assertNotNull(reactionType.id(), "Reaction type ID should not be null");
-        assertTrue(reactionPackage.reactionTypes().contains(reactionType),
+        assertTrue(reactionPackage.getReactionTypes().contains(reactionType),
                 "Reaction package should contain the new reaction type");
 
         // Test creating another reaction type in the same package
         ReactionTypeEntity second = reactionTypeRepo.create("cry", reactionPackage);
-        assertEquals(reactionPackage, second.reactionPackage(), "Reaction package should match");
-        assertEquals(2, reactionPackage.reactionTypes().size(), "Package should now have two reaction types");
+        assertEquals(reactionPackage, second.getReactionPackage(), "Reaction package should match");
+        assertEquals(2, reactionPackage.getReactionTypes().size(), "Package should now have two reaction types");
 
         // Test reusing the same name in a different package
         ReactionPackageEntity otherPackage = reactionPackageRepo.create("other_package", "");
         ReactionTypeEntity duplicate = reactionTypeRepo.create("laugh", otherPackage);
-        assertEquals("laugh", duplicate.name(), "Should allow same name in different package");
-        assertEquals(otherPackage, duplicate.reactionPackage(), "Package should match");
+        assertEquals("laugh", duplicate.getName(), "Should allow same name in different package");
+        assertEquals(otherPackage, duplicate.getReactionPackage(), "Package should match");
     }
 
     @Test
-    public void createReactionType2() throws DatabaseException {
+    public void createReactionType2() {
         ReactionPackageEntity reactionPackage = reactionPackageRepo.create("multi_package", "");
 
         Collection<String> typeNames = List.of("clap", "wow", "heart");
@@ -133,8 +130,8 @@ class ReactionsTest {
         assertEquals(3, createdTypes.size());
 
         for (ReactionTypeEntity type : createdTypes) {
-            assertTrue(typeNames.contains(type.name()));
-            assertEquals(reactionPackage.id(), type.reactionPackage().id());
+            assertTrue(typeNames.contains(type.getName()));
+            assertEquals(reactionPackage.id(), type.getReactionPackage().id());
 
             Optional<ReactionTypeEntity> found = jpaUtil.find(ReactionTypeEntity.class, type.id());
             assertTrue(found.isPresent());
@@ -142,19 +139,19 @@ class ReactionsTest {
         }
 
         // Additional assertions
-        assertEquals(3, reactionPackage.reactionTypes().size(), "Package should have all three reaction types");
-        List<String> retrievedNames = reactionPackage.reactionTypes().stream().map(ReactionTypeEntity::name).toList();
+        assertEquals(3, reactionPackage.getReactionTypes().size(), "Package should have all three reaction types");
+        List<String> retrievedNames = reactionPackage.getReactionTypes().stream().map(ReactionTypeEntity::getName).toList();
         assertTrue(retrievedNames.containsAll(typeNames), "All type names should be present in package");
 
         // Test adding more types to the same package
         Collection<String> moreTypes = List.of("thumbsup", "thumbsdown");
         Collection<ReactionTypeEntity> moreCreatedTypes = reactionTypeRepo.create(reactionPackage, moreTypes);
         assertEquals(2, moreCreatedTypes.size(), "Should create two more types");
-        assertEquals(5, reactionPackage.reactionTypes().size(), "Package should now have five reaction types");
+        assertEquals(5, reactionPackage.getReactionTypes().size(), "Package should now have five reaction types");
     }
 
     @Test
-    public void createReactionEntry() throws SandnodeException {
+    public void createReactionEntry() {
         ReactionPackageEntity testPackage = reactionPackageRepo.create("test", "");
         ReactionTypeEntity reactionType = reactionTypeRepo.create("like", testPackage);
 
@@ -163,7 +160,7 @@ class ReactionsTest {
         ChatMessageInputDTO input = new ChatMessageInputDTO()
                 .setContent("Hello world")
                 .setChatID(group.id())
-                .setNickname(member1.member().nickname())
+                .setNickname(member1.getMember().getNickname())
                 .setSentDatetimeNow()
                 .setRepliedToMessages(new HashSet<>())
                 .setSys(true);
@@ -172,29 +169,29 @@ class ReactionsTest {
 
         ReactionEntryEntity reactionEntry = reactionEntryRepo.create(member1, message, reactionType);
 
-        assertEquals("Test", ((GroupEntity) reactionEntry.message().chat()).title());
+        assertEquals("Test", ((GroupEntity) reactionEntry.getMessage().getChat()).getTitle());
 
         // Additional assertions
         assertNotNull(reactionEntry.id(), "Reaction entry ID should not be null");
-        assertEquals(member1, reactionEntry.member(), "Member should match");
-        assertEquals(message, reactionEntry.message(), "Message should match");
-        assertEquals(reactionType, reactionEntry.reactionType(), "Reaction type should match");
-        assertTrue(message.reactionEntries().contains(reactionEntry), "Message should contain the reaction entry");
+        assertEquals(member1, reactionEntry.getMember(), "Member should match");
+        assertEquals(message, reactionEntry.getMessage(), "Message should match");
+        assertEquals(reactionType, reactionEntry.getReactionType(), "Reaction type should match");
+        assertTrue(message.getReactionEntries().contains(reactionEntry), "Message should contain the reaction entry");
 
         // Test adding same reaction from different member
         ReactionEntryEntity differentMember = reactionEntryRepo.create(member2, message, reactionType);
-        assertEquals(2, message.reactionEntries().size(), "Message should now have two reactions");
-        assertEquals(member2, differentMember.member(), "Second reaction should be from member2");
+        assertEquals(2, message.getReactionEntries().size(), "Message should now have two reactions");
+        assertEquals(member2, differentMember.getMember(), "Second reaction should be from member2");
 
         // Test adding different reaction from same member
         ReactionTypeEntity anotherType = reactionTypeRepo.create("heart", testPackage);
         ReactionEntryEntity differentType = reactionEntryRepo.create(member1, message, anotherType);
-        assertEquals(3, message.reactionEntries().size(), "Message should now have three reactions");
-        assertEquals(anotherType, differentType.reactionType(), "Third reaction should have different type");
+        assertEquals(3, message.getReactionEntries().size(), "Message should now have three reactions");
+        assertEquals(anotherType, differentType.getReactionType(), "Third reaction should have different type");
     }
 
     @Test
-    public void removeReactionEntry() throws SandnodeException {
+    public void removeReactionEntry() {
         ReactionPackageEntity testPackage = reactionPackageRepo.create("test", "");
         ReactionTypeEntity reactionType = reactionTypeRepo.create("fire", testPackage);
 
@@ -203,7 +200,7 @@ class ReactionsTest {
         ChatMessageInputDTO input = new ChatMessageInputDTO()
                 .setContent("Hello world")
                 .setChatID(group.id())
-                .setNickname(member1.member().nickname())
+                .setNickname(member1.getMember().getNickname())
                 .setSentDatetimeNow()
                 .setRepliedToMessages(new HashSet<>())
                 .setSys(true);
@@ -218,25 +215,25 @@ class ReactionsTest {
         message = jpaUtil.refresh(message);
 
         // Additional assertions
-        assertEquals(0, message.reactionEntries().size(), "Message should have no reactions after removal");
+        assertEquals(0, message.getReactionEntries().size(), "Message should have no reactions after removal");
 
         // Add multiple reactions and remove one
         ReactionEntryEntity reaction1 = reactionEntryRepo.create(member1, message, reactionType);
         ReactionTypeEntity anotherType = reactionTypeRepo.create("love", testPackage);
         ReactionEntryEntity reaction2 = reactionEntryRepo.create(member2, message, anotherType);
 
-        assertEquals(2, message.reactionEntries().size(), "Message should have two reactions");
+        assertEquals(2, message.getReactionEntries().size(), "Message should have two reactions");
 
         message = jpaUtil.refresh(message);
 
         boolean removedOne = reactionEntryRepo.delete(reaction1);
         assertTrue(removedOne, "Should successfully remove first reaction");
-        assertEquals(1, message.reactionEntries().size(), "Message should have one reaction left");
-        assertTrue(message.reactionEntries().contains(reaction2), "Second reaction should still be present");
+        assertEquals(1, message.getReactionEntries().size(), "Message should have one reaction left");
+        assertTrue(message.getReactionEntries().contains(reaction2), "Second reaction should still be present");
     }
 
     @Test
-    public void getReactionTypesByPackage() throws DatabaseException {
+    public void getReactionTypesByPackage() {
         ReactionPackageEntity funnyPackage = reactionPackageRepo.create("funny", "");
         ReactionPackageEntity angryPackage = reactionPackageRepo.create("angry_pack", "");
 
@@ -263,7 +260,7 @@ class ReactionsTest {
     }
 
     @Test
-    public void testRemoveReactionEntry() throws SandnodeException {
+    public void testRemoveReactionEntry() {
         ReactionEntryEntity fakeEntry = new ReactionEntryEntity();
         boolean result = reactionEntryRepo.delete(fakeEntry);
         assertFalse(result);
@@ -276,7 +273,7 @@ class ReactionsTest {
         ChatMessageInputDTO input = new ChatMessageInputDTO()
                 .setContent("Test remove")
                 .setChatID(group.id())
-                .setNickname(member1.member().nickname())
+                .setNickname(member1.getMember().getNickname())
                 .setSentDatetimeNow()
                 .setRepliedToMessages(new HashSet<>())
                 .setSys(false);

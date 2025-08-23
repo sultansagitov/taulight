@@ -3,17 +3,14 @@ package net.result.taulight.util;
 import net.result.sandnode.chain.sender.DEKClientChain;
 import net.result.sandnode.config.KeyEntry;
 import net.result.sandnode.encryption.interfaces.KeyStorage;
-import net.result.sandnode.exception.ProtocolException;
 import net.result.sandnode.exception.error.KeyStorageNotFoundException;
-import net.result.sandnode.exception.error.SandnodeErrorException;
 import net.result.sandnode.hubagent.Agent;
 import net.result.sandnode.serverclient.SandnodeClient;
 
 import java.util.UUID;
 
 public class TauAgentProtocol {
-    public static KeyStorage loadDEK(SandnodeClient client, UUID keyID)
-            throws ProtocolException, InterruptedException, SandnodeErrorException {
+    public static KeyStorage loadDEK(SandnodeClient client, UUID keyID) {
         Agent agent = client.node().agent();
         try {
             return agent.config.loadDEK(client.address, keyID);
@@ -26,8 +23,7 @@ public class TauAgentProtocol {
         }
     }
 
-    public static KeyEntry loadDEK(SandnodeClient client, String other)
-            throws ProtocolException, InterruptedException, SandnodeErrorException {
+    public static KeyEntry loadDEK(SandnodeClient client, String other) {
         Agent agent = client.node().agent();
         try {
             return agent.config.loadDEK(client.address, other);

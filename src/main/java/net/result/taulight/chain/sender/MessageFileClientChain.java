@@ -2,8 +2,7 @@ package net.result.taulight.chain.sender;
 
 import net.result.sandnode.chain.ClientChain;
 import net.result.sandnode.dto.FileDTO;
-import net.result.sandnode.exception.*;
-import net.result.sandnode.exception.error.SandnodeErrorException;
+import net.result.sandnode.exception.FSException;
 import net.result.sandnode.message.UUIDMessage;
 import net.result.sandnode.message.util.MessageTypes;
 import net.result.sandnode.serverclient.SandnodeClient;
@@ -21,9 +20,7 @@ public class MessageFileClientChain extends ClientChain {
         super(client);
     }
 
-    public UUID upload(UUID chatID, String pathString, String name)
-            throws FSException, UnprocessedMessagesException, InterruptedException, UnknownSandnodeErrorException,
-            SandnodeErrorException, DeserializationException, ExpectedMessageException {
+    public UUID upload(UUID chatID, String pathString, String name) {
         var path = Paths.get(pathString);
         var contentType = URLConnection.guessContentTypeFromName(path.getFileName().toString());
 
@@ -47,8 +44,7 @@ public class MessageFileClientChain extends ClientChain {
         return new UUIDMessage(raw).uuid;
     }
 
-    public FileDTO download(UUID fileID) throws InterruptedException, UnknownSandnodeErrorException,
-            SandnodeErrorException, ExpectedMessageException, UnprocessedMessagesException, DeserializationException {
+    public FileDTO download(UUID fileID) {
         MessageFileRequest request = MessageFileRequest.download(fileID);
         send(request);
 

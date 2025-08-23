@@ -26,23 +26,23 @@ public class InviteCodeRepository {
             TauMemberEntity receiver,
             TauMemberEntity sender,
             ZonedDateTime expiresDate
-    ) throws DatabaseException {
+    ) {
         EntityManager em = jpaUtil.getEntityManager();
         InviteCodeEntity managed = jpaUtil.create(new InviteCodeEntity(group, receiver, sender, expiresDate));
 
-        group.inviteCodes().add(managed);
+        group.getInviteCodes().add(managed);
         em.merge(group);
 
-        receiver.inviteCodesAsReceiver().add(managed);
+        receiver.getInviteCodesAsReceiver().add(managed);
         em.merge(receiver);
 
-        sender.inviteCodesAsReceiver().add(managed);
+        sender.getInviteCodesAsReceiver().add(managed);
         em.merge(sender);
 
         return managed;
     }
 
-    public Optional<InviteCodeEntity> find(String code) throws DatabaseException {
+    public Optional<InviteCodeEntity> find(String code) {
         EntityManager em = jpaUtil.getEntityManager();
         try {
             String q = "FROM InviteCodeEntity WHERE code = :code";
@@ -56,8 +56,7 @@ public class InviteCodeRepository {
         }
     }
 
-    public Collection<InviteCodeEntity> find(GroupEntity group, TauMemberEntity receiver)
-            throws DatabaseException {
+    public Collection<InviteCodeEntity> find(GroupEntity group, TauMemberEntity receiver) {
         EntityManager em = jpaUtil.getEntityManager();
         try {
             String q = "FROM InviteCodeEntity WHERE group = :group AND receiver = :receiver";
@@ -70,9 +69,9 @@ public class InviteCodeRepository {
         }
     }
 
-    public void activate(InviteCodeEntity code) throws DatabaseException, NoEffectException {
-        if (code.activationDate() != null) throw new NoEffectException("Invite already activated");
-        if (code.expiresDate().isBefore(ZonedDateTime.now())) throw new NoEffectException("Invite expired");
+    public void activate(InviteCodeEntity code) {
+        if (code.getActivatedAt() != null) throw new NoEffectException("Invite already activated");
+        if (code.getExpiresDate().isBefore(ZonedDateTime.now())) throw new NoEffectException("Invite expired");
 
         EntityManager em = jpaUtil.getEntityManager();
         EntityTransaction transaction = em.getTransaction();

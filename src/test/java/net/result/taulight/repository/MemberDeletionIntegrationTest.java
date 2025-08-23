@@ -41,12 +41,12 @@ public class MemberDeletionIntegrationTest {
     }
 
     @Test
-    public void testDeleteMemberAndCheckDialogCleanup() throws Exception {
+    public void testDeleteMemberAndCheckDialogCleanup() {
         MemberEntity m1 = memberRepo.create("alice", "hash");
         MemberEntity m2 = memberRepo.create("bob", "hash");
 
-        TauMemberEntity tau1 = m1.tauMember();
-        TauMemberEntity tau2 = m2.tauMember();
+        TauMemberEntity tau1 = m1.getTauMember();
+        TauMemberEntity tau2 = m2.getTauMember();
 
         dialogRepo.create(tau1, tau2);
 
@@ -59,15 +59,15 @@ public class MemberDeletionIntegrationTest {
     }
 
     @Test
-    public void testDeleteMemberAndCheckMessageCleanup() throws Exception {
+    public void testDeleteMemberAndCheckMessageCleanup() {
         MemberEntity member = memberRepo.create("charlie", "hash");
-        TauMemberEntity tau = member.tauMember();
+        TauMemberEntity tau = member.getTauMember();
 
         ChatEntity chat = groupRepo.create("general", tau);
         ChatMessageInputDTO input = new ChatMessageInputDTO()
                 .setContent("Hello world")
                 .setChatID(chat.id())
-                .setNickname(member.nickname())
+                .setNickname(member.getNickname())
                 .setSentDatetimeNow()
                 .setRepliedToMessages(new HashSet<>())
                 .setSys(true);
@@ -84,17 +84,17 @@ public class MemberDeletionIntegrationTest {
     }
 
     @Test
-    public void testDeleteMemberAndCheckReactionCleanup() throws Exception {
+    public void testDeleteMemberAndCheckReactionCleanup() {
         MemberEntity m1 = memberRepo.create("eva", "hash");
         MemberEntity m2 = memberRepo.create("oliver", "hash");
-        TauMemberEntity tau1 = m1.tauMember();
-        TauMemberEntity tau2 = m2.tauMember();
+        TauMemberEntity tau1 = m1.getTauMember();
+        TauMemberEntity tau2 = m2.getTauMember();
 
         ChatEntity chat = groupRepo.create("fun", tau1);
         ChatMessageInputDTO input = new ChatMessageInputDTO()
                 .setContent("Hello world")
                 .setChatID(chat.id())
-                .setNickname(m1.nickname())
+                .setNickname(m1.getNickname())
                 .setSentDatetimeNow()
                 .setRepliedToMessages(new HashSet<>())
                 .setSys(true);
@@ -114,21 +114,21 @@ public class MemberDeletionIntegrationTest {
     }
 
     @Test
-    public void testDeleteMemberAndCheckInviteCleanup() throws Exception {
+    public void testDeleteMemberAndCheckInviteCleanup() {
         MemberEntity owner = memberRepo.create("sam", "hash");
         MemberEntity invited = memberRepo.create("jack", "hash");
-        TauMemberEntity tauOwner = owner.tauMember();
-        TauMemberEntity tauInvited = invited.tauMember();
+        TauMemberEntity tauOwner = owner.getTauMember();
+        TauMemberEntity tauInvited = invited.getTauMember();
 
         GroupEntity group = groupRepo.create("private", tauOwner);
         ZonedDateTime expiresDate = ZonedDateTime.now().plusDays(1);
         InviteCodeEntity invite = inviteCodeRepo.create(group, tauInvited, tauOwner, expiresDate);
 
-        assertTrue(inviteCodeRepo.find(invite.code()).isPresent());
+        assertTrue(inviteCodeRepo.find(invite.getCode()).isPresent());
 
         boolean deleted = memberRepo.delete(invited);
 
         assertTrue(deleted);
-        assertTrue(inviteCodeRepo.find(invite.code()).isPresent());
+        assertTrue(inviteCodeRepo.find(invite.getCode()).isPresent());
     }
 }

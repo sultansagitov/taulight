@@ -11,7 +11,6 @@ public class DEKDTO {
     @JsonProperty("encrypted-key")
     public String encryptedKey;
 
-    @SuppressWarnings("unused")
     public DEKDTO() {}
 
     public DEKDTO(UUID id, String encryptedKey) {

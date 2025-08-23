@@ -2,7 +2,6 @@ package net.result.sandnode.encryption;
 
 import net.result.sandnode.encryption.interfaces.*;
 import net.result.sandnode.exception.crypto.CannotUseEncryption;
-import net.result.sandnode.exception.crypto.EncryptionTypeException;
 import net.result.sandnode.exception.error.KeyStorageNotFoundException;
 import org.jetbrains.annotations.NotNull;
 
@@ -13,8 +12,7 @@ import java.util.Optional;
 public class KeyStorageRegistry {
     private final Map<Encryption, KeyStorage> keyStorageMap = new HashMap<>();
 
-    public KeyStorageRegistry() {
-    }
+    public KeyStorageRegistry() {}
 
     public KeyStorageRegistry(@NotNull KeyStorage keyStorage) {
         set(keyStorage);
@@ -24,7 +22,7 @@ public class KeyStorageRegistry {
         return Optional.ofNullable(keyStorageMap.get(encryption));
     }
 
-    public @NotNull KeyStorage getNonNull(@NotNull Encryption encryption) throws KeyStorageNotFoundException {
+    public @NotNull KeyStorage getNonNull(@NotNull Encryption encryption) {
         if (has(encryption))
             return encryption == Encryptions.NONE ? Encryptions.NONE.generate() : keyStorageMap.get(encryption);
         throw new KeyStorageNotFoundException(encryption);
@@ -46,29 +44,21 @@ public class KeyStorageRegistry {
         return encryption == Encryptions.NONE || keyStorageMap.containsKey(encryption);
     }
 
-    public Optional<AsymmetricKeyStorage> asymmetric(@NotNull AsymmetricEncryption encryption)
-            throws EncryptionTypeException {
-        Optional<KeyStorage> opt = get(encryption);
-        if (opt.isPresent()) return Optional.ofNullable(opt.get().asymmetric());
-        return Optional.empty();
+    public Optional<AsymmetricKeyStorage> asymmetric(@NotNull AsymmetricEncryption encryption) {
+        return get(encryption).map(KeyStorage::asymmetric);
     }
 
-    public @NotNull AsymmetricKeyStorage asymmetricNonNull(@NotNull AsymmetricEncryption encryption)
-            throws KeyStorageNotFoundException, EncryptionTypeException {
+    public @NotNull AsymmetricKeyStorage asymmetricNonNull(@NotNull AsymmetricEncryption encryption) {
         Optional<AsymmetricKeyStorage> opt = asymmetric(encryption);
         if (opt.isPresent()) return opt.get();
         throw new KeyStorageNotFoundException(encryption);
     }
 
-    public Optional<SymmetricKeyStorage> symmetric(@NotNull SymmetricEncryption encryption)
-            throws EncryptionTypeException {
-        Optional<KeyStorage> opt = get(encryption);
-        if (opt.isPresent()) return Optional.ofNullable(opt.get().symmetric());
-        return Optional.empty();
+    public Optional<SymmetricKeyStorage> symmetric(@NotNull SymmetricEncryption encryption) {
+        return get(encryption).map(KeyStorage::symmetric);
     }
 
-    public @NotNull SymmetricKeyStorage symmetricNonNull(@NotNull SymmetricEncryption encryption)
-            throws CannotUseEncryption, EncryptionTypeException {
+    public @NotNull SymmetricKeyStorage symmetricNonNull(@NotNull SymmetricEncryption encryption) {
         Optional<SymmetricKeyStorage> opt = symmetric(encryption);
         if (opt.isPresent()) return opt.get();
         throw new CannotUseEncryption(encryption);

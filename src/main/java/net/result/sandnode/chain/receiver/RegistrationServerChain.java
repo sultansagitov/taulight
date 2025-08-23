@@ -11,7 +11,6 @@ import net.result.sandnode.encryption.interfaces.AsymmetricKeyStorage;
 import net.result.sandnode.entity.KeyStorageEntity;
 import net.result.sandnode.entity.LoginEntity;
 import net.result.sandnode.entity.MemberEntity;
-import net.result.sandnode.exception.SandnodeException;
 import net.result.sandnode.exception.error.InvalidNicknamePassword;
 import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.message.types.RegistrationRequest;
@@ -20,17 +19,12 @@ import net.result.sandnode.repository.LoginRepository;
 import net.result.sandnode.repository.MemberRepository;
 import net.result.sandnode.security.PasswordHasher;
 import net.result.sandnode.security.Tokenizer;
-import net.result.sandnode.serverclient.Session;
 
 import java.util.Base64;
 
 public class RegistrationServerChain extends ServerChain implements ReceiverChain {
-    public RegistrationServerChain(Session session) {
-        super(session);
-    }
-
     @Override
-    public RegistrationResponse handle(RawMessage raw) throws SandnodeException {
+    public RegistrationResponse handle(RawMessage raw) {
         MemberRepository memberRepo = session.server.container.get(MemberRepository.class);
         LoginRepository loginRepo = session.server.container.get(LoginRepository.class);
         Tokenizer tokenizer = session.server.container.get(Tokenizer.class);
@@ -61,8 +55,8 @@ public class RegistrationServerChain extends ServerChain implements ReceiverChai
         String encryptedIP = Base64.getEncoder().encodeToString(keyStorage.encrypt(ip));
         String encryptedDevice = Base64.getEncoder().encodeToString(keyStorage.encrypt(device));
 
-        KeyStorageEntity keyEntity = member.publicKey();
-        LoginEntity login = loginRepo.create(member, keyEntity, encryptedIP, encryptedDevice);
+        KeyStorageEntity keyEntity = member.getPublicKey();
+        LoginEntity login = loginRepo.create(encryptedIP, encryptedDevice, keyEntity, member);
 
         String token = tokenizer.tokenizeLogin(login);
         return new RegistrationResponse(token);

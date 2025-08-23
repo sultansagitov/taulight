@@ -1,7 +1,5 @@
 package net.result.taulight.message.types;
 
-import net.result.sandnode.exception.DeserializationException;
-import net.result.sandnode.exception.ExpectedMessageException;
 import net.result.sandnode.message.MSGPackMessage;
 import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.message.util.Headers;
@@ -18,7 +16,7 @@ public class RoleResponse extends MSGPackMessage<RolesDTO> {
         super(headers.setType(TauMessageTypes.ROLES), dto);
     }
 
-    public RoleResponse(@NotNull RawMessage raw) throws DeserializationException, ExpectedMessageException {
+    public RoleResponse(@NotNull RawMessage raw) {
         super(raw.expect(TauMessageTypes.ROLES), RolesDTO.class);
     }
 

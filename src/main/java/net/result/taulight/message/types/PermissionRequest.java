@@ -33,7 +33,7 @@ public class PermissionRequest extends TextMessage {
         return req;
     }
 
-    public PermissionRequest(RawMessage raw) throws DeserializationException {
+    public PermissionRequest(RawMessage raw) {
         super(raw);
 
         String[] parts = content().split(":");

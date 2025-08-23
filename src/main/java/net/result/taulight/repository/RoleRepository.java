@@ -23,27 +23,27 @@ public class RoleRepository {
         jpaUtil = container.get(JPAUtil.class);
     }
 
-    public RoleEntity create(GroupEntity group, String role) throws DatabaseException {
+    public RoleEntity create(GroupEntity group, String role) {
         EntityManager em = jpaUtil.getEntityManager();
         RoleEntity managed = jpaUtil.create(new RoleEntity(group, role));
 
-        group.roles().add(managed);
+        group.getRoles().add(managed);
         em.merge(group);
 
         return managed;
     }
 
-    public boolean addMember(RoleEntity role, TauMemberEntity member) throws DatabaseException {
+    public boolean addMember(RoleEntity role, TauMemberEntity member) {
         EntityManager em = jpaUtil.getEntityManager();
         EntityTransaction transaction = em.getTransaction();
         transaction.begin();
         try {
-            Set<TauMemberEntity> members = new HashSet<>(role.members());
+            Set<TauMemberEntity> members = new HashSet<>(role.getMembers());
             if (members.contains(member)) return false;
             members.add(member);
             role.setMembers(members);
 
-            Set<RoleEntity> roles = new HashSet<>(member.roles());
+            Set<RoleEntity> roles = new HashSet<>(member.getRoles());
             roles.add(role);
             member.setRoles(roles);
 
@@ -58,14 +58,14 @@ public class RoleRepository {
         }
     }
 
-    public boolean grantPermission(@NotNull RoleEntity role, @NotNull Permission permission) throws DatabaseException {
+    public boolean grantPermission(@NotNull RoleEntity role, @NotNull Permission permission) {
         EntityManager em = jpaUtil.getEntityManager();
         EntityTransaction transaction = em.getTransaction();
 
         try {
-            if (role.permissions().contains(permission)) return false;
+            if (role.getPermissions().contains(permission)) return false;
 
-            role.permissions().add(permission);
+            role.getPermissions().add(permission);
 
             transaction.begin();
             em.merge(role);
@@ -77,14 +77,14 @@ public class RoleRepository {
         }
     }
 
-    public boolean revokePermission(@NotNull RoleEntity role, @NotNull Permission permission) throws DatabaseException {
+    public boolean revokePermission(@NotNull RoleEntity role, @NotNull Permission permission) {
         EntityManager em = jpaUtil.getEntityManager();
         EntityTransaction transaction = em.getTransaction();
 
         try {
-            if (!role.permissions().contains(permission)) return false;
+            if (!role.getPermissions().contains(permission)) return false;
 
-            role.permissions().remove(permission);
+            role.getPermissions().remove(permission);
 
             transaction.begin();
             em.merge(role);
@@ -98,11 +98,11 @@ public class RoleRepository {
 
     public Set<Permission> getMemberPermissionsInGroup(GroupEntity group, TauMemberEntity member) {
         return Stream.concat(
-                group.roles().stream()
-                    .flatMap(role -> role.members().stream()
+                group.getRoles().stream()
+                    .flatMap(role -> role.getMembers().stream()
                         .filter(member::equals)
-                        .flatMap(e -> role.permissions().stream())),
-                group.permissions().stream()
+                        .flatMap(e -> role.getPermissions().stream())),
+                group.getPermissions().stream()
             )
             .collect(Collectors.toSet());
     }

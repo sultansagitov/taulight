@@ -7,7 +7,6 @@ import jakarta.persistence.Persistence;
 import net.result.sandnode.entity.BaseEntity;
 import net.result.sandnode.exception.ConfigurationException;
 import net.result.sandnode.exception.DatabaseException;
-import net.result.sandnode.util.Container;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -17,7 +16,7 @@ public class SimpleJPAUtil implements JPAUtil {
 
     private final EntityManagerFactory emf;
 
-    public SimpleJPAUtil(@SuppressWarnings("unused") Container container) throws ConfigurationException {
+    public SimpleJPAUtil() {
         try {
             emf = Persistence.createEntityManagerFactory(persistenceUnitName);
         } catch (Exception e) {
@@ -39,12 +38,12 @@ public class SimpleJPAUtil implements JPAUtil {
 
     @SuppressWarnings("unchecked")
     @Override
-    public <T extends BaseEntity> T refresh(T entity) throws DatabaseException {
+    public <T extends BaseEntity> T refresh(T entity) {
         return find((Class<T>) entity.getClass(), entity.id()).orElseThrow();
     }
 
     @Override
-    public <T extends BaseEntity> T create(T entity) throws DatabaseException {
+    public <T extends BaseEntity> T create(T entity) {
         EntityManager em = getEntityManager();
         EntityTransaction transaction = em.getTransaction();
 
@@ -61,7 +60,7 @@ public class SimpleJPAUtil implements JPAUtil {
     }
 
     @Override
-    public <T extends BaseEntity> Optional<T> find(Class<T> clazz, UUID id) throws DatabaseException {
+    public <T extends BaseEntity> Optional<T> find(Class<T> clazz, UUID id) {
         EntityManager em = getEntityManager();
         try {
             return Optional.ofNullable(em.find(clazz, id));

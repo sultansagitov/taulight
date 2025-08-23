@@ -6,7 +6,7 @@ import net.result.taulight.chain.sender.ReactionRequestClientChain;
 import java.util.UUID;
 
 public class ReactionsRunner {
-    public static void react(ConsoleContext context, UUID messageId, String reaction) throws Exception {
+    public static void react(ConsoleContext context, UUID messageId, String reaction) {
         var chain = new ReactionRequestClientChain(context.client);
         context.io.chainManager.linkChain(chain);
 
@@ -16,7 +16,7 @@ public class ReactionsRunner {
         context.io.chainManager.removeChain(chain);
     }
 
-    public static void unreact(ConsoleContext context, UUID messageId, String reaction) throws Exception {
+    public static void unreact(ConsoleContext context, UUID messageId, String reaction) {
         var chain = new ReactionRequestClientChain(context.client);
         context.io.chainManager.linkChain(chain);
 

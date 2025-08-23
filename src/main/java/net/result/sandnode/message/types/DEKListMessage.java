@@ -2,8 +2,6 @@ package net.result.sandnode.message.types;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import net.result.sandnode.dto.DEKResponseDTO;
-import net.result.sandnode.exception.DeserializationException;
-import net.result.sandnode.exception.ExpectedMessageException;
 import net.result.sandnode.message.MSGPackMessage;
 import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.message.util.Headers;
@@ -16,7 +14,7 @@ public class DEKListMessage extends MSGPackMessage<List<DEKResponseDTO>> {
         super(new Headers().setType(MessageTypes.DEK), list);
     }
 
-    public DEKListMessage(RawMessage raw) throws DeserializationException, ExpectedMessageException {
+    public DEKListMessage(RawMessage raw) {
         super(raw.expect(MessageTypes.DEK), new TypeReference<>() {});
     }
 

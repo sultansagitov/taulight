@@ -2,6 +2,7 @@ package net.result.taulight.chain.receiver;
 
 import net.result.sandnode.chain.ReceiverChain;
 import net.result.sandnode.chain.ServerChain;
+import net.result.sandnode.db.DBFileUtil;
 import net.result.sandnode.entity.FileEntity;
 import net.result.sandnode.entity.MemberEntity;
 import net.result.sandnode.exception.ImpossibleRuntimeException;
@@ -11,8 +12,6 @@ import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.message.UUIDMessage;
 import net.result.sandnode.message.util.Headers;
 import net.result.sandnode.message.util.MessageTypes;
-import net.result.sandnode.serverclient.Session;
-import net.result.sandnode.db.DBFileUtil;
 import net.result.sandnode.util.FileIOUtil;
 import net.result.taulight.cluster.TauClusterManager;
 import net.result.taulight.dto.ChatMessageInputDTO;
@@ -34,12 +33,8 @@ import java.util.*;
 public class DialogServerChain extends ServerChain implements ReceiverChain {
     private static final Logger LOGGER = LogManager.getLogger(DialogServerChain.class);
 
-    public DialogServerChain(Session session) {
-        super(session);
-    }
-
     @Override
-    public Message handle(RawMessage raw) throws Exception {
+    public Message handle(RawMessage raw) {
         DialogRequest request = new DialogRequest(raw);
 
         if (session.member == null) {
@@ -59,7 +54,7 @@ public class DialogServerChain extends ServerChain implements ReceiverChain {
         return null;
     }
 
-    private void id(DialogRequest request, MemberEntity you) throws Exception {
+    private void id(DialogRequest request, MemberEntity you) {
         TauClusterManager manager = session.server.container.get(TauClusterManager.class);
         TauMemberRepository tauMemberRepo = session.server.container.get(TauMemberRepository.class);
         DialogRepository dialogRepo = session.server.container.get(DialogRepository.class);
@@ -68,18 +63,16 @@ public class DialogServerChain extends ServerChain implements ReceiverChain {
                 .findByNickname(request.content())
                 .orElseThrow(AddressedMemberNotFoundException::new);
 
-        Optional<DialogEntity> dialogOpt = dialogRepo.findByMembers(you.tauMember(), anotherMember);
+        Optional<DialogEntity> dialogOpt = dialogRepo.findByMembers(you.getTauMember(), anotherMember);
 
-        DialogEntity dialog = dialogOpt.isPresent()
-                ? dialogOpt.get()
-                : dialogRepo.create(you.tauMember(), anotherMember);
+        DialogEntity dialog = dialogOpt.orElseGet(() -> dialogRepo.create(you.getTauMember(), anotherMember));
         sendFin(new UUIDMessage(new Headers().setType(MessageTypes.HAPPY), dialog.id()));
 
         if (dialogOpt.isEmpty()) {
-            Collection<MemberEntity> members = new ArrayList<>(List.of(you, anotherMember.member()));
+            Collection<MemberEntity> members = new ArrayList<>(List.of(you, anotherMember.getMember()));
             ClusterUtil.addMembersToCluster(session, members, manager.getCluster(dialog));
 
-            ChatMessageInputDTO input = dialog.toInput(you.tauMember(), SysMessages.dialogNew);
+            ChatMessageInputDTO input = dialog.toInput(you.getTauMember(), SysMessages.dialogNew);
 
             try {
                 TauHubProtocol.send(session, dialog, input);
@@ -91,17 +84,17 @@ public class DialogServerChain extends ServerChain implements ReceiverChain {
         }
     }
 
-    private void avatar(DialogRequest request, MemberEntity you) throws Exception {
+    private void avatar(DialogRequest request, MemberEntity you) {
         ChatUtil chatUtil = session.server.container.get(ChatUtil.class);
         DBFileUtil dbFileUtil = session.server.container.get(DBFileUtil.class);
 
         UUID chatID = UUID.fromString(request.content());
 
         ChatEntity chat = chatUtil.getChat(chatID).orElseThrow(NotFoundException::new);
-        if (!chatUtil.contains(chat, you.tauMember())) throw new UnauthorizedException();
+        if (!chatUtil.contains(chat, you.getTauMember())) throw new UnauthorizedException();
         if (!(chat instanceof DialogEntity dialog)) throw new WrongAddressException();
 
-        FileEntity avatar = dialog.otherMember(you.tauMember()).member().avatar();
+        FileEntity avatar = dialog.otherMember(you.getTauMember()).getMember().getAvatar();
         if (avatar == null) throw new NoEffectException();
 
         FileIOUtil.send(dbFileUtil.readImage(avatar), this::send);

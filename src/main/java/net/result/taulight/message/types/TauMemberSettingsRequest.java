@@ -1,6 +1,5 @@
 package net.result.taulight.message.types;
 
-import net.result.sandnode.exception.ExpectedMessageException;
 import net.result.sandnode.message.EmptyMessage;
 import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.message.util.Headers;
@@ -22,7 +21,7 @@ public class TauMemberSettingsRequest extends EmptyMessage {
         this(new Headers());
     }
 
-    public TauMemberSettingsRequest(RawMessage raw) throws ExpectedMessageException {
+    public TauMemberSettingsRequest(RawMessage raw) {
         super(raw.expect(TauMessageTypes.TAU_SETTINGS).headers());
     }
 }

@@ -1,7 +1,5 @@
 package net.result.taulight.message.types;
 
-import net.result.sandnode.exception.DeserializationException;
-import net.result.sandnode.exception.ExpectedMessageException;
 import net.result.sandnode.message.MSGPackMessage;
 import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.message.util.Headers;
@@ -20,7 +18,7 @@ public class MessageRequest extends MSGPackMessage<MessageRequestDTO> {
         this(new Headers(), chatID, index, size);
     }
 
-    public MessageRequest(@NotNull RawMessage raw) throws ExpectedMessageException, DeserializationException {
+    public MessageRequest(@NotNull RawMessage raw) {
         super(raw.expect(TauMessageTypes.MESSAGE), MessageRequestDTO.class);
     }
 }

@@ -6,22 +6,22 @@ import net.result.sandnode.message.util.MessageTypes;
 
 public abstract class HubServerChainManager extends BaseServerChainManager {
     @Override
-    public ReceiverChain createChain(MessageType type) {
+    public ServerChain createSessionChain(MessageType type) {
         if (type instanceof MessageTypes sysType) {
-            ReceiverChain chain = switch (sysType) {
-                case CLUSTER -> new ClusterServerChain(session);
-                case LOGIN -> new LoginServerChain(session);
-                case REG -> new RegistrationServerChain(session);
-                case LOGOUT -> new LogoutServerChain(session);
-                case WHOAMI -> new WhoAmIServerChain(session);
-                case NAME -> new NameServerChain(session);
-                case DEK -> new DEKServerChain(session);
-                case AVATAR -> new AvatarServerChain(session);
+            ServerChain chain = switch (sysType) {
+                case CLUSTER -> new ClusterServerChain();
+                case LOGIN -> new LoginServerChain();
+                case REG -> new RegistrationServerChain();
+                case LOGOUT -> new LogoutServerChain();
+                case WHOAMI -> new WhoAmIServerChain();
+                case NAME -> new NameServerChain();
+                case DEK -> new DEKServerChain();
+                case AVATAR -> new AvatarServerChain();
                 default -> null;
             };
             if (chain != null) return chain;
         }
 
-        return super.createChain(type);
+        return super.createSessionChain(type);
     }
 }

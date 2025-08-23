@@ -6,9 +6,4 @@ public class InvalidNicknamePassword extends SpecialErrorException {
     public InvalidNicknamePassword() {
         super(SPECIAL);
     }
-
-    @SuppressWarnings("unused")
-    public InvalidNicknamePassword(Throwable e) {
-        super(SPECIAL, e);
-    }
 }

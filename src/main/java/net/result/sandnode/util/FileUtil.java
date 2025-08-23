@@ -30,7 +30,7 @@ public class FileUtil {
         return resolveHome(inputPath);
     }
 
-    public static void createDir(@NotNull Path directoryPath) throws FSException {
+    public static void createDir(@NotNull Path directoryPath) {
         File dir = directoryPath.toFile();
         if (!dir.exists()) {
             LOGGER.warn("Directory \"{}\" not found, so it will be created now", directoryPath);
@@ -43,7 +43,7 @@ public class FileUtil {
         }
     }
 
-    public static void createFile(@NotNull Path path) throws FSException {
+    public static void createFile(@NotNull Path path) {
         IOException exception = null;
 
         try {
@@ -82,7 +82,7 @@ public class FileUtil {
         return FileSystems.getDefault().supportedFileAttributeViews().contains("posix");
     }
 
-    public static void makeOwnerOnlyRead(@NotNull Path filePath) throws FSException {
+    public static void makeOwnerOnlyRead(@NotNull Path filePath) {
         try {
             Files.setPosixFilePermissions(filePath, Collections.singleton(PosixFilePermission.OWNER_READ));
         } catch (IOException e) {
@@ -92,14 +92,14 @@ public class FileUtil {
         LOGGER.info("Permissions of file \"{}\" set to 400 (only owner read)", filePath);
     }
 
-    public static void checkNotDirectory(@NotNull Path keysJsonPath) throws FSException {
+    public static void checkNotDirectory(@NotNull Path keysJsonPath) {
         if (Files.isDirectory(keysJsonPath)) {
             LOGGER.error("\"{}\" is a directory", keysJsonPath);
             throw new FSException("\"%s\" is a directory".formatted(keysJsonPath));
         }
     }
 
-    public static @NotNull String readString(Path path) throws FSException {
+    public static @NotNull String readString(Path path) {
         try {
             return Files.readString(path);
         } catch (IOException e) {

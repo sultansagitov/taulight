@@ -2,8 +2,6 @@ package net.result.taulight.message.types;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import net.result.sandnode.dto.PaginatedDTO;
-import net.result.sandnode.exception.DeserializationException;
-import net.result.sandnode.exception.ExpectedMessageException;
 import net.result.sandnode.message.MSGPackMessage;
 import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.message.util.Headers;
@@ -22,7 +20,7 @@ public class MessageResponse extends MSGPackMessage<PaginatedDTO<ChatMessageView
         this(new Headers(), totalCount, messages);
     }
 
-    public MessageResponse(@NotNull RawMessage raw) throws ExpectedMessageException, DeserializationException {
+    public MessageResponse(@NotNull RawMessage raw) {
         super(raw.expect(TauMessageTypes.MESSAGE), new TypeReference<>() {});
     }
 

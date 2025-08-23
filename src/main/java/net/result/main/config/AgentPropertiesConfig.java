@@ -32,11 +32,11 @@ public class AgentPropertiesConfig implements AgentConfig {
     private final Collection<MemberKeyRecord> memberKeys = new ArrayList<>();
     private final Collection<MemberKeyRecord> DEKs = new ArrayList<>();
 
-    public AgentPropertiesConfig() throws ConfigurationException, StorageException {
+    public AgentPropertiesConfig() {
         this("taulight.properties");
     }
 
-    public AgentPropertiesConfig(@NotNull String fileName) throws ConfigurationException, StorageException {
+    public AgentPropertiesConfig(@NotNull String fileName) {
         Properties properties = new Properties();
         try (InputStream input = getClass().getClassLoader().getResourceAsStream(fileName)) {
             properties.load(input);
@@ -117,7 +117,7 @@ public class AgentPropertiesConfig implements AgentConfig {
         return serverKeys.stream().anyMatch(record -> address.equals(record.address));
     }
 
-    public synchronized void saveKeysJSON() throws StorageException {
+    public synchronized void saveKeysJSON() {
         String string = getKeysJson().toString();
         try (FileWriter fileWriter = new FileWriter(KEYS_JSON_PATH.toFile())) {
             fileWriter.write(string);
@@ -127,8 +127,7 @@ public class AgentPropertiesConfig implements AgentConfig {
     }
 
     @Override
-    public synchronized void saveServerKey(@NotNull Address address, @NotNull AsymmetricKeyStorage keyStorage)
-            throws KeyAlreadySaved, StorageException {
+    public synchronized void saveServerKey(@NotNull Address address, @NotNull AsymmetricKeyStorage keyStorage) {
         String sanitizedAddress = address.toString().replaceAll("[.:\\\\/*?\"<>|]", "_");
         String filename = "%s_%s_public.key".formatted(sanitizedAddress, UUID.randomUUID());
 
@@ -169,7 +168,7 @@ public class AgentPropertiesConfig implements AgentConfig {
     }
 
     @Override
-    public AsymmetricKeyStorage loadServerKey(@NotNull Address address) throws KeyStorageNotFoundException {
+    public AsymmetricKeyStorage loadServerKey(@NotNull Address address) {
         for (KeyRecord keyRecord : serverKeys) {
             if (keyRecord.address.equals(address)) {
                 return keyRecord.keyStorage.asymmetric();
@@ -179,29 +178,27 @@ public class AgentPropertiesConfig implements AgentConfig {
     }
 
     @Override
-    public synchronized void savePersonalKey(Address address, String nickname, KeyStorage keyStorage)
-            throws StorageException {
+    public synchronized void savePersonalKey(Address address, String nickname, KeyStorage keyStorage) {
         memberKeys.add(new MemberKeyRecord(address, nickname, keyStorage));
         saveKeysJSON();
     }
 
     @Override
-    public void saveEncryptor(Address address, String nickname, KeyStorage keyStorage)
-            throws StorageException {
+    public void saveEncryptor(Address address, String nickname, KeyStorage keyStorage) {
         LOGGER.debug("Saving encryptor {}@{}", nickname, address);
         memberKeys.add(new MemberKeyRecord(address, nickname, keyStorage));
         saveKeysJSON();
     }
 
     @Override
-    public void saveDEK(Address address, String nickname, UUID keyID, KeyStorage keyStorage) throws StorageException {
+    public void saveDEK(Address address, String nickname, UUID keyID, KeyStorage keyStorage) {
         LOGGER.debug("Saving DEK for {}@{} as {}", nickname, address, keyID);
         DEKs.add(new MemberKeyRecord(address, nickname, keyID, keyStorage));
         saveKeysJSON();
     }
 
     @Override
-    public synchronized KeyStorage loadPersonalKey(Address address, String nickname) throws KeyStorageNotFoundException {
+    public synchronized KeyStorage loadPersonalKey(Address address, String nickname) {
         for (MemberKeyRecord k : memberKeys) {
             if (k.nickname.equals(nickname) && k.address.equals(address)) {
                 return k.keyStorage;
@@ -211,7 +208,7 @@ public class AgentPropertiesConfig implements AgentConfig {
     }
 
     @Override
-    public KeyStorage loadEncryptor(Address address, String nickname) throws KeyStorageNotFoundException {
+    public KeyStorage loadEncryptor(Address address, String nickname) {
         for (MemberKeyRecord k : memberKeys) {
             if (Objects.equals(k.nickname, nickname) && k.address.equals(address)) {
                 return k.keyStorage;
@@ -221,7 +218,7 @@ public class AgentPropertiesConfig implements AgentConfig {
     }
 
     @Override
-    public KeyEntry loadDEK(Address address, String nickname) throws KeyStorageNotFoundException {
+    public KeyEntry loadDEK(Address address, String nickname) {
         for (MemberKeyRecord k : DEKs) {
             if (Objects.equals(k.nickname, nickname) && k.address.equals(address)) {
                 return new KeyEntry(k.keyID, k.keyStorage);
@@ -231,7 +228,7 @@ public class AgentPropertiesConfig implements AgentConfig {
     }
 
     @Override
-    public KeyStorage loadDEK(Address address, UUID keyID) throws KeyStorageNotFoundException {
+    public KeyStorage loadDEK(Address address, UUID keyID) {
         for (MemberKeyRecord k : DEKs) {
             if (k.keyID.equals(keyID) && k.address.equals(address)) {
                 return k.keyStorage;

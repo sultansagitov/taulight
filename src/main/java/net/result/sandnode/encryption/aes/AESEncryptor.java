@@ -18,13 +18,12 @@ import java.security.SecureRandom;
 public class AESEncryptor {
     private static final Logger LOGGER = LogManager.getLogger(AESEncryptor.class);
 
-    public static byte[] encrypt(@NotNull String data, @NotNull KeyStorage keyStorage) throws EncryptionException {
+    public static byte[] encrypt(@NotNull String data, @NotNull KeyStorage keyStorage) {
         byte[] bytes = data.trim().getBytes(StandardCharsets.UTF_8);
         return encryptBytes(bytes, keyStorage);
     }
 
-    public static byte[] encryptBytes(byte @NotNull [] data, @NotNull KeyStorage keyStorage)
-            throws EncryptionException {
+    public static byte[] encryptBytes(byte @NotNull [] data, @NotNull KeyStorage keyStorage) {
         int IV_LENGTH = 16;
         byte[] iv = new byte[IV_LENGTH];
         SecureRandom secureRandom = new SecureRandom();

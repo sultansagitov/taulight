@@ -2,6 +2,7 @@ package net.result.taulight.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.Setter;
 
 import java.time.ZonedDateTime;
 import java.util.*;
@@ -9,6 +10,7 @@ import java.util.*;
 /**
  * Data Transfer Object (DTO) representing a chat message along with its metadata and reactions.
  */
+@Setter
 public class ChatMessageViewDTO {
 
     /** The actual chat message content and metadata (e.g. text, sender). */
@@ -51,46 +53,6 @@ public class ChatMessageViewDTO {
         this.id = id;
         this.creationDate = creationDate;
         this.reactions = reactions;
-        this.files = files;
-    }
-
-    /**
-     * Sets the unique identifier for this message.
-     *
-     * @param id the UUID to assign
-     */
-    public void setID(UUID id) {
-        this.id = id;
-    }
-
-    /**
-     * Sets the timestamp for when this message was created.
-     *
-     * @param creationDate the creation date to set
-     */
-    public void setCreationDate(ZonedDateTime creationDate) {
-        this.creationDate = creationDate;
-    }
-
-    /**
-     * Sets the message content DTO.
-     *
-     * @param message the message content
-     */
-    public void setMessage(ChatMessageInputDTO message) {
-        this.message = message;
-    }
-
-    /**
-     * Sets the reactions map manually.
-     *
-     * @param reactions a map of reaction type to member nicknames
-     */
-    public void setReactions(Map<String, List<String>> reactions) {
-        this.reactions = reactions;
-    }
-
-    public void setFiles(List<NamedFileDTO> files) {
         this.files = files;
     }
 

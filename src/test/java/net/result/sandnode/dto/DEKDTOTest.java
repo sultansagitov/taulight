@@ -26,7 +26,7 @@ public class DEKDTOTest {
     }
 
     @Test
-    void testDEKDTOEncryptDecrypt() throws Exception {
+    void testDEKDTOEncryptDecrypt() {
         KeyDTO encryptorDTO = new KeyDTO(sender, encryptor);
 
         DEKDTO dekDTO = new DEKDTO();

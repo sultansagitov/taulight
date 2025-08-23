@@ -16,7 +16,7 @@ public interface ChainManager {
 
     void removeChain(Chain chain);
 
-    void distributeMessage(RawMessage message) throws InterruptedException;
+    void distributeMessage(RawMessage message);
 
     Optional<Chain> getChain(String chainName);
 

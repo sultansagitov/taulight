@@ -2,7 +2,6 @@ package net.result.sandnode.repository;
 
 import net.result.sandnode.GlobalTestState;
 import net.result.sandnode.entity.FileEntity;
-import net.result.sandnode.exception.DatabaseException;
 import net.result.sandnode.util.Container;
 import net.result.sandnode.db.JPAUtil;
 import net.result.sandnode.db.SimpleJPAUtil;
@@ -25,7 +24,7 @@ public class FilesTest {
     }
 
     @Test
-    void testCreateFile() throws DatabaseException {
+    void testCreateFile() {
         String contentType = "image/png";
         String filename = "example.png";
 
@@ -33,12 +32,12 @@ public class FilesTest {
 
         assertNotNull(file);
         assertNotNull(file.id());
-        assertEquals(contentType, file.contentType());
-        assertEquals(filename, file.filename());
+        assertEquals(contentType, file.getContentType());
+        assertEquals(filename, file.getFilename());
     }
 
     @Test
-    void testCreateAndFindFile() throws DatabaseException {
+    void testCreateAndFindFile() {
         String contentType = "application/pdf";
         String filename = "document.pdf";
 
@@ -49,12 +48,12 @@ public class FilesTest {
         FileEntity found = foundOpt.get();
 
         assertEquals(created.id(), found.id());
-        assertEquals(contentType, found.contentType());
-        assertEquals(filename, found.filename());
+        assertEquals(contentType, found.getContentType());
+        assertEquals(filename, found.getFilename());
     }
 
     @Test
-    void testFindMissingFile() throws DatabaseException {
+    void testFindMissingFile() {
         UUID randomId = UUID.randomUUID();
         Optional<FileEntity> result = jpaUtil.find(FileEntity.class, randomId);
 

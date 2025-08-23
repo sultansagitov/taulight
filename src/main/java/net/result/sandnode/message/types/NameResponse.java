@@ -1,6 +1,5 @@
 package net.result.sandnode.message.types;
 
-import net.result.sandnode.exception.ExpectedMessageException;
 import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.message.TextMessage;
 import net.result.sandnode.message.util.Headers;
@@ -16,7 +15,7 @@ public class NameResponse extends TextMessage {
         super(headers.setType(MessageTypes.NAME), name);
     }
 
-    public NameResponse(@NotNull RawMessage raw) throws ExpectedMessageException {
+    public NameResponse(@NotNull RawMessage raw) {
         super(raw.expect(MessageTypes.NAME));
     }
 }

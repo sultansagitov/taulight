@@ -19,18 +19,17 @@ public class ReactionEntryRepository {
         jpaUtil = container.get(JPAUtil.class);
     }
 
-    public ReactionEntryEntity create(TauMemberEntity member, MessageEntity message, ReactionTypeEntity reactionType)
-            throws DatabaseException {
+    public ReactionEntryEntity create(TauMemberEntity member, MessageEntity message, ReactionTypeEntity reactionType) {
         ReactionEntryEntity managed = jpaUtil.create(new ReactionEntryEntity(member, message, reactionType));
 
-        member.reactionEntries().add(managed);
-        message.reactionEntries().add(managed);
-        reactionType.reactionEntries().add(managed);
+        member.getReactionEntries().add(managed);
+        message.getReactionEntries().add(managed);
+        reactionType.getReactionEntries().add(managed);
 
         return managed;
     }
 
-    public boolean delete(ReactionEntryEntity reactionEntry) throws DatabaseException {
+    public boolean delete(ReactionEntryEntity reactionEntry) {
         EntityManager em = jpaUtil.getEntityManager();
         EntityTransaction transaction = em.getTransaction();
         try {
@@ -38,16 +37,16 @@ public class ReactionEntryRepository {
             if (re != null) {
                 transaction.begin();
 
-                MessageEntity message = re.message();
-                message.reactionEntries().remove(re);
+                MessageEntity message = re.getMessage();
+                message.getReactionEntries().remove(re);
                 em.merge(message);
 
-                TauMemberEntity member = re.member();
-                member.reactionEntries().remove(re);
+                TauMemberEntity member = re.getMember();
+                member.getReactionEntries().remove(re);
                 em.merge(member);
 
-                ReactionTypeEntity type = re.reactionType();
-                type.reactionEntries().remove(re);
+                ReactionTypeEntity type = re.getReactionType();
+                type.getReactionEntries().remove(re);
                 em.merge(type);
 
                 em.remove(re);
@@ -62,8 +61,7 @@ public class ReactionEntryRepository {
         return false;
     }
 
-    public boolean delete(MessageEntity message, TauMemberEntity member, ReactionTypeEntity reactionType)
-            throws DatabaseException {
+    public boolean delete(MessageEntity message, TauMemberEntity member, ReactionTypeEntity reactionType) {
         EntityManager em = jpaUtil.getEntityManager();
         String q = """
             FROM ReactionEntryEntity r WHERE

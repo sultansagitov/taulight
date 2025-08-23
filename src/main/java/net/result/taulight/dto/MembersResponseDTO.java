@@ -1,22 +1,16 @@
 package net.result.taulight.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
 
 import java.util.Collection;
 
+@NoArgsConstructor
+@AllArgsConstructor
 public class MembersResponseDTO {
     @JsonProperty
     public Collection<ChatMemberDTO> members;
     @JsonProperty
     public Collection<RoleDTO> roles;
-
-    @SuppressWarnings("unused")
-    public MembersResponseDTO() {}
-
-    public MembersResponseDTO(@NotNull Collection<ChatMemberDTO> members, @Nullable Collection<RoleDTO> roles) {
-        this.members = members;
-        this.roles = roles;
-    }
 }

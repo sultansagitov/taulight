@@ -3,8 +3,6 @@ package net.result.sandnode.error;
 import net.result.sandnode.exception.DeserializationException;
 import net.result.sandnode.exception.ExpectedMessageException;
 import net.result.sandnode.exception.ImpossibleRuntimeException;
-import net.result.sandnode.exception.UnknownSandnodeErrorException;
-import net.result.sandnode.exception.error.SandnodeErrorException;
 import net.result.sandnode.exception.error.SpecialErrorException;
 import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.message.SpecialErrorMessage;
@@ -13,7 +11,7 @@ import net.result.sandnode.message.util.MessageTypes;
 import net.result.sandnode.util.Manager;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.*;
+import java.util.Arrays;
 
 public class ServerErrorManager extends Manager<SandnodeError> {
     private static final ServerErrorManager INSTANCE = new ServerErrorManager();
@@ -32,7 +30,7 @@ public class ServerErrorManager extends Manager<SandnodeError> {
         list.removeIf(e -> e.code().equals(error.code()));
     }
 
-    public void handleError(@NotNull RawMessage response) throws UnknownSandnodeErrorException, SandnodeErrorException {
+    public void handleError(@NotNull RawMessage response) {
         if (response.headers().type() == MessageTypes.ERR) {
             try {
                 var errorMessage = new ErrorMessage(response);

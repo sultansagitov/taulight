@@ -2,6 +2,7 @@ package net.result.taulight.chain.receiver;
 
 import net.result.sandnode.chain.ReceiverChain;
 import net.result.sandnode.chain.ServerChain;
+import net.result.sandnode.db.JPAUtil;
 import net.result.sandnode.entity.EncryptedKeyEntity;
 import net.result.sandnode.exception.error.KeyStorageNotFoundException;
 import net.result.sandnode.exception.error.NotFoundException;
@@ -13,13 +14,11 @@ import net.result.sandnode.message.UUIDMessage;
 import net.result.sandnode.message.types.HappyMessage;
 import net.result.sandnode.message.util.Headers;
 import net.result.sandnode.message.util.MessageTypes;
-import net.result.sandnode.serverclient.Session;
-import net.result.sandnode.db.JPAUtil;
 import net.result.taulight.entity.ChatEntity;
 import net.result.taulight.entity.MessageEntity;
+import net.result.taulight.message.types.ForwardRequest;
 import net.result.taulight.repository.MessageFileRepository;
 import net.result.taulight.repository.MessageRepository;
-import net.result.taulight.message.types.ForwardRequest;
 import net.result.taulight.util.ChatUtil;
 import net.result.taulight.util.TauHubProtocol;
 import org.apache.logging.log4j.LogManager;
@@ -28,12 +27,8 @@ import org.apache.logging.log4j.Logger;
 public class ForwardRequestServerChain extends ServerChain implements ReceiverChain {
     private static final Logger LOGGER = LogManager.getLogger(ForwardRequestServerChain.class);
 
-    public ForwardRequestServerChain(Session session) {
-        super(session);
-    }
-
     @Override
-    public Message handle(RawMessage raw) throws Exception {
+    public Message handle(RawMessage raw) {
         var chatUtil = session.server.container.get(ChatUtil.class);
         var messageRepo = session.server.container.get(MessageRepository.class);
         var messageFileRepo = session.server.container.get(MessageFileRepository.class);
@@ -54,18 +49,18 @@ public class ForwardRequestServerChain extends ServerChain implements ReceiverCh
 
         input
                 .setSys(false)
-                .setNickname(session.member.nickname());
+                .setNickname(session.member.getNickname());
 
         ChatEntity chat = chatUtil.getChat(chatID).orElseThrow(NotFoundException::new);
-        if (!chatUtil.contains(chat, session.member.tauMember())) throw new NotFoundException();
+        if (!chatUtil.contains(chat, session.member.getTauMember())) throw new NotFoundException();
         MessageEntity message;
         if (input.keyID == null) {
-            message = messageRepo.create(chat, input, session.member.tauMember());
+            message = messageRepo.create(chat, input, session.member.getTauMember());
         } else {
             EncryptedKeyEntity key = jpaUtil
                     .find(EncryptedKeyEntity.class, input.keyID)
                     .orElseThrow(() -> new KeyStorageNotFoundException(input.keyID.toString()));
-            message = messageRepo.create(chat, input, session.member.tauMember(), key);
+            message = messageRepo.create(chat, input, session.member.getTauMember(), key);
         }
         var viewDTO = message.toViewDTO(messageFileRepo);
 

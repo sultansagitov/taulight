@@ -1,8 +1,6 @@
 package net.result.taulight.message.types;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import net.result.sandnode.exception.DeserializationException;
-import net.result.sandnode.exception.ExpectedMessageException;
 import net.result.sandnode.message.MSGPackMessage;
 import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.message.util.Headers;
@@ -17,7 +15,7 @@ public class ChatResponse extends MSGPackMessage<List<ChatInfoDTO>> {
         super(new Headers().setType(TauMessageTypes.CHAT), infos.stream().sorted().toList());
     }
 
-    public ChatResponse(RawMessage raw) throws DeserializationException, ExpectedMessageException {
+    public ChatResponse(RawMessage raw) {
         super(raw.expect(TauMessageTypes.CHAT), new TypeReference<>() {});
     }
 

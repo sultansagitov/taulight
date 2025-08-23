@@ -4,10 +4,8 @@ import net.result.sandnode.chain.ClientChain;
 import net.result.sandnode.dto.DEKResponseDTO;
 import net.result.sandnode.dto.KeyDTO;
 import net.result.sandnode.encryption.interfaces.KeyStorage;
-import net.result.sandnode.exception.ProtocolException;
 import net.result.sandnode.exception.StorageException;
 import net.result.sandnode.exception.crypto.*;
-import net.result.sandnode.exception.error.SandnodeErrorException;
 import net.result.sandnode.message.UUIDMessage;
 import net.result.sandnode.message.types.DEKListMessage;
 import net.result.sandnode.message.types.DEKRequest;
@@ -25,8 +23,7 @@ public class DEKClientChain extends ClientChain {
         super(client);
     }
 
-    public UUID sendDEK(String receiver, KeyStorage encryptor, KeyStorage dek)
-            throws InterruptedException, SandnodeErrorException, ProtocolException, CryptoException, StorageException {
+    public UUID sendDEK(String receiver, KeyStorage encryptor, KeyStorage dek) {
         var raw = sendAndReceive(DEKRequest.send(receiver, encryptor, dek));
         var keyID = new UUIDMessage(raw).uuid;
 
@@ -35,7 +32,7 @@ public class DEKClientChain extends ClientChain {
         return keyID;
     }
 
-    public Collection<DEKResponseDTO> get() throws ProtocolException, InterruptedException, SandnodeErrorException {
+    public Collection<DEKResponseDTO> get() {
         var raw = sendAndReceive(DEKRequest.get());
         List<DEKResponseDTO> keys = new DEKListMessage(raw).list();
 
@@ -64,8 +61,7 @@ public class DEKClientChain extends ClientChain {
         return keys;
     }
 
-    public KeyDTO getKeyOf(String nickname) throws ProtocolException, InterruptedException, SandnodeErrorException,
-            EncryptionTypeException, NoSuchEncryptionException, CreatingKeyException, StorageException {
+    public KeyDTO getKeyOf(String nickname) {
         var raw = sendAndReceive(DEKRequest.getPersonalKeyOf(nickname));
         var key = PublicKeyResponse.getKeyDTO(raw);
 

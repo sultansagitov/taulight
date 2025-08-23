@@ -1,7 +1,5 @@
 package net.result.taulight.message.types;
 
-import net.result.sandnode.exception.DeserializationException;
-import net.result.sandnode.exception.ExpectedMessageException;
 import net.result.sandnode.message.MSGPackMessage;
 import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.message.util.Headers;
@@ -27,7 +25,7 @@ public class MembersResponse extends MSGPackMessage<MembersResponseDTO> {
         this(new Headers(), records, roles);
     }
 
-    public MembersResponse(@NotNull RawMessage message) throws DeserializationException, ExpectedMessageException {
+    public MembersResponse(@NotNull RawMessage message) {
         super(message.expect(TauMessageTypes.MEMBERS), MembersResponseDTO.class);
     }
 }
