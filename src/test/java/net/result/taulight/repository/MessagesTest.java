@@ -62,7 +62,7 @@ public class MessagesTest {
         assertEquals(chat, message.getChat(), "Message chat should be the specified chat");
         assertTrue(message.isSys(), "Message should be marked as system message");
         assertNotNull(message.getSentDatetime(), "Sent datetime should not be null");
-        assertTrue(chat.messages().contains(message), "Chat should contain the new message");
+        assertTrue(chat.getMessages().contains(message), "Chat should contain the new message");
         assertEquals(0, message.getRepliedToMessages().size(), "No replied-to messages should be present");
         assertEquals(0, message.getReactionEntries().size(), "No reactions should be present on new message");
     }
@@ -169,7 +169,7 @@ public class MessagesTest {
 
         long count = messageRepo.countMessagesByChat(group);
         assertEquals(2, count);
-        assertEquals(group.messages().size(), count);
+        assertEquals(group.getMessages().size(), count);
 
         // Additional assertions
         // Add one more message and verify count increases

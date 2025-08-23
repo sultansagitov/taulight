@@ -25,7 +25,7 @@ public class MessageFileRepository {
     }
 
     public MessageFileEntity create(TauMemberEntity member, ChatEntity chat, String originalName, FileEntity file) {
-        return jpaUtil.create(new MessageFileEntity(member, chat, originalName, file));
+        return jpaUtil.create(new MessageFileEntity(originalName, member, chat, null, file));
     }
 
     public Collection<MessageFileEntity> getFiles(MessageEntity message) {
@@ -52,7 +52,7 @@ public class MessageFileRepository {
             TypedQuery<MessageFileEntity> query = em.createQuery(q, MessageFileEntity.class);
             query.setParameter("ids", fileIDs);
             for (MessageFileEntity file : query.getResultList()) {
-                if (!file.member().equals(message.getMember()) || file.message() != null) {
+                if (!file.getMember().equals(message.getMember()) || file.getMessage() != null) {
                     throw new UnauthorizedException();
                 }
 

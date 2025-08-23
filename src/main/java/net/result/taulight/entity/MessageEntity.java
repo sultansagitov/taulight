@@ -112,6 +112,6 @@ public class MessageEntity extends BaseEntity {
 
         ChatMessageInputDTO input = toInputDTO(fileIDs);
 
-        return new ChatMessageViewDTO(input, id(), creationDate(), reactions, namedFiles);
+        return new ChatMessageViewDTO(input, id(), getCreationDate(), reactions, namedFiles);
     }
 }

@@ -58,6 +58,6 @@ public class LoginEntity extends BaseEntity {
     }
 
     public LoginHistoryDTO toDTO(boolean isOnline) {
-        return new LoginHistoryDTO(creationDate(), getIp(), getDevice(), isOnline);
+        return new LoginHistoryDTO(getCreationDate(), getIp(), getDevice(), isOnline);
     }
 }

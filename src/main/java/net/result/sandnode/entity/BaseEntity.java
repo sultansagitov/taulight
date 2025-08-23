@@ -4,6 +4,8 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Convert;
 import jakarta.persistence.Id;
 import jakarta.persistence.MappedSuperclass;
+import lombok.Getter;
+import lombok.Setter;
 import net.result.sandnode.db.ZonedDateTimeConverter;
 import org.hibernate.annotations.JdbcTypeCode;
 
@@ -11,6 +13,8 @@ import java.sql.Types;
 import java.time.ZonedDateTime;
 import java.util.UUID;
 
+@Setter
+@Getter
 @SuppressWarnings("unused")
 @MappedSuperclass
 public abstract class BaseEntity {
@@ -31,20 +35,8 @@ public abstract class BaseEntity {
         return id;
     }
 
-    public void setID(UUID id) {
-        this.id = id;
-    }
-
     public void setRandomID() {
         this.id = UUID.randomUUID();
-    }
-
-    public ZonedDateTime creationDate() {
-        return creationDate;
-    }
-
-    public void setCreationDate(ZonedDateTime creationDate) {
-        this.creationDate = creationDate;
     }
 
     public void setCreationDateNow() {

@@ -75,7 +75,7 @@ public class ChatsTest {
         assertNotNull(dialog.id(), "Dialog ID should not be null");
         assertTrue(member3.getDialogs().contains(dialog), "Dialog should be in member3's dialogs");
         assertTrue(member4.getDialogs().contains(dialog), "Dialog should be in member4's dialogs");
-        assertEquals(0, dialog.messages().size(), "New dialog should have no messages");
+        assertEquals(0, dialog.getMessages().size(), "New dialog should have no messages");
 
         // Test creating duplicate dialog
         assertThrows(AlreadyExistingRecordException.class, () -> dialogRepo.create(member3, member4),
@@ -115,7 +115,7 @@ public class ChatsTest {
         assertEquals(1, chatUtil.getMembers(group).size(), "Group should have exactly one member (creator)");
         assertTrue(chatUtil.getMembers(group).contains(member1), "Group should contain creator as member");
         assertTrue(member1.getGroups().contains(group), "Member should have group in their groups list");
-        assertEquals(0, group.messages().size(), "New group should have no messages");
+        assertEquals(0, group.getMessages().size(), "New group should have no messages");
         assertEquals(member1, group.owner(), "Group owner should be the creator");
     }
 

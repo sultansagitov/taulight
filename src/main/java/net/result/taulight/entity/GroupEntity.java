@@ -64,7 +64,7 @@ public class GroupEntity extends ChatEntity {
         info.chatType = ChatInfoDTO.ChatType.GROUP;
 
         if (infoProps.contains(ChatInfoPropDTO.groupID)) info.id = id();
-        if (infoProps.contains(ChatInfoPropDTO.createdAt)) info.creationDate = creationDate();
+        if (infoProps.contains(ChatInfoPropDTO.createdAt)) info.creationDate = getCreationDate();
         if (infoProps.contains(ChatInfoPropDTO.groupTitle)) info.title = title();
         if (infoProps.contains(ChatInfoPropDTO.groupOwner)) info.ownerID = owner().getMember().getNickname();
         if (infoProps.contains(ChatInfoPropDTO.groupIsMy)) info.groupIsMy = owner() == member;

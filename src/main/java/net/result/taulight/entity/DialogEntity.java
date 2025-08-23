@@ -55,7 +55,7 @@ public class DialogEntity extends ChatEntity {
         info.chatType = ChatInfoDTO.ChatType.DIALOG;
 
         if (infoProps.contains(ChatInfoPropDTO.dialogID)) info.id = id();
-        if (infoProps.contains(ChatInfoPropDTO.createdAt)) info.creationDate = creationDate();
+        if (infoProps.contains(ChatInfoPropDTO.createdAt)) info.creationDate = getCreationDate();
         if (infoProps.contains(ChatInfoPropDTO.dialogOther))
             info.otherNickname = otherMember(member).getMember().getNickname();
         if (infoProps.contains(ChatInfoPropDTO.lastMessage)) info.lastMessage = lastMessage;

@@ -109,7 +109,7 @@ public class InviteCodeEntity extends BaseEntity {
                 group().title(),
                 receiver().getMember().getNickname(),
                 sender().getMember().getNickname(),
-                creationDate(),
+                getCreationDate(),
                 activationDate(),
                 expiresDate()
         );

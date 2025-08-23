@@ -48,7 +48,7 @@ public class MessageRepository {
                 managed.setRepliedToMessages(messageEntities);
             }
 
-            chat.messages().add(managed);
+            chat.getMessages().add(managed);
             em.merge(chat);
             transaction.commit();
 

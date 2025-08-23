@@ -71,7 +71,7 @@ public class MessageFileServerChain extends ServerChain implements ReceiverChain
                 .find(MessageFileEntity.class, fileID)
                 .orElseThrow(NotFoundException::new);
 
-        FileDTO dto = dbFileUtil.readImage(fileEntity.file());
+        FileDTO dto = dbFileUtil.readImage(fileEntity.getFile());
 
         FileIOUtil.send(dto, this::send);
     }
