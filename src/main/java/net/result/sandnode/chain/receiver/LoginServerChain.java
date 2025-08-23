@@ -13,8 +13,6 @@ import net.result.sandnode.message.types.LoginResponse;
 import net.result.sandnode.message.util.Headers;
 import net.result.sandnode.repository.LoginRepository;
 import net.result.sandnode.security.Tokenizer;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,7 +20,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 public class LoginServerChain extends ServerChain implements ReceiverChain {
-    private static final Logger LOGGER = LogManager.getLogger(LoginServerChain.class);
     private LoginRepository loginRepo;
 
     @Override
@@ -49,12 +46,9 @@ public class LoginServerChain extends ServerChain implements ReceiverChain {
                 .map(agent -> agent.login)
                 .collect(Collectors.toSet());
 
-        LOGGER.debug(onlineLogins);
-
         List<LoginHistoryDTO> list = new ArrayList<>();
         for (LoginEntity login : logins) {
-            boolean isOnline = onlineLogins.contains(login) ||
-                    (login.login() != null && onlineLogins.contains(login.login()));
+            boolean isOnline = onlineLogins.contains(login) || onlineLogins.contains(login.getLogin());
             LoginHistoryDTO loginHistoryDTO = login.toDTO(isOnline);
             list.add(loginHistoryDTO);
         }
@@ -68,7 +62,7 @@ public class LoginServerChain extends ServerChain implements ReceiverChain {
         String token = request.content();
 
         LoginEntity login = tokenizer.findLogin(token).orElseThrow(UnauthorizedException::new);
-        session.member = login.member();
+        session.member = login.getMember();
         session.login = login;
 
         String ip = session.io().socket.getInetAddress().getHostAddress();

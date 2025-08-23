@@ -56,7 +56,7 @@ public class RegistrationServerChain extends ServerChain implements ReceiverChai
         String encryptedDevice = Base64.getEncoder().encodeToString(keyStorage.encrypt(device));
 
         KeyStorageEntity keyEntity = member.getPublicKey();
-        LoginEntity login = loginRepo.create(member, keyEntity, encryptedIP, encryptedDevice);
+        LoginEntity login = loginRepo.create(encryptedIP, encryptedDevice, keyEntity, member);
 
         String token = tokenizer.tokenizeLogin(login);
         return new RegistrationResponse(token);

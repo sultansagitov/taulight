@@ -19,14 +19,16 @@ public class DBFileUtil {
     private static final Logger LOGGER = LogManager.getLogger(DBFileUtil.class);
 
     private final FileRepository fileRepo;
-    private final Path avatarDirectory;
+    private final HubConfig hubConfig;
 
     public DBFileUtil(Container container) {
         fileRepo = container.get(FileRepository.class);
-        avatarDirectory = container.get(HubConfig.class).imagePath();
+        hubConfig = container.get(HubConfig.class);
     }
 
     public @NotNull FileEntity saveFile(FileDTO dto, String filename) {
+        Path avatarDirectory = hubConfig.imagePath();
+
         byte[] body = dto.body();
 
         try {
@@ -50,11 +52,13 @@ public class DBFileUtil {
     }
 
     public FileDTO readImage(FileEntity file) {
+        Path avatarDirectory = hubConfig.imagePath();
+
         if (file == null) throw new NoEffectException();
-        Path filePath = avatarDirectory.resolve(file.filename());
+        Path filePath = avatarDirectory.resolve(file.getFilename());
 
         try {
-            return new FileDTO(file.id(), file.contentType(), Files.readAllBytes(filePath));
+            return new FileDTO(file.id(), file.getContentType(), Files.readAllBytes(filePath));
         } catch (IOException e) {
             throw new ServerErrorException(e);
         }

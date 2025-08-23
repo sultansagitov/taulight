@@ -2,12 +2,20 @@ package net.result.sandnode.entity;
 
 import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import net.result.sandnode.db.EncryptionConverter;
 import net.result.sandnode.encryption.interfaces.AsymmetricKeyStorage;
 import net.result.sandnode.encryption.interfaces.Encryption;
 import net.result.sandnode.message.types.PublicKeyResponse;
 import net.result.sandnode.message.util.Headers;
 
+@Setter
+@Getter
+@NoArgsConstructor
+@AllArgsConstructor
 @SuppressWarnings("unused")
 @Entity
 public class KeyStorageEntity extends BaseEntity {
@@ -15,35 +23,11 @@ public class KeyStorageEntity extends BaseEntity {
     public Encryption encryption;
     public String encodedKey;
 
-    @SuppressWarnings("unused")
-    public KeyStorageEntity() {}
-
-    public KeyStorageEntity(Encryption encryption, String encodedKey) {
-        this.encryption = encryption;
-        this.encodedKey = encodedKey;
-    }
-
-    public Encryption encryption() {
-        return encryption;
-    }
-
-    public void setEncryption(Encryption encryption) {
-        this.encryption = encryption;
-    }
-
-    public String encodedKey() {
-        return encodedKey;
-    }
-
-    public void setEncodedKey(String encodedKey) {
-        this.encodedKey = encodedKey;
-    }
-
     public PublicKeyResponse toDTO(String sender) {
-        Encryption encryption = encryption();
+        Encryption encryption = getEncryption();
         AsymmetricKeyStorage keyStorage = encryption.asymmetric()
                 .publicKeyConvertor()
-                .toKeyStorage(encodedKey());
+                .toKeyStorage(getEncodedKey());
 
         return new PublicKeyResponse(new Headers().setValue("sender", sender), keyStorage);
     }

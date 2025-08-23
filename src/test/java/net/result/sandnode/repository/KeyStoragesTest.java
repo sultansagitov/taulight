@@ -35,7 +35,7 @@ public class KeyStoragesTest {
         KeyStorageEntity saved = keyStorageRepo.create(generatedKey);
         assertNotNull(saved);
         assertNotNull(saved.id());
-        assertEquals(generatedKey.encryption(), saved.encryption());
+        assertEquals(generatedKey.encryption(), saved.getEncryption());
         assertEquals(generatedKey.encodedPublicKey(), saved.encodedKey);
 
         Optional<KeyStorageEntity> found = jpaUtil.find(KeyStorageEntity.class, saved.id());

@@ -2,6 +2,9 @@ package net.result.sandnode.entity;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.ManyToOne;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import net.result.sandnode.dto.LoginHistoryDTO;
 
 /**
@@ -10,6 +13,9 @@ import net.result.sandnode.dto.LoginHistoryDTO;
  * was performed using a token that was issued during a previous login (which may have originated
  * from a password-based login or a registration).
  */
+@Setter
+@Getter
+@NoArgsConstructor
 @SuppressWarnings("unused")
 @Entity
 public class LoginEntity extends BaseEntity {
@@ -29,20 +35,12 @@ public class LoginEntity extends BaseEntity {
     @ManyToOne
     private MemberEntity member;
 
-    public LoginEntity() {}
-
-    /**
-     * Constructs a new login entry for the given member with IP and device details.
-     *
-     * @param member the member associated with this login
-     * @param ip     the IP address of the login
-     * @param device the device used for login
-     */
-    public LoginEntity(MemberEntity member, KeyStorageEntity encryptor, String ip, String device) {
-        setEncryptor(encryptor);
-        setMember(member);
-        setIp(ip);
-        setDevice(device);
+    public LoginEntity(String ip, String device, LoginEntity login, KeyStorageEntity encryptor, MemberEntity member) {
+        this.encryptor = encryptor;
+        this.member = member;
+        this.login = login;
+        this.ip = ip;
+        this.device = device;
     }
 
     /**
@@ -54,52 +52,12 @@ public class LoginEntity extends BaseEntity {
      */
     public LoginEntity(LoginEntity login, String ip) {
         setLogin(login);
-        setMember(login.member());
+        setMember(login.getMember());
         setIp(ip);
-        setDevice(login.device());
-    }
-
-    public String ip() {
-        return ip;
-    }
-
-    public void setIp(String ip) {
-        this.ip = ip;
-    }
-
-    public String device() {
-        return device;
-    }
-
-    public void setDevice(String device) {
-        this.device = device;
-    }
-
-    public LoginEntity login() {
-        return login;
-    }
-
-    public void setLogin(LoginEntity login) {
-        this.login = login;
-    }
-
-    public KeyStorageEntity encryptor() {
-        return encryptor;
-    }
-
-    public void setEncryptor(KeyStorageEntity encryptor) {
-        this.encryptor = encryptor;
-    }
-
-    public MemberEntity member() {
-        return member;
-    }
-
-    public void setMember(MemberEntity member) {
-        this.member = member;
+        setDevice(login.getDevice());
     }
 
     public LoginHistoryDTO toDTO(boolean isOnline) {
-        return new LoginHistoryDTO(creationDate(), ip(), device(), isOnline);
+        return new LoginHistoryDTO(creationDate(), getIp(), getDevice(), isOnline);
     }
 }

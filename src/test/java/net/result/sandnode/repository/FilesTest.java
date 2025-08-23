@@ -32,8 +32,8 @@ public class FilesTest {
 
         assertNotNull(file);
         assertNotNull(file.id());
-        assertEquals(contentType, file.contentType());
-        assertEquals(filename, file.filename());
+        assertEquals(contentType, file.getContentType());
+        assertEquals(filename, file.getFilename());
     }
 
     @Test
@@ -48,8 +48,8 @@ public class FilesTest {
         FileEntity found = foundOpt.get();
 
         assertEquals(created.id(), found.id());
-        assertEquals(contentType, found.contentType());
-        assertEquals(filename, found.filename());
+        assertEquals(contentType, found.getContentType());
+        assertEquals(filename, found.getFilename());
     }
 
     @Test

@@ -32,7 +32,7 @@ public class MessageFileEntity extends BaseEntity {
     }
 
     public @NotNull NamedFileDTO toDTO() {
-        return new NamedFileDTO(id(), originalName(), file().contentType());
+        return new NamedFileDTO(id(), originalName(), file().getContentType());
     }
 
     public String originalName() {

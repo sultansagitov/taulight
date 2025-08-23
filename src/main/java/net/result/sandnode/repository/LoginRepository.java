@@ -18,12 +18,22 @@ public class LoginRepository {
         jpaUtil = container.get(JPAUtil.class);
     }
 
-    public LoginEntity create(MemberEntity member, KeyStorageEntity encryptor, String ip, String device) {
-        return jpaUtil.create(new LoginEntity(member, encryptor, ip, device));
+    private LoginEntity create(
+            String ip,
+            String device,
+            LoginEntity login,
+            KeyStorageEntity encryptor,
+            MemberEntity member
+    ) {
+        return jpaUtil.create(new LoginEntity(ip, device, login, encryptor, member));
+    }
+
+    public LoginEntity create(String ip, String device, KeyStorageEntity encryptor, MemberEntity member) {
+        return create(ip, device, null, encryptor, member);
     }
 
     public LoginEntity create(LoginEntity login, String ip) {
-        return jpaUtil.create(new LoginEntity(login, ip));
+        return create(ip, null, login, null, null);
     }
 
     public List<LoginEntity> byDevice(@Nullable MemberEntity member) {

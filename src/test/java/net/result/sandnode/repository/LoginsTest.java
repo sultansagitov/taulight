@@ -44,48 +44,48 @@ public class LoginsTest {
 
         KeyStorageEntity keyStorageEntity = keyStorageRepo.create(AsymmetricEncryptions.ECIES.generate());
 
-        LoginEntity created = loginRepo.create(member, keyStorageEntity, ip, device);
+        LoginEntity created = loginRepo.create(ip, device, keyStorageEntity, member);
         assertNotNull(created);
         assertNotNull(created.id());
-        assertEquals(ip, created.ip());
-        assertEquals(device, created.device());
+        assertEquals(ip, created.getIp());
+        assertEquals(device, created.getDevice());
 
         Optional<LoginEntity> found = jpaUtil.find(LoginEntity.class, created.id());
         assertTrue(found.isPresent());
         assertEquals(created.id(), found.get().id());
-        assertEquals(ip, found.get().ip());
+        assertEquals(ip, found.get().getIp());
     }
 
     @Test
     void testCreateLoginWithLoginLink() {
         KeyStorageEntity keyStorageEntity = keyStorageRepo.create(AsymmetricEncryptions.ECIES.generate());
 
-        LoginEntity baseLogin = loginRepo.create(member, keyStorageEntity, "10.0.0.1", "Mac");
+        LoginEntity baseLogin = loginRepo.create("10.0.0.1", "Mac", keyStorageEntity, member);
         LoginEntity linkedLogin = loginRepo.create(baseLogin, "10.0.0.2");
 
         assertNotNull(linkedLogin);
         assertNotNull(linkedLogin.id());
-        assertEquals(baseLogin.id(), linkedLogin.login().id());
+        assertEquals(baseLogin.id(), linkedLogin.getLogin().id());
 
         Optional<LoginEntity> found = jpaUtil.find(LoginEntity.class, linkedLogin.id());
         assertTrue(found.isPresent());
-        assertEquals(baseLogin.id(), found.get().login().id());
+        assertEquals(baseLogin.id(), found.get().getLogin().id());
     }
 
     @Test
     void testFindLoginsByDevice() {
         KeyStorageEntity keyStorageEntity = keyStorageRepo.create(AsymmetricEncryptions.ECIES.generate());
 
-        loginRepo.create(member, keyStorageEntity, "172.16.0.1", "Device-A");
-        loginRepo.create(member, keyStorageEntity, "172.16.0.2", "Device-B");
+        loginRepo.create("172.16.0.1", "Device-A", keyStorageEntity, member);
+        loginRepo.create("172.16.0.2", "Device-B", keyStorageEntity, member);
 
         List<LoginEntity> deviceLogins = loginRepo.byDevice(member);
         assertNotNull(deviceLogins);
         assertFalse(deviceLogins.isEmpty());
 
         for (LoginEntity login : deviceLogins) {
-            assertEquals(member.id(), login.member().id());
-            assertNull(login.login());
+            assertEquals(member.id(), login.getMember().id());
+            assertNull(login.getLogin());
         }
     }
 

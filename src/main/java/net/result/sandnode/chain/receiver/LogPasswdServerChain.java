@@ -43,13 +43,13 @@ public abstract class LogPasswdServerChain extends ServerChain implements Receiv
         String ip = session.io().socket.getInetAddress().getHostAddress();
 
         KeyStorageEntity keyEntity = member.getPublicKey();
-        AsymmetricEncryption encryption = keyEntity.encryption().asymmetric();
-        AsymmetricKeyStorage keyStorage = encryption.publicKeyConvertor().toKeyStorage(keyEntity.encodedKey());
+        AsymmetricEncryption encryption = keyEntity.getEncryption().asymmetric();
+        AsymmetricKeyStorage keyStorage = encryption.publicKeyConvertor().toKeyStorage(keyEntity.getEncodedKey());
 
         String encryptedIP = Base64.getEncoder().encodeToString(keyStorage.encrypt(ip));
         String encryptedDevice = Base64.getEncoder().encodeToString(keyStorage.encrypt(request.dto().device));
 
-        LoginEntity login = loginRepo.create(member, keyEntity, encryptedIP, encryptedDevice);
+        LoginEntity login = loginRepo.create(encryptedIP, encryptedDevice, keyEntity, member);
 
         session.member = member;
         session.login = login;
