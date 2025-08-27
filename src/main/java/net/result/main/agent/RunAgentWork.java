@@ -105,6 +105,7 @@ public class RunAgentWork implements Work {
         // Taulight commands
         SettingsCommands.register(registry);
         ChatsCommands.register(registry);
+        GroupsCommands.register(registry);
         CodesCommands.register(registry);
         ReactionsCommands.register(registry);
         MessagesCommands.register(registry);
