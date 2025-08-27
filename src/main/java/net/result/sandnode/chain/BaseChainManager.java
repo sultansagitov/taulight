@@ -1,5 +1,6 @@
 package net.result.sandnode.chain;
 
+import net.result.sandnode.chain.receiver.UnhandledMessageTypeChain;
 import net.result.sandnode.error.Errors;
 import net.result.sandnode.exception.BusyChainID;
 import net.result.sandnode.exception.ImpossibleRuntimeException;
@@ -19,31 +20,36 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.security.SecureRandom;
-import java.util.List;
-import java.util.Optional;
-import java.util.Random;
+import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 public abstract class BaseChainManager implements ChainManager {
     private static final Logger LOGGER = LogManager.getLogger(BaseChainManager.class);
     private final ExecutorService executorService = Executors.newCachedThreadPool(new DaemonFactory());
-    protected final ChainStorage storage = new BSTChainStorage(new AVLTree<>());
+    private final ChainStorage storage = new BSTChainStorage(new AVLTree<>());
+    private final Map<MessageType, Supplier<ReceiverChain>> map = new HashMap<>();
+
+    public void addHandler(MessageType type, Supplier<ReceiverChain> supplier) {
+        map.put(type, supplier);
+    }
 
     @Override
     public ChainStorage storage() {
         return storage;
     }
 
-    private Optional<Chain> getByID(short id) {
-        return storage.find(id);
+    @Override
+    public ReceiverChain createChain(MessageType type) {
+        return map.get(type).get();
     }
 
     private ReceiverChain createNew(RawMessage message) {
         Headers headers = message.headers();
         MessageType type = headers.type();
-        ReceiverChain chain = createChain(type);
+        ReceiverChain chain = map.containsKey(type) ? createChain(type) : new UnhandledMessageTypeChain();
 
         chain.setID(headers.chainID());
         LOGGER.info("Adding new chain {}", chain);
@@ -77,13 +83,13 @@ public abstract class BaseChainManager implements ChainManager {
     @Override
     public void distributeMessage(RawMessage message) {
         Headers headers = message.headers();
-        Optional<Chain> initialChainOpt = getByID(headers.chainID());
+        Optional<Chain> initialChainOpt = storage.find(headers.chainID());
         Chain chain;
         if (initialChainOpt.isPresent()) {
             chain = initialChainOpt.get();
         } else {
             synchronized (this) {
-                Optional<Chain> retriedChainOpt = getByID(headers.chainID());
+                Optional<Chain> retriedChainOpt = storage.find(headers.chainID());
                 if (retriedChainOpt.isEmpty()) {
                     try {
                         ReceiverChain newChain = createNew(message);

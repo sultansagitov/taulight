@@ -1,7 +1,7 @@
 package net.result.sandnode;
 
 import net.result.sandnode.chain.*;
-import net.result.sandnode.chain.receiver.UnhandledMessageTypeClientChain;
+import net.result.sandnode.chain.receiver.UnhandledMessageTypeChain;
 import net.result.sandnode.cluster.HashSetClusterManager;
 import net.result.sandnode.config.ClientConfig;
 import net.result.sandnode.config.HubConfigRecord;
@@ -12,7 +12,9 @@ import net.result.sandnode.encryption.EncryptionManager;
 import net.result.sandnode.encryption.KeyStorageRegistry;
 import net.result.sandnode.encryption.SymmetricEncryptions;
 import net.result.sandnode.encryption.interfaces.SymmetricEncryption;
-import net.result.sandnode.exception.*;
+import net.result.sandnode.exception.ImpossibleRuntimeException;
+import net.result.sandnode.exception.ServerStartException;
+import net.result.sandnode.exception.SocketAcceptException;
 import net.result.sandnode.hubagent.Agent;
 import net.result.sandnode.hubagent.ClientProtocol;
 import net.result.sandnode.hubagent.Hub;
@@ -21,7 +23,6 @@ import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.message.util.*;
 import net.result.sandnode.serverclient.SandnodeClient;
 import net.result.sandnode.serverclient.SandnodeServer;
-import net.result.sandnode.serverclient.Session;
 import net.result.sandnode.util.Address;
 import net.result.sandnode.util.Container;
 import net.result.sandnode.util.IOController;
@@ -176,19 +177,14 @@ public class ServerTest {
     }
 
     private static class TestHubServerChainManager extends HubServerChainManager {
-        @Override
-        public ServerChain createSessionChain(MessageType type) {
-            return type == Testing.TESTING ? new TestServerChain(session) : super.createSessionChain(type);
+        public TestHubServerChainManager() {
+            addHandler(Testing.TESTING, TestServerChain::new);
         }
     }
 
     private static class TestServerChain extends ServerChain implements ReceiverChain {
         public static final Lock lock = new ReentrantLock();
         public static Condition condition;
-
-        public TestServerChain(Session session) {
-            setSession(session);
-        }
 
         @Override
         public @Nullable Message handle(RawMessage receivedMessage) {
@@ -259,7 +255,7 @@ public class ServerTest {
 
         @Override
         public ReceiverChain createChain(MessageType type) {
-            return new UnhandledMessageTypeClientChain(client);
+            return new UnhandledMessageTypeChain();
         }
     }
 

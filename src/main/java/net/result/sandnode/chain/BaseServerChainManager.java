@@ -8,6 +8,12 @@ import net.result.sandnode.serverclient.Session;
 public abstract class BaseServerChainManager extends BaseChainManager implements ServerChainManager {
     protected Session session;
 
+    public BaseServerChainManager() {
+        addHandler(MessageTypes.EXIT, ExitServerChain::new);
+        addHandler(MessageTypes.PUB, PublicKeyServerChain::new);
+        addHandler(MessageTypes.SYM, SymKeyServerChain::new);
+    }
+
     @Override
     public void setSession(Session session) {
         this.session = session;
@@ -15,17 +21,12 @@ public abstract class BaseServerChainManager extends BaseChainManager implements
 
     @Override
     public ReceiverChain createChain(MessageType type) {
-        ServerChain chain = createSessionChain(type);
-        chain.setSession(session);
-        return (ReceiverChain) chain;
-    }
+        ReceiverChain chain = super.createChain(type);
 
-    public ServerChain createSessionChain(MessageType type) {
-        return type instanceof MessageTypes sysType ? switch (sysType) {
-            case EXIT -> new ExitServerChain();
-            case PUB -> new PublicKeyServerChain();
-            case SYM -> new SymKeyServerChain();
-            default -> new UnhandledMessageTypeServerChain();
-        } : new UnhandledMessageTypeServerChain();
+        if (chain instanceof ServerChain serverChain) {
+            serverChain.setSession(session);
+        }
+
+        return chain;
     }
 }
