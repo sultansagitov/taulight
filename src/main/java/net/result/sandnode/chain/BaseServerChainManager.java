@@ -5,8 +5,14 @@ import net.result.sandnode.message.util.MessageType;
 import net.result.sandnode.message.util.MessageTypes;
 import net.result.sandnode.serverclient.Session;
 
-public abstract class BaseServerChainManager extends BaseChainManager implements ServerChainManager {
+public class BaseServerChainManager extends BaseChainManager implements ServerChainManager {
     protected Session session;
+
+    public static void addHandlers(ServerChainManager chainManager) {
+        chainManager.addHandler(MessageTypes.EXIT, ExitServerChain::new);
+        chainManager.addHandler(MessageTypes.PUB, PublicKeyServerChain::new);
+        chainManager.addHandler(MessageTypes.SYM, SymKeyServerChain::new);
+    }
 
     @Override
     public void setSession(Session session) {
@@ -15,17 +21,12 @@ public abstract class BaseServerChainManager extends BaseChainManager implements
 
     @Override
     public ReceiverChain createChain(MessageType type) {
-        ServerChain chain = createSessionChain(type);
-        chain.setSession(session);
-        return (ReceiverChain) chain;
-    }
+        ReceiverChain chain = super.createChain(type);
 
-    public ServerChain createSessionChain(MessageType type) {
-        return type instanceof MessageTypes sysType ? switch (sysType) {
-            case EXIT -> new ExitServerChain();
-            case PUB -> new PublicKeyServerChain();
-            case SYM -> new SymKeyServerChain();
-            default -> new UnhandledMessageTypeServerChain();
-        } : new UnhandledMessageTypeServerChain();
+        if (chain instanceof ServerChain serverChain) {
+            serverChain.setSession(session);
+        }
+
+        return chain;
     }
 }

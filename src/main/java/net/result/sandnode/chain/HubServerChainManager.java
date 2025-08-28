@@ -1,27 +1,19 @@
 package net.result.sandnode.chain;
 
 import net.result.sandnode.chain.receiver.*;
-import net.result.sandnode.message.util.MessageType;
 import net.result.sandnode.message.util.MessageTypes;
 
-public abstract class HubServerChainManager extends BaseServerChainManager {
-    @Override
-    public ServerChain createSessionChain(MessageType type) {
-        if (type instanceof MessageTypes sysType) {
-            ServerChain chain = switch (sysType) {
-                case CLUSTER -> new ClusterServerChain();
-                case LOGIN -> new LoginServerChain();
-                case REG -> new RegistrationServerChain();
-                case LOGOUT -> new LogoutServerChain();
-                case WHOAMI -> new WhoAmIServerChain();
-                case NAME -> new NameServerChain();
-                case DEK -> new DEKServerChain();
-                case AVATAR -> new AvatarServerChain();
-                default -> null;
-            };
-            if (chain != null) return chain;
-        }
+public class HubServerChainManager {
+    public static void addHandlers(ServerChainManager chainManager) {
+        BaseServerChainManager.addHandlers(chainManager);
 
-        return super.createSessionChain(type);
+        chainManager.addHandler(MessageTypes.CLUSTER, ClusterServerChain::new);
+        chainManager.addHandler(MessageTypes.LOGIN, LoginServerChain::new);
+        chainManager.addHandler(MessageTypes.REG, RegistrationServerChain::new);
+        chainManager.addHandler(MessageTypes.LOGOUT, LogoutServerChain::new);
+        chainManager.addHandler(MessageTypes.WHOAMI, WhoAmIServerChain::new);
+        chainManager.addHandler(MessageTypes.NAME, NameServerChain::new);
+        chainManager.addHandler(MessageTypes.DEK, DEKServerChain::new);
+        chainManager.addHandler(MessageTypes.AVATAR, AvatarServerChain::new);
     }
 }

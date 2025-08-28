@@ -1,7 +1,6 @@
 package net.result.sandnode;
 
 import net.result.sandnode.chain.*;
-import net.result.sandnode.chain.receiver.UnhandledMessageTypeClientChain;
 import net.result.sandnode.cluster.HashSetClusterManager;
 import net.result.sandnode.config.ClientConfig;
 import net.result.sandnode.config.HubConfigRecord;
@@ -12,7 +11,9 @@ import net.result.sandnode.encryption.EncryptionManager;
 import net.result.sandnode.encryption.KeyStorageRegistry;
 import net.result.sandnode.encryption.SymmetricEncryptions;
 import net.result.sandnode.encryption.interfaces.SymmetricEncryption;
-import net.result.sandnode.exception.*;
+import net.result.sandnode.exception.ImpossibleRuntimeException;
+import net.result.sandnode.exception.ServerStartException;
+import net.result.sandnode.exception.SocketAcceptException;
 import net.result.sandnode.hubagent.Agent;
 import net.result.sandnode.hubagent.ClientProtocol;
 import net.result.sandnode.hubagent.Hub;
@@ -21,7 +22,6 @@ import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.message.util.*;
 import net.result.sandnode.serverclient.SandnodeClient;
 import net.result.sandnode.serverclient.SandnodeServer;
-import net.result.sandnode.serverclient.Session;
 import net.result.sandnode.util.Address;
 import net.result.sandnode.util.Container;
 import net.result.sandnode.util.IOController;
@@ -171,24 +171,16 @@ public class ServerTest {
 
         @Override
         public @NotNull ServerChainManager createChainManager() {
-            return new TestHubServerChainManager();
-        }
-    }
-
-    private static class TestHubServerChainManager extends HubServerChainManager {
-        @Override
-        public ServerChain createSessionChain(MessageType type) {
-            return type == Testing.TESTING ? new TestServerChain(session) : super.createSessionChain(type);
+            var chainManager = new BaseServerChainManager();
+            HubServerChainManager.addHandlers(chainManager);
+            chainManager.addHandler(Testing.TESTING, TestServerChain::new);
+            return chainManager;
         }
     }
 
     private static class TestServerChain extends ServerChain implements ReceiverChain {
         public static final Lock lock = new ReentrantLock();
         public static Condition condition;
-
-        public TestServerChain(Session session) {
-            setSession(session);
-        }
 
         @Override
         public @Nullable Message handle(RawMessage receivedMessage) {
@@ -231,7 +223,7 @@ public class ServerTest {
 
                 TestClientConfig clientConfig = new TestClientConfig();
                 client = new SandnodeClient(address, agent, NodeType.HUB, clientConfig);
-                ClientChainManager chainManager = new TestClientChainManager(client);
+                ClientChainManager chainManager = new BaseClientChainManager();
                 client.start(chainManager);
                 ClientProtocol.PUB(client);
                 ClientProtocol.sendSYM(client);
@@ -249,17 +241,6 @@ public class ServerTest {
                 fail(e);
                 throw new RuntimeException(e);
             }
-        }
-    }
-
-    private static class TestClientChainManager extends BaseClientChainManager {
-        public TestClientChainManager(SandnodeClient client) {
-            super(client);
-        }
-
-        @Override
-        public ReceiverChain createChain(MessageType type) {
-            return new UnhandledMessageTypeClientChain(client);
         }
     }
 

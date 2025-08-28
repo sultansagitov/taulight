@@ -4,7 +4,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@SuppressWarnings("unused")
+@SuppressWarnings("ALL")
 class SimpleContainerInterfaceHierarchyTest {
 
     interface Parent {

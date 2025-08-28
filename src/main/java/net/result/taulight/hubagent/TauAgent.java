@@ -1,5 +1,6 @@
 package net.result.taulight.hubagent;
 
+import net.result.sandnode.chain.BaseServerChainManager;
 import net.result.sandnode.chain.ServerChainManager;
 import net.result.sandnode.config.AgentConfig;
 import net.result.sandnode.encryption.KeyStorageRegistry;
@@ -17,8 +18,9 @@ public class TauAgent extends Agent {
     }
 
     @Override
-    @NotNull
-    public ServerChainManager createChainManager() {
-        return new TauAgentServerChainManager();
+    public @NotNull ServerChainManager createChainManager() {
+        var chainManager = new BaseServerChainManager();
+        TauAgentServerChainManager.addHandlers(chainManager);
+        return chainManager;
     }
 }

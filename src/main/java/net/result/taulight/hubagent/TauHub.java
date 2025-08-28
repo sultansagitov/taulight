@@ -1,5 +1,6 @@
 package net.result.taulight.hubagent;
 
+import net.result.sandnode.chain.BaseServerChainManager;
 import net.result.sandnode.chain.ServerChainManager;
 import net.result.sandnode.config.HubConfig;
 import net.result.sandnode.hubagent.Hub;
@@ -14,6 +15,8 @@ public class TauHub extends Hub {
 
     @Override
     public @NotNull ServerChainManager createChainManager() {
-        return new TauHubServerChainManager();
+        var chainManager = new BaseServerChainManager();
+        TauHubServerChainManager.addHandlers(chainManager);
+        return chainManager;
     }
 }
