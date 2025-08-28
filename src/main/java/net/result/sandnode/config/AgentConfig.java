@@ -6,6 +6,7 @@ import net.result.sandnode.exception.StorageException;
 import net.result.sandnode.exception.crypto.KeyAlreadySaved;
 import net.result.sandnode.exception.error.KeyStorageNotFoundException;
 import net.result.sandnode.util.Address;
+import net.result.sandnode.util.Member;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.UUID;
@@ -45,62 +46,57 @@ public interface AgentConfig {
     /**
      * Saves this agent's personal asymmetric key pair.
      *
-     * @param address    the agent's address or identifier
-     * @param nickname   nickname of member
+     * @param member     the agent (address + nickname)
      * @param keyStorage personal key storage (private + public keys)
      * @throws StorageException if saving fails
      */
-    void savePersonalKey(Address address, String nickname, KeyStorage keyStorage);
+    void savePersonalKey(Member member, KeyStorage keyStorage);
 
     /**
-     * Saves an encryptor's public key for a given agent, identified by a nickname.
+     * Saves a public key of another agent (encryptor).
      *
-     * @param address    the target agent's address or identifier
-     * @param nickname   nickname of member
+     * @param member     target agent (address + nickname)
      * @param keyStorage public key storage of the encryptor
      * @throws StorageException if saving fails
      */
-    void saveEncryptor(Address address, String nickname, KeyStorage keyStorage);
+    void saveEncryptor(Member member, KeyStorage keyStorage);
 
     /**
-     * Saves a data encryption key (DEK) for encrypting actual data.
+     * Saves a data encryption key (DEK).
      *
-     * @param address    the owner or context of the DEK
-     * @param nickname   nickname of member
+     * @param member     owner of the DEK (address + nickname)
      * @param keyID      unique ID of the DEK
      * @param keyStorage symmetric key storage of the DEK
      * @throws StorageException if saving fails
      */
-    void saveDEK(Address address, String nickname, UUID keyID, KeyStorage keyStorage);
+    void saveDEK(Member member, UUID keyID, KeyStorage keyStorage);
 
     /**
-     * Loads this agent's personal key pair by its ID.
+     * Loads this agent's personal key pair.
      *
-     * @param address  agent address or identifier
-     * @param nickname nickname of member
+     * @param member (address + nickname)
+     * @return personal key storage
      * @throws KeyStorageNotFoundException if key not found
      */
-    KeyStorage loadPersonalKey(Address address, String nickname);
+    KeyStorage loadPersonalKey(Member member);
 
     /**
-     * Loads an encryptor key by nickname.
+     * Loads a stored encryptor key.
      *
-     * @param address  target agent address or identifier
-     * @param nickname nickname of member
+     * @param member target agent (address + nickname)
      * @return KeyEntry containing the encryptor key
      * @throws KeyStorageNotFoundException if key not found
      */
-    KeyStorage loadEncryptor(Address address, String nickname);
+    KeyStorage loadEncryptor(Member member);
 
     /**
-     * Loads a DEK by nickname.
+     * Loads a DEK by owner (identified by member).
      *
-     * @param address  owner or context address
-     * @param nickname nickname of member
+     * @param member owner of the DEK (address + nickname)
      * @return KeyEntry containing the DEK
      * @throws KeyStorageNotFoundException if DEK not found
      */
-    KeyEntry loadDEK(Address address, String nickname);
+    KeyEntry loadDEK(Member member);
 
     /**
      * Loads a DEK by its unique ID.

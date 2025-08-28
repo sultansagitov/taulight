@@ -12,6 +12,7 @@ import net.result.sandnode.exception.crypto.*;
 import net.result.sandnode.exception.error.KeyStorageNotFoundException;
 import net.result.sandnode.util.Address;
 import net.result.sandnode.util.FileUtil;
+import net.result.sandnode.util.Member;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
@@ -139,23 +140,23 @@ public class AgentPropertiesConfig implements AgentConfig {
     }
 
     @Override
-    public synchronized void savePersonalKey(Address address, String nickname, KeyStorage keyStorage) {
+    public synchronized void savePersonalKey(Member member, KeyStorage keyStorage) {
         JSONArray arr = readArray(MEMBER_KEYS_JSON_PATH, "member-keys");
-        arr.put(new MemberKeyRecord(address, nickname, keyStorage).toJSON());
+        arr.put(new MemberKeyRecord(member.address(), member.nickname(), keyStorage).toJSON());
         saveJsonArray(MEMBER_KEYS_JSON_PATH, "member-keys", arr);
     }
 
     @Override
-    public void saveEncryptor(Address address, String nickname, KeyStorage keyStorage) {
+    public void saveEncryptor(Member member, KeyStorage keyStorage) {
         JSONArray arr = readArray(MEMBER_KEYS_JSON_PATH, "member-keys");
-        arr.put(new MemberKeyRecord(address, nickname, keyStorage).toJSON());
+        arr.put(new MemberKeyRecord(member.address(), member.nickname(), keyStorage).toJSON());
         saveJsonArray(MEMBER_KEYS_JSON_PATH, "member-keys", arr);
     }
 
     @Override
-    public void saveDEK(Address address, String nickname, UUID keyID, KeyStorage keyStorage) {
+    public void saveDEK(Member member, UUID keyID, KeyStorage keyStorage) {
         JSONArray arr = readArray(DEKS_JSON_PATH, "deks");
-        arr.put(new MemberKeyRecord(address, nickname, keyID, keyStorage).toJSON());
+        arr.put(new MemberKeyRecord(member.address(), member.nickname(), keyID, keyStorage).toJSON());
         saveJsonArray(DEKS_JSON_PATH, "deks", arr);
     }
 
@@ -175,48 +176,48 @@ public class AgentPropertiesConfig implements AgentConfig {
     }
 
     @Override
-    public synchronized KeyStorage loadPersonalKey(Address address, String nickname) {
+    public synchronized KeyStorage loadPersonalKey(Member member) {
         for (Object o : readArray(MEMBER_KEYS_JSON_PATH, "member-keys")) {
             JSONObject obj = (JSONObject) o;
             try {
                 MemberKeyRecord rec = MemberKeyRecord.fromJSON(obj);
-                if (rec.address.equals(address) && rec.nickname.equals(nickname))
+                if (rec.address.equals(member.address()) && rec.nickname.equals(member.nickname()))
                     return rec.keyStorage;
             } catch (Exception e) {
                 LOGGER.error("Invalid member key JSON", e);
             }
         }
-        throw new KeyStorageNotFoundException("%s@%s".formatted(nickname, address));
+        throw new KeyStorageNotFoundException(member.toString());
     }
 
     @Override
-    public KeyStorage loadEncryptor(Address address, String nickname) {
+    public KeyStorage loadEncryptor(Member member) {
         for (Object o : readArray(MEMBER_KEYS_JSON_PATH, "member-keys")) {
             JSONObject obj = (JSONObject) o;
             try {
                 MemberKeyRecord rec = MemberKeyRecord.fromJSON(obj);
-                if (rec.address.equals(address) && Objects.equals(rec.nickname, nickname))
+                if (rec.address.equals(member.address()) && Objects.equals(rec.nickname, member.nickname()))
                     return rec.keyStorage;
             } catch (Exception e) {
                 LOGGER.error("Invalid encryptor JSON", e);
             }
         }
-        throw new KeyStorageNotFoundException("%s@%s".formatted(nickname, address));
+        throw new KeyStorageNotFoundException(member.toString());
     }
 
     @Override
-    public KeyEntry loadDEK(Address address, String nickname) {
+    public KeyEntry loadDEK(Member member) {
         for (Object o : readArray(DEKS_JSON_PATH, "deks")) {
             JSONObject obj = (JSONObject) o;
             try {
                 MemberKeyRecord rec = MemberKeyRecord.fromJSON(obj);
-                if (rec.address.equals(address) && Objects.equals(rec.nickname, nickname))
+                if (rec.address.equals(member.address()) && Objects.equals(rec.nickname, member.nickname()))
                     return new KeyEntry(rec.keyID, rec.keyStorage);
             } catch (Exception e) {
                 LOGGER.error("Invalid DEK JSON", e);
             }
         }
-        throw new KeyStorageNotFoundException("%s@%s".formatted(nickname, address));
+        throw new KeyStorageNotFoundException(member.toString());
     }
 
     @Override

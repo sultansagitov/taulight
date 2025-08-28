@@ -6,6 +6,7 @@ import net.result.sandnode.encryption.interfaces.KeyStorage;
 import net.result.sandnode.exception.error.KeyStorageNotFoundException;
 import net.result.sandnode.hubagent.Agent;
 import net.result.sandnode.serverclient.SandnodeClient;
+import net.result.sandnode.util.Member;
 
 import java.util.UUID;
 
@@ -25,14 +26,15 @@ public class TauAgentProtocol {
 
     public static KeyEntry loadDEK(SandnodeClient client, String other) {
         Agent agent = client.node().agent();
+        Member member = new Member(other, client.address);
         try {
-            return agent.config.loadDEK(client.address, other);
+            return agent.config.loadDEK(member);
         } catch (KeyStorageNotFoundException e) {
             DEKClientChain chain = new DEKClientChain(client);
             client.io().chainManager.linkChain(chain);
             chain.get();
             client.io().chainManager.removeChain(chain);
-            return agent.config.loadDEK(client.address, other);
+            return agent.config.loadDEK(member);
         }
     }
 }
