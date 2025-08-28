@@ -47,7 +47,8 @@ public class GlobalTestState {
 
         hubKeyStorage = new KeyStorageRegistry(AsymmetricEncryptions.ECIES.generate());
 
-        var serverCM = new HubServerChainManager() {};
+        var serverCM = new BaseServerChainManager();
+        HubServerChainManager.addHandlers(serverCM);
         var node = new TestHub(name, serverCM, hubKeyStorage);
         var serverAddress = new Address("127.0.0.1", 52524);
         var serverConfig = new ServerConfigRecord(container, serverAddress, AsymmetricEncryptions.ECIES);
@@ -57,7 +58,8 @@ public class GlobalTestState {
 
         Address clientAddress = new Address("127.0.0.1", 5252);
         client = new SandnodeClient(clientAddress, new TestAgent(), NodeType.HUB, () -> SymmetricEncryptions.AES);
-        var clientChainManager = new BaseClientChainManager(client) {};
+        var clientChainManager = new BaseClientChainManager();
+        BaseClientChainManager.addHandlers(clientChainManager, client);
         client.start(clientChainManager, pair.socket2);
     }
 }

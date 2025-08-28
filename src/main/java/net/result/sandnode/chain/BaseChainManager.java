@@ -32,6 +32,7 @@ public abstract class BaseChainManager implements ChainManager {
     private final ChainStorage storage = new BSTChainStorage(new AVLTree<>());
     private final Map<MessageType, Supplier<ReceiverChain>> map = new HashMap<>();
 
+    @Override
     public void addHandler(MessageType type, Supplier<ReceiverChain> supplier) {
         map.put(type, supplier);
     }
@@ -41,7 +42,6 @@ public abstract class BaseChainManager implements ChainManager {
         return storage;
     }
 
-    @Override
     public ReceiverChain createChain(MessageType type) {
         return map.get(type).get();
     }

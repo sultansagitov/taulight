@@ -5,13 +5,13 @@ import net.result.sandnode.message.util.MessageType;
 import net.result.sandnode.message.util.MessageTypes;
 import net.result.sandnode.serverclient.Session;
 
-public abstract class BaseServerChainManager extends BaseChainManager implements ServerChainManager {
+public class BaseServerChainManager extends BaseChainManager implements ServerChainManager {
     protected Session session;
 
-    public BaseServerChainManager() {
-        addHandler(MessageTypes.EXIT, ExitServerChain::new);
-        addHandler(MessageTypes.PUB, PublicKeyServerChain::new);
-        addHandler(MessageTypes.SYM, SymKeyServerChain::new);
+    public static void addHandlers(ServerChainManager chainManager) {
+        chainManager.addHandler(MessageTypes.EXIT, ExitServerChain::new);
+        chainManager.addHandler(MessageTypes.PUB, PublicKeyServerChain::new);
+        chainManager.addHandler(MessageTypes.SYM, SymKeyServerChain::new);
     }
 
     @Override

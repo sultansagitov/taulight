@@ -1,8 +1,12 @@
 package net.result.taulight.chain;
 
-import net.result.sandnode.chain.HubServerChainManager;
+import net.result.sandnode.chain.BaseServerChainManager;
 import net.result.sandnode.chain.ServerChainManager;
 
-public class TauAgentServerChainManager extends HubServerChainManager implements ServerChainManager {
-    // TODO
+public class TauAgentServerChainManager {
+    public static void addHandlers(ServerChainManager chainManager) {
+        BaseServerChainManager.addHandlers(chainManager);
+
+        // TODO
+    }
 }

@@ -9,6 +9,7 @@ import net.result.main.commands.sandnode.*;
 import net.result.main.commands.taulight.*;
 import net.result.main.config.AgentPropertiesConfig;
 import net.result.main.config.ClientPropertiesConfig;
+import net.result.sandnode.chain.BaseClientChainManager;
 import net.result.sandnode.exception.InvalidSandnodeLinkException;
 import net.result.sandnode.exception.crypto.CreatingKeyException;
 import net.result.sandnode.hubagent.AgentProtocol;
@@ -50,7 +51,8 @@ public class RunAgentWork implements Work {
         TauAgent agent = new TauAgent(new AgentPropertiesConfig());
 
         client = SandnodeClient.fromLink(link, agent, clientConfig);
-        ConsoleClientChainManager chainManager = new ConsoleClientChainManager(client);
+        var chainManager = new BaseClientChainManager();
+        ConsoleClientChainManager.addHandlers(chainManager, client);
 
         // Starting client
         client.start(chainManager);

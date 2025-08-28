@@ -1,7 +1,6 @@
 package net.result.sandnode;
 
 import net.result.sandnode.chain.*;
-import net.result.sandnode.chain.receiver.UnhandledMessageTypeChain;
 import net.result.sandnode.cluster.HashSetClusterManager;
 import net.result.sandnode.config.ClientConfig;
 import net.result.sandnode.config.HubConfigRecord;
@@ -172,13 +171,10 @@ public class ServerTest {
 
         @Override
         public @NotNull ServerChainManager createChainManager() {
-            return new TestHubServerChainManager();
-        }
-    }
-
-    private static class TestHubServerChainManager extends HubServerChainManager {
-        public TestHubServerChainManager() {
-            addHandler(Testing.TESTING, TestServerChain::new);
+            var chainManager = new BaseServerChainManager();
+            HubServerChainManager.addHandlers(chainManager);
+            chainManager.addHandler(Testing.TESTING, TestServerChain::new);
+            return chainManager;
         }
     }
 
@@ -227,7 +223,7 @@ public class ServerTest {
 
                 TestClientConfig clientConfig = new TestClientConfig();
                 client = new SandnodeClient(address, agent, NodeType.HUB, clientConfig);
-                ClientChainManager chainManager = new TestClientChainManager(client);
+                ClientChainManager chainManager = new BaseClientChainManager();
                 client.start(chainManager);
                 ClientProtocol.PUB(client);
                 ClientProtocol.sendSYM(client);
@@ -245,17 +241,6 @@ public class ServerTest {
                 fail(e);
                 throw new RuntimeException(e);
             }
-        }
-    }
-
-    private static class TestClientChainManager extends BaseClientChainManager {
-        public TestClientChainManager(SandnodeClient client) {
-            super(client);
-        }
-
-        @Override
-        public ReceiverChain createChain(MessageType type) {
-            return new UnhandledMessageTypeChain();
         }
     }
 

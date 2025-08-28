@@ -11,7 +11,7 @@ import java.nio.file.Path;
 public class TestHub extends Hub {
     private final ServerChainManager serverCM;
 
-    public TestHub(String name, HubServerChainManager serverCM, KeyStorageRegistry hubKeyStorage) {
+    public TestHub(String name, ServerChainManager serverCM, KeyStorageRegistry hubKeyStorage) {
         super(hubKeyStorage, new HubConfigRecord(name, PasswordHashers.BCRYPT, Path.of("/")));
         this.serverCM = serverCM;
     }
