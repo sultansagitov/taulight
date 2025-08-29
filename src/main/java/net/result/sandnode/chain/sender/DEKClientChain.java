@@ -12,6 +12,7 @@ import net.result.sandnode.message.types.DEKRequest;
 import net.result.sandnode.message.types.PublicKeyResponse;
 import net.result.sandnode.serverclient.SandnodeClient;
 import net.result.sandnode.util.DEKUtil;
+import net.result.sandnode.util.Member;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -27,7 +28,7 @@ public class DEKClientChain extends ClientChain {
         var raw = sendAndReceive(DEKRequest.send(receiver, encryptor, dek));
         var keyID = new UUIDMessage(raw).uuid;
 
-        client.node().agent().config.saveDEK(client.address, receiver, keyID, dek);
+        client.node().agent().config.saveDEK(new Member(client), new Member(receiver, client.address), keyID, dek);
 
         return keyID;
     }
@@ -38,12 +39,14 @@ public class DEKClientChain extends ClientChain {
 
         List<Exception> exceptions = new ArrayList<>();
 
+        Member m1 = new Member(client);
         for (DEKResponseDTO key : keys) {
+            Member m2 = new Member(key.senderNickname, client.address);
             try {
                 var agent = client.node().agent();
-                var personalKey = agent.config.loadPersonalKey(client.address, client.nickname);
+                var personalKey = agent.config.loadPersonalKey(new Member(client.nickname, client.address));
                 var decrypted = DEKUtil.decrypt(key.dek.encryptedKey, personalKey);
-                agent.config.saveDEK(client.address, key.senderNickname, key.dek.id, decrypted);
+                agent.config.saveDEK(m1, m2, key.dek.id, decrypted);
             } catch (EncryptionTypeException | NoSuchEncryptionException | CreatingKeyException |
                      WrongKeyException | CannotUseEncryption | PrivateKeyNotFoundException | StorageException e) {
                 exceptions.add(e);
@@ -65,7 +68,7 @@ public class DEKClientChain extends ClientChain {
         var raw = sendAndReceive(DEKRequest.getPersonalKeyOf(nickname));
         var key = PublicKeyResponse.getKeyDTO(raw);
 
-        client.node().agent().config.saveEncryptor(client.address, nickname, key.keyStorage());
+        client.node().agent().config.saveEncryptor(new Member(nickname, client.address), key.keyStorage());
 
         return key;
     }

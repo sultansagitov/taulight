@@ -6,6 +6,7 @@ import net.result.sandnode.encryption.interfaces.AsymmetricKeyStorage;
 import net.result.sandnode.encryption.interfaces.KeyStorage;
 import net.result.sandnode.exception.error.KeyStorageNotFoundException;
 import net.result.sandnode.util.Address;
+import net.result.sandnode.util.Member;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.UUID;
@@ -20,31 +21,31 @@ public class TestAgentConfig implements AgentConfig {
     }
 
     @Override
-    public void savePersonalKey(Address address, String nickname, KeyStorage keyStorage) {}
+    public void savePersonalKey(Member member, KeyStorage keyStorage) {}
 
     @Override
-    public KeyStorage loadPersonalKey(Address address, String nickname) {
-        throw new KeyStorageNotFoundException("Address %s, nickname %s".formatted(address, nickname));
+    public KeyStorage loadPersonalKey(Member member) {
+        throw new KeyStorageNotFoundException(member.toString());
     }
 
     @Override
-    public KeyStorage loadEncryptor(Address address, String nickname) {
-        throw new KeyStorageNotFoundException(nickname);
+    public KeyStorage loadEncryptor(Member member) {
+        throw new KeyStorageNotFoundException(member.toString());
     }
 
     @Override
-    public KeyEntry loadDEK(Address address, String nickname) {
-        throw new KeyStorageNotFoundException(nickname);
+    public KeyEntry loadDEK(Member m1, Member m2) {
+        throw new KeyStorageNotFoundException(m1 + " - " + m2);
     }
 
     @Override
-    public KeyStorage loadDEK(Address address, UUID keyID) {
+    public KeyStorage loadDEK(UUID keyID) {
         throw new KeyStorageNotFoundException(keyID);
     }
 
     @Override
-    public void saveEncryptor(Address address, String nickname, KeyStorage keyStorage) {}
+    public void saveEncryptor(Member member, KeyStorage keyStorage) {}
 
     @Override
-    public void saveDEK(Address address, String nickname, UUID keyID, KeyStorage keyStorage) {}
+    public void saveDEK(Member m1, Member m2, UUID keyID, KeyStorage keyStorage) {}
 }

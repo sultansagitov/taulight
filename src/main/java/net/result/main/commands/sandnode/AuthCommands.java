@@ -9,6 +9,7 @@ import net.result.sandnode.dto.LoginHistoryDTO;
 import net.result.sandnode.encryption.interfaces.KeyStorage;
 import net.result.sandnode.hubagent.Agent;
 import net.result.sandnode.serverclient.SandnodeClient;
+import net.result.sandnode.util.Member;
 
 import java.time.format.DateTimeFormatter;
 import java.util.Base64;
@@ -39,7 +40,7 @@ public class AuthCommands {
         Agent agent = client.node().agent();
 
         for (LoginHistoryDTO dto : history.stream().sorted(Comparator.comparing(a -> a.time)).toList()) {
-            KeyStorage personalKey = agent.config.loadPersonalKey(client.address, client.nickname);
+            KeyStorage personalKey = agent.config.loadPersonalKey(new Member(client));
 
             String ip = personalKey.decrypt(Base64.getDecoder().decode(dto.ip));
             String device = personalKey.decrypt(Base64.getDecoder().decode(dto.device));

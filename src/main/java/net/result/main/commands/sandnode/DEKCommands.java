@@ -9,6 +9,7 @@ import net.result.sandnode.encryption.SymmetricEncryptions;
 import net.result.sandnode.encryption.interfaces.KeyStorage;
 import net.result.sandnode.exception.error.KeyStorageNotFoundException;
 import net.result.sandnode.serverclient.SandnodeClient;
+import net.result.sandnode.util.Member;
 
 import java.util.*;
 
@@ -26,7 +27,7 @@ public class DEKCommands {
 
         KeyStorage encryptor;
         try {
-            encryptor = client.node().agent().config.loadEncryptor(client.address, receiver);
+            encryptor = client.node().agent().config.loadEncryptor(new Member(receiver, client.address));
         } catch (KeyStorageNotFoundException e) {
             DEKClientChain chain = new DEKClientChain(client);
             context.io.chainManager.linkChain(chain);

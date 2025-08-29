@@ -12,6 +12,7 @@ import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.message.types.RegistrationRequest;
 import net.result.sandnode.message.types.RegistrationResponse;
 import net.result.sandnode.serverclient.SandnodeClient;
+import net.result.sandnode.util.Member;
 import org.jetbrains.annotations.NotNull;
 
 public class RegistrationClientChain extends ClientChain {
@@ -33,7 +34,6 @@ public class RegistrationClientChain extends ClientChain {
             @NotNull String device,
             @NotNull AsymmetricKeyStorage keyStorage
     ) {
-
         var pubDTO = new PublicKeyDTO(keyStorage);
         var regDTO = new RegisterRequestDTO(nickname, password, device, pubDTO);
 
@@ -41,7 +41,7 @@ public class RegistrationClientChain extends ClientChain {
         send(request);
         RawMessage response = receiveWithSpecifics(BusyNicknameException.class, InvalidNicknamePassword.class);
 
-        client.node().agent().config.savePersonalKey(client.address, nickname, keyStorage);
+        client.node().agent().config.savePersonalKey(new Member(nickname, client.address), keyStorage);
 
         client.nickname = nickname;
 

@@ -1,15 +1,18 @@
 package net.result.main.config;
 
-import net.result.main.exception.crypto.KeyHashCheckingException;
 import net.result.sandnode.config.AgentConfig;
 import net.result.sandnode.config.KeyEntry;
 import net.result.sandnode.encryption.interfaces.AsymmetricKeyStorage;
 import net.result.sandnode.encryption.interfaces.KeyStorage;
-import net.result.sandnode.exception.*;
+import net.result.sandnode.exception.ConfigurationException;
+import net.result.sandnode.exception.FSException;
+import net.result.sandnode.exception.ImpossibleRuntimeException;
+import net.result.sandnode.exception.StorageException;
 import net.result.sandnode.exception.crypto.*;
 import net.result.sandnode.exception.error.KeyStorageNotFoundException;
 import net.result.sandnode.util.Address;
 import net.result.sandnode.util.FileUtil;
+import net.result.sandnode.util.Member;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
@@ -22,15 +25,17 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.*;
+import java.util.Objects;
+import java.util.Properties;
+import java.util.UUID;
 
 public class AgentPropertiesConfig implements AgentConfig {
     private static final Logger LOGGER = LogManager.getLogger(AgentPropertiesConfig.class);
-    private final Path KEYS_JSON_PATH;
     private final Path KEYS_PATH;
-    private final Collection<KeyRecord> serverKeys = new ArrayList<>();
-    private final Collection<MemberKeyRecord> memberKeys = new ArrayList<>();
-    private final Collection<MemberKeyRecord> DEKs = new ArrayList<>();
+
+    private final Path SERVER_KEYS_JSON_PATH;
+    private final Path MEMBER_KEYS_JSON_PATH;
+    private final Path DEKS_JSON_PATH;
 
     public AgentPropertiesConfig() {
         this("taulight.properties");
@@ -49,81 +54,48 @@ public class AgentPropertiesConfig implements AgentConfig {
         if (KEYS_PATH.toFile().mkdirs())
             LOGGER.info("Directory created: {}", KEYS_PATH);
 
-        KEYS_JSON_PATH = FileUtil.resolveHome(properties.getProperty("agent.keys.json_file_name"));
+        SERVER_KEYS_JSON_PATH = KEYS_PATH.resolve("server-keys.json");
+        MEMBER_KEYS_JSON_PATH = KEYS_PATH.resolve("member-keys.json");
+        DEKS_JSON_PATH = KEYS_PATH.resolve("deks.json");
 
+        ensureFile(SERVER_KEYS_JSON_PATH, "server-keys");
+        ensureFile(MEMBER_KEYS_JSON_PATH, "member-keys");
+        ensureFile(DEKS_JSON_PATH, "deks");
+    }
+
+    private void ensureFile(Path path, String arrayName) {
         try {
-            if (!Files.exists(KEYS_JSON_PATH)) {
-                FileUtil.createFile(KEYS_JSON_PATH);
-                saveKeysJSON();
-                return;
+            if (!Files.exists(path)) {
+                FileUtil.createFile(path);
+                saveJsonArray(path, arrayName, new JSONArray());
             }
-
-            FileUtil.checkNotDirectory(KEYS_JSON_PATH);
-            String data = FileUtil.readString(KEYS_JSON_PATH);
-            JSONObject json = new JSONObject(data);
-
-            for (Object key : json.getJSONArray("server-keys")) {
-                JSONObject jsonObject = (JSONObject) key;
-                try {
-                    KeyRecord keyRecord = KeyRecord.fromJSON(jsonObject);
-                    serverKeys.add(keyRecord);
-                } catch (NoSuchEncryptionException | CreatingKeyException | FSException | NoSuchHasherException |
-                         EncryptionTypeException | InvalidAddressSyntax | KeyHashCheckingException e) {
-                    LOGGER.error("Error while validating \"{}\"", KEYS_JSON_PATH, e);
-                }
-            }
-
-            for (Object key : json.getJSONArray("member-keys")) {
-                JSONObject jsonObject = (JSONObject) key;
-                try {
-                    MemberKeyRecord keyRecord = MemberKeyRecord.fromJSON(jsonObject);
-                    memberKeys.add(keyRecord);
-                } catch (NoSuchEncryptionException | CreatingKeyException | EncryptionTypeException e) {
-                    LOGGER.error("Error while validating \"{}\"", KEYS_JSON_PATH, e);
-                }
-            }
-
-            for (Object key : json.getJSONArray("deks")) {
-                JSONObject jsonObject = (JSONObject) key;
-                try {
-                    MemberKeyRecord keyRecord = MemberKeyRecord.fromJSON(jsonObject);
-                    DEKs.add(keyRecord);
-                } catch (NoSuchEncryptionException | CreatingKeyException | EncryptionTypeException e) {
-                    LOGGER.error("Error while validating \"{}\"", KEYS_JSON_PATH, e);
-                }
-            }
-        } catch (Exception e) {
+        } catch (NoSuchEncryptionException | CreatingKeyException | EncryptionTypeException e) {
             throw new StorageException(e);
         }
     }
 
-    private JSONObject getKeysJson() {
-        JSONArray serverKeyArray = new JSONArray();
-        serverKeys.stream().map(KeyRecord::toJSON).forEach(serverKeyArray::put);
-
-        JSONArray memberKeyArray = new JSONArray();
-        memberKeys.stream().map(MemberKeyRecord::toJSON).forEach(memberKeyArray::put);
-
-        JSONArray DEKArray = new JSONArray();
-        DEKs.stream().map(MemberKeyRecord::toJSON).forEach(DEKArray::put);
-
-        return new JSONObject()
-                .put("server-keys", serverKeyArray)
-                .put("member-keys", memberKeyArray)
-                .put("deks", DEKArray);
+    private JSONArray readArray(Path path, String arrayName) {
+        try {
+            String data = FileUtil.readString(path);
+            return new JSONObject(data).getJSONArray(arrayName);
+        } catch (Exception e) {
+            throw new StorageException("Error reading " + arrayName, e);
+        }
     }
 
-    private boolean isHaveKey(@NotNull Address address) {
-        return serverKeys.stream().anyMatch(record -> address.equals(record.address));
-    }
-
-    public synchronized void saveKeysJSON() {
-        String string = getKeysJson().toString();
-        try (FileWriter fileWriter = new FileWriter(KEYS_JSON_PATH.toFile())) {
-            fileWriter.write(string);
+    private void saveJsonArray(Path path, String arrayName, JSONArray arr) {
+        JSONObject obj = new JSONObject().put(arrayName, arr);
+        try (FileWriter fileWriter = new FileWriter(path.toFile())) {
+            fileWriter.write(obj.toString());
         } catch (IOException e) {
             throw new StorageException(e);
         }
+    }
+
+    private boolean hasServerKey(@NotNull Address address) {
+        return readArray(SERVER_KEYS_JSON_PATH, "server-keys").toList().stream()
+                .map(o -> (JSONObject) o)
+                .anyMatch(obj -> address.toString().equals(obj.getString("address")));
     }
 
     @Override
@@ -131,7 +103,7 @@ public class AgentPropertiesConfig implements AgentConfig {
         String sanitizedAddress = address.toString().replaceAll("[.:\\\\/*?\"<>|]", "_");
         String filename = "%s_%s_public.key".formatted(sanitizedAddress, UUID.randomUUID());
 
-        if (isHaveKey(address))
+        if (hasServerKey(address))
             throw new KeyAlreadySaved("JSON already have this address");
 
         Path publicKeyPath = Paths.get(KEYS_PATH.toString(), filename);
@@ -162,78 +134,104 @@ public class AgentPropertiesConfig implements AgentConfig {
             throw new StorageException("Error writing public key to file", e);
         }
 
-        KeyRecord keyRecord = new KeyRecord(publicKeyPath, keyStorage, address, publicKeyString);
-        serverKeys.add(keyRecord);
-        saveKeysJSON();
+        JSONArray arr = readArray(SERVER_KEYS_JSON_PATH, "server-keys");
+        arr.put(new KeyRecord(publicKeyPath, keyStorage, address, publicKeyString).toJSON());
+        saveJsonArray(SERVER_KEYS_JSON_PATH, "server-keys", arr);
+    }
+
+    @Override
+    public synchronized void savePersonalKey(Member member, KeyStorage keyStorage) {
+        JSONArray arr = readArray(MEMBER_KEYS_JSON_PATH, "member-keys");
+        arr.put(new MemberKeyRecord(member.address(), member.nickname(), keyStorage).toJSON());
+        saveJsonArray(MEMBER_KEYS_JSON_PATH, "member-keys", arr);
+    }
+
+    @Override
+    public void saveEncryptor(Member member, KeyStorage keyStorage) {
+        JSONArray arr = readArray(MEMBER_KEYS_JSON_PATH, "member-keys");
+        arr.put(new MemberKeyRecord(member.address(), member.nickname(), keyStorage).toJSON());
+        saveJsonArray(MEMBER_KEYS_JSON_PATH, "member-keys", arr);
+    }
+
+    @Override
+    public void saveDEK(Member m1, Member m2, UUID keyID, KeyStorage keyStorage) {
+        JSONArray arr = readArray(DEKS_JSON_PATH, "deks");
+        arr.put(new DEKRecord(m1, m2, keyID, keyStorage).toJSON());
+        saveJsonArray(DEKS_JSON_PATH, "deks", arr);
     }
 
     @Override
     public AsymmetricKeyStorage loadServerKey(@NotNull Address address) {
-        for (KeyRecord keyRecord : serverKeys) {
-            if (keyRecord.address.equals(address)) {
-                return keyRecord.keyStorage.asymmetric();
+        for (Object o : readArray(SERVER_KEYS_JSON_PATH, "server-keys")) {
+            JSONObject obj = (JSONObject) o;
+            try {
+                KeyRecord rec = KeyRecord.fromJSON(obj);
+                if (rec.address.equals(address))
+                    return rec.keyStorage.asymmetric();
+            } catch (Exception e) {
+                LOGGER.error("Invalid server key JSON", e);
             }
         }
         throw new KeyStorageNotFoundException(address.toString());
     }
 
     @Override
-    public synchronized void savePersonalKey(Address address, String nickname, KeyStorage keyStorage) {
-        memberKeys.add(new MemberKeyRecord(address, nickname, keyStorage));
-        saveKeysJSON();
-    }
-
-    @Override
-    public void saveEncryptor(Address address, String nickname, KeyStorage keyStorage) {
-        LOGGER.debug("Saving encryptor {}@{}", nickname, address);
-        memberKeys.add(new MemberKeyRecord(address, nickname, keyStorage));
-        saveKeysJSON();
-    }
-
-    @Override
-    public void saveDEK(Address address, String nickname, UUID keyID, KeyStorage keyStorage) {
-        LOGGER.debug("Saving DEK for {}@{} as {}", nickname, address, keyID);
-        DEKs.add(new MemberKeyRecord(address, nickname, keyID, keyStorage));
-        saveKeysJSON();
-    }
-
-    @Override
-    public synchronized KeyStorage loadPersonalKey(Address address, String nickname) {
-        for (MemberKeyRecord k : memberKeys) {
-            if (k.nickname.equals(nickname) && k.address.equals(address)) {
-                return k.keyStorage;
+    public synchronized KeyStorage loadPersonalKey(Member member) {
+        for (Object o : readArray(MEMBER_KEYS_JSON_PATH, "member-keys")) {
+            JSONObject obj = (JSONObject) o;
+            try {
+                MemberKeyRecord rec = MemberKeyRecord.fromJSON(obj);
+                if (rec.address.equals(member.address()) && rec.nickname.equals(member.nickname()))
+                    return rec.keyStorage;
+            } catch (Exception e) {
+                LOGGER.error("Invalid member key JSON", e);
             }
         }
-        throw new KeyStorageNotFoundException("%s@%s".formatted(nickname, address));
+        throw new KeyStorageNotFoundException(member.toString());
     }
 
     @Override
-    public KeyStorage loadEncryptor(Address address, String nickname) {
-        for (MemberKeyRecord k : memberKeys) {
-            if (Objects.equals(k.nickname, nickname) && k.address.equals(address)) {
-                return k.keyStorage;
+    public KeyStorage loadEncryptor(Member member) {
+        for (Object o : readArray(MEMBER_KEYS_JSON_PATH, "member-keys")) {
+            JSONObject obj = (JSONObject) o;
+            try {
+                MemberKeyRecord rec = MemberKeyRecord.fromJSON(obj);
+                if (rec.address.equals(member.address()) && Objects.equals(rec.nickname, member.nickname()))
+                    return rec.keyStorage;
+            } catch (Exception e) {
+                LOGGER.error("Invalid encryptor JSON", e);
             }
         }
-        throw new KeyStorageNotFoundException("%s@%s".formatted(nickname, address));
+        throw new KeyStorageNotFoundException(member.toString());
     }
 
     @Override
-    public KeyEntry loadDEK(Address address, String nickname) {
-        for (MemberKeyRecord k : DEKs) {
-            if (Objects.equals(k.nickname, nickname) && k.address.equals(address)) {
-                return new KeyEntry(k.keyID, k.keyStorage);
+    public KeyEntry loadDEK(Member m1, Member m2) {
+        for (Object o : readArray(DEKS_JSON_PATH, "deks")) {
+            JSONObject obj = (JSONObject) o;
+            try {
+                DEKRecord rec = DEKRecord.fromJSON(obj);
+                if ((rec.m1().equals(m1) && rec.m2().equals(m2)) || (rec.m1().equals(m2) && rec.m2().equals(m1)))
+                    return new KeyEntry(rec.keyID(), rec.keyStorage());
+            } catch (Exception e) {
+                LOGGER.error("Invalid DEK JSON", e);
             }
         }
-        throw new KeyStorageNotFoundException("%s@%s".formatted(nickname, address));
+        throw new KeyStorageNotFoundException(m1 + " - " + m2);
     }
 
     @Override
-    public KeyStorage loadDEK(Address address, UUID keyID) {
-        for (MemberKeyRecord k : DEKs) {
-            if (k.keyID.equals(keyID) && k.address.equals(address)) {
-                return k.keyStorage;
+    public KeyStorage loadDEK(UUID keyID) {
+        for (Object o : readArray(DEKS_JSON_PATH, "deks")) {
+            JSONObject obj = (JSONObject) o;
+            try {
+                DEKRecord rec = DEKRecord.fromJSON(obj);
+                if (rec.keyID().equals(keyID))
+                    return rec.keyStorage();
+            } catch (Exception e) {
+                LOGGER.error("Invalid DEK JSON", e);
             }
         }
-        throw new KeyStorageNotFoundException("address: " + address + "; keyID: " + keyID);
+        throw new KeyStorageNotFoundException(keyID);
     }
 }
