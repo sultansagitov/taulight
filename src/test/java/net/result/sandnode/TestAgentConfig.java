@@ -34,12 +34,12 @@ public class TestAgentConfig implements AgentConfig {
     }
 
     @Override
-    public KeyEntry loadDEK(Member member) {
-        throw new KeyStorageNotFoundException(member.toString());
+    public KeyEntry loadDEK(Member m1, Member m2) {
+        throw new KeyStorageNotFoundException(m1 + " - " + m2);
     }
 
     @Override
-    public KeyStorage loadDEK(Address address, UUID keyID) {
+    public KeyStorage loadDEK(UUID keyID) {
         throw new KeyStorageNotFoundException(keyID);
     }
 
@@ -47,5 +47,5 @@ public class TestAgentConfig implements AgentConfig {
     public void saveEncryptor(Member member, KeyStorage keyStorage) {}
 
     @Override
-    public void saveDEK(Member member, UUID keyID, KeyStorage keyStorage) {}
+    public void saveDEK(Member m1, Member m2, UUID keyID, KeyStorage keyStorage) {}
 }

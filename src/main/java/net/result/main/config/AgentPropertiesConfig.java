@@ -154,9 +154,9 @@ public class AgentPropertiesConfig implements AgentConfig {
     }
 
     @Override
-    public void saveDEK(Member member, UUID keyID, KeyStorage keyStorage) {
+    public void saveDEK(Member m1, Member m2, UUID keyID, KeyStorage keyStorage) {
         JSONArray arr = readArray(DEKS_JSON_PATH, "deks");
-        arr.put(new MemberKeyRecord(member.address(), member.nickname(), keyID, keyStorage).toJSON());
+        arr.put(new DEKRecord(m1, m2, keyID, keyStorage).toJSON());
         saveJsonArray(DEKS_JSON_PATH, "deks", arr);
     }
 
@@ -206,32 +206,32 @@ public class AgentPropertiesConfig implements AgentConfig {
     }
 
     @Override
-    public KeyEntry loadDEK(Member member) {
+    public KeyEntry loadDEK(Member m1, Member m2) {
         for (Object o : readArray(DEKS_JSON_PATH, "deks")) {
             JSONObject obj = (JSONObject) o;
             try {
-                MemberKeyRecord rec = MemberKeyRecord.fromJSON(obj);
-                if (rec.address.equals(member.address()) && Objects.equals(rec.nickname, member.nickname()))
-                    return new KeyEntry(rec.keyID, rec.keyStorage);
+                DEKRecord rec = DEKRecord.fromJSON(obj);
+                if ((rec.m1().equals(m1) && rec.m2().equals(m2)) || (rec.m1().equals(m2) && rec.m2().equals(m1)))
+                    return new KeyEntry(rec.keyID(), rec.keyStorage());
             } catch (Exception e) {
                 LOGGER.error("Invalid DEK JSON", e);
             }
         }
-        throw new KeyStorageNotFoundException(member.toString());
+        throw new KeyStorageNotFoundException(m1 + " - " + m2);
     }
 
     @Override
-    public KeyStorage loadDEK(Address address, UUID keyID) {
+    public KeyStorage loadDEK(UUID keyID) {
         for (Object o : readArray(DEKS_JSON_PATH, "deks")) {
             JSONObject obj = (JSONObject) o;
             try {
-                MemberKeyRecord rec = MemberKeyRecord.fromJSON(obj);
-                if (rec.address.equals(address) && rec.keyID.equals(keyID))
-                    return rec.keyStorage;
+                DEKRecord rec = DEKRecord.fromJSON(obj);
+                if (rec.keyID().equals(keyID))
+                    return rec.keyStorage();
             } catch (Exception e) {
                 LOGGER.error("Invalid DEK JSON", e);
             }
         }
-        throw new KeyStorageNotFoundException("address: " + address + "; keyID: " + keyID);
+        throw new KeyStorageNotFoundException(keyID);
     }
 }

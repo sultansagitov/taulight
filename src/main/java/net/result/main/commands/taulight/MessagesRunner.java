@@ -89,7 +89,7 @@ public class MessagesRunner {
         String decrypted;
         if (input.keyID != null) {
             var agent = context.client.node().agent();
-            var keyStorage = agent.config.loadDEK(context.client.address, input.keyID);
+            var keyStorage = agent.config.loadDEK(input.keyID);
             decrypted = keyStorage.decrypt(Base64.getDecoder().decode(input.content));
         } else {
             decrypted = input.content;

@@ -66,7 +66,7 @@ public class ChatInfoDTO implements Comparable<ChatInfoDTO> {
         if (lastMessage != null) {
             UUID keyID = lastMessage.message.keyID;
             if (keyID != null) {
-                KeyStorage DEK = client.node().agent().config.loadDEK(client.address, keyID);
+                KeyStorage DEK = client.node().agent().config.loadDEK(keyID);
                 decryptedMessage = DEK.decrypt(Base64.getDecoder().decode(lastMessage.message.content));
             } else {
                 decryptedMessage = lastMessage.message.content;

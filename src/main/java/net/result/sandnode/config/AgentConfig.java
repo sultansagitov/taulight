@@ -64,12 +64,13 @@ public interface AgentConfig {
     /**
      * Saves a data encryption key (DEK).
      *
-     * @param member     owner of the DEK (address + nickname)
+     * @param m1         first member (typically owner)
+     * @param m2         second member (recipient or context)
      * @param keyID      unique ID of the DEK
      * @param keyStorage symmetric key storage of the DEK
      * @throws StorageException if saving fails
      */
-    void saveDEK(Member member, UUID keyID, KeyStorage keyStorage);
+    void saveDEK(Member m1, Member m2, UUID keyID, KeyStorage keyStorage);
 
     /**
      * Loads this agent's personal key pair.
@@ -90,21 +91,21 @@ public interface AgentConfig {
     KeyStorage loadEncryptor(Member member);
 
     /**
-     * Loads a DEK by owner (identified by member).
+     * Loads a DEK associated with two members.
      *
-     * @param member owner of the DEK (address + nickname)
+     * @param m1 first member
+     * @param m2 second member
      * @return KeyEntry containing the DEK
      * @throws KeyStorageNotFoundException if DEK not found
      */
-    KeyEntry loadDEK(Member member);
+    KeyEntry loadDEK(Member m1, Member m2);
 
     /**
      * Loads a DEK by its unique ID.
      *
-     * @param address owner or context address
      * @param keyID   unique ID of the DEK
      * @return DEK key storage
      * @throws KeyStorageNotFoundException if DEK not found
      */
-    KeyStorage loadDEK(Address address, UUID keyID);
+    KeyStorage loadDEK(UUID keyID);
 }
