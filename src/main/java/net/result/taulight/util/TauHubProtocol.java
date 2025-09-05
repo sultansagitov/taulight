@@ -6,7 +6,7 @@ import net.result.sandnode.exception.error.NoEffectException;
 import net.result.sandnode.exception.error.SandnodeErrorException;
 import net.result.sandnode.exception.error.UnauthorizedException;
 import net.result.sandnode.serverclient.Session;
-import net.result.taulight.chain.sender.ForwardServerChain;
+import net.result.taulight.chain.sender.DownstreamServerChain;
 import net.result.taulight.cluster.TauClusterManager;
 import net.result.taulight.entity.ChatEntity;
 import net.result.taulight.entity.MessageEntity;
@@ -14,7 +14,7 @@ import net.result.taulight.repository.MessageFileRepository;
 import net.result.taulight.repository.MessageRepository;
 import net.result.taulight.dto.ChatMessageInputDTO;
 import net.result.taulight.dto.ChatMessageViewDTO;
-import net.result.taulight.message.types.ForwardResponse;
+import net.result.taulight.message.types.DownstreamResponse;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -88,11 +88,11 @@ public class TauHubProtocol {
     }
 
     private static void getObjectCallable(Session session, ChatMessageViewDTO serverMessage, Session s) {
-        ForwardResponse request = new ForwardResponse(serverMessage, s == session);
+        DownstreamResponse request = new DownstreamResponse(serverMessage, s == session);
 
         ChainManager chainManager = s.io().chainManager;
 
-        var chain = new ForwardServerChain(s);
+        var chain = new DownstreamServerChain(s);
         chainManager.linkChain(chain);
         chain.response(request);
         chainManager.removeChain(chain);

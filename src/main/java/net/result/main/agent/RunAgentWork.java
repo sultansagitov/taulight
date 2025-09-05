@@ -84,7 +84,7 @@ public class RunAgentWork implements Work {
                 .setSentDatetimeNow();
 
         try {
-            UUID messageID = context.chain().sendMessage(context.chat, message, input, true, true);
+            UUID messageID = context.chain().sendMessage(context.chat, message, input, true, true).id();
             System.out.printf("Sent message uuid: %s %n", messageID);
         } catch (Exception e) {
             context.removeChain();

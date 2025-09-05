@@ -4,26 +4,25 @@ import net.result.sandnode.chain.ClientChain;
 import net.result.sandnode.config.KeyEntry;
 import net.result.sandnode.exception.error.KeyStorageNotFoundException;
 import net.result.sandnode.message.RawMessage;
-import net.result.sandnode.message.UUIDMessage;
 import net.result.sandnode.message.util.MessageTypes;
 import net.result.sandnode.serverclient.SandnodeClient;
 import net.result.taulight.dto.ChatInfoDTO;
 import net.result.taulight.dto.ChatMessageInputDTO;
-import net.result.taulight.message.types.ForwardRequest;
+import net.result.taulight.dto.UpstreamResponseDTO;
+import net.result.taulight.message.types.UpstreamRequest;
+import net.result.taulight.message.types.UpstreamResponse;
 import net.result.taulight.util.TauAgentProtocol;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.util.UUID;
-
 /**
- * A client-side chain for sending forward message requests using the Sandnode protocol.
+ * A client-side chain for sending message requests using the Sandnode protocol.
  * This class supports sending encrypted or plaintext messages based on the availability of encryption keys.
  */
-public class ForwardRequestClientChain extends ClientChain {
-    private static final Logger LOGGER = LogManager.getLogger(ForwardRequestClientChain.class);
+public class UpstreamClientChain extends ClientChain {
+    private static final Logger LOGGER = LogManager.getLogger(UpstreamClientChain.class);
 
-    public ForwardRequestClientChain(SandnodeClient client) {
+    public UpstreamClientChain(SandnodeClient client) {
         super(client);
     }
 
@@ -40,7 +39,7 @@ public class ForwardRequestClientChain extends ClientChain {
      * @param requireDeliveryAck whether to wait for delivery acknowledgment (HAPPY message)
      * @return the UUID of the successfully sent message
      */
-    public synchronized UUID sendMessage(ChatInfoDTO chat, ChatMessageInputDTO input, String text,
+    public synchronized UpstreamResponseDTO sendMessage(ChatInfoDTO chat, ChatMessageInputDTO input, String text,
                                          boolean fallback, boolean requireDeliveryAck) {
         switch (chat.chatType) {
             case DIALOG -> {
@@ -61,14 +60,13 @@ public class ForwardRequestClientChain extends ClientChain {
             case GROUP -> input.setContent(text);
         }
 
-        RawMessage uuidRaw = sendAndReceive(new ForwardRequest(input, requireDeliveryAck));
-        uuidRaw.expect(MessageTypes.HAPPY);
-        UUID uuid = new UUIDMessage(uuidRaw).uuid;
+        final RawMessage uuidRaw = sendAndReceive(new UpstreamRequest(input, requireDeliveryAck));
+        final UpstreamResponseDTO dto = new UpstreamResponse(uuidRaw).dto();
 
         if (requireDeliveryAck) {
             receive().expect(MessageTypes.HAPPY);
         }
 
-        return uuid;
+        return dto;
     }
 }

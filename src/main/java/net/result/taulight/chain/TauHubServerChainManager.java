@@ -15,7 +15,7 @@ public class TauHubServerChainManager {
         chainManager.addHandler(TauMessageTypes.CHAT, ChatServerChain::new);
         chainManager.addHandler(TauMessageTypes.GROUP, GroupServerChain::new);
         chainManager.addHandler(TauMessageTypes.DIALOG, DialogServerChain::new);
-        chainManager.addHandler(TauMessageTypes.FWD_REQ, ForwardRequestServerChain::new);
+        chainManager.addHandler(TauMessageTypes.UPSTREAM, UpstreamServerChain::new);
         chainManager.addHandler(TauMessageTypes.MESSAGE, MessageServerChain::new);
         chainManager.addHandler(TauMessageTypes.MEMBERS, MembersServerChain::new);
         chainManager.addHandler(TauMessageTypes.CODE, CodeServerChain::new);

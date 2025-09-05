@@ -39,7 +39,7 @@ public class MessagesRunner {
                 .setNickname(context.client.nickname)
                 .setSentDatetimeNow();
         try {
-            UUID uuid = context.chain().sendMessage(context.chat, message, input, true, true);
+            UUID uuid = context.chain().sendMessage(context.chat, message, input, true, true).id();
             System.out.printf("Sent message UUID: %s%n", uuid);
         } catch (Exception e) {
             context.removeChain();
@@ -62,7 +62,7 @@ public class MessagesRunner {
                 .setNickname(context.client.nickname)
                 .setSentDatetimeNow();
         try {
-            UUID uuid = context.chain().sendMessage(context.chat, message, input, true, true);
+            UUID uuid = context.chain().sendMessage(context.chat, message, input, true, true).id();
             System.out.printf("Sent message UUID with attachments: %s%n", uuid);
         } catch (Exception e) {
             context.removeChain();

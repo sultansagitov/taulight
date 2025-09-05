@@ -10,42 +10,35 @@ import net.result.sandnode.exception.error.TooFewArgumentsException;
 import net.result.sandnode.exception.error.UnauthorizedException;
 import net.result.sandnode.message.Message;
 import net.result.sandnode.message.RawMessage;
-import net.result.sandnode.message.UUIDMessage;
 import net.result.sandnode.message.types.HappyMessage;
-import net.result.sandnode.message.util.Headers;
-import net.result.sandnode.message.util.MessageTypes;
+import net.result.taulight.dto.ChatMessageViewDTO;
 import net.result.taulight.entity.ChatEntity;
 import net.result.taulight.entity.MessageEntity;
-import net.result.taulight.message.types.ForwardRequest;
+import net.result.taulight.message.types.UpstreamRequest;
+import net.result.taulight.message.types.UpstreamResponse;
 import net.result.taulight.repository.MessageFileRepository;
 import net.result.taulight.repository.MessageRepository;
 import net.result.taulight.util.ChatUtil;
 import net.result.taulight.util.TauHubProtocol;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
-public class ForwardRequestServerChain extends ServerChain implements ReceiverChain {
-    private static final Logger LOGGER = LogManager.getLogger(ForwardRequestServerChain.class);
-
+public class UpstreamServerChain extends ServerChain implements ReceiverChain {
     @Override
     public Message handle(RawMessage raw) {
-        var chatUtil = session.server.container.get(ChatUtil.class);
-        var messageRepo = session.server.container.get(MessageRepository.class);
-        var messageFileRepo = session.server.container.get(MessageFileRepository.class);
-        var jpaUtil = session.server.container.get(JPAUtil.class);
+        final var chatUtil = session.server.container.get(ChatUtil.class);
+        final var messageRepo = session.server.container.get(MessageRepository.class);
+        final var messageFileRepo = session.server.container.get(MessageFileRepository.class);
+        final var jpaUtil = session.server.container.get(JPAUtil.class);
 
-        var forwardMessage = new ForwardRequest(raw);
+        final var upstreamReq = new UpstreamRequest(raw);
 
         if (session.member == null) throw new UnauthorizedException();
 
-        var input = forwardMessage.getChatMessageInputDTO();
+        final var input = upstreamReq.getChatMessageInputDTO();
         if (input == null) throw new TooFewArgumentsException();
 
-        var chatID = input.chatID;
-        var content = input.content;
+        final var chatID = input.chatID;
+        final var content = input.content;
         if (chatID == null || content == null) throw new TooFewArgumentsException();
-
-        LOGGER.info("Forwarding message: {}", content);
 
         input
                 .setSys(false)
@@ -62,12 +55,12 @@ public class ForwardRequestServerChain extends ServerChain implements ReceiverCh
                     .orElseThrow(() -> new KeyStorageNotFoundException(input.keyID.toString()));
             message = messageRepo.create(chat, input, session.member.getTauMember(), key);
         }
-        var viewDTO = message.toViewDTO(messageFileRepo);
+        ChatMessageViewDTO viewDTO = message.toViewDTO(messageFileRepo);
 
-        send(new UUIDMessage(new Headers().setType(MessageTypes.HAPPY), viewDTO.id));
+        send(new UpstreamResponse(viewDTO));
 
         TauHubProtocol.send(session, chat, viewDTO);
 
-        return forwardMessage.requireDeliveryAck ? new HappyMessage() : null;
+        return upstreamReq.requireDeliveryAck ? new HappyMessage() : null;
     }
 }

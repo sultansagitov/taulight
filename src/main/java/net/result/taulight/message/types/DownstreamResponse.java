@@ -6,23 +6,23 @@ import net.result.sandnode.message.util.Headers;
 import net.result.taulight.dto.ChatMessageViewDTO;
 import net.result.taulight.message.TauMessageTypes;
 
-public class ForwardResponse extends MSGPackMessage<ChatMessageViewDTO> {
+public class DownstreamResponse extends MSGPackMessage<ChatMessageViewDTO> {
 
     private static final String YOUR_SESSION_KEY = "your-session";
 
-    public ForwardResponse(Headers headers, ChatMessageViewDTO message, boolean yourSession) {
-        super(headers.setType(TauMessageTypes.FWD), message);
+    public DownstreamResponse(Headers headers, ChatMessageViewDTO message, boolean yourSession) {
+        super(headers.setType(TauMessageTypes.DOWNSTREAM), message);
         if (yourSession) {
             headers().setValue(YOUR_SESSION_KEY, "true");
         }
     }
 
-    public ForwardResponse(ChatMessageViewDTO message, boolean yourSession) {
+    public DownstreamResponse(ChatMessageViewDTO message, boolean yourSession) {
         this(new Headers(), message, yourSession);
     }
 
-    public ForwardResponse(RawMessage message) {
-        super(message.expect(TauMessageTypes.FWD), ChatMessageViewDTO.class);
+    public DownstreamResponse(RawMessage message) {
+        super(message.expect(TauMessageTypes.DOWNSTREAM), ChatMessageViewDTO.class);
     }
 
     public ChatMessageViewDTO getServerMessage() {
