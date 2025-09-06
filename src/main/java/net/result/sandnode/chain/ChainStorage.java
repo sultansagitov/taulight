@@ -13,7 +13,7 @@ public interface ChainStorage {
 
     void remove(Chain chain);
 
-    void addNamed(String chainName, Chain chain);
+    void addNamed(String chainName, short chainID);
 
     Optional<Chain> find(String chainName);
 

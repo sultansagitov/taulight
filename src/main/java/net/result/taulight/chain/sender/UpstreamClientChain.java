@@ -1,5 +1,6 @@
 package net.result.taulight.chain.sender;
 
+import net.result.sandnode.chain.Chain;
 import net.result.sandnode.chain.ClientChain;
 import net.result.sandnode.config.KeyEntry;
 import net.result.sandnode.exception.error.KeyStorageNotFoundException;
@@ -14,6 +15,10 @@ import net.result.taulight.message.types.UpstreamResponse;
 import net.result.taulight.util.TauAgentProtocol;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.jetbrains.annotations.NotNull;
+
+import java.util.Optional;
+import java.util.UUID;
 
 /**
  * A client-side chain for sending message requests using the Sandnode protocol.
@@ -21,6 +26,21 @@ import org.apache.logging.log4j.Logger;
  */
 public class UpstreamClientChain extends ClientChain {
     private static final Logger LOGGER = LogManager.getLogger(UpstreamClientChain.class);
+
+    public static @NotNull UpstreamClientChain getNamed(SandnodeClient client, UUID id) {
+        String chainName = "upstream-%s".formatted(id);
+        Optional<Chain> opt = client.io().chainManager.getChain(chainName);
+
+        UpstreamClientChain chain;
+        if (opt.isPresent()) {
+            chain = (UpstreamClientChain) opt.get();
+        } else {
+            chain = new UpstreamClientChain(client);
+            client.io().chainManager.linkChain(chain);
+            chain.chainName(chainName);
+        }
+        return chain;
+    }
 
     public UpstreamClientChain(SandnodeClient client) {
         super(client);

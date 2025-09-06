@@ -8,10 +8,11 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 public class BSTChainStorage implements ChainStorage {
     private final BinarySearchTree<Chain, Short> bst;
-    private final Map<String, Chain> chainMap = new HashMap<>();
+    private final Map<String, Short> chainMap = new HashMap<>();
 
     public BSTChainStorage(BinarySearchTree<Chain, Short> bst) {
         this.bst = bst;
@@ -19,7 +20,7 @@ public class BSTChainStorage implements ChainStorage {
 
     @Override
     public Optional<Chain> find(String chainName) {
-        return Optional.ofNullable(chainMap.get(chainName));
+        return Optional.ofNullable(chainMap.get(chainName)).flatMap(this::find);
     }
 
     @Override
@@ -28,8 +29,8 @@ public class BSTChainStorage implements ChainStorage {
     }
 
     @Override
-    public void addNamed(String chainName, Chain chain) {
-        chainMap.put(chainName, chain);
+    public void addNamed(String chainName, short chainID) {
+        chainMap.put(chainName, chainID);
     }
 
     @Override
@@ -48,12 +49,15 @@ public class BSTChainStorage implements ChainStorage {
 
     @Override
     public Map<String, Chain> getNamed() {
-        return chainMap;
+        return chainMap.entrySet().stream()
+                .map(e -> Map.entry(e.getKey(), bst.find(e.getValue())))
+                .filter(e -> e.getValue().isPresent())
+                .collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue().get()));
     }
 
     @Override
     public void remove(Chain chain) {
-        chainMap.entrySet().removeIf(entry -> entry.getValue() == chain);
+        chainMap.entrySet().removeIf(entry -> entry.getValue() == chain.getID());
         bst.remove(chain);
     }
 }

@@ -92,12 +92,13 @@ public abstract class BaseChainManager implements ChainManager {
                 Optional<Chain> retriedChainOpt = storage.find(headers.chainID());
                 if (retriedChainOpt.isEmpty()) {
                     try {
-                        ReceiverChain newChain = createNew(message);
-
                         if (headers.type() == MessageTypes.CHAIN_NAME) {
-                            headers.getOptionalValue("chain-name").ifPresent(s -> setName(newChain, s));
+                            headers
+                                    .getOptionalValue("chain-name")
+                                    .ifPresent(s -> setName(message.headers().chainID(), s));
                         }
 
+                        ReceiverChain newChain = createNew(message);
                         execute(newChain, message);
                         return;
                     } catch (BusyChainID e) {
@@ -110,7 +111,9 @@ public abstract class BaseChainManager implements ChainManager {
         }
 
         if (headers.type() == MessageTypes.CHAIN_NAME) {
-            headers.getOptionalValue("chain-name").ifPresent(s -> setName(chain, s));
+            headers
+                    .getOptionalValue("chain-name")
+                    .ifPresent(s -> setName(message.headers().chainID(), s));
         } else {
             chain.put(message);
         }
@@ -160,8 +163,8 @@ public abstract class BaseChainManager implements ChainManager {
     }
 
     @Override
-    public synchronized void setName(Chain chain, String chainName) {
-        storage.addNamed(chainName, chain);
+    public synchronized void setName(short chainID, String chainName) {
+        storage.addNamed(chainName, chainID);
     }
 
     @Override

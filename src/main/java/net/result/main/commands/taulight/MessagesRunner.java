@@ -5,6 +5,7 @@ import net.result.sandnode.dto.FileDTO;
 import net.result.sandnode.dto.PaginatedDTO;
 import net.result.taulight.chain.sender.MessageClientChain;
 import net.result.taulight.chain.sender.MessageFileClientChain;
+import net.result.taulight.chain.sender.UpstreamClientChain;
 import net.result.taulight.dto.ChatMessageInputDTO;
 import net.result.taulight.dto.ChatMessageViewDTO;
 import net.result.taulight.dto.NamedFileDTO;
@@ -38,11 +39,11 @@ public class MessagesRunner {
                 .setRepliedToMessages(replies)
                 .setNickname(context.client.nickname)
                 .setSentDatetimeNow();
+        UpstreamClientChain chain = UpstreamClientChain.getNamed(context.client, context.chat.id);
         try {
-            UUID uuid = context.chain().sendMessage(context.chat, message, input, true, true).id();
+            UUID uuid = chain.sendMessage(context.chat, message, input, true, true).id();
             System.out.printf("Sent message UUID: %s%n", uuid);
         } catch (Exception e) {
-            context.removeChain();
             throw new RuntimeException(e);
         }
     }
@@ -61,11 +62,11 @@ public class MessagesRunner {
                 .setFileIDs(fileIDs)
                 .setNickname(context.client.nickname)
                 .setSentDatetimeNow();
+        UpstreamClientChain chain = UpstreamClientChain.getNamed(context.client, context.chat.id);
         try {
-            UUID uuid = context.chain().sendMessage(context.chat, message, input, true, true).id();
+            UUID uuid = chain.sendMessage(context.chat, message, input, true, true).id();
             System.out.printf("Sent message UUID with attachments: %s%n", uuid);
         } catch (Exception e) {
-            context.removeChain();
             throw new RuntimeException(e);
         }
     }

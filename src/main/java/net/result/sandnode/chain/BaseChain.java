@@ -94,7 +94,8 @@ public abstract class BaseChain implements Chain {
         headers.setChainID(getID());
 
         if (headers.type() == MessageTypes.CHAIN_NAME) {
-            headers.getOptionalValue("chain-name").ifPresent(s -> io.chainManager.setName(this, s));
+            headers.getOptionalValue("chain-name").ifPresent(s -> io.chainManager.setName(getID(), s));
+            return;
         }
 
         io.sendMessage(request);
@@ -111,7 +112,7 @@ public abstract class BaseChain implements Chain {
         headers.setChainID(getID());
 
         if (headers.type() == MessageTypes.CHAIN_NAME) {
-            headers.getOptionalValue("chain-name").ifPresent(s -> io.chainManager.setName(this, s));
+            headers.getOptionalValue("chain-name").ifPresent(s -> io.chainManager.setName(getID(), s));
         }
 
         io.sendMessage(request);

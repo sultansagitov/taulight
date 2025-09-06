@@ -21,5 +21,5 @@ public interface ChainManager {
 
     Optional<Chain> getChain(String chainName);
 
-    void setName(Chain chain, String chainName);
+    void setName(short chainID, String chainName);
 }

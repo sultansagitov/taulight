@@ -17,6 +17,7 @@ import net.result.sandnode.hubagent.ClientProtocol;
 import net.result.sandnode.link.Links;
 import net.result.sandnode.link.SandnodeLinkRecord;
 import net.result.sandnode.serverclient.SandnodeClient;
+import net.result.taulight.chain.sender.UpstreamClientChain;
 import net.result.taulight.dto.ChatInfoDTO;
 import net.result.taulight.dto.ChatMessageInputDTO;
 import net.result.taulight.hubagent.TauAgent;
@@ -83,11 +84,12 @@ public class RunAgentWork implements Work {
                 .setNickname(client.nickname)
                 .setSentDatetimeNow();
 
+        UpstreamClientChain chain = UpstreamClientChain.getNamed(client, context.chat.id);
+
         try {
-            UUID messageID = context.chain().sendMessage(context.chat, message, input, true, true).id();
+            UUID messageID = chain.sendMessage(context.chat, message, input, true, true).id();
             System.out.printf("Sent message uuid: %s %n", messageID);
         } catch (Exception e) {
-            context.removeChain();
             throw new RuntimeException(e);
         }
     }
@@ -163,7 +165,5 @@ public class RunAgentWork implements Work {
             }
 
         }
-
-        context.removeChain();
     }
 }
