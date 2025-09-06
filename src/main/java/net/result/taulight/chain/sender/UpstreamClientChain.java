@@ -1,6 +1,5 @@
 package net.result.taulight.chain.sender;
 
-import net.result.sandnode.chain.Chain;
 import net.result.sandnode.chain.ClientChain;
 import net.result.sandnode.config.KeyEntry;
 import net.result.sandnode.exception.error.KeyStorageNotFoundException;
@@ -17,7 +16,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Optional;
 import java.util.UUID;
 
 /**
@@ -28,18 +26,7 @@ public class UpstreamClientChain extends ClientChain {
     private static final Logger LOGGER = LogManager.getLogger(UpstreamClientChain.class);
 
     public static @NotNull UpstreamClientChain getNamed(SandnodeClient client, UUID id) {
-        String chainName = "upstream-%s".formatted(id);
-        Optional<Chain> opt = client.io().chainManager.getChain(chainName);
-
-        UpstreamClientChain chain;
-        if (opt.isPresent()) {
-            chain = (UpstreamClientChain) opt.get();
-        } else {
-            chain = new UpstreamClientChain(client);
-            client.io().chainManager.linkChain(chain);
-            chain.chainName(chainName);
-        }
-        return chain;
+        return client.io().chainManager.getChain("upstream-%s".formatted(id), () -> new UpstreamClientChain(client));
     }
 
     public UpstreamClientChain(SandnodeClient client) {

@@ -11,12 +11,7 @@ class SimpleContainerTest {
     interface Foo {}
     static class FooImpl implements Foo {}
 
-    static class NeedsContainer {
-        final Container container;
-        NeedsContainer(Container container) {
-            this.container = container;
-        }
-    }
+    record NeedsContainer(Container container) {}
 
     static class DefaultCtor {}
 

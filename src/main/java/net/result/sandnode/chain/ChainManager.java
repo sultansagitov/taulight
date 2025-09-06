@@ -21,5 +21,7 @@ public interface ChainManager {
 
     Optional<Chain> getChain(String chainName);
 
+    <T extends Chain> T getChain(String chainName, Supplier<T> orElse);
+
     void setName(short chainID, String chainName);
 }

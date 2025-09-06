@@ -158,6 +158,21 @@ public abstract class BaseChainManager implements ChainManager {
     }
 
     @Override
+    public <T extends Chain> T getChain(String chainName, Supplier<T> orElse) {
+        Optional<Chain> opt = getChain(chainName);
+
+        if (opt.isPresent()) {
+            //noinspection unchecked
+            return (T) opt.get();
+        } else {
+            T chain = orElse.get();
+            linkChain(chain);
+            chain.chainName(chainName);
+            return chain;
+        }
+    }
+
+    @Override
     public void interruptAll() {
         executorService.shutdownNow();
     }

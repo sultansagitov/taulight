@@ -25,12 +25,6 @@ public class MemberKeyRecord {
         this.keyStorage = keyStorage;
     }
 
-    public MemberKeyRecord(Address address, String nickname, UUID keyID, KeyStorage keyStorage) {
-        this(address, keyStorage);
-        this.nickname = nickname;
-        this.keyID = keyID;
-    }
-
     public MemberKeyRecord(Address address, String nickname, KeyStorage keyStorage) {
         this(address, keyStorage);
         this.nickname = nickname;
