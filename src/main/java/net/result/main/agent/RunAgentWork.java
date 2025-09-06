@@ -87,7 +87,7 @@ public class RunAgentWork implements Work {
         UpstreamClientChain chain = UpstreamClientChain.getNamed(client, context.chat.id);
 
         try {
-            UUID messageID = chain.sendMessage(context.chat, message, input, true, true).id();
+            UUID messageID = chain.sendMessage(context.chat, message, input, true, true).id;
             System.out.printf("Sent message uuid: %s %n", messageID);
         } catch (Exception e) {
             throw new RuntimeException(e);

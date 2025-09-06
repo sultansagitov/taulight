@@ -41,7 +41,7 @@ public class MessagesRunner {
                 .setSentDatetimeNow();
         UpstreamClientChain chain = UpstreamClientChain.getNamed(context.client, context.chat.id);
         try {
-            UUID uuid = chain.sendMessage(context.chat, message, input, true, true).id();
+            UUID uuid = chain.sendMessage(context.chat, message, input, true, true).id;
             System.out.printf("Sent message UUID: %s%n", uuid);
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -64,7 +64,7 @@ public class MessagesRunner {
                 .setSentDatetimeNow();
         UpstreamClientChain chain = UpstreamClientChain.getNamed(context.client, context.chat.id);
         try {
-            UUID uuid = chain.sendMessage(context.chat, message, input, true, true).id();
+            UUID uuid = chain.sendMessage(context.chat, message, input, true, true).id;
             System.out.printf("Sent message UUID with attachments: %s%n", uuid);
         } catch (Exception e) {
             throw new RuntimeException(e);

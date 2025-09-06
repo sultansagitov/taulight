@@ -1,6 +1,14 @@
 package net.result.taulight.dto;
 
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
+
 import java.time.ZonedDateTime;
 import java.util.UUID;
 
-public record UpstreamResponseDTO(UUID id, ZonedDateTime creationDate) {}
+@NoArgsConstructor
+@AllArgsConstructor
+public class UpstreamResponseDTO {
+    public UUID id;
+    public ZonedDateTime creationDate;
+}
