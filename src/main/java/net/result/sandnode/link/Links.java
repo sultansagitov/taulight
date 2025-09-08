@@ -14,32 +14,46 @@ import java.net.URISyntaxException;
 import java.util.Objects;
 
 public class Links {
-
-    public static SandnodeLinkRecord parse(String s) {
+    public static SandnodeLinkRecord parse(String s, NodeType defaultNodeType) {
         URI uri;
         try {
             uri = new URI(s);
         } catch (URISyntaxException e) {
-            throw new InvalidSandnodeLinkException(e);
+            try {
+                uri = new URI("sandnode://" + s);
+            } catch (URISyntaxException ex) {
+                throw new InvalidSandnodeLinkException(e);
+            }
         }
 
-        Address address = new Address(uri.getHost(), uri.getPort() == -1 ? 52525 : uri.getPort());
-
-        if (!Objects.equals(uri.getScheme(), "sandnode")) {
-            throw new InvalidSandnodeLinkException("Invalid scheme: " + uri.getScheme());
+        if (uri.getHost() == null) {
+            try {
+                uri = new URI("sandnode://" + s);
+            } catch (URISyntaxException e) {
+                throw new InvalidSandnodeLinkException(e);
+            }
         }
 
+        String host = uri.getHost();
+        if (host == null) {
+            throw new InvalidSandnodeLinkException("Host should be not null");
+        }
+        Address address = new Address(host, uri.getPort() == -1 ? 52525 : uri.getPort());
+
+        String scheme = uri.getScheme();
+        if (scheme != null && !Objects.equals(scheme, "sandnode")) {
+            throw new InvalidSandnodeLinkException("Invalid scheme: " + scheme);
+        }
+
+        NodeType type = defaultNodeType;
         String nodeType = uri.getUserInfo();
-        NodeType type;
-
-        if (nodeType == null) throw new InvalidSandnodeLinkException("Node type cannot be null");
-
-        try {
-            type = Enum.valueOf(NodeType.class, nodeType.toUpperCase());
-        } catch (IllegalArgumentException e) {
-            throw new InvalidSandnodeLinkException("Incorrect node type (hub or agent) - nodeType");
+        if (nodeType != null) {
+            try {
+                type = Enum.valueOf(NodeType.class, nodeType.toUpperCase());
+            } catch (IllegalArgumentException e) {
+                throw new InvalidSandnodeLinkException("Incorrect node type (hub or agent) - nodeType");
+            }
         }
-
         String encryptionType = null;
         String encodedKey = null;
         String query = uri.getQuery();
@@ -57,21 +71,16 @@ public class Links {
             }
         }
 
-        if (encryptionType == null) {
-            throw new InvalidSandnodeLinkException("Encryption type not found in query parameters");
-        }
-        if (encodedKey == null) {
-            throw new InvalidSandnodeLinkException("Key not found in query parameters");
-        }
+        AsymmetricKeyStorage keyStorage = null;
 
-        AsymmetricEncryption encryption;
-        try {
-            encryption = EncryptionManager.find(encryptionType).asymmetric();
-        } catch (NoSuchEncryptionException | EncryptionTypeException e) {
-            throw new InvalidSandnodeLinkException("Unknown encryption type: " + encryptionType, e);
+        if (encryptionType != null && encodedKey != null) {
+            try {
+                AsymmetricEncryption encryption = EncryptionManager.find(encryptionType).asymmetric();
+                keyStorage = encryption.publicKeyConvertor().toKeyStorage(encodedKey);
+            } catch (NoSuchEncryptionException | EncryptionTypeException e) {
+                throw new InvalidSandnodeLinkException("Unknown encryption type: " + encryptionType, e);
+            }
         }
-
-        AsymmetricKeyStorage keyStorage = encryption.publicKeyConvertor().toKeyStorage(encodedKey);
 
         return new SandnodeLinkRecord(type, address, keyStorage);
     }

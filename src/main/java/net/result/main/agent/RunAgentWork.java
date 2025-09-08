@@ -16,6 +16,7 @@ import net.result.sandnode.hubagent.AgentProtocol;
 import net.result.sandnode.hubagent.ClientProtocol;
 import net.result.sandnode.link.Links;
 import net.result.sandnode.link.SandnodeLinkRecord;
+import net.result.sandnode.message.util.NodeType;
 import net.result.sandnode.serverclient.SandnodeClient;
 import net.result.taulight.chain.sender.UpstreamClientChain;
 import net.result.taulight.dto.ChatInfoDTO;
@@ -41,10 +42,10 @@ public class RunAgentWork implements Work {
         while (true) {
             try {
                 System.out.print("Enter link: ");
-                link = Links.parse(scanner.nextLine());
+                link = Links.parse(scanner.nextLine(), NodeType.HUB);
                 break;
             } catch (InvalidSandnodeLinkException | CreatingKeyException e) {
-                System.out.println("Invalid link");
+                System.out.println("Invalid link: " + e.getMessage());
             }
         }
 

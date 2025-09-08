@@ -8,7 +8,7 @@ import net.result.sandnode.dto.LoginResponseDTO;
 import net.result.sandnode.dto.RegistrationResponseDTO;
 import net.result.sandnode.encryption.interfaces.AsymmetricEncryption;
 import net.result.sandnode.encryption.interfaces.AsymmetricKeyStorage;
-import net.result.sandnode.exception.*;
+import net.result.sandnode.exception.LinkDoesNotMatchException;
 import net.result.sandnode.exception.error.KeyStorageNotFoundException;
 import net.result.sandnode.link.SandnodeLinkRecord;
 import net.result.sandnode.serverclient.SandnodeClient;
@@ -64,6 +64,7 @@ public class AgentProtocol {
         try {
             filePublicKey = agent.config.loadServerKey(link.address());
         } catch (KeyStorageNotFoundException ignored) {}
+
         AsymmetricKeyStorage linkKeyStorage = link.keyStorage();
 
         if (linkKeyStorage != null) {

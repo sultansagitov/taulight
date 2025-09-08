@@ -25,6 +25,7 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Properties;
 import java.util.UUID;
@@ -93,9 +94,10 @@ public class AgentPropertiesConfig implements AgentConfig {
     }
 
     private boolean hasServerKey(@NotNull Address address) {
+        //noinspection rawtypes
         return readArray(SERVER_KEYS_JSON_PATH, "server-keys").toList().stream()
-                .map(o -> (JSONObject) o)
-                .anyMatch(obj -> address.toString().equals(obj.getString("address")));
+                .map(o -> (Map) o)
+                .anyMatch(obj -> address.toString().equals(obj.get("address")));
     }
 
     @Override
