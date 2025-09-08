@@ -24,4 +24,9 @@ public class TauMemberSettingsRequest extends EmptyMessage {
     public TauMemberSettingsRequest(RawMessage raw) {
         super(raw.expect(TauMessageTypes.TAU_SETTINGS).headers());
     }
+
+    public Boolean getShowStatus() {
+        String s = headers().getValueNullable(TauMemberSettingsRequest.SHOW_STATUS);
+        return s != null ? Boolean.parseBoolean(s) : null;
+    }
 }

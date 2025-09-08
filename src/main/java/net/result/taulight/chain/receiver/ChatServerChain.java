@@ -2,13 +2,15 @@ package net.result.taulight.chain.receiver;
 
 import net.result.sandnode.chain.ReceiverChain;
 import net.result.sandnode.chain.ServerChain;
-import net.result.sandnode.db.JPAUtil;
 import net.result.sandnode.exception.error.UnauthorizedException;
 import net.result.sandnode.message.RawMessage;
 import net.result.taulight.dto.ChatInfoDTO;
 import net.result.taulight.dto.ChatInfoPropDTO;
 import net.result.taulight.dto.ChatMessageViewDTO;
-import net.result.taulight.entity.*;
+import net.result.taulight.entity.ChatEntity;
+import net.result.taulight.entity.DialogEntity;
+import net.result.taulight.entity.GroupEntity;
+import net.result.taulight.entity.TauMemberEntity;
 import net.result.taulight.message.types.ChatRequest;
 import net.result.taulight.message.types.ChatResponse;
 import net.result.taulight.repository.MessageFileRepository;
@@ -27,13 +29,10 @@ public class ChatServerChain extends ServerChain implements ReceiverChain {
     public ChatResponse handle(RawMessage raw) {
         messageRepo = session.server.container.get(MessageRepository.class);
         messageFileRepo = session.server.container.get(MessageFileRepository.class);
-        JPAUtil jpaUtil = session.server.container.get(JPAUtil.class);
 
         ChatRequest request = new ChatRequest(raw);
 
         if (session.member == null) throw new UnauthorizedException();
-
-        session.member = jpaUtil.refresh(session.member);
 
         TauMemberEntity you = session.member.getTauMember();
 

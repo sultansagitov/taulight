@@ -2,6 +2,7 @@ package net.result.taulight.chain.receiver;
 
 import net.result.sandnode.chain.ReceiverChain;
 import net.result.sandnode.chain.ServerChain;
+import net.result.sandnode.db.MemberUpdater;
 import net.result.sandnode.entity.MemberEntity;
 import net.result.sandnode.exception.error.*;
 import net.result.sandnode.message.Message;
@@ -9,7 +10,6 @@ import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.message.types.HappyMessage;
 import net.result.sandnode.message.util.Headers;
 import net.result.sandnode.serverclient.Session;
-import net.result.sandnode.db.JPAUtil;
 import net.result.taulight.cluster.ChatCluster;
 import net.result.taulight.cluster.TauClusterManager;
 import net.result.taulight.dto.*;
@@ -82,7 +82,7 @@ public class CodeServerChain extends ServerChain implements ReceiverChain {
     }
 
     private Message handleUse(CodeRequestDTO.Use use, MemberEntity you) {
-        JPAUtil jpaUtil = session.server.container.get(JPAUtil.class);
+        MemberUpdater memberUpdater = session.server.container.get(MemberUpdater.class);
         TauClusterManager tauClusterManager = session.server.container.get(TauClusterManager.class);
         GroupRepository groupRepo = session.server.container.get(GroupRepository.class);
         InviteCodeRepository inviteCodeRepo = session.server.container.get(InviteCodeRepository.class);
@@ -106,7 +106,7 @@ public class CodeServerChain extends ServerChain implements ReceiverChain {
             throw new NoEffectException();
         }
 
-        session.member = jpaUtil.refresh(you);
+        memberUpdater.update(session);
 
         ChatCluster cluster = tauClusterManager.getCluster(group);
 

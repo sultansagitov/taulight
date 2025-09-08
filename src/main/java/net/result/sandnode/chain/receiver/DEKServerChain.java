@@ -2,7 +2,7 @@ package net.result.sandnode.chain.receiver;
 
 import net.result.sandnode.chain.ReceiverChain;
 import net.result.sandnode.chain.ServerChain;
-import net.result.sandnode.db.JPAUtil;
+import net.result.sandnode.db.MemberUpdater;
 import net.result.sandnode.dto.DEKRequestDTO;
 import net.result.sandnode.entity.EncryptedKeyEntity;
 import net.result.sandnode.entity.MemberEntity;
@@ -45,6 +45,7 @@ public class DEKServerChain extends ServerChain implements ReceiverChain {
     private @NotNull UUIDMessage send(MemberEntity you, DEKRequestDTO.Send sendDTO) {
         var memberRepo = session.server.container.get(MemberRepository.class);
         var encryptedKeyRepo = session.server.container.get(EncryptedKeyRepository.class);
+        var memberUpdater = session.server.container.get(MemberUpdater.class);
 
         var receiver = memberRepo
                 .findByNickname(sendDTO.receiverNickname)
@@ -52,14 +53,13 @@ public class DEKServerChain extends ServerChain implements ReceiverChain {
 
         var entity = encryptedKeyRepo.create(sendDTO.encryptedKey, you, receiver);
 
+        memberUpdater.update(session);
+
         return new UUIDMessage(new Headers(), entity.id());
     }
 
     private @NotNull DEKListMessage get(MemberEntity you) {
-        JPAUtil jpaUtil = session.server.container.get(JPAUtil.class);
-
-        session.member = jpaUtil.refresh(you);
-        var list = session.member
+        var list = you
                 .getEncryptedKeys().stream()
                 .map(EncryptedKeyEntity::toDEKResponseDTO)
                 .collect(Collectors.toList());

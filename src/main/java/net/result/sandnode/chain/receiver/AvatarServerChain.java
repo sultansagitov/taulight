@@ -3,7 +3,7 @@ package net.result.sandnode.chain.receiver;
 import net.result.sandnode.chain.ReceiverChain;
 import net.result.sandnode.chain.ServerChain;
 import net.result.sandnode.db.DBFileUtil;
-import net.result.sandnode.db.JPAUtil;
+import net.result.sandnode.db.MemberUpdater;
 import net.result.sandnode.dto.FileDTO;
 import net.result.sandnode.entity.FileEntity;
 import net.result.sandnode.entity.MemberEntity;
@@ -41,7 +41,7 @@ public class AvatarServerChain extends ServerChain implements ReceiverChain {
     }
 
     private UUIDMessage set(MemberEntity you) {
-        JPAUtil jpaUtil = session.server.container.get(JPAUtil.class);
+        MemberUpdater memberUpdater = session.server.container.get(MemberUpdater.class);
 
         FileDTO dto = FileIOUtil.receive(this::receive);
 
@@ -55,7 +55,7 @@ public class AvatarServerChain extends ServerChain implements ReceiverChain {
             throw new ServerErrorException();
         }
 
-        session.member = jpaUtil.refresh(you);
+        memberUpdater.update(session);
 
         return new UUIDMessage(new Headers().setType(MessageTypes.HAPPY), avatar.id());
     }

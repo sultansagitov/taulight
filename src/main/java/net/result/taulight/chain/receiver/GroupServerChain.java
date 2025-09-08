@@ -3,7 +3,7 @@ package net.result.taulight.chain.receiver;
 import net.result.sandnode.chain.ReceiverChain;
 import net.result.sandnode.chain.ServerChain;
 import net.result.sandnode.db.DBFileUtil;
-import net.result.sandnode.db.JPAUtil;
+import net.result.sandnode.db.MemberUpdater;
 import net.result.sandnode.dto.FileDTO;
 import net.result.sandnode.entity.FileEntity;
 import net.result.sandnode.entity.MemberEntity;
@@ -47,6 +47,7 @@ import java.util.UUID;
 
 public class GroupServerChain extends ServerChain implements ReceiverChain {
     private static final Logger LOGGER = LogManager.getLogger(GroupServerChain.class);
+    private MemberUpdater memberUpdater;
     private ChatUtil chatUtil;
     private DBFileUtil dbFileUtil;
     private TauClusterManager manager;
@@ -57,7 +58,7 @@ public class GroupServerChain extends ServerChain implements ReceiverChain {
 
     @Override
     public @Nullable Message handle(RawMessage raw) {
-        JPAUtil jpaUtil = session.server.container.get(JPAUtil.class);
+        memberUpdater = session.server.container.get(MemberUpdater.class);
         chatUtil = session.server.container.get(ChatUtil.class);
         dbFileUtil = session.server.container.get(DBFileUtil.class);
 
@@ -90,7 +91,7 @@ public class GroupServerChain extends ServerChain implements ReceiverChain {
             case GET_AVATAR -> getAvatar(dto, you);
         };
 
-        session.member = jpaUtil.refresh(session.member);
+        memberUpdater.update(session);
 
         return response;
     }
@@ -111,6 +112,8 @@ public class GroupServerChain extends ServerChain implements ReceiverChain {
         } catch (DatabaseException | NoEffectException e) {
             LOGGER.warn("Exception when sending system message of creating group {}", e.getMessage());
         }
+
+        memberUpdater.update(session);
 
         return new UUIDMessage(new Headers().setType(MessageTypes.HAPPY), group.id());
     }
@@ -149,6 +152,8 @@ public class GroupServerChain extends ServerChain implements ReceiverChain {
         ZonedDateTime expiresDate = ZonedDateTime.now().plus(duration);
         InviteCodeEntity code = inviteCodeRepo.create(group, member, you, expiresDate);
 
+        memberUpdater.update(session);
+
         return new TextMessage(new Headers().setType(TauMessageTypes.GROUP), code.getCode());
     }
 
@@ -178,6 +183,8 @@ public class GroupServerChain extends ServerChain implements ReceiverChain {
 
         ClusterUtil.removeMemberFromCluster(session, manager.getCluster(group));
 
+        memberUpdater.update(session);
+
         return new HappyMessage();
     }
 
@@ -197,6 +204,8 @@ public class GroupServerChain extends ServerChain implements ReceiverChain {
         FileEntity avatar = dbFileUtil.saveFile(dto, chatID.toString());
 
         groupRepo.setAvatar(group, avatar);
+
+        memberUpdater.update(session);
 
         return new UUIDMessage(new Headers().setType(MessageTypes.HAPPY), avatar.id());
     }
