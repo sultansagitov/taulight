@@ -20,6 +20,7 @@ import static org.junit.jupiter.api.Assertions.*;
 public class CascadingTest {
     private static JPAUtil jpaUtil;
     private static MemberRepository memberRepo;
+    private static TauMemberRepository tauMemberRepo;
     private static GroupRepository groupRepo;
     private static MessageRepository messageRepo;
     private static InviteCodeRepository inviteCodeRepo;
@@ -35,6 +36,7 @@ public class CascadingTest {
 
         jpaUtil = container.get(JPAUtil.class);
         memberRepo = container.get(MemberRepository.class);
+        tauMemberRepo = container.get(TauMemberRepository.class);
         groupRepo = container.get(GroupRepository.class);
         messageRepo = container.get(MessageRepository.class);
         inviteCodeRepo = container.get(InviteCodeRepository.class);
@@ -46,7 +48,7 @@ public class CascadingTest {
     @Test
     public void testLeaveFromGroup() {
         MemberEntity m1 = memberRepo.create("new_user", "hash");
-        TauMemberEntity tau = m1.getTauMember();
+        TauMemberEntity tau = tauMemberRepo.findByMember(m1);
 
         GroupEntity group = groupRepo.create("news", tau);
 
@@ -65,8 +67,8 @@ public class CascadingTest {
         MemberEntity m1 = memberRepo.create("reacter", "hash");
         MemberEntity m2 = memberRepo.create("author", "hash");
 
-        TauMemberEntity reacter = m1.getTauMember();
-        TauMemberEntity author = m2.getTauMember();
+        TauMemberEntity reacter = tauMemberRepo.findByMember(m1);
+        TauMemberEntity author = tauMemberRepo.findByMember(m2);
 
         ChatEntity chat = groupRepo.create("memes", author);
         ChatMessageInputDTO input = new ChatMessageInputDTO()
@@ -94,8 +96,8 @@ public class CascadingTest {
         MemberEntity m1 = memberRepo.create("maria", "hash");
         MemberEntity m2 = memberRepo.create("mark", "hash");
 
-        TauMemberEntity reacter = m1.getTauMember();
-        TauMemberEntity author = m2.getTauMember();
+        TauMemberEntity reacter = tauMemberRepo.findByMember(m1);
+        TauMemberEntity author = tauMemberRepo.findByMember(m2);
 
         ChatEntity chat = groupRepo.create("random", author);
         ChatMessageInputDTO input = new ChatMessageInputDTO()
@@ -122,8 +124,8 @@ public class CascadingTest {
     public void testActivateInviteCode() {
         MemberEntity sender = memberRepo.create("sender_cascading", "hash");
         MemberEntity receiver = memberRepo.create("receiver_cascading", "hash");
-        TauMemberEntity s = sender.getTauMember();
-        TauMemberEntity r = receiver.getTauMember();
+        TauMemberEntity s = tauMemberRepo.findByMember(sender);
+        TauMemberEntity r = tauMemberRepo.findByMember(receiver);
 
         GroupEntity group = groupRepo.create("private", s);
         InviteCodeEntity invite = inviteCodeRepo.create(group, r, s, ZonedDateTime.now().plusDays(1));

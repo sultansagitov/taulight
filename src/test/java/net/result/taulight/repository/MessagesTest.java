@@ -33,11 +33,12 @@ public class MessagesTest {
         jpaUtil = container.get(JPAUtil.class);
 
         MemberRepository memberRepo = container.get(MemberRepository.class);
+        TauMemberRepository tauMemberRepo = container.get(TauMemberRepository.class);
         groupRepo = container.get(GroupRepository.class);
         messageRepo = container.get(MessageRepository.class);
 
-        member1 = memberRepo.create("user1_messages", "hash").getTauMember();
-        member2 = memberRepo.create("user2_messages", "hash").getTauMember();
+        member1 = tauMemberRepo.findByMember(memberRepo.create("user1_messages", "hash"));
+        member2 = tauMemberRepo.findByMember(memberRepo.create("user2_messages", "hash"));
 
         assertNotNull(member1.id());
         assertNotNull(member2.id());

@@ -12,13 +12,14 @@ import net.result.taulight.dto.RolesDTO;
 import net.result.taulight.entity.ChatEntity;
 import net.result.taulight.entity.GroupEntity;
 import net.result.taulight.entity.RoleEntity;
-import net.result.taulight.entity.TauMemberEntity;
 import net.result.taulight.message.types.RoleRequest;
 import net.result.taulight.message.types.RoleResponse;
 import net.result.taulight.repository.RoleRepository;
+import net.result.taulight.repository.TauMemberRepository;
 import net.result.taulight.util.ChatUtil;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -41,7 +42,7 @@ public class RoleServerChain extends ServerChain implements ReceiverChain {
         String nickname = dto.nickname();
 
         ChatEntity chat = chatUtil.getChat(chatID).orElseThrow(NotFoundException::new);
-        if (!chatUtil.contains(chat, session.member.getTauMember())) throw new NotFoundException();
+        if (!chatUtil.contains(chat, session.member)) throw new NotFoundException();
         if (!(chat instanceof GroupEntity group)) throw new WrongAddressException();
 
         Set<RoleEntity> roles = group.getRoles();
@@ -49,10 +50,13 @@ public class RoleServerChain extends ServerChain implements ReceiverChain {
                 .map(RoleEntity::toDTO)
                 .collect(Collectors.toSet());
 
-        Set<UUID> memberRoles = roles.stream()
-                .filter(role -> role.getMembers().contains(session.member.getTauMember()))
-                .map(RoleEntity::id)
-                .collect(Collectors.toSet());
+        Set<UUID> memberRoles = new HashSet<>();
+        for (RoleEntity role : roles) {
+            if (role.getMembers().stream().anyMatch(m -> m.getMember().equals(session.member))) {
+                UUID id = role.id();
+                memberRoles.add(id);
+            }
+        }
 
         Set<Permission> permissions = group.getPermissions();
 
@@ -77,8 +81,7 @@ public class RoleServerChain extends ServerChain implements ReceiverChain {
     ) {
         RoleRepository roleRepo = session.server.container.get(RoleRepository.class);
 
-        //noinspection DataFlowIssue
-        if (!group.getOwner().equals(session.member.getTauMember())) throw new UnauthorizedException();
+        if (!group.getOwner().getMember().equals(session.member)) throw new UnauthorizedException();
 
         if (roleName == null || roleName.trim().isEmpty()) throw new TooFewArgumentsException();
         allRoles.add(roleRepo.create(group, roleName).toDTO());
@@ -95,10 +98,10 @@ public class RoleServerChain extends ServerChain implements ReceiverChain {
             Set<Permission> permissions
     ) {
         RoleRepository roleRepo = session.server.container.get(RoleRepository.class);
+        TauMemberRepository tauMemberRepo = session.server.container.get(TauMemberRepository.class);
         MemberRepository memberRepo = session.server.container.get(MemberRepository.class);
 
-        //noinspection DataFlowIssue
-        if (!group.getOwner().equals(session.member.getTauMember())) throw new UnauthorizedException();
+        if (!group.getOwner().getMember().equals(session.member)) throw new UnauthorizedException();
 
         if (roleID == null || nickname == null) throw new TooFewArgumentsException();
 
@@ -107,12 +110,11 @@ public class RoleServerChain extends ServerChain implements ReceiverChain {
                 .findFirst()
                 .orElseThrow(NotFoundException::new);
 
-        TauMemberEntity member = memberRepo
+        var member = memberRepo
                 .findByNickname(nickname)
-                .orElseThrow(NotFoundException::new)
-                .getTauMember();
+                .orElseThrow(NotFoundException::new);
 
-        if (!roleRepo.addMember(roleToAdd, member)) throw new NoEffectException();
+        if (!roleRepo.addMember(roleToAdd, tauMemberRepo.findByMember(member))) throw new NoEffectException();
         return new RoleResponse(new RolesDTO(allRoles, memberRoles, permissions));
     }
 }

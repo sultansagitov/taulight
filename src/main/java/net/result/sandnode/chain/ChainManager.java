@@ -19,6 +19,7 @@ public interface ChainManager {
 
     void distributeMessage(RawMessage message);
 
+    @SuppressWarnings("unused")
     Optional<Chain> getChain(String chainName);
 
     <T extends Chain> T getChain(String chainName, Supplier<T> orElse);

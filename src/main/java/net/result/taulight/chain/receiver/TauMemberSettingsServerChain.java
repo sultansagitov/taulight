@@ -18,10 +18,9 @@ public class TauMemberSettingsServerChain extends ServerChain implements Receive
 
         TauMemberRepository repo = session.server.container.get(TauMemberRepository.class);
         MemberUpdater memberUpdater = session.server.container.get(MemberUpdater.class);
-
         TauMemberSettingsRequest request = new TauMemberSettingsRequest(raw);
 
-        TauMemberEntity entity = session.member.getTauMember();
+        TauMemberEntity entity = repo.findByMember(session.member);
 
         Boolean showStatus = request.getShowStatus();
         if (showStatus != null) {

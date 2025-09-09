@@ -11,6 +11,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ChatRequestDTO {
+    @SuppressWarnings("CanBeFinal")
     @JsonProperty("chat-id-list")
     public @Nullable Collection<UUID> allChatID = null;
     @JsonProperty("properties")

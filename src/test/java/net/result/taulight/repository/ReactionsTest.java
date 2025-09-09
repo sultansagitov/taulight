@@ -36,14 +36,15 @@ class ReactionsTest {
         jpaUtil = container.get(JPAUtil.class);
 
         MemberRepository memberRepo = container.get(MemberRepository.class);
+        TauMemberRepository tauMemberRepo = container.get(TauMemberRepository.class);
         groupRepo = container.get(GroupRepository.class);
         messageRepo = container.get(MessageRepository.class);
         reactionPackageRepo = container.get(ReactionPackageRepository.class);
         reactionTypeRepo = container.get(ReactionTypeRepository.class);
         reactionEntryRepo = container.get(ReactionEntryRepository.class);
 
-        member1 = memberRepo.create("user1", "hash").getTauMember();
-        member2 = memberRepo.create("user2", "hash").getTauMember();
+        member1 = tauMemberRepo.findByMember(memberRepo.create("user1", "hash"));
+        member2 = tauMemberRepo.findByMember(memberRepo.create("user2", "hash"));
 
         assertNotNull(member1.id());
         assertNotNull(member2.id());

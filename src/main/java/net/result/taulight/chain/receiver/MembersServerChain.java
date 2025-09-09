@@ -44,7 +44,7 @@ public class MembersServerChain extends ServerChain implements ReceiverChain {
         ChatEntity chat = optChat.get();
         ChatCluster cluster = clusterManager.getCluster(chat);
 
-        if (!chatUtil.contains(chat, session.member.getTauMember())) {
+        if (!chatUtil.contains(chat, session.member)) {
             throw new NotFoundException();
         }
 

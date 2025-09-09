@@ -15,6 +15,7 @@ import net.result.taulight.repository.MessageRepository;
 import net.result.taulight.dto.ChatMessageInputDTO;
 import net.result.taulight.dto.ChatMessageViewDTO;
 import net.result.taulight.message.types.DownstreamResponse;
+import net.result.taulight.repository.TauMemberRepository;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -33,8 +34,9 @@ public class TauHubProtocol {
 
         var messageRepo = session.server.container.get(MessageRepository.class);
         var messageFileRepo = session.server.container.get(MessageFileRepository.class);
+        var tauMemberRepo = session.server.container.get(TauMemberRepository.class);
 
-        MessageEntity message = messageRepo.create(chat, input, session.member.getTauMember());
+        MessageEntity message = messageRepo.create(chat, input, tauMemberRepo.findByMember(session.member));
         LOGGER.info("Saved message with id {} content: {}", message.id(), message.getContent());
         ChatMessageViewDTO serverMessage = message.toViewDTO(messageFileRepo);
 

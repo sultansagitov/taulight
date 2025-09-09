@@ -9,6 +9,7 @@ import net.result.sandnode.exception.error.BusyNicknameException;
 import net.result.sandnode.repository.MemberRepository;
 import net.result.sandnode.util.Container;
 import net.result.taulight.db.TauMemberCreationListener;
+import net.result.taulight.entity.TauMemberEntity;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
@@ -19,6 +20,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class TauMembersTest {
 
     private static MemberRepository memberRepo;
+    private static TauMemberRepository tauMemberRepo;
 
     @BeforeAll
     public static void setup() {
@@ -27,6 +29,7 @@ class TauMembersTest {
         container.addInstanceItem(TauMemberCreationListener.class);
 
         memberRepo = container.get(MemberRepository.class);
+        tauMemberRepo = container.get(TauMemberRepository.class);
 
         EncryptionManager.registerAll();
     }
@@ -34,14 +37,15 @@ class TauMembersTest {
     @Test
     public void registerMember() {
         MemberEntity newMember = memberRepo.create("tau_testuser123", "hash");
+        TauMemberEntity tauMember = tauMemberRepo.findByMember(newMember);
         assertNotNull(newMember);
         assertEquals("tau_testuser123", newMember.getNickname());
 
         // Additional assertions
         assertNotNull(newMember.id());
-        assertNotNull(newMember.getTauMember());
-        assertEquals(0, newMember.getTauMember().getDialogs().size(), "New member should have no dialogs");
-        assertEquals(0, newMember.getTauMember().getGroups().size(), "New member should have no groups");
+        assertNotNull(tauMember);
+        assertEquals(0, tauMember.getDialogs().size(), "New member should have no dialogs");
+        assertEquals(0, tauMember.getGroups().size(), "New member should have no groups");
 
         // Test duplicate nickname
         assertThrows(BusyNicknameException.class, () -> memberRepo.create("tau_testuser123", "hash"));
@@ -51,14 +55,15 @@ class TauMembersTest {
     public void registerMemberWithKeyStorage() {
         AsymmetricKeyStorage keyStorage = AsymmetricEncryptions.ECIES.generate();
         MemberEntity newMember = memberRepo.create("tau_testuser123_with_key", "hash", keyStorage);
+        TauMemberEntity tauMember = tauMemberRepo.findByMember(newMember);
         assertNotNull(newMember);
         assertEquals("tau_testuser123_with_key", newMember.getNickname());
 
         // Additional assertions
         assertNotNull(newMember.id());
-        assertNotNull(newMember.getTauMember());
-        assertEquals(0, newMember.getTauMember().getDialogs().size(), "New member should have no dialogs");
-        assertEquals(0, newMember.getTauMember().getGroups().size(), "New member should have no groups");
+        assertNotNull(tauMember);
+        assertEquals(0, tauMember.getDialogs().size(), "New member should have no dialogs");
+        assertEquals(0, tauMember.getGroups().size(), "New member should have no groups");
 
         // Test duplicate nickname
         assertThrows(BusyNicknameException.class, () -> memberRepo.create("tau_testuser123", "hash"));

@@ -16,9 +16,11 @@ import net.result.taulight.chain.sender.ReactionResponseServerChain;
 import net.result.taulight.entity.MessageEntity;
 import net.result.taulight.entity.ReactionEntryEntity;
 import net.result.taulight.entity.ReactionTypeEntity;
+import net.result.taulight.entity.TauMemberEntity;
 import net.result.taulight.message.types.ReactionRequest;
 import net.result.taulight.repository.ReactionEntryRepository;
 import net.result.taulight.repository.ReactionTypeRepository;
+import net.result.taulight.repository.TauMemberRepository;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -28,9 +30,11 @@ public class ReactionRequestServerChain extends ServerChain implements ReceiverC
     @Override
     public HappyMessage handle(RawMessage raw) {
         ClusterManager clusterManager = session.server.container.get(ClusterManager.class);
+
+        JPAUtil jpaUtil = session.server.container.get(JPAUtil.class);
+        TauMemberRepository tauMemberRepo = session.server.container.get(TauMemberRepository.class);
         ReactionTypeRepository reactionTypeRepo = session.server.container.get(ReactionTypeRepository.class);
         ReactionEntryRepository reactionEntryRepo = session.server.container.get(ReactionEntryRepository.class);
-        JPAUtil jpaUtil = session.server.container.get(JPAUtil.class);
 
         ReactionRequest request = new ReactionRequest(raw);
 
@@ -60,8 +64,10 @@ public class ReactionRequestServerChain extends ServerChain implements ReceiverC
 
         Cluster notReactionReceiver = clusterManager.get("#not_reaction_receiver");
 
+        TauMemberEntity tauMember = tauMemberRepo.findByMember(session.member);
+
         if (request.dto().react()) {
-            ReactionEntryEntity re = reactionEntryRepo.create(session.member.getTauMember(), message, reactionType);
+            ReactionEntryEntity re = reactionEntryRepo.create(tauMember, message, reactionType);
             LOGGER.info("Reaction added: {} to message {} by {}", reactionType.getName(), message.id(), nickname);
             for (Session s : session.server.getAgents()) {
                 if (notReactionReceiver.contains(s)) continue;
@@ -75,7 +81,7 @@ public class ReactionRequestServerChain extends ServerChain implements ReceiverC
                 s.io().chainManager.removeChain(chain);
             }
         } else {
-            if (reactionEntryRepo.delete(message, session.member.getTauMember(), reactionType)) {
+            if (reactionEntryRepo.delete(message, tauMember, reactionType)) {
                 for (Session s : session.server.getAgents()) {
                     if (notReactionReceiver.contains(s)) continue;
                     var chain = new ReactionResponseServerChain(s);

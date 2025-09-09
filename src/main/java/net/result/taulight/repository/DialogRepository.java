@@ -2,6 +2,7 @@ package net.result.taulight.repository;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.TypedQuery;
+import net.result.sandnode.entity.MemberEntity;
 import net.result.sandnode.exception.AlreadyExistingRecordException;
 import net.result.sandnode.exception.DatabaseException;
 import net.result.sandnode.util.Container;
@@ -34,13 +35,52 @@ public class DialogRepository {
         return jpaUtil.create(dialog);
     }
 
-    public Optional<DialogEntity> findByMembers(TauMemberEntity firstMember, TauMemberEntity secondMember) {
+    public Optional<DialogEntity> findByMembers(TauMemberEntity firstMember,
+                                                TauMemberEntity secondMember) {
         EntityManager em = jpaUtil.getEntityManager();
         String q = """
             FROM DialogEntity
             WHERE
                 (firstMember = :firstMember AND secondMember = :secondMember)
                 OR (firstMember = :secondMember AND secondMember = :firstMember)
+        """;
+        TypedQuery<DialogEntity> query = em.createQuery(q, DialogEntity.class)
+                .setParameter("firstMember", firstMember)
+                .setParameter("secondMember", secondMember)
+                .setMaxResults(1);
+        try {
+            return query.getResultList().stream().findFirst();
+        } catch (Exception e) {
+            throw new DatabaseException(e);
+        }
+    }
+
+    public Optional<DialogEntity> findByMembers(MemberEntity firstMember, TauMemberEntity secondMember) {
+        EntityManager em = jpaUtil.getEntityManager();
+        String q = """
+            FROM DialogEntity
+            WHERE
+                (firstMember.member = :firstMember AND secondMember = :secondMember)
+                OR (firstMember = :secondMember AND secondMember.member = :firstMember)
+        """;
+        TypedQuery<DialogEntity> query = em.createQuery(q, DialogEntity.class)
+                .setParameter("firstMember", firstMember)
+                .setParameter("secondMember", secondMember)
+                .setMaxResults(1);
+        try {
+            return query.getResultList().stream().findFirst();
+        } catch (Exception e) {
+            throw new DatabaseException(e);
+        }
+    }
+
+    public Optional<DialogEntity> findByMembers(MemberEntity firstMember, MemberEntity secondMember) {
+        EntityManager em = jpaUtil.getEntityManager();
+        String q = """
+            FROM DialogEntity
+            WHERE
+                (firstMember.member = :firstMember AND secondMember.member = :secondMember)
+                OR (firstMember.member = :secondMember AND secondMember.member = :firstMember)
         """;
         TypedQuery<DialogEntity> query = em.createQuery(q, DialogEntity.class)
                 .setParameter("firstMember", firstMember)

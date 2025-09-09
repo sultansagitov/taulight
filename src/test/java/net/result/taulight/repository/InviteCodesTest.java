@@ -35,15 +35,16 @@ public class InviteCodesTest {
         container.addInstanceItem(TauMemberCreationListener.class);
 
         MemberRepository memberRepo = container.get(MemberRepository.class);
+        TauMemberRepository tauMemberRepo = container.get(TauMemberRepository.class);
         groupRepo = container.get(GroupRepository.class);
         inviteCodeRepo = container.get(InviteCodeRepository.class);
 
-        member1 = memberRepo.create("user1_invites", "hash").getTauMember();
-        member2 = memberRepo.create("user2_invites", "hash").getTauMember();
-        member3 = memberRepo.create("user3_invites", "hash").getTauMember();
-        member4 = memberRepo.create("user4_invites", "hash").getTauMember();
-        member5 = memberRepo.create("user5_invites", "hash").getTauMember();
-        member6 = memberRepo.create("user6_invites", "hash").getTauMember();
+        member1 = tauMemberRepo.findByMember(memberRepo.create("user1_invites", "hash"));
+        member2 = tauMemberRepo.findByMember(memberRepo.create("user2_invites", "hash"));
+        member3 = tauMemberRepo.findByMember(memberRepo.create("user3_invites", "hash"));
+        member4 = tauMemberRepo.findByMember(memberRepo.create("user4_invites", "hash"));
+        member5 = tauMemberRepo.findByMember(memberRepo.create("user5_invites", "hash"));
+        member6 = tauMemberRepo.findByMember(memberRepo.create("user6_invites", "hash"));
 
         // Assert that all members are properly created
         assertNotNull(member1.id());
