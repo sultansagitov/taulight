@@ -15,7 +15,6 @@ import net.result.sandnode.serverclient.Session;
 import net.result.sandnode.util.Address;
 import net.result.sandnode.util.Container;
 import net.result.sandnode.util.SimpleContainer;
-import net.result.taulight.db.TauMemberCreationListener;
 import org.junit.jupiter.api.TestInstance;
 
 import java.io.IOException;
@@ -26,8 +25,7 @@ public class GlobalTestState {
 
     static {
         container = new SimpleContainer();
-        container.get(SimpleJPAUtil.class);
-        container.addInstanceItem(TauMemberCreationListener.class);
+        container.set(SimpleJPAUtil.class);
     }
 
     public static final String name = "Hub";

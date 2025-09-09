@@ -3,6 +3,7 @@ package net.result.taulight.repository;
 import net.result.sandnode.GlobalTestState;
 import net.result.sandnode.repository.MemberRepository;
 import net.result.sandnode.util.Container;
+import net.result.taulight.db.TauMemberCreationListener;
 import net.result.taulight.entity.GroupEntity;
 import net.result.taulight.entity.RoleEntity;
 import net.result.taulight.entity.TauMemberEntity;
@@ -20,6 +21,9 @@ public class RolesTest {
     @BeforeAll
     public static void setup() {
         Container container = GlobalTestState.container;
+
+        container.addInstanceItem(TauMemberCreationListener.class);
+
         MemberRepository memberRepo = container.get(MemberRepository.class);
         groupRepo = container.get(GroupRepository.class);
         roleRepo = container.get(RoleRepository.class);

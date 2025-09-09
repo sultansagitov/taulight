@@ -1,11 +1,11 @@
 package net.result.taulight.util;
 
 import net.result.sandnode.GlobalTestState;
+import net.result.sandnode.db.JPAUtil;
 import net.result.sandnode.entity.MemberEntity;
 import net.result.sandnode.repository.MemberRepository;
 import net.result.sandnode.util.Container;
-import net.result.sandnode.db.JPAUtil;
-import net.result.sandnode.db.SimpleJPAUtil;
+import net.result.taulight.db.TauMemberCreationListener;
 import net.result.taulight.entity.ChatEntity;
 import net.result.taulight.entity.DialogEntity;
 import net.result.taulight.entity.GroupEntity;
@@ -15,7 +15,10 @@ import net.result.taulight.repository.GroupRepository;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -33,13 +36,16 @@ public class ChatUtilTest {
     @BeforeAll
     static void setUp() {
         Container container = GlobalTestState.container;
+
+        container.addInstanceItem(TauMemberCreationListener.class);
+
         MemberRepository memberRepo = container.get(MemberRepository.class);
         GroupRepository groupRepo = container.get(GroupRepository.class);
         DialogRepository dialogRepo = container.get(DialogRepository.class);
 
         chatUtil = container.get(ChatUtil.class);
         chatUtil = container.get(ChatUtil.class);
-        JPAUtil jpaUtil = container.get(SimpleJPAUtil.class);
+        JPAUtil jpaUtil = container.get(JPAUtil.class);
 
         member1 = memberRepo.create("member1_chat_util", "hash");
         member2 = memberRepo.create("member2_chat_util", "hash");

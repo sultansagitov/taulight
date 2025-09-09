@@ -1,11 +1,11 @@
 package net.result.taulight.repository;
 
 import net.result.sandnode.GlobalTestState;
+import net.result.sandnode.db.JPAUtil;
+import net.result.sandnode.exception.AlreadyExistingRecordException;
 import net.result.sandnode.repository.MemberRepository;
 import net.result.sandnode.util.Container;
-import net.result.sandnode.db.JPAUtil;
-import net.result.sandnode.db.SimpleJPAUtil;
-import net.result.sandnode.exception.AlreadyExistingRecordException;
+import net.result.taulight.db.TauMemberCreationListener;
 import net.result.taulight.entity.ChatEntity;
 import net.result.taulight.entity.DialogEntity;
 import net.result.taulight.entity.GroupEntity;
@@ -36,7 +36,9 @@ public class ChatsTest {
     public static void setup() {
         Container container = GlobalTestState.container;
 
-        jpaUtil = container.get(SimpleJPAUtil.class);
+        container.addInstanceItem(TauMemberCreationListener.class);
+
+        jpaUtil = container.get(JPAUtil.class);
 
         MemberRepository memberRepo = container.get(MemberRepository.class);
         dialogRepo = container.get(DialogRepository.class);

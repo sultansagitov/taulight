@@ -1,19 +1,21 @@
 package net.result.taulight.repository;
 
 import net.result.sandnode.GlobalTestState;
+import net.result.sandnode.db.JPAUtil;
 import net.result.sandnode.entity.MemberEntity;
 import net.result.sandnode.repository.MemberRepository;
 import net.result.sandnode.util.Container;
-import net.result.sandnode.db.JPAUtil;
-import net.result.sandnode.db.SimpleJPAUtil;
+import net.result.taulight.db.TauMemberCreationListener;
 import net.result.taulight.dto.ChatMessageInputDTO;
 import net.result.taulight.entity.*;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 import java.time.ZonedDateTime;
 import java.util.HashSet;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class MemberDeletionIntegrationTest {
     private static JPAUtil jpaUtil;
@@ -29,7 +31,10 @@ public class MemberDeletionIntegrationTest {
     @BeforeAll
     public static void setup() {
         Container container = GlobalTestState.container;
-        jpaUtil = container.get(SimpleJPAUtil.class);
+
+        container.addInstanceItem(TauMemberCreationListener.class);
+
+        jpaUtil = container.get(JPAUtil.class);
         memberRepo = container.get(MemberRepository.class);
         dialogRepo = container.get(DialogRepository.class);
         groupRepo = container.get(GroupRepository.class);

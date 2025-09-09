@@ -4,6 +4,7 @@ import net.result.sandnode.GlobalTestState;
 import net.result.sandnode.exception.error.NoEffectException;
 import net.result.sandnode.repository.MemberRepository;
 import net.result.sandnode.util.Container;
+import net.result.taulight.db.TauMemberCreationListener;
 import net.result.taulight.entity.GroupEntity;
 import net.result.taulight.entity.InviteCodeEntity;
 import net.result.taulight.entity.TauMemberEntity;
@@ -30,6 +31,9 @@ public class InviteCodesTest {
     @BeforeAll
     public static void setup() {
         Container container = GlobalTestState.container;
+
+        container.addInstanceItem(TauMemberCreationListener.class);
+
         MemberRepository memberRepo = container.get(MemberRepository.class);
         groupRepo = container.get(GroupRepository.class);
         inviteCodeRepo = container.get(InviteCodeRepository.class);
