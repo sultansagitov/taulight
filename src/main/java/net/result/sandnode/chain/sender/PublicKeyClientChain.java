@@ -1,6 +1,7 @@
 package net.result.sandnode.chain.sender;
 
 import net.result.sandnode.chain.ClientChain;
+import net.result.sandnode.encryption.interfaces.AsymmetricKeyStorage;
 import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.message.types.PublicKeyRequest;
 import net.result.sandnode.message.types.PublicKeyResponse;
@@ -11,9 +12,12 @@ public class PublicKeyClientChain extends ClientChain {
         super(client);
     }
 
-    public void getPublicKey() {
+    public AsymmetricKeyStorage getPublicKey() {
         RawMessage response = sendAndReceive(new PublicKeyRequest());
         PublicKeyResponse publicKeyResponse = new PublicKeyResponse(response);
-        io().setServerKey(publicKeyResponse.keyStorage);
+        AsymmetricKeyStorage keyStorage = publicKeyResponse.keyStorage;
+        client.node().agent().config.saveServerKey(client.address, keyStorage);
+        io().setServerKey(keyStorage);
+        return keyStorage;
     }
 }

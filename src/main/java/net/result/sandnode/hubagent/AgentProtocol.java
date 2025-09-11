@@ -6,7 +6,6 @@ import net.result.sandnode.chain.sender.RegistrationClientChain;
 import net.result.sandnode.dto.LogPasswdResponseDTO;
 import net.result.sandnode.dto.LoginResponseDTO;
 import net.result.sandnode.dto.RegistrationResponseDTO;
-import net.result.sandnode.encryption.interfaces.AsymmetricEncryption;
 import net.result.sandnode.encryption.interfaces.AsymmetricKeyStorage;
 import net.result.sandnode.exception.LinkDoesNotMatchException;
 import net.result.sandnode.exception.error.KeyStorageNotFoundException;
@@ -82,11 +81,6 @@ public class AgentProtocol {
 
         if (filePublicKey != null) return filePublicKey;
 
-        ClientProtocol.PUB(client);
-        AsymmetricEncryption encryption = client.io().serverEncryption().asymmetric();
-        AsymmetricKeyStorage serverKey = agent.keyStorageRegistry.asymmetricNonNull(encryption);
-
-        agent.config.saveServerKey(link.address(), serverKey);
-        return serverKey;
+        return ClientProtocol.PUB(client);
     }
 }
