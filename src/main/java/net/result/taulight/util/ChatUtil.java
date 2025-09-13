@@ -1,5 +1,6 @@
 package net.result.taulight.util;
 
+import net.result.sandnode.entity.MemberEntity;
 import net.result.sandnode.util.Container;
 import net.result.sandnode.db.JPAUtil;
 import net.result.taulight.entity.ChatEntity;
@@ -7,16 +8,19 @@ import net.result.taulight.entity.DialogEntity;
 import net.result.taulight.entity.GroupEntity;
 import net.result.taulight.entity.TauMemberEntity;
 import net.result.taulight.repository.GroupRepository;
+import net.result.taulight.repository.TauMemberRepository;
 
 import java.util.*;
 
 public class ChatUtil {
     private final GroupRepository groupRepo;
     private final JPAUtil jpaUtil;
+    private final TauMemberRepository tauMemberRepo;
 
     public ChatUtil(Container container) {
-        groupRepo = container.get(GroupRepository.class);
         jpaUtil = container.get(JPAUtil.class);
+        groupRepo = container.get(GroupRepository.class);
+        tauMemberRepo = container.get(TauMemberRepository.class);
     }
 
     public Optional<ChatEntity> getChat(UUID id) {
@@ -37,6 +41,10 @@ public class ChatUtil {
             }
         }
         return Set.of();
+    }
+
+    public boolean contains(ChatEntity chat, MemberEntity member) {
+        return contains(chat, tauMemberRepo.findByMember(member));
     }
 
     public boolean contains(ChatEntity chat, TauMemberEntity member) {

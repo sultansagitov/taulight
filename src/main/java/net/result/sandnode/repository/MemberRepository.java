@@ -3,6 +3,7 @@ package net.result.sandnode.repository;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityTransaction;
 import jakarta.persistence.TypedQuery;
+import net.result.sandnode.db.JPAUtil;
 import net.result.sandnode.db.MemberCreationListener;
 import net.result.sandnode.encryption.interfaces.AsymmetricKeyStorage;
 import net.result.sandnode.entity.FileEntity;
@@ -11,25 +12,24 @@ import net.result.sandnode.entity.MemberEntity;
 import net.result.sandnode.exception.DatabaseException;
 import net.result.sandnode.exception.error.BusyNicknameException;
 import net.result.sandnode.util.Container;
-import net.result.sandnode.db.JPAUtil;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.util.List;
 import java.util.Optional;
 
 public class MemberRepository {
     private static final Logger LOGGER = LogManager.getLogger(MemberRepository.class);
     private final JPAUtil jpaUtil;
-    private final List<MemberCreationListener> creationListeners;
+    private final Container container;
 
     public MemberRepository(Container container) {
+        this.container = container;
         jpaUtil = container.get(JPAUtil.class);
-        creationListeners = container.getAll(MemberCreationListener.class);
     }
 
     private void notifyListeners(MemberEntity member) {
-        for (var listener : creationListeners) {
+        final var creationListeners = container.getAll(MemberCreationListener.class);
+        for (final var listener : creationListeners) {
             LOGGER.info("Using listener - {}", listener);
             listener.onMemberCreated(member);
         }

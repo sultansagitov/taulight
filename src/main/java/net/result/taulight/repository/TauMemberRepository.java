@@ -8,6 +8,7 @@ import net.result.sandnode.exception.DatabaseException;
 import net.result.sandnode.util.Container;
 import net.result.sandnode.db.JPAUtil;
 import net.result.taulight.entity.TauMemberEntity;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
 
@@ -29,7 +30,6 @@ public class TauMemberRepository {
             em.merge(tauMember);
 
             MemberEntity m = tauMember.getMember();
-            m.setTauMember(tauMember);
 
             em.merge(m);
 
@@ -51,6 +51,22 @@ public class TauMemberRepository {
                 .setMaxResults(1);
         try {
             return query.getResultList().stream().findFirst();
+        } catch (Exception e) {
+            throw new DatabaseException(e);
+        }
+    }
+
+    public TauMemberEntity findByMember(@Nullable MemberEntity member) {
+        EntityManager em = jpaUtil.getEntityManager();
+        String q = """
+            FROM TauMemberEntity
+            WHERE member = :member
+        """;
+        TypedQuery<TauMemberEntity> query = em.createQuery(q, TauMemberEntity.class)
+                .setParameter("member", member)
+                .setMaxResults(1);
+        try {
+            return query.getResultList().stream().findFirst().orElseThrow();
         } catch (Exception e) {
             throw new DatabaseException(e);
         }

@@ -1,15 +1,15 @@
 package net.result.sandnode.repository;
 
 import net.result.sandnode.GlobalTestState;
+import net.result.sandnode.db.JPAUtil;
 import net.result.sandnode.encryption.AsymmetricEncryptions;
 import net.result.sandnode.encryption.EncryptionManager;
 import net.result.sandnode.entity.KeyStorageEntity;
 import net.result.sandnode.entity.LoginEntity;
 import net.result.sandnode.entity.MemberEntity;
 import net.result.sandnode.util.Container;
-import net.result.sandnode.db.JPAUtil;
-import net.result.sandnode.db.SimpleJPAUtil;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 import java.util.List;
 import java.util.Optional;
@@ -31,7 +31,7 @@ public class LoginsTest {
         Container container = GlobalTestState.container;
         loginRepo = container.get(LoginRepository.class);
         keyStorageRepo = container.get(KeyStorageRepository.class);
-        jpaUtil = container.get(SimpleJPAUtil.class);
+        jpaUtil = container.get(JPAUtil.class);
 
         MemberRepository memberRepo = container.get(MemberRepository.class);
         member = memberRepo.create("user_login_test", "hash");

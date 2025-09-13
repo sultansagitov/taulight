@@ -6,7 +6,6 @@ import net.result.sandnode.db.DBFileUtil;
 import net.result.sandnode.db.MemberUpdater;
 import net.result.sandnode.dto.FileDTO;
 import net.result.sandnode.entity.FileEntity;
-import net.result.sandnode.entity.MemberEntity;
 import net.result.sandnode.exception.DatabaseException;
 import net.result.sandnode.exception.ImpossibleRuntimeException;
 import net.result.sandnode.exception.error.*;
@@ -17,7 +16,6 @@ import net.result.sandnode.message.UUIDMessage;
 import net.result.sandnode.message.types.HappyMessage;
 import net.result.sandnode.message.util.Headers;
 import net.result.sandnode.message.util.MessageTypes;
-import net.result.sandnode.repository.MemberRepository;
 import net.result.sandnode.util.FileIOUtil;
 import net.result.taulight.cluster.TauClusterManager;
 import net.result.taulight.db.Permission;
@@ -33,6 +31,7 @@ import net.result.taulight.message.types.GroupRequest;
 import net.result.taulight.repository.GroupRepository;
 import net.result.taulight.repository.InviteCodeRepository;
 import net.result.taulight.repository.RoleRepository;
+import net.result.taulight.repository.TauMemberRepository;
 import net.result.taulight.util.ChatUtil;
 import net.result.taulight.util.ClusterUtil;
 import net.result.taulight.util.SysMessages;
@@ -52,7 +51,7 @@ public class GroupServerChain extends ServerChain implements ReceiverChain {
     private DBFileUtil dbFileUtil;
     private TauClusterManager manager;
     private GroupRepository groupRepo;
-    private MemberRepository memberRepo;
+    private TauMemberRepository tauMemberRepo;
     private InviteCodeRepository inviteCodeRepo;
     private RoleRepository roleRepo;
 
@@ -65,7 +64,7 @@ public class GroupServerChain extends ServerChain implements ReceiverChain {
         manager = session.server.container.get(TauClusterManager.class);
 
         groupRepo = session.server.container.get(GroupRepository.class);
-        memberRepo = session.server.container.get(MemberRepository.class);
+        tauMemberRepo = session.server.container.get(TauMemberRepository.class);
         inviteCodeRepo = session.server.container.get(InviteCodeRepository.class);
         roleRepo = session.server.container.get(RoleRepository.class);
 
@@ -81,7 +80,7 @@ public class GroupServerChain extends ServerChain implements ReceiverChain {
             throw new UnauthorizedException();
         }
 
-        final TauMemberEntity you = session.member.getTauMember();
+        final var you = tauMemberRepo.findByMember(session.member);
 
         Message response = switch (dto.type) {
             case CREATE -> create(dto, you);
@@ -127,9 +126,8 @@ public class GroupServerChain extends ServerChain implements ReceiverChain {
         // This is not group
         if (!(chat instanceof GroupEntity group)) throw new WrongAddressException();
 
-        TauMemberEntity member = memberRepo
+        TauMemberEntity member = tauMemberRepo
                 .findByNickname(dto.otherNickname)
-                .map(MemberEntity::getTauMember)
                 .orElseThrow(AddressedMemberNotFoundException::new);
 
         // You are not owner

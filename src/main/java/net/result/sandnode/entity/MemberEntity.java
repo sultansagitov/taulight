@@ -1,9 +1,11 @@
 package net.result.sandnode.entity;
 
-import jakarta.persistence.*;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Entity;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
 import lombok.Getter;
 import lombok.Setter;
-import net.result.taulight.entity.TauMemberEntity;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -27,9 +29,6 @@ public class MemberEntity extends BaseEntity {
 
     @OneToMany(mappedBy = "receiver", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     private Set<EncryptedKeyEntity> encryptedKeys = new HashSet<>();
-
-    @OneToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
-    private TauMemberEntity tauMember;
 
     public MemberEntity() {}
 

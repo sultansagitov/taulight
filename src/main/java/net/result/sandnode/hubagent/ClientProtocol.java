@@ -3,6 +3,7 @@ package net.result.sandnode.hubagent;
 import net.result.sandnode.chain.sender.ClusterClientChain;
 import net.result.sandnode.chain.sender.PublicKeyClientChain;
 import net.result.sandnode.chain.sender.SymKeyClientChain;
+import net.result.sandnode.encryption.interfaces.AsymmetricKeyStorage;
 import net.result.sandnode.serverclient.SandnodeClient;
 import net.result.sandnode.util.IOController;
 import org.jetbrains.annotations.NotNull;
@@ -11,12 +12,13 @@ import java.util.Collection;
 import java.util.Set;
 
 public class ClientProtocol {
-    public static void PUB(@NotNull SandnodeClient client) {
+    public static AsymmetricKeyStorage PUB(@NotNull SandnodeClient client) {
         IOController io = client.io();
         PublicKeyClientChain pubkeyChain = new PublicKeyClientChain(client);
         io.chainManager.linkChain(pubkeyChain);
-        pubkeyChain.getPublicKey();
+        AsymmetricKeyStorage publicKey = pubkeyChain.getPublicKey();
         io.chainManager.removeChain(pubkeyChain);
+        return publicKey;
     }
 
     public static void sendSYM(@NotNull SandnodeClient client) {

@@ -1,23 +1,26 @@
 package net.result.taulight.repository;
 
 import net.result.sandnode.GlobalTestState;
+import net.result.sandnode.db.JPAUtil;
 import net.result.sandnode.entity.MemberEntity;
 import net.result.sandnode.repository.MemberRepository;
 import net.result.sandnode.util.Container;
-import net.result.sandnode.db.JPAUtil;
-import net.result.sandnode.db.SimpleJPAUtil;
+import net.result.taulight.db.TauMemberCreationListener;
 import net.result.taulight.dto.ChatMessageInputDTO;
 import net.result.taulight.entity.*;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 import java.time.ZonedDateTime;
 import java.util.HashSet;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class MemberDeletionIntegrationTest {
     private static JPAUtil jpaUtil;
     private static MemberRepository memberRepo;
+    private static TauMemberRepository tauMemberRepo;
     private static DialogRepository dialogRepo;
     private static GroupRepository groupRepo;
     private static MessageRepository messageRepo;
@@ -29,7 +32,11 @@ public class MemberDeletionIntegrationTest {
     @BeforeAll
     public static void setup() {
         Container container = GlobalTestState.container;
-        jpaUtil = container.get(SimpleJPAUtil.class);
+
+        container.addInstanceItem(TauMemberCreationListener.class);
+
+        jpaUtil = container.get(JPAUtil.class);
+        tauMemberRepo = container.get(TauMemberRepository.class);
         memberRepo = container.get(MemberRepository.class);
         dialogRepo = container.get(DialogRepository.class);
         groupRepo = container.get(GroupRepository.class);
@@ -45,23 +52,29 @@ public class MemberDeletionIntegrationTest {
         MemberEntity m1 = memberRepo.create("alice", "hash");
         MemberEntity m2 = memberRepo.create("bob", "hash");
 
-        TauMemberEntity tau1 = m1.getTauMember();
-        TauMemberEntity tau2 = m2.getTauMember();
+        TauMemberEntity tau1 = tauMemberRepo.findByMember(m1);
+        TauMemberEntity tau2 = tauMemberRepo.findByMember(m2);
 
         dialogRepo.create(tau1, tau2);
 
+        assertTrue(dialogRepo.findByMembers(m1, m2).isPresent());
+        assertTrue(dialogRepo.findByMembers(m1, tau2).isPresent());
+        assertTrue(dialogRepo.findByMembers(m2, tau1).isPresent());
         assertTrue(dialogRepo.findByMembers(tau1, tau2).isPresent());
 
         boolean deleted = memberRepo.delete(m1);
 
         assertTrue(deleted);
+        assertTrue(dialogRepo.findByMembers(m1, m2).isPresent());
+        assertTrue(dialogRepo.findByMembers(m1, tau2).isPresent());
+        assertTrue(dialogRepo.findByMembers(m2, tau1).isPresent());
         assertTrue(dialogRepo.findByMembers(tau1, tau2).isPresent());
     }
 
     @Test
     public void testDeleteMemberAndCheckMessageCleanup() {
         MemberEntity member = memberRepo.create("charlie", "hash");
-        TauMemberEntity tau = member.getTauMember();
+        TauMemberEntity tau = tauMemberRepo.findByMember(member);
 
         ChatEntity chat = groupRepo.create("general", tau);
         ChatMessageInputDTO input = new ChatMessageInputDTO()
@@ -87,8 +100,8 @@ public class MemberDeletionIntegrationTest {
     public void testDeleteMemberAndCheckReactionCleanup() {
         MemberEntity m1 = memberRepo.create("eva", "hash");
         MemberEntity m2 = memberRepo.create("oliver", "hash");
-        TauMemberEntity tau1 = m1.getTauMember();
-        TauMemberEntity tau2 = m2.getTauMember();
+        TauMemberEntity tau1 = tauMemberRepo.findByMember(m1);
+        TauMemberEntity tau2 = tauMemberRepo.findByMember(m2);
 
         ChatEntity chat = groupRepo.create("fun", tau1);
         ChatMessageInputDTO input = new ChatMessageInputDTO()
@@ -117,8 +130,8 @@ public class MemberDeletionIntegrationTest {
     public void testDeleteMemberAndCheckInviteCleanup() {
         MemberEntity owner = memberRepo.create("sam", "hash");
         MemberEntity invited = memberRepo.create("jack", "hash");
-        TauMemberEntity tauOwner = owner.getTauMember();
-        TauMemberEntity tauInvited = invited.getTauMember();
+        TauMemberEntity tauOwner = tauMemberRepo.findByMember(owner);
+        TauMemberEntity tauInvited = tauMemberRepo.findByMember(invited);
 
         GroupEntity group = groupRepo.create("private", tauOwner);
         ZonedDateTime expiresDate = ZonedDateTime.now().plusDays(1);

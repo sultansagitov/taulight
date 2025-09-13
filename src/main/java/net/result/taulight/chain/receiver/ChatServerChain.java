@@ -15,6 +15,7 @@ import net.result.taulight.message.types.ChatRequest;
 import net.result.taulight.message.types.ChatResponse;
 import net.result.taulight.repository.MessageFileRepository;
 import net.result.taulight.repository.MessageRepository;
+import net.result.taulight.repository.TauMemberRepository;
 import net.result.taulight.util.ChatUtil;
 
 import java.util.*;
@@ -27,6 +28,7 @@ public class ChatServerChain extends ServerChain implements ReceiverChain {
 
     @Override
     public ChatResponse handle(RawMessage raw) {
+        TauMemberRepository tauMemberRepo = session.server.container.get(TauMemberRepository.class);
         messageRepo = session.server.container.get(MessageRepository.class);
         messageFileRepo = session.server.container.get(MessageFileRepository.class);
 
@@ -34,7 +36,7 @@ public class ChatServerChain extends ServerChain implements ReceiverChain {
 
         if (session.member == null) throw new UnauthorizedException();
 
-        TauMemberEntity you = session.member.getTauMember();
+        TauMemberEntity you = tauMemberRepo.findByMember(session.member);
 
         Collection<UUID> allChatID = request.dto().allChatID;
         Collection<ChatInfoPropDTO> chatInfoProps = request.dto().infoProps;

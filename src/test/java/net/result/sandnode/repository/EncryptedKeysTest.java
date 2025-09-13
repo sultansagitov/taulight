@@ -1,12 +1,11 @@
 package net.result.sandnode.repository;
 
 import net.result.sandnode.GlobalTestState;
+import net.result.sandnode.db.JPAUtil;
 import net.result.sandnode.encryption.EncryptionManager;
 import net.result.sandnode.entity.EncryptedKeyEntity;
 import net.result.sandnode.entity.MemberEntity;
 import net.result.sandnode.util.Container;
-import net.result.sandnode.db.JPAUtil;
-import net.result.sandnode.db.SimpleJPAUtil;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
@@ -26,7 +25,7 @@ public class EncryptedKeysTest {
         Container container = GlobalTestState.container;
         encryptedKeyRepo = container.get(EncryptedKeyRepository.class);
         MemberRepository memberRepo = container.get(MemberRepository.class);
-        jpaUtil = container.get(SimpleJPAUtil.class);
+        jpaUtil = container.get(JPAUtil.class);
 
         sender = memberRepo.create("sender_encrypted_keys", "hash");
         receiver = memberRepo.create("receiver_encrypted_keys", "hash");

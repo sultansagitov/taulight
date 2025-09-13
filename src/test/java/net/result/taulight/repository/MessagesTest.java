@@ -1,10 +1,10 @@
 package net.result.taulight.repository;
 
 import net.result.sandnode.GlobalTestState;
+import net.result.sandnode.db.JPAUtil;
 import net.result.sandnode.repository.MemberRepository;
 import net.result.sandnode.util.Container;
-import net.result.sandnode.db.JPAUtil;
-import net.result.sandnode.db.SimpleJPAUtil;
+import net.result.taulight.db.TauMemberCreationListener;
 import net.result.taulight.dto.ChatMessageInputDTO;
 import net.result.taulight.entity.ChatEntity;
 import net.result.taulight.entity.GroupEntity;
@@ -27,14 +27,18 @@ public class MessagesTest {
     @BeforeAll
     public static void setup() {
         Container container = GlobalTestState.container;
-        jpaUtil = container.get(SimpleJPAUtil.class);
+
+        container.addInstanceItem(TauMemberCreationListener.class);
+
+        jpaUtil = container.get(JPAUtil.class);
 
         MemberRepository memberRepo = container.get(MemberRepository.class);
+        TauMemberRepository tauMemberRepo = container.get(TauMemberRepository.class);
         groupRepo = container.get(GroupRepository.class);
         messageRepo = container.get(MessageRepository.class);
 
-        member1 = memberRepo.create("user1_messages", "hash").getTauMember();
-        member2 = memberRepo.create("user2_messages", "hash").getTauMember();
+        member1 = tauMemberRepo.findByMember(memberRepo.create("user1_messages", "hash"));
+        member2 = tauMemberRepo.findByMember(memberRepo.create("user2_messages", "hash"));
 
         assertNotNull(member1.id());
         assertNotNull(member2.id());

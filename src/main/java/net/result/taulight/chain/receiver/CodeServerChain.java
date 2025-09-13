@@ -23,6 +23,7 @@ import net.result.taulight.message.types.CodeRequest;
 import net.result.taulight.message.types.CodeResponse;
 import net.result.taulight.repository.GroupRepository;
 import net.result.taulight.repository.InviteCodeRepository;
+import net.result.taulight.repository.TauMemberRepository;
 import net.result.taulight.util.ChatUtil;
 import net.result.taulight.util.SysMessages;
 import net.result.taulight.util.TauHubProtocol;
@@ -44,11 +45,9 @@ public class CodeServerChain extends ServerChain implements ReceiverChain {
             throw new UnauthorizedException();
         }
 
-        TauMemberEntity tauMember = session.member.getTauMember();
-
         CodeRequestDTO.Check check = request.check();
         if (check != null) {
-            return handleCheck(check, tauMember);
+            return handleCheck(check, session.member);
         }
 
         CodeRequestDTO.Use use = request.use();
@@ -58,22 +57,22 @@ public class CodeServerChain extends ServerChain implements ReceiverChain {
 
         CodeRequestDTO.GroupCodes groupCodes = request.groupCodes();
         if (groupCodes != null) {
-            return handleGroupCodes(groupCodes, tauMember);
+            return handleGroupCodes(groupCodes, session.member);
         }
 
         if (request.myCodes()) {
-            return handleMyCodes(tauMember);
+            return handleMyCodes(session.member);
         }
 
         throw new TooFewArgumentsException();
     }
 
-    private Message handleCheck(CodeRequestDTO.Check check, TauMemberEntity you) {
+    private Message handleCheck(CodeRequestDTO.Check check, MemberEntity you) {
         InviteCodeRepository inviteCodeRepo = session.server.container.get(InviteCodeRepository.class);
 
         InviteCodeEntity invite = inviteCodeRepo.find(check.code).orElseThrow(NotFoundException::new);
 
-        if (!(invite.getReceiver().equals(you) || invite.getSender().equals(you))) {
+        if (!(invite.getReceiver().getMember().equals(you) || invite.getSender().getMember().equals(you))) {
             throw new NotFoundException();
         }
 
@@ -92,8 +91,8 @@ public class CodeServerChain extends ServerChain implements ReceiverChain {
         TauMemberEntity member = invite.getReceiver();
         GroupEntity group = invite.getGroup();
 
-        if (!invite.getReceiver().equals(you.getTauMember())) {
-            if (invite.getSender().equals(you.getTauMember())) {
+        if (!invite.getReceiver().getMember().equals(you)) {
+            if (invite.getSender().getMember().equals(you)) {
                 throw new UnauthorizedException();
             } else {
                 throw new NotFoundException();
@@ -127,7 +126,7 @@ public class CodeServerChain extends ServerChain implements ReceiverChain {
         return new HappyMessage();
     }
 
-    private Message handleGroupCodes(CodeRequestDTO.GroupCodes dto, TauMemberEntity you) {
+    private Message handleGroupCodes(CodeRequestDTO.GroupCodes dto, MemberEntity you) {
         ChatUtil chatUtil = session.server.container.get(ChatUtil.class);
 
         ChatEntity chat = chatUtil.getChat(dto.chatID).orElseThrow(NotFoundException::new);
@@ -143,8 +142,10 @@ public class CodeServerChain extends ServerChain implements ReceiverChain {
         return new CodeListMessage(headers, collected);
     }
 
-    private Message handleMyCodes(@NotNull TauMemberEntity you) {
-        Collection<CodeDTO> collected = you
+    private Message handleMyCodes(@NotNull MemberEntity you) {
+        TauMemberRepository tauMemberRepo = session.server.container.get(TauMemberRepository.class);
+
+        Collection<CodeDTO> collected = tauMemberRepo.findByMember(you)
                 .getInviteCodesAsReceiver().stream()
                 .map(InviteCodeEntity::toDTO)
                 .collect(Collectors.toSet());

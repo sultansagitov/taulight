@@ -1,11 +1,11 @@
 package net.result.sandnode.repository;
 
 import net.result.sandnode.GlobalTestState;
+import net.result.sandnode.db.JPAUtil;
 import net.result.sandnode.entity.FileEntity;
 import net.result.sandnode.util.Container;
-import net.result.sandnode.db.JPAUtil;
-import net.result.sandnode.db.SimpleJPAUtil;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -20,7 +20,7 @@ public class FilesTest {
     static void setUp() {
         Container container = GlobalTestState.container;
         fileRepo = container.get(FileRepository.class);
-        jpaUtil = container.get(SimpleJPAUtil.class);
+        jpaUtil = container.get(JPAUtil.class);
     }
 
     @Test

@@ -34,9 +34,6 @@ class MembersTest {
 
         // Additional assertions
         assertNotNull(newMember.id());
-        assertNotNull(newMember.getTauMember());
-        assertEquals(0, newMember.getTauMember().getDialogs().size(), "New member should have no dialogs");
-        assertEquals(0, newMember.getTauMember().getGroups().size(), "New member should have no groups");
 
         // Test duplicate nickname
         assertThrows(BusyNicknameException.class, () -> memberRepo.create("testuser123", "hash"));
@@ -51,9 +48,6 @@ class MembersTest {
 
         // Additional assertions
         assertNotNull(newMember.id());
-        assertNotNull(newMember.getTauMember());
-        assertEquals(0, newMember.getTauMember().getDialogs().size(), "New member should have no dialogs");
-        assertEquals(0, newMember.getTauMember().getGroups().size(), "New member should have no groups");
 
         // Test duplicate nickname
         assertThrows(BusyNicknameException.class, () -> memberRepo.create("testuser123", "hash"));
