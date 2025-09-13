@@ -9,6 +9,7 @@ import net.result.sandnode.dto.RegistrationResponseDTO;
 import net.result.sandnode.encryption.interfaces.AsymmetricKeyStorage;
 import net.result.sandnode.exception.LinkDoesNotMatchException;
 import net.result.sandnode.exception.error.KeyStorageNotFoundException;
+import net.result.sandnode.key.LinkSource;
 import net.result.sandnode.link.SandnodeLinkRecord;
 import net.result.sandnode.serverclient.SandnodeClient;
 import net.result.sandnode.util.EncryptionUtil;
@@ -75,7 +76,7 @@ public class AgentProtocol {
                 return filePublicKey;
             }
 
-            agent.config.saveServerKey(link.address(), linkKeyStorage);
+            agent.config.saveServerKey(new LinkSource(link), link.address(), linkKeyStorage);
             return linkKeyStorage;
         }
 

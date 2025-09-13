@@ -10,6 +10,7 @@ import net.result.sandnode.exception.ImpossibleRuntimeException;
 import net.result.sandnode.exception.StorageException;
 import net.result.sandnode.exception.crypto.*;
 import net.result.sandnode.exception.error.KeyStorageNotFoundException;
+import net.result.sandnode.key.Source;
 import net.result.sandnode.util.Address;
 import net.result.sandnode.util.FileUtil;
 import net.result.sandnode.util.Member;
@@ -101,7 +102,11 @@ public class AgentPropertiesConfig implements AgentConfig {
     }
 
     @Override
-    public synchronized void saveServerKey(@NotNull Address address, @NotNull AsymmetricKeyStorage keyStorage) {
+    public synchronized void saveServerKey(
+            @NotNull Source ignored,
+            @NotNull Address address,
+            @NotNull AsymmetricKeyStorage keyStorage
+    ) {
         String sanitizedAddress = address.toString().replaceAll("[.:\\\\/*?\"<>|]", "_");
         String filename = "%s_%s_public.key".formatted(sanitizedAddress, UUID.randomUUID());
 
@@ -142,27 +147,6 @@ public class AgentPropertiesConfig implements AgentConfig {
     }
 
     @Override
-    public synchronized void savePersonalKey(Member member, KeyStorage keyStorage) {
-        JSONArray arr = readArray(MEMBER_KEYS_JSON_PATH, "member-keys");
-        arr.put(new MemberKeyRecord(member.address(), member.nickname(), keyStorage).toJSON());
-        saveJsonArray(MEMBER_KEYS_JSON_PATH, "member-keys", arr);
-    }
-
-    @Override
-    public void saveEncryptor(Member member, KeyStorage keyStorage) {
-        JSONArray arr = readArray(MEMBER_KEYS_JSON_PATH, "member-keys");
-        arr.put(new MemberKeyRecord(member.address(), member.nickname(), keyStorage).toJSON());
-        saveJsonArray(MEMBER_KEYS_JSON_PATH, "member-keys", arr);
-    }
-
-    @Override
-    public void saveDEK(Member m1, Member m2, UUID keyID, KeyStorage keyStorage) {
-        JSONArray arr = readArray(DEKS_JSON_PATH, "deks");
-        arr.put(new DEKRecord(m1, m2, keyID, keyStorage).toJSON());
-        saveJsonArray(DEKS_JSON_PATH, "deks", arr);
-    }
-
-    @Override
     public AsymmetricKeyStorage loadServerKey(@NotNull Address address) {
         for (Object o : readArray(SERVER_KEYS_JSON_PATH, "server-keys")) {
             JSONObject obj = (JSONObject) o;
@@ -175,6 +159,13 @@ public class AgentPropertiesConfig implements AgentConfig {
             }
         }
         throw new KeyStorageNotFoundException(address.toString());
+    }
+
+    @Override
+    public synchronized void savePersonalKey(@NotNull Source ignored, Member member, KeyStorage keyStorage) {
+        JSONArray arr = readArray(MEMBER_KEYS_JSON_PATH, "member-keys");
+        arr.put(new MemberKeyRecord(member.address(), member.nickname(), keyStorage).toJSON());
+        saveJsonArray(MEMBER_KEYS_JSON_PATH, "member-keys", arr);
     }
 
     @Override
@@ -193,6 +184,13 @@ public class AgentPropertiesConfig implements AgentConfig {
     }
 
     @Override
+    public void saveEncryptor(@NotNull Source ignored, Member member, KeyStorage keyStorage) {
+        JSONArray arr = readArray(MEMBER_KEYS_JSON_PATH, "member-keys");
+        arr.put(new MemberKeyRecord(member.address(), member.nickname(), keyStorage).toJSON());
+        saveJsonArray(MEMBER_KEYS_JSON_PATH, "member-keys", arr);
+    }
+
+    @Override
     public KeyStorage loadEncryptor(Member member) {
         for (Object o : readArray(MEMBER_KEYS_JSON_PATH, "member-keys")) {
             JSONObject obj = (JSONObject) o;
@@ -205,6 +203,13 @@ public class AgentPropertiesConfig implements AgentConfig {
             }
         }
         throw new KeyStorageNotFoundException(member.toString());
+    }
+
+    @Override
+    public void saveDEK(@NotNull Source ignored, Member m1, Member m2, UUID keyID, KeyStorage keyStorage) {
+        JSONArray arr = readArray(DEKS_JSON_PATH, "deks");
+        arr.put(new DEKRecord(m1, m2, keyID, keyStorage).toJSON());
+        saveJsonArray(DEKS_JSON_PATH, "deks", arr);
     }
 
     @Override

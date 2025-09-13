@@ -8,6 +8,7 @@ import net.result.sandnode.encryption.AsymmetricEncryptions;
 import net.result.sandnode.encryption.interfaces.AsymmetricKeyStorage;
 import net.result.sandnode.exception.error.BusyNicknameException;
 import net.result.sandnode.exception.error.InvalidNicknamePassword;
+import net.result.sandnode.key.GeneratedSource;
 import net.result.sandnode.message.RawMessage;
 import net.result.sandnode.message.types.RegistrationRequest;
 import net.result.sandnode.message.types.RegistrationResponse;
@@ -41,7 +42,7 @@ public class RegistrationClientChain extends ClientChain {
         send(request);
         RawMessage response = receiveWithSpecifics(BusyNicknameException.class, InvalidNicknamePassword.class);
 
-        client.node().agent().config.savePersonalKey(new Member(nickname, client.address), keyStorage);
+        client.node().agent().config.savePersonalKey(new GeneratedSource(), new Member(nickname, client.address), keyStorage);
 
         client.nickname = nickname;
 

@@ -8,10 +8,13 @@ import net.result.sandnode.dto.DEKResponseDTO;
 import net.result.sandnode.encryption.SymmetricEncryptions;
 import net.result.sandnode.encryption.interfaces.KeyStorage;
 import net.result.sandnode.exception.error.KeyStorageNotFoundException;
+import net.result.sandnode.key.GeneratedSource;
 import net.result.sandnode.serverclient.SandnodeClient;
 import net.result.sandnode.util.Member;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.List;
+import java.util.UUID;
 
 public class DEKCommands {
 
@@ -22,8 +25,9 @@ public class DEKCommands {
 
     public static void sendDEK(List<String> args, ConsoleContext context) {
         String receiver = args.get(0);
-        var client = context.client;
-        var key = SymmetricEncryptions.AES.generate();
+        final var client = context.client;
+        final var source = new GeneratedSource();
+        final var key = SymmetricEncryptions.AES.generate();
 
         KeyStorage encryptor;
         try {
@@ -37,7 +41,7 @@ public class DEKCommands {
 
         DEKClientChain chain = new DEKClientChain(client);
         context.io.chainManager.linkChain(chain);
-        UUID uuid = chain.sendDEK(receiver, encryptor, key);
+        UUID uuid = chain.sendDEK(source, receiver, encryptor, key);
         context.io.chainManager.removeChain(chain);
 
         System.out.printf("DEK uuid: %s%n", uuid);

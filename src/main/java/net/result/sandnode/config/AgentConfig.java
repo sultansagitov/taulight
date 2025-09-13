@@ -5,6 +5,7 @@ import net.result.sandnode.encryption.interfaces.KeyStorage;
 import net.result.sandnode.exception.StorageException;
 import net.result.sandnode.exception.crypto.KeyAlreadySaved;
 import net.result.sandnode.exception.error.KeyStorageNotFoundException;
+import net.result.sandnode.key.Source;
 import net.result.sandnode.util.Address;
 import net.result.sandnode.util.Member;
 import org.jetbrains.annotations.NotNull;
@@ -27,12 +28,13 @@ public interface AgentConfig {
     /**
      * Saves the server's public key.
      *
+     * @param source     origin of the key (e.g., import, generation, sync)
      * @param address    server address or identifier
      * @param keyStorage server's public key storage
      * @throws KeyAlreadySaved  if the server public key is already saved
      * @throws StorageException if an error occurs during saving
      */
-    void saveServerKey(@NotNull Address address, @NotNull AsymmetricKeyStorage keyStorage);
+    void saveServerKey(@NotNull Source source, @NotNull Address address, @NotNull AsymmetricKeyStorage keyStorage);
 
     /**
      * Retrieves the server's public key.
@@ -46,31 +48,12 @@ public interface AgentConfig {
     /**
      * Saves this agent's personal asymmetric key pair.
      *
+     * @param source     origin of the key (e.g., import, generation, sync)
      * @param member     the agent (address + nickname)
      * @param keyStorage personal key storage (private + public keys)
      * @throws StorageException if saving fails
      */
-    void savePersonalKey(Member member, KeyStorage keyStorage);
-
-    /**
-     * Saves a public key of another agent (encryptor).
-     *
-     * @param member     target agent (address + nickname)
-     * @param keyStorage public key storage of the encryptor
-     * @throws StorageException if saving fails
-     */
-    void saveEncryptor(Member member, KeyStorage keyStorage);
-
-    /**
-     * Saves a data encryption key (DEK).
-     *
-     * @param m1         first member (typically owner)
-     * @param m2         second member (recipient or context)
-     * @param keyID      unique ID of the DEK
-     * @param keyStorage symmetric key storage of the DEK
-     * @throws StorageException if saving fails
-     */
-    void saveDEK(Member m1, Member m2, UUID keyID, KeyStorage keyStorage);
+    void savePersonalKey(@NotNull Source source, Member member, KeyStorage keyStorage);
 
     /**
      * Loads this agent's personal key pair.
@@ -82,6 +65,16 @@ public interface AgentConfig {
     KeyStorage loadPersonalKey(Member member);
 
     /**
+     * Saves a public key of another agent (encryptor).
+     *
+     * @param source     origin of the key (e.g., import, generation, sync)
+     * @param member     target agent (address + nickname)
+     * @param keyStorage public key storage of the encryptor
+     * @throws StorageException if saving fails
+     */
+    void saveEncryptor(@NotNull Source source, Member member, KeyStorage keyStorage);
+
+    /**
      * Loads a stored encryptor key.
      *
      * @param member target agent (address + nickname)
@@ -89,6 +82,18 @@ public interface AgentConfig {
      * @throws KeyStorageNotFoundException if key not found
      */
     KeyStorage loadEncryptor(Member member);
+
+    /**
+     * Saves a data encryption key (DEK).
+     *
+     * @param source     origin of the key (e.g., import, generation, sync)
+     * @param m1         first member (typically owner)
+     * @param m2         second member (recipient or context)
+     * @param keyID      unique ID of the DEK
+     * @param keyStorage symmetric key storage of the DEK
+     * @throws StorageException if saving fails
+     */
+    void saveDEK(@NotNull Source source, Member m1, Member m2, UUID keyID, KeyStorage keyStorage);
 
     /**
      * Loads a DEK associated with two members.

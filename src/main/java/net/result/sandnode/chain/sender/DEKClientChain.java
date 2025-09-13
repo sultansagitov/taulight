@@ -4,6 +4,9 @@ import net.result.sandnode.chain.ClientChain;
 import net.result.sandnode.dto.DEKResponseDTO;
 import net.result.sandnode.dto.KeyDTO;
 import net.result.sandnode.encryption.interfaces.KeyStorage;
+import net.result.sandnode.key.DEKServerSource;
+import net.result.sandnode.key.ServerSource;
+import net.result.sandnode.key.Source;
 import net.result.sandnode.message.UUIDMessage;
 import net.result.sandnode.message.types.DEKListMessage;
 import net.result.sandnode.message.types.DEKRequest;
@@ -11,6 +14,7 @@ import net.result.sandnode.message.types.PublicKeyResponse;
 import net.result.sandnode.serverclient.SandnodeClient;
 import net.result.sandnode.util.DEKUtil;
 import net.result.sandnode.util.Member;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Collection;
 import java.util.UUID;
@@ -20,11 +24,11 @@ public class DEKClientChain extends ClientChain {
         super(client);
     }
 
-    public UUID sendDEK(String receiver, KeyStorage encryptor, KeyStorage dek) {
+    public UUID sendDEK(@NotNull Source source, String receiver, KeyStorage encryptor, KeyStorage dek) {
         var raw = sendAndReceive(DEKRequest.send(receiver, encryptor, dek));
         var keyID = new UUIDMessage(raw).uuid;
 
-        client.node().agent().config.saveDEK(new Member(client), new Member(receiver, client.address), keyID, dek);
+        client.node().agent().config.saveDEK(source, new Member(client), new Member(receiver, client.address), keyID, dek);
 
         return keyID;
     }
@@ -39,7 +43,7 @@ public class DEKClientChain extends ClientChain {
             var agent = client.node().agent();
             var personalKey = agent.config.loadPersonalKey(new Member(client.nickname, client.address));
             var decrypted = DEKUtil.decrypt(key.dek.encryptedKey, personalKey);
-            agent.config.saveDEK(m1, m2, key.dek.id, decrypted);
+            agent.config.saveDEK(new DEKServerSource(client), m1, m2, key.dek.id, decrypted);
         }
 
         return keys;
@@ -49,7 +53,11 @@ public class DEKClientChain extends ClientChain {
         var raw = sendAndReceive(DEKRequest.getPersonalKeyOf(nickname));
         var key = PublicKeyResponse.getKeyDTO(raw);
 
-        client.node().agent().config.saveEncryptor(new Member(nickname, client.address), key.keyStorage());
+        client.node().agent().config.saveEncryptor(
+                new ServerSource(client.address),
+                new Member(nickname, client.address),
+                key.keyStorage()
+        );
 
         return key;
     }
