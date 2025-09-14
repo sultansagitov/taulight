@@ -17,6 +17,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Objects;
@@ -114,9 +115,9 @@ public record SandnodeLinkRecord(NodeType nodeType, Address address, @Nullable A
                 String[] keyValue = param.split("=");
                 if (keyValue.length == 2) {
                     if (keyValue[0].equals("encryption")) {
-                        encryptionType = keyValue[1];
+                        encryptionType = URLDecoder.decode(keyValue[1], StandardCharsets.UTF_8);
                     } else if (keyValue[0].equals("key")) {
-                        encodedKey = keyValue[1];
+                        encodedKey = URLDecoder.decode(keyValue[1], StandardCharsets.UTF_8);
                     }
                 }
             }
