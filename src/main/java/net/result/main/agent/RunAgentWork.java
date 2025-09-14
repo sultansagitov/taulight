@@ -14,7 +14,6 @@ import net.result.sandnode.exception.InvalidSandnodeLinkException;
 import net.result.sandnode.exception.crypto.CreatingKeyException;
 import net.result.sandnode.hubagent.AgentProtocol;
 import net.result.sandnode.hubagent.ClientProtocol;
-import net.result.sandnode.link.Links;
 import net.result.sandnode.link.SandnodeLinkRecord;
 import net.result.sandnode.message.util.NodeType;
 import net.result.sandnode.serverclient.SandnodeClient;
@@ -42,7 +41,7 @@ public class RunAgentWork implements Work {
         while (true) {
             try {
                 System.out.print("Enter link: ");
-                link = Links.parse(scanner.nextLine(), NodeType.HUB);
+                link = SandnodeLinkRecord.parse(scanner.nextLine(), NodeType.HUB);
                 break;
             } catch (InvalidSandnodeLinkException | CreatingKeyException e) {
                 System.out.println("Invalid link: " + e.getMessage());

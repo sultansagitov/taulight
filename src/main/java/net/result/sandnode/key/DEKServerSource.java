@@ -1,15 +1,20 @@
 package net.result.sandnode.key;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import net.result.sandnode.serverclient.SandnodeClient;
 import net.result.sandnode.util.Address;
 import net.result.sandnode.util.Member;
 
 public class DEKServerSource extends ServerSource {
-    public final Member personalKeyOf;
+    @JsonProperty
+    public Member personalKeyOwner;
 
-    public DEKServerSource(Address address, Member personalKeyOf) {
+    @SuppressWarnings("unused")
+    public DEKServerSource() {}
+
+    public DEKServerSource(Address address, Member personalKeyOwner) {
         super(address);
-        this.personalKeyOf = personalKeyOf;
+        this.personalKeyOwner = personalKeyOwner;
     }
 
     public DEKServerSource(SandnodeClient client) {

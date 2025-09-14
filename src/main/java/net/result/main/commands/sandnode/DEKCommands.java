@@ -26,7 +26,7 @@ public class DEKCommands {
     public static void sendDEK(List<String> args, ConsoleContext context) {
         String receiver = args.get(0);
         final var client = context.client;
-        final var source = new GeneratedSource();
+        final var source = GeneratedSource.now();
         final var key = SymmetricEncryptions.AES.generate();
 
         KeyStorage encryptor;

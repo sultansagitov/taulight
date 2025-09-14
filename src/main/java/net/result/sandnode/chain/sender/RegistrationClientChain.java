@@ -42,7 +42,7 @@ public class RegistrationClientChain extends ClientChain {
         send(request);
         RawMessage response = receiveWithSpecifics(BusyNicknameException.class, InvalidNicknamePassword.class);
 
-        client.node().agent().config.savePersonalKey(new GeneratedSource(), new Member(nickname, client.address), keyStorage);
+        client.node().agent().config.savePersonalKey(GeneratedSource.now(), new Member(nickname, client.address), keyStorage);
 
         client.nickname = nickname;
 

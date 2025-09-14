@@ -16,14 +16,8 @@ public record DEKRecord(Member m1, Member m2, UUID keyID, KeyStorage keyStorage)
     public static DEKRecord fromJSON(JSONObject obj) {
         JSONObject m1Object = obj.getJSONObject("m1");
         JSONObject m2Object = obj.getJSONObject("m2");
-        Member m1 = new Member(
-                m1Object.getString("nickname"),
-                Address.getFromString(m1Object.getString("address"), 52525)
-        );
-        Member m2 = new Member(
-                m2Object.getString("nickname"),
-                Address.getFromString(m2Object.getString("address"), 52525)
-        );
+        Member m1 = new Member(m1Object.getString("nickname"), Address.getFromString(m1Object.getString("address")));
+        Member m2 = new Member(m2Object.getString("nickname"), Address.getFromString(m2Object.getString("address")));
         UUID keyID = UUID.fromString(obj.getString("key-id"));
 
         SymmetricEncryption encryption = EncryptionManager.find(obj.getString("key-encryption")).symmetric();

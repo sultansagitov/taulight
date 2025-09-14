@@ -64,7 +64,7 @@ public class MemberKeyRecord {
     public static MemberKeyRecord fromJSON(JSONObject json) {
         MemberKeyRecord result;
         String encryptionType = json.getString("encryption");
-        Address address = Address.getFromString(json.getString("address"), 52525);
+        Address address = Address.getFromString(json.getString("address"));
         Encryption encryption = EncryptionManager.find(encryptionType);
         if (encryption.isAsymmetric()) {
             String publicString = json.getString("public");

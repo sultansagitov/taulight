@@ -63,7 +63,7 @@ public class LinksTest {
         String validLink = "sandnode://hub@localhost:52525?encryption=ECIES&key=%s"
                 .formatted(eciesKeyStorage.encodedPublicKey());
 
-        SandnodeLinkRecord record = Links.parse(validLink, NodeType.HUB);
+        SandnodeLinkRecord record = SandnodeLinkRecord.parse(validLink, NodeType.HUB);
 
         assertNotNull(record);
         assertEquals(NodeType.HUB, record.nodeType(), "nodeType should reflect the userinfo or default");
@@ -82,7 +82,7 @@ public class LinksTest {
         AsymmetricKeyStorage eciesKey = AsymmetricEncryptions.ECIES.generate();
         String link = "sandnode://hub@localhost:52525?encryption=ECIES&key=%s".formatted(eciesKey.encodedPublicKey());
 
-        SandnodeLinkRecord record = Links.parse(link, NodeType.AGENT);
+        SandnodeLinkRecord record = SandnodeLinkRecord.parse(link, NodeType.AGENT);
 
         assertNotNull(record);
         assertEquals(NodeType.HUB, record.nodeType());
@@ -95,7 +95,7 @@ public class LinksTest {
         AsymmetricKeyStorage eciesKey = AsymmetricEncryptions.ECIES.generate();
         String link = "sandnode://agent@127.0.0.1:52525?encryption=ECIES&key=%s".formatted(eciesKey.encodedPublicKey());
 
-        SandnodeLinkRecord record = Links.parse(link, NodeType.HUB);
+        SandnodeLinkRecord record = SandnodeLinkRecord.parse(link, NodeType.HUB);
 
         assertNotNull(record);
         assertEquals(NodeType.AGENT, record.nodeType());
@@ -105,7 +105,7 @@ public class LinksTest {
 
     @Test
     public void testDefaultNodeTypeAppliedWhenNoUserInfo() {
-        SandnodeLinkRecord record = Links.parse("localhost", NodeType.AGENT);
+        SandnodeLinkRecord record = SandnodeLinkRecord.parse("localhost", NodeType.AGENT);
         assertNotNull(record);
         assertEquals(NodeType.AGENT, record.nodeType(), "When no userinfo present, default node type must be applied");
         assertEquals("localhost", record.address().host());
@@ -117,30 +117,30 @@ public class LinksTest {
     @Test
     public void testParseInvalidScheme() {
         String invalidLink = "http://test@localhost:52525?encryption=ECIES&key=testPublicKey";
-        assertThrows(InvalidSandnodeLinkException.class, () -> Links.parse(invalidLink, NodeType.HUB));
+        assertThrows(InvalidSandnodeLinkException.class, () -> SandnodeLinkRecord.parse(invalidLink, NodeType.HUB));
     }
 
     @Test
     public void testParseMissingEncryption() {
         String invalidLink = "sandnode://test@localhost:52525?key=testPublicKey";
-        assertThrows(InvalidSandnodeLinkException.class, () -> Links.parse(invalidLink, NodeType.HUB));
+        assertThrows(InvalidSandnodeLinkException.class, () -> SandnodeLinkRecord.parse(invalidLink, NodeType.HUB));
     }
 
     @Test
     public void testParseMissingKey() {
         String invalidLink = "sandnode://test@localhost:52525?encryption=ECIES";
-        assertThrows(InvalidSandnodeLinkException.class, () -> Links.parse(invalidLink, NodeType.HUB));
+        assertThrows(InvalidSandnodeLinkException.class, () -> SandnodeLinkRecord.parse(invalidLink, NodeType.HUB));
     }
 
     @Test
     public void testParseInvalidPublicKey() {
         String invalidLink = "sandnode://test@localhost:52525?encryption=ECIES&key=INVALID_BASE64";
-        assertThrows(InvalidSandnodeLinkException.class, () -> Links.parse(invalidLink, NodeType.HUB));
+        assertThrows(InvalidSandnodeLinkException.class, () -> SandnodeLinkRecord.parse(invalidLink, NodeType.HUB));
     }
 
     @Test
     public void testParseBareLocalhost() {
-        SandnodeLinkRecord record = Links.parse("localhost", NodeType.HUB);
+        SandnodeLinkRecord record = SandnodeLinkRecord.parse("localhost", NodeType.HUB);
         assertNotNull(record);
         assertEquals(NodeType.HUB, record.nodeType());
         assertEquals("localhost", record.address().host());
@@ -151,7 +151,7 @@ public class LinksTest {
 
     @Test
     public void testParseBareIPv4() {
-        SandnodeLinkRecord record = Links.parse("127.0.0.1", NodeType.HUB);
+        SandnodeLinkRecord record = SandnodeLinkRecord.parse("127.0.0.1", NodeType.HUB);
         assertNotNull(record);
         assertEquals(NodeType.HUB, record.nodeType());
         assertEquals("127.0.0.1", record.address().host());
@@ -161,7 +161,7 @@ public class LinksTest {
 
     @Test
     public void testParseBareIPv6() {
-        SandnodeLinkRecord record = Links.parse("[::1]", NodeType.HUB);
+        SandnodeLinkRecord record = SandnodeLinkRecord.parse("[::1]", NodeType.HUB);
         assertNotNull(record);
         assertEquals(NodeType.HUB, record.nodeType());
         assertEquals("[::1]", record.address().host());
@@ -171,7 +171,7 @@ public class LinksTest {
 
     @Test
     public void testParseBareDomain() {
-        SandnodeLinkRecord record = Links.parse("example.com", NodeType.HUB);
+        SandnodeLinkRecord record = SandnodeLinkRecord.parse("example.com", NodeType.HUB);
         assertNotNull(record);
         assertEquals(NodeType.HUB, record.nodeType());
         assertEquals("example.com", record.address().host());
@@ -181,7 +181,7 @@ public class LinksTest {
 
     @Test
     public void testParseBareLocalhostWithPort() {
-        SandnodeLinkRecord record = Links.parse("localhost:60000", NodeType.HUB);
+        SandnodeLinkRecord record = SandnodeLinkRecord.parse("localhost:60000", NodeType.HUB);
         assertNotNull(record);
         assertEquals(NodeType.HUB, record.nodeType());
         assertEquals("localhost", record.address().host());
@@ -191,7 +191,7 @@ public class LinksTest {
 
     @Test
     public void testParseBareIPv4WithPort() {
-        SandnodeLinkRecord record = Links.parse("127.0.0.1:12345", NodeType.HUB);
+        SandnodeLinkRecord record = SandnodeLinkRecord.parse("127.0.0.1:12345", NodeType.HUB);
         assertNotNull(record);
         assertEquals(NodeType.HUB, record.nodeType());
         assertEquals("127.0.0.1", record.address().host());
@@ -201,7 +201,7 @@ public class LinksTest {
 
     @Test
     public void testParseBareIPv6WithPort() {
-        SandnodeLinkRecord record = Links.parse("[::1]:9999", NodeType.HUB);
+        SandnodeLinkRecord record = SandnodeLinkRecord.parse("[::1]:9999", NodeType.HUB);
         assertNotNull(record);
         assertEquals(NodeType.HUB, record.nodeType());
         assertEquals("[::1]", record.address().host());
@@ -211,7 +211,7 @@ public class LinksTest {
 
     @Test
     public void testParseBareDomainWithPort() {
-        SandnodeLinkRecord record = Links.parse("example.com:443", NodeType.HUB);
+        SandnodeLinkRecord record = SandnodeLinkRecord.parse("example.com:443", NodeType.HUB);
         assertNotNull(record);
         assertEquals(NodeType.HUB, record.nodeType());
         assertEquals("example.com", record.address().host());
@@ -221,13 +221,13 @@ public class LinksTest {
 
     @Test
     public void testParseInvalidBareHost() {
-        assertThrows(InvalidSandnodeLinkException.class, () -> Links.parse(":1234", NodeType.HUB));
-        assertThrows(InvalidSandnodeLinkException.class, () -> Links.parse("[]", NodeType.HUB));
+        assertThrows(InvalidSandnodeLinkException.class, () -> SandnodeLinkRecord.parse(":1234", NodeType.HUB));
+        assertThrows(InvalidSandnodeLinkException.class, () -> SandnodeLinkRecord.parse("[]", NodeType.HUB));
     }
 
     @Test
     public void testParseHostWithSpaces() {
-        assertThrows(InvalidSandnodeLinkException.class, () -> Links.parse("exa mple.com", NodeType.HUB));
+        assertThrows(InvalidSandnodeLinkException.class, () -> SandnodeLinkRecord.parse("exa mple.com", NodeType.HUB));
     }
 
     static class TestServerConfig implements ServerConfig {

@@ -52,7 +52,7 @@ public final class KeyRecord {
             throw new KeyHashCheckingException(hash1, hash2);
         }
 
-        Address fromString = Address.getFromString(json.getString("address"), 52525);
+        Address fromString = Address.getFromString(json.getString("address"));
         return new KeyRecord(path, keyStorage, fromString, encodedString);
     }
 
