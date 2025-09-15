@@ -25,24 +25,26 @@ public class DEKClientChain extends ClientChain {
     }
 
     public UUID sendDEK(@NotNull Source source, String receiver, KeyStorage encryptor, KeyStorage dek) {
-        var raw = sendAndReceive(DEKRequest.send(receiver, encryptor, dek));
-        var keyID = new UUIDMessage(raw).uuid;
+        final var raw = sendAndReceive(DEKRequest.send(receiver, encryptor, dek));
+        final var keyID = new UUIDMessage(raw).uuid;
 
-        client.node().agent().config.saveDEK(source, new Member(client), new Member(receiver, client.address), keyID, dek);
+        final var m1 = new Member(client);
+        final var m2 = new Member(receiver, client.address);
+        client.node().agent().config.saveDEK(source, m1, m2, keyID, dek);
 
         return keyID;
     }
 
     public Collection<DEKResponseDTO> get() {
-        var raw = sendAndReceive(DEKRequest.get());
-        var keys = new DEKListMessage(raw).list();
+        final var raw = sendAndReceive(DEKRequest.get());
+        final var keys = new DEKListMessage(raw).list();
 
-        var m1 = new Member(client);
+        final var m1 = new Member(client);
         for (DEKResponseDTO key : keys) {
-            var m2 = new Member(key.senderNickname, client.address);
-            var agent = client.node().agent();
-            var personalKey = agent.config.loadPersonalKey(new Member(client.nickname, client.address));
-            var decrypted = DEKUtil.decrypt(key.dek.encryptedKey, personalKey);
+            final var m2 = new Member(key.senderNickname, client.address);
+            final var agent = client.node().agent();
+            final var personalKey = agent.config.loadPersonalKey(new Member(client.nickname, client.address));
+            final var decrypted = DEKUtil.decrypt(key.dek.encryptedKey, personalKey);
             agent.config.saveDEK(new DEKServerSource(client), m1, m2, key.dek.id, decrypted);
         }
 
@@ -50,8 +52,8 @@ public class DEKClientChain extends ClientChain {
     }
 
     public KeyDTO getKeyOf(String nickname) {
-        var raw = sendAndReceive(DEKRequest.getPersonalKeyOf(nickname));
-        var key = PublicKeyResponse.getKeyDTO(raw);
+        final var raw = sendAndReceive(DEKRequest.getPersonalKeyOf(nickname));
+        final var key = PublicKeyResponse.getKeyDTO(raw);
 
         client.node().agent().config.saveEncryptor(
                 new ServerSource(client.address),
