@@ -72,7 +72,7 @@ public class AgentProtocol {
                 if (!EncryptionUtil.isPublicKeysEquals(filePublicKey, linkKeyStorage))
                     throw new LinkDoesNotMatchException("Key mismatch with saved configuration");
 
-                LOGGER.info("Key already saved and matches");
+                LOGGER.info("loadOrFetchServerKey: Key already saved and matches");
                 return filePublicKey;
             }
 
@@ -83,5 +83,31 @@ public class AgentProtocol {
         if (filePublicKey != null) return filePublicKey;
 
         return ClientProtocol.PUB(client);
+    }
+
+    public static AsymmetricKeyStorage loadServerKey(SandnodeClient client, @NotNull SandnodeLinkRecord link) {
+        Agent agent = client.node().agent();
+
+        AsymmetricKeyStorage filePublicKey = null;
+        try {
+            filePublicKey = agent.config.loadServerKey(link.address());
+        } catch (KeyStorageNotFoundException ignored) {}
+
+        AsymmetricKeyStorage linkKeyStorage = link.keyStorage();
+
+        if (linkKeyStorage != null) {
+            if (filePublicKey != null) {
+                if (!EncryptionUtil.isPublicKeysEquals(filePublicKey, linkKeyStorage))
+                    throw new LinkDoesNotMatchException("Key mismatch with saved configuration");
+
+                LOGGER.info("loadServerKey: Key already saved and matches");
+                return filePublicKey;
+            }
+
+            agent.config.saveServerKey(new LinkSource(link), link.address(), linkKeyStorage);
+            return linkKeyStorage;
+        }
+
+        return filePublicKey;
     }
 }
