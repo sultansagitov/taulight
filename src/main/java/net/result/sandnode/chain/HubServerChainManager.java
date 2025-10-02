@@ -12,7 +12,7 @@ public class HubServerChainManager {
         chainManager.addHandler(MessageTypes.REG, RegistrationServerChain::new);
         chainManager.addHandler(MessageTypes.LOGOUT, LogoutServerChain::new);
         chainManager.addHandler(MessageTypes.WHOAMI, WhoAmIServerChain::new);
-        chainManager.addHandler(MessageTypes.NAME, NameServerChain::new);
+        chainManager.addHandler(MessageTypes.HUB_INFO, HubInfoServerChain::new);
         chainManager.addHandler(MessageTypes.DEK, DEKServerChain::new);
         chainManager.addHandler(MessageTypes.AVATAR, AvatarServerChain::new);
     }

@@ -3,16 +3,16 @@ package net.result.main.commands.sandnode;
 import net.result.main.commands.CommandInfo;
 import net.result.main.commands.CommandRegistry;
 import net.result.main.commands.ConsoleContext;
-import net.result.sandnode.chain.sender.NameClientChain;
+import net.result.sandnode.chain.sender.HubInfoClientChain;
 import net.result.sandnode.chain.sender.WhoAmIClientChain;
 
 import java.util.List;
 
-public class UserInfoCommands {
+public class AgentInfoCommands {
 
     public static void register(CommandRegistry registry) {
-        registry.register(new CommandInfo("whoami", "Show your nickname", "UserInfo", UserInfoCommands::whoami));
-        registry.register(new CommandInfo("name", "Show hub name", "UserInfo", UserInfoCommands::name));
+        registry.register(new CommandInfo("whoami", "Show your nickname", "AgentInfo", AgentInfoCommands::whoami));
+        registry.register(new CommandInfo("hubName", "Show hub name", "AgentInfo", AgentInfoCommands::name));
     }
 
     private static void whoami(List<String> ignored, ConsoleContext context) {
@@ -24,9 +24,9 @@ public class UserInfoCommands {
     }
 
     private static void name(List<String> ignored, ConsoleContext context) {
-        NameClientChain chain = new NameClientChain(context.client);
+        HubInfoClientChain chain = new HubInfoClientChain(context.client);
         context.io.chainManager.linkChain(chain);
-        System.out.printf("Hub name: %s%n", chain.getName());
+        System.out.printf("Hub name: %s%n", chain.get(true, false).name());
         context.io.chainManager.removeChain(chain);
     }
 }

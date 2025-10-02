@@ -6,16 +6,16 @@ import net.result.sandnode.message.util.Headers;
 import net.result.sandnode.message.util.MessageTypes;
 import org.jetbrains.annotations.NotNull;
 
-public class NameResponse extends TextMessage {
-    public NameResponse(String name) {
+public class HubInfoResponse extends TextMessage {
+    public HubInfoResponse(String name) {
         this(new Headers(), name);
     }
 
-    public NameResponse(@NotNull Headers headers, String name) {
-        super(headers.setType(MessageTypes.NAME), name);
+    public HubInfoResponse(@NotNull Headers headers, String name) {
+        super(headers.setType(MessageTypes.HUB_INFO), name);
     }
 
-    public NameResponse(@NotNull RawMessage raw) {
-        super(raw.expect(MessageTypes.NAME));
+    public HubInfoResponse(@NotNull RawMessage raw) {
+        super(raw.expect(MessageTypes.HUB_INFO));
     }
 }

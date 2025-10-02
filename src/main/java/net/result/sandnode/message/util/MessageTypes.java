@@ -13,7 +13,7 @@ public enum MessageTypes implements MessageType {
     LOGOUT(9),
     CLUSTER(10),
     WHOAMI(11),
-    NAME(12),
+    HUB_INFO(12),
     FILE(13),
     DEK(14),
     AVATAR(15);

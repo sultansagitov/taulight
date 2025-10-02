@@ -104,7 +104,7 @@ public class RunAgentWork implements Work {
         ChainsCommands.register(registry);
         ClustersCommands.register(registry);
         DEKCommands.register(registry);
-        UserInfoCommands.register(registry);
+        AgentInfoCommands.register(registry);
 
         // Taulight commands
         SettingsCommands.register(registry);
